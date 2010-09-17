@@ -333,25 +333,25 @@ for (int ialgo=0;ialgo<algos.size();++ialgo){
 /*
     // Pt jet l2 corr
     quantity="jet1_pt_";
-    CanvasHolder h_pt_jet(quantity+algo);
+    CanvasHolder h_pt_jet_l2(quantity+algo+"l2");
     fill_holder(quantity+algo+"Jets_Zplusjet_mc_hist",
                 quantity+algo+"Jets_Zplusjet_data_l2corr_hist",
-                h_pt_jet,
+                h_pt_jet_l2,
                 pt_rebin_factor,
                 ifileMc, ifileData);
 
-    h_pt_jet.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
-    h_pt_jet.setTitleX("p_{T}^{jet}[GeV]");
-    h_pt_jet.setBoardersX(0,190);
-    h_pt_jet.setLogY();
+    h_pt_jet_l2.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
+    h_pt_jet_l2.setTitleX("p_{T}^{jet}[GeV]");
+    h_pt_jet_l2.setBoardersX(0,190);
+    h_pt_jet_l2.setLogY();
 
 
-    h_pt_jet.addLatex(info_x,info_y,the_info_string,true);
-    h_pt_jet.scaleBoardersY(1,2.5);
-    formatHolder(h_pt_jet);
-    saveHolder(h_pt_jet,img_formats);
-
+    h_pt_jet_l2.addLatex(info_x,info_y,the_info_string,true);
+    h_pt_jet_l2.scaleBoardersY(1,2.5);
+    formatHolder(h_pt_jet_l2);
+    saveHolder(h_pt_jet_l2,img_formats);
 */
+
 //------------------------------------------------------------------------------
 
     // Eta jet2
@@ -599,8 +599,7 @@ for (Intervals::iterator interval=intervals.begin();
             getResponses(responses,responses_points_all_bins,&data_ifile,*interval,algo);
             data_ifile.Close();
             vresponses.push_back(responses);
-
-
+	    
             // Jet Response Histo
             quantity="jetresp_";
             CanvasHolder h_resp(quantity+algo+"_"+interval->id());
@@ -929,22 +928,32 @@ double getY(TF1& func,double zval,double xval,double minYval,double maxYval){
     }
 
 //------------------------------------------------------------------------------
-void getResponses(vdouble& responses, Points& points,TFile* ifile,pt_interval interval,TString algoname){
+void getResponses(vdouble& responses, 
+		  Points& points,
+		  TFile* ifile,
+		  pt_interval interval,
+		  TString algoname)
+{
     TString treename=algoname+"Jets_Zplusjet_data_eventsInCut";
     std::cout << "Generating Response for " << treename << std::endl;
 
     TTree* tree = (TTree*) ifile->Get(treename);
     TParticle* Z=new TParticle();
     TParticle* jet=new TParticle();
+    Double_t l2corr;
 
     tree->SetBranchAddress("Z",&Z);
     tree->SetBranchAddress("jet",&jet);
+    tree->SetBranchAddress("l2corrJet",&l2corr);
 
     double response;
     for (int ievt=0;ievt< tree->GetEntries();++ievt){
         tree->GetEntry(ievt);
         if (interval.contains(Z->Pt())){
-            response = jet->Pt()/Z->Pt();
+	  
+	    // use corrected jet !!
+            response = ( jet->Pt() * l2corr ) /Z->Pt();
+	    
             responses.push_back(response);
             points.push_back(point(Z->Pt(),response));
             }

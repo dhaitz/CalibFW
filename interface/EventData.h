@@ -155,7 +155,10 @@ public:
         m_weight = 1.0f;
 	m_pData = NULL;
 	m_bUseL2 = false;
-	m_l2Corr = 1.0f;
+	
+	m_l2CorrJets[0] = 1.0f;
+	m_l2CorrJets[1] = 1.0f;
+	m_l2CorrJets[2] = 1.0f;
     }
     
     ~EventResult()
@@ -164,8 +167,11 @@ public:
     }
 
     bool m_bUseL2;
-    double m_l2Corr;
+    Double_t m_l2CorrJets[3];
 
+    bool m_bUseL3;
+
+    
     CutResultEnum m_cutResult;
     TString m_sCutResult;
     std::string m_sCutUsed;
@@ -178,7 +184,7 @@ public:
       double fVal = this->m_pData->jets[jetIndex]->Pt();
       if ( m_bUseL2 ) 
       {
-	fVal = fVal * this->m_l2Corr;
+	fVal = fVal * this->m_l2CorrJets[jetIndex];
       }
       
       return fVal;

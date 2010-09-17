@@ -259,8 +259,7 @@ void calcJetEnergyCorrection( EventResult * res, FactorizedJetCorrector *  pJetC
         {
             pJetCorr->setJetEta(res->m_pData->jets[i]->Eta());
             pJetCorr->setJetPt(res->m_pData->jets[i]->Pt());
-
-            double jetcorr = pJetCorr->getCorrection();
+	    res->m_l2CorrJets[i] = pJetCorr->getCorrection();
 //	std::cout << "JetCorr " << jetcorr << std::endl;
             //res->m_pData->jets[i]-> = res->m_pData->jets[i]->Pt()*jetcorr;
         }
@@ -298,6 +297,7 @@ void importEvents( bool bUseJson,
             if ( pEx->MatchesEvent( &g_ev ) )
             {
                 if ( pEx->m_eventFound )
+#include <root/Rtypes.h>
                 {
                     std::cout << "Excluded Event found 2 times, this is usually *NOT* good." << std::endl;
                     exit(10);
@@ -474,6 +474,21 @@ void PrintEventIds( TString algoName, TString sPrefix = "" )
     }
 }*/
 
+void ReapplyCut( bool bUseJson, bool useL2Corr, bool useL3Corr)
+{
+    for ( EventVector::iterator iter = g_eventsDataset.begin();
+            !(iter == g_eventsDataset.end());
+            ++iter )
+    {
+      iter->m_bUseL2 = useL2Corr;
+      iter->m_bUseL3 = useL3Corr;
+
+      
+      // TODO: does this work, or just work on a copy ??
+      applyCut( &*iter, bUseJson );
+    }
+}
+
 void PrintCutReport( std::ostream & out)
 {
     std::map< std::string, long > CountMap;
@@ -613,15 +628,18 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
                                algoName + prefix + "_eventsInCut");
 
     evtData localData;
-
+    Double_t l2corr = 1.0f;
+    
     localData.jets[0] = new TParticle();
     localData.Z = new TParticle();
+    
 
     // more data can go here
     gentree->Branch("Z","TParticle",&localData.Z);
     gentree->Branch("jet","TParticle",&localData.jets[0]);
-
-//  gentree->Branch("xsection",&localData.xsection,"xsection/D");
+    gentree->Branch("l2corrJet", &l2corr, "l2corrJet/D");
+    
+    //  gentree->Branch("xsection",&localData.xsection,"xsection/D");
 
     EventVector::iterator it;
     for ( it =  events.begin();
@@ -632,6 +650,9 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
         {
             localData.Z = new TParticle ( *it->m_pData->Z );
             localData.jets[0] = new TParticle ( *it->m_pData->jets[0] );
+	      l2corr = it->m_l2CorrJets[0];
+	    //(*l2corr) = 23.0f;
+	    
             gentree->Fill();
         }
     }
@@ -1039,28 +1060,9 @@ void processAlgo( std::string sName )
 //	std::cout << "MC Weighting Report" << std::endl;
 //	DrawMcEventCount( sName, g_resFileMc);
 
-    // no cuts
+    // RAW  
     drawHistoBins(sName, sPrefix , g_resFile.get(),  true);
     drawHistoBins(sName, sPrefix + "_nocut", g_resFile.get(), false);
-
-    // turn on l2 corr
-    if  ( g_doL2Correction )
-    {
-        for ( EventVector::iterator iter = g_eventsDataset.begin();
-                !(iter == g_eventsDataset.end());
-                ++iter)
-        {
-            iter->m_bUseL2 = true;
-        }
-
-        drawHistoBins(sName, sPrefix + "_l2corr", g_resFile.get(),  true);
-        drawHistoBins(sName, sPrefix + "_l2corr_nocut", g_resFile.get(), false);
-    }
-
-//    drawJetResponsePlots( sName, g_resFile.get() );
-
-
-    WriteCuts( sName, g_resFile.get() );
 
     PrintCutReport( std::cout );
     PrintCutReport( *g_logFile );
@@ -1071,6 +1073,37 @@ void processAlgo( std::string sName )
         PrintInCutEventsReport(std::cout);
         PrintInCutEventsReport(*g_logFile);
     }
+    
+    // turn on l2 corr
+    if  ( g_doL2Correction )
+    {
+        for ( EventVector::iterator iter = g_eventsDataset.begin();
+                !(iter == g_eventsDataset.end());
+                ++iter)
+        {
+            iter->m_bUseL2 = true;
+        }
+	
+	ReapplyCut(g_doData, true, false);
+	
+        drawHistoBins(sName, sPrefix + "_l2corr", g_resFile.get(),  true);
+        drawHistoBins(sName, sPrefix + "_l2corr_nocut", g_resFile.get(), false);
+	
+	PrintCutReport( std::cout );
+	PrintCutReport( *g_logFile );
+
+	if (g_doData)
+	{
+	    WriteSelectedEvents(sName, sPrefix + "_l2corr", g_eventsDataset, g_resFile.get() );
+	    PrintInCutEventsReport(std::cout);
+	    PrintInCutEventsReport(*g_logFile);
+	}	
+    }
+
+//    drawJetResponsePlots( sName, g_resFile.get() );
+    WriteCuts( sName, g_resFile.get() );
+
+
 }
 
 void CreateWeightBins()
@@ -1100,7 +1133,7 @@ void CreateWeightBins()
      */
 }
 
-void resp_cuts( std::set < std::string > algoList)
+void resp_cuts( std::set < std::string > algoList, std::string sOutputFileName)
 {
 
     // this events are excluded from monte carlo since they are on the border of bins and are
@@ -1115,7 +1148,6 @@ void resp_cuts( std::set < std::string > algoList)
 // DP
 //      g_mcExcludedEvents.push_back( new ExcludedEvent(47.29, 71.39, 0.1809, 4.469,1.463 ));
 //      g_mcExcludedEvents.push_back( new ExcludedEvent(28.9, 43.92, 0.9386, 3.48, 1.973 ));
-    std::string sFileName;
     /*
      algoList.insert("ak5PFJets_Zplusjet");
      algoList.insert("ak7PFJets_Zplusjet");
@@ -1138,12 +1170,12 @@ void resp_cuts( std::set < std::string > algoList)
     algoList.insert("iterativeCone5GenJets_Zplusjet");
 */
     // removes the old file
-    g_resFile.reset( new TFile (sFileName.c_str(), "RECREATE") );
+    g_resFile.reset( new TFile (sOutputFileName.c_str(), "RECREATE") );
     g_resFile->Close();
 
     BOOST_FOREACH( std::string algName, algoList )
     {
-        g_resFile.reset( new TFile (sFileName.c_str(), "UPDATE") );
+        g_resFile.reset( new TFile (sOutputFileName.c_str(), "UPDATE") );
         processAlgo(algName);
         g_resFile->Close();
     }
@@ -1231,7 +1263,7 @@ int main(int argc, char** argv)
         g_l2CorrData[ (sAlgName + "Jets_Zplusjet").Data() ] = sData.Data();// e.second;
     }
 
-    resp_cuts(myAlgoList);
+    resp_cuts(myAlgoList, g_sOutputPath + ".root");
 
     g_logFile->close();
 
