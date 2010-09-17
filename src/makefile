@@ -1,5 +1,7 @@
 # NOTE: this is now fully automatic. You are not supposed to modify it,
 # providing that you use the usual file naming rules.
+#BOOST_INC = /afs/naf.desy.de/group/cms/sw/slc4_ia32_gcc345/external/boost/1.38.0/include/
+
 LIB	      = ../lib
 INCL      = ../interface
 TESTDIR	  = ../progs
@@ -15,10 +17,12 @@ ROOTLIBS      = $(shell root-config --libs --glibs)
 ROOTGLIBS     = $(shell root-config --glibs)
 ROOTLDFLAGS   = $(shell root-config --ldflags)
 
-CPPFLAGS      = -I${INCL}/
-CXX 		= /usr/bin/g++ -g -g 
+BOOST_INC = /afs/naf.desy.de/group/cms/sw/slc4_ia32_gcc345/external/boost/1.38.0/include/
+
+CPPFLAGS      = -I${BOOST_INC} -I${INCL}/
+CXX 	      = /usr/bin/g++ -g -g 
 CXXFLAGS      = -O0 -fPIC $(ROOTCFLAGS)
-LD			= /usr/bin/g++
+LD	      = /usr/bin/g++
 LDFLAGS       = $(ROOTLDFLAGS) -rdynamic
 
 OWN_LIB		= -l CalibFW
