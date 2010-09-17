@@ -297,7 +297,6 @@ void importEvents( bool bUseJson,
             if ( pEx->MatchesEvent( &g_ev ) )
             {
                 if ( pEx->m_eventFound )
-#include <root/Rtypes.h>
                 {
                     std::cout << "Excluded Event found 2 times, this is usually *NOT* good." << std::endl;
                     exit(10);
