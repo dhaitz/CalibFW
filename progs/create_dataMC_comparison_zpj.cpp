@@ -952,7 +952,10 @@ void getResponses(vdouble& responses,
         if (interval.contains(Z->Pt())){
 	  
 	    // use corrected jet !!
-            response = ( jet->Pt() * l2corr ) /Z->Pt();
+            //response = ( jet->Pt() * l2corr ) /Z->Pt();
+	    
+	    // don't use correction, raw
+	    response = ( jet->Pt() ) /Z->Pt();
 	    
             responses.push_back(response);
             points.push_back(point(Z->Pt(),response));
