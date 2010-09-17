@@ -5,7 +5,7 @@ SRC=src
 DOXYGEN=doxygen
 
 
-.PHONY: all clean cleandict exe doc
+.PHONY: all clean  exe doc
 
 all:
 	mkdir -p lib	

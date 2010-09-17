@@ -15,7 +15,6 @@ ROOTLIBS      = $(shell root-config --libs --glibs)
 ROOTGLIBS     = $(shell root-config --glibs)
 ROOTLDFLAGS   = $(shell root-config --ldflags)
 
-
 CPPFLAGS      = -I${INCL}/
 CXX 		= /usr/bin/g++ -g -g 
 CXXFLAGS      = -O0 -fPIC $(ROOTCFLAGS)
@@ -88,8 +87,9 @@ ${OBJ}/%.o : %.C %.h
 
 LINKDEF		= $(wildcard ${INCL}/*LinkDef.h)
 #Put the LinkDef.h at the end of the list.
-DICTHDRS        = $(patsubst $(LINKDEF),,$(HDRS)) $(LINKDEF)
-
-cintdict.cc: $(DICTHDRS)
+DICTHDRS        = CanvasHolder.h MinimalParser.h $(LINKDEF)
+#DICTHDRS        = $(patsubst $(LINKDEF),,$(HDRS)) $(LINKDEF)
+# $(DICTHDRS)
+cintdict.cc:
 	    @echo "Generating dictionary for  ..."
 	    rootcint -f cintdict.cc -c -p -I${ROOTSYS}/interface ${CPPFLAGS} $(DICTHDRS)

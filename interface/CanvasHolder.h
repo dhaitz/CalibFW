@@ -105,7 +105,8 @@ class CanvasHolder:public TObject{
 
   CanvasHolder(const CanvasHolder &inCan);
 
-  ~CanvasHolder(){
+    ~CanvasHolder()
+    {
     cleanExtHistos(ehistos);
     if (!theLeg) delete theLeg; 
     if (!theCan) delete theCan;

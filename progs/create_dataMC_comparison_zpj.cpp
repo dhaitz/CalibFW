@@ -330,7 +330,7 @@ for (int ialgo=0;ialgo<algos.size();++ialgo){
     h_pt_jet.scaleBoardersY(1,2.5);
     formatHolder(h_pt_jet);
     saveHolder(h_pt_jet,img_formats);
-
+/*
     // Pt jet l2 corr
     quantity="jet1_pt_";
     CanvasHolder h_pt_jet(quantity+algo);
@@ -351,7 +351,7 @@ for (int ialgo=0;ialgo<algos.size();++ialgo){
     formatHolder(h_pt_jet);
     saveHolder(h_pt_jet,img_formats);
 
-
+*/
 //------------------------------------------------------------------------------
 
     // Eta jet2
@@ -488,7 +488,7 @@ for (int ialgo=0;ialgo<algos.size();++ialgo){
     formatHolder(h_mass_z);
     saveHolder(h_mass_z,img_formats);
 
-//------------------------------------------------------------------------------
+// COMBINED MUS
 
     // Eta mus
     quantity="mus_eta_";
