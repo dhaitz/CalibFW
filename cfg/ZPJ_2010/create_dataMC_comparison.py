@@ -26,10 +26,10 @@ the_good_algos=["ak 0.5"]
 
 
 # Constraints for minimum location
-the_min_jes=0.6;
-the_max_jes=1.2;
+the_min_jes=0.75;
+the_max_jes=1.05;
 the_min_jer=.7;
-the_max_jer=2.1;
+the_max_jer=1.4;
 
 the_info_string= multiline_text("p_{T}^{#mu}>15 GeV , |#eta^{#mu}|<2.3 , |M-M_{Z}|<20 GeV",
                                 "|#eta^{jet}|<1.3 , |#Delta #phi (Z,jet) - #pi|<0.2 , p_{T}^{jet2}/p_{T}^{Z}< 0.2",
@@ -49,7 +49,7 @@ the_runs_with_evts.sort()
 the_img_formats=["png","pdf"]
 
 p.general=section ("general",
-
+    correction_level = 2,
     mc_input_file=mc_file,
     data_input_file=data_file,
     eta_rebin_factor=the_eta_rebin_factor,

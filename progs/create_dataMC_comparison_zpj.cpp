@@ -125,6 +125,9 @@ void getResponses(vdouble& responses, Points& points,TFile* ifile,pt_interval in
 double lumi=1;
 char lumi_str[100];
 
+// yeah, i don't care either
+int g_correction_level = 0;
+
 Intervals fill_intervals(vint edges);
 void fill_holder(TString h_name_mc,
                  TString h_name_data,
@@ -135,7 +138,7 @@ void fill_holder(TString h_name_mc,
 
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
 void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false);
-void saveHolder(CanvasHolder &h,vString formats, bool make_log = false);
+void saveHolder(CanvasHolder &h, vString formats, bool make_log = false, TString sNamePostfix = "");
 
 //------------------------------------------------------------------------------
 
@@ -183,6 +186,11 @@ double min_jes=p.getDouble(secname+".min_jes");
 double max_jes=p.getDouble(secname+".max_jes");
 double min_jer=p.getDouble(secname+".min_jer");
 double max_jer=p.getDouble(secname+".max_jer");
+
+// 0 = raw
+// 2 = level2
+// 3 = level3
+g_correction_level = p.getInt(secname+".correction_level");
 
 sprintf(lumi_str,"#scale[.8]{#int} L = %1.2f pb^{-1}",lumi);
 
@@ -719,15 +727,20 @@ for (Intervals::iterator interval=intervals.begin();
     h_response.addObj(&repsponse_data,"Single events","P");
     h_response.addLatex(info_x,info_y,the_info_string,true);
 
+    if ( g_correction_level == 2 )
+      h_response.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
+    if ( g_correction_level == 0 )
+      h_response.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
+
+    
     formatHolder(h_response);
     h_response.draw();
     h_response.getCanvas()->cd();
 
-//     repsponse_mc.Draw("CE3");
-//     repsponse_data.Draw("P");
-
-    saveHolder(h_response,img_formats);
-
+    if ( g_correction_level == 2 )
+      saveHolder(h_response,img_formats, false, "_l2");
+    if ( g_correction_level == 0 )
+      saveHolder(h_response,img_formats, false, "_raw");
 
     // Prepare the likelihood --------------------------------------------------
 
@@ -834,7 +847,6 @@ for (Intervals::iterator interval=intervals.begin();
     fail.SetPoint(1,4,-4);
     h_contours.addObjFormated(&fail,"","P");
 
-
     h_contours.setTitleX("Jes_{Data}/Jes_{MC}");
     h_contours.setBoardersX(min_jes+0.0001,max_jes-0.0001);
     h_contours.setTitleY("Resolution_{Data}/Resolution_{MC}");
@@ -862,8 +874,15 @@ for (Intervals::iterator interval=intervals.begin();
     std::cout << "\n\nRESULT\n\n" << resultL << std::endl;
 
     h_contours.addLatex(info_x,info_y*0.9,result,true);
+    
+    // info
+    if (g_correction_level == 2 )
+      h_contours.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
 
+    if (g_correction_level == 0 )
+      h_contours.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
 
+    
     formatHolder(h_contours);
     h_contours.draw();
 
@@ -885,15 +904,15 @@ for (Intervals::iterator interval=intervals.begin();
     l.DrawLine(min_jes,jer_p1s,jes,jer_p1s);
     l.DrawLine(min_jes,jer_m1s,jes,jer_m1s);
 
-
-    final->Print(algo+"_Contours.png");
-    final->Print(algo+"_Contours.pdf");
-
-
-
-
-
-
+    TString postFix;
+    
+    if ( g_correction_level == 0 )
+      postFix = "_raw";
+    if ( g_correction_level == 2 )
+      postFix = "_l2";
+    
+    final->Print(algo + postFix + "_Contours.png");
+    final->Print(algo + postFix + "_Contours.pdf");
     } // end loop on algos
 }
 
@@ -951,17 +970,21 @@ void getResponses(vdouble& responses,
         tree->GetEntry(ievt);
         if (interval.contains(Z->Pt())){
 	  
-	    // use corrected jet !!
-            //response = ( jet->Pt() * l2corr ) /Z->Pt();
-	    
-	    // don't use correction, raw
-	    response = ( jet->Pt() ) /Z->Pt();
+	    if ( g_correction_level == 2 )
+	    {
+	      // use corrected jet !!
+	      response = ( jet->Pt() * l2corr ) /Z->Pt();
+	    }
+	    // don't use correction, raw	    
+	    if ( g_correction_level == 0 )
+	    {
+		response = ( jet->Pt() ) /Z->Pt();
+	    }
 	    
             responses.push_back(response);
             points.push_back(point(Z->Pt(),response));
             }
         }
-
     }
 
 
@@ -1086,8 +1109,11 @@ if (do_flag){
 
 //------------------------------------------------------------------------------
 
-void saveHolder(CanvasHolder &h,vString formats, bool make_log) {
+void saveHolder(CanvasHolder &h,vString formats, bool make_log, TString sNamePostfix) {
 
+     TString mod_name(h.getTitle());
+     h.setCanvasTitle(mod_name + sNamePostfix);
+  
     if (make_log){
         TString can_name(h.getTitle());
         std::cout << "DEBUG: log scale for the canvas " << (can_name+"_log_y").Data() << std::endl;

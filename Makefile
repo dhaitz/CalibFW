@@ -13,6 +13,10 @@ all:
 	mkdir -p bin
 	$(MAKE) -C $(SRC)
 
+cleanplots:
+	rm -rf ./*.png
+	rm -rf ./*.pdf
+
 clean:
 	$(MAKE) -C $(SRC) clean
 	rm -rf lib/*
