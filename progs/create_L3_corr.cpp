@@ -33,49 +33,66 @@ typedef std::vector< vdouble > vvdouble;
 //------------------------------------------------------------------------------
 
 class pt_interval {
-  public:
-    pt_interval(double the_min, double the_max){min=the_min;max=the_max;};
-    bool contains(double n){ if (n<=max && n>min) {
-                                std::cout << min << " < " << n << " < " << max << "\n";
-                                return true;}
-                             return false;};
-    TString id(){TString id("Pt");id+=(int)min;id+="to";id+=(int)max;return id;};
-    TString good_id(){TString id("");
-                      id+=(int)min;
-                      id+=" < p_{T}^{Z} < ";
-                      id+=(int)max;
-                      return id;};
-		      
-		      
+public:
+    pt_interval(double the_min, double the_max) {
+        min=the_min;
+        max=the_max;
+    };
+    bool contains(double n) {
+        if (n<=max && n>min) {
+            std::cout << min << " < " << n << " < " << max << "\n";
+            return true;
+        }
+        return false;
+    };
+    TString id() {
+        TString id("Pt");
+        id+=(int)min;
+        id+="to";
+        id+=(int)max;
+        return id;
+    };
+    TString good_id() {
+        TString id("");
+        id+=(int)min;
+        id+=" < p_{T}^{Z} < ";
+        id+=(int)max;
+        return id;
+    };
+
+
     double min;
     double max;
 } ;
 
 class Intervals : public std::vector<pt_interval>
 {
-  public: 
+public:
     Double_t * getRootHistParams()
     {
-	Double_t * val[ this->size() + 1 ];
-	
-	int i = 0;
-	for ( Intervals::iterator it = this->begin();
-	      it != this->end();
-	      ++it )
-	{	  
-	    val[ i ] = new Double_t( it->min ) ;
-	    i++;
-	}
-	val[ i ] = new Double_t(  this->back().min );
-	
-	return val[0];
+        Double_t * val[ this->size() + 1 ];
+
+        int i = 0;
+        for ( Intervals::iterator it = this->begin();
+                it != this->end();
+                ++it )
+        {
+            val[ i ] = new Double_t( it->min ) ;
+            i++;
+        }
+        val[ i ] = new Double_t(  this->back().min );
+
+        return val[0];
     }
 };
 //------------------------------------------------------------------------------
 
 class point {
-  public:
-    point(double the_x, double the_y){x=the_x;y=the_y;};
+public:
+    point(double the_x, double the_y) {
+        x=the_x;
+        y=the_y;
+    };
     double x;
     double y;
 };
@@ -92,6 +109,33 @@ typedef std::vector<point> Points;
 void getResponses(vdouble& responses, Points& points,TFile* ifile,pt_interval interval,TString algoname);
 
 
+class DataHisto
+{
+  public:
+    DataHisto( double min, double max, TH1D * hist ) : 
+      m_pHist( hist ),
+      m_binMin(min),
+      m_binMax(max)
+    {
+      
+    }
+    
+    double GetBinCenter()
+    {
+	return (this->m_binMax+ this->m_binMin) / 2.0f;
+    }
+    
+    double GetBinWidth()
+    {
+	return (this->m_binMax- this->m_binMin);
+    }
+
+    
+    double m_binMin;
+    double m_binMax;
+    TH1D * m_pHist;
+};
+
 
 //------------------------------------------------------------------------------
 
@@ -107,8 +151,8 @@ void fill_holder(TString h_name_mc,
                  TString h_name_data,
                  CanvasHolder& h,
                  int rebin_factor,
-		TFile* ifileMc,
-		 TFile* ifileData);
+                 TFile* ifileMc,
+                 TFile* ifileData);
 
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
 void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false);
@@ -116,96 +160,96 @@ void saveHolder(CanvasHolder &h, vString formats, bool make_log = false, TString
 
 //------------------------------------------------------------------------------
 
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
 
 
-if (argc != 2 and argc !=3){
-    std::cout << "\nUsage:"
-            << argv[0] << " configfile [verbose def =0]\n"
-            << std::endl;
-    return 1;
+    if (argc != 2 and argc !=3) {
+        std::cout << "\nUsage:"
+                  << argv[0] << " configfile [verbose def =0]\n"
+                  << std::endl;
+        return 1;
     }
 
 // ###########################################################
 // #############     Config         ##########################
 // ###########################################################
 
-MinimalParser p(argv[1]);
+    MinimalParser p(argv[1]);
 
-p.setVerbose(false);
+    p.setVerbose(false);
 
-if (argc==3){
-    int verbosityi=atoi(argv[2]);
-    if (verbosityi==1) p.setVerbose(true);
+    if (argc==3) {
+        int verbosityi=atoi(argv[2]);
+        if (verbosityi==1) p.setVerbose(true);
     }
 
-TString secname("general");
+    TString secname("general");
 //
 // Section general
 //
-lumi = p.getDouble(secname+".lumi");
-int pt_rebin_factor = p.getInt(secname+".pt_rebin_factor");
-int phi_rebin_factor = p.getInt(secname+".phi_rebin_factor");
-int mass_rebin_factor = p.getInt(secname+".mass_rebin_factor");
-int eta_rebin_factor = p.getInt(secname+".eta_rebin_factor");
-TString mc_input_file = p.getString(secname+".mc_input_file");
-TString data_input_file = p.getString(secname+".data_input_file");
-TString info_string = p.getString(secname+".info_string");
-vString algos = p.getvString(secname+".algos");
-vString good_algos = p.getvString(secname+".good_algos");
-vint pt_bins = p.getvInt(secname+".pt_bins");
-vint pt_data_bins = p.getvInt(secname+".pt_data_bins");
-vString img_formats= p.getvString(secname+".img_formats");
-vint runs_with_events = p.getvInt(secname+".runs_with_evts");
-double min_jes=p.getDouble(secname+".min_jes");
-double max_jes=p.getDouble(secname+".max_jes");
-double min_jer=p.getDouble(secname+".min_jer");
-double max_jer=p.getDouble(secname+".max_jer");
+    lumi = p.getDouble(secname+".lumi");
+    int pt_rebin_factor = p.getInt(secname+".pt_rebin_factor");
+    int phi_rebin_factor = p.getInt(secname+".phi_rebin_factor");
+    int mass_rebin_factor = p.getInt(secname+".mass_rebin_factor");
+    int eta_rebin_factor = p.getInt(secname+".eta_rebin_factor");
+    TString mc_input_file = p.getString(secname+".mc_input_file");
+    TString data_input_file = p.getString(secname+".data_input_file");
+    TString info_string = p.getString(secname+".info_string");
+    vString algos = p.getvString(secname+".algos");
+    vString good_algos = p.getvString(secname+".good_algos");
+    vint pt_bins = p.getvInt(secname+".pt_bins");
+    vint pt_data_bins = p.getvInt(secname+".pt_data_bins");
+    vString img_formats= p.getvString(secname+".img_formats");
+    vint runs_with_events = p.getvInt(secname+".runs_with_evts");
+    double min_jes=p.getDouble(secname+".min_jes");
+    double max_jes=p.getDouble(secname+".max_jes");
+    double min_jer=p.getDouble(secname+".min_jer");
+    double max_jer=p.getDouble(secname+".max_jer");
 
 // 0 = raw
 // 2 = level2
 // 3 = level3
-g_correction_level = p.getInt(secname+".correction_level");
+    g_correction_level = p.getInt(secname+".correction_level");
 
-sprintf(lumi_str,"#scale[.8]{#int} L = %1.2f pb^{-1}",lumi);
+    sprintf(lumi_str,"#scale[.8]{#int} L = %1.2f pb^{-1}",lumi);
 
 //------------------------------------------------------------------------------
 
-TFile* ifileMc = new TFile (mc_input_file);
-TFile* ifileData = new TFile (data_input_file);
+    TFile* ifileMc = new TFile (mc_input_file);
+    TFile* ifileData = new TFile (data_input_file);
 
 
-std::cout << "MC file : " << mc_input_file << std::endl;
-std::cout << "Data file : " << data_input_file << std::endl;
+    std::cout << "MC file : " << mc_input_file << std::endl;
+    std::cout << "Data file : " << data_input_file << std::endl;
 
 
 // jet, mus, Z -- eta, pt, phi
 
 // description defaults
-double info_x=.3;
-double info_y=.78;
+    double info_x=.3;
+    double info_y=.78;
 
 
 // Make plots of the runs per events
 
-int total_events=runs_with_events.size();
-int first_run=runs_with_events[0]-500;
-int last_run=runs_with_events[total_events-1]+500;
-int tot_runs=last_run-first_run;
+    int total_events=runs_with_events.size();
+    int first_run=runs_with_events[0]-500;
+    int last_run=runs_with_events[total_events-1]+500;
+    int tot_runs=last_run-first_run;
 
-TH1F nevts("nevts","nevts",tot_runs,first_run-0.5,last_run-0.5);
+    TH1F nevts("nevts","nevts",tot_runs,first_run-0.5,last_run-0.5);
 
-for (int irun=0;irun<runs_with_events.size();irun++){
-    int run=runs_with_events[irun];
-/*    TString runs("the ");runs+=ibin;
-    nevts.Fill(runs.Data(),1);*/
-    nevts.Fill(run);
+    for (int irun=0;irun<runs_with_events.size();irun++) {
+        int run=runs_with_events[irun];
+        /*    TString runs("the ");runs+=ibin;
+            nevts.Fill(runs.Data(),1);*/
+        nevts.Fill(run);
     }
 
-nevts.ComputeIntegral();
-double *integral = nevts.GetIntegral();
-nevts.SetContent(integral);
-nevts.Scale(total_events);
+    nevts.ComputeIntegral();
+    double *integral = nevts.GetIntegral();
+    nevts.SetContent(integral);
+    nevts.Scale(total_events);
 // for (int ibin=1;ibin<=nevts.GetNbinsX();ibin++){
 //     if (ibin%10000==0)
 //         nevts.GetXaxis()->SetBinLabel(ibin,"Cacca");
@@ -213,46 +257,46 @@ nevts.Scale(total_events);
 //         nevts.GetXaxis()->SetBinLabel(ibin,"");
 //     }
 
-nevts.LabelsOption("av");
+    nevts.LabelsOption("av");
 
-nevts.SetFillColor(38);
-nevts.SetLineColor(38);
+    nevts.SetFillColor(38);
+    nevts.SetLineColor(38);
 
-Intervals intervals (fill_intervals(pt_bins));
-Intervals data_intervals (fill_intervals(pt_data_bins));
+    Intervals intervals (fill_intervals(pt_bins));
+    Intervals data_intervals (fill_intervals(pt_data_bins));
 
-vTF1 functions;
-vvdouble vresponses;
+    vTF1 functions;
+    vvdouble vresponses;
 
-TGraphErrors repsponse_mc(intervals.size());
-TGraphErrors corr_mc(intervals.size());
-Points responses_points_all_bins;
-int ibin=0;
-TString sGlobalPrefix = "L3_calc_";
+    TGraphErrors repsponse_mc(intervals.size());
+    TGraphErrors corr_mc(intervals.size());
+    Points responses_points_all_bins;
+    int ibin=0;
+    TString sGlobalPrefix = "L3_calc_";
 
-for (int ialgo=0;ialgo<algos.size();++ialgo){
+    for (int ialgo=0;ialgo<algos.size();++ialgo) {
 
-      TString algo(algos[ialgo]);
-    TString goodalgo(good_algos[ialgo]);
+        TString algo(algos[ialgo]);
+        TString goodalgo(good_algos[ialgo]);
 
-    TString the_info_string(info_string);
-    the_info_string.ReplaceAll("__ALGO__",goodalgo);
+        TString the_info_string(info_string);
+        the_info_string.ReplaceAll("__ALGO__",goodalgo);
 
-    TString quantity;
+        TString quantity;
 
-    boost::ptr_vector< TH1D > histData;
+        boost::ptr_vector< DataHisto > histData;
 
-    
-    for (Intervals::iterator interval=intervals.begin(); 
-	interval < intervals.end();++interval )
-	{
-	    // Get responses
-	    vdouble responses;
-	    TFile data_ifile(data_input_file);
+
+        for (Intervals::iterator interval=intervals.begin();
+                interval < intervals.end();++interval )
+        {
+            // Get responses
+            vdouble responses;
+            TFile data_ifile(data_input_file);
 //             getResponses(responses,responses_points_all_bins,ifile,*interval,algo);
-	    getResponses(responses,responses_points_all_bins,&data_ifile,*interval,algo);
-	    data_ifile.Close();
-	    vresponses.push_back(responses);	
+            getResponses(responses,responses_points_all_bins,&data_ifile,*interval,algo);
+            data_ifile.Close();
+            vresponses.push_back(responses);
 
             // Jet Response Histo
             quantity="jetresp_";
@@ -268,21 +312,21 @@ for (int ialgo=0;ialgo<algos.size();++ialgo){
             // Fill The response histo
             TString zpt_name("zPt_");
             zpt_name+=algo+"Jets_Zplusjet_mc_"+interval->id()+"_hist";
-	    std::cout << zpt_name << " in usage" << std::endl;
+            std::cout << zpt_name << " in usage" << std::endl;
             TH1D* zpt = (TH1D*) ifileMc->Get(zpt_name);
             repsponse_mc.SetPoint(ibin,zpt->GetMean(),respo->GetMean());
             repsponse_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
-	    
-	    
-	    /// smal hack to circumvemt wrong MC data, TODO REMOVE !
-	    if ( TMath::Abs( zpt->GetMean() ) > 0.01 )
-	    {
-	      corr_mc.SetPoint(ibin,zpt->GetMean(),1.0f/respo->GetMean());
-	      std::cout << "Added Point to MC Correction x: " << zpt->GetMean() << " y: " << 1.0f/respo->GetMean() << std::endl;
-	    }
+
+
+            /// smal hack to circumvemt wrong MC data, TODO REMOVE !
+            if ( TMath::Abs( zpt->GetMean() ) > 0.01 )
+            {
+                corr_mc.SetPoint(ibin,zpt->GetMean(),1.0f/respo->GetMean());
+                std::cout << "Added Point to MC Correction x: " << zpt->GetMean() << " y: " << 1.0f/respo->GetMean() << std::endl;
+            }
             // todo is this correct
-	    //corr_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
-	    
+            //corr_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
+
             ibin++;
             // End fill The response histo
 
@@ -311,7 +355,7 @@ for (int ialgo=0;ialgo<algos.size();++ialgo){
             the_gaus.FixParameter(2,the_gaus.GetParameter(2));
             functions.push_back(the_gaus);
 
-            // end fit section 
+            // end fit section
             h_resp.addObjFormated(&the_gaus,"Gaussian Fit","L");
             h_resp.setTitleY("Arb. Units.");
             h_resp.setTitleX("Jet Response");
@@ -332,182 +376,191 @@ for (int ialgo=0;ialgo<algos.size();++ialgo){
             h_resp.setBoardersY(0.0001,0.319);
             h_resp.setBoardersX(0,1.98);
 
-    }
-    
-    int iCount = 0;
-    for (Intervals::iterator interval=data_intervals.begin(); 
-	  interval != data_intervals.end();
-	  ++interval )
-    {
-      std::cout << "Generating binned_data_histo for " << interval->id() << std::endl;
-      
-      CanvasHolder c_dataBinned(algo+ "_data_binned" + interval->id() + "_canvas");
-       TH1D * bHist = new TH1D(algo+ "_data_binned" + interval->id(), 
-			       algo+ "_data_binned" + interval->id(), 
-			       10,
-			       0.1f, 2.0f );
-
-    c_dataBinned.setTitleY("Arb. Unit");
-    c_dataBinned.setTitleX("Jet Response");
-
-    c_dataBinned.setBoardersY(0,10.0);
-    c_dataBinned.setLegPos(.75,.75,.95,.87);
-			       
-      for (int i=0;i<responses_points_all_bins.size();++i)
-      {	
-	if ( interval->contains(responses_points_all_bins[i].x))
-	{
-	  // fill Histo
-	  std::cout << "Filling x: " << responses_points_all_bins[i].x << " y: " << responses_points_all_bins[i].y << std::endl;
-	  bHist->Fill( responses_points_all_bins[i].y);
         }
-      }
 
-      c_dataBinned.addObj( bHist, "Data", "" );
-      histData.push_back(  bHist );
+        int iCount = 0;
+        for (Intervals::iterator interval=data_intervals.begin();
+                interval != data_intervals.end();
+                ++interval )
+        {
+            std::cout << "Generating binned_data_histo for " << interval->id() << std::endl;
 
-      formatHolder(c_dataBinned);
-      c_dataBinned.draw();      
-      saveHolder(c_dataBinned,img_formats, false, "_raw", sGlobalPrefix);
-      iCount++;
-      
-      std::cout << "Mean" << bHist->GetMean() << "  RMS " << bHist->GetRMS() << std::endl;
-      std::cout << "done" << std::endl;
-    }
+            CanvasHolder c_dataBinned(algo+ "_data_binned" + interval->id() + "_canvas");
+            TH1D * bHist = new TH1D(algo+ "_data_binned" + interval->id(),
+                                    algo+ "_data_binned" + interval->id(),
+                                    10,
+                                    0.1f, 2.0f );
 
-    
-    // Prepare the response/MC plot for the response
-    TGraph repsponse_data(responses_points_all_bins.size());
-    for (int i=0;i<responses_points_all_bins.size();++i)
-    {
-       // std::cout << "PUNTI DEI DATI " << responses_points_all_bins[i].x << " " << responses_points_all_bins[i].y<<std::endl;
-        repsponse_data.SetPoint(i,responses_points_all_bins[i].x,responses_points_all_bins[i].y);
-	
+            c_dataBinned.setTitleY("Arb. Unit");
+            c_dataBinned.setTitleX("Jet Response");
+
+            c_dataBinned.setBoardersY(0,10.0);
+            c_dataBinned.setLegPos(.75,.75,.95,.87);
+
+            for (int i=0;i<responses_points_all_bins.size();++i)
+            {
+                if ( interval->contains(responses_points_all_bins[i].x))
+                {
+                    // fill Histo
+                    std::cout << "Filling x: " << responses_points_all_bins[i].x << " y: " << responses_points_all_bins[i].y << std::endl;
+                    bHist->Fill( responses_points_all_bins[i].y);
+                }
+            }
+	  
+            c_dataBinned.addObj( bHist, "Data", "" );
+            histData.push_back( new DataHisto( interval->min,
+					interval->max,
+					      bHist ));
+
+            formatHolder(c_dataBinned);
+            c_dataBinned.draw();
+            saveHolder(c_dataBinned,img_formats, false, "_raw", sGlobalPrefix);
+            iCount++;
+
+	    std::cout << "For Data: BinCenter = " << ( interval->max + interval->min ) / 2.0f << std::endl;
+	    std::cout << "Min " << interval->min << " Max " << interval->max << std::endl;
+            std::cout << "Mean" << bHist->GetMean() << "  RMS " << bHist->GetRMS() << std::endl;
+            std::cout << "done" << std::endl;
         }
-    repsponse_data.SetFillColor(kWhite);
-    repsponse_data.SetMarkerStyle(22);
-    repsponse_data.SetMarkerSize(1);
-    repsponse_data.SetName("data");
 
-    repsponse_data.Print();
 
-    for (int i=0;i<4;++i) // to remove high pt bins
-        repsponse_mc.RemovePoint(repsponse_mc.GetN()-1);
-    repsponse_mc.Print();
+        // Prepare the response/MC plot for the response
+        TGraph repsponse_data(responses_points_all_bins.size());
+        for (int i=0;i<responses_points_all_bins.size();++i)
+        {
+            // std::cout << "PUNTI DEI DATI " << responses_points_all_bins[i].x << " " << responses_points_all_bins[i].y<<std::endl;
+            repsponse_data.SetPoint(i,responses_points_all_bins[i].x,responses_points_all_bins[i].y);
 
-    CanvasHolder h_response(algo+"_JetResponse");
+        }
+        repsponse_data.SetFillColor(kWhite);
+        repsponse_data.SetMarkerStyle(22);
+        repsponse_data.SetMarkerSize(1);
+        repsponse_data.SetName("data");
 
-    h_response.setTitleY("Jet Response");
-    h_response.setTitleX("p_{T}^{Z} [GeV]");
+        repsponse_data.Print();
 
-    h_response.setBoardersY(0,2);
-    h_response.setLegPos(.75,.75,.95,.87);
+        for (int i=0;i<4;++i) // to remove high pt bins
+            repsponse_mc.RemovePoint(repsponse_mc.GetN()-1);
+        repsponse_mc.Print();
 
-    repsponse_mc.SetLineColor(kRed);
-    repsponse_mc.SetFillColor(kRed);
-    repsponse_mc.SetMarkerColor(kBlack);
-    repsponse_mc.SetMarkerSize(0.1);
-    repsponse_mc.SetFillStyle(3002);
-    h_response.addObjFormated(&repsponse_mc,"Monte Carlo","CE3");
-    h_response.addObj(&repsponse_data,"Single events","P");
-    h_response.addLatex(info_x,info_y,the_info_string,true);
+        CanvasHolder h_response(algo+"_JetResponse");
 
-    if ( g_correction_level == 2 )
-      h_response.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
-    if ( g_correction_level == 0 )
-      h_response.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
+        h_response.setTitleY("Jet Response");
+        h_response.setTitleX("p_{T}^{Z} [GeV]");
 
-    
-    formatHolder(h_response);
-    h_response.draw();
-    h_response.getCanvas()->cd();
+        h_response.setBoardersY(0,2);
+        h_response.setLegPos(.75,.75,.95,.87);
 
-    if ( g_correction_level == 2 )
-      saveHolder(h_response,img_formats, false, "_l2", sGlobalPrefix);
-    if ( g_correction_level == 0 )
-      saveHolder(h_response,img_formats, false, "_raw", sGlobalPrefix);
-    
+        repsponse_mc.SetLineColor(kRed);
+        repsponse_mc.SetFillColor(kRed);
+        repsponse_mc.SetMarkerColor(kBlack);
+        repsponse_mc.SetMarkerSize(0.1);
+        repsponse_mc.SetFillStyle(3002);
+        h_response.addObjFormated(&repsponse_mc,"Monte Carlo","CE3");
+        h_response.addObj(&repsponse_data,"Single events","P");
+        h_response.addLatex(info_x,info_y,the_info_string,true);
+
+        if ( g_correction_level == 2 )
+            h_response.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
+        if ( g_correction_level == 0 )
+            h_response.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
+
+
+        formatHolder(h_response);
+        h_response.draw();
+        h_response.getCanvas()->cd();
+
+        if ( g_correction_level == 2 )
+            saveHolder(h_response,img_formats, false, "_l2", sGlobalPrefix);
+        if ( g_correction_level == 0 )
+            saveHolder(h_response,img_formats, false, "_raw", sGlobalPrefix);
+
 // JET Correction
-    CanvasHolder h_corr(algo+"_JetCorrection");
+        CanvasHolder h_corr(algo+"_JetCorrection");
 
-    TGraphErrors * p_dataCalibPoints = new TGraphErrors();
-    
-    for ( boost::ptr_container< TH1D >::iterator it = histData.begin()
-      it != histData.end();
-      ++it )
-    {
-      
-    }
-     
-   h_corr.setTitleY("Jet Energy Correction");
-    h_corr.setTitleX("p_{T}^{Z} [GeV]");
+        int i = 0;
+        TGraphErrors * p_dataCalibPoints = new TGraphErrors(histData.size());
+        for ( boost::ptr_vector< DataHisto >::iterator it = histData.begin();
+                it != histData.end();
+                ++it )
+        {
+            p_dataCalibPoints->SetPoint(i, it->GetBinCenter(), 1.0f / it->m_pHist->GetMean());
+	    p_dataCalibPoints->SetPointError(i, it->GetBinWidth() / 2.0f, it->m_pHist->GetRMS());
+	    //p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
+            i++;
+        }
 
-    h_corr.setBoardersY(1.0, 1.6);
-    h_corr.setLegPos(.75,.75,.95,.87);
+        h_corr.setTitleY("Jet Energy Correction");
+        h_corr.setTitleX("p_{T}^{Z} [GeV]");
 
-    corr_mc.SetLineColor(kRed);
-    corr_mc.SetFillColor(kRed);
-    corr_mc.SetMarkerColor(kBlack);
-    corr_mc.SetMarkerSize(0.1);
-    corr_mc.SetFillStyle(3002);
-    h_corr.addObjFormated(&corr_mc,"Monte Carlo","C*");
-    //h_corr.addObj(&repsponse_data,"Single events","P");
-    h_corr.addLatex(info_x,info_y,the_info_string,true);
+        h_corr.setBoardersY(1.0, 1.6);
+        h_corr.setLegPos(.75,.75,.95,.87);
 
-    if ( g_correction_level == 2 )
-      h_corr.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
-    if ( g_correction_level == 0 )
-      h_corr.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
+        corr_mc.SetLineColor(kRed);
+        corr_mc.SetFillColor(kRed);
+        corr_mc.SetMarkerColor(kBlack);
+        corr_mc.SetMarkerSize(0.1);
+        corr_mc.SetFillStyle(3002);
+        h_corr.addObjFormated(&corr_mc,"Monte Carlo","C*");
 
-    
-    formatHolder(h_corr);
-    h_corr.draw();
-    h_corr.getCanvas()->cd();
+        h_corr.addObjFormated(p_dataCalibPoints,"Data Histos","P");
 
-    if ( g_correction_level == 2 )
-      saveHolder(h_corr,img_formats, false, "_l2", sGlobalPrefix);
-    if ( g_correction_level == 0 )
-      saveHolder(h_corr,img_formats, false, "_raw", sGlobalPrefix);    
-    
+        h_corr.addLatex(info_x,info_y,the_info_string,true);
+
+        if ( g_correction_level == 2 )
+            h_corr.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
+        if ( g_correction_level == 0 )
+            h_corr.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
+
+
+        formatHolder(h_corr);
+        h_corr.draw();
+        h_corr.getCanvas()->cd();
+
+        if ( g_correction_level == 2 )
+            saveHolder(h_corr,img_formats, false, "_l2", sGlobalPrefix);
+        if ( g_correction_level == 0 )
+            saveHolder(h_corr,img_formats, false, "_raw", sGlobalPrefix);
+
     } // end loop on algos
 }
 
 //------------------------------------------------------------------------------
 
-double getX(TF1& func,double zval,double yval,double minXval,double maxXval){
+double getX(TF1& func,double zval,double yval,double minXval,double maxXval) {
 
     double epsilon = 0.0001;
     double x=minXval+epsilon;
     double fprec=func.Eval(minXval,yval);
-    while(x<maxXval){
+    while (x<maxXval) {
         if ((zval-fprec)*(zval-func.Eval(x,yval)) < 0 )
             return x-epsilon/2;
         x+=epsilon;
-        }
-    return 0;
     }
+    return 0;
+}
 
 //------------------------------------------------------------------------------
 
-double getY(TF1& func,double zval,double xval,double minYval,double maxYval){
+double getY(TF1& func,double zval,double xval,double minYval,double maxYval) {
 
     double epsilon = 0.0001;
     double y=minYval+epsilon;
     double fprec=func.Eval(xval,minYval);
-    while(y<maxYval){
+    while (y<maxYval) {
         if ((zval-fprec)*(zval-func.Eval(xval,y)) < 0 )
             return y-epsilon/2;
         y+=epsilon;
-        }
-    return 0;
     }
+    return 0;
+}
 
 //------------------------------------------------------------------------------
-void getResponses(vdouble& responses, 
-		  Points& points,
-		  TFile* ifile,
-		  pt_interval interval,
-		  TString algoname)
+void getResponses(vdouble& responses,
+                  Points& points,
+                  TFile* ifile,
+                  pt_interval interval,
+                  TString algoname)
 {
     TString treename=algoname+"Jets_Zplusjet_data_eventsInCut";
     std::cout << "Generating Response for " << treename << std::endl;
@@ -522,36 +575,36 @@ void getResponses(vdouble& responses,
     tree->SetBranchAddress("l2corrJet",&l2corr);
 
     double response;
-    for (int ievt=0;ievt< tree->GetEntries();++ievt){
+    for (int ievt=0;ievt< tree->GetEntries();++ievt) {
         tree->GetEntry(ievt);
-        if (interval.contains(Z->Pt())){
-	  
-	    if ( g_correction_level == 2 )
-	    {
-	      // use corrected jet !!
-	      response = ( jet->Pt() * l2corr ) /Z->Pt();
-	    }
-	    // don't use correction, raw	    
-	    if ( g_correction_level == 0 )
-	    {
-		response = ( jet->Pt() ) /Z->Pt();
-	    }
-	    
+        if (interval.contains(Z->Pt())) {
+
+            if ( g_correction_level == 2 )
+            {
+                // use corrected jet !!
+                response = ( jet->Pt() * l2corr ) /Z->Pt();
+            }
+            // don't use correction, raw
+            if ( g_correction_level == 0 )
+            {
+                response = ( jet->Pt() ) /Z->Pt();
+            }
+
             responses.push_back(response);
             points.push_back(point(Z->Pt(),response));
-            }
         }
     }
+}
 
 
 //------------------------------------------------------------------------------
-Intervals fill_intervals(vint edges){
+Intervals fill_intervals(vint edges) {
 
     Intervals intervals;
     for (int i=0;i<edges.size()-1;i++)
         intervals.push_back(pt_interval(edges[i],edges[i+1]));
     return intervals;
-    };
+};
 
 //------------------------------------------------------------------------------
 void fill_holder(TString h_name_mc,
@@ -559,7 +612,7 @@ void fill_holder(TString h_name_mc,
                  CanvasHolder& h,
                  int rebin_factor,
                  TFile* ifileMc,
-		 TFile* ifileData){
+                 TFile* ifileData) {
 
     std::cout <<"in func\n" << h_name_mc.Data() << " " << h_name_data.Data() << std::endl ;
 
@@ -590,62 +643,62 @@ void fill_holder(TString h_name_mc,
     h.addObj(hdata,"Data","PE");
 //     h.normalizeHistos();
 
-    }
+}
 
 
 //------------------------------------------------------------------------------
-TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax){
+TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax) {
 
     int ibin=1;
     int npoints=0;
     std::cout << "\nTreating histo " << histo->GetName() << std::endl;
-    while (histo->GetBinContent(ibin) < ymax and ibin < histo->GetNbinsX() and histo->GetBinCenter(ibin)<xmax){
+    while (histo->GetBinContent(ibin) < ymax and ibin < histo->GetNbinsX() and histo->GetBinCenter(ibin)<xmax) {
 //         std::cout << " - Bin Center = " << histo->GetBinCenter(ibin) << std::endl
 //                   << "  + Content = " << histo->GetBinContent(ibin) << std::endl
 //                   << "  + Upper Limit = " << ymax << std::endl;
         npoints++;
         ibin++;
-        }
-    
+    }
+
     TGraphErrors* g = new TGraphErrors(npoints);
     g->SetName(histo->GetName());
     g->SetTitle(histo->GetTitle());
-        
-    for (int i=1;i<=npoints;i++){
+
+    for (int i=1;i<=npoints;i++) {
         g->SetPoint(i-1,histo->GetBinCenter(i),histo->GetBinContent(i));
 //         g->SetPointError(i-1,0,histo->GetBinError(i));
-        }        
-
-// g->Print();        
-                
-    return g;
     }
+
+// g->Print();
+
+    return g;
+}
 
 //------------------------------------------------------------------------------
 
-void formatHolder(CanvasHolder& h, const char* legSym, int markersize, int lines_width, int skip_colors, bool do_flag){
+void formatHolder(CanvasHolder& h, const char* legSym, int markersize, int lines_width, int skip_colors, bool do_flag) {
     std::vector<int> colors;
     std::vector<int> lines_styles;
-    for (int i=0;i<skip_colors;++i){
+    for (int i=0;i<skip_colors;++i) {
         colors.push_back(kGray+i*2);
         lines_styles.push_back(1);
-        }
-
-// Old Flag Colours   
-if (do_flag){      
-    colors.clear();   
-    colors.push_back(kRed);
-    colors.push_back(kOrange+7);
-//     colors.push_back(kYellow);
-    colors.push_back(kGreen-3);
-    colors.push_back(kMagenta+1);
-    colors.push_back(kAzure+1);
-    colors.push_back(kBlue);
-    colors.push_back(kViolet);
-    colors.push_back(kGreen+2);
-    colors.push_back(kPink+1);
     }
-        
+
+// Old Flag Colours
+    if (do_flag) {
+        colors.clear();
+        colors.push_back(kRed);
+        colors.push_back(kOrange+7);
+//     colors.push_back(kYellow);
+        colors.push_back(kGreen-3);
+        colors.push_back(kMagenta+1);
+        colors.push_back(kAzure+1);
+        colors.push_back(kBlue);
+        colors.push_back(kViolet);
+        colors.push_back(kGreen+2);
+        colors.push_back(kPink+1);
+    }
+
     if (not do_flag) h.setLineStyles(lines_styles);
 //     h.setLineColors(colors);
     h.setMarkerSizeGraph(markersize);
@@ -666,31 +719,31 @@ if (do_flag){
 //------------------------------------------------------------------------------
 
 void saveHolder(CanvasHolder &h,
-		vString formats, 
-		bool make_log, 
-		TString sNamePostfix, 
-		TString sPrefix) 
+                vString formats,
+                bool make_log,
+                TString sNamePostfix,
+                TString sPrefix)
 {
-     TString mod_name(h.getTitle());
-     h.setCanvasTitle(sPrefix + mod_name + sNamePostfix);
-  
-    if (make_log){
+    TString mod_name(h.getTitle());
+    h.setCanvasTitle(sPrefix + mod_name + sNamePostfix);
+
+    if (make_log) {
         TString can_name(h.getTitle());
         std::cout << "DEBUG: log scale for the canvas " << (can_name+"_log_y").Data() << std::endl;
         h.setCanvasTitle(can_name+"_log_y");
         h.setLogY();
-        for (int i=0;i<formats.size();++i){
+        for (int i=0;i<formats.size();++i) {
 //             h.draw();
-            h.save(formats[i].Data());   
-            }
+            h.save(formats[i].Data());
         }
+    }
     else
     {
 //      h.save("png");
         for (int i=0;i<formats.size();++i)
-	{
+        {
 //         h.draw();
-	  h.save(formats[i].Data());
-	}
-  }
+            h.save(formats[i].Data());
+        }
+    }
 }
