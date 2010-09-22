@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include <boost/ptr_container/ptr_vector.hpp>
+
 #include "TROOT.h"
 #include "TMinuit.h"
 #include "TString.h"
@@ -223,6 +225,7 @@ vTF1 functions;
 vvdouble vresponses;
 
 TGraphErrors repsponse_mc(intervals.size());
+TGraphErrors corr_mc(intervals.size());
 Points responses_points_all_bins;
 int ibin=0;
 TString sGlobalPrefix = "L3_calc_";
@@ -237,7 +240,7 @@ for (int ialgo=0;ialgo<algos.size();++ialgo){
 
     TString quantity;
 
-    TH1D * histData[ data_intervals.size() ];
+    boost::ptr_vector< TH1D > histData;
 
     
     for (Intervals::iterator interval=intervals.begin(); 
@@ -250,7 +253,6 @@ for (int ialgo=0;ialgo<algos.size();++ialgo){
 	    getResponses(responses,responses_points_all_bins,&data_ifile,*interval,algo);
 	    data_ifile.Close();
 	    vresponses.push_back(responses);	
-		
 
             // Jet Response Histo
             quantity="jetresp_";
@@ -266,9 +268,21 @@ for (int ialgo=0;ialgo<algos.size();++ialgo){
             // Fill The response histo
             TString zpt_name("zPt_");
             zpt_name+=algo+"Jets_Zplusjet_mc_"+interval->id()+"_hist";
+	    std::cout << zpt_name << " in usage" << std::endl;
             TH1D* zpt = (TH1D*) ifileMc->Get(zpt_name);
             repsponse_mc.SetPoint(ibin,zpt->GetMean(),respo->GetMean());
             repsponse_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
+	    
+	    
+	    /// smal hack to circumvemt wrong MC data, TODO REMOVE !
+	    if ( TMath::Abs( zpt->GetMean() ) > 0.01 )
+	    {
+	      corr_mc.SetPoint(ibin,zpt->GetMean(),1.0f/respo->GetMean());
+	      std::cout << "Added Point to MC Correction x: " << zpt->GetMean() << " y: " << 1.0f/respo->GetMean() << std::endl;
+	    }
+            // todo is this correct
+	    //corr_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
+	    
             ibin++;
             // End fill The response histo
 
@@ -350,7 +364,7 @@ for (int ialgo=0;ialgo<algos.size();++ialgo){
       }
 
       c_dataBinned.addObj( bHist, "Data", "" );
-      histData[iCount] = bHist;
+      histData.push_back(  bHist );
 
       formatHolder(c_dataBinned);
       c_dataBinned.draw();      
@@ -413,22 +427,31 @@ for (int ialgo=0;ialgo<algos.size();++ialgo){
     if ( g_correction_level == 0 )
       saveHolder(h_response,img_formats, false, "_raw", sGlobalPrefix);
     
-    // Correction
+// JET Correction
     CanvasHolder h_corr(algo+"_JetCorrection");
 
-    h_corr.setTitleY("Jet Energy Correction");
+    TGraphErrors * p_dataCalibPoints = new TGraphErrors();
+    
+    for ( boost::ptr_container< TH1D >::iterator it = histData.begin()
+      it != histData.end();
+      ++it )
+    {
+      
+    }
+     
+   h_corr.setTitleY("Jet Energy Correction");
     h_corr.setTitleX("p_{T}^{Z} [GeV]");
 
-    h_corr.setBoardersY(0,2);
+    h_corr.setBoardersY(1.0, 1.6);
     h_corr.setLegPos(.75,.75,.95,.87);
 
-    repsponse_mc.SetLineColor(kRed);
-    repsponse_mc.SetFillColor(kRed);
-    repsponse_mc.SetMarkerColor(kBlack);
-    repsponse_mc.SetMarkerSize(0.1);
-    repsponse_mc.SetFillStyle(3002);
-    h_corr.addObjFormated(&repsponse_mc,"Monte Carlo","CE3");
-    h_corr.addObj(&repsponse_data,"Single events","P");
+    corr_mc.SetLineColor(kRed);
+    corr_mc.SetFillColor(kRed);
+    corr_mc.SetMarkerColor(kBlack);
+    corr_mc.SetMarkerSize(0.1);
+    corr_mc.SetFillStyle(3002);
+    h_corr.addObjFormated(&corr_mc,"Monte Carlo","C*");
+    //h_corr.addObj(&repsponse_data,"Single events","P");
     h_corr.addLatex(info_x,info_y,the_info_string,true);
 
     if ( g_correction_level == 2 )
