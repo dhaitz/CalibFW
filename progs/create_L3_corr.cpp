@@ -146,6 +146,10 @@ char lumi_str[100];
 // yeah, i don't care either
 int g_correction_level = 0;
 
+// description defaults
+    double info_x=.3;
+    double info_y=.78;
+
 Intervals fill_intervals(vint edges);
 void fill_holder(TString h_name_mc,
                  TString h_name_data,
@@ -155,10 +159,78 @@ void fill_holder(TString h_name_mc,
                  TFile* ifileData);
 
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
-void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false);
+void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false, int optStat = 0);
+void formatHolderAlt(CanvasHolder& h);
 void saveHolder(CanvasHolder &h, vString formats, bool make_log = false, TString sNamePostfix = "", TString sPrefix = "");
 
 //------------------------------------------------------------------------------
+
+
+void PlotJetCorrection( TString algo, boost::ptr_vector<DataHisto> & histData,
+			TGraphErrors & corr_mc, vString & img_formats, TString sGlobalPrefix,
+			TString the_info_string,
+			TString plot_function, TString funcName)
+{
+// JET Correction
+        CanvasHolder h_corr(algo+"_JetCorrection");
+
+        int i = 0;
+        TGraphErrors * p_dataCalibPoints = new TGraphErrors(histData.size());
+        for ( boost::ptr_vector< DataHisto >::iterator it = histData.begin();
+                it != histData.end();
+                ++it )
+        {
+            p_dataCalibPoints->SetPoint(i, it->GetBinCenter(), 1.0f / it->m_pHist->GetMean());
+	    p_dataCalibPoints->SetPointError(i, it->GetBinWidth() / 2.0f, it->m_pHist->GetRMS());
+	    //p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
+            i++;
+        }
+  
+  
+	// do the fit !
+	TF1 * pDataFit = new TF1( "jecFit" + funcName, plot_function);
+	pDataFit->SetParameter(0, 1.0f);
+	pDataFit->SetParameter(1, 1.0f);
+	pDataFit->SetParameter(2, 1.0f);
+	pDataFit->SetParameter(3, 1.0f);
+	pDataFit->SetParameter(4, 1.0f);
+	p_dataCalibPoints->Fit( pDataFit);
+	
+	std::cout << "ChiSquare : " << pDataFit->GetChisquare() << std::endl;
+	
+
+        h_corr.setTitleY("Jet Energy Correction");
+        h_corr.setTitleX("p_{T}^{jet} [GeV]");
+
+        h_corr.setBoardersY(1.0, 1.6);
+        h_corr.setLegPos(.75,.75,.95,.87);
+
+        corr_mc.SetLineColor(kRed);
+        corr_mc.SetFillColor(kRed);
+        corr_mc.SetMarkerColor(kBlack);
+        corr_mc.SetMarkerSize(0.1);
+        corr_mc.SetFillStyle(3002);
+        h_corr.addObjFormated(&corr_mc,"Monte Carlo","C*");
+
+        h_corr.addObjFormated(p_dataCalibPoints,"Data Histos","P");
+        h_corr.addLatex(info_x,info_y,the_info_string,true);
+	
+        if ( g_correction_level == 2 )
+            h_corr.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
+        if ( g_correction_level == 0 )
+            h_corr.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
+
+	h_corr.addLatex(0.08,0.01, "Fit function: " + plot_function, true);
+
+        formatHolder(h_corr);
+        h_corr.draw();
+        h_corr.getCanvas()->cd();
+
+        if ( g_correction_level == 2 )
+            saveHolder(h_corr,img_formats, false, "_l2", sGlobalPrefix + funcName);
+        if ( g_correction_level == 0 )
+            saveHolder(h_corr,img_formats, false, "_raw", sGlobalPrefix + funcName);
+}
 
 int main(int argc, char **argv) {
 
@@ -225,9 +297,7 @@ int main(int argc, char **argv) {
 
 // jet, mus, Z -- eta, pt, phi
 
-// description defaults
-    double info_x=.3;
-    double info_y=.78;
+
 
 
 // Make plots of the runs per events
@@ -314,15 +384,21 @@ int main(int argc, char **argv) {
             zpt_name+=algo+"Jets_Zplusjet_mc_"+interval->id()+"_hist";
             std::cout << zpt_name << " in usage" << std::endl;
             TH1D* zpt = (TH1D*) ifileMc->Get(zpt_name);
+	    
+            TString jet1_pt_name("jet1_pt_");
+            jet1_pt_name+=algo+"Jets_Zplusjet_mc_"+interval->id()+"_hist";
+            std::cout << zpt_name << " in usage" << std::endl;
+            TH1D* jet1_pt = (TH1D*) ifileMc->Get(jet1_pt_name);
+	    
             repsponse_mc.SetPoint(ibin,zpt->GetMean(),respo->GetMean());
             repsponse_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
 
 
             /// smal hack to circumvemt wrong MC data, TODO REMOVE !
-            if ( TMath::Abs( zpt->GetMean() ) > 0.01 )
+            if ( TMath::Abs( jet1_pt->GetMean() ) > 0.01 )
             {
-                corr_mc.SetPoint(ibin,zpt->GetMean(),1.0f/respo->GetMean());
-                std::cout << "Added Point to MC Correction x: " << zpt->GetMean() << " y: " << 1.0f/respo->GetMean() << std::endl;
+                corr_mc.SetPoint(ibin,jet1_pt->GetMean(),1.0f/respo->GetMean());
+                std::cout << "Added Point to MC Correction x: " << jet1_pt->GetMean() << " y: " << 1.0f/respo->GetMean() << std::endl;
             }
             // todo is this correct
             //corr_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
@@ -385,17 +461,17 @@ int main(int argc, char **argv) {
         {
             std::cout << "Generating binned_data_histo for " << interval->id() << std::endl;
 
-            CanvasHolder c_dataBinned(algo+ "_data_binned" + interval->id() + "_canvas");
+            CanvasHolder * c_dataBinned = new CanvasHolder(algo+ "_data_binned" + interval->id() + "_canvas");
             TH1D * bHist = new TH1D(algo+ "_data_binned" + interval->id(),
                                     algo+ "_data_binned" + interval->id(),
                                     10,
                                     0.1f, 2.0f );
 
-            c_dataBinned.setTitleY("Arb. Unit");
-            c_dataBinned.setTitleX("Jet Response");
+            c_dataBinned->setTitleY("Arb. Unit");
+            c_dataBinned->setTitleX("Jet Response");
 
-            c_dataBinned.setBoardersY(0,10.0);
-            c_dataBinned.setLegPos(.75,.75,.95,.87);
+            c_dataBinned->setBoardersY(0,10.0);
+            c_dataBinned->setLegPos(.75,.75,.95,.87);
 
             for (int i=0;i<responses_points_all_bins.size();++i)
             {
@@ -406,15 +482,26 @@ int main(int argc, char **argv) {
                     bHist->Fill( responses_points_all_bins[i].y);
                 }
             }
-	  
-            c_dataBinned.addObj( bHist, "Data", "" );
+	    //bHist->SetFillColor(kRed-9);
+	    //bHist->SetLineColor(kRed-9);
+	    //bHist->SetLineStyle(1);
+	    
+            c_dataBinned->addObjFormated( bHist, "Data", "Hist" );
             histData.push_back( new DataHisto( interval->min,
 					interval->max,
 					      bHist ));
 
-            formatHolder(c_dataBinned);
-            c_dataBinned.draw();
-            saveHolder(c_dataBinned,img_formats, false, "_raw", sGlobalPrefix);
+					      
+					
+	    c_dataBinned->addLatex(0.08,0.05, "Work in progress - " + interval->id()  ,true);					      
+            formatHolderAlt(*c_dataBinned);
+	    //c_dataBinned->setOptStat( 1101 );
+            c_dataBinned->draw();
+	    if ( g_correction_level == 0 )	    
+	      saveHolder(*c_dataBinned,img_formats, false, "_raw", sGlobalPrefix);
+	    if ( g_correction_level == 2 )	    
+	      saveHolder(*c_dataBinned,img_formats, false, "_l2", sGlobalPrefix);
+	    
             iCount++;
 
 	    std::cout << "For Data: BinCenter = " << ( interval->max + interval->min ) / 2.0f << std::endl;
@@ -475,55 +562,19 @@ int main(int argc, char **argv) {
         if ( g_correction_level == 0 )
             saveHolder(h_response,img_formats, false, "_raw", sGlobalPrefix);
 
-// JET Correction
-        CanvasHolder h_corr(algo+"_JetCorrection");
-
-        int i = 0;
-        TGraphErrors * p_dataCalibPoints = new TGraphErrors(histData.size());
-        for ( boost::ptr_vector< DataHisto >::iterator it = histData.begin();
-                it != histData.end();
-                ++it )
-        {
-            p_dataCalibPoints->SetPoint(i, it->GetBinCenter(), 1.0f / it->m_pHist->GetMean());
-	    p_dataCalibPoints->SetPointError(i, it->GetBinWidth() / 2.0f, it->m_pHist->GetRMS());
-	    //p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
-            i++;
-        }
-
-        h_corr.setTitleY("Jet Energy Correction");
-        h_corr.setTitleX("p_{T}^{Z} [GeV]");
-
-        h_corr.setBoardersY(1.0, 1.6);
-        h_corr.setLegPos(.75,.75,.95,.87);
-
-        corr_mc.SetLineColor(kRed);
-        corr_mc.SetFillColor(kRed);
-        corr_mc.SetMarkerColor(kBlack);
-        corr_mc.SetMarkerSize(0.1);
-        corr_mc.SetFillStyle(3002);
-        h_corr.addObjFormated(&corr_mc,"Monte Carlo","C*");
-
-        h_corr.addObjFormated(p_dataCalibPoints,"Data Histos","P");
-
-        h_corr.addLatex(info_x,info_y,the_info_string,true);
-
-        if ( g_correction_level == 2 )
-            h_corr.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
-        if ( g_correction_level == 0 )
-            h_corr.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
-
-
-        formatHolder(h_corr);
-        h_corr.draw();
-        h_corr.getCanvas()->cd();
-
-        if ( g_correction_level == 2 )
-            saveHolder(h_corr,img_formats, false, "_l2", sGlobalPrefix);
-        if ( g_correction_level == 0 )
-            saveHolder(h_corr,img_formats, false, "_raw", sGlobalPrefix);
-
+  
+	PlotJetCorrection( algo, histData, corr_mc, img_formats, sGlobalPrefix,
+			the_info_string,
+			  "[0] + [1]/(x^[3]) + [2]/(x^[4])",
+			   "-Danilo-Func");
+	PlotJetCorrection( algo, histData, corr_mc, img_formats, sGlobalPrefix,
+			the_info_string,
+			  "[0] + [1]/((log(x)^[2]) + [3])",
+			   "-AN-Func");
+			   
     } // end loop on algos
 }
+
 
 //------------------------------------------------------------------------------
 
@@ -676,7 +727,7 @@ TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax) {
 
 //------------------------------------------------------------------------------
 
-void formatHolder(CanvasHolder& h, const char* legSym, int markersize, int lines_width, int skip_colors, bool do_flag) {
+void formatHolder(CanvasHolder& h, const char* legSym, int markersize, int lines_width, int skip_colors, bool do_flag, int optStat) {
     std::vector<int> colors;
     std::vector<int> lines_styles;
     for (int i=0;i<skip_colors;++i) {
@@ -711,10 +762,24 @@ void formatHolder(CanvasHolder& h, const char* legSym, int markersize, int lines
     h.setOptTitle(false);
 
     h.addLatex(.84,.93,"#sqrt{s}= 7 TeV",true);
-
     h.addLatex(.26,.93,lumi_str,true);
-
 }
+
+void formatHolderAlt(CanvasHolder& h) {
+    //h.setLineColors(colors);
+    //h.setMarkerSizeGraph(markersize);
+    //h.setLinesSize(lines_width);
+    //h.setLegDrawSymbol(legSym);
+    h.setOptStat(1101);
+    h.addToCantopmargin(+0.0);
+    h.addToCanleftmargin(+0.08);
+    h.addToCanbottommargin(+0.05);
+    h.setOptTitle(false);
+
+    h.addLatex(.54,.93,"#sqrt{s}= 7 TeV",true);
+    h.addLatex(.26,.93,lumi_str,true);
+}
+
 
 //------------------------------------------------------------------------------
 
