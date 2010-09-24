@@ -748,7 +748,12 @@ void DrawHistoSet( TString algoName,
     CHistDrawBase zPt( "zPt_" + algoName + sPostfix,
                        pFileOut);
     CHistEvtDataZPt zPtdraw;
-    zPt.AddModifier(new CModBinRange(0.0, 300.0));
+    
+    if ( useCutParameter )	
+      zPt.AddModifier(new CModBinRange(ptLow - ( ptLow * .1f ), ptHigh + ( ptHigh * .1f )));
+    else
+      zPt.AddModifier(new CModBinRange(0.0, 400.0));
+    
     ModEvtDraw( &zPtdraw, useCutParameter, bPtCut, ptLow, ptHigh );
     zPt.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );
 
@@ -883,9 +888,9 @@ void DrawHistoSet( TString algoName,
         CHistEvtDataJetPt jet_ptdraw(i);
 	
 	if ( useCutParameter )	
-	    jet_pt.AddModifier(new CModBinRange(0.0, 400.0));
+	  jet_pt.AddModifier(new CModBinRange(ptLow - ( ptLow * .1f ), ptHigh + ( ptHigh * .1f )));
 	else
-	    jet_pt.AddModifier(new CModBinRange(ptLow - ( ptLow * .1f ), ptHigh + ( ptHigh * .1f )));
+	  jet_pt.AddModifier(new CModBinRange(0.0, 400.0));
 	
         ModEvtDraw( &jet_ptdraw, useCutParameter, bPtCut, ptLow, ptHigh );
         jet_pt.Execute <  EventVector & > ( g_eventsDataset, &jet_ptdraw );
