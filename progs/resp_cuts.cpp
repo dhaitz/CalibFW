@@ -612,13 +612,15 @@ void PrintInCutEventsReport( std::ostream & out )
     out << ">> " << i << " Events in Cut" << std::endl;
 }
 
-void ModEvtDraw( CHistEvtMapBase * pDraw, bool bUseCut, bool bPtCut, double ptLow, double ptHigh )
+void ModEvtDraw( CHistEvtMapBase * pDraw, bool bUseCut, 
+		 bool bPtCut, double ptLow, double ptHigh )
 {
     pDraw->m_bOnlyEventsInCut = bUseCut;
     pDraw->m_bUsePtCut = bPtCut;
 
     pDraw->m_dLowPtCut = ptLow;
     pDraw->m_dHighPtCut = ptHigh;
+    
 }
 
 void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events, TFile * pFileOut )
@@ -879,6 +881,12 @@ void DrawHistoSet( TString algoName,
                               pFileOut);
 
         CHistEvtDataJetPt jet_ptdraw(i);
+	
+	if ( useCutParameter )	
+	    jet_pt.AddModifier(new CModBinRange(0.0, 400.0));
+	else
+	    jet_pt.AddModifier(new CModBinRange(ptLow - ( ptLow * .1f ), ptHigh + ( ptHigh * .1f )));
+	
         ModEvtDraw( &jet_ptdraw, useCutParameter, bPtCut, ptLow, ptHigh );
         jet_pt.Execute <  EventVector & > ( g_eventsDataset, &jet_ptdraw );
 
