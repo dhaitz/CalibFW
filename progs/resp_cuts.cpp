@@ -12,7 +12,7 @@
 #include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/scoped_ptr.hpp>
-
+#include <boost/weak_ptr.hpp>
 
 // this include will overload comparison headers automatically
 #include <utility>
@@ -21,8 +21,7 @@ using namespace std::rel_ops;
 
 #include "MinimalParser.h"
 
-#include "JetCorrectorParameters.h"
-#include "FactorizedJetCorrector.h"
+#include "CompleteJetCorrector.h"
 
 /*
 #include <iostream>
@@ -50,6 +49,8 @@ bool g_doData = true;
 //bool g_doL1Correction = true;
 bool g_doL2Correction = true;
 bool g_doL3Correction = false;
+vString g_l2CorrFiles;
+
 
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
 std::string g_sJsonFile("not set");
@@ -118,6 +119,7 @@ public:
 
 };
 
+vString g_lCorrFiles;
 std::vector<ExcludedEvent * > g_mcExcludedEvents;
 
 boost::scoped_ptr<TFile> g_resFile;
@@ -179,7 +181,6 @@ PtBin g_newPtBins[] = {
 		PtBin(300.0, 99999.0)
 };*/
 
-
 bool applyCut( EventResult * pEv, bool bUseJson = true)
 {
     // check if json is valid
@@ -219,9 +220,9 @@ bool applyCut( EventResult * pEv, bool bUseJson = true)
     }
 
     // 2nd leading jet to Z pt
-    if (!(pEv->m_pData->jets[1]->Pt()/pEv->m_pData->Z->Pt() < g_kCut2ndJetToZPt))
+    if (!(pEv->GetCorrectedJetPt(1)/pEv->m_pData->Z->Pt() < g_kCut2ndJetToZPt))
     {
-        pEv->m_sCutResult.Form( "jet2 pt to z pt cut, jet2 pt: %.4f   Z pt: %.4f ; jet2/Z  %.4f",  pEv->m_pData->jets[1]->Pt(), pEv->m_pData->Z->Pt(), pEv->m_pData->jets[1]->Pt()/pEv->m_pData->Z->Pt() );
+        pEv->m_sCutResult.Form( "jet2 pt to z pt cut, jet2 pt: %.4f   Z pt: %.4f ; jet2/Z  %.4f",  pEv->GetCorrectedJetPt(1), pEv->m_pData->Z->Pt(), pEv->GetCorrectedJetPt(1)/pEv->m_pData->Z->Pt() );
         pEv->m_sCutUsed = "5) 2nd leading jet to Z pt";
         pEv->m_cutResult = NotInCutParameters;
         return false;
@@ -251,10 +252,12 @@ bool applyCut( EventResult * pEv, bool bUseJson = true)
     return true;
 }
 
-void calcJetEnergyCorrection( EventResult * res, FactorizedJetCorrector *  pJetCorr )
+void calcJetEnergyCorrection( EventResult * res, CompleteJetCorrector *  pJetCorr )
 {
     for ( int i = 0; i < 3; i++ )
     {
+      pJetCorr->CalcCorrectionForEvent( res );
+      /*
         if ( g_doL2Correction )
         {
             pJetCorr->setJetEta(res->m_pData->jets[i]->Eta());
@@ -267,7 +270,7 @@ void calcJetEnergyCorrection( EventResult * res, FactorizedJetCorrector *  pJetC
         if ( g_doL3Correction )
         {
             // more magic to come !
-        }
+        }*/
     }
 }
 
@@ -275,7 +278,7 @@ void importEvents( bool bUseJson,
                    bool bApplyWeighting,
                    std::vector<ExcludedEvent *> exludeEventsByValue,
                    bool bDiscardOutOfCutEvents,
-                   FactorizedJetCorrector * pJetCorr // can be null
+                   CompleteJetCorrector * correction // can be null
                  )
 {
     int entries=g_pChain->GetEntries();
@@ -298,6 +301,7 @@ void importEvents( bool bUseJson,
             {
                 if ( pEx->m_eventFound )
                 {
+#include "../interface/CompleteJetCorrector.h"
                     std::cout << "Excluded Event found 2 times, this is usually *NOT* good." << std::endl;
                     exit(10);
                 }
@@ -315,18 +319,19 @@ void importEvents( bool bUseJson,
 
             res->m_pData = g_ev.Clone();
 
-            calcJetEnergyCorrection(res, pJetCorr);
-            applyCut( res, bUseJson );
 
             // either keep it or kick it
-            if ( res->IsInCut() || ( ! bDiscardOutOfCutEvents ))
-            {
-                g_eventsDataset.push_back( res );
-            }
+            //if ( res->IsInCut() || ( ! bDiscardOutOfCutEvents ))
+            //{
+            calcJetEnergyCorrection(res, correction);
+            applyCut( res, bUseJson );
+	    g_eventsDataset.push_back( res );
+	    
+/*            }
             else
             {
                 delete res;
-            }
+            }*/
         }
 
         // build the weighting data
@@ -434,14 +439,14 @@ TChain * getChain( TString sName, evtData * pEv, std::string sRootfiles)
     return mychain;
 }
 
-inline void PrintEvent( evtData * pData, std::ostream & out, EventFormater * p = NULL, bool bAddNewline = true )
+inline void PrintEvent( EventResult & data, std::ostream & out, EventFormater * p = NULL, bool bAddNewline = true )
 {
     EventFormater * pForm = p;
 
     if (pForm == NULL)
         pForm =  new EventFormater();
 
-    pForm->Format(out, pData);
+    pForm->FormatEventResultCorrected(out, &data);
 
     if ( bAddNewline)
         out << std::endl;
@@ -475,6 +480,7 @@ void PrintEventIds( TString algoName, TString sPrefix = "" )
 
 void ReapplyCut( bool bUseJson, bool useL2Corr, bool useL3Corr)
 {
+  
     for ( EventVector::iterator iter = g_eventsDataset.begin();
             !(iter == g_eventsDataset.end());
             ++iter )
@@ -482,8 +488,6 @@ void ReapplyCut( bool bUseJson, bool useL2Corr, bool useL3Corr)
       iter->m_bUseL2 = useL2Corr;
       iter->m_bUseL3 = useL3Corr;
 
-      
-      // TODO: does this work, or just work on a copy ??
       applyCut( &*iter, bUseJson );
     }
 }
@@ -604,7 +608,7 @@ void PrintInCutEventsReport( std::ostream & out )
     {
         if (iterInCut->IsInCut())
         {
-            PrintEvent( iterInCut->m_pData, out, NULL, true);
+            PrintEvent( *iterInCut, out, NULL, true);
             ++i;
         }
     }
@@ -1021,29 +1025,14 @@ void ResetExcludedEvents()
 void processAlgo( std::string sName )
 {
     (*g_logFile) << "Processing " << sName << std::endl;
+    (*g_logFile) << "uncorrected jets " << std::endl;
 
-    boost::scoped_ptr<FactorizedJetCorrector> JEC;
-    // load jet energy corrections
-    // TODO correct file
-//    JetCorrectorParameters * jetParam =
+    CompleteJetCorrector jetCorr;
+    
     if ( g_doL2Correction )
-    {
-        std::vector<JetCorrectorParameters>  vParam;
+      	jetCorr.AddCorrection( new L2Corr( TString(sName.c_str()), g_l2CorrFiles));
 
-        if ( g_l2CorrData.find(sName ) == g_l2CorrData.end())
-        {
-            std::cout << "No JetEnergyCorrections for " << sName << std::endl;
-            exit( 10 );
-        }
-
-        std::cout << "Loading JetEnergyCorrections " << g_l2CorrData[ sName ] << std::endl;
-        vParam.push_back( JetCorrectorParameters(g_l2CorrData[ sName ]) );
-        JEC.reset( new FactorizedJetCorrector(vParam) );
-
-        //TText * pL2CutInfo = new TText(0.1, 0.1, ("L2 JEC file used: " + g_l2CorrData[ sName ]).c_str());
-	//pL2CutInfo->Write();
-    }
-
+    
     ResetExcludedEvents();
     g_eventsDataset.clear();
 
@@ -1057,14 +1046,14 @@ void processAlgo( std::string sName )
     if ( g_doMc )
     {
         sPrefix = "_mc";
-        importEvents( false, true, g_mcExcludedEvents, false, JEC.get() );
+        importEvents( false, true, g_mcExcludedEvents, false, &jetCorr );
 
         g_mcWeighter.Print();
     }
     if (g_doData)
     {
         sPrefix = "_data";
-        importEvents( true, false, std::vector< ExcludedEvent *>(), false, JEC.get() );
+        importEvents( true, false, std::vector< ExcludedEvent *>(), false, &jetCorr );
     }
 
     delete g_pChain;
@@ -1089,6 +1078,8 @@ void processAlgo( std::string sName )
     // turn on l2 corr
     if  ( g_doL2Correction )
     {
+	(*g_logFile) << "l2 corrected jets " << std::endl;
+      
         for ( EventVector::iterator iter = g_eventsDataset.begin();
                 !(iter == g_eventsDataset.end());
                 ++iter)
@@ -1265,15 +1256,7 @@ int main(int argc, char** argv)
         myAlgoList.insert( (  sAlgo + "Jets_Zplusjet" ).Data() );
     }
 
-    vString l2CorrFiles = p.getvString(secname + ".l2_correction_data");
-    BOOST_FOREACH( TString e, l2CorrFiles )
-    {
-        TObjArray * parts = e.Tokenize(":");
-        TString sAlgName = ((TObjString*)parts->At(0))->GetString();
-        TString sData = ((TObjString*)parts->At(1))->GetString();
-
-        g_l2CorrData[ (sAlgName + "Jets_Zplusjet").Data() ] = sData.Data();// e.second;
-    }
+    g_l2CorrFiles = p.getvString(secname + ".l2_correction_data");
 
     resp_cuts(myAlgoList, g_sOutputPath + ".root");
 

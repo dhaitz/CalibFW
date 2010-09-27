@@ -220,14 +220,14 @@ void PlotJetCorrection( TString algo, boost::ptr_vector<DataHisto> & histData,
 	        h_corr.addObjFormated(&corr_mc,"Monte Carlo","C*");
 
         h_corr.addLatex(info_x,info_y,the_info_string,true);
-
+/*
 	if ( g_correction_level == 3 )
             h_corr.addLatex(0.08,0.05, "Work in progress - L3 corrected Jets"  ,true);
         if ( g_correction_level == 2 )
             h_corr.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
         if ( g_correction_level == 0 )
             h_corr.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
-
+*/
 	h_corr.addLatex(0.08,0.01, "Fit function: " + plot_function, true);
 
         formatHolder(h_corr);
@@ -527,9 +527,10 @@ int main(int argc, char **argv) {
 
 					      
 					
-	    c_dataBinned->addLatex(0.08,0.05, "Work in progress - " + interval->id()  ,true);					      
+	    //c_dataBinned->addLatex(0.08,0.05, "Work in progress - " + interval->id()  ,true);					      
             formatHolderAlt(*c_dataBinned);
 	    //c_dataBinned->setOptStat( 1101 );
+	    
             c_dataBinned->draw();
 	    if ( g_correction_level == 0 )	    
 	      saveHolder(*c_dataBinned,img_formats, false, "_raw", sGlobalPrefix);
@@ -568,7 +569,7 @@ int main(int argc, char **argv) {
 
         CanvasHolder h_response(algo+"_JetResponse");
 
-        h_response.setTitleY("Jet Response");
+        h_response.setTitleY("JetResponse");
         h_response.setTitleX("p_{T}^{Z} [GeV]");
 
         h_response.setBoardersY(0,2);
@@ -582,14 +583,14 @@ int main(int argc, char **argv) {
         h_response.addObjFormated(&repsponse_mc,"Monte Carlo","CE3");
         h_response.addObj(&repsponse_data,"Single events","P");
         h_response.addLatex(info_x,info_y,the_info_string,true);
-
+/*
         if ( g_correction_level == 3 )
             h_response.addLatex(0.08,0.05, "Work in progress - L3 corrected Jets"  ,true);
 	if ( g_correction_level == 2 )
             h_response.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
         if ( g_correction_level == 0 )
             h_response.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
-
+*/
 
         formatHolder(h_response);
         h_response.draw();

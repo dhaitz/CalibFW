@@ -17,7 +17,7 @@
 
 #define SAFE_DELETE( first ) {  if ( first != NULL ) { delete first; } }
 
-class evtData
+class evtData : boost::noncopyable
 {
 public:
     TParticle *Z,*mu_minus,*mu_plus;
@@ -124,28 +124,9 @@ public:
     Int_t m_luminosityBlock;
 };
 
-// uses evtData to output a formated line containing all important
-// values
-class EventFormater
-{
-public:
-    inline void Header( ostream & os)
-    {
-        os << std::setw(10) << "cmsRun"  << std::setw(12) << "cmsEventNum" << std::setw(7) << "lumi"  << std::setw(10) << "Z.Pt()"
-        << std::setw(10) << "Z.Mass()" << std::setw(10) << "Z.Phi()" << std::setw(10) << "jet.Pt()" << std::setw(10) << "jet.Eta()" << std::setw(10) << "jet.Phi()";
-        //return "cmsRun\tcmsEventNum\tlumi\tZ.Pt()\tZ.Mass()\tZ.Phi()\tjet.Pt()\tjet.Eta()\tjet.Phi()\t";
-    }
-
-    inline void Format( ostream & os, evtData * pEv )
-    {
-        os << std::setprecision(3) << std::fixed ;
-        os << std::setw(10) << pEv->cmsRun  << std::setw(12) << pEv->cmsEventNum << std::setw(7) << pEv->luminosityBlock  << std::setw(10) << pEv->Z->Pt()
-        << std::setw(10) << pEv->Z->GetCalcMass() << std::setw(10) << pEv->Z->Phi() << std::setw(10) << pEv->jets[0]->Pt()
-        << std::setw(10) << pEv->jets[0]->Eta() << std::setw(10) <<pEv->jets[0]->Phi();
-    }
-};
 
 enum CutResultEnum {CutStatusUnknown, InCut, NotInJson, NotInCutParameters };
+
 
 class EventResult
 {
@@ -170,7 +151,6 @@ public:
     Double_t m_l2CorrJets[3];
 
     bool m_bUseL3;
-
     
     CutResultEnum m_cutResult;
     TString m_sCutResult;
@@ -204,6 +184,36 @@ public:
 
     evtData * m_pData;
 };
+
+// uses evtData to output a formated line containing all important
+// values
+class EventFormater
+{
+public:
+    inline void Header( ostream & os)
+    {
+        os << std::setw(10) << "cmsRun"  << std::setw(12) << "cmsEventNum" << std::setw(7) << "lumi"  << std::setw(10) << "Z.Pt()"
+        << std::setw(10) << "Z.Mass()" << std::setw(10) << "Z.Phi()" << std::setw(10) << "jet.Pt()" << std::setw(10) << "uncorr"<< std::setw(10) << "jet.Eta()" << std::setw(10) << "jet.Phi()";
+        //return "cmsRun\tcmsEventNum\tlumi\tZ.Pt()\tZ.Mass()\tZ.Phi()\tjet.Pt()\tjet.Eta()\tjet.Phi()\t";
+    }
+
+    inline void Format( ostream & os, evtData * pEv )
+    {
+        os << std::setprecision(3) << std::fixed ;
+        os << std::setw(10) << pEv->cmsRun  << std::setw(12) << pEv->cmsEventNum << std::setw(7) << pEv->luminosityBlock  << std::setw(10) << pEv->Z->Pt()
+        << std::setw(10) << pEv->Z->GetCalcMass() << std::setw(10) << pEv->Z->Phi() << std::setw(10) << pEv->jets[0]->Pt() << std::setw(10) << "nop" 
+        << std::setw(10) << pEv->jets[0]->Eta() << std::setw(10) <<pEv->jets[0]->Phi();
+    }
+    
+    inline void FormatEventResultCorrected( ostream & os, EventResult * pEv )
+    {
+        os << std::setprecision(3) << std::fixed ;
+        os << std::setw(10) << pEv->m_pData->cmsRun << std::setw(12) << pEv->m_pData->cmsEventNum << std::setw(7) << pEv->m_pData->luminosityBlock  << std::setw(10) << pEv->m_pData->Z->Pt()
+        << std::setw(10) << pEv->m_pData->Z->GetCalcMass() << std::setw(10) << pEv->m_pData->Z->Phi() << std::setw(10) << pEv->GetCorrectedJetPt(0)  << std::setw(10) << pEv->m_pData->jets[0]->Pt()
+        << std::setw(10) << pEv->m_pData->jets[0]->Eta() << std::setw(10) <<pEv->m_pData->jets[0]->Phi();
+    }    
+};
+
 
 struct CompareEventResult : std::binary_function<EventResult,EventResult,bool> {
    CompareEventResult(){ }

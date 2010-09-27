@@ -145,6 +145,7 @@ char lumi_str[100];
 
 // yeah, i don't care either
 int g_correction_level = 0;
+TString g_sCorrection_level = "";
 
 // description defaults
     double info_x=.3;
@@ -181,7 +182,7 @@ void PlotJetCorrection( TString algo, boost::ptr_vector<DataHisto> & histData,
                 ++it )
         {
             p_dataCalibPoints->SetPoint(i, it->GetBinCenter(), 1.0f / it->m_pHist->GetMean());
-	    p_dataCalibPoints->SetPointError(i, it->GetBinWidth() / 2.0f, it->m_pHist->GetRMS());
+	    p_dataCalibPoints->SetPointError(i, it->GetBinWidth() / 2.0f, it->m_pHist->GetMeanError());
 	    //p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
             i++;
         }
@@ -194,13 +195,20 @@ void PlotJetCorrection( TString algo, boost::ptr_vector<DataHisto> & histData,
 	pDataFit->SetParameter(2, 1.0f);
 	pDataFit->SetParameter(3, 1.0f);
 	pDataFit->SetParameter(4, 1.0f);
+	
 	p_dataCalibPoints->Fit( pDataFit);
+
+        p_dataCalibPoints->SetLineColor(kBlack);
+        p_dataCalibPoints->SetFillColor(kBlack);
+        p_dataCalibPoints->SetMarkerColor(kBlack);
+        p_dataCalibPoints->SetMarkerSize(1.0);
+        p_dataCalibPoints->SetFillStyle(0);	
 	
 	std::cout << "ChiSquare : " << pDataFit->GetChisquare() << std::endl;
 	
 
         h_corr.setTitleY("Jet Energy Correction");
-        h_corr.setTitleX("p_{T}^{jet} [GeV]");
+        h_corr.setTitleX("p_{T}^{jet} [GeV/c]");
 
         h_corr.setBoardersY(1.0, 1.6);
         h_corr.setLegPos(.75,.75,.95,.87);
@@ -212,15 +220,16 @@ void PlotJetCorrection( TString algo, boost::ptr_vector<DataHisto> & histData,
         corr_mc.SetFillStyle(3002);
         h_corr.addObjFormated(&corr_mc,"Monte Carlo","C*");
 
-        h_corr.addObjFormated(p_dataCalibPoints,"Data Histos","P");
+        h_corr.addObjFormated(p_dataCalibPoints,"Binned Data","P");
         h_corr.addLatex(info_x,info_y,the_info_string,true);
 	
+	/*
         if ( g_correction_level == 2 )
             h_corr.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
         if ( g_correction_level == 0 )
             h_corr.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
-
-	h_corr.addLatex(0.08,0.01, "Fit function: " + plot_function, true);
+*/
+//	h_corr.addLatex(0.08,0.01, "Fit function: " + plot_function, true);
 
         formatHolder(h_corr);
         h_corr.draw();
@@ -344,6 +353,13 @@ int main(int argc, char **argv) {
     int ibin=0;
     TString sGlobalPrefix = "L3_calc_";
 
+    if ( g_correction_level == 3 )
+	g_sCorrection_level = "L3 corrected";
+    if ( g_correction_level == 2 )
+	g_sCorrection_level = "L2 corrected";
+    if ( g_correction_level == 0 )
+	g_sCorrection_level = "uncorrected";
+    
     for (int ialgo=0;ialgo<algos.size();++ialgo) {
 
         TString algo(algos[ialgo]);
@@ -351,11 +367,10 @@ int main(int argc, char **argv) {
 
         TString the_info_string(info_string);
         the_info_string.ReplaceAll("__ALGO__",goodalgo);
-
+	the_info_string.ReplaceAll("__CORR__", g_sCorrection_level);
+	
         TString quantity;
-
         boost::ptr_vector< DataHisto > histData;
-
 
         for (Intervals::iterator interval=intervals.begin();
                 interval < intervals.end();++interval )
@@ -451,7 +466,6 @@ int main(int argc, char **argv) {
 //             h_resp.normalizeHistos();
             h_resp.setBoardersY(0.0001,0.319);
             h_resp.setBoardersX(0,1.98);
-
         }
 
         int iCount = 0;
@@ -491,9 +505,7 @@ int main(int argc, char **argv) {
 					interval->max,
 					      bHist ));
 
-					      
-					
-	    c_dataBinned->addLatex(0.08,0.05, "Work in progress - " + interval->id()  ,true);					      
+	    //c_dataBinned->addLatex(0.08,0.05, "Work in progress - " + interval->id()  ,true);					      
             formatHolderAlt(*c_dataBinned);
 	    //c_dataBinned->setOptStat( 1101 );
             c_dataBinned->draw();
@@ -533,7 +545,7 @@ int main(int argc, char **argv) {
         CanvasHolder h_response(algo+"_JetResponse");
 
         h_response.setTitleY("Jet Response");
-        h_response.setTitleX("p_{T}^{Z} [GeV]");
+        h_response.setTitleX("p_{T}^{Z} [GeV/c]");
 
         h_response.setBoardersY(0,2);
         h_response.setLegPos(.75,.75,.95,.87);
@@ -546,12 +558,12 @@ int main(int argc, char **argv) {
         h_response.addObjFormated(&repsponse_mc,"Monte Carlo","CE3");
         h_response.addObj(&repsponse_data,"Single events","P");
         h_response.addLatex(info_x,info_y,the_info_string,true);
-
+/*
         if ( g_correction_level == 2 )
             h_response.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
         if ( g_correction_level == 0 )
             h_response.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
-
+*/
 
         formatHolder(h_response);
         h_response.draw();

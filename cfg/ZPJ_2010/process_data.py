@@ -11,7 +11,7 @@ _output_path= _data_path + "ZPJ2010/mu_data"
 _json_file= _calib_data_path + "json/Cert_132440-144114_7TeV_StreamExpress_Collisions10_JSON_v2.txt"
 _process_algos=["ak5PF"]
 
-_l2_correction_data=["ak5PF:" + _calib_data_path + "jec_data/Spring10_L2Relative_AK5PF.txt"]
+_l2_correction_data=["ak5PFJets_Zplusjet:" + _calib_data_path + "jec_data/Spring10_L2Relative_AK5PF.txt"]
 
 p.general=section ("general",
     is_data = _is_data,
