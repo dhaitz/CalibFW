@@ -641,7 +641,9 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
 
     // more data can go here
     gentree->Branch("Z","TParticle",&localData.Z);
-    gentree->Branch("jet","TParticle",&localData.jets[0]);
+    gentree->Branch("jet1","TParticle",&localData.jets[0]);
+    gentree->Branch("jet2","TParticle",&localData.jets[1]);
+    gentree->Branch("jet3","TParticle",&localData.jets[2]);
     gentree->Branch("l2corrJet", &l2corr, "l2corrJet/D");
     
     //  gentree->Branch("xsection",&localData.xsection,"xsection/D");
@@ -655,6 +657,8 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
         {
             localData.Z = new TParticle ( *it->m_pData->Z );
             localData.jets[0] = new TParticle ( *it->m_pData->jets[0] );
+	    localData.jets[1] = new TParticle ( *it->m_pData->jets[1] );
+	    localData.jets[2] = new TParticle ( *it->m_pData->jets[2] );
 	      l2corr = it->m_l2CorrJets[0];
 	    //(*l2corr) = 23.0f;
 	    
