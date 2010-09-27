@@ -750,7 +750,7 @@ void DrawHistoSet( TString algoName,
     CHistEvtDataZPt zPtdraw;
     
     if ( useCutParameter )	
-      zPt.AddModifier(new CModBinRange(ptLow - ( ptLow * .1f ), ptHigh + ( ptHigh * .1f )));
+      zPt.AddModifier(new CModBinRange(ptLow - ( ptLow * .3f ), ptHigh + ( ptLow * .3f )));
     else
       zPt.AddModifier(new CModBinRange(0.0, 400.0));
     
@@ -888,7 +888,7 @@ void DrawHistoSet( TString algoName,
         CHistEvtDataJetPt jet_ptdraw(i);
 	
 	if ( useCutParameter )	
-	  jet_pt.AddModifier(new CModBinRange(ptLow - ( ptLow * .1f ), ptHigh + ( ptHigh * .1f )));
+	  jet_pt.AddModifier(new CModBinRange(ptLow - ( ptLow * 1.2f ), ptHigh + ( ptLow * .8f )));
 	else
 	  jet_pt.AddModifier(new CModBinRange(0.0, 400.0));
 	
