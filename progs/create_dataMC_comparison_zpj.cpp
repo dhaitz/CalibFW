@@ -148,6 +148,7 @@ char lumi_str[100];
 int g_correction_level = 0;
 TString g_sCorrectionAdd = "";
 TString g_sCorrection_level = "";
+vString g_img_formats;
 
 Intervals fill_intervals(vint edges);
 void fill_holder(TString h_name_mc,
@@ -160,6 +161,74 @@ void fill_holder(TString h_name_mc,
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
 void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false);
 void saveHolder(CanvasHolder &h, vString formats, bool make_log = false, TString sNamePostfix = "");
+
+void PlotNumberOfEvents( TString algoname, TFile *  ifile )
+{
+   TString treename=algoname+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_eventsInCut";
+    TTree* tree = (TTree*) ifile->Get(treename);
+
+    Long_t cmsRun;
+
+    int total_events=tree->GetEntries();
+    int first_run=0;
+    int last_run=0;
+
+
+    tree->SetBranchAddress("cmsRun",&cmsRun);
+
+    for (int ievt=0;ievt< tree->GetEntries();++ievt) 
+    {
+
+        tree->GetEntry(ievt);
+
+        if (first_run == 0)
+            first_run = cmsRun;
+
+        if ( first_run > cmsRun)
+            first_run = cmsRun;
+        if ( last_run < cmsRun )
+            last_run = cmsRun;
+    }
+
+    int tot_runs=last_run-first_run;
+    TH1F nevts("nevts","nevts",tot_runs, first_run-1000.5,last_run+300.0);
+
+// Make plots of the runs per events
+    for (int ievt=0;ievt< tree->GetEntries();++ievt) 
+    {
+        tree->GetEntry(ievt);
+        nevts.Fill( cmsRun );
+    }
+
+    nevts.ComputeIntegral();
+    double *integral = nevts.GetIntegral();
+    nevts.SetContent(integral);
+    nevts.Scale(total_events);
+
+    nevts.LabelsOption("av");
+
+    nevts.SetFillColor(38);
+    nevts.SetLineColor(38);
+
+    CanvasHolder h_nevts( algoname+ "_number_of_events" + g_sCorrectionAdd );
+    nevts.GetXaxis()->CenterTitle(1);
+    nevts.GetYaxis()->CenterTitle(1);
+    h_nevts.addObj(&nevts,"","Hist");
+
+    h_nevts.setTitleY("Z(#rightarrow #mu #mu)+jet Events");
+    h_nevts.setTitleX("Run Number");
+    h_nevts.setLegDraw(0);
+    h_nevts.setBoardersY(0,total_events*1.3);
+    h_nevts.setBoardersX(first_run-1000.0,last_run+300);
+    h_nevts.setOptTitle(false);
+    h_nevts.setOptStat(false);
+
+    h_nevts.addToCanrightmargin(.1);
+
+    h_nevts.addLatex(.74,.93,"#sqrt{s}= 7 TeV",true);
+    h_nevts.addLatex(.16,.93,lumi_str,true);
+    saveHolder(h_nevts,g_img_formats);
+}
 
 //------------------------------------------------------------------------------
 
@@ -201,7 +270,7 @@ int main(int argc, char **argv) {
     vString algos = p.getvString(secname+".algos");
     vString good_algos = p.getvString(secname+".good_algos");
     vint pt_bins = p.getvInt(secname+".pt_bins");
-    vString img_formats= p.getvString(secname+".img_formats");
+    g_img_formats= p.getvString(secname+".img_formats");
     vint runs_with_events = p.getvInt(secname+".runs_with_evts");
     double min_jes=p.getDouble(secname+".min_jes");
     double max_jes=p.getDouble(secname+".max_jes");
@@ -218,7 +287,7 @@ int main(int argc, char **argv) {
     if ( g_correction_level == 2)
     {
       g_sCorrectionAdd = "_l2corr";
-        g_sCorrection_level = "corrected for eta dependence";
+        g_sCorrection_level = "corrected for #eta dependence";
     }
     
     sprintf(lumi_str,"#scale[.8]{#int} L = %1.2f pb^{-1}",lumi);
@@ -240,63 +309,6 @@ int main(int argc, char **argv) {
     double info_y=.78;
 
 
-// Make plots of the runs per events
-    int total_events=runs_with_events.size();
-    int first_run=runs_with_events[0]-500;
-    int last_run=runs_with_events[total_events-1]+500;
-    int tot_runs=last_run-first_run;
-
-    TH1F nevts("nevts","nevts",tot_runs,first_run-0.5,last_run-0.5);
-
-    for (int irun=0;irun<runs_with_events.size();irun++) {
-        int run=runs_with_events[irun];
-        /*    TString runs("the ");runs+=ibin;
-            nevts.Fill(runs.Data(),1);*/
-        nevts.Fill(run);
-    }
-
-    nevts.ComputeIntegral();
-    double *integral = nevts.GetIntegral();
-    nevts.SetContent(integral);
-    nevts.Scale(total_events);
-// for (int ibin=1;ibin<=nevts.GetNbinsX();ibin++){
-//     if (ibin%10000==0)
-//         nevts.GetXaxis()->SetBinLabel(ibin,"Cacca");
-//     else
-//         nevts.GetXaxis()->SetBinLabel(ibin,"");
-//     }
-
-    nevts.LabelsOption("av");
-
-    nevts.SetFillColor(38);
-    nevts.SetLineColor(38);
-
-// TCanvas c;
-// c.cd();
-// nevts.Draw();
-// c.Print("number_of_events.png");
-
-    CanvasHolder h_nevts("number_of_events");
-    nevts.GetXaxis()->CenterTitle(1);
-    nevts.GetYaxis()->CenterTitle(1);
-    h_nevts.addObj(&nevts,"","Hist");
-
-// h_nevts.setTitleY("Z(#rightarrow #mu #mu)+jet Events                    ");
-// h_nevts.setTitleX("Run Number                         ");
-    h_nevts.setTitleY("Z(#rightarrow #mu #mu)+jet Events");
-    h_nevts.setTitleX("Run Number");
-    h_nevts.setLegDraw(0);
-    h_nevts.setBoardersY(0,total_events*1.3);
-    h_nevts.setBoardersX(first_run,last_run);
-    h_nevts.setOptTitle(false);
-    h_nevts.setOptStat(false);
-
-    h_nevts.addToCanrightmargin(.1);
-
-    h_nevts.addLatex(.74,.93,"#sqrt{s}= 7 TeV",true);
-    h_nevts.addLatex(.16,.93,lumi_str,true);
-// h_nevts.setGridY();
-    saveHolder(h_nevts,img_formats);
 
     for (int ialgo=0;ialgo<algos.size();++ialgo) {
 
@@ -308,6 +320,8 @@ int main(int argc, char **argv) {
         the_info_string.ReplaceAll("__CORR__", g_sCorrection_level);
 
         TString quantity;
+
+        PlotNumberOfEvents( algo, ifileData );
 
 //------------------------------------------------------------------------------
 
@@ -328,7 +342,7 @@ int main(int argc, char **argv) {
         h_eta_jet.setBoardersX(-1.4,1.4);
 
         formatHolder(h_eta_jet);
-        saveHolder(h_eta_jet,img_formats);
+        saveHolder(h_eta_jet,g_img_formats);
 
         // Phi jet
         quantity="jet1_phi_";
@@ -346,7 +360,7 @@ int main(int argc, char **argv) {
         h_phi_jet.addLatex(info_x,info_y,the_info_string,true);
         h_phi_jet.scaleBoardersY(1,2);
         formatHolder(h_phi_jet);
-        saveHolder(h_phi_jet,img_formats);
+        saveHolder(h_phi_jet,g_img_formats);
 
         // Pt jet
         quantity="jet1_pt_";
@@ -360,13 +374,14 @@ int main(int argc, char **argv) {
         h_pt_jet.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_jet.setTitleX("p_{T}^{jet}[GeV]");
         h_pt_jet.setBoardersX(0,190);
+        h_pt_jet.setBoardersY(0.0099,100.0);
         h_pt_jet.setLogY();
 
 
         h_pt_jet.addLatex(info_x,info_y,the_info_string,true);
         h_pt_jet.scaleBoardersY(1,2.5);
         formatHolder(h_pt_jet);
-        saveHolder(h_pt_jet,img_formats);
+        saveHolder(h_pt_jet,g_img_formats);
         /*
             // Pt jet l2 corr
             quantity="jet1_pt_";
@@ -408,7 +423,7 @@ int main(int argc, char **argv) {
         h_eta_jet2.setBoardersX(-1.4,1.4);
 
         formatHolder(h_eta_jet2);
-        saveHolder(h_eta_jet2,img_formats);
+        saveHolder(h_eta_jet2,g_img_formats);
 
         // Phi jet2
         quantity="jet2_phi_";
@@ -426,7 +441,7 @@ int main(int argc, char **argv) {
         h_phi_jet2.addLatex(info_x,info_y,the_info_string,true);
         h_phi_jet2.scaleBoardersY(1,2);
         formatHolder(h_phi_jet2);
-        saveHolder(h_phi_jet2,img_formats);
+        saveHolder(h_phi_jet2,g_img_formats);
 
         // Pt jet2
         quantity="jet2_pt_";
@@ -446,7 +461,7 @@ int main(int argc, char **argv) {
         h_pt_jet2.addLatex(info_x,info_y,the_info_string,true);
         h_pt_jet2.scaleBoardersY(1,2.5);
         formatHolder(h_pt_jet2);
-        saveHolder(h_pt_jet2,img_formats);
+        saveHolder(h_pt_jet2,g_img_formats);
 
 //------------------------------------------------------------------------------
 
@@ -466,7 +481,7 @@ int main(int argc, char **argv) {
         h_eta_z.scaleBoardersY(1,2.3);
 
         formatHolder(h_eta_z);
-        saveHolder(h_eta_z,img_formats);
+        saveHolder(h_eta_z,g_img_formats);
 
         // Phi z
         quantity="zPhi_";
@@ -485,7 +500,7 @@ int main(int argc, char **argv) {
         h_phi_z.scaleBoardersY(1,2);
 
         formatHolder(h_phi_z);
-        saveHolder(h_phi_z,img_formats);
+        saveHolder(h_phi_z,g_img_formats);
 
         // Pt z
         quantity="zPt_";
@@ -504,9 +519,9 @@ int main(int argc, char **argv) {
         h_pt_z.scaleBoardersY(1,1.3);
 
         formatHolder(h_pt_z);
-        saveHolder(h_pt_z,img_formats);
+        saveHolder(h_pt_z,g_img_formats);
 
-        // Pt z
+        // z mass
         quantity="zmass_";
         CanvasHolder h_mass_z(quantity+algo);
         fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
@@ -517,13 +532,13 @@ int main(int argc, char **argv) {
 
         h_mass_z.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_mass_z.setTitleX("M_{Z}[GeV]");
-        h_mass_z.setBoardersX(0,190);
+        h_mass_z.setBoardersX(60.0,120.0);
 
         h_mass_z.addLatex(info_x,info_y,the_info_string,true);
         h_mass_z.scaleBoardersY(1,1.3);
 
         formatHolder(h_mass_z);
-        saveHolder(h_mass_z,img_formats);
+        saveHolder(h_mass_z,g_img_formats);
 
 // COMBINED MUS
 
@@ -545,7 +560,7 @@ int main(int argc, char **argv) {
         h_eta_mus.scaleBoardersY(1,2);
 
         formatHolder(h_eta_mus);
-        saveHolder(h_eta_mus,img_formats);
+        saveHolder(h_eta_mus,g_img_formats);
 
         // Phi mus
         quantity="mus_phi_";
@@ -564,7 +579,7 @@ int main(int argc, char **argv) {
         h_phi_mus.scaleBoardersY(1,2);
 
         formatHolder(h_phi_mus);
-        saveHolder(h_phi_mus,img_formats);
+        saveHolder(h_phi_mus,g_img_formats);
 
         // Pt mus
         quantity="mus_pt_";
@@ -583,7 +598,7 @@ int main(int argc, char **argv) {
         h_pt_mus.scaleBoardersY(1,1.3);
 
         formatHolder(h_pt_mus);
-        saveHolder(h_pt_mus,img_formats);
+        saveHolder(h_pt_mus,g_img_formats);
 
 //------------------------------------------------------------------------------
 // cut plots
@@ -765,9 +780,9 @@ int main(int argc, char **argv) {
         h_response.getCanvas()->cd();
 
         if ( g_correction_level == 2 )
-            saveHolder(h_response,img_formats, false, "_l2");
+            saveHolder(h_response,g_img_formats, false, "_l2");
         if ( g_correction_level == 0 )
-            saveHolder(h_response,img_formats, false, "_raw");
+            saveHolder(h_response,g_img_formats, false, "_raw");
 
         // Prepare the likelihood --------------------------------------------------
 
@@ -880,9 +895,9 @@ int main(int argc, char **argv) {
         fail.SetPoint(1,4,-4);
         h_contours.addObjFormated(&fail,"","P");
 
-        h_contours.setTitleX("Jes_{Data}/Jes_{MC}");
+        h_contours.setTitleX("S_{Data}/S_{MC}");
         h_contours.setBoardersX(min_jes+0.0001,max_jes-0.0001);
-        h_contours.setTitleY("Resolution_{Data}/Resolution_{MC}");
+        h_contours.setTitleY("R_{Data}/R_{MC}");
         h_contours.setBoardersY(min_jer+0.0001,1.3*max_jer-0.0001);
 
         h_contours.addLatex(info_x,info_y,the_info_string,true);
@@ -891,7 +906,7 @@ int main(int argc, char **argv) {
 
         //Let's write the result on the plot
         char result[200];
-        sprintf(result,"#scale[.8]{#splitline{JES_{Data}/JES_{MC} = %1.2f^{+%1.2f}_{-%1.2f}}{Res_{Data}/Res_{MC} = %1.2f^{+%1.2f}_{-%1.2f}}}",
+        sprintf(result,"#scale[.8]{#splitline{S_{Data}/S_{MC} = %1.2f^{+%1.2f}_{-%1.2f}}{R_{Data}/R_{MC} = %1.2f^{+%1.2f}_{-%1.2f}}}",
                 jes,jes_p1s-jes,jes-jes_m1s,  jer,jer_p1s-jer,jer-jer_m1s);
 
         //std::cout << result << std::endl;
@@ -906,7 +921,7 @@ int main(int argc, char **argv) {
 
         std::cout << "\n\nRESULT\n\n" << resultL << std::endl;
 
-        h_contours.addLatex(info_x,info_y*0.9,result,true);
+        h_contours.addLatex(info_x,info_y*0.85,result,true);
 
         // info
 	/*

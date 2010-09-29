@@ -766,11 +766,11 @@ void DrawHistoSet( TString algoName,
     CHistDrawBase zPt( "zPt_" + algoName + sPostfix,
                        pFileOut);
     CHistEvtDataZPt zPtdraw;
-    
+    /* dont use dynamic binning, it is bad when comparing MC and Data
     if ( useCutParameter )	
       zPt.AddModifier(new CModBinRange(ptLow - ( ptLow * .3f ), ptHigh + ( ptLow * .3f )));
-    else
-      zPt.AddModifier(new CModBinRange(0.0, 400.0));
+    else*/
+    zPt.AddModifier(new CModBinRange(0.0, 500.0));
     
     ModEvtDraw( &zPtdraw, useCutParameter, bPtCut, ptLow, ptHigh );
     zPt.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );
@@ -797,7 +797,7 @@ void DrawHistoSet( TString algoName,
 
     CHistDrawBase muplus_pt( "muplus_pt_" + algoName+ sPostfix,
                              pFileOut,	 modList);
-
+    muplus_pt.AddModifier(new CModBinRange(0.0, 500.0));
     CHistEvtDataMuPlusPt muplus_ptdraw;
     ModEvtDraw( &muplus_ptdraw, useCutParameter, bPtCut, ptLow, ptHigh );
     muplus_pt.Execute < EventVector & > ( g_eventsDataset, &muplus_ptdraw );
@@ -808,6 +808,7 @@ void DrawHistoSet( TString algoName,
 
     CHistDrawBase muminus_pt( "muminus_pt_" + algoName+ sPostfix,
                               pFileOut,	 modList);
+    muminus_pt.AddModifier(new CModBinRange(0.0, 500.0));
 
     CHistEvtDataMuMinusPt muminus_ptdraw;
     ModEvtDraw( &muminus_ptdraw, useCutParameter, bPtCut, ptLow, ptHigh );
@@ -860,6 +861,7 @@ void DrawHistoSet( TString algoName,
                             pFileOut,	 modList);
 
     CHistEvtDataMuAllPt muall_ptdraw;
+    muall_pt.AddModifier(new CModBinRange(0.0, 500.0));
     ModEvtDraw( &muall_ptdraw, useCutParameter, bPtCut, ptLow, ptHigh );
     muall_pt.Execute < EventVector & > ( g_eventsDataset, &muall_ptdraw );
 
@@ -905,10 +907,10 @@ void DrawHistoSet( TString algoName,
 
         CHistEvtDataJetPt jet_ptdraw(i);
 	
-	if ( useCutParameter )	
-	  jet_pt.AddModifier(new CModBinRange(ptLow - ( ptLow * 1.2f ), ptHigh + ( ptLow * .8f )));
-	else
-	  jet_pt.AddModifier(new CModBinRange(0.0, 400.0));
+	/*    if ( useCutParameter )	
+	      jet_pt.AddModifier(new CModBinRange(ptLow - ( ptLow * 1.2f ), ptHigh + ( ptLow * .8f )));
+	    else*/
+	      jet_pt.AddModifier(new CModBinRange(0.0, 500.0));
 	
         ModEvtDraw( &jet_ptdraw, useCutParameter, bPtCut, ptLow, ptHigh );
         jet_pt.Execute <  EventVector & > ( g_eventsDataset, &jet_ptdraw );

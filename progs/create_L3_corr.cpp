@@ -277,7 +277,6 @@ int main(int argc, char **argv) {
     vint pt_bins = p.getvInt(secname+".pt_bins");
     vint pt_data_bins = p.getvInt(secname+".pt_data_bins");
     vString img_formats= p.getvString(secname+".img_formats");
-    vint runs_with_events = p.getvInt(secname+".runs_with_evts");
     double min_jes=p.getDouble(secname+".min_jes");
     double max_jes=p.getDouble(secname+".max_jes");
     double min_jer=p.getDouble(secname+".min_jer");
@@ -301,42 +300,6 @@ int main(int argc, char **argv) {
 
 
 // jet, mus, Z -- eta, pt, phi
-
-
-
-
-// Make plots of the runs per events
-
-    int total_events=runs_with_events.size();
-    int first_run=runs_with_events[0]-500;
-    int last_run=runs_with_events[total_events-1]+500;
-    int tot_runs=last_run-first_run;
-
-    TH1F nevts("nevts","nevts",tot_runs,first_run-0.5,last_run-0.5);
-
-    for (int irun=0;irun<runs_with_events.size();irun++) {
-        int run=runs_with_events[irun];
-        /*    TString runs("the ");runs+=ibin;
-            nevts.Fill(runs.Data(),1);*/
-        nevts.Fill(run);
-    }
-
-    nevts.ComputeIntegral();
-    double *integral = nevts.GetIntegral();
-    nevts.SetContent(integral);
-    nevts.Scale(total_events);
-// for (int ibin=1;ibin<=nevts.GetNbinsX();ibin++){
-//     if (ibin%10000==0)
-//         nevts.GetXaxis()->SetBinLabel(ibin,"Cacca");
-//     else
-//         nevts.GetXaxis()->SetBinLabel(ibin,"");
-//     }
-
-    nevts.LabelsOption("av");
-
-    nevts.SetFillColor(38);
-    nevts.SetLineColor(38);
-
     Intervals intervals (fill_intervals(pt_bins));
     Intervals data_intervals (fill_intervals(pt_data_bins));
 
@@ -387,6 +350,7 @@ int main(int argc, char **argv) {
             quantity="jetresp_";
             CanvasHolder h_resp(quantity+algo+"_"+interval->id());
             
+            std::cout << ( quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd +"_"+ interval->id()+  "_hist");
             TH1D* respo = (TH1D*) ifileMc->Get(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd +"_"+ interval->id()+  "_hist");
             respo->Rebin(pt_rebin_factor);
             respo->SetFillColor(kRed-9);
