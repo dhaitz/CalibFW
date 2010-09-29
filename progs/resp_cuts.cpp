@@ -50,6 +50,7 @@ bool g_doData = true;
 bool g_doL2Correction = true;
 bool g_doL3Correction = false;
 vString g_l2CorrFiles;
+vdouble g_customBinning;
 
 
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
@@ -147,7 +148,8 @@ const double g_kCutBackToBack = 0.2; // 2nd leading jet to Z pt
 PtBinWeighter g_mcWeighter;
 
 /* Danillos Custom Binning*/
-PtBin g_newPtBins[] = {
+boost::ptr_vector<PtBin> g_newPtBins;
+/*[] = {
     PtBin(0.0, 25.0),
     PtBin(25.0, 30.0),
     PtBin(30.0, 36.0),
@@ -166,6 +168,7 @@ PtBin g_newPtBins[] = {
     PtBin(304.0, 364.0)
 };
 
+0.0, 25.0, 30.0,  36.0, 36.0, 43.0, 51.0, 61.0, 73.0,87.0, 104.0, 124.0, 148.0, 177.0 212.0, 254.0, 304.0, 364.0
 /* MC Sample binning */
 /*
 PtBin g_newPtBins[] = {
@@ -1008,7 +1011,7 @@ void drawHistoBins( std::string sName,
                     bool bUseCut)
 {
     // cut / nocut , ptBins
-    BOOST_FOREACH( PtBin bin, g_newPtBins )
+    BOOST_FOREACH( PtBin & bin, g_newPtBins )
     {
         std::stringstream newTags (stringstream::in| stringstream::out);
         newTags << tags << std::setprecision(0) << std::fixed << "_Pt" << bin.m_fLowestPt << "to" << bin.m_fHighestPt;
@@ -1221,6 +1224,13 @@ int main(int argc, char** argv)
 //
 // Section general
 //
+    g_customBinning = p.getvDouble(secname + ".custom_binning");
+    for ( int i = 1; i < g_customBinning.size(); i++ )
+    {
+        g_newPtBins.push_back ( new PtBin( g_customBinning[ i-1], g_customBinning[i]));
+    }
+
+
     CreateWeightBins();
 
     /*    for ( int i = 1; i < argc; ++i)
