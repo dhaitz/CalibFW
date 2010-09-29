@@ -646,9 +646,9 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
     gentree->Branch("jet3","TParticle",&localData.jets[2]);
     gentree->Branch("l2corrJet", &l2corr, "l2corrJet/D");
     
-    gentree->Branch("cmsEventNum",&localData.cmsEventNum);
-    gentree->Branch("cmsRun",&localData.cmsRun);
-    gentree->Branch("luminosityBlock",&localData.luminosityBlock);
+    gentree->Branch("cmsEventNum",&localData.cmsEventNum, "cmsEventNum/L");
+    gentree->Branch("cmsRun",&localData.cmsRun, "cmsRun/L");
+    gentree->Branch("luminosityBlock",&localData.luminosityBlock, "cmsRun/L");
 
     //  gentree->Branch("xsection",&localData.xsection,"xsection/D");
 
