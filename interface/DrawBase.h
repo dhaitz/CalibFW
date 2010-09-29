@@ -472,7 +472,7 @@ public:
         for ( it = data.begin();  !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-            	HistFill( pHist, it->GetCorrectedJetPt(1) / it->m_pData->Z->Pt()
+            	HistFill( pHist, it->GetCorrectedJetPt(0) / it->m_pData->Z->Pt()
             			, (*it));
         }
     }
