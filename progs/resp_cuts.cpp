@@ -646,6 +646,10 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
     gentree->Branch("jet3","TParticle",&localData.jets[2]);
     gentree->Branch("l2corrJet", &l2corr, "l2corrJet/D");
     
+    gentree->Branch("cmsEventNum",&localData.cmsEventNum);
+    gentree->Branch("cmsRun",&localData.cmsRun);
+    gentree->Branch("luminosityBlock",&localData.luminosityBlock);
+
     //  gentree->Branch("xsection",&localData.xsection,"xsection/D");
 
     EventVector::iterator it;
@@ -657,10 +661,13 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
         {
             localData.Z = new TParticle ( *it->m_pData->Z );
             localData.jets[0] = new TParticle ( *it->m_pData->jets[0] );
-	    localData.jets[1] = new TParticle ( *it->m_pData->jets[1] );
-	    localData.jets[2] = new TParticle ( *it->m_pData->jets[2] );
-	      l2corr = it->m_l2CorrJets[0];
-	    //(*l2corr) = 23.0f;
+	        localData.jets[1] = new TParticle ( *it->m_pData->jets[1] );
+	        localData.jets[2] = new TParticle ( *it->m_pData->jets[2] );
+	        l2corr = it->m_l2CorrJets[0];
+
+            localData.cmsEventNum  = it->m_pData->cmsEventNum;
+            localData.cmsRun  = it->m_pData->cmsRun;
+            localData.luminosityBlock  = it->m_pData->luminosityBlock;
 	    
             gentree->Fill();
         }

@@ -146,18 +146,13 @@ char lumi_str[100];
 // yeah, i don't care either
 int g_correction_level = 0;
 TString g_sCorrection_level = "";
+TString g_sCorrectionAdd = "";
 
 // description defaults
     double info_x=.3;
     double info_y=.78;
 
 Intervals fill_intervals(vint edges);
-void fill_holder(TString h_name_mc,
-                 TString h_name_data,
-                 CanvasHolder& h,
-                 int rebin_factor,
-                 TFile* ifileMc,
-                 TFile* ifileData);
 
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
 void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false, int optStat = 0);
@@ -211,6 +206,7 @@ void PlotJetCorrection( TString algo, boost::ptr_vector<DataHisto> & histData,
         h_corr.setTitleX("p_{T}^{jet} [GeV/c]");
 
         h_corr.setBoardersY(1.0, 1.6);
+	//h_corr.setBoardersX(0.0f, 170.0f );
         h_corr.setLegPos(.75,.75,.95,.87);
 
         corr_mc.SetLineColor(kRed);
@@ -218,7 +214,7 @@ void PlotJetCorrection( TString algo, boost::ptr_vector<DataHisto> & histData,
         corr_mc.SetMarkerColor(kBlack);
         corr_mc.SetMarkerSize(0.1);
         corr_mc.SetFillStyle(3002);
-        h_corr.addObjFormated(&corr_mc,"Monte Carlo","C*");
+        h_corr.addObjFormated(&corr_mc,"Monte Carlo","L*");
 
         h_corr.addObjFormated(p_dataCalibPoints,"Binned Data","P");
         h_corr.addLatex(info_x,info_y,the_info_string,true);
@@ -353,12 +349,16 @@ int main(int argc, char **argv) {
     int ibin=0;
     TString sGlobalPrefix = "L3_calc_";
 
+    
     if ( g_correction_level == 3 )
-	g_sCorrection_level = "L3 corrected";
-    if ( g_correction_level == 2 )
-	g_sCorrection_level = "L2 corrected";
+	    g_sCorrection_level = "L3 corrected";
+    if ( g_correction_level == 2)
+    {
+       g_sCorrectionAdd = "_l2corr";
+        g_sCorrection_level = "corrected for #eta dependence";
+    }
     if ( g_correction_level == 0 )
-	g_sCorrection_level = "uncorrected";
+	    g_sCorrection_level = "uncorrected";
     
     for (int ialgo=0;ialgo<algos.size();++ialgo) {
 
@@ -367,7 +367,7 @@ int main(int argc, char **argv) {
 
         TString the_info_string(info_string);
         the_info_string.ReplaceAll("__ALGO__",goodalgo);
-	the_info_string.ReplaceAll("__CORR__", g_sCorrection_level);
+    	the_info_string.ReplaceAll("__CORR__", g_sCorrection_level);
 	
         TString quantity;
         boost::ptr_vector< DataHisto > histData;
@@ -386,8 +386,8 @@ int main(int argc, char **argv) {
             // Jet Response Histo
             quantity="jetresp_";
             CanvasHolder h_resp(quantity+algo+"_"+interval->id());
-
-            TH1D* respo = (TH1D*) ifileMc->Get(quantity+algo+"Jets_Zplusjet_mc_"+interval->id()+"_hist");
+            
+            TH1D* respo = (TH1D*) ifileMc->Get(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd +"_"+ interval->id()+  "_hist");
             respo->Rebin(pt_rebin_factor);
             respo->SetFillColor(kRed-9);
             respo->SetLineColor(kRed-9);
@@ -396,30 +396,33 @@ int main(int argc, char **argv) {
 
             // Fill The response histo
             TString zpt_name("zPt_");
-            zpt_name+=algo+"Jets_Zplusjet_mc_"+interval->id()+"_hist";
+            zpt_name+=algo+"Jets_Zplusjet_mc"+g_sCorrectionAdd + "_"+interval->id() + "_hist";
             std::cout << zpt_name << " in usage" << std::endl;
             TH1D* zpt = (TH1D*) ifileMc->Get(zpt_name);
 	    
             TString jet1_pt_name("jet1_pt_");
-            jet1_pt_name+=algo+"Jets_Zplusjet_mc_"+interval->id()+"_hist";
+            jet1_pt_name+=algo+"Jets_Zplusjet_mc"+g_sCorrectionAdd+"_"+interval->id() + "_hist";
             std::cout << zpt_name << " in usage" << std::endl;
             TH1D* jet1_pt = (TH1D*) ifileMc->Get(jet1_pt_name);
 	    
-            repsponse_mc.SetPoint(ibin,zpt->GetMean(),respo->GetMean());
-            repsponse_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
 
+	      /// smal hack to circumvemt wrong MC data, TODO REMOVE !
+	      if ( TMath::Abs( jet1_pt->GetMean() ) > 0.01 )
+	      {
+	      repsponse_mc.SetPoint(ibin,zpt->GetMean(),respo->GetMean());
+	      repsponse_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
 
-            /// smal hack to circumvemt wrong MC data, TODO REMOVE !
-            if ( TMath::Abs( jet1_pt->GetMean() ) > 0.01 )
-            {
-                corr_mc.SetPoint(ibin,jet1_pt->GetMean(),1.0f/respo->GetMean());
-                std::cout << "Added Point to MC Correction x: " << jet1_pt->GetMean() << " y: " << 1.0f/respo->GetMean() << std::endl;
-            }
-            // todo is this correct
-            //corr_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
+		  corr_mc.SetPoint(ibin,jet1_pt->GetMean(),1.0f/respo->GetMean());
+		  std::cout << "Added Point to MC Correction x: " << jet1_pt->GetMean() << " y: " << 1.0f/respo->GetMean() << std::endl;
 
-            ibin++;
-            // End fill The response histo
+	      ibin++;
+
+	      }
+	      // todo is this correct
+	      //corr_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
+
+	      // End fill The response histo
+
 
             double maximum=0.03;
 
@@ -448,7 +451,7 @@ int main(int argc, char **argv) {
 
             // end fit section
             h_resp.addObjFormated(&the_gaus,"Gaussian Fit","L");
-            h_resp.setTitleY("Arb. Units.");
+            h_resp.setTitleY("Arb. Units");
             h_resp.setTitleX("Jet Response");
 
             h_resp.addLatex(info_x,info_y,the_info_string,true);
@@ -481,10 +484,11 @@ int main(int argc, char **argv) {
                                     10,
                                     0.1f, 2.0f );
 
-            c_dataBinned->setTitleY("Arb. Unit");
+            c_dataBinned->setTitleY("Number of Events");
             c_dataBinned->setTitleX("Jet Response");
 
-            c_dataBinned->setBoardersY(0,10.0);
+	    c_dataBinned->setBoardersX(0.0,2.0);
+            c_dataBinned->setBoardersY(0.0,12.0);
             c_dataBinned->setLegPos(.75,.75,.95,.87);
 
             for (int i=0;i<responses_points_all_bins.size();++i)
@@ -500,12 +504,13 @@ int main(int argc, char **argv) {
 	    //bHist->SetLineColor(kRed-9);
 	    //bHist->SetLineStyle(1);
 	    
+	    c_dataBinned->setOptStat( kFALSE );
             c_dataBinned->addObjFormated( bHist, "Data", "Hist" );
             histData.push_back( new DataHisto( interval->min,
 					interval->max,
 					      bHist ));
 
-	    //c_dataBinned->addLatex(0.08,0.05, "Work in progress - " + interval->id()  ,true);					      
+	    c_dataBinned->addLatex(0.55,.93,interval->good_id(),true);
             formatHolderAlt(*c_dataBinned);
 	    //c_dataBinned->setOptStat( 1101 );
             c_dataBinned->draw();
@@ -538,8 +543,12 @@ int main(int argc, char **argv) {
 
         repsponse_data.Print();
 
-        for (int i=0;i<4;++i) // to remove high pt bins
+        for (int i=0;i<2;++i) // to remove high pt bins
+        {
             repsponse_mc.RemovePoint(repsponse_mc.GetN()-1);
+            corr_mc.RemovePoint(corr_mc.GetN()-1);
+        }
+
         repsponse_mc.Print();
 
         CanvasHolder h_response(algo+"_JetResponse");
@@ -634,7 +643,7 @@ void getResponses(vdouble& responses,
     Double_t l2corr;
 
     tree->SetBranchAddress("Z",&Z);
-    tree->SetBranchAddress("jet",&jet);
+    tree->SetBranchAddress("jet1",&jet);
     tree->SetBranchAddress("l2corrJet",&l2corr);
 
     double response;
@@ -668,46 +677,6 @@ Intervals fill_intervals(vint edges) {
         intervals.push_back(pt_interval(edges[i],edges[i+1]));
     return intervals;
 };
-
-//------------------------------------------------------------------------------
-void fill_holder(TString h_name_mc,
-                 TString h_name_data,
-                 CanvasHolder& h,
-                 int rebin_factor,
-                 TFile* ifileMc,
-                 TFile* ifileData) {
-
-    std::cout <<"in func\n" << h_name_mc.Data() << " " << h_name_data.Data() << std::endl ;
-
-    TH1D* hmc =( TH1D*)ifileMc->Get(h_name_mc);
-    TH1D* hdata =( TH1D*)ifileData->Get(h_name_data);
-
-    hmc->Sumw2();
-    hmc->Rebin(rebin_factor);
-    hmc->SetFillColor(kRed-9);
-    hmc->SetLineColor(kRed-9);
-    hmc->SetLineStyle(1);
-    // Normalise MC
-//    hmc->Scale(1./hmc->Integral());
-//    double nevts=hmc->Integral();
-
-    // Scale to data
-    hmc->Scale(lumi);
-
-    hdata->Sumw2();
-    hdata->Rebin(rebin_factor);
-
-    hmc->Scale(1,"width");
-    hdata->Scale(1,"width");
-
-    h.setLegPos(.75,.75,.95,.87);
-
-    h.addObjFormated(hmc,"Monte Carlo","Hist");
-    h.addObj(hdata,"Data","PE");
-//     h.normalizeHistos();
-
-}
-
 
 //------------------------------------------------------------------------------
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax) {
@@ -777,18 +746,18 @@ void formatHolder(CanvasHolder& h, const char* legSym, int markersize, int lines
     h.addLatex(.26,.93,lumi_str,true);
 }
 
-void formatHolderAlt(CanvasHolder& h) {
+void formatHolderAlt(CanvasHolder& h) { 
     //h.setLineColors(colors);
     //h.setMarkerSizeGraph(markersize);
     //h.setLinesSize(lines_width);
     //h.setLegDrawSymbol(legSym);
-    h.setOptStat(1101);
+    h.setOptStat(0);
     h.addToCantopmargin(+0.0);
     h.addToCanleftmargin(+0.08);
     h.addToCanbottommargin(+0.05);
     h.setOptTitle(false);
 
-    h.addLatex(.54,.93,"#sqrt{s}= 7 TeV",true);
+    h.addLatex(.84,.93,"#sqrt{s}= 7 TeV",true);
     h.addLatex(.26,.93,lumi_str,true);
 }
 

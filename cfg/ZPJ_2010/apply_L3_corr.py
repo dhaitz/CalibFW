@@ -38,7 +38,7 @@ the_max_jer=1.4;
 
 the_info_string= multiline_text("p_{T}^{#mu}>15 GeV , |#eta^{#mu}|<2.3 , |M-M_{Z}|<20 GeV",
                                 "|#eta^{jet}|<1.3 , |#Delta #phi (Z,jet) - #pi|<0.2 , p_{T}^{jet2}/p_{T}^{Z}< 0.2",
-                                "Particle flow __ALGO__ jets")
+                                "Particle flow __ALGO__ jets __CORR__")
 
 #kt4 pf
 #the_runs_with_evts=[142933,142933,142130,140387,142663,143322,143187,139103,142187,
@@ -51,7 +51,7 @@ the_runs_with_evts=[142933,142933,140387,142663,142419,143191,143322,143187,1421
 the_runs_with_evts.sort()
 
 # strange. specifyng 2 image formats will crash the CanvasHolder
-the_img_formats=["png"]
+the_img_formats=["png", "pdf"]
 
 p.general=section ("general",
     correction_level = 3,

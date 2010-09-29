@@ -148,6 +148,9 @@ char lumi_str[100];
 int g_correction_level = 0;
 TF1 g_l3_corr;
 
+TString g_sCorrection_level = "";
+TString g_sCorrectionAdd = "";
+
 // description defaults
     double info_x=.3;
     double info_y=.78;
@@ -309,6 +312,16 @@ int main(int argc, char **argv) {
 // 2 = level2
 // 3 = level3
     g_correction_level = p.getInt(secname+".correction_level");
+    if ( g_correction_level == 2)
+    {
+       g_sCorrectionAdd = "_l2corr";
+        g_sCorrection_level = "corrected for #eta dependence";
+    }
+    if ( g_correction_level == 3)
+    {
+       g_sCorrectionAdd = "_l2corr";
+        g_sCorrection_level = "corrected for #eta dependence and pt";
+    }
 
     sprintf(lumi_str,"#scale[.8]{#int} L = %1.2f pb^{-1}",lumi);
 
@@ -378,9 +391,9 @@ int main(int argc, char **argv) {
 
         TString the_info_string(info_string);
         the_info_string.ReplaceAll("__ALGO__",goodalgo);
+        the_info_string.ReplaceAll("__CORR__", g_sCorrection_level);
 
         TString quantity;
-
         boost::ptr_vector< DataHisto > histData;
 
 
@@ -467,7 +480,7 @@ int main(int argc, char **argv) {
 
             // end fit section
             h_resp.addObjFormated(&the_gaus,"Gaussian Fit","L");
-            h_resp.setTitleY("Arb. Units.");
+            h_resp.setTitleY("Arb. Units");
             h_resp.setTitleX("Jet Response");
 
             h_resp.addLatex(info_x,info_y,the_info_string,true);
@@ -478,7 +491,7 @@ int main(int argc, char **argv) {
             fake.SetLineColor(kBlue);
             fake.SetLineWidth(4);
             fake.SetBinContent(1,0.0000000000001);
-            h_resp.addObjFormated(&fake,"Single Events","L");
+            h_resp.addObjFormated(&fake,"Binned Data","L");
 
             formatHolder(h_resp);
 
@@ -501,7 +514,7 @@ int main(int argc, char **argv) {
                                     10,
                                     0.1f, 2.0f );
 
-            c_dataBinned->setTitleY("Arb. Unit");
+            c_dataBinned->setTitleY("Number of Events");
             c_dataBinned->setTitleX("Jet Response");
 
             c_dataBinned->setBoardersY(0,10.0);
@@ -549,11 +562,11 @@ int main(int argc, char **argv) {
 
 
         // Prepare the response/MC plot for the response
-        TGraph repsponse_data(responses_points_all_bins.size());
-        for (int i=0;i<responses_points_all_bins.size();++i)
+        TGraphErrors repsponse_data(histData.size());
+        for (int i=0;i<histData.size();++i)
         {
-            // std::cout << "PUNTI DEI DATI " << responses_points_all_bins[i].x << " " << responses_points_all_bins[i].y<<std::endl;
-            repsponse_data.SetPoint(i,responses_points_all_bins[i].x,responses_points_all_bins[i].y);
+            repsponse_data.SetPoint(i,histData[i].GetBinCenter(), histData[i].m_pHist->GetMean());
+    	    repsponse_data.SetPointError(i, histData[i].GetBinWidth() / 2.0f, histData[i].m_pHist->GetMeanError());
         }
 
         repsponse_data.SetFillColor(kWhite);
@@ -562,11 +575,11 @@ int main(int argc, char **argv) {
         repsponse_data.SetName("data");
 
         repsponse_data.Print();
-
+/*
         for (int i=0;i<4;++i) // to remove high pt bins
             repsponse_mc.RemovePoint(repsponse_mc.GetN()-1);
         repsponse_mc.Print();
-
+*/
         CanvasHolder h_response(algo+"_JetResponse");
 
         h_response.setTitleY("JetResponse");
@@ -580,8 +593,8 @@ int main(int argc, char **argv) {
         repsponse_mc.SetMarkerColor(kBlack);
         repsponse_mc.SetMarkerSize(0.1);
         repsponse_mc.SetFillStyle(3002);
-        h_response.addObjFormated(&repsponse_mc,"Monte Carlo","CE3");
-        h_response.addObj(&repsponse_data,"Single events","P");
+//        h_response.addObjFormated(&repsponse_mc,"Monte Carlo","CE3");
+        h_response.addObj(&repsponse_data,"Binned Data","P");
         h_response.addLatex(info_x,info_y,the_info_string,true);
 /*
         if ( g_correction_level == 3 )
@@ -602,12 +615,12 @@ int main(int argc, char **argv) {
             saveHolder(h_response,img_formats, false, "_l2", sGlobalPrefix);
         if ( g_correction_level == 0 )
             saveHolder(h_response,img_formats, false, "_raw", sGlobalPrefix);
-
+/*
   
 	PlotJetCorrection( algo, histData, corr_mc, img_formats, sGlobalPrefix,
 			the_info_string,
 			  "[0]",
-			   "-ConstFunc-");
+			   "-ConstFunc-");*/
 			   
     } // end loop on algos
 }
@@ -660,7 +673,7 @@ void getResponses(vdouble& responses,
 
 
     tree->SetBranchAddress("Z",&Z);
-    tree->SetBranchAddress("jet",&jet);
+    tree->SetBranchAddress("jet1",&jet);
     tree->SetBranchAddress("l2corrJet",&l2corr);
 
     double response;

@@ -387,6 +387,28 @@ public:
     }
 };
 
+// cut plots
+/*
+class CHistJetPtCorrEta : public CHistEvtDataJetBase
+{
+public:
+    CHistJetCorrEta( int iJetNum ) : CHistEvtDataJetBase( iJetNum)
+    {
+    }
+
+    virtual void Draw( TH1D * pHist, EventVector & data )
+    {
+        EventVector::iterator it;
+
+        for ( it = data.begin(); !(it == data.end()); ++it)
+        {
+            if (IsInSelection(it) && (  it->m_pData->jets[m_iJetNum]->P() > 0.01f ))
+            	HistFill( pHist,it->m_l2CorrJets[ this->m_iJetNum ] -  it->m_pData->jets[m_iJetNum]->Pt(),(*it));
+        }
+    }
+};
+*/
+
 class CHistEvtDataJetPtMinusZPt : public CHistEvtDataJetBase
 {
 public:
@@ -417,7 +439,7 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it)&& (  it->m_pData->jets[1]->P() > 0.01f ))
-            	HistFill( pHist,it->m_pData->jets[1]->Pt() / it->m_pData->Z->Pt(), (*it));
+            	HistFill( pHist,it->GetCorrectedJetPt(1) / it->m_pData->Z->Pt(), (*it));
         }
     }   
 };
@@ -450,7 +472,7 @@ public:
         for ( it = data.begin();  !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-            	HistFill( pHist, it->m_pData->jets[0]->Pt() / it->m_pData->Z->Pt()
+            	HistFill( pHist, it->GetCorrectedJetPt(1) / it->m_pData->Z->Pt()
             			, (*it));
         }
     }
