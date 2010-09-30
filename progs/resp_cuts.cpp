@@ -147,8 +147,11 @@ const double g_kCutBackToBack = 0.2; // 2nd leading jet to Z pt
 
 PtBinWeighter g_mcWeighter;
 
-/* Danillos Custom Binning*/
+
+// set via config file
 boost::ptr_vector<PtBin> g_newPtBins;
+
+/* Danillos Custom Binning*/
 /*[] = {
     PtBin(0.0, 25.0),
     PtBin(25.0, 30.0),
@@ -459,28 +462,6 @@ inline void PrintEvent( EventResult & data, std::ostream & out, EventFormater * 
         delete pForm;
 }
 
-/*
-void PrintEventIds( TString algoName, TString sPrefix = "" )
-{
-    evtData ev;
-    TChain * pChain = NULL;
-    pChain = getChain(algoName, &ev );
-
-    if ( pChain == NULL )
-    {
-        std::cout << "Branch " + algoName + " not found in TChain, skipping" ;
-        return;
-    }
-
-    int entries=pChain->GetEntries();
-
-    for (int ievt=0; ievt < entries ;++ievt)
-    {
-        pChain->GetEntry(ievt);
-        printEvent( &ev );
-    }
-}*/
-
 void ReapplyCut( bool bUseJson, bool useL2Corr, bool useL3Corr)
 {
   
@@ -562,8 +543,6 @@ void PrintTrackedEventsReport( bool bShort = false)
             iterTracked++ )
     {
         EventId id = *iterTracked;
-
-
         /*   if ( g_eventsInCut.find( id) !=  g_eventsInCut.end() )
            {
              PrintEventById( id );
@@ -593,7 +572,7 @@ void PrintTrackedEventsReport( bool bShort = false)
     std::cout << "In Cut: " << iInCut << "  Out of Cut: "<< iOutOfCut << "  Out of Dataset: "<< iOutOfDataset << std::endl;
 }
 
-void PrintInCutEventsReport( std::ostream & out )
+void PrintEventsReport( std::ostream & out, bool bOnlyInCut )
 {
     EventVector::iterator iterInCut;
 
@@ -609,7 +588,7 @@ void PrintInCutEventsReport( std::ostream & out )
             !(iterInCut == g_eventsDataset.end());
             iterInCut++ )
     {
-        if (iterInCut->IsInCut())
+        if ( iterInCut->IsInCut()  || (!bOnlyInCut ) )
         {
             PrintEvent( *iterInCut, out, NULL, true);
             ++i;
@@ -637,6 +616,8 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
 
     evtData localData;
     Double_t l2corr = 1.0f;
+    Double_t l2corrPtJet2 = 1.0f;
+    Double_t l2corrPtJet3 = 1.0f;
     
     localData.jets[0] = new TParticle();
     localData.Z = new TParticle();
@@ -648,6 +629,8 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
     gentree->Branch("jet2","TParticle",&localData.jets[1]);
     gentree->Branch("jet3","TParticle",&localData.jets[2]);
     gentree->Branch("l2corrJet", &l2corr, "l2corrJet/D");
+    gentree->Branch("l2corrPtJet2", &l2corrPtJet2, "l2corrPtJet2/D");
+    gentree->Branch("l2corrPtJet3", &l2corrPtJet3, "l2corrPtJet3/D");
     
     gentree->Branch("cmsEventNum",&localData.cmsEventNum, "cmsEventNum/L");
     gentree->Branch("cmsRun",&localData.cmsRun, "cmsRun/L");
@@ -666,7 +649,9 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
             localData.jets[0] = new TParticle ( *it->m_pData->jets[0] );
 	        localData.jets[1] = new TParticle ( *it->m_pData->jets[1] );
 	        localData.jets[2] = new TParticle ( *it->m_pData->jets[2] );
-	        l2corr = it->m_l2CorrJets[0];
+	        l2corr = it->m_l2CorrPtJets[0];
+		l2corrPtJet2 = it->m_l2CorrPtJets[1];
+		l2corrPtJet3 = it->m_l2CorrPtJets[2];
 
             localData.cmsEventNum  = it->m_pData->cmsEventNum;
             localData.cmsRun  = it->m_pData->cmsRun;
@@ -1087,8 +1072,8 @@ void processAlgo( std::string sName )
     if (g_doData)
     {
         WriteSelectedEvents(sName, sPrefix, g_eventsDataset, g_resFile.get() );
-        PrintInCutEventsReport(std::cout);
-        PrintInCutEventsReport(*g_logFile);
+        PrintEventsReport(std::cout, true);
+        PrintEventsReport(*g_logFile, true);
     }
     
     // turn on l2 corr
@@ -1114,8 +1099,8 @@ void processAlgo( std::string sName )
 	if (g_doData)
 	{
 	    WriteSelectedEvents(sName, sPrefix + "_l2corr", g_eventsDataset, g_resFile.get() );
-	    PrintInCutEventsReport(std::cout);
-	    PrintInCutEventsReport(*g_logFile);
+	    PrintEventsReport(std::cout, true);
+	    PrintEventsReport(*g_logFile, true);
 	}	
     }
 

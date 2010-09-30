@@ -137,9 +137,9 @@ public:
 	m_pData = NULL;
 	m_bUseL2 = false;
 	
-	m_l2CorrJets[0] = 1.0f;
-	m_l2CorrJets[1] = 1.0f;
-	m_l2CorrJets[2] = 1.0f;
+	m_l2CorrPtJets[0] = 1.0f;
+	m_l2CorrPtJets[1] = 1.0f;
+	m_l2CorrPtJets[2] = 1.0f;
     }
     
     ~EventResult()
@@ -148,7 +148,7 @@ public:
     }
 
     bool m_bUseL2;
-    Double_t m_l2CorrJets[3];
+    Double_t m_l2CorrPtJets[3];
 
     bool m_bUseL3;
     
@@ -164,7 +164,7 @@ public:
       double fVal = this->m_pData->jets[jetIndex]->Pt();
       if ( m_bUseL2 ) 
       {
-	fVal = fVal * this->m_l2CorrJets[jetIndex];
+	fVal = fVal * this->m_l2CorrPtJets[jetIndex];
       }
       
       return fVal;

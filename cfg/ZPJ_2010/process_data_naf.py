@@ -1,9 +1,7 @@
 
-process = configuration("Zplusjet_process_data")
-p=process
 
-_data_path = "/afs/naf.desy.de/user/h/hauth/lustre/ZPJ2010/"
-_calib_data_path = "/afs/naf.desy.de/user/h/hauth/Ana/CalibFW/data/"
+##_data_path = "/afs/naf.desy.de/user/h/hauth/lustre/ZPJ2010/"
+##_calib_data_path = "/afs/naf.desy.de/user/h/hauth/Ana/CalibFW/data/"
 
 _is_data = 1
 _tchain_file_path= _data_path + "skim_data/data_job*.root"

@@ -65,7 +65,7 @@ public:
 	{
 	  m_JEC->setJetEta(evRes->m_pData->jets[i]->Eta());
 	  m_JEC->setJetPt(evRes->m_pData->jets[i]->Pt());
-	  evRes->m_l2CorrJets[i] = m_JEC->getCorrection();
+	  evRes->m_l2CorrPtJets[i] = m_JEC->getCorrection();
 	}
     }
 

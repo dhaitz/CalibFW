@@ -24,117 +24,17 @@ MinimalParser::MinimalParser (const char* cfg_name):
     m_cfg_name(cfg_name),
     m_is_verbose(true){
 
-    if (m_cfg_name.Contains(".py")){ // put the python machinery in place
+    if (m_cfg_name.Contains(".py"))
+    { 
+        std::cout << "Using as full pyconf with file: " << m_cfg_name << std::endl;
 
-        TString cfg_name_py(m_cfg_name);
-
-        char rndfile[] = "/tmp/CalibFW_pyconf_XXXXXX";
-        mkstemp(rndfile);
-
-        TString rndpythoncfg(rndfile);
-        rndpythoncfg+=".py";
-
-        std::cout << "Using as full pyconf: " << rndpythoncfg.Data() << std::endl;
-
-        ofstream ofile (rndpythoncfg);
-
-        if (not ofile.is_open()){
-            std::cerr << "Unable to open file\n";
-            abort();
-            }
-
-        ofile << "class section(object):" << std::endl;
-        ofile << "    def __init__(self,name,**parameters):" << std::endl;
-        ofile << "        self.__name=name" << std::endl;
-        ofile << "        self.__parameters = parameters" << std::endl;
-        ofile << "        for key,val in self.__parameters.items():" << std::endl;
-        ofile << "            self.__dict__[key]=val" << std::endl;
-        ofile << "    #---------------------------------------------" << std::endl;
-        ofile << "    def setName(self,name):" << std::endl;
-        ofile << "        self.__name=name" << std::endl;
-        ofile << "    #---------------------------------------------" << std::endl;
-        ofile << "    def getName(self):" << std::endl;
-        ofile << "        return self.__name" << std::endl;
-        ofile << "    #---------------------------------------------" << std::endl;
-        ofile << "    " << std::endl;
-        ofile << "    def dump_cfg(self):" << std::endl;
-        ofile << "        print '[%s]' %self.__name" << std::endl;
-        ofile << "        for key,val in self.__dict__.items():" << std::endl;
-        ofile << "            if (key[0]!='_'):" << std::endl;
-        ofile << "                if type(val)==type(1) or type(val)==type(1.1):" << std::endl;
-        ofile << "                    print '    %s = %s' %(key,val)" << std::endl;
-        ofile << "                elif type(val)==type(''):" << std::endl;
-        ofile << "                    print '    %s = \"%s\"' %(key,val)" << std::endl;
-        ofile << "                elif type(val)==type([]):" << std::endl;
-        ofile << "                    sep=''" << std::endl;
-        ofile << "                    if type(val[0])==type(''):" << std::endl;
-        ofile << "                        sep='\"'" << std::endl;
-        ofile << "                    print '    %s = ' %key," << std::endl;
-        ofile << "                    liststring=''" << std::endl;
-        ofile << "                    for el in val:" << std::endl;
-        ofile << "                        liststring+='%s%s%s,' %(sep,el,sep)" << std::endl;
-        ofile << "                    liststring=liststring[:-1]" << std::endl;
-        ofile << "                    print liststring" << std::endl;
-        ofile << "                else:" << std::endl;
-        ofile << "                    continue" << std::endl;
-        ofile << "        print '#'+'-'*79" << std::endl;
-
-        ofile << "#-------------------------------------------------------------------------------" << std::endl;
-        ofile << "class configuration(object):" << std::endl;
-        ofile << "    def __init__(self,name):" << std::endl;
-        ofile << "        self.__name = name" << std::endl;
-        ofile << "        self.sections_names=[]" << std::endl;
-        ofile << "    #---------------------------------------------" << std::endl;
-        ofile << "    def update(self):" << std::endl;
-        ofile << "        s=section('test')" << std::endl;
-        ofile << "        self.sections_names=[]" << std::endl;
-        ofile << "        for key,val in self.__dict__.items():" << std::endl;
-        ofile << "            if type(s)==type(val):" << std::endl;
-        ofile << "                self.sections_names.append(val.getName())" << std::endl;
-        ofile << "    #---------------------------------------------" << std::endl;
-        ofile << "    def dump_cfg(self):" << std::endl;
-        ofile << "        s=section('test')" << std::endl;
-//        ofile << "        sections_names=[]" << std::endl;
-        ofile << "        for key,val in self.__dict__.items():" << std::endl;
-        ofile << "            if type(s)==type(val):" << std::endl;
-        ofile << "                print val.dump_cfg()" << std::endl;
-        ofile << "        print '[__internal__]'" << std::endl;
-        ofile << "        print 'sections = \"%s\"' %self.sections_names[0],"  << std::endl;
-        ofile << "        for section_name in self.sections_names[1:]:" << std::endl;
-        ofile << "              print ',\"%s\"' %section_name,"  << std::endl;
-        ofile << "    #---------------------------------------------" << std::endl;
-        ofile << "    def setName(self,name):" << std::endl;
-        ofile << "        self.__name=name" << std::endl;
-        ofile << "#-------------------------------------------------------------------------------" << std::endl;
-
-        std::string line;
-        ifstream ifile (cfg_name_py.Data());
-        if (ifile.is_open()){
-            while (! ifile.eof() ){
-                getline (ifile,line);
-                //std::cout << line << std::endl;
-                ofile << line.c_str() << std::endl;
-                }
-            ifile.close();
-        }
-        else{
-            std::cerr << "Unable to open file " << m_cfg_name.Data() 
-                      << std::endl;
-            abort();
-            }
-
-        ofile << "\nprocess.update()\nprocess.dump_cfg()\n";
-
-        ofile.close();
-
-        char rndfile2[] = "/tmp/CalibFW_XXXXXX";
-        mkstemp(rndfile2);
-        m_cfg_name=rndfile2;
-        m_cfg_name+=".cfg";
+        TString new_cfg_name=m_cfg_name;
+        new_cfg_name+=".cfg";
 
         TString command("python ");
-        command+=rndpythoncfg+" > "+m_cfg_name+"\n";
+        command+= m_cfg_name+" > "+new_cfg_name+"\n";
 
+	m_cfg_name = new_cfg_name;
         std::cout << "Using as ini cfg " << m_cfg_name << std::endl;
 
         system(command.Data());
