@@ -35,6 +35,7 @@ doc:
 	$(DOXYGEN) scripts/Doxygen.cfg
 
 publish:
+	python scripts/genHtml.py
 	rm -fr /disks/ekpwww/web/hauth/public_html/zplusjet/*
 	cp -f *.png /disks/ekpwww/web/hauth/public_html/zplusjet/
 	cp -f zpj_overview.html /disks/ekpwww/web/hauth/public_html/zplusjet/

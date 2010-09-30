@@ -218,7 +218,7 @@ void PlotNumberOfEvents( TString algoname, TFile *  ifile )
     h_nevts.setTitleY("Z(#rightarrow #mu #mu)+jet Events");
     h_nevts.setTitleX("Run Number");
     h_nevts.setLegDraw(0);
-    h_nevts.setBoardersY(0,total_events*1.3);
+    h_nevts.setBoardersY(0.01,total_events*1.3);
     h_nevts.setBoardersX(first_run-1000.0,last_run+300);
     h_nevts.setOptTitle(false);
     h_nevts.setOptStat(false);
@@ -340,6 +340,7 @@ int main(int argc, char **argv) {
         h_eta_jet.addLatex(info_x,info_y,the_info_string,true);
         h_eta_jet.scaleBoardersY(1,2);
         h_eta_jet.setBoardersX(-1.4,1.4);
+        h_eta_jet.setBoardersY(0.001,69.0);
 
         formatHolder(h_eta_jet);
         saveHolder(h_eta_jet,g_img_formats);
@@ -356,6 +357,7 @@ int main(int argc, char **argv) {
         h_phi_jet.setTitleY("dN_{Events}/d#phi");
         h_phi_jet.setTitleX("#phi^{jet}");
         h_phi_jet.setBoardersX(-3.14,3.14);
+        h_phi_jet.setBoardersY(0.001,34.9);
 
         h_phi_jet.addLatex(info_x,info_y,the_info_string,true);
         h_phi_jet.scaleBoardersY(1,2);
@@ -373,7 +375,7 @@ int main(int argc, char **argv) {
 
         h_pt_jet.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_jet.setTitleX("p_{T}^{jet}[GeV]");
-        h_pt_jet.setBoardersX(0,190);
+        h_pt_jet.setBoardersX(0,189);
         h_pt_jet.setBoardersY(0.0099,100.0);
         h_pt_jet.setLogY();
 
@@ -421,6 +423,7 @@ int main(int argc, char **argv) {
         h_eta_jet2.addLatex(info_x,info_y,the_info_string,true);
         h_eta_jet2.scaleBoardersY(1,2);
         h_eta_jet2.setBoardersX(-1.4,1.4);
+        h_eta_jet2.setBoardersY(0.001,59.99);
 
         formatHolder(h_eta_jet2);
         saveHolder(h_eta_jet2,g_img_formats);
@@ -437,6 +440,7 @@ int main(int argc, char **argv) {
         h_phi_jet2.setTitleY("dN_{Events}/d#phi");
         h_phi_jet2.setTitleX("#phi^{jet2}");
         h_phi_jet2.setBoardersX(-3.14,3.14);
+        h_phi_jet2.setBoardersY(0.001,34.99);
 
         h_phi_jet2.addLatex(info_x,info_y,the_info_string,true);
         h_phi_jet2.scaleBoardersY(1,2);
@@ -454,7 +458,8 @@ int main(int argc, char **argv) {
 
         h_pt_jet2.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_jet2.setTitleX("p_{T}^{jet2}[GeV]");
-        h_pt_jet2.setBoardersX(0,190);
+        h_pt_jet2.setBoardersX(0,189);
+        h_pt_jet2.setBoardersY(0.0099,100.0);
         h_pt_jet2.setLogY();
 
 
@@ -478,6 +483,7 @@ int main(int argc, char **argv) {
         h_eta_z.setTitleX("#eta^{Z}");
 
         h_eta_z.addLatex(info_x,info_y,the_info_string,true);
+        h_eta_z.setBoardersY(0.001,44.9);
         h_eta_z.scaleBoardersY(1,2.3);
 
         formatHolder(h_eta_z);
@@ -495,6 +501,7 @@ int main(int argc, char **argv) {
         h_phi_z.setTitleY("dN_{Events}/d#phi");
         h_phi_z.setTitleX("#phi^{Z}");
         h_phi_z.setBoardersX(-3.14,3.14);
+        h_phi_z.setBoardersY(0.001,34.9);
 
         h_phi_z.addLatex(info_x,info_y,the_info_string,true);
         h_phi_z.scaleBoardersY(1,2);
@@ -513,7 +520,8 @@ int main(int argc, char **argv) {
 
         h_pt_z.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_z.setTitleX("p_{T}^{Z}[GeV]");
-        h_pt_z.setBoardersX(0,190);
+        h_pt_z.setBoardersX(0,189.0);
+        h_pt_z.setBoardersY(0.0001,1.59);
 
         h_pt_z.addLatex(info_x,info_y,the_info_string,true);
         h_pt_z.scaleBoardersY(1,1.3);
@@ -533,6 +541,7 @@ int main(int argc, char **argv) {
         h_mass_z.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_mass_z.setTitleX("M_{Z}[GeV]");
         h_mass_z.setBoardersX(60.0,120.0);
+        h_mass_z.setBoardersY(0.01,11.9);
 
         h_mass_z.addLatex(info_x,info_y,the_info_string,true);
         h_mass_z.scaleBoardersY(1,1.3);
@@ -555,6 +564,7 @@ int main(int argc, char **argv) {
         h_eta_mus.setTitleX("#eta^{#mu}");
 
         h_eta_mus.setBoardersX(-2.5,2.5);
+        h_eta_mus.setBoardersY(0.001,99.9);
 
         h_eta_mus.addLatex(info_x,info_y,the_info_string,true);
         h_eta_mus.scaleBoardersY(1,2);
@@ -574,6 +584,7 @@ int main(int argc, char **argv) {
         h_phi_mus.setTitleY("dN_{Events}/d#phi");
         h_phi_mus.setTitleX("#phi^{#mu}");
         h_phi_mus.setBoardersX(-3.14,3.14);
+        h_phi_mus.setBoardersY(0.01,69.9);
 
         h_phi_mus.addLatex(info_x,info_y,the_info_string,true);
         h_phi_mus.scaleBoardersY(1,2);
@@ -592,7 +603,8 @@ int main(int argc, char **argv) {
 
         h_pt_mus.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_mus.setTitleX("p_{T}^{#mu}[GeV]");
-        h_pt_mus.setBoardersX(0,190);
+        h_pt_mus.setBoardersX(0,189);
+        h_pt_mus.setBoardersY(0.01,4.49);
 
         h_pt_mus.addLatex(info_x,info_y,the_info_string,true);
         h_pt_mus.scaleBoardersY(1,1.3);
@@ -716,7 +728,7 @@ int main(int argc, char **argv) {
             formatHolder(h_resp);
 
 //             h_resp.normalizeHistos();
-            h_resp.setBoardersY(0.0001,0.319);
+            h_resp.setBoardersY(0.0001,0.199);
             h_resp.setBoardersX(0,1.98);
             h_resp.draw();
 
@@ -757,7 +769,7 @@ int main(int argc, char **argv) {
         h_response.setTitleY("Jet Response");
         h_response.setTitleX("p_{T}^{Z} [GeV]");
 
-        h_response.setBoardersY(0,2);
+        h_response.setBoardersY(0.001,2);
         h_response.setLegPos(.75,.75,.95,.87);
 
         repsponse_mc.SetLineColor(kRed);
@@ -895,9 +907,9 @@ int main(int argc, char **argv) {
         fail.SetPoint(1,4,-4);
         h_contours.addObjFormated(&fail,"","P");
 
-        h_contours.setTitleX("S_{Data}/S_{MC}");
+        h_contours.setTitleX("s_{Data}/s_{MC}");
         h_contours.setBoardersX(min_jes+0.0001,max_jes-0.0001);
-        h_contours.setTitleY("R_{Data}/R_{MC}");
+        h_contours.setTitleY("r_{Data}/r_{MC}");
         h_contours.setBoardersY(min_jer+0.0001,1.3*max_jer-0.0001);
 
         h_contours.addLatex(info_x,info_y,the_info_string,true);
@@ -906,7 +918,7 @@ int main(int argc, char **argv) {
 
         //Let's write the result on the plot
         char result[200];
-        sprintf(result,"#scale[.8]{#splitline{S_{Data}/S_{MC} = %1.2f^{+%1.2f}_{-%1.2f}}{R_{Data}/R_{MC} = %1.2f^{+%1.2f}_{-%1.2f}}}",
+        sprintf(result,"#scale[.8]{#splitline{s_{Data}/s_{MC} = %1.2f^{+%1.2f}_{-%1.2f}}{r_{Data}/r_{MC} = %1.2f^{+%1.2f}_{-%1.2f}}}",
                 jes,jes_p1s-jes,jes-jes_m1s,  jer,jer_p1s-jer,jer-jer_m1s);
 
         //std::cout << result << std::endl;

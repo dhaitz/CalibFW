@@ -23,7 +23,7 @@ the_pt_bins=[0,25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364]
 # modify how to bin data here
 the_pt_data_bins=[0,50,120,300]
 the_algos=["ak5PF"]
-the_good_algos=["ak 0.5"]
+the_good_algos=["anti-kt 0.5"]
 #the_algos=["kt4PF"]
 #the_good_algos=["kt 0.4"]
 

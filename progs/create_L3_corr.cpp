@@ -294,10 +294,8 @@ int main(int argc, char **argv) {
     TFile* ifileMc = new TFile (mc_input_file);
     TFile* ifileData = new TFile (data_input_file);
 
-
     std::cout << "MC file : " << mc_input_file << std::endl;
     std::cout << "Data file : " << data_input_file << std::endl;
-
 
 // jet, mus, Z -- eta, pt, phi
     Intervals intervals (fill_intervals(pt_bins));
@@ -352,7 +350,7 @@ int main(int argc, char **argv) {
             
             std::cout << ( quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd +"_"+ interval->id()+  "_hist");
             TH1D* respo = (TH1D*) ifileMc->Get(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd +"_"+ interval->id()+  "_hist");
-            respo->Rebin(pt_rebin_factor);
+//            respo->Rebin(pt_rebin_factor);
             respo->SetFillColor(kRed-9);
             respo->SetLineColor(kRed-9);
             respo->SetLineStyle(1);
