@@ -53,6 +53,9 @@ vString g_l2CorrFiles;
 vdouble g_customBinning;
 
 
+enum WriteEventsEnum { NoEvents, OnlyInCutEvents, AllEvents };
+WriteEventsEnum g_writeEventsSetting;
+
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
 std::string g_sJsonFile("not set");
 std::string g_sOutputPath = "default_zjetres";
@@ -611,8 +614,11 @@ void ModEvtDraw( CHistEvtMapBase * pDraw, bool bUseCut,
 
 void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events, TFile * pFileOut )
 {
-    TTree* gentree = new TTree(algoName + prefix + "_eventsInCut",
-                               algoName + prefix + "_eventsInCut");
+    if ( g_writeEventsSetting == NoEvents )
+      return;
+  
+    TTree* gentree = new TTree(algoName + prefix + "_events",
+                               algoName + prefix + "_events");
 
     evtData localData;
     Double_t l2corr = 1.0f;
@@ -643,7 +649,7 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
             !(it == events.end());
             ++it)
     {
-        if ( it->IsInCut())
+        if ( it->IsInCut() || ( g_writeEventsSetting == AllEvents ))
         {
             localData.Z = new TParticle ( *it->m_pData->Z );
             localData.jets[0] = new TParticle ( *it->m_pData->jets[0] );
@@ -1229,12 +1235,19 @@ int main(int argc, char** argv)
 
         }
     */
-
     if ((bool) p.getInt( secname + ".fixed_weighting" ))
     {
         g_mcWeighter.Reset();
         g_mcWeighter.AddBin( PtBin(0.0, 999999.0 ), 1300  );
     }
+    
+    g_writeEventsSetting = NoEvents;
+    
+    if (  p.getString(secname + ".write_events" ) == "incut" )
+      g_writeEventsSetting = OnlyInCutEvents;
+    if (  p.getString(secname + ".write_events" ) == "all" )
+      g_writeEventsSetting = AllEvents;
+    
 
     g_doL2Correction = (bool) p.getInt( secname + ".do_l2_correction" );
     g_doL3Correction = (bool) p.getInt( secname + ".do_l3_correction" );

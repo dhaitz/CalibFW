@@ -1,6 +1,5 @@
 import ZPJProcessDataBase
 
-
 p = ZPJProcessDataBase.getDataBaseConfig()
 
 #process = configuration("Zplusjet_process_data")

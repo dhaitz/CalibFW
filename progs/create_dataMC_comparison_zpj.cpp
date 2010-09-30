@@ -164,7 +164,7 @@ void saveHolder(CanvasHolder &h, vString formats, bool make_log = false, TString
 
 void PlotNumberOfEvents( TString algoname, TFile *  ifile )
 {
-   TString treename=algoname+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_eventsInCut";
+   TString treename=algoname+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_events";
     TTree* tree = (TTree*) ifile->Get(treename);
 
     Long_t cmsRun;
