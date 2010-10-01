@@ -1016,7 +1016,7 @@ void getResponses(vdouble& responses,
                   pt_interval interval,
                   TString algoname)
 {
-    TString treename=algoname+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_eventsInCut";
+    TString treename=algoname+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_events";
     std::cout << "Generating Response for " << treename << std::endl;
 
     TTree* tree = (TTree*) ifile->Get(treename);

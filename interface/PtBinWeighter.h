@@ -1,6 +1,8 @@
 #include <vector>
 #include <string>
+#include <iostream>
 
+#include <cassert>
 
 #include "GlobalInclude.h"
 
@@ -15,10 +17,27 @@ public:
 
     }
 
+
     PtBin( double lowPt, double highPt)
     {
+      assert( lowPt < highPt);
+      
         m_fLowestPt = lowPt;
         m_fHighestPt = highPt;
+    }
+
+    double GetBinCenter()
+    {
+       return (GetMax() + GetMin() ) / 2.0f; 
+    }
+
+    double GetMin()
+    {
+      return m_fLowestPt;
+    }
+    double GetMax()
+    {
+	return m_fHighestPt;
     }
 
     bool IsInBin( double val)
@@ -27,6 +46,21 @@ public:
     }
 
     // m_fLowestPt <= Z.Pt < m_fHighestPt
+
+    TString id() {
+        TString id("Pt");
+        id+=(int)m_fLowestPt;
+        id+="to";
+        id+=(int)m_fHighestPt;
+        return id;
+    };
+    TString good_id() {
+        TString id("");
+        id+=(int)m_fLowestPt;
+        id+=" < p_{T}^{Z} < ";
+        id+=(int)m_fHighestPt;
+        return id;
+    };
 
     double m_fLowestPt;
     double m_fHighestPt;

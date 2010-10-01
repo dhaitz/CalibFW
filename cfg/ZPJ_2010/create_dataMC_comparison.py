@@ -1,3 +1,6 @@
+import ZPJConfiguration
+
+
 # -*- coding: utf-8 -*-
 # Here the parameters for all the plots are stated
 
@@ -8,7 +11,7 @@ def multiline_text(line1,line2,line3="",line4=""):
 #-----------------------------------
 
 
-process = configuration("Plots_AN_PAS")
+process = ZPJConfiguration.configuration("Plots_AN_PAS")
 p=process
 
 data_file="/local/scratch/hauth/data/ZPJ2010/mu_data.root"
@@ -38,7 +41,7 @@ the_info_string= multiline_text("p_{T}^{#mu}>15 GeV , |#eta^{#mu}|<2.3 , |M-M_{Z
 
 the_img_formats=["png","pdf"]
 
-p.general=section ("general",
+p.general=ZPJConfiguration.section ("general",
     correction_level = 2,
     mc_input_file=mc_file,
     data_input_file=data_file,
@@ -56,3 +59,6 @@ p.general=section ("general",
     max_jes=the_max_jes,
     min_jer=the_min_jer,
     max_jer=the_max_jer)
+
+p.update()
+p.dump_cfg()
