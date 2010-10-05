@@ -1,3 +1,6 @@
+#ifndef ___PTBINWEIGHTER_H
+#define ___PTBINWEIGHTER_H
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -200,3 +203,5 @@ public:
 
     std::vector<PtBinWeight> m_weights;
 };
+
+#endif

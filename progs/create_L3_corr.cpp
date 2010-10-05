@@ -5,6 +5,8 @@
 #include <stdlib.h>
 
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
 #include "TROOT.h"
 #include "TMinuit.h"
@@ -26,7 +28,11 @@
 
 
 #include "PtBinWeighter.h"
+#include "EventData.h"
 
+#include "Utilities.h"
+#include "PlotCommon.h"
+#include "PlotCommon.h"
 
 typedef std::vector<TF1> vTF1;
 typedef std::vector< vdouble > vvdouble;
@@ -67,41 +73,6 @@ public:
     double max;
 } ;
 */
-
-class Intervals : public std::vector<PtBin>
-{
-public:
-    Double_t * getRootHistParams()
-    {
-        Double_t * val[ this->size() + 1 ];
-
-        int i = 0;
-        for ( Intervals::iterator it = this->begin();
-                it != this->end();
-                ++it )
-        {
-            val[ i ] = new Double_t( it->GetMin() ) ;
-            i++;
-        }
-        val[ i ] = new Double_t(  this->back().GetMin() );
-
-        return val[0];
-    }
-};
-//------------------------------------------------------------------------------
-
-class point {
-public:
-    point(double the_x, double the_y) {
-        x=the_x;
-        y=the_y;
-    };
-    double x;
-    double y;
-};
-typedef std::vector<point> Points;
-//------------------------------------------------------------------------------
-
 
 double getX(TF1& func,double zval,double yval,double minXval,double maxXval);
 double getY(TF1& func,double zval,double xval,double minYval,double maxYval);
@@ -150,6 +121,8 @@ int g_correction_level = 0;
 TString g_sCorrection_level = "";
 TString g_sCorrectionAdd = "";
 
+PlotEnv g_plotEnv;
+
 // description defaults
     double info_x=.3;
     double info_y=.78;
@@ -165,26 +138,34 @@ void saveHolder(CanvasHolder &h, vString formats, bool make_log = false, TString
 
 
 void PlotJetCorrection( TString algo, 
-			boost::ptr_vector<DataHisto> & histData,
-			TGraphErrors & corr_mc, 
+			boost::ptr_vector<DataHisto> & histDataResponse,
+			boost::ptr_vector<DataHisto> & histDataJet1Pt,
 			vString & img_formats, 
 			TString sGlobalPrefix,
 			TString the_info_string,
-			TString plot_function, TString funcName)
+			TString plot_function, 
+			TString funcName, 
+			int iCutEntries = 0)
 {
 // JET Correction
         CanvasHolder h_corr(algo+"_JetCorrection");
 
         int i = 0;
-        TGraphErrors * p_dataCalibPoints = new TGraphErrors(histData.size());
-        for ( boost::ptr_vector< DataHisto >::iterator it = histData.begin();
-                it != histData.end();
+        TGraphErrors * p_dataCalibPoints = new TGraphErrors(histDataResponse.size());
+		
+	boost::ptr_vector< DataHisto >::iterator it_jet1pt = histDataJet1Pt.begin();
+        for ( boost::ptr_vector< DataHisto >::iterator it = histDataResponse.begin();
+                it != histDataResponse.end();
                 ++it )
         {
-            p_dataCalibPoints->SetPoint(i, it->GetBinCenter(), 1.0f / it->m_pHist->GetMean());
-	    p_dataCalibPoints->SetPointError(i, it->GetBinWidth() / 2.0f, it->m_pHist->GetMeanError());
+            p_dataCalibPoints->SetPoint(i, it_jet1pt->m_pHist->GetMean(), 1.0f / it->m_pHist->GetMean());
+	    p_dataCalibPoints->SetPointError(i, it_jet1pt->m_pHist->GetMeanError() / 2.0f, it->m_pHist->GetMeanError());
 	    //p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
             i++;
+	    it_jet1pt++;
+	    
+	    if (( histDataResponse.size() - i ) <= iCutEntries )
+	      break;
         }
   
   
@@ -196,6 +177,9 @@ void PlotJetCorrection( TString algo,
 	pDataFit->SetParameter(3, 1.0f);
 	pDataFit->SetParameter(4, 1.0f);
 	
+	pDataFit->SetLineWidth(1.0f);
+	pDataFit->SetLineColor( kRed );
+	
 	p_dataCalibPoints->Fit( pDataFit);
 
         p_dataCalibPoints->SetLineColor(kBlack);
@@ -204,23 +188,15 @@ void PlotJetCorrection( TString algo,
         p_dataCalibPoints->SetMarkerSize(1.0);
         p_dataCalibPoints->SetFillStyle(0);	
 	
-	std::cout << "ChiSquare : " << pDataFit->GetChisquare() << std::endl;
-	
+	std::cout << "ChiSquare : " << pDataFit->GetChisquare() << std::endl;	
 
         h_corr.setTitleY("Jet Energy Correction");
         h_corr.setTitleX("p_{T}^{jet} [GeV/c]");
 
-        h_corr.setBoardersY(1.0, 1.6);
+        h_corr.setBoardersY(1.0, 1.4);
+	h_corr.setBoardersX(0.11, 169.0);
 	//h_corr.setBoardersX(0.0f, 170.0f );
         h_corr.setLegPos(.75,.75,.95,.87);
-
-        corr_mc.SetLineColor(kRed);
-        corr_mc.SetFillColor(kRed);
-        corr_mc.SetMarkerColor(kBlack);
-        corr_mc.SetMarkerSize(0.1);
-        corr_mc.SetFillStyle(3002);
-        h_corr.addObjFormated(&corr_mc,"Monte Carlo","L*");
-
         h_corr.addObjFormated(p_dataCalibPoints,"Binned Data","P");
         h_corr.addLatex(info_x,info_y,the_info_string,true);
 	
@@ -318,19 +294,28 @@ int main(int argc, char **argv) {
     int phi_rebin_factor = p.getInt(secname+".phi_rebin_factor");
     int mass_rebin_factor = p.getInt(secname+".mass_rebin_factor");
     int eta_rebin_factor = p.getInt(secname+".eta_rebin_factor");
-    TString mc_input_file = p.getString(secname+".mc_input_file");
-    TString data_input_file = p.getString(secname+".data_input_file");
+    TString input_file = p.getString(secname+".input_file");
+
     TString info_string = p.getString(secname+".info_string");
     vString algos = p.getvString(secname+".algos");
     vString good_algos = p.getvString(secname+".good_algos");
     vint pt_bins = p.getvInt(secname+".pt_bins");
-    vint pt_data_bins = p.getvInt(secname+".pt_data_bins");
     vString img_formats= p.getvString(secname+".img_formats");
     double min_jes=p.getDouble(secname+".min_jes");
     double max_jes=p.getDouble(secname+".max_jes");
     double min_jer=p.getDouble(secname+".min_jer");
     double max_jer=p.getDouble(secname+".max_jer");
-
+    
+    InputTypeEnum input_type;
+    
+    if (p.getString(secname+".input_type") == "mc" )
+      input_type = McInput;
+    if (p.getString(secname+".input_type") == "data" )
+      input_type = DataInput;
+    
+    g_plotEnv.LoadFromConfig( p);
+    
+   
 // 0 = raw
 // 2 = level2
 // 3 = level3
@@ -340,15 +325,12 @@ int main(int argc, char **argv) {
 
 //------------------------------------------------------------------------------
 
-    TFile * ifileMc = new TFile (mc_input_file);
-    TFile * ifileData = new TFile (data_input_file);
+    TFile * ifile = new TFile (input_file);
 
-    std::cout << "MC file : " << mc_input_file << std::endl;
-    std::cout << "Data file : " << data_input_file << std::endl;
+    std::cout << "Input file : " << input_file << std::endl;
 
 // jet, mus, Z -- eta, pt, phi
     Intervals mc_intervals (fill_intervals(pt_bins));
-    Intervals data_intervals (fill_intervals(pt_data_bins));
 
     vTF1 functions;
 
@@ -367,294 +349,68 @@ int main(int argc, char **argv) {
 	    g_sCorrection_level = "L3 corrected";
     if ( g_correction_level == 2)
     {
-       g_sCorrectionAdd = "_l2corr";
+       g_sCorrectionAdd = "l2corr";
         g_sCorrection_level = "corrected for #eta dependence";
     }
     if ( g_correction_level == 0 )
-	    g_sCorrection_level = "uncorrected";
+      g_sCorrection_level = "uncorrected";
     
+    Intervals intervals (fill_intervals(pt_bins));    
     for (int ialgo=0;ialgo<algos.size();++ialgo) {
 
         TString algo(algos[ialgo]);
         TString goodalgo(good_algos[ialgo]);
 
-        TString the_info_string(info_string);
-        the_info_string.ReplaceAll("__ALGO__",goodalgo);
-    	the_info_string.ReplaceAll("__CORR__", g_sCorrection_level);
+	boost::ptr_vector<DataHisto> dataHistJet1Pt;
+	boost::ptr_vector<DataHisto> dataHistResponse;
 	
-        TString quantity;
-        boost::ptr_vector< DataHisto > histData;
+	TString the_info_string(info_string);
+        the_info_string.ReplaceAll("__ALGO__",goodalgo);
+        the_info_string.ReplaceAll("__CORR__", g_sCorrection_level);
 
-        for (Intervals::iterator interval=mc_intervals.begin();
-                interval < mc_intervals.end();++interval )
-        {
-            // Get responses
-            vdouble data_responses;
-            TFile data_ifile(data_input_file);
+	
+	// get the response and jet1pt histos from the root file
+        for (Intervals::iterator interval=intervals.begin();
+                interval < intervals.end();++interval )
+        {	
+            TString quantity="jetresp";
 	    
-            getResponses(data_responses,
-			 responses_points_all_bins_zpt,
-			 responses_points_all_bins_jetpt,
-			 &data_ifile,
-			 *interval,algo);
-            data_ifile.Close();
-
-            // Jet Response Histo
-            quantity="jetresp_";
-            CanvasHolder h_resp(quantity+algo+"_"+interval->id());
-            
-            std::cout << ( quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd +"_"+ interval->id()+  "_hist");
-            TH1D* respo = (TH1D*) ifileMc->Get(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd +"_"+ interval->id()+  "_hist");
-	    // respo->Rebin(pt_rebin_factor);
-            respo->SetFillColor(kRed-9);
-            respo->SetLineColor(kRed-9);
-            respo->SetLineStyle(1);
-            respo->Scale(1./respo->Integral());
-
-            // Fill The response histo
-            TString zpt_name("zPt_");
-            zpt_name+=algo+"Jets_Zplusjet_mc"+g_sCorrectionAdd + "_"+interval->id() + "_hist";
-            std::cout << zpt_name << " in usage" << std::endl;
-            TH1D* zpt = (TH1D*) ifileMc->Get(zpt_name);
+	    TString histName = RootNamer::GetHistoName(algo,
+						      quantity, 
+						      input_type,
+						      g_correction_level,
+						      &*interval);
+	    std::cout << std::endl <<  histName.Data();
+	    TH1D* respo = (TH1D*) ifile->Get( histName );
 	    
-            TString jet1_pt_name("jet1_pt_");
-            jet1_pt_name+=algo+"Jets_Zplusjet_mc"+g_sCorrectionAdd+"_"+interval->id() + "_hist";
-            std::cout << zpt_name << " in usage" << std::endl;
-            TH1D* jet1_pt = (TH1D*) ifileMc->Get(jet1_pt_name);
+	    if ( respo == NULL )
+	      handleError("create_L3_corr" , ("Can't load root histogram " + histName).Data() );
+
+	    dataHistResponse.push_back( new DataHisto(interval->GetMin(), interval-> GetMax(), respo) );
+
 	    
+	    quantity="jet1_pt";
+	    histName = RootNamer::GetHistoName(algo,
+						quantity, 
+						input_type,
+						g_correction_level,
+						&*interval);
+	    respo = (TH1D*) ifile->Get( histName );
+	    if ( respo == NULL )
+	      handleError("create_L3_corr" , ("Can't load root histogram " + histName).Data() );
 
-	      /// smal hack to circumvemt wrong MC data, TODO REMOVE !
-	      if ( TMath::Abs( jet1_pt->GetMean() ) > 0.01 )
-	      {
-		repsponse_mc.SetPoint(ibin,zpt->GetMean(),respo->GetMean());
-		repsponse_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
-
-		// old style
-		//corr_mc.SetPoint(ibin,jet1_pt->GetMean(),1.0f/respo->GetMean());
-		
-		// new style when the bins are wide ( to be compared with data binning )
-		corr_mc_jetpt.SetPoint(ibin,jet1_pt->GetMean(),1.0f/respo->GetMean());
-		  std::cout << "Added Point to MC Correction x: " << interval->GetBinCenter() << " y: " << 1.0f/respo->GetMean() << std::endl;
-
-	      ibin++;
-
-	      }
-	      // todo is this correct
-	      //corr_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
-
-	      // End fill The response histo
-
-
-            double maximum=0.03;
-
-            h_resp.setLegPos(.77,.78,.95,.87);
-
-            h_resp.addObjFormated(respo,"Monte Carlo","L*");
-
-            // fit section
-
-            TF1 the_gaus(interval->id()+"the_gaus",
-                         "[2]/(sqrt(2*TMath::Pi())*[1]*[4]) * exp(-0.5*((x-[0]*[3])/([1]*[4]))**2)",
-                         0.,2.);
-            the_gaus.SetParNames("Mean","Sigma","Norm","JES","JER");
-            the_gaus.SetParameters(.8,.5,1);
-
-//             the_gaus.FixParameter(2,1);
-
-            the_gaus.FixParameter(4,1);
-            the_gaus.FixParameter(3,1);
-            the_gaus.SetLineStyle(2);
-            respo->Fit(&the_gaus,"L");
-            the_gaus.FixParameter(0,the_gaus.GetParameter(0));
-            the_gaus.FixParameter(1,the_gaus.GetParameter(1));
-            the_gaus.FixParameter(2,the_gaus.GetParameter(2));
-            functions.push_back(the_gaus);
-
-            // end fit section
-            h_resp.addObjFormated(&the_gaus,"Gaussian Fit","L");
-            h_resp.setTitleY("Arb. Units");
-            h_resp.setTitleX("Jet Response");
-
-            h_resp.addLatex(info_x,info_y,the_info_string,true);
-            h_resp.addLatex(0.55,.93,interval->good_id(),true);
-
-            //FAKE
-            TH1F fake("fake","fake",100,-0,-0.00000001);
-            fake.SetLineColor(kBlue);
-            fake.SetLineWidth(4);
-            fake.SetBinContent(1,0.0000000000001);
-            h_resp.addObjFormated(&fake,"Single Events","L");
-
-            formatHolder(h_resp);
-
-//             h_resp.normalizeHistos();
-            h_resp.setBoardersY(0.0001,0.319);
-            h_resp.setBoardersX(0,1.98);
-        }
-
-// PLOT DATA OVER ZPT
-        int iCount = 0;
-        for (Intervals::iterator interval=data_intervals.begin();
-                interval != data_intervals.end();
-                ++interval )
-        {
-            CanvasHolder * c_dataBinned = new CanvasHolder(algo+ "_data_binned_zpt_" + interval->id() + "_canvas");
-            TH1D * bHist = new TH1D(algo+ "_data_binned_zpt_" + interval->id(),
-                                    algo+ "_data_binned_zpt_" + interval->id(),
-                                    10,
-                                    0.1f, 2.0f );
-
-            c_dataBinned->setTitleY("Number of Events");
-            c_dataBinned->setTitleX("Jet Response");
-
-	    c_dataBinned->setBoardersX(0.0,2.0);
-            c_dataBinned->setBoardersY(0.0,12.0);
-            c_dataBinned->setLegPos(.75,.75,.95,.87);
-
-            for (int i=0;i<responses_points_all_bins_zpt.size();++i)
-            {
-                if ( interval->IsInBin(responses_points_all_bins_zpt[i].x))
-                {
-                    // fill Histo
-                    std::cout << "Filling x: " << responses_points_all_bins_zpt[i].x << " y: " << responses_points_all_bins_zpt[i].y << std::endl;
-                    bHist->Fill( responses_points_all_bins_zpt[i].y);
-                }
-            }
-	    //bHist->SetFillColor(kRed-9);
-	    //bHist->SetLineColor(kRed-9);
-	    //bHist->SetLineStyle(1);
-	    
-	    c_dataBinned->setOptStat( kFALSE );
-            c_dataBinned->addObjFormated( bHist, "Data", "Hist" );
-	    
-	    c_dataBinned->addLatex(0.55,.93,interval->good_id(),true);
-            formatHolderAlt(*c_dataBinned);
-	    //c_dataBinned->setOptStat( 1101 );
-            c_dataBinned->draw();
-	    if ( g_correction_level == 0 )	    
-	      saveHolder(*c_dataBinned,img_formats, false, "_raw", sGlobalPrefix);
-	    if ( g_correction_level == 2 )	    
-	      saveHolder(*c_dataBinned,img_formats, false, "_l2", sGlobalPrefix);
-	    
-            iCount++;
-        }
-
-// PLOT DATA OVER Jet1 PT
-        for (Intervals::iterator interval=data_intervals.begin();
-                interval != data_intervals.end();
-                ++interval )
-        {
-            CanvasHolder * c_dataBinned = new CanvasHolder(algo+ "_data_binned_jet1pt_" + interval->id() + "_canvas");
-            TH1D * bHist = new TH1D(algo+ "_data_binned_jet1pt_" + interval->id(),
-                                    algo+ "_data_binned_jet1pt_" + interval->id(),
-                                    10,
-                                    0.1f, 2.0f );
-
-            c_dataBinned->setTitleY("Number of Events");
-            c_dataBinned->setTitleX("Jet Response ");
-
-	    c_dataBinned->setBoardersX(0.0,2.0);
-            c_dataBinned->setBoardersY(0.0,12.0);
-            c_dataBinned->setLegPos(.75,.75,.95,.87);
-
-            for (int i=0;i<responses_points_all_bins_jetpt.size();++i)
-            {
-                if ( interval->IsInBin(responses_points_all_bins_zpt[i].x))
-                {
-                    // fill Histo
-                    std::cout << "Filling x: " << responses_points_all_bins_jetpt[i].x << " y: " << responses_points_all_bins_jetpt[i].y << std::endl;
-                    bHist->Fill( responses_points_all_bins_jetpt[i].y);
-                }
-            }
-	    //bHist->SetFillColor(kRed-9);
-	    //bHist->SetLineColor(kRed-9);
-	    //bHist->SetLineStyle(1);
-	    
-	    c_dataBinned->setOptStat( kFALSE );
-            c_dataBinned->addObjFormated( bHist, "Data", "Hist" );
-	    
-	    // store this histogramm as it is used for jet energy correction plot
-            histData.push_back( new DataHisto( interval->GetMin(),
-					interval->GetMax(),
-					      bHist ));
-
-	    c_dataBinned->addLatex(0.55,.93,interval->good_id(),true);
-            formatHolderAlt(*c_dataBinned);
-	    //c_dataBinned->setOptStat( 1101 );
-            c_dataBinned->draw();
-	    if ( g_correction_level == 0 )	    
-	      saveHolder(*c_dataBinned,img_formats, false, "_raw", sGlobalPrefix);
-	    if ( g_correction_level == 2 )	    
-	      saveHolder(*c_dataBinned,img_formats, false, "_l2", sGlobalPrefix);
-	    
-            iCount++;
-        }
-
-        // Prepare the response/MC plot for the response
-        TGraph repsponse_data(responses_points_all_bins_zpt.size());
-        for (int i=0;i<responses_points_all_bins_zpt.size();++i)
-        {
-            // std::cout << "PUNTI DEI DATI " << responses_points_all_bins[i].x << " " << responses_points_all_bins[i].y<<std::endl;
-            repsponse_data.SetPoint(i,responses_points_all_bins_zpt[i].x,responses_points_all_bins_zpt[i].y);
-
-        }
-        repsponse_data.SetFillColor(kWhite);
-        repsponse_data.SetMarkerStyle(22);
-        repsponse_data.SetMarkerSize(1);
-        repsponse_data.SetName("data");
-
-        repsponse_data.Print();
-/*
-        for (int i=0;i<2;++i) // to remove high pt bins
-        {
-            repsponse_mc.RemovePoint(repsponse_mc.GetN()-1);
-            corr_mc.RemovePoint(corr_mc.GetN()-1);
-        }*/
-
-        repsponse_mc.Print();
-
-        CanvasHolder h_response(algo+"_JetResponse");
-
-        h_response.setTitleY("Jet Response");
-        h_response.setTitleX("p_{T}^{Z} [GeV/c]");
-
-        h_response.setBoardersY(0,2);
-        h_response.setLegPos(.75,.75,.95,.87);
-
-        repsponse_mc.SetLineColor(kRed);
-        repsponse_mc.SetFillColor(kRed);
-        repsponse_mc.SetMarkerColor(kBlack);
-        repsponse_mc.SetMarkerSize(0.1);
-        repsponse_mc.SetFillStyle(3002);
-        h_response.addObjFormated(&repsponse_mc,"Monte Carlo","CE3");
-        h_response.addObj(&repsponse_data,"Single events","P");
-        h_response.addLatex(info_x,info_y,the_info_string,true);
-/*
-        if ( g_correction_level == 2 )
-            h_response.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
-        if ( g_correction_level == 0 )
-            h_response.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
-*/
-
-        formatHolder(h_response);
-        h_response.draw();
-        h_response.getCanvas()->cd();
-
-        if ( g_correction_level == 2 )
-            saveHolder(h_response,img_formats, false, "_l2", sGlobalPrefix);
-        if ( g_correction_level == 0 )
-            saveHolder(h_response,img_formats, false, "_raw", sGlobalPrefix);
-
-  
-	PlotJetCorrection( algo, histData, corr_mc_jetpt, img_formats, sGlobalPrefix,
+	    dataHistJet1Pt.push_back( new DataHisto(interval->GetMin(), interval-> GetMax(), respo) );
+	}
+	
+	PlotJetCorrection( algo, dataHistResponse, dataHistJet1Pt, img_formats, sGlobalPrefix,
 			the_info_string,
 			  "[0] + [1]/(x^[3]) + [2]/(x^[4])",
-			   "-Danilo-Func");
-	PlotJetCorrection( algo, histData, corr_mc_jetpt, img_formats, sGlobalPrefix,
+			   "-Danilo-Func", 5);
+/*	PlotJetCorrection( algo, histData, corr_mc_jetpt, img_formats, sGlobalPrefix,
 			the_info_string,
 			  "[0] + [1]/((log(x)^[2]) + [3])",
 			   "-AN-Func");
-			   
+*/			   
     } // end loop on algos
 }
 
@@ -794,7 +550,7 @@ void saveHolder(CanvasHolder &h,
                 TString sPrefix)
 {
     TString mod_name(h.getTitle());
-    h.setCanvasTitle(sPrefix + mod_name + sNamePostfix);
+    h.setCanvasTitle(sPrefix + mod_name + sNamePostfix + g_plotEnv.m_sPlotFileNamePostfix);
 
     if (make_log) {
         TString can_name(h.getTitle());

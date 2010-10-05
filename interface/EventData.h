@@ -15,7 +15,13 @@
 
 #include "RootIncludes.h"
 
+#include "PtBinWeighter.h"
+
 #define SAFE_DELETE( first ) {  if ( first != NULL ) { delete first; } }
+
+enum CorrectionLevelEnum { Uncorrected, L2Corrected }; 
+enum InputTypeEnum { McInput, DataInput };
+
 
 class evtData : boost::noncopyable
 {
@@ -67,6 +73,37 @@ public:
 
         return ev;
     }
+};
+
+class RootNamer
+{
+  public:
+    
+    static TString GetHistoName( TString algoName, 
+			  TString quantName, 
+			  InputTypeEnum inpType,
+			  int corr = 0,
+			  PtBin * pBin = NULL,
+			  TString algoNameAppend = "Jets_Zplusjet")
+      {
+	TString sinput;
+	TString scorr;
+	TString binning;
+
+	
+	if (inpType == McInput )
+	  sinput = "_mc_";
+	if ( inpType == DataInput )
+	  sinput = "_data_";
+	
+	if ( corr == 2 )
+	  scorr = "l2corr_";
+	
+	if ( pBin != NULL )
+	  binning = pBin->id();
+	
+	return quantName + "_" + algoName + algoNameAppend + sinput  + scorr + binning + "_hist";
+      }
 };
 
 class EventId

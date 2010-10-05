@@ -946,7 +946,7 @@ void DrawHistoSet( TString algoName,
     ModEvtDraw( &back2back_draw, useCutParameter, bPtCut, ptLow, ptHigh );
     back2back.Execute <  EventVector & > ( g_eventsDataset, &back2back_draw );
 
-    // Jet Response
+    // Jet Response binned as z.pt()
     CHistDrawBase jetresp( "jetresp_" + algoName+ sPostfix,
                            pFileOut);
     jetresp.AddModifier(new CModBinRange(0.0, 2.0));
@@ -955,6 +955,9 @@ void DrawHistoSet( TString algoName,
     ModEvtDraw( &jetresp_draw, useCutParameter, bPtCut, ptLow, ptHigh );
     jetresp.Execute <  EventVector & > ( g_eventsDataset, &jetresp_draw );
 
+    // Jet Response binned as jet1.pt() here ??
+
+    
 }
 
 void loadTrackedEventsFromFile()

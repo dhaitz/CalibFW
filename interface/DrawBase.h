@@ -59,7 +59,10 @@ public:
     {
     	m_bOnlyEventsInCut = true;
     	m_bUsePtCut = true;
+	m_binWith = ZPtBinning;
     }
+  
+    enum BinWithEnum { ZPtBinning, Jet1PtBinning };
   
     void HistFill( TH1D * pHist, 
 		   double fillValue, 
@@ -67,6 +70,8 @@ public:
     {
 	pHist->Fill( fillValue, Res.m_weight);
     }
+
+    BinWithEnum m_binWith;
 
     // default behavior, might get more complex later on
     bool IsInSelection ( EventVector::iterator it )
@@ -88,11 +93,17 @@ public:
 
     	if ( m_bUsePtCut )
     	{
-    		if (!(it->m_pData->Z->Pt() >= this->m_dLowPtCut ))
-    			bPass = false;
+	    double fBinVal;
+	    if ( m_binWith == ZPtBinning )
+	      fBinVal = it->m_pData->Z->Pt();
+	    else
+	      fBinVal = it->m_pData->jets[0]->Pt();
+	  
+	    if (!( fBinVal >= this->m_dLowPtCut ))
+		    bPass = false;
 
-    		if (!(it->m_pData->Z->Pt() < this->m_dHighPtCut ))
-			bPass = false;
+	    if (!( fBinVal < this->m_dHighPtCut ))
+		    bPass = false;
     	}
 
     	return bPass;

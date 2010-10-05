@@ -13,19 +13,17 @@ def multiline_text(line1,line2,line3="",line4=""):
 process = ZPJConfiguration.configuration("Plots_AN_PAS")
 p=process
 
-data_file="/local/scratch/hauth/data/ZPJ2010/mu_data.root"
-mc_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_custom_binning.root"
-#mc_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc.root"
+#the_input_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_custom_binning.root"
+the_input_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc.root"
 the_eta_rebin_factor=5
 the_phi_rebin_factor=5
 the_pt_rebin_factor=4
 the_mass_rebin_factor=2
 the_lumi=2.96;
-#the_pt_bins=[0,25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364]
-the_pt_bins=[0,50,120,220]
+the_pt_bins=[0,25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364]
+#the_pt_bins=[0,50,120,220]
 
 # modify how to bin data here
-the_pt_data_bins=[0,50,120,220]
 the_algos=["ak5PF"]
 the_good_algos=["anti-kt 0.5"]
 #the_algos=["kt4PF"]
@@ -47,8 +45,9 @@ the_img_formats=["png"]
 
 p.general=ZPJConfiguration.section ("general",
     correction_level = 2,
-    mc_input_file=mc_file,
-    data_input_file=data_file,
+    input_type = "mc", # data or mc
+    plot_file_postfix = "_mc",
+    input_file=the_input_file,
     eta_rebin_factor=the_eta_rebin_factor,
     phi_rebin_factor=the_phi_rebin_factor,
     pt_rebin_factor=the_pt_rebin_factor,
@@ -56,7 +55,6 @@ p.general=ZPJConfiguration.section ("general",
     lumi=the_lumi,
     algos=the_algos,
     pt_bins=the_pt_bins,
-    pt_data_bins = the_pt_data_bins,
     good_algos=the_good_algos,
     info_string=the_info_string,
     img_formats=the_img_formats,
