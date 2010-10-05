@@ -216,8 +216,7 @@ public:
       if ( m_bUseL3 ) 
       {
 	fVal = fVal * this->m_l3CorrPtJets[jetIndex];
-      }
-      
+      }      
       return fVal;
     }
     

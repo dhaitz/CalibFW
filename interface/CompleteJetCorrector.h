@@ -102,7 +102,7 @@ public:
     virtual void Correct( EventResult * evRes )
     {
         for ( int i = 0; i < 3; i++ )
-	{
+	{	  
 	  m_JEC->setJetEta(evRes->m_pData->jets[i]->Eta());
 	  m_JEC->setJetPt(evRes->m_pData->jets[i]->Pt());
 	  evRes->m_l2CorrPtJets[i] = m_JEC->getCorrection();
@@ -131,7 +131,7 @@ public:
 	  it->Correct( ev );
       }
     }
-    CorrBase * m_corr;
+    
   private:
-  boost::ptr_vector<CorrBase> m_corrs;
+    boost::ptr_vector<CorrBase> m_corrs;
 };
