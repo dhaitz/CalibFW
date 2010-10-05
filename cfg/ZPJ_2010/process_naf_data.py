@@ -9,5 +9,7 @@ p.general.output_path = _data_path + "mu_data"
 p.general.write_events = "incut"
 p.general.process_algos = ["ak5PF"]
 
+p.general.custom_binning = [0,50,120,220]
+
 p.update()
 p.dump_cfg()
