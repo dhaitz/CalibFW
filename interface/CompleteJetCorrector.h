@@ -1,5 +1,7 @@
 
 
+#include "RootIncludes.h"
+
 #include "JetCorrectorParameters.h"
 #include "FactorizedJetCorrector.h"
 
@@ -23,6 +25,44 @@ class CorrBase
     {
       
     }
+};
+
+class TF1Corr : public CorrBase
+{
+public:
+    TF1Corr( TString formula, std::vector<double> params)
+    {
+          m_corrFormula.reset( new TF1( "l3_corr", formula ));
+    
+	  int i = 0;
+	  BOOST_FOREACH( double d, params)
+	  {
+	    m_corrFormula->SetParameter(i, d);
+	    i++;
+	  }
+    }
+    
+    virtual void Correct( EventResult * evRes )
+    {
+	bool beforel2;
+	bool beforel3;
+        
+	for ( int i = 0; i < 3; i++ )
+	{
+	  // Important: use l2 corrected jets for input to l3 correct !!!
+	  beforel2 = evRes->m_bUseL2;
+	  beforel3 = evRes->m_bUseL3;
+	  
+	  evRes->m_bUseL2 = true;
+	  evRes->m_bUseL3 = false;
+	  
+	  evRes->m_l3CorrPtJets[i] = m_corrFormula->Eval( evRes->GetCorrectedJetPt(i) );
+	  evRes->m_bUseL2 = beforel2;
+	  evRes->m_bUseL3 = beforel3;
+	}
+    }
+
+    boost::scoped_ptr<TF1> m_corrFormula;
 };
 
 class L2Corr : public CorrBase
@@ -77,23 +117,21 @@ class CompleteJetCorrector
 public:
     void AddCorrection( CorrBase * pCorr )
     {
-       //m_corrs.push_back( pCorr);
-       m_corr = pCorr;
+       m_corrs.push_back( pCorr);
     }
 
     // calculate correction data, but don't overwrite data
     void CalcCorrectionForEvent( EventResult * ev )
     {
-      m_corr->Correct( ev );
-      /*
+      
       for ( boost::ptr_vector< CorrBase >::iterator it = m_corrs.begin();
 	    !(it == m_corrs.end());
 	    it++ )
       {
 	  it->Correct( ev );
-      }*/
+      }
     }
     CorrBase * m_corr;
-  //private:
-  //  boost::ptr_vector<CorrBase> m_corrs;
+  private:
+  boost::ptr_vector<CorrBase> m_corrs;
 };

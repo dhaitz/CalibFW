@@ -19,7 +19,7 @@
 
 #define SAFE_DELETE( first ) {  if ( first != NULL ) { delete first; } }
 
-enum CorrectionLevelEnum { Uncorrected, L2Corrected }; 
+enum CorrectionLevelEnum { Uncorrected, L2Corrected, L3Corrected }; 
 enum InputTypeEnum { McInput, DataInput };
 
 
@@ -98,6 +98,9 @@ class RootNamer
 	
 	if ( corr == 2 )
 	  scorr = "l2corr_";
+	if ( corr == 3 )
+	  scorr = "l3corr_";
+
 	
 	if ( pBin != NULL )
 	  binning = pBin->id();
@@ -173,10 +176,16 @@ public:
         m_weight = 1.0f;
 	m_pData = NULL;
 	m_bUseL2 = false;
+	m_bUseL3 = false;
 	
 	m_l2CorrPtJets[0] = 1.0f;
 	m_l2CorrPtJets[1] = 1.0f;
 	m_l2CorrPtJets[2] = 1.0f;
+	
+	m_l3CorrPtJets[0] = 1.0f;
+	m_l3CorrPtJets[1] = 1.0f;
+	m_l3CorrPtJets[2] = 1.0f;
+	
     }
     
     ~EventResult()
@@ -186,8 +195,9 @@ public:
 
     bool m_bUseL2;
     Double_t m_l2CorrPtJets[3];
-
+    
     bool m_bUseL3;
+    Double_t m_l3CorrPtJets[3];    
     
     CutResultEnum m_cutResult;
     TString m_sCutResult;
@@ -202,6 +212,10 @@ public:
       if ( m_bUseL2 ) 
       {
 	fVal = fVal * this->m_l2CorrPtJets[jetIndex];
+      }
+      if ( m_bUseL3 ) 
+      {
+	fVal = fVal * this->m_l3CorrPtJets[jetIndex];
       }
       
       return fVal;

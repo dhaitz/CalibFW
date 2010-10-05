@@ -50,7 +50,14 @@ bool g_doData = true;
 bool g_doL2Correction = true;
 bool g_doL3Correction = false;
 vString g_l2CorrFiles;
+
+TString g_l3Formula;
+vdouble g_l3Params;
+
+
 vdouble g_customBinning;
+
+
 
 
 enum WriteEventsEnum { NoEvents, OnlyInCutEvents, AllEvents };
@@ -310,7 +317,6 @@ void importEvents( bool bUseJson,
             {
                 if ( pEx->m_eventFound )
                 {
-#include "../interface/CompleteJetCorrector.h"
                     std::cout << "Excluded Event found 2 times, this is usually *NOT* good." << std::endl;
                     exit(10);
                 }
@@ -465,16 +471,13 @@ inline void PrintEvent( EventResult & data, std::ostream & out, EventFormater * 
         delete pForm;
 }
 
-void ReapplyCut( bool bUseJson, bool useL2Corr, bool useL3Corr)
+void ReapplyCut( bool bUseJson)
 {
   
     for ( EventVector::iterator iter = g_eventsDataset.begin();
             !(iter == g_eventsDataset.end());
             ++iter )
     {
-      iter->m_bUseL2 = useL2Corr;
-      iter->m_bUseL3 = useL3Corr;
-
       applyCut( &*iter, bUseJson );
     }
 }
@@ -1041,6 +1044,9 @@ void processAlgo( std::string sName )
     
     if ( g_doL2Correction )
       	jetCorr.AddCorrection( new L2Corr( TString(sName.c_str()), g_l2CorrFiles));
+    if ( g_doL3Correction)
+	jetCorr.AddCorrection( new TF1Corr( g_l3Formula, g_l3Params) );
+
 
     
     ResetExcludedEvents();
@@ -1097,7 +1103,7 @@ void processAlgo( std::string sName )
             iter->m_bUseL2 = true;
         }
 	
-	ReapplyCut(g_doData, true, false);
+	ReapplyCut(g_doData);
 	
         drawHistoBins(sName, sPrefix + "_l2corr", g_resFile.get(),  true);
         drawHistoBins(sName, sPrefix + "_l2corr_nocut", g_resFile.get(), false);
@@ -1113,6 +1119,34 @@ void processAlgo( std::string sName )
 	}	
     }
 
+    // turn on l3 corr
+    if  ( g_doL3Correction )
+    {
+	(*g_logFile) << "l3 corrected jets " << std::endl;
+      
+        for ( EventVector::iterator iter = g_eventsDataset.begin();
+                !(iter == g_eventsDataset.end());
+                ++iter)
+        {
+	    // l2 is already on
+            iter->m_bUseL3 = true;
+        }
+	
+	ReapplyCut(g_doData);
+	
+        drawHistoBins(sName, sPrefix + "_l3corr", g_resFile.get(),  true);
+        drawHistoBins(sName, sPrefix + "_l3corr_nocut", g_resFile.get(), false);
+	
+	PrintCutReport( std::cout );
+	PrintCutReport( *g_logFile );
+
+	if (g_doData)
+	{
+	    WriteSelectedEvents(sName, sPrefix + "_l3corr", g_eventsDataset, g_resFile.get() );
+	    PrintEventsReport(std::cout, true);
+	    PrintEventsReport(*g_logFile, true);
+	}	
+    }
 //    drawJetResponsePlots( sName, g_resFile.get() );
     WriteCuts( sName, g_resFile.get() );
 
@@ -1255,6 +1289,10 @@ int main(int argc, char** argv)
     g_doL2Correction = (bool) p.getInt( secname + ".do_l2_correction" );
     g_doL3Correction = (bool) p.getInt( secname + ".do_l3_correction" );
 
+    g_l3Formula = p.getString( secname + ".l3_formula" );
+    g_l3Params = p.getvDouble( secname + ".l3_params" );
+
+    
     g_doData = (bool) p.getInt( secname + ".is_data" );
     g_doMc = ! g_doData;
 

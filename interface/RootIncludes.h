@@ -14,6 +14,7 @@
 #include "TLine.h"
 #include "TStyle.h"
 #include "TMath.h"
+#include "TF1.h"
 
 #endif
 
