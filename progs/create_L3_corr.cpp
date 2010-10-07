@@ -174,7 +174,7 @@ void PlotJetCorrection( TString algo,
 	    p_dataCalibPoints->SetPointError(i, 
 					     CalcHistoError(it_jet1pt->m_pHist), 
 					     /* calc using error propagation */
-					     CalcHistoError( it->m_pHist) * 1.0f / (it->m_pHist->GetMean()) );
+					     CalcHistoError( it->m_pHist) * 1.0f / (TMath::Power(it->m_pHist->GetMean(), 2)) );
 	    //p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
             i++;
 	    it_jet1pt++;
@@ -211,7 +211,7 @@ void PlotJetCorrection( TString algo,
         h_corr.setTitleX("p_{T}^{jet} [GeV/c]");
 
         h_corr.setBoardersY(1.0, 1.5);
-	h_corr.setBoardersX(0.11, 169.0);
+	h_corr.setBoardersX(0.11, 179.0);
 	//h_corr.setBoardersX(0.0f, 170.0f );
         h_corr.setLegPos(.75,.75,.95,.87);
 	
@@ -241,7 +241,6 @@ void PlotJetCorrection( TString algo,
         if ( g_correction_level == 0 )
             saveHolder(h_corr,img_formats, false, "_raw", sGlobalPrefix + funcName);
 }
-
 
 
 void getResponses(vdouble& responses,

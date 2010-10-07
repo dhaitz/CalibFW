@@ -206,7 +206,7 @@ void PlotResponse( TString algo,
         h_corr.setTitleX("p_{T}^{Z} [GeV/c]");
 
         h_corr.setBoardersY(0.01,1.99);
-	h_corr.setBoardersX(0.11, 169.0);
+	h_corr.setBoardersX(0.11, 179.0);
 	//h_corr.setBoardersX(0.0f, 170.0f );
         h_corr.setLegPos(.75,.75,.95,.87);
 
@@ -328,7 +328,7 @@ int main(int argc, char **argv) {
     
     if ( g_correction_level == 3 )
     {
-	g_sCorrection_level = "L3 corrected";
+	g_sCorrection_level = "corrected for #eta and Pt dependence";
 	g_sCorrectionAdd = "l3corr"; 
     }
     if ( g_correction_level == 2)
