@@ -113,13 +113,16 @@ class DataHisto
 //------------------------------------------------------------------------------
 
 // Globals (Yes, I don't care)
-double lumi=1.0f;
+double g_lumi=1.0f;
 char lumi_str[100];
 
 // yeah, i don't care either
 int g_correction_level = 0;
 TString g_sCorrection_level = "";
 TString g_sCorrectionAdd = "";
+InputTypeEnum g_input_type;
+
+
 
 PlotEnv g_plotEnv;
 
@@ -131,10 +134,21 @@ Intervals fill_intervals(vint edges);
 
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
 void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false, int optStat = 0);
-void formatHolderAlt(CanvasHolder& h);
 void saveHolder(CanvasHolder &h, vString formats, bool make_log = false, TString sNamePostfix = "", TString sPrefix = "");
 
 //------------------------------------------------------------------------------
+
+double CalcHistoError( TH1D * pHist)
+{
+    if ( g_input_type == McInput )
+    {
+      return pHist->GetRMS() / ( TMath::Sqrt( pHist->GetSumOfWeights() * g_lumi));
+    }
+    if ( g_input_type == DataInput )
+    {
+      return pHist->GetMeanError();
+    }      
+}
 
 
 void PlotResponse( TString algo, 
@@ -149,7 +163,7 @@ void PlotResponse( TString algo,
         CanvasHolder h_corr(algo+"_JetResponse");
 
         int i = 0;
-        TGraphErrors * p_dataCalibPoints = new TGraphErrors(histDataResponse.size());
+        TGraphErrors * p_dataCalibPoints = new TGraphErrors(histDataResponse.size() - iCutEntries);
 		
 	boost::ptr_vector< DataHisto >::iterator it_zpt = histZPt.begin();
         for ( boost::ptr_vector< DataHisto >::iterator it = histDataResponse.begin();
@@ -157,7 +171,9 @@ void PlotResponse( TString algo,
                 ++it )
         {
             p_dataCalibPoints->SetPoint(i, it_zpt->m_pHist->GetMean(), it->m_pHist->GetMean());
-	    //p_dataCalibPoints->SetPointError(i, it_jet1pt->m_pHist->GetMeanError() / 2.0f, it->m_pHist->GetMeanError());
+	    p_dataCalibPoints->SetPointError(i, 
+					     CalcHistoError( it_zpt->m_pHist ), 
+					     CalcHistoError( it->m_pHist ));
 	    //p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
             i++;
 	    it_zpt++;
@@ -179,23 +195,31 @@ void PlotResponse( TString algo,
 	pDataFit->SetLineColor( kRed );
 	
 	p_dataCalibPoints->Fit( pDataFit);
-
-        p_dataCalibPoints->SetLineColor(kBlack);
-        p_dataCalibPoints->SetFillColor(kBlack);
-        p_dataCalibPoints->SetMarkerColor(kBlack);
-        p_dataCalibPoints->SetMarkerSize(1.0);
-        p_dataCalibPoints->SetFillStyle(0);	
-	
-	std::cout << "ChiSquare : " << pDataFit->GetChisquare() << std::endl;	
 */
+        p_dataCalibPoints->SetLineColor(kRed);
+        p_dataCalibPoints->SetMarkerColor(kBlack);
+//        p_dataCalibPoints->SetMarkerSize(1.0);
+        p_dataCalibPoints->SetFillStyle(0);
+        p_dataCalibPoints->SetMarkerStyle(21);		
+	
         h_corr.setTitleY("Jet Response");
         h_corr.setTitleX("p_{T}^{Z} [GeV/c]");
 
-        h_corr.setBoardersY(1.0, 1.4);
+        h_corr.setBoardersY(0.01,1.99);
 	h_corr.setBoardersX(0.11, 169.0);
 	//h_corr.setBoardersX(0.0f, 170.0f );
         h_corr.setLegPos(.75,.75,.95,.87);
-        h_corr.addObjFormated(p_dataCalibPoints,"Binned Data","P");
+
+        TString sCaption;
+
+
+        if ( g_input_type == McInput )
+            sCaption = "Binned MC";
+        if ( g_input_type == DataInput )
+            sCaption = "Binned Data";
+
+
+        h_corr.addObjFormated(p_dataCalibPoints,sCaption,"ALP");
         h_corr.addLatex(info_x,info_y,the_info_string,true);
 	
 	/*
@@ -247,7 +271,7 @@ int main(int argc, char **argv) {
 //
 // Section general
 //
-    lumi = p.getDouble(secname+".lumi");
+    g_lumi = p.getDouble(secname+".lumi");
     int pt_rebin_factor = p.getInt(secname+".pt_rebin_factor");
     int phi_rebin_factor = p.getInt(secname+".phi_rebin_factor");
     int mass_rebin_factor = p.getInt(secname+".mass_rebin_factor");
@@ -263,13 +287,12 @@ int main(int argc, char **argv) {
     double max_jes=p.getDouble(secname+".max_jes");
     double min_jer=p.getDouble(secname+".min_jer");
     double max_jer=p.getDouble(secname+".max_jer");
-    
-    InputTypeEnum input_type;
+       
     
     if (p.getString(secname+".input_type") == "mc" )
-      input_type = McInput;
+      g_input_type = McInput;
     if (p.getString(secname+".input_type") == "data" )
-      input_type = DataInput;
+      g_input_type = DataInput;
     
     g_plotEnv.LoadFromConfig( p);
     
@@ -279,7 +302,7 @@ int main(int argc, char **argv) {
 // 3 = level3
     g_correction_level = p.getInt(secname+".correction_level");
 
-    sprintf(lumi_str,"#scale[.8]{#int} L = %1.2f pb^{-1}",lumi);
+    sprintf(lumi_str,"#scale[.8]{#int} L = %1.2f pb^{-1}",g_lumi);
 
 //------------------------------------------------------------------------------
 
@@ -300,7 +323,7 @@ int main(int argc, char **argv) {
     Points jec_data_binned;
     
     int ibin=0;
-    TString sGlobalPrefix = "L3_calc_";
+    TString sGlobalPrefix = "JetReponse_";
 
     
     if ( g_correction_level == 3 )
@@ -340,7 +363,7 @@ int main(int argc, char **argv) {
 	    
 	    TString histName = RootNamer::GetHistoName(algo,
 						      quantity, 
-						      input_type,
+						      g_input_type,
 						      g_correction_level,
 						      &*interval);
 	    std::cout << std::endl <<  histName.Data();
@@ -352,10 +375,10 @@ int main(int argc, char **argv) {
 	    dataHistResponse.push_back( new DataHisto(interval->GetMin(), interval-> GetMax(), respo) );
 
 	    
-	    quantity="Zpt";
+	    quantity="zPt";
 	    histName = RootNamer::GetHistoName(algo,
 						quantity, 
-						input_type,
+						g_input_type,
 						g_correction_level,
 						&*interval);
 	    respo = (TH1D*) ifile->Get( histName );
@@ -366,7 +389,7 @@ int main(int argc, char **argv) {
 	}
 	
 	PlotResponse( algo, dataHistResponse, dataHistZPt, img_formats, sGlobalPrefix,
-			the_info_string, 5);
+			the_info_string, g_plotEnv.m_iSkipBinsEnd);
 /*	PlotJetCorrection( algo, histData, corr_mc_jetpt, img_formats, sGlobalPrefix,
 			the_info_string,
 			  "[0] + [1]/((log(x)^[2]) + [3])",
@@ -417,35 +440,6 @@ Intervals fill_intervals(vint edges) {
         intervals.push_back(PtBin(edges[i],edges[i+1]));
     return intervals;
 };
-
-//------------------------------------------------------------------------------
-TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax) {
-
-    int ibin=1;
-    int npoints=0;
-    std::cout << "\nTreating histo " << histo->GetName() << std::endl;
-    while (histo->GetBinContent(ibin) < ymax and ibin < histo->GetNbinsX() and histo->GetBinCenter(ibin)<xmax) {
-//         std::cout << " - Bin Center = " << histo->GetBinCenter(ibin) << std::endl
-//                   << "  + Content = " << histo->GetBinContent(ibin) << std::endl
-//                   << "  + Upper Limit = " << ymax << std::endl;
-        npoints++;
-        ibin++;
-    }
-
-    TGraphErrors* g = new TGraphErrors(npoints);
-    g->SetName(histo->GetName());
-    g->SetTitle(histo->GetTitle());
-
-    for (int i=1;i<=npoints;i++) {
-        g->SetPoint(i-1,histo->GetBinCenter(i),histo->GetBinContent(i));
-//         g->SetPointError(i-1,0,histo->GetBinError(i));
-    }
-
-// g->Print();
-
-    return g;
-}
-
 //------------------------------------------------------------------------------
 
 void formatHolder(CanvasHolder& h, const char* legSym, int markersize, int lines_width, int skip_colors, bool do_flag, int optStat) {
@@ -485,22 +479,6 @@ void formatHolder(CanvasHolder& h, const char* legSym, int markersize, int lines
     h.addLatex(.84,.93,"#sqrt{s}= 7 TeV",true);
     h.addLatex(.26,.93,lumi_str,true);
 }
-
-void formatHolderAlt(CanvasHolder& h) { 
-    //h.setLineColors(colors);
-    //h.setMarkerSizeGraph(markersize);
-    //h.setLinesSize(lines_width);
-    //h.setLegDrawSymbol(legSym);
-    h.setOptStat(0);
-    h.addToCantopmargin(+0.0);
-    h.addToCanleftmargin(+0.08);
-    h.addToCanbottommargin(+0.05);
-    h.setOptTitle(false);
-
-    h.addLatex(.84,.93,"#sqrt{s}= 7 TeV",true);
-    h.addLatex(.26,.93,lumi_str,true);
-}
-
 
 //------------------------------------------------------------------------------
 

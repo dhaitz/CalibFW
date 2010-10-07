@@ -1123,17 +1123,17 @@ void processAlgo( std::string sName )
     if  ( g_doL3Correction )
     {
 	(*g_logFile) << "l3 corrected jets " << std::endl;
-      
-        for ( EventVector::iterator iter = g_eventsDataset.begin();
+
+	// important: reapply cuts without the l3 correction in order to have the same data base as the l3 calculation
+	ReapplyCut(g_doData);
+	
+	for ( EventVector::iterator iter = g_eventsDataset.begin();
                 !(iter == g_eventsDataset.end());
                 ++iter)
         {
 	    // l2 is already on
             iter->m_bUseL3 = true;
         }
-	
-	ReapplyCut(g_doData);
-	
         drawHistoBins(sName, sPrefix + "_l3corr", g_resFile.get(),  true);
         drawHistoBins(sName, sPrefix + "_l3corr_nocut", g_resFile.get(), false);
 	

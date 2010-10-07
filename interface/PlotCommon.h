@@ -17,9 +17,11 @@ public:
   {
     TString secname = "general";
     m_sPlotFileNamePostfix = p.getString(secname+".plot_file_postfix");
+    m_iSkipBinsEnd = p.getInt(secname+".skip_bins_end");
   }
 
     TString m_sPlotFileNamePostfix;
+    int m_iSkipBinsEnd;
   
 //  private:
 //    PlotEnv();

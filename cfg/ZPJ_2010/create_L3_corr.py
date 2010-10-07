@@ -47,6 +47,7 @@ p.general=ZPJConfiguration.section ("general",
     correction_level = 2,
     input_type = "mc", # data or mc
     plot_file_postfix = "_mc",
+    skip_bins_end = 5,
     input_file=the_input_file,
     eta_rebin_factor=the_eta_rebin_factor,
     phi_rebin_factor=the_phi_rebin_factor,
