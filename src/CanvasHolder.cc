@@ -947,7 +947,7 @@ void CanvasHolder::setMarkerSizeGraph(const double &instyle) {
     (*iter).theMarkerSize = instyle;
   }
   for (vector<ExtHisto>::iterator iter=ehistos.begin();iter!=ehistos.end();++iter)
-      (*iter).theMarkerSize=instyle;
+      (*iter).theMarkerSize=(int)instyle;
 }
 
 void CanvasHolder::setDrawOptGraph(std::string instring) {
