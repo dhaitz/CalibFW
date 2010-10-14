@@ -193,7 +193,7 @@ void PlotJetCorrection( TString algo,
 	pDataFit->SetParameter(4, 1.0f);
 	
 	pDataFit->SetLineColor(kRed);
-	pDataFit->SetLineWidth(2.0f);
+	pDataFit->SetLineWidth(2);
 	p_dataCalibPoints->Fit( pDataFit);
 
         
@@ -202,7 +202,7 @@ void PlotJetCorrection( TString algo,
 	p_dataCalibPoints->SetLineColor(kRed);
         p_dataCalibPoints->SetMarkerColor(kBlack);
         p_dataCalibPoints->SetFillStyle(0);
-	p_dataCalibPoints->SetLineWidth(2.0f);
+	p_dataCalibPoints->SetLineWidth(2);
         p_dataCalibPoints->SetMarkerStyle(21);	
 	
 	std::cout << "ChiSquare : " << pDataFit->GetChisquare() << std::endl;	
