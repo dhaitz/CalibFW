@@ -1157,6 +1157,21 @@ void processAlgo( std::string sName )
 
 void CreateWeightBins()
 {
+/*
+ * Fall10 MC  */
+    g_mcWeighter.AddBin( PtBin(0.0, 15.0 ), 4.281e+03  );
+    g_mcWeighter.AddBin( PtBin(15.0, 20.0 ), 1.451e+02  );
+    g_mcWeighter.AddBin( PtBin(20.0, 30.0 ), 1.305e+02  );
+    g_mcWeighter.AddBin( PtBin(30.0, 50.0 ), 8.398e+01  );
+    g_mcWeighter.AddBin( PtBin(50.0, 80.0 ), 3.224e+01  );
+    g_mcWeighter.AddBin( PtBin(80.0, 120.0 ), 9.984e+00  );
+    g_mcWeighter.AddBin( PtBin(120.0, 170.0 ), 2.734e+00  );
+    g_mcWeighter.AddBin( PtBin(170.0, 230.0 ), 7.207e-01  );
+    g_mcWeighter.AddBin( PtBin(230.0, 300.0 ), 1.939e-01  );
+    g_mcWeighter.AddBin( PtBin(300.0, 999999.0 ), 7.586e-02  );
+  
+/*
+ * Spring10 MC  
     g_mcWeighter.AddBin( PtBin(0.0, 15.0 ), 4.434e+03  );
     g_mcWeighter.AddBin( PtBin(15.0, 20.0 ), 1.454e+02  );
     g_mcWeighter.AddBin( PtBin(20.0, 30.0 ), 1.318e+02  );
@@ -1167,7 +1182,7 @@ void CreateWeightBins()
     g_mcWeighter.AddBin( PtBin(170.0, 230.0 ), 7.241e-01  );
     g_mcWeighter.AddBin( PtBin(230.0, 300.0 ), 1.946e-01  );
     g_mcWeighter.AddBin( PtBin(300.0, 999999.0 ), 7.627e-02  );
-
+*/
     /*
     0to15        m_ptbin_xs[0]=4.434e+03;
     15to20        m_ptbin_xs[1]=1.454e+02;
