@@ -1348,6 +1348,7 @@ int main(int argc, char** argv)
     
     std::ifstream cfgfile ( cfgName.Data(), std::fstream::in);
     char c;
+    (*g_logFile) << "Configuration file " << cfgName.Data() << std::endl << std::endl;
     while (cfgfile.good())     // loop while extraction from file is possible
     {
       c = cfgfile.get();       // get character from file
@@ -1363,6 +1364,8 @@ int main(int argc, char** argv)
 	if ( g_json )
 	  fail( "JSON File " + g_sJsonFile + " could not be loaded" );
     }
+
+    (*g_logFile) << std::endl << std::endl;
 
     std::set < std::string > myAlgoList;
     vString algoList = p.getvString(secname + ".process_algos");
