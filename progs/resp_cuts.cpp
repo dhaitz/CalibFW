@@ -959,8 +959,10 @@ void DrawHistoSet( TString algoName,
     jetresp.Execute <  EventVector & > ( g_eventsDataset, &jetresp_draw );
 
     // Jet Response binned as jet1.pt() here ??
-
+    CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
     
+    l2corr_draw.Execute( g_eventsDataset );
+  
 }
 
 void loadTrackedEventsFromFile()
@@ -1228,9 +1230,9 @@ void resp_cuts( std::set < std::string > algoList, std::string sOutputFileName)
     }
 }
 
-void fail()
+void fail( std::string sReason)
 {
-    std::cout << "Fail " << std::endl;
+    std::cout << "Fail: " << sReason << std::endl;
     exit(02);
 }
 
@@ -1308,6 +1310,9 @@ int main(int argc, char** argv)
     if (g_doData) {
         g_sJsonFile = p.getString(secname + ".json_file");
         g_json.reset( new Json_wrapper( g_sJsonFile.c_str() ));
+	
+	if ( g_json )
+	  fail( "JSON File " + g_sJsonFile + " could not be loaded" );
     }
 
     std::set < std::string > myAlgoList;
