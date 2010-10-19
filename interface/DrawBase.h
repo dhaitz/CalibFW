@@ -44,13 +44,6 @@ public:
     virtual void Draw( TH1D * pHist, TData data ) = 0;
 };
 
-template < class TData >
-class CGraphDataDrawBase
-{
-public:
-    virtual void Draw( TH1D * pHist, TData data ) = 0;
-};
-
 
 class CHistEvtMapBase : public  CHistDataDrawBase<  EventVector & >
 {
@@ -513,8 +506,6 @@ public:
     TString m_sOutFolder;
 };
 
-
-
 class CHistModifierBase
 {
 public:
@@ -524,8 +515,36 @@ public:
     virtual void ModifyAfterHistoDraw( TCanvas * pC, TH1 * pHist ) {}
 };
 
-typedef std::vector< CHistModifierBase * > ModifierList;
+class CGraphModifierBase
+{
+public:
+    virtual void ModifyBeforeCreation( void * pDrawBase  ){};
+    virtual void ModifyBeforeDataEntry( TCanvas * pC, TGraphErrors * pHist ) {}
+    virtual void ModifyAfterDataEntry( TCanvas * pC, TGraphErrors * pHist ) {}
+    virtual void ModifyAfterDraw( TCanvas * pC, TGraphErrors * pHist ) {}
+};
 
+
+typedef std::vector< CHistModifierBase * > ModifierList;
+/*
+class CGraphModBinRange : public CGraphModifierBase
+{
+public:
+    CModBinRange( double lower, double upper)
+    {
+      
+    }
+
+    void ModifyBeforeCreation( TGraphErrors * pB  )
+    {
+      
+    }
+
+private:
+    double m_dBinLower;
+    double m_dBinUpper;
+};
+*/
 class CModTdrStyle : public CHistModifierBase
 {
 public:
@@ -564,6 +583,219 @@ public:
 
 private:
     int m_iBinCount;
+};
+
+class CPlotL2Corr
+{
+public:
+    double GetX( EventResult & res )
+    {
+	return res.m_pData->jets[0]->Eta();
+    }
+    
+    double GetY( EventResult & res )
+    {
+      return res.m_l2CorrPtJets[0];
+    }
+    
+};
+
+template < class TDataExtractor >
+class CGraphDrawEvtMap
+{
+public:
+    CGraphDrawEvtMap()
+    {
+    	m_bOnlyEventsInCut = true;
+    	m_bUsePtCut = true;
+	m_binWith = ZPtBinning;
+    }
+  
+    enum BinWithEnum { ZPtBinning, Jet1PtBinning };
+  
+    void Draw( TGraphErrors * pGraph, EventVector & data )
+    {
+	int i = 0;
+	TDataExtractor tEx;
+    	for (EventVector::iterator it = data.begin(); !(it == data.end()); ++it)
+        {
+            if (IsInSelection(it))
+	    {
+            	pGraph->SetPoint (i, 
+				  tEx.GetX( (*it)),
+				  tEx.GetY( (*it)));
+		i++;
+	    }
+        }
+    }
+
+    BinWithEnum m_binWith;
+
+    // default behavior, might get more complex later on
+    bool IsInSelection ( EventVector::iterator it )
+    {
+    	bool bPass = true;
+    	// no section here is allowed to set to true again, just to false ! avoids coding errors
+    	if (this->m_bOnlyEventsInCut)
+    	{
+    		if (! it->IsInCut())
+    			bPass = false;
+    	}
+    	else
+    	{
+    		// all events which are valid in jSON file
+		// does this work for mc ??
+    		if (! it->IsValidEvent() )
+    			bPass = false;
+    	}
+
+    	if ( m_bUsePtCut )
+    	{
+	    double fBinVal;
+	    if ( m_binWith == ZPtBinning )
+	      fBinVal = it->m_pData->Z->Pt();
+	    else
+	      fBinVal = it->m_pData->jets[0]->Pt();
+	  
+	    if (!( fBinVal >= this->m_dLowPtCut ))
+		    bPass = false;
+
+	    if (!( fBinVal < this->m_dHighPtCut ))
+		    bPass = false;
+    	}
+
+    	return bPass;
+    }
+    
+    bool m_bOnlyEventsInCut;
+    bool m_bUsePtCut;
+    double m_dLowPtCut;
+    double m_dHighPtCut;
+}; 
+
+template < class TData, class TDataDrawer >
+class CGrapErrorDrawBase : public CDrawBase
+{
+public:
+    typedef boost::ptr_vector<CGraphModifierBase > ModifierVector;
+  
+    CGrapErrorDrawBase( TString cName,
+                   TFile * pResFile,
+                   ModifierVector mods = ModifierVector() ) :  CDrawBase( cName,  cName)
+    {
+        m_iBinCount = 100;
+        m_dBinLower = 0.0;
+        m_dBinUpper = 200.0;
+        m_lineColor = kBlack;
+
+        m_bDrawLegend = false;
+
+        m_pStoreToFile = pResFile;
+
+        //this->AddModifier(mods);
+    }
+
+    ~CGrapErrorDrawBase()
+    {
+    }  
+      
+
+    virtual double GetValue() {};
+
+    void Execute( TData data )
+    {
+        //int entries=m_pChain->GetEntries();
+	ModifierVector::iterator iter;
+
+        // apply modifiers
+        for (iter = m_graphMods.begin(); !( iter == m_graphMods.end()); ++iter) {
+            iter->ModifyBeforeCreation( this );
+        }
+
+        //std::cout << "Generating " << this->m_sName << " ... ";*/
+        TCanvas *c = new TCanvas( this->m_sName + "_c", this->m_sCaption,200,10,600,600);
+        TGraphErrors * resp_h = new TGraphErrors();
+	resp_h->SetName(  this->m_sName );
+	
+/*                                  this->m_sCaption,
+                                  m_iBinCount,m_dBinLower,m_dBinUpper);*/
+        //this->StyleHisto( resp_h );
+
+        // apply modifiers
+        /*
+        for (iter = m_graphMods.begin(); iter != m_graphMods.end(); ++iter) {
+            iter->ModifyBeforeDataEntry( c, resp_h );
+        }*/
+
+	TDataDrawer tdraw;
+	tdraw.Draw( resp_h, data );
+
+        // apply modifiers
+	/*
+        for (iter = m_graphMods.begin(); iter != m_graphMods.end(); ++iter) {
+            iter->ModifyAfterDataEntry( c, resp_h );
+        }*/
+/*
+	resp_h->GetYaxis()->SetRangeUser(0.0, resp_h->GetMaximum() * 1.2 );
+*/
+        resp_h->Draw();
+	
+        // apply modifiers
+       /* for (iter = m_graphMods.begin(); iter != m_graphMods.end(); ++iter) {
+            iter->ModifyAfterDraw( c, resp_h );
+        }
+	*/
+        /*
+                if (m_bDrawLegend)
+                {
+                    TLegend *leg = new TLegend(0.66, 0.71, 0.86, 0.81);
+                    leg->AddEntry(resp_h,this->m_sCaption,"l");
+                }
+        */
+        if (this->m_bSavePng)
+        {
+            c->Print( this->m_sOutFolder + this->m_sName + ".png");
+        }
+
+        if (this->m_bSavePdf)
+        {
+            c->Print(this->m_sOutFolder + this->m_sName + ".pdf");
+        }
+
+        if (this->m_pStoreToFile != NULL)
+        {
+            this->m_pStoreToFile->cd();
+            resp_h->Write( this->m_sOutFolder + this->m_sName + "_hist");
+        }
+
+        //std::cout << "done" << std::endl;
+    }
+/*
+    void AddModifier( ModifierVector mods)
+    {
+        ModifierVector::iterator iter;
+        for (iter = mods.begin(); iter != mods.end(); ++iter)
+        {
+            m_graphMods.push_back (*iter);
+        }
+    }
+*/
+    void AddModifier( CGraphModifierBase * mod)
+    {
+        m_graphMods.push_back( mod );
+      
+    }
+
+    bool m_bDrawLegend;
+    TFile * m_pStoreToFile;
+
+    unsigned int m_iBinCount;
+    double m_dBinLower;
+    double m_dBinUpper;
+    Color_t m_lineColor;
+
+    
+    ModifierVector m_graphMods;
 };
 
 class CHistDrawBase : public CDrawBase

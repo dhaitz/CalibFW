@@ -6,6 +6,7 @@
 #include "TParticle.h"
 #include "TChain.h"
 #include "TH1D.h"
+#include "TGraphErrors.h"
 #include "TLegend.h"
 #include "TCanvas.h"
 #include "TFile.h"
