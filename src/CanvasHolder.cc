@@ -1155,20 +1155,24 @@ void CanvasHolder::drawPad(TVirtualPad *a, std::string PadDrawOpt){
 
   for(std::vector<extGraph>::iterator iter=theGraphVec.begin();iter!=theGraphVec.end();++iter) {
     if((*iter).theLegName != "") {
-      //std::cout << "Adding Graph: " << (*iter).theGraph->GetName() << std::endl;
+      std::cout << "Adding Graph: " << (*iter).theGraph->GetName() << std::endl;
       TString the_name((*iter).theGraph->GetName());
-      if (the_name.Contains("Data") or the_name.Contains("data"))
+      theLeg->AddEntry((*iter).theGraph,(*iter).theLegName.c_str(),"p");
+/*      if (the_name.Contains("Data") or the_name.Contains("data"))
           theLeg->AddEntry((*iter).theGraph,(*iter).theLegName.c_str(),"p");
 //       else if (the_name.Contains("template") or the_name.Contains("Template"))
 //          theLeg->AddEntry((*iter).theHisto,(*iter).theLegTitle.c_str(),);
-      else
-        theLeg->AddEntry((*iter).theGraph,(*iter).theLegName.c_str(),theLegDrawSymbol.c_str());
+      else*/
+      //  theLeg->AddEntry((*iter).theGraph,(*iter).theLegName.c_str(),theLegDrawSymbol.c_str());
     }
     if(isFirstDraw) {
       (*iter).theGraph->Draw(std::string("A"+ (*iter).theDrawOpt).c_str());
+      std::cout << "Draw Opt: " << (*iter).theDrawOpt << std::endl;
       isFirstDraw=false;
-    } else {
-      (*iter).theGraph->Draw(std::string((*iter).theDrawOpt).c_str());
+    } 
+    else 
+    {
+      (*iter).theGraph->Draw(std::string((*iter).theDrawOpt + "same").c_str());
     }
   }
   

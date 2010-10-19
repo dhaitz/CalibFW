@@ -14,6 +14,7 @@ void CModBinRange::ModifyBeforeHistCreation( void * pB  )
     pDrawBase->m_dBinUpper = this->m_dBinUpper;
 }
 
+
 void CModTdrStyle::ModifyBeforeHistCreation( void * pB  )
 {
    TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");

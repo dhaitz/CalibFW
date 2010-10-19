@@ -11,6 +11,7 @@ Json_wrapper::Json_wrapper():m_json(0){}
 Json_wrapper::Json_wrapper(const char* json_name){
 
     m_json = new Json();
+    m_isValid = false;
     
     std::ifstream jsonfile(json_name, std::ios::binary );
     if (jsonfile) {
@@ -26,9 +27,17 @@ Json_wrapper::Json_wrapper(const char* json_name){
        
         if (Json::parse(jsonStream, *m_json)){
             std::cout<<"Parsed JSON..."<< std::endl;
-        }else {std::cout<<"Failed to parse JSON! Exiting... \n"<< std::endl;}
+	    m_isValid = true;
+        }
+	  else {
+	    std::cout<<"Failed to parse JSON! Exiting... \n"<< std::endl;
+	    
+	  }
     }
-    else { std::cout<< "Could not read JSON file! Exiting... \n";}
+    else { 
+      std::cout<< "Could not read JSON file! Exiting... \n";
+      
+    }
 
     }
 
