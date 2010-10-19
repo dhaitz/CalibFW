@@ -80,7 +80,8 @@ class MinimalParser : public TNamed {
     /// Get the sections list size
     int getSectionsNum(){return m_sections.size();};
 
-
+    TString getConfigFileName(){ return m_cfg_name; };
+    
 
   private:
 

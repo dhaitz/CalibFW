@@ -31,6 +31,7 @@ public:
     TParticle *jets[3];
 
     Double_t xsection;
+    Double_t weight;
 
     Long_t cmsEventNum;
     Long_t cmsRun;
@@ -70,7 +71,8 @@ public:
         ev->luminosityBlock = this->luminosityBlock;
 
         ev->xsection = this->xsection;
-
+	ev->weight = this->weight;
+	
         return ev;
     }
 };
