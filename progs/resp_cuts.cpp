@@ -46,10 +46,16 @@ std::string g_sSource ("");
 bool g_doMc = true;
 bool g_doData = true;
 
+
+// if true, the number in Event.weight is used for MC weigting
+bool g_useEventWeight = false;
+
 //bool g_doL1Correction = true;
 bool g_doL2Correction = true;
 bool g_doL3Correction = false;
 vString g_l2CorrFiles;
+
+
 
 TString g_l3Formula;
 vdouble g_l3Params;
@@ -390,7 +396,15 @@ void importEvents( bool bUseJson,
             //EventResult res = (*iter).second;
             //(*iter).second.m_weight = g_mcWeighter.GetWeightByZPt( (*iter).second.m_pData->Z->Pt() );
             //std::cout << "run " << iter->m_cmsRun << " num " << iter->m_cmsEventNum << std::endl;
-            iter->m_weight = g_mcWeighter.GetWeightByXSection( iter->m_pData->xsection );
+            
+            if ( g_useEventWeight )
+	    {
+	      iter->m_weight = iter->m_pData->weight;
+	    }
+	    else
+	    {
+	      iter->m_weight = g_mcWeighter.GetWeightByXSection( iter->m_pData->xsection );
+	    }
             //std::cout << "W : "<< (*iter).second.m_weight << " xsec: " << iter->second.m_pData->xsection << std::endl;
         }
 
@@ -450,6 +464,7 @@ TChain * getChain( TString sName, evtData * pEv, std::string sRootfiles)
     mychain->SetBranchAddress("cmsRun",&pEv->cmsRun);
     mychain->SetBranchAddress("luminosityBlock",&pEv->luminosityBlock);
     mychain->SetBranchAddress("xsection",&pEv->xsection);
+    mychain->SetBranchAddress("weight",&pEv->cmsEventNum);
 
     return mychain;
 }
@@ -1294,7 +1309,13 @@ int main(int argc, char** argv)
         g_mcWeighter.Reset();
         g_mcWeighter.AddBin( PtBin(0.0, 999999.0 ), 1300  );
     }
-    
+
+    if ((bool) p.getInt( secname + ".use_event_weight" ))
+    {
+	g_useEventWeight = true;
+    }
+
+
     g_writeEventsSetting = NoEvents;
     
     if (  p.getString(secname + ".write_events" ) == "incut" )
@@ -1322,6 +1343,19 @@ int main(int argc, char** argv)
     //g_logFile = ofstream(  sLogFileName.c_str(), ios_base::trunc );
     g_logFile.reset (new ofstream(  sLogFileName.c_str(), ios_base::trunc ));
 
+    // insert config into log file
+    TString cfgName = p.getConfigFileName();
+    
+    std::ifstream cfgfile ( cfgName.Data(), std::fstream::in);
+    char c;
+    while (cfgfile.good())     // loop while extraction from file is possible
+    {
+      c = cfgfile.get();       // get character from file
+      if (cfgfile.good())
+	(*g_logFile) << c;
+    }
+      cfgfile.close();
+    
     if (g_doData) {
         g_sJsonFile = p.getString(secname + ".json_file");
         g_json.reset( new Json_wrapper( g_sJsonFile.c_str() ));
