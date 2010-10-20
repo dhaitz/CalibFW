@@ -4,8 +4,8 @@ p = ZPJProcessDataBase.getDataBaseConfig()
 
 _data_path = "/afs/naf.desy.de/user/h/hauth/lustre/ZPJ2010/"
 
-p.general.tchain_file_path = _data_path + "skim_data_2010b/data_2010b*.root" 
-p.general.output_path = _data_path + "mu_data_2010b"
+p.general.tchain_file_path = _data_path + "skim_data_2010aReReco/data_*.root" 
+p.general.output_path = _data_path + "mu_data_2010aReReco"
 p.general.write_events = "incut"
 p.general.process_algos = ["ak5PF"]
 

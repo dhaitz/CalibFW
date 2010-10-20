@@ -8,7 +8,10 @@ def getDefaultCorrection( data_path ):
       "ak5CaloJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_AK5Calo.txt",
       "ak7CaloJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_AK7Calo.txt",
       "kt4CaloJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_KT4Calo.txt",
-      "kt6CaloJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_KT6Calo.txt"]
+      "kt6CaloJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_KT6Calo.txt",
+	"iterativeCone5PFJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_IC5PF.txt",
+	"iterativeCone5CaloJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_IC5Calo.txt"
+]
   return g_l2_correction_data
 
 def getDefaultBinning():
@@ -22,8 +25,8 @@ def getDataBaseConfig(  ):
 
   _calib_data_path = "data/"
   _is_data = 1
-  _json_file= _calib_data_path + "json/Cert_132440-147116_7TeV_StreamExpress_Collisions10_JSON.txt"
-  _process_algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo"]
+  _json_file= _calib_data_path + "json/Cert_132440-147454_7TeV_StreamExpress_Collisions10_JSON.txt"
+  _process_algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo", "iterativeCone5PF", "iterativeCone5Calo"]
   
   p.general = ZPJConfiguration.section ("general",
       custom_binning = getDefaultBinning(),
@@ -48,7 +51,7 @@ def getMCBaseConfig(  ):
 
   _calib_data_path = "data/"
   _is_data = 0
-  _process_algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo"]
+  _process_algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo", "iterativeCone5PF", "iterativeCone5Calo"]
 
   p.general = ZPJConfiguration.section ("general",
       custom_binning = getDefaultBinning(),
@@ -60,7 +63,7 @@ def getMCBaseConfig(  ):
       tchain_file_path = "not set",
       l2_correction_data = getDefaultCorrection(_calib_data_path),
       output_path = "not set",
-      json_file = _json_file,
+      json_file = "not set",
       process_algos=_process_algos
   )
 
