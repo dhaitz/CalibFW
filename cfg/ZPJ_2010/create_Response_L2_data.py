@@ -14,7 +14,7 @@ process = ZPJConfiguration.configuration("Plots_AN_PAS")
 p=process
 
 #the_input_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_custom_binning.root"
-the_input_file="/local/scratch/hauth/data/ZPJ2010/mu_data.root"
+the_input_file="/local/scratch/hauth/data/ZPJ2010/mu_data_2010a+b.root"
 the_eta_rebin_factor=5
 the_phi_rebin_factor=5
 the_pt_rebin_factor=4

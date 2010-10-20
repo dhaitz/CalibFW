@@ -150,37 +150,60 @@ double CalcHistoError( TH1D * pHist)
     }      
 }
 
+struct ResponseSourceHistos
+{
+public: 
+  DataHisto * histDataResponse;
+  DataHisto * histZPt;
+};
 
-void PlotResponse( TString algo, 
-		    boost::ptr_vector<DataHisto> & histDataResponse,
-		    boost::ptr_vector<DataHisto> & histZPt,
+// Plots the response of one or more algos into a CanvasHolder
+void PlotResponse( std::vector<TString> & algoList, 
+		    std::vector<boost::ptr_vector<ResponseSourceHistos> > & histSource,
 		    vString & img_formats, 
 		    TString sGlobalPrefix,
 		    TString the_info_string,
 		    int iCutEntries = 0)
 {
 // JET Correction
-        CanvasHolder h_corr(algo+"_JetResponse");
+        CanvasHolder h_corr(sGlobalPrefix+"_JetResponse");
 
-        int i = 0;
-        TGraphErrors * p_dataCalibPoints = new TGraphErrors(histDataResponse.size() - iCutEntries);
-		
-	boost::ptr_vector< DataHisto >::iterator it_zpt = histZPt.begin();
-        for ( boost::ptr_vector< DataHisto >::iterator it = histDataResponse.begin();
-                it != histDataResponse.end();
-                ++it )
-        {
-            p_dataCalibPoints->SetPoint(i, it_zpt->m_pHist->GetMean(), it->m_pHist->GetMean());
-	    p_dataCalibPoints->SetPointError(i, 
-					     CalcHistoError( it_zpt->m_pHist ), 
-					     CalcHistoError( it->m_pHist ));
-	    //p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
-            i++;
-	    it_zpt++;
+	std::vector<boost::ptr_vector<ResponseSourceHistos> >::iterator itAlgos;
+	std::vector< TString>::iterator itAlgoName = algoList.begin();
+	
+	for( itAlgos = histSource.begin();
+	      itAlgos != histSource.end();
+	      itAlgos ++)
+	{
+	    TGraphErrors * p_dataCalibPoints = new TGraphErrors(itAlgos->size() - iCutEntries);
+		    
+	    int i = 0;
 	    
-	    if (( histDataResponse.size() - i ) <= iCutEntries )
-	      break;
-        }
+	    for ( boost::ptr_vector< ResponseSourceHistos >::iterator it = itAlgos->begin();
+		    it != itAlgos->end();
+		    ++it )
+	    {
+		p_dataCalibPoints->SetPoint(i, it->histZPt->m_pHist->GetMean(), it->histDataResponse->m_pHist->GetMean());
+		p_dataCalibPoints->SetPointError(i, 
+						CalcHistoError( it->histZPt->m_pHist ), 
+						CalcHistoError( it->histDataResponse->m_pHist ));
+		//p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
+		i++;
+		
+		if (( itAlgos->size() - i ) <= iCutEntries )
+		  break;
+	    }
+	  
+	    p_dataCalibPoints->SetLineColor(kRed);
+	    p_dataCalibPoints->SetMarkerColor(kBlack);
+    //        p_dataCalibPoints->SetMarkerSize(1.0);
+	    p_dataCalibPoints->SetFillStyle(0);
+	    p_dataCalibPoints->SetMarkerStyle(21);
+	    h_corr.addObjFormated(p_dataCalibPoints, itAlgoName->Data() ,"ALP");
+	  
+	    itAlgoName++;
+	}
+	
   
   /*
 	// do the fit !
@@ -196,11 +219,7 @@ void PlotResponse( TString algo,
 	
 	p_dataCalibPoints->Fit( pDataFit);
 */
-        p_dataCalibPoints->SetLineColor(kRed);
-        p_dataCalibPoints->SetMarkerColor(kBlack);
-//        p_dataCalibPoints->SetMarkerSize(1.0);
-        p_dataCalibPoints->SetFillStyle(0);
-        p_dataCalibPoints->SetMarkerStyle(21);		
+		
 	
         h_corr.setTitleY("Jet Response");
         h_corr.setTitleX("p_{T}^{Z} [GeV/c]");
@@ -219,7 +238,7 @@ void PlotResponse( TString algo,
             sCaption = "Binned Data";
 
 
-        h_corr.addObjFormated(p_dataCalibPoints,sCaption,"ALP");
+        
         h_corr.addLatex(info_x,info_y,the_info_string,true);
 	
 	/*
@@ -340,25 +359,34 @@ int main(int argc, char **argv) {
     {
         g_sCorrection_level = "uncorrected";
     }
+
+
+    std::vector< boost::ptr_vector< ResponseSourceHistos> > respHistos;
+    std::vector<TString> algoNaming;
     
+
     Intervals intervals (fill_intervals(pt_bins));    
     for (int ialgo=0;ialgo<algos.size();++ialgo) {
 
         TString algo(algos[ialgo]);
         TString goodalgo(good_algos[ialgo]);
 
-	boost::ptr_vector<DataHisto> dataHistZPt;
-	boost::ptr_vector<DataHisto> dataHistResponse;
+	
 	
 	TString the_info_string(info_string);
         the_info_string.ReplaceAll("__ALGO__",goodalgo);
         the_info_string.ReplaceAll("__CORR__", g_sCorrection_level);
 
 	
+	respHistos.push_back( boost::ptr_vector<ResponseSourceHistos>() );
+	algoNaming.push_back( goodalgo );
+	
 	// get the response and jet1pt histos from the root file
         for (Intervals::iterator interval=intervals.begin();
                 interval < intervals.end();++interval )
         {	
+	  
+	    ResponseSourceHistos * pHistos = new ResponseSourceHistos;
             TString quantity="jetresp";
 	    
 	    TString histName = RootNamer::GetHistoName(algo,
@@ -372,7 +400,7 @@ int main(int argc, char **argv) {
 	    if ( respo == NULL )
 	      handleError("." , ("Can't load root histogram " + histName).Data() );
 
-	    dataHistResponse.push_back( new DataHisto(interval->GetMin(), interval-> GetMax(), respo) );
+	    pHistos->histDataResponse = new DataHisto(interval->GetMin(), interval-> GetMax(), respo);
 
 	    
 	    quantity="zPt";
@@ -385,16 +413,14 @@ int main(int argc, char **argv) {
 	    if ( respo == NULL )
 	      handleError("." , ("Can't load root histogram " + histName).Data() );
 
-	    dataHistZPt.push_back( new DataHisto(interval->GetMin(), interval-> GetMax(), respo) );
+	    pHistos->histZPt = new DataHisto(interval->GetMin(), interval-> GetMax(), respo);
+	    respHistos.back().push_back( pHistos );
 	}
 	
-	PlotResponse( algo, dataHistResponse, dataHistZPt, img_formats, sGlobalPrefix,
+	PlotResponse( algoNaming, 
+		      respHistos,
+		      img_formats, sGlobalPrefix,
 			the_info_string, g_plotEnv.m_iSkipBinsEnd);
-/*	PlotJetCorrection( algo, histData, corr_mc_jetpt, img_formats, sGlobalPrefix,
-			the_info_string,
-			  "[0] + [1]/((log(x)^[2]) + [3])",
-			   "-AN-Func");
-*/			   
     } // end loop on algos
 }
 

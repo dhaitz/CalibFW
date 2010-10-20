@@ -1361,7 +1361,7 @@ int main(int argc, char** argv)
         g_sJsonFile = p.getString(secname + ".json_file");
         g_json.reset( new Json_wrapper( g_sJsonFile.c_str() ));
 	
-	if ( g_json )
+	if ( ! g_json->isValid() )
 	  fail( "JSON File " + g_sJsonFile + " could not be loaded" );
     }
 
