@@ -464,7 +464,7 @@ TChain * getChain( TString sName, evtData * pEv, std::string sRootfiles)
     mychain->SetBranchAddress("cmsRun",&pEv->cmsRun);
     mychain->SetBranchAddress("luminosityBlock",&pEv->luminosityBlock);
     mychain->SetBranchAddress("xsection",&pEv->xsection);
-    mychain->SetBranchAddress("weight",&pEv->cmsEventNum);
+    mychain->SetBranchAddress("weight",&pEv->weight);
 
     return mychain;
 }
@@ -659,7 +659,6 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
     gentree->Branch("cmsEventNum",&localData.cmsEventNum, "cmsEventNum/L");
     gentree->Branch("cmsRun",&localData.cmsRun, "cmsRun/L");
     gentree->Branch("luminosityBlock",&localData.luminosityBlock, "cmsRun/L");
-
     //  gentree->Branch("xsection",&localData.xsection,"xsection/D");
 
     EventVector::iterator it;
@@ -974,10 +973,10 @@ void DrawHistoSet( TString algoName,
     jetresp.Execute <  EventVector & > ( g_eventsDataset, &jetresp_draw );
 
     // Jet Response binned as jet1.pt() here ??
-    CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
+/*    CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
     
     l2corr_draw.Execute( g_eventsDataset );
-  
+  */
 }
 
 void loadTrackedEventsFromFile()
