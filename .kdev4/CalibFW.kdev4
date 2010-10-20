@@ -1,8 +1,35 @@
 [Buildset]
 BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
 
+[Launch]
+Launch Configurations=Launch Configuration 0
+
+[Launch][Launch Configuration 0]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=New Native Application Configuration
+Type=Native Application
+
+[Launch][Launch Configuration 0][Data]
+Arguments=/local/scratch/hauth/Ana/CalibFW/cfg/ZPJ_2010/create_Response_L2_data.py
+Debugger Shell=
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
+Dependency Action=Nothing
+Display Demangle Names=true
+Display Static Members=false
+EnvironmentGroup=default
+Executable=file:///local/scratch/hauth/Ana/CalibFW/bin/create_Response.exe
+GDB Path=
+Remote GDB Config Script=
+Remote GDB Run Script=
+Remote GDB Shell Script=
+Try Setting Breakpoints On Loading Libraries=true
+Working Directory=
+isExecutable=true
+
 [MakeBuilder]
 Default Target=exe
+Number Of Jobs=1
 
 [Project]
 VersionControlSupport=kdevsubversion

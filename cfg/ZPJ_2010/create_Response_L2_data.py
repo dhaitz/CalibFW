@@ -19,12 +19,12 @@ the_eta_rebin_factor=5
 the_phi_rebin_factor=5
 the_pt_rebin_factor=4
 the_mass_rebin_factor=2
-the_lumi=2.96;
-the_pt_bins=[0,50,120,220]
+the_lumi=10.94;
+the_pt_bins=[0,30,60,100,140,220]
 
 # modify how to bin data here
-the_algos=["ak5PF"]
-the_good_algos=["anti-kt 0.5"]
+the_algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "iterativeCone5PF"]
+the_good_algos=["anti-kt 0.5 PF", "anti-kt 0.7 PF", "kt 0.4 PF", "kt 0.6 PF", "iterativeCone 5"]
 #the_algos=["kt4PF"]
 #the_good_algos=["kt 0.4"]
 
@@ -37,7 +37,7 @@ the_max_jer=1.4;
 
 the_info_string= multiline_text("p_{T}^{#mu}>15 GeV , |#eta^{#mu}|<2.3 , |M-M_{Z}|<20 GeV",
                                 "|#eta^{jet}|<1.3 , |#Delta #phi (Z,jet) - #pi|<0.2 , p_{T}^{jet2}/p_{T}^{Z}< 0.2",
-                                "Particle Flow __ALGO__ jets",
+                                "Particle Flow jets",
                                 "__CORR__")
 
 the_img_formats=["png"]

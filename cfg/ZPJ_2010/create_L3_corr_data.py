@@ -24,8 +24,8 @@ the_lumi=2.96;
 the_pt_bins=[0,50,120,220]
 
 # modify how to bin data here
-the_algos=["ak5PF"]
-the_good_algos=["anti-kt 0.5"]
+the_algos=["ak5PF", "ak7PF"]
+the_good_algos=["anti-kt 0.5", "anti-kt 0.7"]
 #the_algos=["kt4PF"]
 #the_good_algos=["kt 0.4"]
 
@@ -38,7 +38,6 @@ the_max_jer=1.4;
 
 the_info_string= multiline_text("p_{T}^{#mu}>15 GeV , |#eta^{#mu}|<2.3 , |M-M_{Z}|<20 GeV",
                                 "|#eta^{jet}|<1.3 , |#Delta #phi (Z,jet) - #pi|<0.2 , p_{T}^{jet2}/p_{T}^{Z}< 0.2",
-                                "Particle Flow __ALGO__ jets",
                                 "__CORR__")
 
 the_img_formats=["png"]

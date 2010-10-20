@@ -14,14 +14,14 @@ process = ZPJConfiguration.configuration("Plots_AN_PAS")
 p=process
 
 #the_input_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_custom_binning.root"
-the_input_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_custom_binning.root"
+the_input_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_fall10_weighted_cb.root"
 the_eta_rebin_factor=5
 the_phi_rebin_factor=5
 the_pt_rebin_factor=4
 the_mass_rebin_factor=2
 the_lumi=2.96;
 #the_pt_bins=[0,25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364]
-the_pt_bins=[0,50,120,220]
+the_pt_bins=[0,30,60,100,140,220]
 
 # modify how to bin data here
 the_algos=["ak5PF"]

@@ -55,16 +55,10 @@ bool g_doL2Correction = true;
 bool g_doL3Correction = false;
 vString g_l2CorrFiles;
 
-
-
 TString g_l3Formula;
 vdouble g_l3Params;
 
-
 vdouble g_customBinning;
-
-
-
 
 enum WriteEventsEnum { NoEvents, OnlyInCutEvents, AllEvents };
 WriteEventsEnum g_writeEventsSetting;
@@ -107,7 +101,6 @@ public:
         m_jet1phi = jet1phi;
         m_jet2pt = jet2pt;
         m_jet2phi = jet2phi;
-
     }
 
     double m_zpt;
@@ -133,7 +126,6 @@ public:
 
         return true;
     }
-
 };
 
 vString g_lCorrFiles;
@@ -1213,40 +1205,6 @@ void CreateWeightBins()
 
 void resp_cuts( std::set < std::string > algoList, std::string sOutputFileName)
 {
-
-    // this events are excluded from monte carlo since they are on the border of bins and are
-    // sorted in the wrong bin on re-binning
-    // for MC dataset /ZmumuJet_PtXX/Summer10-START36_V9_S09-v1/GEN-SIM-RECO
-    // two spikes which show up in zPt Plot but have no influence on jet response plots
-    // therefore this lines are commented
-//    g_mcExcludedEvents.push_back( new ExcludedEvent(73.62, 49.91, 3.452, 7.6321, 0.6349 ));
-//    g_mcExcludedEvents.push_back( new ExcludedEvent(129.2, 43.37, 4.349, 25.64, 4.564 ));
-
-    // this events have a very bad influence on jet response plots
-// DP
-//      g_mcExcludedEvents.push_back( new ExcludedEvent(47.29, 71.39, 0.1809, 4.469,1.463 ));
-//      g_mcExcludedEvents.push_back( new ExcludedEvent(28.9, 43.92, 0.9386, 3.48, 1.973 ));
-    /*
-     algoList.insert("ak5PFJets_Zplusjet");
-     algoList.insert("ak7PFJets_Zplusjet");
-     algoList.insert("kt4PFJets_Zplusjet");
-     algoList.insert("kt6PFJets_Zplusjet");
-     algoList.insert("iterativeCone5PFJets_Zplusjet");
-
-     // GEN
-     algoList.insert("kt4GenJets_Zplusjet");
-     algoList.insert("kt6GenJets_Zplusjet");
-     algoList.insert("ak5GenJets_Zplusjet");
-     algoList.insert("ak7GenJets_Zplusjet");
-     algoList.insert("iterativeCone5GenJets_Zplusjet");
-
-    // GEN
-/*    algoList.insert("kt4GenJets_Zplusjet");
-    algoList.insert("kt6GenJets_Zplusjet");
-    algoList.insert("ak5GenJets_Zplusjet");
-    algoList.insert("ak7GenJets_Zplusjet");
-    algoList.insert("iterativeCone5GenJets_Zplusjet");
-*/
     // removes the old file
     g_resFile.reset( new TFile (sOutputFileName.c_str(), "RECREATE") );
     g_resFile->Close();

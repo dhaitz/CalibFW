@@ -20,8 +20,8 @@ ROOTLDFLAGS   = $(shell root-config --ldflags)
 BOOST_INC = /afs/naf.desy.de/group/cms/sw/slc4_ia32_gcc345/external/boost/1.38.0/include/
 
 CPPFLAGS      = -I${BOOST_INC} -I${INCL}/
-CXX 	      = /usr/bin/g++ -g -g 
-CXXFLAGS      = -O0 -fPIC $(ROOTCFLAGS)
+CXX 	      = /usr/bin/g++
+CXXFLAGS      = -O0 -fPIC -g3 $(ROOTCFLAGS)
 LD	      = /usr/bin/g++
 LDFLAGS       = $(ROOTLDFLAGS) -rdynamic
 

@@ -133,7 +133,7 @@ PlotEnv g_plotEnv;
 Intervals fill_intervals(vint edges);
 
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
-void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false, int optStat = 0);
+void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=1, int skip_colors=0, bool do_flag=false, int optStat = 0);
 void saveHolder(CanvasHolder &h, vString formats, bool make_log = false, TString sNamePostfix = "", TString sPrefix = "");
 
 //------------------------------------------------------------------------------
@@ -157,8 +157,22 @@ public:
   DataHisto * histZPt;
 };
 
+class GraphFormating
+{
+public: 
+  GraphFormating( Color_t line, Color_t marker )
+  {
+      lineColor = line;
+      markerColor = marker;
+  }
+  
+  TString algoCaption;
+  Color_t lineColor;
+  Color_t markerColor;
+};
+
 // Plots the response of one or more algos into a CanvasHolder
-void PlotResponse( std::vector<TString> & algoList, 
+void PlotResponse( std::vector<GraphFormating> & algoForamting,
 		    std::vector<boost::ptr_vector<ResponseSourceHistos> > & histSource,
 		    vString & img_formats, 
 		    TString sGlobalPrefix,
@@ -169,14 +183,16 @@ void PlotResponse( std::vector<TString> & algoList,
         CanvasHolder h_corr(sGlobalPrefix+"_JetResponse");
 
 	std::vector<boost::ptr_vector<ResponseSourceHistos> >::iterator itAlgos;
-	std::vector< TString>::iterator itAlgoName = algoList.begin();
+	std::vector< GraphFormating >::iterator itAlgoFormat = algoForamting.begin();
 	
 	for( itAlgos = histSource.begin();
 	      itAlgos != histSource.end();
 	      itAlgos ++)
 	{
+	    std::cout << "Plotting " << itAlgoFormat->algoCaption.Data() << std::endl;
+	  
 	    TGraphErrors * p_dataCalibPoints = new TGraphErrors(itAlgos->size() - iCutEntries);
-		    
+	    //p_dataCalibPoints->SetName( sGlobalPrefix +  );
 	    int i = 0;
 	    
 	    for ( boost::ptr_vector< ResponseSourceHistos >::iterator it = itAlgos->begin();
@@ -187,39 +203,24 @@ void PlotResponse( std::vector<TString> & algoList,
 		p_dataCalibPoints->SetPointError(i, 
 						CalcHistoError( it->histZPt->m_pHist ), 
 						CalcHistoError( it->histDataResponse->m_pHist ));
-		//p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
 		i++;
-		
-		if (( itAlgos->size() - i ) <= iCutEntries )
-		  break;
+/*		if (( it->size() - i ) <= iCutEntries )
+		  break;*/
 	    }
 	  
-	    p_dataCalibPoints->SetLineColor(kRed);
-	    p_dataCalibPoints->SetMarkerColor(kBlack);
+	    p_dataCalibPoints->SetLineColor(itAlgoFormat->lineColor);
+	    p_dataCalibPoints->SetMarkerColor(itAlgoFormat->markerColor);
     //        p_dataCalibPoints->SetMarkerSize(1.0);
 	    p_dataCalibPoints->SetFillStyle(0);
 	    p_dataCalibPoints->SetMarkerStyle(21);
-	    h_corr.addObjFormated(p_dataCalibPoints, itAlgoName->Data() ,"ALP");
-	  
-	    itAlgoName++;
+	    
+	    std::cout << "Adding to canvas " << itAlgoFormat->algoCaption.Data() << std::endl;
+	    h_corr.addObjFormated(p_dataCalibPoints, itAlgoFormat->algoCaption.Data() ,"LP");
+	    
+	    itAlgoFormat++;
 	}
-	
   
-  /*
-	// do the fit !
-	TF1 * pDataFit = new TF1( "jecFit" + funcName, plot_function);
-	pDataFit->SetParameter(0, 1.0f);
-	pDataFit->SetParameter(1, 1.0f);
-	pDataFit->SetParameter(2, 1.0f);
-	pDataFit->SetParameter(3, 1.0f);
-	pDataFit->SetParameter(4, 1.0f);
-	
-	pDataFit->SetLineWidth(1.0f);
-	pDataFit->SetLineColor( kRed );
-	
-	p_dataCalibPoints->Fit( pDataFit);
-*/
-		
+	std::cout << "done adding plots"<< std::endl;		
 	
         h_corr.setTitleY("Jet Response");
         h_corr.setTitleX("p_{T}^{Z} [GeV/c]");
@@ -231,13 +232,10 @@ void PlotResponse( std::vector<TString> & algoList,
 
         TString sCaption;
 
-
         if ( g_input_type == McInput )
             sCaption = "Binned MC";
         if ( g_input_type == DataInput )
             sCaption = "Binned Data";
-
-
         
         h_corr.addLatex(info_x,info_y,the_info_string,true);
 	
@@ -250,8 +248,9 @@ void PlotResponse( std::vector<TString> & algoList,
 //	h_corr.addLatex(0.08,0.01, "Fit function: " + plot_function, true);
 
         formatHolder(h_corr);
-        h_corr.draw();
-        h_corr.getCanvas()->cd();
+               
+	//h_corr.draw();
+	//h_corr.getCanvas()->cd();
 
         if ( g_correction_level == 3 )
             saveHolder(h_corr,img_formats, false, "_l3", sGlobalPrefix);
@@ -314,8 +313,7 @@ int main(int argc, char **argv) {
       g_input_type = DataInput;
     
     g_plotEnv.LoadFromConfig( p);
-    
-   
+       
 // 0 = raw
 // 2 = level2
 // 3 = level3
@@ -360,26 +358,29 @@ int main(int argc, char **argv) {
         g_sCorrection_level = "uncorrected";
     }
 
-
     std::vector< boost::ptr_vector< ResponseSourceHistos> > respHistos;
-    std::vector<TString> algoNaming;
+    std::vector<GraphFormating> algoStyle;
     
+    std::cout <<  algos.size() << std::endl;
 
-    Intervals intervals (fill_intervals(pt_bins));    
-    for (int ialgo=0;ialgo<algos.size();++ialgo) {
-
-        TString algo(algos[ialgo]);
-        TString goodalgo(good_algos[ialgo]);
-
-	
-	
-	TString the_info_string(info_string);
-        the_info_string.ReplaceAll("__ALGO__",goodalgo);
+    	TString the_info_string(info_string);
         the_info_string.ReplaceAll("__CORR__", g_sCorrection_level);
 
+    algoStyle.push_back( GraphFormating( kRed, kRed) );
+    algoStyle.push_back( GraphFormating( kBlue, kBlue) );	
+    algoStyle.push_back( GraphFormating( 8, 8) );	
+    algoStyle.push_back( GraphFormating( kOrange, kOrange) );
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+	
+    Intervals intervals (fill_intervals(pt_bins));    
+    for (int ialgo=0;ialgo<algos.size();++ialgo) {
+        TString algo(algos[ialgo]);
+        TString goodalgo(good_algos[ialgo]);
+	std::cout << "Filling hist for algo " << goodalgo << std::endl;
 	
 	respHistos.push_back( boost::ptr_vector<ResponseSourceHistos>() );
-	algoNaming.push_back( goodalgo );
+
+	algoStyle[ialgo].algoCaption = goodalgo;
 	
 	// get the response and jet1pt histos from the root file
         for (Intervals::iterator interval=intervals.begin();
@@ -394,7 +395,7 @@ int main(int argc, char **argv) {
 						      g_input_type,
 						      g_correction_level,
 						      &*interval);
-	    std::cout << std::endl <<  histName.Data();
+	    std::cout <<  histName.Data() << std::endl;
 	    TH1D* respo = (TH1D*) ifile->Get( histName );
 	    
 	    if ( respo == NULL )
@@ -417,11 +418,12 @@ int main(int argc, char **argv) {
 	    respHistos.back().push_back( pHistos );
 	}
 	
-	PlotResponse( algoNaming, 
-		      respHistos,
-		      img_formats, sGlobalPrefix,
-			the_info_string, g_plotEnv.m_iSkipBinsEnd);
-    } // end loop on algos
+    } 
+    
+  PlotResponse( algoStyle, 
+		respHistos,
+		img_formats, sGlobalPrefix,
+		  the_info_string, g_plotEnv.m_iSkipBinsEnd);
 }
 
 

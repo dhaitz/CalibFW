@@ -447,9 +447,7 @@ int main(int argc, char **argv) {
 
 	      dataHistJet1Pt.push_back( new DataHisto(interval->GetMin(), interval-> GetMax(), respo) );
 	  }
-	  
-	  
-
+	  	 
 	  AddJetPoints( dataHistResponse,  dataHistJet1Pt, h_corr, g_plotEnv.m_iSkipBinsEnd );
       }
   /*
