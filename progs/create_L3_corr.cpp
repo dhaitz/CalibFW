@@ -128,6 +128,9 @@ PlotEnv g_plotEnv;
     double info_x=.3;
     double info_y=.78;
 
+    int g_LineCol;
+int g_PointCol;
+    
 Intervals fill_intervals(vint edges);
 
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
@@ -149,20 +152,25 @@ double CalcHistoError( TH1D * pHist)
 }
 
 
-void PlotJetCorrection( TString algo, 
-			boost::ptr_vector<DataHisto> & histDataResponse,
+void AddJetPoints ( 	boost::ptr_vector<DataHisto> & histDataResponse,
 			boost::ptr_vector<DataHisto> & histDataJet1Pt,
-			vString & img_formats, 
-			TString sGlobalPrefix,
-			TString the_info_string,
-			TString plot_function, 
-			TString funcName, 
+			CanvasHolder & canvas,
 			int iCutEntries = 0)
-{
-// JET Correction
-        CanvasHolder h_corr(algo+"_JetCorrection");
-
-        int i = 0;
+{	
+	TString sCaption;
+	TString sName;
+        if ( g_input_type == McInput )
+	{
+            sCaption = "Binned MC";
+	    sName = "BinMC";
+	}
+        if ( g_input_type == DataInput )
+	{
+            sCaption = "Binned Data";
+	    sName = "BinData";
+	}
+	
+        int i = 0;	
         TGraphErrors * p_dataCalibPoints = new TGraphErrors(histDataResponse.size());
 		
 	boost::ptr_vector< DataHisto >::iterator it_jet1pt = histDataJet1Pt.begin();
@@ -170,11 +178,13 @@ void PlotJetCorrection( TString algo,
                 it != histDataResponse.end();
                 ++it )
         {
+	    std::cout << std::endl << "Adding " << i ;
+	  
             p_dataCalibPoints->SetPoint(i, it_jet1pt->m_pHist->GetMean(), 1.0f / it->m_pHist->GetMean());
 	    p_dataCalibPoints->SetPointError(i, 
 					     CalcHistoError(it_jet1pt->m_pHist), 
 					     /* calc using error propagation */
-					     CalcHistoError( it->m_pHist) * 1.0f / (TMath::Power(it->m_pHist->GetMean(), 2)) );
+					     CalcHistoError( it->m_pHist) * 1.0f / (TMath::Power(it->m_pHist->GetMean(), 2.0)) );
 	    //p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
             i++;
 	    it_jet1pt++;
@@ -183,7 +193,7 @@ void PlotJetCorrection( TString algo,
 	      break;
         }
   
-  
+/*  
 	// do the fit !
 	TF1 * pDataFit = new TF1( "jecFit" + funcName, plot_function);
 	pDataFit->SetParameter(0, 1.0f);
@@ -195,34 +205,32 @@ void PlotJetCorrection( TString algo,
 	pDataFit->SetLineColor(kRed);
 	pDataFit->SetLineWidth(2);
 	p_dataCalibPoints->Fit( pDataFit);
+*/
 
-        
-
-	
-	p_dataCalibPoints->SetLineColor(kRed);
-        p_dataCalibPoints->SetMarkerColor(kBlack);
+	p_dataCalibPoints->SetLineColor(g_LineCol);
+        p_dataCalibPoints->SetMarkerColor(g_PointCol);	
         p_dataCalibPoints->SetFillStyle(0);
 	p_dataCalibPoints->SetLineWidth(2);
-        p_dataCalibPoints->SetMarkerStyle(21);	
+        p_dataCalibPoints->SetMarkerStyle(21);
+	p_dataCalibPoints->SetName( sName);
 	
-	std::cout << "ChiSquare : " << pDataFit->GetChisquare() << std::endl;	
+	std::cout << std::endl << "Adding OBJ" << std::endl;
+        canvas.addObjFormated(p_dataCalibPoints, sCaption,"P");        
+}
+			
 
-        h_corr.setTitleY("Jet Energy Correction");
-        h_corr.setTitleX("p_{T}^{jet} [GeV/c]");
+void PlotJetCorrection( TString algo, 
+			boost::ptr_vector<DataHisto> & histDataResponse,
+			boost::ptr_vector<DataHisto> & histDataJet1Pt,
+			vString & img_formats, 
+			TString sGlobalPrefix,
+			TString the_info_string,
+			TString plot_function, 
+			TString funcName, 
+			int iCutEntries = 0)
+{
+// JET Correction
 
-        h_corr.setBoardersY(1.0, 1.5);
-	h_corr.setBoardersX(0.11, 179.0);
-	//h_corr.setBoardersX(0.0f, 170.0f );
-        h_corr.setLegPos(.75,.75,.95,.87);
-	
-	TString sCaption;
-        if ( g_input_type == McInput )
-            sCaption = "Binned MC";
-        if ( g_input_type == DataInput )
-            sCaption = "Binned Data";
-	
-        h_corr.addObjFormated(p_dataCalibPoints, sCaption,"P");
-        h_corr.addLatex(info_x,info_y,the_info_string,true);
 	
 	/*
         if ( g_correction_level == 2 )
@@ -232,14 +240,7 @@ void PlotJetCorrection( TString algo,
 */
 //	h_corr.addLatex(0.08,0.01, "Fit function: " + plot_function, true);
 
-        formatHolder(h_corr);
-        h_corr.draw();
-        h_corr.getCanvas()->cd();
 
-        if ( g_correction_level == 2 )
-            saveHolder(h_corr,img_formats, false, "_l2", sGlobalPrefix + funcName);
-        if ( g_correction_level == 0 )
-            saveHolder(h_corr,img_formats, false, "_raw", sGlobalPrefix + funcName);
 }
 
 
@@ -283,6 +284,8 @@ void getResponses(vdouble& responses,
         }
     }
 }
+
+
 
 
 int main(int argc, char **argv) {
@@ -347,7 +350,6 @@ int main(int argc, char **argv) {
 //------------------------------------------------------------------------------
 
     TFile * ifile = new TFile (input_file);
-
     std::cout << "Input file : " << input_file << std::endl;
 
 // jet, mus, Z -- eta, pt, phi
@@ -376,56 +378,120 @@ int main(int argc, char **argv) {
     if ( g_correction_level == 0 )
       g_sCorrection_level = "uncorrected";
     
-    Intervals intervals (fill_intervals(pt_bins));    
-    for (int ialgo=0;ialgo<algos.size();++ialgo) {
 
-        TString algo(algos[ialgo]);
-        TString goodalgo(good_algos[ialgo]);
+  Intervals intervals (fill_intervals(pt_bins));    
+  for (int ialgo=0;ialgo<algos.size();++ialgo) {
 
-	boost::ptr_vector<DataHisto> dataHistJet1Pt;
-	boost::ptr_vector<DataHisto> dataHistResponse;
+	  TString algo(algos[ialgo]);
+	  TString goodalgo(good_algos[ialgo]);
+
+	  boost::ptr_vector<DataHisto> dataHistJet1Pt;
+	  boost::ptr_vector<DataHisto> dataHistResponse;
+	  
+	  TString the_info_string(info_string);
+	  the_info_string.ReplaceAll("__ALGO__",goodalgo);
+	  the_info_string.ReplaceAll("__CORR__", g_sCorrection_level);
+
 	
-	TString the_info_string(info_string);
-        the_info_string.ReplaceAll("__ALGO__",goodalgo);
-        the_info_string.ReplaceAll("__CORR__", g_sCorrection_level);
+    CanvasHolder h_corr(algo+"_JetCorrection");
+    
+    
+    for ( int count = 0 ; count < 2; count ++)
+    {
+	dataHistResponse.clear();
+	dataHistJet1Pt.clear();
+      
+	  if ( count == 0 )
+	  {
+	    ifile = new TFile (p.getString(secname+".data_input_file"));
+	    g_input_type = DataInput;
+	    g_LineCol = kBlack;
+	    g_PointCol = kBlack;	    
+	  }
+	  if ( count == 1 )
+	  {
+	    ifile = new TFile (p.getString(secname+".mc_input_file"));
+	    g_input_type = McInput;
+	    g_LineCol = kRed;
+	    g_PointCol = kRed;
+	  }
 
+	  // get the response and jet1pt histos from the root file
+	  for (Intervals::iterator interval=intervals.begin();
+		  interval < intervals.end();++interval )
+	  {	
+	      TString quantity="jetresp";
+	      
+	      TString histName = RootNamer::GetHistoName(algo,
+							quantity, 
+							g_input_type,
+							g_correction_level,
+							&*interval);
+	      std::cout << std::endl <<  histName.Data();
+	      TH1D* respo = (TH1D*) ifile->Get( histName );
+	      
+	      if ( respo == NULL )
+		handleError("create_L3_corr" , ("Can't load root histogram " + histName).Data() );
+
+	      dataHistResponse.push_back( new DataHisto(interval->GetMin(), interval->GetMax(), respo) );
+	      
+	      quantity="jet1_pt";
+	      histName = RootNamer::GetHistoName(algo,
+						  quantity, 
+						  g_input_type,
+						  g_correction_level,
+						  &*interval);
+	      respo = (TH1D*) ifile->Get( histName );
+	      if ( respo == NULL )
+		handleError("create_L3_corr" , ("Can't load root histogram " + histName).Data() );
+
+	      dataHistJet1Pt.push_back( new DataHisto(interval->GetMin(), interval-> GetMax(), respo) );
+	  }
+	  
+	  
+
+	  AddJetPoints( dataHistResponse,  dataHistJet1Pt, h_corr, g_plotEnv.m_iSkipBinsEnd );
+      }
+  /*
+	// do the fit !
+	TF1 * pDataFit = new TF1( "jecFit" + funcName, plot_function);
+	pDataFit->SetParameter(0, 1.0f);
+	pDataFit->SetParameter(1, 1.0f);
+	pDataFit->SetParameter(2, 1.0f);
+	pDataFit->SetParameter(3, 1.0f);
+	pDataFit->SetParameter(4, 1.0f);
 	
-	// get the response and jet1pt histos from the root file
-        for (Intervals::iterator interval=intervals.begin();
-                interval < intervals.end();++interval )
-        {	
-            TString quantity="jetresp";
-	    
-	    TString histName = RootNamer::GetHistoName(algo,
-						      quantity, 
-						      g_input_type,
-						      g_correction_level,
-						      &*interval);
-	    std::cout << std::endl <<  histName.Data();
-	    TH1D* respo = (TH1D*) ifile->Get( histName );
-	    
-	    if ( respo == NULL )
-	      handleError("create_L3_corr" , ("Can't load root histogram " + histName).Data() );
+	pDataFit->SetLineColor(kRed);
+	pDataFit->SetLineWidth(2.0f);
+	p_dataCalibPoints->Fit( pDataFit);
+*/
 
-	    dataHistResponse.push_back( new DataHisto(interval->GetMin(), interval->GetMax(), respo) );
-	    
-	    quantity="jet1_pt";
-	    histName = RootNamer::GetHistoName(algo,
-						quantity, 
-						g_input_type,
-						g_correction_level,
-						&*interval);
-	    respo = (TH1D*) ifile->Get( histName );
-	    if ( respo == NULL )
-	      handleError("create_L3_corr" , ("Can't load root histogram " + histName).Data() );
+        
+	//std::cout << "ChiSquare : " << pDataFit->GetChisquare() << std::endl;	
 
-	    dataHistJet1Pt.push_back( new DataHisto(interval->GetMin(), interval-> GetMax(), respo) );
-	}
+        h_corr.setTitleY("Jet Energy Correction");
+        h_corr.setTitleX("p_{T}^{jet} [GeV/c]");
+
+        h_corr.setBoardersY(1.0, 1.5);
+	h_corr.setBoardersX(0.11, 179.0);
+	//h_corr.setBoardersX(0.0f, 170.0f );
+        h_corr.setLegPos(.75,.75,.95,.87);
 	
+	
+	h_corr.addLatex(info_x,info_y,the_info_string,true);		
+	
+        formatHolder(h_corr);
+
+        if ( g_correction_level == 2 )
+            saveHolder(h_corr,img_formats, false, "_l2", sGlobalPrefix );
+        if ( g_correction_level == 0 )
+            saveHolder(h_corr,img_formats, false, "_raw", sGlobalPrefix );
+
+	/*
 	PlotJetCorrection( algo, dataHistResponse, dataHistJet1Pt, img_formats, sGlobalPrefix,
 			the_info_string,
 			  "[0] + [1]/(x^[3]) + [2]/(x^[4])",
-			   "-Danilo-Func", g_plotEnv.m_iSkipBinsEnd);
+			   "-Danilo-Func", g_plotEnv.m_iSkipBinsEnd);*/
 /*	PlotJetCorrection( algo, histData, corr_mc_jetpt, img_formats, sGlobalPrefix,
 			the_info_string,
 			  "[0] + [1]/((log(x)^[2]) + [3])",
@@ -545,6 +611,7 @@ void saveHolder(CanvasHolder &h,
         for (int i=0;i<formats.size();++i)
         {
 //         h.draw();
+	    std::cout << std::endl << "Saving plot" << std::endl;
             h.save(formats[i].Data());
         }
     }

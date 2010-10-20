@@ -14,13 +14,14 @@ def multiline_text(line1,line2,line3="",line4=""):
 process = ZPJConfiguration.configuration("Plots_AN_PAS")
 p=process
 
-data_file="/local/scratch/hauth/data/ZPJ2010/mu_data.root"
+data_file="/local/scratch/hauth/data/ZPJ2010/mu_data_2010a+b.root"
 mc_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc.root"
 the_eta_rebin_factor=5
 the_phi_rebin_factor=5
 the_pt_rebin_factor=2
 the_mass_rebin_factor=2
-the_lumi=2.96;
+#the_lumi=2.96;
+the_lumi=10.952;
 the_pt_bins=[0,25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364]
 the_algos=["ak5PF"]
 the_good_algos=["anti-kt 0.5"]

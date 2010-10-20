@@ -613,6 +613,20 @@ public:
   
     enum BinWithEnum { ZPtBinning, Jet1PtBinning };
   
+    unsigned int GetPointCount( EventVector & data )
+    {	
+      unsigned int c = 0;
+    	for (EventVector::iterator it = data.begin(); !(it == data.end()); ++it)
+        {
+            if (IsInSelection(it))
+	    {
+		 c++;
+	    }
+        }      
+      
+	return c;
+    }
+    
     void Draw( TGraphErrors * pGraph, EventVector & data )
     {
 	int i = 0;
@@ -712,9 +726,10 @@ public:
             iter->ModifyBeforeCreation( this );
         }
 
+	TDataDrawer tdraw;
         //std::cout << "Generating " << this->m_sName << " ... ";*/
         TCanvas *c = new TCanvas( this->m_sName + "_c", this->m_sCaption,200,10,600,600);
-        TGraphErrors * resp_h = new TGraphErrors();
+        TGraphErrors * resp_h = new TGraphErrors( tdraw.GetPointCount(data ));
 	resp_h->SetName(  this->m_sName );
 	
 /*                                  this->m_sCaption,
@@ -727,7 +742,7 @@ public:
             iter->ModifyBeforeDataEntry( c, resp_h );
         }*/
 
-	TDataDrawer tdraw;
+	
 	tdraw.Draw( resp_h, data );
 
         // apply modifiers
