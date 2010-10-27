@@ -88,9 +88,9 @@ class RootNamer
 			  PtBin * pBin = NULL,
 			  TString algoNameAppend = "Jets_Zplusjet")
       {
-	TString sinput;
-	TString scorr;
-	TString binning;
+	TString sinput = "" ;
+	TString scorr = "";
+	TString binning = "";
 
 	
 	if (inpType == McInput )

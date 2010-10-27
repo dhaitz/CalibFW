@@ -133,7 +133,7 @@ class CanvasHolder:public TObject{
   
   bool draw(std::string opt = "");
   void write(TFile *file, std::string opt = "");
-  void save(const std::string format, std::string opt = "");
+  void save(const std::string format, std::string opt = "", std::string sFolder = "");
   // -------------------------
 
   //DP
