@@ -18,16 +18,11 @@
 #include "TList.h"
 #include "TGraphErrors.h"
 
-
 #include "CanvasHolder.h"
 #include "MinimalParser.h"
 
-
-
 typedef std::vector<TF1> vTF1;
 typedef std::vector< vdouble > vvdouble;
-
-
 
 class  MyLikelihood {
 
@@ -440,7 +435,7 @@ int main(int argc, char **argv) {
         h_phi_jet2.setTitleY("dN_{Events}/d#phi");
         h_phi_jet2.setTitleX("#phi^{jet2}");
         h_phi_jet2.setBoardersX(-3.14,3.14);
-        h_phi_jet2.setBoardersY(0.001,34.99);
+        h_phi_jet2.setBoardersY(0.001,44.99);
 
         h_phi_jet2.addLatex(info_x,info_y,the_info_string,true);
         h_phi_jet2.scaleBoardersY(1,2);
@@ -483,7 +478,7 @@ int main(int argc, char **argv) {
         h_eta_z.setTitleX("#eta^{Z}");
 
         h_eta_z.addLatex(info_x,info_y,the_info_string,true);
-        h_eta_z.setBoardersY(0.001,44.9);
+        h_eta_z.setBoardersY(0.001,74.9);
         h_eta_z.scaleBoardersY(1,2.3);
 
         formatHolder(h_eta_z);
@@ -501,7 +496,7 @@ int main(int argc, char **argv) {
         h_phi_z.setTitleY("dN_{Events}/d#phi");
         h_phi_z.setTitleX("#phi^{Z}");
         h_phi_z.setBoardersX(-3.14,3.14);
-        h_phi_z.setBoardersY(0.001,34.9);
+        h_phi_z.setBoardersY(0.001,74.9);
 
         h_phi_z.addLatex(info_x,info_y,the_info_string,true);
         h_phi_z.scaleBoardersY(1,2);
@@ -521,7 +516,7 @@ int main(int argc, char **argv) {
         h_pt_z.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_z.setTitleX("p_{T}^{Z}[GeV]");
         h_pt_z.setBoardersX(0,189.0);
-        h_pt_z.setBoardersY(0.0001,1.59);
+        h_pt_z.setBoardersY(0.0001,6.59);
 
         h_pt_z.addLatex(info_x,info_y,the_info_string,true);
         h_pt_z.scaleBoardersY(1,1.3);
@@ -541,7 +536,7 @@ int main(int argc, char **argv) {
         h_mass_z.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_mass_z.setTitleX("M_{Z}[GeV]");
         h_mass_z.setBoardersX(60.0,120.0);
-        h_mass_z.setBoardersY(0.01,11.9);
+        h_mass_z.setBoardersY(0.01,34.9);
 
         h_mass_z.addLatex(info_x,info_y,the_info_string,true);
         h_mass_z.scaleBoardersY(1,1.3);
@@ -564,7 +559,7 @@ int main(int argc, char **argv) {
         h_eta_mus.setTitleX("#eta^{#mu}");
 
         h_eta_mus.setBoardersX(-2.5,2.5);
-        h_eta_mus.setBoardersY(0.001,99.9);
+        h_eta_mus.setBoardersY(0.001,229.9);
 
         h_eta_mus.addLatex(info_x,info_y,the_info_string,true);
         h_eta_mus.scaleBoardersY(1,2);
@@ -584,7 +579,7 @@ int main(int argc, char **argv) {
         h_phi_mus.setTitleY("dN_{Events}/d#phi");
         h_phi_mus.setTitleX("#phi^{#mu}");
         h_phi_mus.setBoardersX(-3.14,3.14);
-        h_phi_mus.setBoardersY(0.01,69.9);
+        h_phi_mus.setBoardersY(0.01,129.9);
 
         h_phi_mus.addLatex(info_x,info_y,the_info_string,true);
         h_phi_mus.scaleBoardersY(1,2);
@@ -604,7 +599,7 @@ int main(int argc, char **argv) {
         h_pt_mus.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_mus.setTitleX("p_{T}^{#mu}[GeV]");
         h_pt_mus.setBoardersX(0,189);
-        h_pt_mus.setBoardersY(0.01,4.49);
+        h_pt_mus.setBoardersY(0.01,14.49);
 
         h_pt_mus.addLatex(info_x,info_y,the_info_string,true);
         h_pt_mus.scaleBoardersY(1,1.3);
@@ -755,7 +750,7 @@ int main(int argc, char **argv) {
         }
         repsponse_data.SetFillColor(kWhite);
         repsponse_data.SetMarkerStyle(22);
-        repsponse_data.SetMarkerSize(1);
+        repsponse_data.SetMarkerSize(0.5);
         repsponse_data.SetName("data");
 
         repsponse_data.Print();

@@ -4,6 +4,9 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -120,7 +123,8 @@ char lumi_str[100];
 int g_correction_level = 0;
 TString g_sCorrection_level = "";
 TString g_sCorrectionAdd = "";
-InputTypeEnum g_input_type;
+std::string g_configFileName = "";
+//InputTypeEnum g_input_type;
 
 
 
@@ -133,18 +137,22 @@ PlotEnv g_plotEnv;
 Intervals fill_intervals(vint edges);
 
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
-void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=1, int skip_colors=0, bool do_flag=false, int optStat = 0);
+void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false, int optStat = 0);
 void saveHolder(CanvasHolder &h, vString formats, bool make_log = false, TString sNamePostfix = "", TString sPrefix = "");
 
 //------------------------------------------------------------------------------
 
-double CalcHistoError( TH1D * pHist)
+double CalcHistoError( TH1D * pHist, InputTypeEnum inpEnum)
 {
-    if ( g_input_type == McInput )
+    if ( inpEnum == McInput )
     {
-      return pHist->GetRMS() / ( TMath::Sqrt( pHist->GetSumOfWeights() * g_lumi));
+      if (  g_lumi < 0.1f )
+	return pHist->GetRMS();
+      else
+	return pHist->GetRMS() / ( TMath::Sqrt( pHist->GetSumOfWeights() * g_lumi));
+      
     }
-    if ( g_input_type == DataInput )
+    if ( inpEnum == DataInput )
     {
       return pHist->GetMeanError();
     }      
@@ -155,6 +163,7 @@ struct ResponseSourceHistos
 public: 
   DataHisto * histDataResponse;
   DataHisto * histZPt;
+  InputTypeEnum inputType;
 };
 
 class GraphFormating
@@ -201,8 +210,8 @@ void PlotResponse( std::vector<GraphFormating> & algoForamting,
 	    {
 		p_dataCalibPoints->SetPoint(i, it->histZPt->m_pHist->GetMean(), it->histDataResponse->m_pHist->GetMean());
 		p_dataCalibPoints->SetPointError(i, 
-						CalcHistoError( it->histZPt->m_pHist ), 
-						CalcHistoError( it->histDataResponse->m_pHist ));
+						CalcHistoError( it->histZPt->m_pHist, it->inputType ), 
+						CalcHistoError( it->histDataResponse->m_pHist, it->inputType ));
 		i++;
 /*		if (( it->size() - i ) <= iCutEntries )
 		  break;*/
@@ -225,17 +234,17 @@ void PlotResponse( std::vector<GraphFormating> & algoForamting,
         h_corr.setTitleY("Jet Response");
         h_corr.setTitleX("p_{T}^{Z} [GeV/c]");
 
-        h_corr.setBoardersY(0.01,1.99);
-	h_corr.setBoardersX(0.11, 179.0);
+        h_corr.setBoardersY(0.11,1.89);
+	h_corr.setBoardersX(0.11, 189.0);
 	//h_corr.setBoardersX(0.0f, 170.0f );
         h_corr.setLegPos(.75,.75,.95,.87);
 
         TString sCaption;
-
+/*
         if ( g_input_type == McInput )
             sCaption = "Binned MC";
         if ( g_input_type == DataInput )
-            sCaption = "Binned Data";
+            sCaption = "Binned Data";*/
         
         h_corr.addLatex(info_x,info_y,the_info_string,true);
 	
@@ -276,6 +285,16 @@ int main(int argc, char **argv) {
 // #############     Config         ##########################
 // ###########################################################
 
+    g_configFileName = argv[1];
+    
+    size_t lastSlash = g_configFileName.rfind("/");
+    std::cout << "/ pos " << lastSlash;
+    if (lastSlash != std::string::npos )
+    {
+      g_configFileName = g_configFileName.substr( lastSlash + 1, std::string::npos);
+    }
+    
+    
     MinimalParser p(argv[1]);
 
     p.setVerbose(false);
@@ -290,15 +309,15 @@ int main(int argc, char **argv) {
 // Section general
 //
     g_lumi = p.getDouble(secname+".lumi");
-    int pt_rebin_factor = p.getInt(secname+".pt_rebin_factor");
-    int phi_rebin_factor = p.getInt(secname+".phi_rebin_factor");
-    int mass_rebin_factor = p.getInt(secname+".mass_rebin_factor");
-    int eta_rebin_factor = p.getInt(secname+".eta_rebin_factor");
-    TString input_file = p.getString(secname+".input_file");
 
+    vString source_files = p.getvString( secname+ ".source_files");
+    vint source_number = p.getvInt( secname+ ".source_number");
+    
     TString info_string = p.getString(secname+".info_string");
+    TString sGlobalPrefix = p.getString(secname+".global_prefix");
     vString algos = p.getvString(secname+".algos");
     vString good_algos = p.getvString(secname+".good_algos");
+    vString source_type = p.getvString(secname+".source_type");
     vint pt_bins = p.getvInt(secname+".pt_bins");
     vString img_formats= p.getvString(secname+".img_formats");
     double min_jes=p.getDouble(secname+".min_jes");
@@ -306,11 +325,11 @@ int main(int argc, char **argv) {
     double min_jer=p.getDouble(secname+".min_jer");
     double max_jer=p.getDouble(secname+".max_jer");
        
-    
+    /*
     if (p.getString(secname+".input_type") == "mc" )
       g_input_type = McInput;
     if (p.getString(secname+".input_type") == "data" )
-      g_input_type = DataInput;
+      g_input_type = DataInput;*/
     
     g_plotEnv.LoadFromConfig( p);
        
@@ -319,13 +338,24 @@ int main(int argc, char **argv) {
 // 3 = level3
     g_correction_level = p.getInt(secname+".correction_level");
 
-    sprintf(lumi_str,"#scale[.8]{#int} L = %1.2f pb^{-1}",g_lumi);
+    if (g_lumi < .1f )
+      sprintf(lumi_str,"");
+    else
+      sprintf(lumi_str,"#scale[.8]{#int} L = %1.2f pb^{-1}",g_lumi);
 
 //------------------------------------------------------------------------------
 
-    TFile * ifile = new TFile (input_file);
-
-    std::cout << "Input file : " << input_file << std::endl;
+    std::vector<TFile *> ifiles;
+    
+    /*
+    TFile * mc_ifile = new TFile (mc_input_file);
+    TFile * data_ifile = new TFile (data_input_file);    
+*/
+    for (vString::iterator f = source_files.begin();
+	    f < source_files.end(); ++f )
+    {
+      ifiles.push_back( new TFile( *f ) );
+    }
 
 // jet, mus, Z -- eta, pt, phi
     Intervals mc_intervals (fill_intervals(pt_bins));
@@ -340,7 +370,7 @@ int main(int argc, char **argv) {
     Points jec_data_binned;
     
     int ibin=0;
-    TString sGlobalPrefix = "JetReponse_";
+
 
     
     if ( g_correction_level == 3 )
@@ -355,6 +385,7 @@ int main(int argc, char **argv) {
     }
     if ( g_correction_level == 0 )
     {
+	g_sCorrectionAdd = "";
         g_sCorrection_level = "uncorrected";
     }
 
@@ -377,6 +408,21 @@ int main(int argc, char **argv) {
         TString algo(algos[ialgo]);
         TString goodalgo(good_algos[ialgo]);
 	std::cout << "Filling hist for algo " << goodalgo << std::endl;
+	std::cout << source_type[ialgo];
+	
+	TFile *  sourceFile = NULL;
+	InputTypeEnum local_input_type;
+	
+	sourceFile = ifiles[ source_number[ ialgo ]];
+	if ( source_type[ialgo] == "mc")
+	{
+	  local_input_type = McInput;
+	}
+	if ( source_type[ialgo] == "data")
+	{
+	  local_input_type = DataInput;
+	}
+
 	
 	respHistos.push_back( boost::ptr_vector<ResponseSourceHistos>() );
 
@@ -386,17 +432,19 @@ int main(int argc, char **argv) {
         for (Intervals::iterator interval=intervals.begin();
                 interval < intervals.end();++interval )
         {	
+	    
 	  
 	    ResponseSourceHistos * pHistos = new ResponseSourceHistos;
+	    pHistos->inputType = local_input_type;
             TString quantity="jetresp";
 	    
 	    TString histName = RootNamer::GetHistoName(algo,
 						      quantity, 
-						      g_input_type,
+						      local_input_type,
 						      g_correction_level,
 						      &*interval);
 	    std::cout <<  histName.Data() << std::endl;
-	    TH1D* respo = (TH1D*) ifile->Get( histName );
+	    TH1D* respo = (TH1D*) sourceFile->Get( histName );
 	    
 	    if ( respo == NULL )
 	      handleError("." , ("Can't load root histogram " + histName).Data() );
@@ -407,10 +455,10 @@ int main(int argc, char **argv) {
 	    quantity="zPt";
 	    histName = RootNamer::GetHistoName(algo,
 						quantity, 
-						g_input_type,
+						local_input_type,
 						g_correction_level,
 						&*interval);
-	    respo = (TH1D*) ifile->Get( histName );
+	    respo = (TH1D*) sourceFile->Get( histName );
 	    if ( respo == NULL )
 	      handleError("." , ("Can't load root histogram " + histName).Data() );
 
@@ -420,10 +468,10 @@ int main(int argc, char **argv) {
 	
     } 
     
-  PlotResponse( algoStyle, 
-		respHistos,
-		img_formats, sGlobalPrefix,
-		  the_info_string, g_plotEnv.m_iSkipBinsEnd);
+    PlotResponse( algoStyle, 
+		  respHistos,
+		  img_formats, sGlobalPrefix,
+		    the_info_string, g_plotEnv.m_iSkipBinsEnd);
 }
 
 
@@ -517,7 +565,7 @@ void saveHolder(CanvasHolder &h,
                 TString sPrefix)
 {
     TString mod_name(h.getTitle());
-    h.setCanvasTitle(sPrefix + mod_name + sNamePostfix + g_plotEnv.m_sPlotFileNamePostfix);
+    h.setCanvasTitle(mod_name + sNamePostfix + g_plotEnv.m_sPlotFileNamePostfix);
 
     if (make_log) {
         TString can_name(h.getTitle());
@@ -531,11 +579,14 @@ void saveHolder(CanvasHolder &h,
     }
     else
     {
+	// make needed folder
+      
 //      h.save("png");
         for (int i=0;i<formats.size();++i)
         {
 //         h.draw();
-            h.save(formats[i].Data());
+	    system ( ("mkdir plot_out/" + g_configFileName).c_str() );
+            h.save(formats[i].Data(), "" , "plot_out/" + g_configFileName + "/");
         }
     }
 }
