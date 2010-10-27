@@ -23,6 +23,8 @@ class section(object):
                     print '    %s = "%s"' %(key,val)
                 elif type(val)==type([]):
                     sep=''
+#                    print val
+#                    print key
                     if type(val[0])==type(''):
                         sep='"'
                     print '    %s = ' %key,

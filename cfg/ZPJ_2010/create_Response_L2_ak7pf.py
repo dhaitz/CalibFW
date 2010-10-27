@@ -14,11 +14,12 @@ def multiline_text(line1,line2,line3="",line4=""):
 p = ResponseBaseConfig.GetResponseBaseConfig() 
 
 # modify how to bin data here
-p.general.algos=["ak5PF","ak5PF"]#["ak5PF", "ak7PF", "kt4PF", "kt6PF", "iterativeCone5PF"]
-p.general.global_prefix = "JetResponse_ak5PF_MC_data_compare_"
+p.general.algos=["ak7PF","ak7PF"]
+p.general.good_algos=["Binned MC", "Binned Data"]
+p.general.global_prefix = "JetResponse_ak7PF_MC_data_compare_"
 p.general.info_string= multiline_text("p_{T}^{#mu}>15 GeV , |#eta^{#mu}|<2.3 , |M-M_{Z}|<20 GeV",
                                 "|#eta^{jet}|<1.3 , |#Delta #phi (Z,jet) - #pi|<0.2 , p_{T}^{jet2}/p_{T}^{Z}< 0.2",
-                                "anti-kt 0.5 Particle Flow jets",
+                                "anti-kt 0.7 Particle Flow jets",
                                 "__CORR__")
 
 p.update()
