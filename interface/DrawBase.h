@@ -866,6 +866,7 @@ public:
         TH1D * resp_h = new TH1D(	this->m_sName,
                                   this->m_sCaption,
                                   m_iBinCount,m_dBinLower,m_dBinUpper);
+        resp_h->Sumw2();
         this->StyleHisto( resp_h );
 
         // apply modifiers
