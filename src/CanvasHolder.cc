@@ -1236,10 +1236,10 @@ void CanvasHolder::write(TFile *file, std::string opt){
 }
 
 
-void CanvasHolder::save(const std::string format,std::string opt){
+void CanvasHolder::save(const std::string format, std::string opt, std::string sFolder){
   if( CanvasHolder::draw(opt) ) {
     theCan->Update();
-    std::string tmpString = theCanvasTitle+"."+format;
+    std::string tmpString = sFolder + theCanvasTitle+"."+format;
     theCan->SaveAs(tmpString.c_str());
   }
 }
