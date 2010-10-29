@@ -20,6 +20,7 @@
 
 #include "CanvasHolder.h"
 #include "MinimalParser.h"
+#include "PlotCommon.h"
 
 typedef std::vector<TF1> vTF1;
 typedef std::vector< vdouble > vvdouble;
@@ -106,10 +107,11 @@ public:
 private:
     double min;
     double max;
-} ;
-typedef std::vector<pt_interval> Intervals;
-//------------------------------------------------------------------------------
+};
 
+typedef std::vector<pt_interval> LocalIntervals;
+//------------------------------------------------------------------------------
+/*
 class point {
 public:
     point(double the_x, double the_y) {
@@ -119,14 +121,13 @@ public:
     double x;
     double y;
 } ;
-typedef std::vector<point> Points;
+typedef std::vector<point> Points;*/
 //------------------------------------------------------------------------------
 
 
 double getX(TF1& func,double zval,double yval,double minXval,double maxXval);
 double getY(TF1& func,double zval,double xval,double minYval,double maxYval);
 class pt_interval;
-typedef std::vector<pt_interval> Intervals;
 class point;
 typedef std::vector<point> Points;
 void getResponses(vdouble& responses, Points& points,TFile* ifile,pt_interval interval,TString algoname);
@@ -145,7 +146,10 @@ TString g_sCorrectionAdd = "";
 TString g_sCorrection_level = "";
 vString g_img_formats;
 
-Intervals fill_intervals(vint edges);
+PlotEnv g_plotEnv;
+
+
+LocalIntervals fill_intervals(vint edges);
 void fill_holder(TString h_name_mc,
                  TString h_name_data,
                  CanvasHolder& h,
@@ -155,7 +159,6 @@ void fill_holder(TString h_name_mc,
 
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
 void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false);
-void saveHolder(CanvasHolder &h, vString formats, bool make_log = false, TString sNamePostfix = "");
 
 void PlotNumberOfEvents( TString algoname, TFile *  ifile )
 {
@@ -222,7 +225,7 @@ void PlotNumberOfEvents( TString algoname, TFile *  ifile )
 
     h_nevts.addLatex(.74,.93,"#sqrt{s}= 7 TeV",true);
     h_nevts.addLatex(.16,.93,lumi_str,true);
-    saveHolder(h_nevts,g_img_formats);
+    saveHolder(h_nevts,g_img_formats, false, "", "", g_plotEnv);
 }
 
 //------------------------------------------------------------------------------
@@ -243,6 +246,8 @@ int main(int argc, char **argv) {
 
     MinimalParser p(argv[1]);
 
+    g_plotEnv.LoadFromConfig( p );
+    
     p.setVerbose(false);
 
     if (argc==3) {
@@ -338,7 +343,7 @@ int main(int argc, char **argv) {
         h_eta_jet.setBoardersY(0.001,69.0);
 
         formatHolder(h_eta_jet);
-        saveHolder(h_eta_jet,g_img_formats);
+        saveHolder(h_eta_jet,g_img_formats, false, "", "", g_plotEnv);
 
         // Phi jet
         quantity="jet1_phi_";
@@ -357,7 +362,7 @@ int main(int argc, char **argv) {
         h_phi_jet.addLatex(info_x,info_y,the_info_string,true);
         h_phi_jet.scaleBoardersY(1,2);
         formatHolder(h_phi_jet);
-        saveHolder(h_phi_jet,g_img_formats);
+        saveHolder(h_phi_jet,g_img_formats, false, "", "", g_plotEnv);
 
         // Pt jet
         quantity="jet1_pt_";
@@ -378,7 +383,7 @@ int main(int argc, char **argv) {
         h_pt_jet.addLatex(info_x,info_y,the_info_string,true);
         h_pt_jet.scaleBoardersY(1,2.5);
         formatHolder(h_pt_jet);
-        saveHolder(h_pt_jet,g_img_formats);
+        saveHolder(h_pt_jet,g_img_formats, false, "", "", g_plotEnv);
         /*
             // Pt jet l2 corr
             quantity="jet1_pt_";
@@ -421,7 +426,7 @@ int main(int argc, char **argv) {
         h_eta_jet2.setBoardersY(0.001,59.99);
 
         formatHolder(h_eta_jet2);
-        saveHolder(h_eta_jet2,g_img_formats);
+        saveHolder(h_eta_jet2,g_img_formats, false, "", "", g_plotEnv);
 
         // Phi jet2
         quantity="jet2_phi_";
@@ -440,7 +445,7 @@ int main(int argc, char **argv) {
         h_phi_jet2.addLatex(info_x,info_y,the_info_string,true);
         h_phi_jet2.scaleBoardersY(1,2);
         formatHolder(h_phi_jet2);
-        saveHolder(h_phi_jet2,g_img_formats);
+        saveHolder(h_phi_jet2,g_img_formats, false, "", "", g_plotEnv);
 
         // Pt jet2
         quantity="jet2_pt_";
@@ -461,7 +466,7 @@ int main(int argc, char **argv) {
         h_pt_jet2.addLatex(info_x,info_y,the_info_string,true);
         h_pt_jet2.scaleBoardersY(1,2.5);
         formatHolder(h_pt_jet2);
-        saveHolder(h_pt_jet2,g_img_formats);
+        saveHolder(h_pt_jet2,g_img_formats, false, "", "", g_plotEnv);
 
 //------------------------------------------------------------------------------
 
@@ -482,7 +487,7 @@ int main(int argc, char **argv) {
         h_eta_z.scaleBoardersY(1,2.3);
 
         formatHolder(h_eta_z);
-        saveHolder(h_eta_z,g_img_formats);
+        saveHolder(h_eta_z,g_img_formats, false, "", "", g_plotEnv);
 
         // Phi z
         quantity="zPhi_";
@@ -502,7 +507,7 @@ int main(int argc, char **argv) {
         h_phi_z.scaleBoardersY(1,2);
 
         formatHolder(h_phi_z);
-        saveHolder(h_phi_z,g_img_formats);
+        saveHolder(h_phi_z,g_img_formats, false, "", "", g_plotEnv);
 
         // Pt z
         quantity="zPt_";
@@ -522,7 +527,7 @@ int main(int argc, char **argv) {
         h_pt_z.scaleBoardersY(1,1.3);
 
         formatHolder(h_pt_z);
-        saveHolder(h_pt_z,g_img_formats);
+        saveHolder(h_pt_z,g_img_formats, false, "", "", g_plotEnv);
 
         // z mass
         quantity="zmass_";
@@ -542,7 +547,7 @@ int main(int argc, char **argv) {
         h_mass_z.scaleBoardersY(1,1.3);
 
         formatHolder(h_mass_z);
-        saveHolder(h_mass_z,g_img_formats);
+        saveHolder(h_mass_z,g_img_formats, false, "", "", g_plotEnv);
 
 // COMBINED MUS
 
@@ -565,7 +570,7 @@ int main(int argc, char **argv) {
         h_eta_mus.scaleBoardersY(1,2);
 
         formatHolder(h_eta_mus);
-        saveHolder(h_eta_mus,g_img_formats);
+        saveHolder(h_eta_mus,g_img_formats, false, "", "", g_plotEnv);
 
         // Phi mus
         quantity="mus_phi_";
@@ -585,7 +590,7 @@ int main(int argc, char **argv) {
         h_phi_mus.scaleBoardersY(1,2);
 
         formatHolder(h_phi_mus);
-        saveHolder(h_phi_mus,g_img_formats);
+        saveHolder(h_phi_mus,g_img_formats, false, "", "", g_plotEnv);
 
         // Pt mus
         quantity="mus_pt_";
@@ -605,7 +610,7 @@ int main(int argc, char **argv) {
         h_pt_mus.scaleBoardersY(1,1.3);
 
         formatHolder(h_pt_mus);
-        saveHolder(h_pt_mus,g_img_formats);
+        saveHolder(h_pt_mus,g_img_formats, false, "", "", g_plotEnv);
 
 //------------------------------------------------------------------------------
 // cut plots
@@ -639,7 +644,7 @@ int main(int argc, char **argv) {
 //------------------------------------------------------------------------------
 // Il reame della response.. Specchio Specchio delle mie brame
 
-        Intervals intervals (fill_intervals(pt_bins));
+        LocalIntervals intervals (fill_intervals(pt_bins));
 
         vTF1 functions;
         vvdouble vresponses;
@@ -648,7 +653,7 @@ int main(int argc, char **argv) {
         Points responses_points_all_bins;
         int ibin=0;
 
-        for (Intervals::iterator interval=intervals.begin();
+        for (LocalIntervals::iterator interval=intervals.begin();
                 interval < intervals.end();++interval ) {
 
             // Get responses
@@ -787,9 +792,9 @@ int main(int argc, char **argv) {
         h_response.getCanvas()->cd();
 
         if ( g_correction_level == 2 )
-            saveHolder(h_response,g_img_formats, false, "_l2");
+            saveHolder(h_response,g_img_formats, false, "_l2", "" , g_plotEnv);
         if ( g_correction_level == 0 )
-            saveHolder(h_response,g_img_formats, false, "_raw");
+            saveHolder(h_response,g_img_formats, false, "_raw", "" , g_plotEnv);
 
         // Prepare the likelihood --------------------------------------------------
 
@@ -1024,7 +1029,8 @@ void getResponses(vdouble& responses,
     tree->SetBranchAddress("l2corrJet",&l2corr);
 
     double response;
-    for (int ievt=0;ievt< tree->GetEntries();++ievt) {
+    for (int ievt=0;ievt< tree->GetEntries();++ievt) 
+    {
         tree->GetEntry(ievt);
         if (interval.contains(Z->Pt())) {
 
@@ -1047,9 +1053,9 @@ void getResponses(vdouble& responses,
 
 
 //------------------------------------------------------------------------------
-Intervals fill_intervals(vint edges) {
+LocalIntervals fill_intervals(vint edges) {
 
-    Intervals intervals;
+    LocalIntervals intervals;
     for (int i=0;i<edges.size()-1;i++)
         intervals.push_back(pt_interval(edges[i],edges[i+1]));
     return intervals;
@@ -1163,28 +1169,4 @@ void formatHolder(CanvasHolder& h, const char* legSym, int markersize, int lines
 
     h.addLatex(.26,.93,lumi_str,true);
 
-}
-
-//------------------------------------------------------------------------------
-
-void saveHolder(CanvasHolder &h,vString formats, bool make_log, TString sNamePostfix) {
-
-    TString mod_name(h.getTitle());
-    h.setCanvasTitle(mod_name + sNamePostfix);
-
-    if (make_log) {
-        TString can_name(h.getTitle());
-        std::cout << "DEBUG: log scale for the canvas " << (can_name+"_log_y").Data() << std::endl;
-        h.setCanvasTitle(can_name+"_log_y");
-        h.setLogY();
-        for (int i=0;i<formats.size();++i) {
-//             h.draw();
-            h.save(formats[i].Data());
-        }
-    }
-    else {
-        for (int i=0;i<formats.size();++i)
-//         h.draw();
-            h.save(formats[i].Data());
-    }
 }

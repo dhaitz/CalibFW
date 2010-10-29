@@ -35,7 +35,6 @@
 
 #include "Utilities.h"
 #include "PlotCommon.h"
-#include "PlotCommon.h"
 
 typedef std::vector<TF1> vTF1;
 typedef std::vector< vdouble > vvdouble;
@@ -138,7 +137,6 @@ Intervals fill_intervals(vint edges);
 
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
 void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false, int optStat = 0);
-void saveHolder(CanvasHolder &h, vString formats, bool make_log = false, TString sNamePostfix = "", TString sPrefix = "");
 
 //------------------------------------------------------------------------------
 
@@ -262,11 +260,11 @@ void PlotResponse( std::vector<GraphFormating> & algoForamting,
 	//h_corr.getCanvas()->cd();
 
         if ( g_correction_level == 3 )
-            saveHolder(h_corr,img_formats, false, "_l3", sGlobalPrefix);
+            saveHolder(h_corr,img_formats, false, "_l3", sGlobalPrefix, g_plotEnv);
         if ( g_correction_level == 2 )
-            saveHolder(h_corr,img_formats, false, "_l2", sGlobalPrefix );
+            saveHolder(h_corr,img_formats, false, "_l2", sGlobalPrefix, g_plotEnv );
         if ( g_correction_level == 0 )
-            saveHolder(h_corr,img_formats, false, "_raw", sGlobalPrefix );
+            saveHolder(h_corr,img_formats, false, "_raw", sGlobalPrefix, g_plotEnv );
 }
 
 
@@ -287,12 +285,6 @@ int main(int argc, char **argv) {
 
     g_configFileName = argv[1];
     
-    size_t lastSlash = g_configFileName.rfind("/");
-    std::cout << "/ pos " << lastSlash;
-    if (lastSlash != std::string::npos )
-    {
-      g_configFileName = g_configFileName.substr( lastSlash + 1, std::string::npos);
-    }
     
     
     MinimalParser p(argv[1]);
@@ -405,6 +397,7 @@ int main(int argc, char **argv) {
 	
     Intervals intervals (fill_intervals(pt_bins));    
     for (int ialgo=0;ialgo<algos.size();++ialgo) {
+      
         TString algo(algos[ialgo]);
         TString goodalgo(good_algos[ialgo]);
 	std::cout << "Filling hist for algo " << goodalgo << std::endl;
@@ -443,7 +436,7 @@ int main(int argc, char **argv) {
 						      local_input_type,
 						      g_correction_level,
 						      &*interval);
-	    std::cout <<  histName.Data() << std::endl;
+	    std::cout << "Loading " << histName.Data() << std::endl;
 	    TH1D* respo = (TH1D*) sourceFile->Get( histName );
 	    
 	    if ( respo == NULL )
@@ -464,9 +457,12 @@ int main(int argc, char **argv) {
 
 	    pHistos->histZPt = new DataHisto(interval->GetMin(), interval-> GetMax(), respo);
 	    respHistos.back().push_back( pHistos );
+	    std::cout << "done" << std::endl;
 	}
 	
     } 
+    
+    std::cout << "Histos loaded, starting to plot ..." << std::endl;
     
     PlotResponse( algoStyle, 
 		  respHistos,
@@ -557,36 +553,3 @@ void formatHolder(CanvasHolder& h, const char* legSym, int markersize, int lines
 }
 
 //------------------------------------------------------------------------------
-
-void saveHolder(CanvasHolder &h,
-                vString formats,
-                bool make_log,
-                TString sNamePostfix,
-                TString sPrefix)
-{
-    TString mod_name(h.getTitle());
-    h.setCanvasTitle(mod_name + sNamePostfix + g_plotEnv.m_sPlotFileNamePostfix);
-
-    if (make_log) {
-        TString can_name(h.getTitle());
-        std::cout << "DEBUG: log scale for the canvas " << (can_name+"_log_y").Data() << std::endl;
-        h.setCanvasTitle(can_name+"_log_y");
-        h.setLogY();
-        for (int i=0;i<formats.size();++i) {
-//             h.draw();
-            h.save(formats[i].Data());
-        }
-    }
-    else
-    {
-	// make needed folder
-      
-//      h.save("png");
-        for (int i=0;i<formats.size();++i)
-        {
-//         h.draw();
-	    system ( ("mkdir plot_out/" + g_configFileName).c_str() );
-            h.save(formats[i].Data(), "" , "plot_out/" + g_configFileName + "/");
-        }
-    }
-}

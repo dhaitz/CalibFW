@@ -32,7 +32,6 @@
 
 #include "Utilities.h"
 #include "PlotCommon.h"
-#include "PlotCommon.h"
 
 typedef std::vector<TF1> vTF1;
 typedef std::vector< vdouble > vvdouble;
@@ -136,7 +135,6 @@ Intervals fill_intervals(vint edges);
 TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
 void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false, int optStat = 0);
 void formatHolderAlt(CanvasHolder& h);
-void saveHolder(CanvasHolder &h, vString formats, bool make_log = false, TString sNamePostfix = "", TString sPrefix = "");
 
 //------------------------------------------------------------------------------
 double CalcHistoError( TH1D * pHist)
@@ -481,9 +479,9 @@ int main(int argc, char **argv) {
         formatHolder(h_corr);
 
         if ( g_correction_level == 2 )
-            saveHolder(h_corr,img_formats, false, "_l2", sGlobalPrefix );
+            saveHolder(h_corr,img_formats, false, "_l2", sGlobalPrefix, g_plotEnv );
         if ( g_correction_level == 0 )
-            saveHolder(h_corr,img_formats, false, "_raw", sGlobalPrefix );
+            saveHolder(h_corr,img_formats, false, "_raw", sGlobalPrefix, g_plotEnv );
 
 	/*
 	PlotJetCorrection( algo, dataHistResponse, dataHistJet1Pt, img_formats, sGlobalPrefix,
@@ -579,38 +577,4 @@ void formatHolder(CanvasHolder& h, const char* legSym, int markersize, int lines
 
     h.addLatex(.84,.93,"#sqrt{s}= 7 TeV",true);
     h.addLatex(.26,.93,lumi_str,true);
-}
-
-
-//------------------------------------------------------------------------------
-
-void saveHolder(CanvasHolder &h,
-                vString formats,
-                bool make_log,
-                TString sNamePostfix,
-                TString sPrefix)
-{
-    TString mod_name(h.getTitle());
-    h.setCanvasTitle(sPrefix + mod_name + sNamePostfix + g_plotEnv.m_sPlotFileNamePostfix);
-
-    if (make_log) {
-        TString can_name(h.getTitle());
-        std::cout << "DEBUG: log scale for the canvas " << (can_name+"_log_y").Data() << std::endl;
-        h.setCanvasTitle(can_name+"_log_y");
-        h.setLogY();
-        for (int i=0;i<formats.size();++i) {
-//             h.draw();
-            h.save(formats[i].Data());
-        }
-    }
-    else
-    {
-//      h.save("png");
-        for (int i=0;i<formats.size();++i)
-        {
-//         h.draw();
-	    std::cout << std::endl << "Saving plot" << std::endl;
-            h.save(formats[i].Data());
-        }
-    }
 }
