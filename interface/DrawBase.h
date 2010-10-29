@@ -141,6 +141,22 @@ public:
     }
 };
 
+class CHistEvtDataZPtCutEff : public  CHistEvtMapBase
+{
+public:
+    virtual void Draw( TH1D * pHist, EventVector & data )
+    {
+        EventVector::iterator it;
+
+        for ( it = data.begin(); !(it == data.end()); ++it)
+        {
+           //if (IsInSelection(it))
+           if (! it->IsInCut() )
+	      HistFill( pHist, it->m_pData->Z->Pt(), (*it));
+        }
+    }
+};
+
 
 class CHistEvtDataZPhi : public CHistEvtMapBase
 {
