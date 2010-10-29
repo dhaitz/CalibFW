@@ -775,6 +775,17 @@ void DrawHistoSet( TString algoName,
     ModEvtDraw( &zPtdraw, useCutParameter, bPtCut, ptLow, ptHigh );
     zPt.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );
 
+    
+    if ( !bPtCut )
+    {
+      CHistDrawBase zPtEff( "zPt_CutEff" + algoName + sPostfix,
+			pFileOut);
+      CHistEvtDataZPtCutEff zPtEffdraw;
+      zPtEff.AddModifier(new CModBinRange(0.0, 500.0));
+      
+      ModEvtDraw( &zPtEffdraw, useCutParameter, bPtCut, ptLow, ptHigh );
+      zPtEff.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );    
+    }
     // ZEta
     CHistDrawBase zEta( "zEta_" + algoName + sPostfix,
                         pFileOut,
@@ -880,7 +891,6 @@ void DrawHistoSet( TString algoName,
     CHistEvtDataMuAllPhi muall_phidraw;
     ModEvtDraw( &muall_phidraw, useCutParameter, bPtCut, ptLow, ptHigh );
     muall_phi.Execute < EventVector & > ( g_eventsDataset, &muall_phidraw );
-
 
     // jet1 eta with cut
     for (int i = 0; i < 3; ++i)
