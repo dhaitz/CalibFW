@@ -8,6 +8,7 @@
 #include "GlobalInclude.h"
 #include "RootIncludes.h"
 #include "EventData.h"
+#include "PtBinWeighter.h"
 
 
 class EventSelectionBase
@@ -703,6 +704,69 @@ public:
     double m_dHighPtCut;
 }; 
 
+
+class CGraphDrawZPtCutEff
+{
+public:
+    CGraphDrawZPtCutEff()
+    {
+	m_dZPtStart = 0.0f;
+	m_dZPtEnd = 400.0f;
+	m_dStepSize = 2.0f;
+    }
+  
+    unsigned int GetPointCount( EventVector & data )
+    {	
+	return (unsigned int)( (m_dZPtEnd - m_dZPtStart) / m_dStepSize);
+    }
+    
+    class LocalBin
+    {	
+    public:
+	LocalBin() : m_iRejectedEvents(0), m_iAllEvents(0)
+	{
+	  
+	}
+      
+	PtBin m_bin;
+	int m_iRejectedEvents;
+	int m_iAllEvents;
+    };
+    
+    void Draw( TGraphErrors * pGraph, EventVector & data )
+    {
+	int i = 0;
+	int iBinCount = (int)( (m_dZPtEnd - m_dZPtStart) / m_dStepSize);
+	
+	for (int iBin = 0; iBin < iBinCount; iBin ++ )
+	{
+	    LocalBin locacBin;
+	    locacBin.m_bin = PtBin( (double) iBin * m_dStepSize + m_dZPtStart,
+				    (double) (iBin + 1) * m_dStepSize + m_dZPtStart);
+
+	    for (EventVector::iterator it = data.begin(); !(it == data.end()); ++it)
+	    {
+		if (locacBin.m_bin.IsInBin( it->m_pData->Z->Pt()))
+		{		  
+		  if (! it->IsInCut())
+		    locacBin.m_iRejectedEvents++;
+		    
+		  locacBin.m_iAllEvents++;		  
+		}
+	    }
+	    
+	    pGraph->SetPoint( iBin,
+			      locacBin.m_bin.GetBinCenter(),
+			      (float) locacBin.m_iRejectedEvents / (float) locacBin.m_iAllEvents );
+	}
+    }
+
+    
+    double m_dStepSize;
+    double m_dZPtStart;
+    double m_dZPtEnd;
+}; 
+
 template < class TData, class TDataDrawer >
 class CGrapErrorDrawBase : public CDrawBase
 {
@@ -757,8 +821,6 @@ public:
         for (iter = m_graphMods.begin(); iter != m_graphMods.end(); ++iter) {
             iter->ModifyBeforeDataEntry( c, resp_h );
         }*/
-
-	
 	tdraw.Draw( resp_h, data );
 
         // apply modifiers

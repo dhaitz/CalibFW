@@ -786,6 +786,7 @@ void DrawHistoSet( TString algoName,
       ModEvtDraw( &zPtEffdraw, useCutParameter, bPtCut, ptLow, ptHigh );
       zPtEff.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );    
     }
+    
     // ZEta
     CHistDrawBase zEta( "zEta_" + algoName + sPostfix,
                         pFileOut,
@@ -973,7 +974,14 @@ void DrawHistoSet( TString algoName,
     CHistEvtDataJetResponse jetresp_draw;
     ModEvtDraw( &jetresp_draw, useCutParameter, bPtCut, ptLow, ptHigh );
     jetresp.Execute <  EventVector & > ( g_eventsDataset, &jetresp_draw );
-
+    
+    CGrapErrorDrawBase < EventVector &, CGraphDrawZPtCutEff >  ZptEff_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
+    ZptEff_draw.Execute( g_eventsDataset );
+    
+/*
+    CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
+    l2corr_draw.Execute( g_eventsDataset );
+  */  
     // Jet Response binned as jet1.pt() here ??
 /*    CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
     
