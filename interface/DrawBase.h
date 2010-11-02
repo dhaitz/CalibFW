@@ -1122,9 +1122,6 @@ public:
         }
     }
 
-
-    virtual double GetValue() {};
-
     virtual void StyleHisto( TH1D * pHist)
     {
         pHist->SetLineColor( this->m_lineColor );
