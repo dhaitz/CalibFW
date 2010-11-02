@@ -51,18 +51,18 @@ class CHistEvtMapBase : public  CHistDataDrawBase<  EventVector & >
 public:
     CHistEvtMapBase()
     {
-    	m_bOnlyEventsInCut = true;
-    	m_bUsePtCut = true;
-	m_binWith = ZPtBinning;
+        m_bOnlyEventsInCut = true;
+        m_bUsePtCut = true;
+        m_binWith = ZPtBinning;
     }
-  
+
     enum BinWithEnum { ZPtBinning, Jet1PtBinning };
-  
-    void HistFill( TH1D * pHist, 
-		   double fillValue, 
-		   EventResult & Res )
+
+    void HistFill( TH1D * pHist,
+                   double fillValue,
+                   EventResult & Res )
     {
-	pHist->Fill( fillValue, Res.m_weight);
+        pHist->Fill( fillValue, Res.m_weight);
     }
 
     BinWithEnum m_binWith;
@@ -70,39 +70,39 @@ public:
     // default behavior, might get more complex later on
     bool IsInSelection ( EventVector::iterator it )
     {
-    	bool bPass = true;
-    	// no section here is allowed to set to true again, just to false ! avoids coding errors
-    	if (this->m_bOnlyEventsInCut)
-    	{
-    		if (! it->IsInCut())
-    			bPass = false;
-    	}
-    	else
-    	{
-    		// all events which are valid in jSON file
-		// does this work for mc ??
-    		if (! it->IsValidEvent() )
-    			bPass = false;
-    	}
+        bool bPass = true;
+        // no section here is allowed to set to true again, just to false ! avoids coding errors
+        if (this->m_bOnlyEventsInCut)
+        {
+            if (! it->IsInCut())
+                bPass = false;
+        }
+        else
+        {
+            // all events which are valid in jSON file
+            // does this work for mc ??
+            if (! it->IsValidEvent() )
+                bPass = false;
+        }
 
-    	if ( m_bUsePtCut )
-    	{
-	    double fBinVal;
-	    if ( m_binWith == ZPtBinning )
-	      fBinVal = it->m_pData->Z->Pt();
-	    else
-	      fBinVal = it->m_pData->jets[0]->Pt();
-	  
-	    if (!( fBinVal >= this->m_dLowPtCut ))
-		    bPass = false;
+        if ( m_bUsePtCut )
+        {
+            double fBinVal;
+            if ( m_binWith == ZPtBinning )
+                fBinVal = it->m_pData->Z->Pt();
+            else
+                fBinVal = it->GetCorrectedJetPt(0);
 
-	    if (!( fBinVal < this->m_dHighPtCut ))
-		    bPass = false;
-    	}
+            if (!( fBinVal >= this->m_dLowPtCut ))
+                bPass = false;
 
-    	return bPass;
+            if (!( fBinVal < this->m_dHighPtCut ))
+                bPass = false;
+        }
+
+        return bPass;
     }
-    
+
     bool m_bOnlyEventsInCut;
     bool m_bUsePtCut;
     double m_dLowPtCut;
@@ -117,12 +117,12 @@ public:
         EventVector::iterator it;
 
         for ( it = data.begin();
-	      !(it == data.end()); ++it)
+                !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-	    {
-            	HistFill( pHist,it->m_pData->Z->GetCalcMass(), (*it));
-	    }
+            {
+                HistFill( pHist,it->m_pData->Z->GetCalcMass(), (*it));
+            }
         }
     }
 };
@@ -136,8 +136,8 @@ public:
 
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
-           if (IsInSelection(it))
-        	   HistFill( pHist, it->m_pData->Z->Pt(), (*it));
+            if (IsInSelection(it))
+                HistFill( pHist, it->m_pData->Z->Pt(), (*it));
         }
     }
 };
@@ -151,9 +151,9 @@ public:
 
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
-           //if (IsInSelection(it))
-           if (! it->IsInCut() )
-	      HistFill( pHist, it->m_pData->Z->Pt(), (*it));
+            //if (IsInSelection(it))
+            if (! it->IsInCut() )
+                HistFill( pHist, it->m_pData->Z->Pt(), (*it));
         }
     }
 };
@@ -169,7 +169,7 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-            	HistFill( pHist, it->m_pData->Z->Phi() - TMath::Pi(),(*it));
+                HistFill( pHist, it->m_pData->Z->Phi() - TMath::Pi(),(*it));
         }
     }
 };
@@ -184,7 +184,7 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-            	HistFill( pHist, it->m_pData->Z->Eta(),(*it));
+                HistFill( pHist, it->m_pData->Z->Eta(),(*it));
         }
     }
 };
@@ -201,7 +201,7 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-            	HistFill( pHist, it->m_pData->mu_minus->Pt(), (*it));
+                HistFill( pHist, it->m_pData->mu_minus->Pt(), (*it));
         }
     }
 };
@@ -216,7 +216,7 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-            	HistFill( pHist, it->m_pData->mu_plus->Pt(), (*it));
+                HistFill( pHist, it->m_pData->mu_plus->Pt(), (*it));
         }
     }
 };
@@ -231,7 +231,7 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-            	HistFill( pHist, it->m_pData->mu_plus->Eta(), (*it));
+                HistFill( pHist, it->m_pData->mu_plus->Eta(), (*it));
         }
     }
 };
@@ -246,7 +246,7 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-            	HistFill( pHist, it->m_pData->mu_minus->Eta(), (*it));
+                HistFill( pHist, it->m_pData->mu_minus->Eta(), (*it));
         }
     }
 };
@@ -261,7 +261,7 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-            	HistFill( pHist, it->m_pData->mu_plus->Phi() - TMath::Pi(), (*it));
+                HistFill( pHist, it->m_pData->mu_plus->Phi() - TMath::Pi(), (*it));
         }
     }
 };
@@ -276,7 +276,7 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-            	HistFill( pHist, it->m_pData->mu_minus->Phi() - TMath::Pi(), (*it));
+                HistFill( pHist, it->m_pData->mu_minus->Phi() - TMath::Pi(), (*it));
         }
     }
 };
@@ -292,10 +292,10 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-	    {
-            	HistFill( pHist, it->m_pData->mu_plus->Pt(), (*it));
-		HistFill( pHist, it->m_pData->mu_minus->Pt(), (*it));
-	    }
+            {
+                HistFill( pHist, it->m_pData->mu_plus->Pt(), (*it));
+                HistFill( pHist, it->m_pData->mu_minus->Pt(), (*it));
+            }
         }
     }
 };
@@ -310,10 +310,10 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-	    {
-            	HistFill( pHist, it->m_pData->mu_plus->Eta(), (*it));
-		HistFill( pHist, it->m_pData->mu_minus->Eta(), (*it));
-	    }
+            {
+                HistFill( pHist, it->m_pData->mu_plus->Eta(), (*it));
+                HistFill( pHist, it->m_pData->mu_minus->Eta(), (*it));
+            }
         }
     }
 };
@@ -328,11 +328,11 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-	    {
-            	HistFill( pHist, it->m_pData->mu_plus->Phi() - TMath::Pi(), (*it));
-		HistFill( pHist, it->m_pData->mu_minus->Phi() - TMath::Pi(), (*it));
-	    }
-	    
+            {
+                HistFill( pHist, it->m_pData->mu_plus->Phi() - TMath::Pi(), (*it));
+                HistFill( pHist, it->m_pData->mu_minus->Phi() - TMath::Pi(), (*it));
+            }
+
         }
     }
 };
@@ -342,9 +342,9 @@ class CHistEvtDataJetBase : public CHistEvtMapBase
 public:
     CHistEvtDataJetBase( int iJetNum )
     {
-      m_iJetNum = iJetNum;
+        m_iJetNum = iJetNum;
     }
-  
+
     int m_iJetNum;
 };
 
@@ -355,7 +355,7 @@ public:
     CHistEvtDataJetEta( int iJetNum ) : CHistEvtDataJetBase( iJetNum)
     {
     }
-  
+
     virtual void Draw( TH1D * pHist, EventVector & data )
     {
         EventVector::iterator it;
@@ -363,9 +363,9 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it) && (  it->m_pData->jets[m_iJetNum]->P() > 0.01f ) )
-            	HistFill( pHist, it->m_pData->jets[m_iJetNum]->Eta(),(*it));
+                HistFill( pHist, it->m_pData->jets[m_iJetNum]->Eta(),(*it));
         }
-    }   
+    }
 };
 
 
@@ -375,24 +375,24 @@ public:
     CHistEvtDataJetPt( int iJetNum ) : CHistEvtDataJetBase( iJetNum)
     {
     }
-  
+
     virtual void Draw( TH1D * pHist, EventVector & data )
     {
         EventVector::iterator it;
 
-	double ptVal;
+        double ptVal;
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it)&& (  it->m_pData->jets[m_iJetNum]->P() > 0.01f ))
-            	HistFill( pHist, it->GetCorrectedJetPt( this->m_iJetNum) , (*it));
+                HistFill( pHist, it->GetCorrectedJetPt( this->m_iJetNum) , (*it));
         }
-    }   
+    }
 };
 
 class CHistEvtDataJetPhi : public CHistEvtDataJetBase
 {
 public:
-	CHistEvtDataJetPhi( int iJetNum ) : CHistEvtDataJetBase( iJetNum)
+    CHistEvtDataJetPhi( int iJetNum ) : CHistEvtDataJetBase( iJetNum)
     {
     }
 
@@ -403,7 +403,7 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it)&& (  it->m_pData->jets[m_iJetNum]->P() > 0.01f ))
-            	HistFill( pHist, it->m_pData->jets[m_iJetNum]->Phi() - TMath::Pi(),(*it));
+                HistFill( pHist, it->m_pData->jets[m_iJetNum]->Phi() - TMath::Pi(),(*it));
         }
     }
 };
@@ -433,7 +433,7 @@ public:
 class CHistEvtDataJetPtMinusZPt : public CHistEvtDataJetBase
 {
 public:
-	CHistEvtDataJetPtMinusZPt( int iJetNum ) : CHistEvtDataJetBase( iJetNum)
+    CHistEvtDataJetPtMinusZPt( int iJetNum ) : CHistEvtDataJetBase( iJetNum)
     {
     }
 
@@ -444,7 +444,7 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it)&& (  it->m_pData->jets[m_iJetNum]->P() > 0.01f ))
-            	HistFill( pHist,it->m_pData->Z->Pt() -  it->m_pData->jets[m_iJetNum]->Pt(),(*it));
+                HistFill( pHist,it->m_pData->Z->Pt() -  it->m_pData->jets[m_iJetNum]->Pt(),(*it));
         }
     }
 };
@@ -460,9 +460,9 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it)&& (  it->m_pData->jets[1]->P() > 0.01f ))
-            	HistFill( pHist,it->GetCorrectedJetPt(1) / it->m_pData->Z->Pt(), (*it));
+                HistFill( pHist,it->GetCorrectedJetPt(1) / it->m_pData->Z->Pt(), (*it));
         }
-    }   
+    }
 };
 
 
@@ -476,10 +476,10 @@ public:
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-            	HistFill( pHist, TMath::Abs( TMath::Abs(it->m_pData->jets[0]->Phi() - it->m_pData->Z->Phi()) - TMath::Pi())
-            , (*it));
+                HistFill( pHist, TMath::Abs( TMath::Abs(it->m_pData->jets[0]->Phi() - it->m_pData->Z->Phi()) - TMath::Pi())
+                          , (*it));
         }
-    }   
+    }
 };
 
 
@@ -493,8 +493,8 @@ public:
         for ( it = data.begin();  !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-            	HistFill( pHist, it->GetCorrectedJetPt(0) / it->m_pData->Z->Pt()
-            			, (*it));
+                HistFill( pHist, it->GetCorrectedJetPt(0) / it->m_pData->Z->Pt()
+                          , (*it));
         }
     }
 };
@@ -526,7 +526,7 @@ public:
 class CHistModifierBase
 {
 public:
-    virtual void ModifyBeforeHistCreation( void * pDrawBase  ){};
+    virtual void ModifyBeforeHistCreation( void * pDrawBase  ) {};
     virtual void ModifyBeforeDataEntry( TCanvas * pC, TH1 * pHist ) {}
     virtual void ModifyAfterDataEntry( TCanvas * pC, TH1 * pHist ) {}
     virtual void ModifyAfterHistoDraw( TCanvas * pC, TH1 * pHist ) {}
@@ -535,7 +535,7 @@ public:
 class CGraphModifierBase
 {
 public:
-    virtual void ModifyBeforeCreation( void * pDrawBase  ){};
+    virtual void ModifyBeforeCreation( void * pDrawBase  ) {};
     virtual void ModifyBeforeDataEntry( TCanvas * pC, TGraphErrors * pHist ) {}
     virtual void ModifyAfterDataEntry( TCanvas * pC, TGraphErrors * pHist ) {}
     virtual void ModifyAfterDraw( TCanvas * pC, TGraphErrors * pHist ) {}
@@ -549,12 +549,12 @@ class CGraphModBinRange : public CGraphModifierBase
 public:
     CModBinRange( double lower, double upper)
     {
-      
+
     }
 
     void ModifyBeforeCreation( TGraphErrors * pB  )
     {
-      
+
     }
 
 private:
@@ -607,14 +607,14 @@ class CPlotL2Corr
 public:
     double GetX( EventResult & res )
     {
-	return res.m_pData->jets[0]->Eta();
+        return res.m_pData->jets[0]->Eta();
     }
-    
+
     double GetY( EventResult & res )
     {
-      return res.m_l2CorrPtJets[0];
+        return res.m_l2CorrPtJets[0];
     }
-    
+
 };
 
 template < class TDataExtractor >
@@ -623,40 +623,40 @@ class CGraphDrawEvtMap
 public:
     CGraphDrawEvtMap()
     {
-    	m_bOnlyEventsInCut = true;
-    	m_bUsePtCut = true;
-	m_binWith = ZPtBinning;
+        m_bOnlyEventsInCut = true;
+        m_bUsePtCut = true;
+        m_binWith = ZPtBinning;
     }
-  
+
     enum BinWithEnum { ZPtBinning, Jet1PtBinning };
-  
+
     unsigned int GetPointCount( EventVector & data )
-    {	
-      unsigned int c = 0;
-    	for (EventVector::iterator it = data.begin(); !(it == data.end()); ++it)
+    {
+        unsigned int c = 0;
+        for (EventVector::iterator it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-	    {
-		 c++;
-	    }
-        }      
-      
-	return c;
+            {
+                c++;
+            }
+        }
+
+        return c;
     }
-    
+
     void Draw( TGraphErrors * pGraph, EventVector & data )
     {
-	int i = 0;
-	TDataExtractor tEx;
-    	for (EventVector::iterator it = data.begin(); !(it == data.end()); ++it)
+        int i = 0;
+        TDataExtractor tEx;
+        for (EventVector::iterator it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-	    {
-            	pGraph->SetPoint (i, 
-				  tEx.GetX( (*it)),
-				  tEx.GetY( (*it)));
-		i++;
-	    }
+            {
+                pGraph->SetPoint (i,
+                                  tEx.GetX( (*it)),
+                                  tEx.GetY( (*it)));
+                i++;
+            }
         }
     }
 
@@ -665,117 +665,284 @@ public:
     // default behavior, might get more complex later on
     bool IsInSelection ( EventVector::iterator it )
     {
-    	bool bPass = true;
-    	// no section here is allowed to set to true again, just to false ! avoids coding errors
-    	if (this->m_bOnlyEventsInCut)
-    	{
-    		if (! it->IsInCut())
-    			bPass = false;
-    	}
-    	else
-    	{
-    		// all events which are valid in jSON file
-		// does this work for mc ??
-    		if (! it->IsValidEvent() )
-    			bPass = false;
-    	}
+        bool bPass = true;
+        // no section here is allowed to set to true again, just to false ! avoids coding errors
+        if (this->m_bOnlyEventsInCut)
+        {
+            if (! it->IsInCut())
+                bPass = false;
+        }
+        else
+        {
+            // all events which are valid in jSON file
+            // does this work for mc ??
+            if (! it->IsValidEvent() )
+                bPass = false;
+        }
 
-    	if ( m_bUsePtCut )
-    	{
-	    double fBinVal;
-	    if ( m_binWith == ZPtBinning )
-	      fBinVal = it->m_pData->Z->Pt();
-	    else
-	      fBinVal = it->m_pData->jets[0]->Pt();
-	  
-	    if (!( fBinVal >= this->m_dLowPtCut ))
-		    bPass = false;
+        if ( m_bUsePtCut )
+        {
+            double fBinVal;
+            if ( m_binWith == ZPtBinning )
+                fBinVal = it->m_pData->Z->Pt();
+            else
+                fBinVal = it->m_pData->jets[0]->Pt();
 
-	    if (!( fBinVal < this->m_dHighPtCut ))
-		    bPass = false;
-    	}
+            if (!( fBinVal >= this->m_dLowPtCut ))
+                bPass = false;
 
-    	return bPass;
+            if (!( fBinVal < this->m_dHighPtCut ))
+                bPass = false;
+        }
+
+        return bPass;
     }
-    
+
     bool m_bOnlyEventsInCut;
     bool m_bUsePtCut;
     double m_dLowPtCut;
     double m_dHighPtCut;
-}; 
+};
 
-
+template < class TDataExtractor >
 class CGraphDrawZPtCutEff
 {
 public:
     CGraphDrawZPtCutEff()
     {
-	m_dZPtStart = 0.0f;
-	m_dZPtEnd = 400.0f;
-	m_dStepSize = 2.0f;
+        m_dZPtStart = 0.0f;
+        m_dZPtEnd = 400.0f;
+        m_dStepSize = 2.0f;
     }
-  
+
     unsigned int GetPointCount( EventVector & data )
-    {	
-	return (unsigned int)( (m_dZPtEnd - m_dZPtStart) / m_dStepSize);
-    }
-    
-    class LocalBin
-    {	
-    public:
-	LocalBin() : m_iRejectedEvents(0), m_iAllEvents(0)
-	{
-	  
-	}
-      
-	PtBin m_bin;
-	int m_iRejectedEvents;
-	int m_iAllEvents;
-    };
-    
-    void Draw( TGraphErrors * pGraph, EventVector & data )
     {
-	int i = 0;
-	int iBinCount = (int)( (m_dZPtEnd - m_dZPtStart) / m_dStepSize);
-	
-	for (int iBin = 0; iBin < iBinCount; iBin ++ )
-	{
-	    LocalBin locacBin;
-	    locacBin.m_bin = PtBin( (double) iBin * m_dStepSize + m_dZPtStart,
-				    (double) (iBin + 1) * m_dStepSize + m_dZPtStart);
-
-	    for (EventVector::iterator it = data.begin(); !(it == data.end()); ++it)
-	    {
-		if (locacBin.m_bin.IsInBin( it->m_pData->Z->Pt()))
-		{		  
-		  if (! it->IsInCut())
-		    locacBin.m_iRejectedEvents++;
-		    
-		  locacBin.m_iAllEvents++;		  
-		}
-	    }
-	    
-	    pGraph->SetPoint( iBin,
-			      locacBin.m_bin.GetBinCenter(),
-			      (float) locacBin.m_iRejectedEvents / (float) locacBin.m_iAllEvents );
-	}
+        return (unsigned int)( (m_dZPtEnd - m_dZPtStart) / m_dStepSize);
     }
 
-    
+    class LocalBin
+    {
+    public:
+        LocalBin() : m_iRejectedEvents(0), m_iAllEvents(0)
+        {
+
+        }
+
+        PtBin m_bin;
+        int m_iRejectedEvents;
+        int m_iAllEvents;
+    };
+
+    void Draw( TGraphErrors * pGraph, EventVector & data, TDataExtractor selektor  )
+    {
+        int i = 0;
+        int iBinCount = (int)( (m_dZPtEnd - m_dZPtStart) / m_dStepSize);
+
+        for (int iBin = 0; iBin < iBinCount; iBin ++ )
+        {
+            LocalBin locacBin;
+            locacBin.m_bin = PtBin( (double) iBin * m_dStepSize + m_dZPtStart,
+                                    (double) (iBin + 1) * m_dStepSize + m_dZPtStart);
+
+            for (EventVector::iterator it = data.begin(); !(it == data.end()); ++it)
+            {
+                if (locacBin.m_bin.IsInBin( it->m_pData->Z->Pt()))
+                {
+                    if (! it->IsInCut())
+                        locacBin.m_iRejectedEvents++;
+
+                    locacBin.m_iAllEvents++;
+		    
+                }
+            }
+            // gotta be more like undefined and have no value at all...
+            double fCutEff = 1.0f;
+
+            // prevent division by zero
+            if ( locacBin.m_iAllEvents > 0 )
+                fCutEff = (double) locacBin.m_iRejectedEvents / (double) locacBin.m_iAllEvents;
+
+            std::cout << "CuttEff Bin " <<  locacBin.m_bin.good_id()
+                      << " EventsDropped: " << fCutEff
+                      << " Rejected: " << locacBin.m_iRejectedEvents
+                      << " All Events: " << locacBin.m_iAllEvents << std::endl;
+            pGraph->SetPoint( iBin,
+                              locacBin.m_bin.GetBinCenter(),
+                              fCutEff );
+
+        }
+    }
+
+
     double m_dStepSize;
     double m_dZPtStart;
     double m_dZPtEnd;
-}; 
+};
 
-template < class TData, class TDataDrawer >
+
+/* Plots the Cut Efficiency over the JetResponse of the events to see
+ * wether there is a corellation
+ */
+template < class TEventSelector >
+class CGraphDrawJetResponseCutEff
+{
+public:
+    CGraphDrawJetResponseCutEff() :
+            m_dJetResponseStart(0.0),
+            m_dJetResponseEnd(2.0),
+            m_dStepSize( 0.1 )
+    {
+    }
+
+    unsigned int GetPointCount( EventVector & data )
+    {
+        return (unsigned int)( (m_dJetResponseEnd - m_dJetResponseStart) / m_dStepSize);
+    }
+
+    class LocalResponseBin
+    {
+    public:
+        LocalResponseBin() : m_iRejectedEvents(0), m_iAllEvents(0)
+        {
+
+        }
+
+        PtBin m_bin;
+        int m_iRejectedEvents;
+        int m_iAllEvents;
+    };
+
+    void Draw( TGraphErrors * pGraph, EventVector & data, TEventSelector eventSelector )
+    {
+        int i = 0;
+        unsigned int iBinCount = GetPointCount( data );
+
+        for (unsigned int iBin = 0; iBin < iBinCount; iBin ++ )
+        {
+            LocalResponseBin locacBin;
+            locacBin.m_bin = PtBin( (double) iBin * m_dStepSize + m_dJetResponseStart,
+                                    ((double) (iBin + 1)) * m_dStepSize + m_dJetResponseStart);
+
+            for (EventVector::iterator it = data.begin(); !(it == data.end()); ++it)
+            {
+                if ( eventSelector.IsEventIncluded( *it ))
+                {
+                    if (locacBin.m_bin.IsInBin( it->GetCorrectedJetResponse()))
+                    {
+                        if (! it->IsInCut())
+                            locacBin.m_iRejectedEvents++;
+
+                        locacBin.m_iAllEvents++;
+                    }
+                }
+            }
+            // gotta be more like undefined and have no value at all...
+            double fCutEff = 1.0f;
+
+            // prevent division by zero
+            if ( locacBin.m_iAllEvents > 0 )
+                fCutEff = (double) locacBin.m_iRejectedEvents / (double) locacBin.m_iAllEvents;
+
+            std::cout << "CuttEff Bin " <<  locacBin.m_bin.good_id()
+                      << " EventsDropped: " << fCutEff
+                      << " Rejected: " << locacBin.m_iRejectedEvents
+                      << " All Events: " << locacBin.m_iAllEvents << std::endl;
+            pGraph->SetPoint( iBin,
+                              locacBin.m_bin.GetBinCenter(),
+                              fCutEff );
+
+        }
+    }
+
+
+    double m_dStepSize;
+    double m_dJetResponseStart;
+    double m_dJetResponseEnd;
+};
+
+class PassAllEventSelector
+{
+    inline bool IsEventIncluded( EventResult & evt )
+    {
+        return true;
+    }
+};
+
+class PtBinEventSelector
+{
+public:
+    enum BinWithEnum { ZPtBinning, Jet1PtBinning };
+
+    PtBinEventSelector( bool onlyEventsInCut = true,
+                        bool usePtCut = false,
+                        double lowPtCut = 0.0f,
+                        double highPtCut = 0.0f,
+                        BinWithEnum binWith = ZPtBinning )
+    {
+        m_bOnlyEventsInCut = onlyEventsInCut;
+        m_bUsePtCut = usePtCut;
+        m_dLowPtCut = lowPtCut;
+        m_dHighPtCut = highPtCut;
+        m_binWith = binWith;
+    }
+
+    inline bool IsEventIncluded( EventResult & evt )
+    {
+        bool bPass = true;
+        // no section here is allowed to set to true again, just to false ! avoids coding errors
+        if (this->m_bOnlyEventsInCut)
+        {
+            if (! evt.IsInCut())
+                bPass = false;
+        }
+        else
+        {
+            // all events which are valid in jSON file
+            // does this work for mc ??
+            if (! evt.IsValidEvent() )
+                bPass = false;
+        }
+
+        if ( m_bUsePtCut )
+        {
+            double fBinVal;
+            if ( m_binWith == ZPtBinning )
+                fBinVal = evt.m_pData->Z->Pt();
+            else
+                fBinVal = evt.GetCorrectedJetPt(0);
+
+            if (!( fBinVal >= this->m_dLowPtCut ))
+                bPass = false;
+
+            if (!( fBinVal < this->m_dHighPtCut ))
+                bPass = false;
+        }
+
+        return bPass;
+    }
+
+    bool m_bOnlyEventsInCut;
+    bool m_bUsePtCut;
+    double m_dHighPtCut;
+    double m_dLowPtCut;
+
+
+
+
+    BinWithEnum m_binWith;
+
+};
+
+
+template < class TData, class TDataDrawer, class TEventSelector >
 class CGrapErrorDrawBase : public CDrawBase
 {
 public:
     typedef boost::ptr_vector<CGraphModifierBase > ModifierVector;
-  
+
     CGrapErrorDrawBase( TString cName,
-                   TFile * pResFile,
-                   ModifierVector mods = ModifierVector() ) :  CDrawBase( cName,  cName)
+                        TFile * pResFile,
+                        ModifierVector mods = ModifierVector() ) :  CDrawBase( cName,  cName)
     {
         m_iBinCount = 100;
         m_dBinLower = 0.0;
@@ -791,29 +958,30 @@ public:
 
     ~CGrapErrorDrawBase()
     {
-    }  
-      
+    }
+
 
     virtual double GetValue() {};
 
-    void Execute( TData data )
+    void Execute( TData data, TEventSelector selector )
     {
         //int entries=m_pChain->GetEntries();
-	ModifierVector::iterator iter;
+        ModifierVector::iterator iter;
 
         // apply modifiers
         for (iter = m_graphMods.begin(); !( iter == m_graphMods.end()); ++iter) {
             iter->ModifyBeforeCreation( this );
         }
 
-	TDataDrawer tdraw;
+        TDataDrawer tdraw;
         //std::cout << "Generating " << this->m_sName << " ... ";*/
         TCanvas *c = new TCanvas( this->m_sName + "_c", this->m_sCaption,200,10,600,600);
         TGraphErrors * resp_h = new TGraphErrors( tdraw.GetPointCount(data ));
-	resp_h->SetName(  this->m_sName );
-	
-/*                                  this->m_sCaption,
-                                  m_iBinCount,m_dBinLower,m_dBinUpper);*/
+        resp_h->SetName(  this->m_sName );
+        resp_h->SetMarkerStyle(kFullDotMedium);
+
+        /*                                  this->m_sCaption,
+                                          m_iBinCount,m_dBinLower,m_dBinUpper);*/
         //this->StyleHisto( resp_h );
 
         // apply modifiers
@@ -821,23 +989,23 @@ public:
         for (iter = m_graphMods.begin(); iter != m_graphMods.end(); ++iter) {
             iter->ModifyBeforeDataEntry( c, resp_h );
         }*/
-	tdraw.Draw( resp_h, data );
+        tdraw.Draw( resp_h, data, selector );
 
         // apply modifiers
-	/*
-        for (iter = m_graphMods.begin(); iter != m_graphMods.end(); ++iter) {
-            iter->ModifyAfterDataEntry( c, resp_h );
-        }*/
-/*
-	resp_h->GetYaxis()->SetRangeUser(0.0, resp_h->GetMaximum() * 1.2 );
-*/
-        resp_h->Draw();
-	
+        /*
+            for (iter = m_graphMods.begin(); iter != m_graphMods.end(); ++iter) {
+                iter->ModifyAfterDataEntry( c, resp_h );
+            }*/
+        /*
+        	resp_h->GetYaxis()->SetRangeUser(0.0, resp_h->GetMaximum() * 1.2 );
+        */
+        resp_h->Draw("pa");
+
         // apply modifiers
-       /* for (iter = m_graphMods.begin(); iter != m_graphMods.end(); ++iter) {
-            iter->ModifyAfterDraw( c, resp_h );
-        }
-	*/
+        /* for (iter = m_graphMods.begin(); iter != m_graphMods.end(); ++iter) {
+             iter->ModifyAfterDraw( c, resp_h );
+         }
+        */
         /*
                 if (m_bDrawLegend)
                 {
@@ -863,20 +1031,20 @@ public:
 
         //std::cout << "done" << std::endl;
     }
-/*
-    void AddModifier( ModifierVector mods)
-    {
-        ModifierVector::iterator iter;
-        for (iter = mods.begin(); iter != mods.end(); ++iter)
+    /*
+        void AddModifier( ModifierVector mods)
         {
-            m_graphMods.push_back (*iter);
+            ModifierVector::iterator iter;
+            for (iter = mods.begin(); iter != mods.end(); ++iter)
+            {
+                m_graphMods.push_back (*iter);
+            }
         }
-    }
-*/
+    */
     void AddModifier( CGraphModifierBase * mod)
     {
         m_graphMods.push_back( mod );
-      
+
     }
 
     bool m_bDrawLegend;
@@ -887,7 +1055,7 @@ public:
     double m_dBinUpper;
     Color_t m_lineColor;
 
-    
+
     ModifierVector m_graphMods;
 };
 
@@ -912,12 +1080,12 @@ public:
 
     ~CHistDrawBase()
     {
-      std::vector< CHistModifierBase *>::iterator iter;
+        std::vector< CHistModifierBase *>::iterator iter;
         for (iter = m_histMods.begin(); iter != m_histMods.end(); ++iter) {
             delete (*iter);
         }
-    }  
-      
+    }
+
 
     virtual double GetValue() {};
 
@@ -959,15 +1127,15 @@ public:
             (*iter)->ModifyAfterDataEntry( c, resp_h );
         }
 
-	resp_h->GetYaxis()->SetRangeUser(0.0, resp_h->GetMaximum() * 1.2 );
+        resp_h->GetYaxis()->SetRangeUser(0.0, resp_h->GetMaximum() * 1.2 );
 
         resp_h->Draw();
-	
+
         // apply modifiers
         for (iter = m_histMods.begin(); iter != m_histMods.end(); ++iter) {
             (*iter)->ModifyAfterHistoDraw( c, resp_h );
         }
-	
+
         /*
                 if (m_bDrawLegend)
                 {

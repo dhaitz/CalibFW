@@ -222,6 +222,11 @@ public:
       return fVal;
     }
     
+    double GetCorrectedJetResponse()
+    {
+       return this->GetCorrectedJetPt(0) / this->m_pData->Z->Pt(); 
+    }
+    
     bool IsInCut()
     {
         return (this->m_cutResult == InCut);

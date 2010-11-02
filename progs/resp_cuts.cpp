@@ -50,6 +50,9 @@ bool g_doData = true;
 // if true, the number in Event.weight is used for MC weigting
 bool g_useEventWeight = false;
 
+// if true, all plots are done one time without cuts applied
+bool g_plotNoCuts = false;
+
 //bool g_doL1Correction = true;
 bool g_doL2Correction = true;
 bool g_doL3Correction = false;
@@ -270,21 +273,21 @@ void calcJetEnergyCorrection( EventResult * res, CompleteJetCorrector *  pJetCor
 {
     for ( int i = 0; i < 3; i++ )
     {
-      pJetCorr->CalcCorrectionForEvent( res );
-      /*
-        if ( g_doL2Correction )
-        {
-            pJetCorr->setJetEta(res->m_pData->jets[i]->Eta());
-            pJetCorr->setJetPt(res->m_pData->jets[i]->Pt());
-	    res->m_l2CorrJets[i] = pJetCorr->getCorrection();
-//	std::cout << "JetCorr " << jetcorr << std::endl;
-            //res->m_pData->jets[i]-> = res->m_pData->jets[i]->Pt()*jetcorr;
-        }
+        pJetCorr->CalcCorrectionForEvent( res );
+        /*
+          if ( g_doL2Correction )
+          {
+              pJetCorr->setJetEta(res->m_pData->jets[i]->Eta());
+              pJetCorr->setJetPt(res->m_pData->jets[i]->Pt());
+          res->m_l2CorrJets[i] = pJetCorr->getCorrection();
+        //    std::cout << "JetCorr " << jetcorr << std::endl;
+              //res->m_pData->jets[i]-> = res->m_pData->jets[i]->Pt()*jetcorr;
+          }
 
-        if ( g_doL3Correction )
-        {
-            // more magic to come !
-        }*/
+          if ( g_doL3Correction )
+          {
+              // more magic to come !
+          }*/
     }
 }
 
@@ -338,13 +341,13 @@ void importEvents( bool bUseJson,
             //{
             calcJetEnergyCorrection(res, correction);
             applyCut( res, bUseJson );
-	    g_eventsDataset.push_back( res );
-	    
-/*            }
-            else
-            {
-                delete res;
-            }*/
+            g_eventsDataset.push_back( res );
+
+            /*            }
+                        else
+                        {
+                            delete res;
+                        }*/
         }
 
         // build the weighting data
@@ -388,15 +391,15 @@ void importEvents( bool bUseJson,
             //EventResult res = (*iter).second;
             //(*iter).second.m_weight = g_mcWeighter.GetWeightByZPt( (*iter).second.m_pData->Z->Pt() );
             //std::cout << "run " << iter->m_cmsRun << " num " << iter->m_cmsEventNum << std::endl;
-            
+
             if ( g_useEventWeight )
-	    {
-	      iter->m_weight = iter->m_pData->weight;
-	    }
-	    else
-	    {
-	      iter->m_weight = g_mcWeighter.GetWeightByXSection( iter->m_pData->xsection );
-	    }
+            {
+                iter->m_weight = iter->m_pData->weight;
+            }
+            else
+            {
+                iter->m_weight = g_mcWeighter.GetWeightByXSection( iter->m_pData->xsection );
+            }
             //std::cout << "W : "<< (*iter).second.m_weight << " xsec: " << iter->second.m_pData->xsection << std::endl;
         }
 
@@ -480,12 +483,12 @@ inline void PrintEvent( EventResult & data, std::ostream & out, EventFormater * 
 
 void ReapplyCut( bool bUseJson)
 {
-  
+
     for ( EventVector::iterator iter = g_eventsDataset.begin();
             !(iter == g_eventsDataset.end());
             ++iter )
     {
-      applyCut( &*iter, bUseJson );
+        applyCut( &*iter, bUseJson );
     }
 }
 
@@ -502,9 +505,9 @@ void PrintCutReport( std::ostream & out)
 
     out << std::setprecision(3) << std::fixed ;
     out  << "--- Event Cut Report ---" << std::endl;
-    out  << std::setw(35) << "CutName" << std::setw(20) << "EvtsLeftRel [%]" << std::setw(20)<< "EvtsLeft" << std::setw(20)<< "EvtsDropRel [%]"<< std::setw(20)  << "EvtsDropAbs"   << std::setw(20) 
-<< 
-std::endl;
+    out  << std::setw(35) << "CutName" << std::setw(20) << "EvtsLeftRel [%]" << std::setw(20)<< "EvtsLeft" << std::setw(20)<< "EvtsDropRel [%]"<< std::setw(20)  << "EvtsDropAbs"   << std::setw(20)
+    <<
+    std::endl;
 
 /// todo: actually use the processed events from root file
 
@@ -518,8 +521,8 @@ std::endl;
 
     droppedRel = 1.0f -  (double) ( g_eventsDataset.size()) / (double) overallCountLeft;
     overallCountLeft = g_eventsDataset.size();
-    out  << std::setw(35) <<  "0) precuts" << std::setw(20) << ( 1.0f - droppedRel ) * 100.0f << std::setw(20) << overallCountLeft << std::setw(20) << droppedRel * 100.0f <<  std::setw(20) << 
-(g_lOverallNumberOfProcessedEvents - g_eventsDataset.size())<< std::endl;
+    out  << std::setw(35) <<  "0) precuts" << std::setw(20) << ( 1.0f - droppedRel ) * 100.0f << std::setw(20) << overallCountLeft << std::setw(20) << droppedRel * 100.0f <<  std::setw(20) <<
+    (g_lOverallNumberOfProcessedEvents - g_eventsDataset.size())<< std::endl;
 
     for ( std::map< std::string, long >::iterator iter = CountMap.begin();
             !(iter == CountMap.end());
@@ -530,9 +533,9 @@ std::endl;
         if ( iter->first == "8) within cut" )
             out  << std::setw(35) <<  iter->first << std::setw(20) <<  iter->second << std::endl;
         else
-            out  << std::setw(35) <<  iter->first << std::setw(20) << ( 1.0f - droppedRel ) * 100.0f << std::setw(20) << overallCountLeft <<  std::setw(20) << droppedRel * 100.0f<<  std::setw(20) 
-<< 
-iter->second  << std::endl;
+            out  << std::setw(35) <<  iter->first << std::setw(20) << ( 1.0f - droppedRel ) * 100.0f << std::setw(20) << overallCountLeft <<  std::setw(20) << droppedRel * 100.0f<<  std::setw(20)
+            <<
+            iter->second  << std::endl;
     }
 
 }
@@ -611,22 +614,22 @@ void PrintEventsReport( std::ostream & out, bool bOnlyInCut )
     out << ">> " << i << " Events in Cut" << std::endl;
 }
 
-void ModEvtDraw( CHistEvtMapBase * pDraw, bool bUseCut, 
-		 bool bPtCut, double ptLow, double ptHigh )
+void ModEvtDraw( CHistEvtMapBase * pDraw, bool bUseCut,
+                 bool bPtCut, double ptLow, double ptHigh )
 {
     pDraw->m_bOnlyEventsInCut = bUseCut;
     pDraw->m_bUsePtCut = bPtCut;
 
     pDraw->m_dLowPtCut = ptLow;
     pDraw->m_dHighPtCut = ptHigh;
-    
+
 }
 
 void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events, TFile * pFileOut )
 {
     if ( g_writeEventsSetting == NoEvents )
-      return;
-  
+        return;
+
     TTree* gentree = new TTree(algoName + prefix + "_events",
                                algoName + prefix + "_events");
 
@@ -634,10 +637,10 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
     Double_t l2corr = 1.0f;
     Double_t l2corrPtJet2 = 1.0f;
     Double_t l2corrPtJet3 = 1.0f;
-    
+
     localData.jets[0] = new TParticle();
     localData.Z = new TParticle();
-    
+
 
     // more data can go here
     gentree->Branch("Z","TParticle",&localData.Z);
@@ -647,7 +650,7 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
     gentree->Branch("l2corrJet", &l2corr, "l2corrJet/D");
     gentree->Branch("l2corrPtJet2", &l2corrPtJet2, "l2corrPtJet2/D");
     gentree->Branch("l2corrPtJet3", &l2corrPtJet3, "l2corrPtJet3/D");
-    
+
     gentree->Branch("cmsEventNum",&localData.cmsEventNum, "cmsEventNum/L");
     gentree->Branch("cmsRun",&localData.cmsRun, "cmsRun/L");
     gentree->Branch("luminosityBlock",&localData.luminosityBlock, "cmsRun/L");
@@ -662,16 +665,16 @@ void WriteSelectedEvents(TString algoName, TString prefix,  EventVector & events
         {
             localData.Z = new TParticle ( *it->m_pData->Z );
             localData.jets[0] = new TParticle ( *it->m_pData->jets[0] );
-	        localData.jets[1] = new TParticle ( *it->m_pData->jets[1] );
-	        localData.jets[2] = new TParticle ( *it->m_pData->jets[2] );
-	        l2corr = it->m_l2CorrPtJets[0];
-		l2corrPtJet2 = it->m_l2CorrPtJets[1];
-		l2corrPtJet3 = it->m_l2CorrPtJets[2];
+            localData.jets[1] = new TParticle ( *it->m_pData->jets[1] );
+            localData.jets[2] = new TParticle ( *it->m_pData->jets[2] );
+            l2corr = it->m_l2CorrPtJets[0];
+            l2corrPtJet2 = it->m_l2CorrPtJets[1];
+            l2corrPtJet3 = it->m_l2CorrPtJets[2];
 
             localData.cmsEventNum  = it->m_pData->cmsEventNum;
             localData.cmsRun  = it->m_pData->cmsRun;
             localData.luminosityBlock  = it->m_pData->luminosityBlock;
-	    
+
             gentree->Fill();
         }
     }
@@ -767,26 +770,26 @@ void DrawHistoSet( TString algoName,
                        pFileOut);
     CHistEvtDataZPt zPtdraw;
     /* dont use dynamic binning, it is bad when comparing MC and Data
-    if ( useCutParameter )	
+    if ( useCutParameter )
       zPt.AddModifier(new CModBinRange(ptLow - ( ptLow * .3f ), ptHigh + ( ptLow * .3f )));
     else*/
     zPt.AddModifier(new CModBinRange(0.0, 500.0));
-    
+
     ModEvtDraw( &zPtdraw, useCutParameter, bPtCut, ptLow, ptHigh );
     zPt.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );
 
-    
+
     if ( !bPtCut )
     {
-      CHistDrawBase zPtEff( "zPt_CutEff" + algoName + sPostfix,
-			pFileOut);
-      CHistEvtDataZPtCutEff zPtEffdraw;
-      zPtEff.AddModifier(new CModBinRange(0.0, 500.0));
-      
-      ModEvtDraw( &zPtEffdraw, useCutParameter, bPtCut, ptLow, ptHigh );
-      zPtEff.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );    
+        CHistDrawBase zPtEff( "zPt_CutEff" + algoName + sPostfix,
+                              pFileOut);
+        CHistEvtDataZPtCutEff zPtEffdraw;
+        zPtEff.AddModifier(new CModBinRange(0.0, 500.0));
+
+        ModEvtDraw( &zPtEffdraw, useCutParameter, bPtCut, ptLow, ptHigh );
+        zPtEff.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );
     }
-    
+
     // ZEta
     CHistDrawBase zEta( "zEta_" + algoName + sPostfix,
                         pFileOut,
@@ -917,12 +920,12 @@ void DrawHistoSet( TString algoName,
                               pFileOut);
 
         CHistEvtDataJetPt jet_ptdraw(i);
-	
-	/*    if ( useCutParameter )	
-	      jet_pt.AddModifier(new CModBinRange(ptLow - ( ptLow * 1.2f ), ptHigh + ( ptLow * .8f )));
-	    else*/
-	      jet_pt.AddModifier(new CModBinRange(0.0, 500.0));
-	
+
+        /*    if ( useCutParameter )
+              jet_pt.AddModifier(new CModBinRange(ptLow - ( ptLow * 1.2f ), ptHigh + ( ptLow * .8f )));
+            else*/
+        jet_pt.AddModifier(new CModBinRange(0.0, 500.0));
+
         ModEvtDraw( &jet_ptdraw, useCutParameter, bPtCut, ptLow, ptHigh );
         jet_pt.Execute <  EventVector & > ( g_eventsDataset, &jet_ptdraw );
 
@@ -974,19 +977,34 @@ void DrawHistoSet( TString algoName,
     CHistEvtDataJetResponse jetresp_draw;
     ModEvtDraw( &jetresp_draw, useCutParameter, bPtCut, ptLow, ptHigh );
     jetresp.Execute <  EventVector & > ( g_eventsDataset, &jetresp_draw );
-    
-    CGrapErrorDrawBase < EventVector &, CGraphDrawZPtCutEff >  ZptEff_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
-    ZptEff_draw.Execute( g_eventsDataset );
-    
-/*
+
+    CGrapErrorDrawBase < EventVector &,
+    CGraphDrawJetResponseCutEff<PtBinEventSelector> ,
+    PtBinEventSelector >  JetRespCuttEff_draw(
+        "CutEffOverJetResponse_" + algoName+ sPostfix, pFileOut);
+    JetRespCuttEff_draw.Execute( g_eventsDataset,
+                                 PtBinEventSelector( false, // we want ALL events for this plot !!
+                                                     bPtCut,
+                                                     ptLow,
+                                                     ptHigh  ) );
+
+    if (! bPtCut )
+    {
+        CGrapErrorDrawBase < EventVector &,
+        CGraphDrawZPtCutEff<PassAllEventSelector> ,
+        PassAllEventSelector >  ZptEff_draw(
+            "CutEffOverZPt_" + algoName+ sPostfix, pFileOut);
+        ZptEff_draw.Execute( g_eventsDataset, PassAllEventSelector() );
+    }
+    /*
     CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
     l2corr_draw.Execute( g_eventsDataset );
-  */  
+    */
     // Jet Response binned as jet1.pt() here ??
-/*    CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
-    
-    l2corr_draw.Execute( g_eventsDataset );
-  */
+    /*    CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
+
+        l2corr_draw.Execute( g_eventsDataset );
+      */
 }
 
 void loadTrackedEventsFromFile()
@@ -1067,14 +1085,14 @@ void processAlgo( std::string sName )
     (*g_logFile) << "uncorrected jets " << std::endl;
 
     CompleteJetCorrector jetCorr;
-    
+
     if ( g_doL2Correction )
-      	jetCorr.AddCorrection( new L2Corr( TString(sName.c_str()), g_l2CorrFiles));
+        jetCorr.AddCorrection( new L2Corr( TString(sName.c_str()), g_l2CorrFiles));
     if ( g_doL3Correction)
-	jetCorr.AddCorrection( new TF1Corr( g_l3Formula, g_l3Params) );
+        jetCorr.AddCorrection( new TF1Corr( g_l3Formula, g_l3Params) );
 
 
-    
+
     ResetExcludedEvents();
     g_eventsDataset.clear();
 
@@ -1103,9 +1121,10 @@ void processAlgo( std::string sName )
 //	std::cout << "MC Weighting Report" << std::endl;
 //	DrawMcEventCount( sName, g_resFileMc);
 
-    // RAW  
+    // RAW
     drawHistoBins(sName, sPrefix , g_resFile.get(),  true);
-    drawHistoBins(sName, sPrefix + "_nocut", g_resFile.get(), false);
+    if ( g_plotNoCuts) 
+      drawHistoBins(sName, sPrefix + "_nocut", g_resFile.get(), false);
 
     PrintCutReport( std::cout );
     PrintCutReport( *g_logFile );
@@ -1116,62 +1135,65 @@ void processAlgo( std::string sName )
         PrintEventsReport(std::cout, true);
         PrintEventsReport(*g_logFile, true);
     }
-    
+
     // turn on l2 corr
     if  ( g_doL2Correction )
     {
-	(*g_logFile) << "l2 corrected jets " << std::endl;
-      
+        (*g_logFile) << "l2 corrected jets " << std::endl;
+
         for ( EventVector::iterator iter = g_eventsDataset.begin();
                 !(iter == g_eventsDataset.end());
                 ++iter)
         {
             iter->m_bUseL2 = true;
         }
-	
-	ReapplyCut(g_doData);
-	
-        drawHistoBins(sName, sPrefix + "_l2corr", g_resFile.get(),  true);
-        drawHistoBins(sName, sPrefix + "_l2corr_nocut", g_resFile.get(), false);
-	
-	PrintCutReport( std::cout );
-	PrintCutReport( *g_logFile );
 
-	if (g_doData)
-	{
-	    WriteSelectedEvents(sName, sPrefix + "_l2corr", g_eventsDataset, g_resFile.get() );
-	    PrintEventsReport(std::cout, true);
-	    PrintEventsReport(*g_logFile, true);
-	}	
+        ReapplyCut(g_doData);
+
+        drawHistoBins(sName, sPrefix + "_l2corr", g_resFile.get(),  true);
+	
+	if ( g_plotNoCuts) 
+	  drawHistoBins(sName, sPrefix + "_l2corr_nocut", g_resFile.get(), false);
+
+        PrintCutReport( std::cout );
+        PrintCutReport( *g_logFile );
+
+        if (g_doData)
+        {
+            WriteSelectedEvents(sName, sPrefix + "_l2corr", g_eventsDataset, g_resFile.get() );
+            PrintEventsReport(std::cout, true);
+            PrintEventsReport(*g_logFile, true);
+        }
     }
 
     // turn on l3 corr
     if  ( g_doL3Correction )
     {
-	(*g_logFile) << "l3 corrected jets " << std::endl;
+        (*g_logFile) << "l3 corrected jets " << std::endl;
 
-	// important: reapply cuts without the l3 correction in order to have the same data base as the l3 calculation
-	ReapplyCut(g_doData);
-	
-	for ( EventVector::iterator iter = g_eventsDataset.begin();
+        // important: reapply cuts without the l3 correction in order to have the same data base as the l3 calculation
+        ReapplyCut(g_doData);
+
+        for ( EventVector::iterator iter = g_eventsDataset.begin();
                 !(iter == g_eventsDataset.end());
                 ++iter)
         {
-	    // l2 is already on
+            // l2 is already on
             iter->m_bUseL3 = true;
         }
         drawHistoBins(sName, sPrefix + "_l3corr", g_resFile.get(),  true);
-        drawHistoBins(sName, sPrefix + "_l3corr_nocut", g_resFile.get(), false);
-	
-	PrintCutReport( std::cout );
-	PrintCutReport( *g_logFile );
+	if ( g_plotNoCuts) 
+	  drawHistoBins(sName, sPrefix + "_l3corr_nocut", g_resFile.get(), false);
 
-	if (g_doData)
-	{
-	    WriteSelectedEvents(sName, sPrefix + "_l3corr", g_eventsDataset, g_resFile.get() );
-	    PrintEventsReport(std::cout, true);
-	    PrintEventsReport(*g_logFile, true);
-	}	
+        PrintCutReport( std::cout );
+        PrintCutReport( *g_logFile );
+
+        if (g_doData)
+        {
+            WriteSelectedEvents(sName, sPrefix + "_l3corr", g_eventsDataset, g_resFile.get() );
+            PrintEventsReport(std::cout, true);
+            PrintEventsReport(*g_logFile, true);
+        }
     }
 //    drawJetResponsePlots( sName, g_resFile.get() );
     WriteCuts( sName, g_resFile.get() );
@@ -1181,8 +1203,8 @@ void processAlgo( std::string sName )
 
 void CreateWeightBins()
 {
-/*
- * Fall10 MC  */
+    /*
+     * Fall10 MC  */
     g_mcWeighter.AddBin( PtBin(0.0, 15.0 ), 4.281e+03  );
     g_mcWeighter.AddBin( PtBin(15.0, 20.0 ), 1.451e+02  );
     g_mcWeighter.AddBin( PtBin(20.0, 30.0 ), 1.305e+02  );
@@ -1193,20 +1215,20 @@ void CreateWeightBins()
     g_mcWeighter.AddBin( PtBin(170.0, 230.0 ), 7.207e-01  );
     g_mcWeighter.AddBin( PtBin(230.0, 300.0 ), 1.939e-01  );
     g_mcWeighter.AddBin( PtBin(300.0, 999999.0 ), 7.586e-02  );
-  
-/*
- * Spring10 MC  
-    g_mcWeighter.AddBin( PtBin(0.0, 15.0 ), 4.434e+03  );
-    g_mcWeighter.AddBin( PtBin(15.0, 20.0 ), 1.454e+02  );
-    g_mcWeighter.AddBin( PtBin(20.0, 30.0 ), 1.318e+02  );
-    g_mcWeighter.AddBin( PtBin(30.0, 50.0 ), 8.438e+01  );
-    g_mcWeighter.AddBin( PtBin(50.0, 80.0 ), 3.235e+01  );
-    g_mcWeighter.AddBin( PtBin(80.0, 120.0 ), 9.981e+00  );
-    g_mcWeighter.AddBin( PtBin(120.0, 170.0 ), 2.760e+00  );
-    g_mcWeighter.AddBin( PtBin(170.0, 230.0 ), 7.241e-01  );
-    g_mcWeighter.AddBin( PtBin(230.0, 300.0 ), 1.946e-01  );
-    g_mcWeighter.AddBin( PtBin(300.0, 999999.0 ), 7.627e-02  );
-*/
+
+    /*
+     * Spring10 MC
+        g_mcWeighter.AddBin( PtBin(0.0, 15.0 ), 4.434e+03  );
+        g_mcWeighter.AddBin( PtBin(15.0, 20.0 ), 1.454e+02  );
+        g_mcWeighter.AddBin( PtBin(20.0, 30.0 ), 1.318e+02  );
+        g_mcWeighter.AddBin( PtBin(30.0, 50.0 ), 8.438e+01  );
+        g_mcWeighter.AddBin( PtBin(50.0, 80.0 ), 3.235e+01  );
+        g_mcWeighter.AddBin( PtBin(80.0, 120.0 ), 9.981e+00  );
+        g_mcWeighter.AddBin( PtBin(120.0, 170.0 ), 2.760e+00  );
+        g_mcWeighter.AddBin( PtBin(170.0, 230.0 ), 7.241e-01  );
+        g_mcWeighter.AddBin( PtBin(230.0, 300.0 ), 1.946e-01  );
+        g_mcWeighter.AddBin( PtBin(300.0, 999999.0 ), 7.627e-02  );
+    */
     /*
     0to15        m_ptbin_xs[0]=4.434e+03;
     15to20        m_ptbin_xs[1]=1.454e+02;
@@ -1287,25 +1309,27 @@ int main(int argc, char** argv)
 
     if ((bool) p.getInt( secname + ".use_event_weight" ))
     {
-	g_useEventWeight = true;
+        g_useEventWeight = true;
     }
 
 
     g_writeEventsSetting = NoEvents;
-    
+
     if (  p.getString(secname + ".write_events" ) == "incut" )
-      g_writeEventsSetting = OnlyInCutEvents;
+        g_writeEventsSetting = OnlyInCutEvents;
     if (  p.getString(secname + ".write_events" ) == "all" )
-      g_writeEventsSetting = AllEvents;
-    
+        g_writeEventsSetting = AllEvents;
+
 
     g_doL2Correction = (bool) p.getInt( secname + ".do_l2_correction" );
     g_doL3Correction = (bool) p.getInt( secname + ".do_l3_correction" );
 
+    g_plotNoCuts = (bool) p.getInt( secname + ".plot_nocuts" );
+    
     g_l3Formula = p.getString( secname + ".l3_formula" );
     g_l3Params = p.getvDouble( secname + ".l3_params" );
 
-    
+
     g_doData = (bool) p.getInt( secname + ".is_data" );
     g_doMc = ! g_doData;
 
@@ -1320,24 +1344,24 @@ int main(int argc, char** argv)
 
     // insert config into log file
     TString cfgName = p.getConfigFileName();
-    
+
     std::ifstream cfgfile ( cfgName.Data(), std::fstream::in);
     char c;
     (*g_logFile) << "Configuration file " << cfgName.Data() << std::endl << std::endl;
     while (cfgfile.good())     // loop while extraction from file is possible
     {
-      c = cfgfile.get();       // get character from file
-      if (cfgfile.good())
-	(*g_logFile) << c;
+        c = cfgfile.get();       // get character from file
+        if (cfgfile.good())
+            (*g_logFile) << c;
     }
-      cfgfile.close();
-    
+    cfgfile.close();
+
     if (g_doData) {
         g_sJsonFile = p.getString(secname + ".json_file");
         g_json.reset( new Json_wrapper( g_sJsonFile.c_str() ));
-	
-	if ( ! g_json->isValid() )
-	  fail( "JSON File " + g_sJsonFile + " could not be loaded" );
+
+        if ( ! g_json->isValid() )
+            fail( "JSON File " + g_sJsonFile + " could not be loaded" );
     }
 
     (*g_logFile) << std::endl << std::endl;

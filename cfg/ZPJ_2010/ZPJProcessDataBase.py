@@ -33,6 +33,7 @@ def getDataBaseConfig(  ):
       custom_binning = getDefaultBinning(),
       is_data = _is_data,
       write_events = "incut", # none, incut, all
+      plot_nocuts = 0,
       fixed_weighting = 0,
       do_l2_correction = 1,
       do_l3_correction = 0,
@@ -57,6 +58,7 @@ def getMCBaseConfig(  ):
   p.general = ZPJConfiguration.section ("general",
       custom_binning = getDefaultBinning(),
       is_data = _is_data,
+      plot_nocuts = 0,
       write_events = "none", # none, incut, all
       fixed_weighting = 0,
       do_l2_correction = 1,
