@@ -997,8 +997,6 @@ public:
     }
 
 
-    virtual double GetValue() {};
-
     TDataDrawer m_tdraw;
     
     void Execute( TData data, TEventSelector selector )
