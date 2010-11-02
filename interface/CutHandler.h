@@ -144,7 +144,7 @@ public:
 class CutHandler{
   
 public:
-  
+ 
   typedef boost::ptr_vector< EventCutBase<EventResult *> > CutVector;
   
   void AddCut ( EventCutBase<EventResult * >  * pCut )

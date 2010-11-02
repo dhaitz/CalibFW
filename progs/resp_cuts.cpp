@@ -922,12 +922,13 @@ void DrawHistoSet( TString algoName,
 	    if ( currCut != NULL )
 	    {
 		CGrapErrorDrawBase < EventVector &,
-		CGraphDrawZPtCutEff<BitmaskCutsEventSelector> ,
-		BitmaskCutsEventSelector >  ZptEff_draw(
-		    "CutEffOverZPt_" + algoName+ sPostfix + "_" + currCut->GetCutShortName()  , pFileOut);
-		
+		CGraphDrawZPtCutEff<PassAllEventSelector> ,
+		PassAllEventSelector >  ZptEff_draw(
+		    "CutEffOverZPt_" + algoName+ sPostfix + "_" + currCut->GetCutShortName(),
+							pFileOut);
+		ZptEff_draw.m_tdraw.m_cutBitmask = curId;
 		ZptEff_draw.Execute( g_eventsDataset, 
-				    BitmaskCutsEventSelector( curId ));
+				    PassAllEventSelector( ));
 	    }
 	}
 	

@@ -713,6 +713,7 @@ public:
         m_dZPtStart = 0.0f;
         m_dZPtEnd = 400.0f;
         m_dStepSize = 2.0f;
+	m_cutBitmask = 0;
     }
 
     unsigned int GetPointCount( EventVector & data )
@@ -746,14 +747,26 @@ public:
 
             for (EventVector::iterator it = data.begin(); !(it == data.end()); ++it)
             {
+	      if ( selektor.IsEventIncluded( *it ))
+	      {
                 if (locacBin.m_bin.IsInBin( it->m_pData->Z->Pt()))
                 {
+		    if ( m_cutBitmask == 0 )
+		    {
                     if (! it->IsInCut())
                         locacBin.m_iRejectedEvents++;
-
+		    }
+		    else
+		    {
+			// check only for 1 cut
+		     	unsigned long res =  ( it->m_cutBitmask & m_cutBitmask );
+			if ( res > 0  ) 
+			  locacBin.m_iRejectedEvents++; 
+		    }
                     locacBin.m_iAllEvents++;
 		    
                 }
+	      }
             }
             // gotta be more like undefined and have no value at all...
             double fCutEff = 1.0f;
@@ -773,10 +786,10 @@ public:
         }
     }
 
-
     double m_dStepSize;
     double m_dZPtStart;
     double m_dZPtEnd;
+    unsigned long m_cutBitmask;
 };
 
 
@@ -863,18 +876,18 @@ public:
 
 class PassAllEventSelector
 {
+public:
     inline bool IsEventIncluded( EventResult & evt )
     {
         return true;
     }
 };
-
+/*
 class BitmaskCutsEventSelector
 {
 public:
-    /*
-    bitmap has got to be 1 at all places where the events must pass the cuts !
-    */
+
+   // bitmap has got to be 1 at all places where the events must pass the cuts !
     BitmaskCutsEventSelector ( unsigned long bitmap )
     {
 	m_bitmap = bitmap;
@@ -889,7 +902,7 @@ public:
     
     unsigned long m_bitmap;
 };
-
+*/
 
 class PtBinEventSelector
 {
@@ -986,6 +999,8 @@ public:
 
     virtual double GetValue() {};
 
+    TDataDrawer m_tdraw;
+    
     void Execute( TData data, TEventSelector selector )
     {
         //int entries=m_pChain->GetEntries();
@@ -996,10 +1011,10 @@ public:
             iter->ModifyBeforeCreation( this );
         }
 
-        TDataDrawer tdraw;
+        ;
         //std::cout << "Generating " << this->m_sName << " ... ";*/
         TCanvas *c = new TCanvas( this->m_sName + "_c", this->m_sCaption,200,10,600,600);
-        TGraphErrors * resp_h = new TGraphErrors( tdraw.GetPointCount(data ));
+        TGraphErrors * resp_h = new TGraphErrors( m_tdraw.GetPointCount(data ));
         resp_h->SetName(  this->m_sName );
         resp_h->SetMarkerStyle(kFullDotMedium);
 
@@ -1012,7 +1027,7 @@ public:
         for (iter = m_graphMods.begin(); iter != m_graphMods.end(); ++iter) {
             iter->ModifyBeforeDataEntry( c, resp_h );
         }*/
-        tdraw.Draw( resp_h, data, selector );
+        m_tdraw.Draw( resp_h, data, selector );
 
         // apply modifiers
         /*
