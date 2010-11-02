@@ -860,6 +860,7 @@ public:
     double m_dJetResponseEnd;
 };
 
+
 class PassAllEventSelector
 {
     inline bool IsEventIncluded( EventResult & evt )
@@ -867,6 +868,28 @@ class PassAllEventSelector
         return true;
     }
 };
+
+class BitmaskCutsEventSelector
+{
+public:
+    /*
+    bitmap has got to be 1 at all places where the events must pass the cuts !
+    */
+    BitmaskCutsEventSelector ( unsigned long bitmap )
+    {
+	m_bitmap = bitmap;
+    }
+      
+  
+    bool IsEventIncluded( EventResult & evt )
+    {
+	unsigned long res =  ( evt.m_cutBitmask & m_bitmap );
+        return ( res > 0 );
+    }
+    
+    unsigned long m_bitmap;
+};
+
 
 class PtBinEventSelector
 {

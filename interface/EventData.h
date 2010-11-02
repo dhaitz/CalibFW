@@ -187,7 +187,8 @@ public:
 	m_l3CorrPtJets[0] = 1.0f;
 	m_l3CorrPtJets[1] = 1.0f;
 	m_l3CorrPtJets[2] = 1.0f;
-	
+
+	m_cutBitmask = 0;
     }
     
     ~EventResult()
@@ -201,6 +202,7 @@ public:
     bool m_bUseL3;
     Double_t m_l3CorrPtJets[3];    
     
+    unsigned long m_cutBitmask;
     CutResultEnum m_cutResult;
     TString m_sCutResult;
     std::string m_sCutUsed;

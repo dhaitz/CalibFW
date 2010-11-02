@@ -33,7 +33,7 @@ using namespace std::rel_ops;
 
 #include "DrawBase.h"
 #include "PtBinWeighter.h"
-
+#include "CutHandler.h"
 
 /* BASIC CONFIGURATION */
 
@@ -136,8 +136,10 @@ std::vector<ExcludedEvent * > g_mcExcludedEvents;
 
 boost::scoped_ptr<TFile> g_resFile;
 
+CutHandler g_cutHandler;
+
 TString g_sOutFolder("out/");
-boost::scoped_ptr<Json_wrapper>  g_json;
+boost::shared_ptr<Json_wrapper>  g_json;
 
 evtData g_ev;
 TChain * g_pChain;
@@ -147,14 +149,7 @@ EventSet g_trackedEvents;
 //EventSet g_eventsInCut;
 EventVector g_eventsDataset;
 
-const double g_kZmass = 91.19;
 
-const double g_kCutZmassWindow = 20.0; // +/-
-const double g_kCutMuPt = 15.0; // Mu.Pt() > 15 !
-const double g_kCutMuEta = 2.3;
-const double g_kCutLeadingJetEta = 1.3;
-const double g_kCut2ndJetToZPt = 0.2; // 2nd leading jet to Z pt
-const double g_kCutBackToBack = 0.2; // 2nd leading jet to Z pt
 
 PtBinWeighter g_mcWeighter;
 
@@ -197,77 +192,6 @@ PtBin g_newPtBins[] = {
 		PtBin(230.0, 300.0),
 		PtBin(300.0, 99999.0)
 };*/
-
-bool applyCut( EventResult * pEv, bool bUseJson = true)
-{
-    // check if json is valid
-    if ((bUseJson) && (! g_json->has( pEv->m_pData->cmsRun,  pEv->m_pData->luminosityBlock)))
-    {
-        pEv->m_sCutResult = "json file";
-        pEv->m_sCutUsed = "1) invalidated by json file";
-        pEv->m_cutResult = NotInJson;
-        return false;
-    }
-
-    // muon pt cut
-    if ( !( (  pEv->m_pData->mu_plus->Pt() > g_kCutMuPt ) && ( pEv->m_pData->mu_minus->Pt() > g_kCutMuPt ) ))
-    {
-        pEv->m_sCutResult.Form( "muon pt cut, m_plus pt: %.4f m_minus pt: %.4f", pEv->m_pData->mu_plus->Pt(), pEv->m_pData->mu_minus->Pt() );
-        pEv->m_sCutUsed = "2) muon pt cut";
-        pEv->m_cutResult = NotInCutParameters;
-        return false;
-    }
-
-    // muon eta cut
-    if (!( (TMath::Abs( pEv->m_pData->mu_plus->Eta()) < g_kCutMuEta) && ( TMath::Abs( pEv->m_pData->mu_minus->Eta() ) <  g_kCutMuEta)))
-    {
-        pEv->m_sCutResult.Form( "muon eta cut, m_plus eta: %.4f  m_minus eta: %.4f",  pEv->m_pData->mu_plus->Eta(), pEv->m_pData->mu_minus->Eta() );
-        pEv->m_sCutUsed = "3) muon eta cut";
-        pEv->m_cutResult = NotInCutParameters;
-        return false;
-    }
-
-    // leading jet eta cut
-    if (!(TMath::Abs( pEv->m_pData->jets[0]->Eta()) < g_kCutLeadingJetEta))
-    {
-        pEv->m_sCutResult.Form( "jet1 eta cut, jet1 eta: %.4f",  pEv->m_pData->jets[0]->Eta() );
-        pEv->m_sCutUsed = "4) leading jet eta cut";
-        pEv->m_cutResult = NotInCutParameters;
-        return false;
-    }
-
-    // 2nd leading jet to Z pt
-    if (!(pEv->GetCorrectedJetPt(1)/pEv->m_pData->Z->Pt() < g_kCut2ndJetToZPt))
-    {
-        pEv->m_sCutResult.Form( "jet2 pt to z pt cut, jet2 pt: %.4f   Z pt: %.4f ; jet2/Z  %.4f",  pEv->GetCorrectedJetPt(1), pEv->m_pData->Z->Pt(), pEv->GetCorrectedJetPt(1)/pEv->m_pData->Z->Pt() );
-        pEv->m_sCutUsed = "5) 2nd leading jet to Z pt";
-        pEv->m_cutResult = NotInCutParameters;
-        return false;
-    }
-
-    // back to back between jet and z
-    if (!(TMath::Abs( TMath::Abs(pEv->m_pData->jets[0]->Phi() - pEv->m_pData->Z->Phi()) - TMath::Pi()) < g_kCutBackToBack))
-    {
-        pEv->m_sCutResult.Form( "back to back between jet1 and z; jet1 phi : %.4f   Z phi:: %.4f",  pEv->m_pData->jets[0]->Phi(), pEv->m_pData->Z->Phi() );
-        pEv->m_sCutUsed = "6) back to back/jet to z";
-        pEv->m_cutResult = NotInCutParameters;
-        return false;
-    }
-
-    // M_zmeassured only deviates by 20 GeV from z rest mass
-    if (!(TMath::Abs(pEv->m_pData->Z->GetCalcMass() - g_kZmass ) < g_kCutZmassWindow ))
-    {
-        pEv->m_sCutResult.Form( "Z Mass cut, Zmass: %.4f",  pEv->m_pData->Z->GetCalcMass() );
-        pEv->m_sCutUsed = "7) z mass window";
-        pEv->m_cutResult = NotInCutParameters;
-        return false;
-    }
-
-    pEv->m_sCutResult = "within cut";
-    pEv->m_sCutUsed = "8) within cut";
-    pEv->m_cutResult = InCut;
-    return true;
-}
 
 void calcJetEnergyCorrection( EventResult * res, CompleteJetCorrector *  pJetCorr )
 {
@@ -340,14 +264,11 @@ void importEvents( bool bUseJson,
             //if ( res->IsInCut() || ( ! bDiscardOutOfCutEvents ))
             //{
             calcJetEnergyCorrection(res, correction);
-            applyCut( res, bUseJson );
-            g_eventsDataset.push_back( res );
-
-            /*            }
-                        else
-                        {
-                            delete res;
-                        }*/
+            
+	    g_cutHandler.SetEnableCut( JsonCut::CudId, bUseJson );
+	    g_cutHandler.ApplyCuts( res );
+            
+	    g_eventsDataset.push_back( res );
         }
 
         // build the weighting data
@@ -483,12 +404,13 @@ inline void PrintEvent( EventResult & data, std::ostream & out, EventFormater * 
 
 void ReapplyCut( bool bUseJson)
 {
-
     for ( EventVector::iterator iter = g_eventsDataset.begin();
             !(iter == g_eventsDataset.end());
             ++iter )
     {
-        applyCut( &*iter, bUseJson );
+//        applyCut( &*iter, bUseJson );
+	    g_cutHandler.SetEnableCut( JsonCut::CudId, bUseJson );
+	    g_cutHandler.ApplyCuts( &*iter );	
     }
 }
 
@@ -522,7 +444,7 @@ void PrintCutReport( std::ostream & out)
     droppedRel = 1.0f -  (double) ( g_eventsDataset.size()) / (double) overallCountLeft;
     overallCountLeft = g_eventsDataset.size();
     out  << std::setw(35) <<  "0) precuts" << std::setw(20) << ( 1.0f - droppedRel ) * 100.0f << std::setw(20) << overallCountLeft << std::setw(20) << droppedRel * 100.0f <<  std::setw(20) <<
-    (g_lOverallNumberOfProcessedEvents - g_eventsDataset.size())<< std::endl;
+    (g_lOverallNumberOfProcessedEvents - g_eventsDataset.size()) << std::endl;
 
     for ( std::map< std::string, long >::iterator iter = CountMap.begin();
             !(iter == CountMap.end());
@@ -990,11 +912,32 @@ void DrawHistoSet( TString algoName,
 
     if (! bPtCut )
     {
-        CGrapErrorDrawBase < EventVector &,
-        CGraphDrawZPtCutEff<PassAllEventSelector> ,
-        PassAllEventSelector >  ZptEff_draw(
-            "CutEffOverZPt_" + algoName+ sPostfix, pFileOut);
-        ZptEff_draw.Execute( g_eventsDataset, PassAllEventSelector() );
+	int cutsCount = 10;
+      
+	for ( int i = 0; i < cutsCount; i++ )
+	{
+	    unsigned long curId = (unsigned long) pow( 2, i );
+	    EventCutBase<EventResult *> * currCut = g_cutHandler.GetById(  curId );
+	  
+	    if ( currCut != NULL )
+	    {
+		CGrapErrorDrawBase < EventVector &,
+		CGraphDrawZPtCutEff<BitmaskCutsEventSelector> ,
+		BitmaskCutsEventSelector >  ZptEff_draw(
+		    "CutEffOverZPt_" + algoName+ sPostfix + "_" + currCut->GetCutShortName()  , pFileOut);
+		
+		ZptEff_draw.Execute( g_eventsDataset, 
+				    BitmaskCutsEventSelector( curId ));
+	    }
+	}
+	
+	CGrapErrorDrawBase < EventVector &,
+	CGraphDrawZPtCutEff<PassAllEventSelector> ,
+	PassAllEventSelector >  ZptEff_draw(
+	    "CutEffOverZPt_" + algoName+ sPostfix+ "_overall"  , pFileOut);
+	
+	ZptEff_draw.Execute( g_eventsDataset, PassAllEventSelector());
+
     }
     /*
     CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
@@ -1376,6 +1319,15 @@ int main(int argc, char** argv)
 
     g_l2CorrFiles = p.getvString(secname + ".l2_correction_data");
 
+    // init cuts
+    g_cutHandler.AddCut( new JsonCut( g_json));
+    g_cutHandler.AddCut( new MuonPtCut());
+    g_cutHandler.AddCut( new MuonEtaCut());
+    g_cutHandler.AddCut( new LeadingJetEtaCut());
+    g_cutHandler.AddCut( new SecondLeadingToZPtCut());
+    g_cutHandler.AddCut( new BackToBackCut());
+    g_cutHandler.AddCut( new ZMassWindowCut());
+    
     resp_cuts(myAlgoList, g_sOutputPath + ".root");
 
     g_logFile->close();
