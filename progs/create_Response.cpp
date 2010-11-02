@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <iomanip>
 #include <vector>
 #include <map>
 #include <assert.h>
@@ -117,6 +119,7 @@ class DataHisto
 // Globals (Yes, I don't care)
 double g_lumi=1.0f;
 char lumi_str[100];
+bool g_txtoutput = false;
 
 // yeah, i don't care either
 int g_correction_level = 0;
@@ -191,13 +194,26 @@ void PlotResponse( std::vector<GraphFormating> & algoForamting,
 
 	std::vector<boost::ptr_vector<ResponseSourceHistos> >::iterator itAlgos;
 	std::vector< GraphFormating >::iterator itAlgoFormat = algoForamting.begin();
-	
+	TString fileName("Response_");
+	fstream txtfile;
+
 	for( itAlgos = histSource.begin();
 	      itAlgos != histSource.end();
 	      itAlgos ++)
 	{
 	    std::cout << "Plotting " << itAlgoFormat->algoCaption.Data() << std::endl;
-	  
+
+	// preparing textfile output
+		fileName = "Response_";
+		fileName += itAlgoFormat->algoCaption.Data();
+		fileName += ".txt";
+		txtfile.open(fileName, std::ios::out | std::ios::trunc);
+		if (g_txtoutput) {
+			txtfile << "#Response " << itAlgoFormat->algoCaption.Data() 
+			        << "\n#  i    x           y           xerr        yerr\n" << std::fixed;
+			txtfile.precision(6);
+		}
+
 	    TGraphErrors * p_dataCalibPoints = new TGraphErrors(itAlgos->size() - iCutEntries);
 	    //p_dataCalibPoints->SetName( sGlobalPrefix +  );
 	    int i = 0;
@@ -210,6 +226,13 @@ void PlotResponse( std::vector<GraphFormating> & algoForamting,
 		p_dataCalibPoints->SetPointError(i, 
 						CalcHistoError( it->histZPt->m_pHist, it->inputType ), 
 						CalcHistoError( it->histDataResponse->m_pHist, it->inputType ));
+		if (g_txtoutput) {
+			txtfile << std::setw(4) << i << std::setw(12) << it->histZPt->m_pHist->GetMean() 
+			        << std::setw(12) << it->histDataResponse->m_pHist->GetMean();
+			txtfile << std::setw(12) << CalcHistoError( it->histZPt->m_pHist, it->inputType ) 
+			        << std::setw(12) << CalcHistoError( it->histDataResponse->m_pHist, it->inputType ) << "\n";
+		}
+
 		i++;
 /*		if (( it->size() - i ) <= iCutEntries )
 		  break;*/
@@ -316,6 +339,8 @@ int main(int argc, char **argv) {
     double max_jes=p.getDouble(secname+".max_jes");
     double min_jer=p.getDouble(secname+".min_jer");
     double max_jer=p.getDouble(secname+".max_jer");
+    TString output = p.getString(secname+".output");
+    g_txtoutput = (output == "txt");
        
     /*
     if (p.getString(secname+".input_type") == "mc" )
