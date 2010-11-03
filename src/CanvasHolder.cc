@@ -600,14 +600,9 @@ void CanvasHolder::prepareCanvas() {
 
   //cout<<"r: "<<r<<" buf:"<<buf<<endl;
   // initColorVec!
-
-
-
   theStyle->SetOptTitle(theOptTitle);
   theStyle->SetOptStat(theOptStat);
   theStyle->SetOptFit(theOptFit);
-
-
   theStyle->cd();
 
   theCan=new TCanvas(theCanvasTitle.c_str(),theCanvasTitle.c_str(),800,800);
