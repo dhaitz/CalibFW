@@ -52,6 +52,7 @@ bool g_useEventWeight = false;
 
 // if true, all plots are done one time without cuts applied
 bool g_plotNoCuts = false;
+bool g_plotCutEff = false;
 
 //bool g_doL1Correction = true;
 bool g_doL2Correction = true;
@@ -900,45 +901,46 @@ void DrawHistoSet( TString algoName,
     ModEvtDraw( &jetresp_draw, useCutParameter, bPtCut, ptLow, ptHigh );
     jetresp.Execute <  EventVector & > ( g_eventsDataset, &jetresp_draw );
 
-    CGrapErrorDrawBase < EventVector &,
-    CGraphDrawJetResponseCutEff<PtBinEventSelector> ,
-    PtBinEventSelector >  JetRespCuttEff_draw(
-        "CutEffOverJetResponse_" + algoName+ sPostfix, pFileOut);
-    JetRespCuttEff_draw.Execute( g_eventsDataset,
-                                 PtBinEventSelector( false, // we want ALL events for this plot !!
-                                                     bPtCut,
-                                                     ptLow,
-                                                     ptHigh  ) );
-
-    if (! bPtCut )
+    if ( g_plotCutEff )
     {
-	int cutsCount = 10;
-      
-	for ( int i = 0; i < cutsCount; i++ )
-	{
-	    unsigned long curId = (unsigned long) pow( 2, i );
-	    EventCutBase<EventResult *> * currCut = g_cutHandler.GetById(  curId );
-	  
-	    if ( currCut != NULL )
-	    {
-		CGrapErrorDrawBase < EventVector &,
-		CGraphDrawZPtCutEff<PassAllEventSelector> ,
-		PassAllEventSelector >  ZptEff_draw(
-		    "CutEffOverZPt_" + algoName+ sPostfix + "_" + currCut->GetCutShortName(),
-							pFileOut);
-		ZptEff_draw.m_tdraw.m_cutBitmask = curId;
-		ZptEff_draw.Execute( g_eventsDataset, 
-				    PassAllEventSelector( ));
-	    }
-	}
-	
-	CGrapErrorDrawBase < EventVector &,
-	CGraphDrawZPtCutEff<PassAllEventSelector> ,
-	PassAllEventSelector >  ZptEff_draw(
-	    "CutEffOverZPt_" + algoName+ sPostfix+ "_overall"  , pFileOut);
-	
-	ZptEff_draw.Execute( g_eventsDataset, PassAllEventSelector());
+      CGrapErrorDrawBase < EventVector &,
+      CGraphDrawJetResponseCutEff<PtBinEventSelector> ,
+      PtBinEventSelector >  JetRespCuttEff_draw(
+	  "CutEffOverJetResponse_" + algoName+ sPostfix, pFileOut);
+      JetRespCuttEff_draw.Execute( g_eventsDataset,
+				  PtBinEventSelector( false, // we want ALL events for this plot !!
+						      bPtCut,
+						      ptLow,
+						      ptHigh  ) );
 
+      if (! bPtCut )
+      {
+	  int cutsCount = 10;
+	
+	  for ( int i = 0; i < cutsCount; i++ )
+	  {
+	      unsigned long curId = (unsigned long) pow( 2, i );
+	      EventCutBase<EventResult *> * currCut = g_cutHandler.GetById(  curId );
+	    
+	      if ( currCut != NULL )
+	      {
+		  CGrapErrorDrawBase < EventVector &,
+		  CGraphDrawZPtCutEff<BitmaskCutsEventSelector> ,
+		  BitmaskCutsEventSelector >  ZptEff_draw(
+		      "CutEffOverZPt_" + algoName+ sPostfix + "_" + currCut->GetCutShortName()  , pFileOut);
+		  
+		  ZptEff_draw.Execute( g_eventsDataset, 
+				      BitmaskCutsEventSelector( curId ));
+	      }
+	  }
+	  
+	  CGrapErrorDrawBase < EventVector &,
+	  CGraphDrawZPtCutEff<PassAllEventSelector> ,
+	  PassAllEventSelector >  ZptEff_draw(
+	      "CutEffOverZPt_" + algoName+ sPostfix+ "_overall"  , pFileOut);
+	  
+	  ZptEff_draw.Execute( g_eventsDataset, PassAllEventSelector());
+      }
     }
     /*
     CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
@@ -1269,6 +1271,7 @@ int main(int argc, char** argv)
     g_doL3Correction = (bool) p.getInt( secname + ".do_l3_correction" );
 
     g_plotNoCuts = (bool) p.getInt( secname + ".plot_nocuts" );
+    g_plotCutEff = (bool) p.getInt( secname + ".plot_cuteff" );
     
     g_l3Formula = p.getString( secname + ".l3_formula" );
     g_l3Params = p.getvDouble( secname + ".l3_params" );
