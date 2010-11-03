@@ -759,9 +759,9 @@ int main(int argc, char **argv) {
         repsponse_data.SetName("data");
 
         repsponse_data.Print();
-
+/*
         for (int i=0;i<4;++i) // to remove high pt bins
-            repsponse_mc.RemovePoint(repsponse_mc.GetN()-1);
+            repsponse_mc.RemovePoint(repsponse_mc.GetN()-1);*/
         repsponse_mc.Print();
 
         CanvasHolder h_response(algo+"_JetResponse");
@@ -777,7 +777,7 @@ int main(int argc, char **argv) {
         repsponse_mc.SetMarkerColor(kBlack);
         repsponse_mc.SetMarkerSize(0.1);
         repsponse_mc.SetFillStyle(3002);
-        h_response.addObjFormated(&repsponse_mc,"Monte Carlo","CE3");
+        h_response.addObjFormated(&repsponse_mc,"Monte Carlo","LE3");
         h_response.addObj(&repsponse_data,"Single events","P");
         h_response.addLatex(info_x,info_y,the_info_string,true);
 
