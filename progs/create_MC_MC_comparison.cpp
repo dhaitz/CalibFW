@@ -218,18 +218,14 @@ int main(int argc, char **argv) {
     TFile* ifileMc = new TFile (mc_input_file);
     TFile* ifileData = new TFile (data_input_file);
 
-
     std::cout << "MC file : " << mc_input_file << std::endl;
     std::cout << "Data file : " << data_input_file << std::endl;
-
 
 // jet, mus, Z -- eta, pt, phi
 
 // description defaults
     double info_x=.3;
     double info_y=.78;
-
-
 
     for (int ialgo=0;ialgo<algos.size();++ialgo) {
 
