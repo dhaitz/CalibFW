@@ -11,20 +11,20 @@ Name=New Native Application Configuration
 Type=Native Application
 
 [Launch][Launch Configuration 0][Data]
-Arguments=/local/scratch/hauth/Ana/CalibFW/cfg/ZPJ_2010/create_Response_L2_data.py
+Arguments=/local/scratch/hauth/Ana/CalibFW/cfg/ZPJ_2010/process_naf_mc_fall10.py
 Debugger Shell=
 Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
 Dependency Action=Nothing
 Display Demangle Names=true
 Display Static Members=false
 EnvironmentGroup=default
-Executable=file:///local/scratch/hauth/Ana/CalibFW/bin/create_Response.exe
+Executable=file:///local/scratch/hauth/Ana/CalibFW/bin/resp_cuts.exe
 GDB Path=
 Remote GDB Config Script=
 Remote GDB Run Script=
 Remote GDB Shell Script=
 Try Setting Breakpoints On Loading Libraries=true
-Working Directory=
+Working Directory=file:///local/scratch/hauth/Ana/CalibFW
 isExecutable=true
 
 [MakeBuilder]

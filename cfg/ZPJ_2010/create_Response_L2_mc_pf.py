@@ -17,7 +17,7 @@ p = ResponseBaseConfig.GetResponseBaseConfig()
 p.general.source_type=["mc","mc","mc","mc","mc"]
 p.general.source_number=[0,0,0,0,0]
 
-p.general.algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "iterativeCone5PF"]
+p.general.algos=["ak5PF"]#, "ak7PF", "kt4PF", "kt6PF", "iterativeCone5PF"]
 p.general.good_algos=["anti-kt 0.5", "anti-kt 0.7", "kt 0.4", "kt 0.6", "iterativeCone5"]
 p.general.global_prefix = "JetResponse_PF_mc_"
 p.general.info_string= multiline_text("p_{T}^{#mu}>15 GeV , |#eta^{#mu}|<2.3 , |M-M_{Z}|<20 GeV",

@@ -14,7 +14,8 @@ def multiline_text(line1,line2,line3="",line4=""):
 p = ResponseBaseConfig.GetResponseBaseConfig() 
 
 # modify how to bin data here
-p.general.source_files=[ "/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_fall10_weighted.root", "/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_fall10.root"]
+p.general.source_files=[ "/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_fall10_weighted.root", 
+			 "/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_fall10.root"]
 p.general.source_number=[0, 1]
 p.general.source_type=["mc","mc"]
 p.general.pt_bins=[0.0, 25.0, 30.0, 36.0, 43.0, 51.0, 61.0, 73.0, 87.0, 104.0, 124.0, 148.0, 177.0, 212.0, 254.0, 304.0, 364.0]

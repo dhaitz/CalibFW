@@ -15,6 +15,7 @@ process = ZPJConfiguration.configuration("Plots_AN_PAS")
 p=process
 
 data_file="/local/scratch/hauth/data/ZPJ2010/mu_data_2010a+b.root"
+#mc_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_fall10_weighted.root"
 mc_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_fall10.root"
 the_eta_rebin_factor=5
 the_phi_rebin_factor=5

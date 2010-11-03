@@ -15,6 +15,7 @@ const double g_kZmass = 91.19;
 
 const double g_kCutZmassWindow = 20.0; // +/-
 const double g_kCutMuPt = 15.0; // Mu.Pt() > 15 !
+const double g_kCutZPt = 15.0; // Z.Pt() > 15 !
 const double g_kCutMuEta = 2.3;
 const double g_kCutLeadingJetEta = 1.3;
 const double g_kCut2ndJetToZPt = 0.2; // 2nd leading jet to Z pt
@@ -140,6 +141,19 @@ public:
   static const long CudId = 64;
 };
 
+class ZPtCut : public EventCutBase< EventResult * >
+{
+public:
+  bool IsInCut ( EventResult * pEv )
+  {
+     return (pEv->m_pData->Z->Pt() > g_kCutZPt);
+  }
+  
+  unsigned long GetId() { return ZPtCut::CudId; }  
+  std::string GetCutName() { return "7.5) z pt";  }
+  std::string GetCutShortName() { return "ZPt"; }
+  static const long CudId = 128;
+};
 
 class CutHandler{
   

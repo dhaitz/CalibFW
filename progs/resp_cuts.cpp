@@ -924,13 +924,14 @@ void DrawHistoSet( TString algoName,
 	    
 	      if ( currCut != NULL )
 	      {
-		  CGrapErrorDrawBase < EventVector &,
-		  CGraphDrawZPtCutEff<BitmaskCutsEventSelector> ,
-		  BitmaskCutsEventSelector >  ZptEff_draw(
-		      "CutEffOverZPt_" + algoName+ sPostfix + "_" + currCut->GetCutShortName()  , pFileOut);
-		  
-		  ZptEff_draw.Execute( g_eventsDataset, 
-				      BitmaskCutsEventSelector( curId ));
+                CGrapErrorDrawBase < EventVector &,
+                CGraphDrawZPtCutEff<PassAllEventSelector> ,
+                PassAllEventSelector >  ZptEff_draw(
+                    "CutEffOverZPt_" + algoName+ sPostfix + "_" + currCut->GetCutShortName(),
+                                                        pFileOut);
+                ZptEff_draw.m_tdraw.m_cutBitmask = curId;
+                ZptEff_draw.Execute( g_eventsDataset,
+                                    PassAllEventSelector( ));
 	      }
 	  }
 	  
@@ -1331,6 +1332,7 @@ int main(int argc, char** argv)
     g_cutHandler.AddCut( new SecondLeadingToZPtCut());
     g_cutHandler.AddCut( new BackToBackCut());
     g_cutHandler.AddCut( new ZMassWindowCut());
+    g_cutHandler.AddCut( new ZPtCut());
     
     resp_cuts(myAlgoList, g_sOutputPath + ".root");
 
