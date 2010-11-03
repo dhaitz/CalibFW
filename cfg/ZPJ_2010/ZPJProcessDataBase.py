@@ -33,10 +33,15 @@ def getDataBaseConfig(  ):
       custom_binning = getDefaultBinning(),
       is_data = _is_data,
       write_events = "incut", # none, incut, all
+      
+      # select specific plots here
       plot_nocuts = 0,
+      plot_cuteff = 0,
+      
       fixed_weighting = 0,
       do_l2_correction = 1,
       do_l3_correction = 0,
+      
       tchain_file_path = "not set",
       l2_correction_data = getDefaultCorrection(_calib_data_path),
       output_path = "not set",
@@ -58,7 +63,11 @@ def getMCBaseConfig(  ):
   p.general = ZPJConfiguration.section ("general",
       custom_binning = getDefaultBinning(),
       is_data = _is_data,
+
+      # select specific plots here
       plot_nocuts = 0,
+      plot_cuteff = 0,
+
       write_events = "none", # none, incut, all
       fixed_weighting = 0,
       do_l2_correction = 1,
