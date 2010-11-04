@@ -3,6 +3,7 @@
 
 
 //#include "Singleton.h"
+#include "EventData.h"
 #include "MinimalParser.h"
 #include "PtBinWeighter.h"
 
@@ -75,6 +76,24 @@ void saveHolder(CanvasHolder &h,
     }
 }
 
+
+double CalcHistoError( TH1D * pHist, 
+		       InputTypeEnum inpEnum,
+		       double fScaleToLumi)
+{
+    if ( inpEnum == McInput )
+    {
+     // if (  fScaleToLumi < 0.1f )
+	return pHist->GetMeanError();
+//      else
+//	return pHist->GetRMS() / ( TMath::Sqrt( pHist->GetSumOfWeights() * fScaleToLumi));
+      
+    }
+    if ( inpEnum == DataInput )
+    {
+      return pHist->GetMeanError();
+    }      
+}
 
 class Intervals : public std::vector<PtBin>
 {
