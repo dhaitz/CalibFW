@@ -24,7 +24,7 @@ the_mass_rebin_factor=2
 #the_lumi=2.96;
 the_lumi=21.88;
 the_pt_bins=[0,25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364]
-the_algos=["ak7PF"]
+the_algos=["ak7Calo"]
 the_good_algos=["anti-kt 0.7"]
 #the_algos=["kt4PF"]
 #the_good_algos=["kt 0.4"]
@@ -38,7 +38,7 @@ the_max_jer=1.4;
 
 the_info_string= multiline_text("p_{T}^{#mu}>15 GeV , |#eta^{#mu}|<2.3 , |M-M_{Z}|<20 GeV",
                                 "|#eta^{jet}|<1.3 , |#Delta #phi (Z,jet) - #pi|<0.2 , p_{T}^{jet2}/p_{T}^{Z}< 0.2",
-                                "Particle flow __ALGO__ jets",
+                                "Calo __ALGO__ jets",
                                  "__CORR__")
 
 the_img_formats=["png"]

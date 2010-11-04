@@ -24,8 +24,8 @@ the_mass_rebin_factor=2
 #the_lumi=2.96;
 the_lumi=21.88;
 the_pt_bins=[0,25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364]
-the_algos=["ak7PF"]
-the_good_algos=["anti-kt 0.7"]
+the_algos=["ak5PF"]
+the_good_algos=["anti-kt 0.5"]
 #the_algos=["kt4PF"]
 #the_good_algos=["kt 0.4"]
 

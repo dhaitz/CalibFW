@@ -20,7 +20,7 @@ def GetResponseBaseConfig():
     the_mc_input_file= ZPJLocalConfig.GetLocalRootFilePath() + "zplusjet_mc_fall10_weighted_cb.root"
     the_data_input_file= ZPJLocalConfig.GetLocalRootFilePath() + "mu_data_2010a+b.root"
 
-    the_lumi=12.31;
+    the_lumi=21.88;
     the_pt_bins=[0,30,60,100,140,220]
 
     # modify how to bin data here

@@ -19,7 +19,7 @@ the_eta_rebin_factor=5
 the_phi_rebin_factor=5
 the_pt_rebin_factor=4
 the_mass_rebin_factor=2
-the_lumi=2.96;
+the_lumi=21.88;
 the_pt_bins=[0,25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364]
 #the_pt_bins=[0,50,120,220]
 

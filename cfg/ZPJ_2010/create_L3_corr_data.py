@@ -1,4 +1,5 @@
 import ZPJConfiguration
+import ZPJLocalConfig 
 
 # -*- coding: utf-8 -*-
 # Here the parameters for all the plots are stated
@@ -13,19 +14,17 @@ def multiline_text(line1,line2,line3="",line4=""):
 process = ZPJConfiguration.configuration("Plots_AN_PAS")
 p=process
 
-the_input_file="/local/scratch/hauth/data/ZPJ2010/mu_data.root"
-#mc_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc.root"
 the_eta_rebin_factor=5
 the_phi_rebin_factor=5
 the_pt_rebin_factor=4
 the_mass_rebin_factor=2
 the_lumi=2.96;
 #the_pt_bins=[0,25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364]
-the_pt_bins=[0,50,120,220]
+the_pt_bins=[0,30,60,100,140,220]
 
 # modify how to bin data here
-the_algos=["ak5PF", "ak7PF"]
-the_good_algos=["anti-kt 0.5", "anti-kt 0.7"]
+the_algos=["ak5PF"]
+the_good_algos=["anti-kt 0.5"]
 #the_algos=["kt4PF"]
 #the_good_algos=["kt 0.4"]
 
@@ -47,8 +46,8 @@ p.general=ZPJConfiguration.section ("general",
     input_type = "data", # data or mc
     plot_file_postfix = "_data",
     skip_bins_end = 0,
-    mc_input_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_custom_binning.root",
-    data_input_file="/local/scratch/hauth/data/ZPJ2010/mu_data.root",
+    mc_input_file=ZPJLocalConfig.GetLocalRootFilePath() +"zplusjet_mc_fall10_cb.root",
+    data_input_file=ZPJLocalConfig.GetLocalRootFilePath() +"mu_data_2010a+b.root",
     eta_rebin_factor=the_eta_rebin_factor,
     phi_rebin_factor=the_phi_rebin_factor,
     pt_rebin_factor=the_pt_rebin_factor,

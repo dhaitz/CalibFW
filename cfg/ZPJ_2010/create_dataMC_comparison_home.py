@@ -1,6 +1,3 @@
-import ZPJConfiguration
-import ZPJLocalConfig
-
 # -*- coding: utf-8 -*-
 # Here the parameters for all the plots are stated
 
@@ -11,21 +8,19 @@ def multiline_text(line1,line2,line3="",line4=""):
 #-----------------------------------
 
 
-process = ZPJConfiguration.configuration("Plots_AN_PAS")
+process = configuration("Plots_AN_PAS")
 p=process
 
-data_file=ZPJLocalConfig.GetLocalRootFilePath() + "mu_data_2010a+b.root"
-#mc_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_fall10_weighted.root"
-mc_file=ZPJLocalConfig.GetLocalRootFilePath() + "zplusjet_mc_fall10.root"
+data_file="/home/poseidon/uni/data/ZPJ2010/mu_data.root"
+mc_file="/home/poseidon/uni/data/ZPJ2010/zplusjet_mc.root"
 the_eta_rebin_factor=5
 the_phi_rebin_factor=5
-the_pt_rebin_factor=2
+the_pt_rebin_factor=4
 the_mass_rebin_factor=2
-#the_lumi=2.96;
-the_lumi=21.88;
+the_lumi=2.96;
 the_pt_bins=[0,25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364]
-the_algos=["ak7PF"]
-the_good_algos=["anti-kt 0.7"]
+the_algos=["ak5PF"]
+the_good_algos=["ak 0.5"]
 #the_algos=["kt4PF"]
 #the_good_algos=["kt 0.4"]
 
@@ -38,12 +33,22 @@ the_max_jer=1.4;
 
 the_info_string= multiline_text("p_{T}^{#mu}>15 GeV , |#eta^{#mu}|<2.3 , |M-M_{Z}|<20 GeV",
                                 "|#eta^{jet}|<1.3 , |#Delta #phi (Z,jet) - #pi|<0.2 , p_{T}^{jet2}/p_{T}^{Z}< 0.2",
-                                "Particle flow __ALGO__ jets",
-                                 "__CORR__")
+                                "Particle flow __ALGO__ jets")
 
-the_img_formats=["png"]
+#kt4 pf
+#the_runs_with_evts=[142933,142933,142130,140387,142663,143322,143187,139103,142187,
+#142189,142135,138744,143181,143181,142038,142305,142036,140331,142312,142528,142528]
 
-p.general=ZPJConfiguration.section ("general",
+##ak5
+the_runs_with_evts=[142933,142933,140387,142663,142419,143191,143322,143187,142187,
+142189,142135,140362,138744,143181,140399,142038,142305,142664,142036,142312,140331,
+142528]
+the_runs_with_evts.sort()
+
+
+the_img_formats=["png","pdf"]
+
+p.general=section ("general",
     correction_level = 2,
     mc_input_file=mc_file,
     data_input_file=data_file,
@@ -57,10 +62,8 @@ p.general=ZPJConfiguration.section ("general",
     good_algos=the_good_algos,
     info_string=the_info_string,
     img_formats=the_img_formats,
+    runs_with_evts=the_runs_with_evts,
     min_jes=the_min_jes,
     max_jes=the_max_jes,
     min_jer=the_min_jer,
     max_jer=the_max_jer)
-
-p.update()
-p.dump_cfg()
