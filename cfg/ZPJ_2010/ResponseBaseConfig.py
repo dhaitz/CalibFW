@@ -1,4 +1,6 @@
 import ZPJConfiguration
+import ZPJLocalConfig
+
 
 # -*- coding: utf-8 -*-
 # Here the parameters for all the plots are stated
@@ -15,8 +17,8 @@ def GetResponseBaseConfig():
     p=process
 
     #the_input_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_custom_binning.root"
-    the_mc_input_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_fall10_weighted_cb.root"
-    the_data_input_file="/local/scratch/hauth/data/ZPJ2010/mu_data_2010a+b.root"
+    the_mc_input_file= ZPJLocalConfig.GetLocalRootFilePath() + "zplusjet_mc_fall10_weighted_cb.root"
+    the_data_input_file= ZPJLocalConfig.GetLocalRootFilePath() + "mu_data_2010a+b.root"
 
     the_lumi=12.31;
     the_pt_bins=[0,30,60,100,140,220]
