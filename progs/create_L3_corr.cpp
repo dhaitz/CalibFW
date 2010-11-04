@@ -121,6 +121,10 @@ InputTypeEnum g_input_type;
 TString g_sCorrection_level = "";
 TString g_sCorrectionAdd = "";
 
+	TString g_sFitName = "-Danilo-Func";
+//	TString g_sFitFunc = "[0] + [1]/(x^[3]) + [2]/(x^[4])";
+TString g_sFitFunc = "[0] + [1]/((log(x)^[2]) + [3])";
+
 PlotEnv g_plotEnv;
 
 // description defaults
@@ -150,7 +154,7 @@ double CalcHistoError( TH1D * pHist)
 }
 
 
-void AddJetPoints ( 	boost::ptr_vector<DataHisto> & histDataResponse,
+TGraphErrors * AddJetPoints ( 	boost::ptr_vector<DataHisto> & histDataResponse,
 			boost::ptr_vector<DataHisto> & histDataJet1Pt,
 			CanvasHolder & canvas,
 			int iCutEntries = 0)
@@ -212,8 +216,25 @@ void AddJetPoints ( 	boost::ptr_vector<DataHisto> & histDataResponse,
         p_dataCalibPoints->SetMarkerStyle(21);
 	p_dataCalibPoints->SetName( sName);
 	
+	if ( g_input_type == DataInput )
+{
+	std::cout << "Fitting " << g_sFitFunc << std::endl;
+			// do the fit !
+			TF1 * pDataFit = new TF1( "jecFit" + g_sFitName, g_sFitFunc);
+			pDataFit->SetParameter(0, 1.0f);
+			pDataFit->SetParameter(1, 1.0f);
+			pDataFit->SetParameter(2, 1.0f);
+			pDataFit->SetParameter(3, 1.0f);
+			pDataFit->SetParameter(4, 1.0f);
+	
+			pDataFit->SetLineColor(kBlue);
+			pDataFit->SetLineWidth(1.5f);
+			p_dataCalibPoints-> Fit( pDataFit);
+}
+
 	std::cout << std::endl << "Adding OBJ" << std::endl;
-        canvas.addObjFormated(p_dataCalibPoints, sCaption,"P");        
+        canvas.addObjFormated(p_dataCalibPoints, sCaption,"P");   
+	return    p_dataCalibPoints;
 }
 			
 
@@ -445,22 +466,12 @@ int main(int argc, char **argv) {
 
 	      dataHistJet1Pt.push_back( new DataHisto(interval->GetMin(), interval-> GetMax(), respo) );
 	  }
-	  	 
+
+	  TGraphErrors * jecGraph = 	  	 
 	  AddJetPoints( dataHistResponse,  dataHistJet1Pt, h_corr, g_plotEnv.m_iSkipBinsEnd );
+
       }
-  /*
-	// do the fit !
-	TF1 * pDataFit = new TF1( "jecFit" + funcName, plot_function);
-	pDataFit->SetParameter(0, 1.0f);
-	pDataFit->SetParameter(1, 1.0f);
-	pDataFit->SetParameter(2, 1.0f);
-	pDataFit->SetParameter(3, 1.0f);
-	pDataFit->SetParameter(4, 1.0f);
-	
-	pDataFit->SetLineColor(kRed);
-	pDataFit->SetLineWidth(2.0f);
-	p_dataCalibPoints->Fit( pDataFit);
-*/
+  
 
         
 	//std::cout << "ChiSquare : " << pDataFit->GetChisquare() << std::endl;	
@@ -468,7 +479,7 @@ int main(int argc, char **argv) {
         h_corr.setTitleY("Jet Energy Correction");
         h_corr.setTitleX("p_{T}^{jet} [GeV/c]");
 
-        h_corr.setBoardersY(1.0, 1.5);
+        h_corr.setBoardersY(0.8, 1.8);
 	h_corr.setBoardersX(0.11, 179.0);
 	//h_corr.setBoardersX(0.0f, 170.0f );
         h_corr.setLegPos(.75,.75,.95,.87);

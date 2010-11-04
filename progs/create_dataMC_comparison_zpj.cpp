@@ -165,7 +165,7 @@ void PlotNumberOfEvents( TString algoname, TFile *  ifile )
    TString treename=algoname+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_events";
     TTree* tree = (TTree*) ifile->Get(treename);
 
-    Long_t cmsRun;
+    Long64_t cmsRun;
 
     int total_events=tree->GetEntries();
     int first_run=0;
@@ -301,6 +301,8 @@ int main(int argc, char **argv) {
     std::cout << "MC file : " << mc_input_file << std::endl;
     std::cout << "Data file : " << data_input_file << std::endl;
 
+	TString sOutputFolder = ("plot_out/" + g_plotEnv.m_sConfigFileName + "/");
+
 
 // jet, mus, Z -- eta, pt, phi
 
@@ -340,7 +342,8 @@ int main(int argc, char **argv) {
         h_eta_jet.addLatex(info_x,info_y,the_info_string,true);
         h_eta_jet.scaleBoardersY(1,2);
         h_eta_jet.setBoardersX(-1.4,1.4);
-        h_eta_jet.setBoardersY(0.001,69.0);
+        //h_eta_jet.setBoardersY(0.001,129.0);
+	h_eta_jet.scaleBoardersY(1.0,1.2);
 
         formatHolder(h_eta_jet);
         saveHolder(h_eta_jet,g_img_formats, false, "", "", g_plotEnv);
@@ -357,10 +360,10 @@ int main(int argc, char **argv) {
         h_phi_jet.setTitleY("dN_{Events}/d#phi");
         h_phi_jet.setTitleX("#phi^{jet}");
         h_phi_jet.setBoardersX(-3.14,3.14);
-        h_phi_jet.setBoardersY(0.001,34.9);
+	h_phi_jet.scaleBoardersY(1.0,1.3);
 
         h_phi_jet.addLatex(info_x,info_y,the_info_string,true);
-        h_phi_jet.scaleBoardersY(1,2);
+
         formatHolder(h_phi_jet);
         saveHolder(h_phi_jet,g_img_formats, false, "", "", g_plotEnv);
 
@@ -423,7 +426,8 @@ int main(int argc, char **argv) {
         h_eta_jet2.addLatex(info_x,info_y,the_info_string,true);
         h_eta_jet2.scaleBoardersY(1,2);
         h_eta_jet2.setBoardersX(-1.4,1.4);
-        h_eta_jet2.setBoardersY(0.001,59.99);
+        //h_eta_jet2.setBoardersY(0.001,79.99);
+	h_eta_jet2.scaleBoardersY(1.0,1.2);
 
         formatHolder(h_eta_jet2);
         saveHolder(h_eta_jet2,g_img_formats, false, "", "", g_plotEnv);
@@ -440,10 +444,11 @@ int main(int argc, char **argv) {
         h_phi_jet2.setTitleY("dN_{Events}/d#phi");
         h_phi_jet2.setTitleX("#phi^{jet2}");
         h_phi_jet2.setBoardersX(-3.14,3.14);
-        h_phi_jet2.setBoardersY(0.001,44.99);
+        //h_phi_jet2.setBoardersY(0.001,64.99);
+
 
         h_phi_jet2.addLatex(info_x,info_y,the_info_string,true);
-        h_phi_jet2.scaleBoardersY(1,2);
+        h_phi_jet2.scaleBoardersY(1,1.5);
         formatHolder(h_phi_jet2);
         saveHolder(h_phi_jet2,g_img_formats, false, "", "", g_plotEnv);
 
@@ -459,12 +464,12 @@ int main(int argc, char **argv) {
         h_pt_jet2.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_jet2.setTitleX("p_{T}^{jet2}[GeV]");
         h_pt_jet2.setBoardersX(0,189);
-        h_pt_jet2.setBoardersY(0.0099,100.0);
+        h_pt_jet2.setBoardersY(0.0099,150.0);
         h_pt_jet2.setLogY();
 
 
         h_pt_jet2.addLatex(info_x,info_y,the_info_string,true);
-        h_pt_jet2.scaleBoardersY(1,2.5);
+        h_pt_jet2.scaleBoardersY(1,1.4);
         formatHolder(h_pt_jet2);
         saveHolder(h_pt_jet2,g_img_formats, false, "", "", g_plotEnv);
 
@@ -483,7 +488,7 @@ int main(int argc, char **argv) {
         h_eta_z.setTitleX("#eta^{Z}");
 
         h_eta_z.addLatex(info_x,info_y,the_info_string,true);
-        h_eta_z.setBoardersY(0.001,74.9);
+        h_eta_z.setBoardersY(0.001,124.9);
         h_eta_z.scaleBoardersY(1,2.3);
 
         formatHolder(h_eta_z);
@@ -501,10 +506,10 @@ int main(int argc, char **argv) {
         h_phi_z.setTitleY("dN_{Events}/d#phi");
         h_phi_z.setTitleX("#phi^{Z}");
         h_phi_z.setBoardersX(-3.14,3.14);
-        h_phi_z.setBoardersY(0.001,74.9);
+        //h_phi_z.setBoardersY(0.001,74.9);
 
         h_phi_z.addLatex(info_x,info_y,the_info_string,true);
-        h_phi_z.scaleBoardersY(1,2);
+        h_phi_z.scaleBoardersY(1.0,1.4);
 
         formatHolder(h_phi_z);
         saveHolder(h_phi_z,g_img_formats, false, "", "", g_plotEnv);
@@ -521,10 +526,10 @@ int main(int argc, char **argv) {
         h_pt_z.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_z.setTitleX("p_{T}^{Z}[GeV]");
         h_pt_z.setBoardersX(0,189.0);
-        h_pt_z.setBoardersY(0.0001,6.59);
+        //h_pt_z.setBoardersY(0.0001,7.59);
 
         h_pt_z.addLatex(info_x,info_y,the_info_string,true);
-        h_pt_z.scaleBoardersY(1,1.3);
+        h_pt_z.scaleBoardersY(1.0,1.1);
 
         formatHolder(h_pt_z);
         saveHolder(h_pt_z,g_img_formats, false, "", "", g_plotEnv);
@@ -541,7 +546,7 @@ int main(int argc, char **argv) {
         h_mass_z.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_mass_z.setTitleX("M_{Z}[GeV]");
         h_mass_z.setBoardersX(60.0,120.0);
-        h_mass_z.setBoardersY(0.01,34.9);
+        h_mass_z.setBoardersY(0.01,54.9);
 
         h_mass_z.addLatex(info_x,info_y,the_info_string,true);
         h_mass_z.scaleBoardersY(1,1.3);
@@ -564,7 +569,7 @@ int main(int argc, char **argv) {
         h_eta_mus.setTitleX("#eta^{#mu}");
 
         h_eta_mus.setBoardersX(-2.5,2.5);
-        h_eta_mus.setBoardersY(0.001,229.9);
+        h_eta_mus.setBoardersY(0.001,249.9);
 
         h_eta_mus.addLatex(info_x,info_y,the_info_string,true);
         h_eta_mus.scaleBoardersY(1,2);
@@ -584,7 +589,7 @@ int main(int argc, char **argv) {
         h_phi_mus.setTitleY("dN_{Events}/d#phi");
         h_phi_mus.setTitleX("#phi^{#mu}");
         h_phi_mus.setBoardersX(-3.14,3.14);
-        h_phi_mus.setBoardersY(0.01,129.9);
+        h_phi_mus.setBoardersY(0.01,159.9);
 
         h_phi_mus.addLatex(info_x,info_y,the_info_string,true);
         h_phi_mus.scaleBoardersY(1,2);
@@ -604,10 +609,10 @@ int main(int argc, char **argv) {
         h_pt_mus.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_mus.setTitleX("p_{T}^{#mu}[GeV]");
         h_pt_mus.setBoardersX(0,189);
-        h_pt_mus.setBoardersY(0.01,14.49);
+        //h_pt_mus.setBoardersY(0.01,16.49);
 
         h_pt_mus.addLatex(info_x,info_y,the_info_string,true);
-        h_pt_mus.scaleBoardersY(1,1.3);
+        h_pt_mus.scaleBoardersY(1,1.1);
 
         formatHolder(h_pt_mus);
         saveHolder(h_pt_mus,g_img_formats, false, "", "", g_plotEnv);
@@ -742,8 +747,8 @@ int main(int argc, char **argv) {
                 l->Draw("same");
             }
 
-            h_resp.getCanvas()->Print(quantity+algo+"_"+interval->id()+".png");
-            h_resp.getCanvas()->Print(quantity+algo+"_"+interval->id()+".pdf");
+            h_resp.getCanvas()->Print(sOutputFolder + quantity+algo+"_"+interval->id()+".png");
+            h_resp.getCanvas()->Print(sOutputFolder + quantity+algo+"_"+interval->id()+".pdf");
 //             saveHolder(h_resp,img_formats);
         }
 
@@ -753,11 +758,11 @@ int main(int argc, char **argv) {
             // std::cout << "PUNTI DEI DATI " << responses_points_all_bins[i].x << " " << responses_points_all_bins[i].y<<std::endl;
             repsponse_data.SetPoint(i,responses_points_all_bins[i].x,responses_points_all_bins[i].y);
         }
-        repsponse_data.SetFillColor(kWhite);
-        repsponse_data.SetMarkerStyle(22);
-        repsponse_data.SetMarkerSize(0.5);
-        repsponse_data.SetName("data");
 
+        //repsponse_data.SetMarkerSize(0.5);
+        repsponse_data.SetName("data");
+        repsponse_data.SetFillColor(kWhite);
+        repsponse_data.SetMarkerStyle(kFullDotMedium);
         repsponse_data.Print();
 /*
         for (int i=0;i<4;++i) // to remove high pt bins
@@ -774,11 +779,11 @@ int main(int argc, char **argv) {
 
         repsponse_mc.SetLineColor(kRed);
         repsponse_mc.SetFillColor(kRed);
-        repsponse_mc.SetMarkerColor(kBlack);
-        repsponse_mc.SetMarkerSize(0.1);
+        repsponse_mc.SetMarkerColor(kRed);
+        repsponse_mc.SetMarkerSize(0.5);
         repsponse_mc.SetFillStyle(3002);
         h_response.addObjFormated(&repsponse_mc,"Monte Carlo","LE3");
-        h_response.addObj(&repsponse_data,"Single events","P");
+        h_response.addObjFormated(&repsponse_data,"Single events","P");
         h_response.addLatex(info_x,info_y,the_info_string,true);
 
 /*        if ( g_correction_level == 2 )
@@ -859,8 +864,8 @@ int main(int argc, char **argv) {
         c.SetBottomMargin(.15);
         c.SetRightMargin(.15);
         c.SetLeftMargin(.15);
-        c.Print(algo+"_funzione.png");
-        c.Print(algo+"_funzione.pdf");
+        c.Print(sOutputFolder + algo+"_funzione.png");
+        c.Print(sOutputFolder + algo+"_funzione.pdf");
 
         // Contours ----------------------------------------------------------------
 
@@ -974,8 +979,8 @@ int main(int argc, char **argv) {
         if ( g_correction_level == 2 )
             postFix = "_l2";
 
-        final->Print(algo + postFix + "_Contours.png");
-        final->Print(algo + postFix + "_Contours.pdf");
+        final->Print( sOutputFolder + algo + postFix + "_Contours.png");
+        final->Print( sOutputFolder + algo + postFix + "_Contours.pdf");
     } // end loop on algos
 }
 
