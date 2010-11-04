@@ -26,7 +26,7 @@ def getDataBaseConfig(  ):
   _calib_data_path = "data/"
   _is_data = 1
 
-  _json_file= _calib_data_path + "json/Cert_132440-148058_7TeV_StreamExpress_Collisions10_JSON.txt"
+  _json_file= _calib_data_path + "json/Cert_132440-148864_7TeV_StreamExpress_Collisions10_JSON.txt"
   _process_algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo", "iterativeCone5PF", "iterativeCone5Calo"]
   
   p.general = ZPJConfiguration.section ("general",
