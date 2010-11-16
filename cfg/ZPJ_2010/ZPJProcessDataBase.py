@@ -1,16 +1,18 @@
 import ZPJConfiguration
 
 def getDefaultCorrection( data_path ):
-  g_l2_correction_data=["ak5PFJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_AK5PF.txt",
-      "ak7PFJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_AK7PF.txt",
-      "kt4PFJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_KT4PF.txt",
-      "kt6PFJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_KT6PF.txt",
-      "ak5CaloJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_AK5Calo.txt",
-      "ak7CaloJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_AK7Calo.txt",
-      "kt4CaloJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_KT4Calo.txt",
-      "kt6CaloJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_KT6Calo.txt",
-	"iterativeCone5PFJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_IC5PF.txt",
-	"iterativeCone5CaloJets_Zplusjet:" + data_path + "jec_data/Spring10_L2Relative_IC5Calo.txt"
+  globalTag = "GR_R_38X_V14_"
+  
+  g_l2_correction_data=["ak5PFJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "AK5PF_L2Relative.txt",
+      "ak7PFJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "AK7PF_L2Relative.txt",
+      "kt4PFJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "KT4PF_L2Relative.txt",
+      "kt6PFJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "KT6PF_L2Relative.txt",
+      "ak5CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "AK5Calo_L2Relative.txt",
+      "ak7CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "AK7Calo_L2Relative.txt",
+      "kt4CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "KT4Calo_L2Relative.txt",
+      "kt6CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "KT6Calo_L2Relative.txt",
+	"iterativeCone5PFJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "IC5PF_L2Relative.txt",
+	"iterativeCone5CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "IC5PF_L2Relative.txt",
 ]
   return g_l2_correction_data
 
