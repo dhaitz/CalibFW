@@ -29,6 +29,8 @@ public:
     TParticle *Z,*mu_minus,*mu_plus;
 
     TParticle *jets[3];
+    
+    TClonesArray * HLTriggers_accept;
 
     Double_t xsection;
     Double_t weight;
@@ -40,6 +42,7 @@ public:
       evtData()
       {
 	Z =  mu_minus = mu_plus = jets[0] = jets[1] =jets[2] = NULL;
+	HLTriggers_accept = NULL;
       }
 
       ~evtData()
@@ -50,6 +53,7 @@ public:
 	SAFE_DELETE ( jets[0] )
 	SAFE_DELETE ( jets[1] )
 	SAFE_DELETE ( jets[2] )
+	SAFE_DELETE ( HLTriggers_accept )
       }
 
     // true if the event is within cuts
@@ -65,6 +69,8 @@ public:
         {
             ev->jets[i]= new TParticle( *this->jets[i]);
         }
+        
+        ev->HLTriggers_accept= new TClonesArray( *this->HLTriggers_accept);
 
         ev->cmsEventNum = this->cmsEventNum;
         ev->cmsRun = this->cmsRun;

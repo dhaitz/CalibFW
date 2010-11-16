@@ -16,6 +16,8 @@
 #include "TStyle.h"
 #include "TMath.h"
 #include "TF1.h"
+#include "TClonesArray.h"
+#include "TObjString.h"
 
 #endif
 
