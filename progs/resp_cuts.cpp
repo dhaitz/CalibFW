@@ -50,6 +50,10 @@ bool g_doData = true;
 // if true, the number in Event.weight is used for MC weigting
 bool g_useEventWeight = false;
 
+// check if an event has certain hltrigger
+bool g_useHLT = false;
+
+
 // if true, all plots are done one time without cuts applied
 bool g_plotNoCuts = false;
 bool g_plotCutEff = false;
@@ -216,6 +220,48 @@ void calcJetEnergyCorrection( EventResult * res, CompleteJetCorrector *  pJetCor
     }
 }
 
+bool IsEventHltAccepted( evtData & evt )
+{
+    TString hltName = "HLT_Mu9";
+
+    /* 1 trigger approach */
+    if ( evt.cmsRun >= 147146  )
+        hltName = "HLT_Mu15_v1";
+
+    /*
+     * 2 trigger approach old
+    if ( evt.cmsRun > 147196  )
+        hltName = "HLT_Mu11";
+    if ( evt.cmsRun > 148108 )
+        hltName = "HLT_Mu15_v1";
+*/
+    const int nHLTriggers = evt.HLTriggers_accept->GetEntries();
+
+    if ( nHLTriggers == 0) {
+        std::cout<<"No HLT Trigger in Event! \n";
+        exit(0);
+    }
+
+    TObjString *theHLTbit = NULL;
+    std::cout << "Checking HLT of Event " << std::endl;
+
+    for (int i=0; i<nHLTriggers; ++i) {
+	
+	theHLTbit = (TObjString*) evt.HLTriggers_accept->At(i);
+	TString curName = theHLTbit->GetString();
+	std::cout << "HLT " << curName.Data() << " included" << std::endl;
+        
+        
+        if (hltName == curName)
+	{
+	    std::cout << "!! HLT trigger " << curName.Data() << " matched" << std::endl;
+            return true;
+	}
+    }
+
+    return false;
+}
+
 void importEvents( bool bUseJson,
                    bool bApplyWeighting,
                    std::vector<ExcludedEvent *> exludeEventsByValue,
@@ -254,22 +300,26 @@ void importEvents( bool bUseJson,
             }
         }
 
+        // check if this event matches our hlt trigger criteria
+        if ( bUseEvent && g_useHLT )
+        {
+            bUseEvent = IsEventHltAccepted( g_ev );
+        }
+
         if ( bUseEvent )
         {
             EventResult * res = new EventResult;
 
             res->m_pData = g_ev.Clone();
-
-
             // either keep it or kick it
             //if ( res->IsInCut() || ( ! bDiscardOutOfCutEvents ))
             //{
             calcJetEnergyCorrection(res, correction);
-            
-	    g_cutHandler.SetEnableCut( JsonCut::CudId, bUseJson );
-	    g_cutHandler.ApplyCuts( res );
-            
-	    g_eventsDataset.push_back( res );
+
+            g_cutHandler.SetEnableCut( JsonCut::CudId, bUseJson );
+            g_cutHandler.ApplyCuts( res );
+
+            g_eventsDataset.push_back( res );
         }
 
         // build the weighting data
@@ -344,6 +394,8 @@ TChain * getChain( TString sName, evtData * pEv, std::string sRootfiles)
     pEv->mu_minus=new TParticle();
     pEv->mu_plus=new TParticle();
 
+    pEv->HLTriggers_accept = new TClonesArray("TObjString");
+
     int addedfiles = 0;
 
     addedfiles = mychain->Add(sRootfiles.c_str());
@@ -375,6 +427,9 @@ TChain * getChain( TString sName, evtData * pEv, std::string sRootfiles)
     mychain->SetBranchAddress("jet3",&pEv->jets[2]);
     mychain->SetBranchAddress("mu_plus",&pEv->mu_plus);
     mychain->SetBranchAddress("mu_minus",&pEv->mu_minus);
+
+    // Triggers
+    mychain->SetBranchAddress("HLTriggers_accept",&pEv->HLTriggers_accept);
 
     // scalars
     mychain->SetBranchAddress("cmsEventNum",&pEv->cmsEventNum);
@@ -410,8 +465,8 @@ void ReapplyCut( bool bUseJson)
             ++iter )
     {
 //        applyCut( &*iter, bUseJson );
-	    g_cutHandler.SetEnableCut( JsonCut::CudId, bUseJson );
-	    g_cutHandler.ApplyCuts( &*iter );	
+        g_cutHandler.SetEnableCut( JsonCut::CudId, bUseJson );
+        g_cutHandler.ApplyCuts( &*iter );
     }
 }
 
@@ -433,8 +488,6 @@ void PrintCutReport( std::ostream & out)
     std::endl;
 
 /// todo: actually use the processed events from root file
-
-
 
     long overallCountLeft = g_lOverallNumberOfProcessedEvents;
     //long refCount = g_eventsDataset.size();
@@ -903,45 +956,45 @@ void DrawHistoSet( TString algoName,
 
     if ( g_plotCutEff )
     {
-      CGrapErrorDrawBase < EventVector &,
-      CGraphDrawJetResponseCutEff<PtBinEventSelector> ,
-      PtBinEventSelector >  JetRespCuttEff_draw(
-	  "CutEffOverJetResponse_" + algoName+ sPostfix, pFileOut);
-      JetRespCuttEff_draw.Execute( g_eventsDataset,
-				  PtBinEventSelector( false, // we want ALL events for this plot !!
-						      bPtCut,
-						      ptLow,
-						      ptHigh  ) );
+        CGrapErrorDrawBase < EventVector &,
+        CGraphDrawJetResponseCutEff<PtBinEventSelector> ,
+        PtBinEventSelector >  JetRespCuttEff_draw(
+            "CutEffOverJetResponse_" + algoName+ sPostfix, pFileOut);
+        JetRespCuttEff_draw.Execute( g_eventsDataset,
+                                     PtBinEventSelector( false, // we want ALL events for this plot !!
+                                                         bPtCut,
+                                                         ptLow,
+                                                         ptHigh  ) );
 
-      if (! bPtCut )
-      {
-	  int cutsCount = 10;
-	
-	  for ( int i = 0; i < cutsCount; i++ )
-	  {
-	      unsigned long curId = (unsigned long) pow( 2, i );
-	      EventCutBase<EventResult *> * currCut = g_cutHandler.GetById(  curId );
-	    
-	      if ( currCut != NULL )
-	      {
-                CGrapErrorDrawBase < EventVector &,
-                CGraphDrawZPtCutEff<PassAllEventSelector> ,
-                PassAllEventSelector >  ZptEff_draw(
-                    "CutEffOverZPt_" + algoName+ sPostfix + "_" + currCut->GetCutShortName(),
-                                                        pFileOut);
-                ZptEff_draw.m_tdraw.m_cutBitmask = curId;
-                ZptEff_draw.Execute( g_eventsDataset,
-                                    PassAllEventSelector( ));
-	      }
-	  }
-	  
-	  CGrapErrorDrawBase < EventVector &,
-	  CGraphDrawZPtCutEff<PassAllEventSelector> ,
-	  PassAllEventSelector >  ZptEff_draw(
-	      "CutEffOverZPt_" + algoName+ sPostfix+ "_overall"  , pFileOut);
-	  
-	  ZptEff_draw.Execute( g_eventsDataset, PassAllEventSelector());
-      }
+        if (! bPtCut )
+        {
+            int cutsCount = 10;
+
+            for ( int i = 0; i < cutsCount; i++ )
+            {
+                unsigned long curId = (unsigned long) pow( 2, i );
+                EventCutBase<EventResult *> * currCut = g_cutHandler.GetById(  curId );
+
+                if ( currCut != NULL )
+                {
+                    CGrapErrorDrawBase < EventVector &,
+                    CGraphDrawZPtCutEff<PassAllEventSelector> ,
+                    PassAllEventSelector >  ZptEff_draw(
+                        "CutEffOverZPt_" + algoName+ sPostfix + "_" + currCut->GetCutShortName(),
+                        pFileOut);
+                    ZptEff_draw.m_tdraw.m_cutBitmask = curId;
+                    ZptEff_draw.Execute( g_eventsDataset,
+                                         PassAllEventSelector( ));
+                }
+            }
+
+            CGrapErrorDrawBase < EventVector &,
+            CGraphDrawZPtCutEff<PassAllEventSelector> ,
+            PassAllEventSelector >  ZptEff_draw(
+                "CutEffOverZPt_" + algoName+ sPostfix+ "_overall"  , pFileOut);
+
+            ZptEff_draw.Execute( g_eventsDataset, PassAllEventSelector());
+        }
     }
     /*
     CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
@@ -1070,8 +1123,8 @@ void processAlgo( std::string sName )
 
     // RAW
     drawHistoBins(sName, sPrefix , g_resFile.get(),  true);
-    if ( g_plotNoCuts) 
-      drawHistoBins(sName, sPrefix + "_nocut", g_resFile.get(), false);
+    if ( g_plotNoCuts)
+        drawHistoBins(sName, sPrefix + "_nocut", g_resFile.get(), false);
 
     PrintCutReport( std::cout );
     PrintCutReport( *g_logFile );
@@ -1098,9 +1151,9 @@ void processAlgo( std::string sName )
         ReapplyCut(g_doData);
 
         drawHistoBins(sName, sPrefix + "_l2corr", g_resFile.get(),  true);
-	
-	if ( g_plotNoCuts) 
-	  drawHistoBins(sName, sPrefix + "_l2corr_nocut", g_resFile.get(), false);
+
+        if ( g_plotNoCuts)
+            drawHistoBins(sName, sPrefix + "_l2corr_nocut", g_resFile.get(), false);
 
         PrintCutReport( std::cout );
         PrintCutReport( *g_logFile );
@@ -1129,8 +1182,8 @@ void processAlgo( std::string sName )
             iter->m_bUseL3 = true;
         }
         drawHistoBins(sName, sPrefix + "_l3corr", g_resFile.get(),  true);
-	if ( g_plotNoCuts) 
-	  drawHistoBins(sName, sPrefix + "_l3corr_nocut", g_resFile.get(), false);
+        if ( g_plotNoCuts)
+            drawHistoBins(sName, sPrefix + "_l3corr_nocut", g_resFile.get(), false);
 
         PrintCutReport( std::cout );
         PrintCutReport( *g_logFile );
@@ -1273,7 +1326,9 @@ int main(int argc, char** argv)
 
     g_plotNoCuts = (bool) p.getInt( secname + ".plot_nocuts" );
     g_plotCutEff = (bool) p.getInt( secname + ".plot_cuteff" );
-    
+
+    g_useHLT = (bool) p.getInt( secname + ".use_hlt" );
+
     g_l3Formula = p.getString( secname + ".l3_formula" );
     g_l3Params = p.getvDouble( secname + ".l3_params" );
 
@@ -1333,7 +1388,7 @@ int main(int argc, char** argv)
     g_cutHandler.AddCut( new BackToBackCut());
     g_cutHandler.AddCut( new ZMassWindowCut());
     g_cutHandler.AddCut( new ZPtCut());
-    
+
     resp_cuts(myAlgoList, g_sOutputPath + ".root");
 
     g_logFile->close();

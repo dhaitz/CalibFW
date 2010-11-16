@@ -143,21 +143,7 @@ void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int line
 
 //------------------------------------------------------------------------------
 
-double CalcHistoError( TH1D * pHist, InputTypeEnum inpEnum)
-{
-    if ( inpEnum == McInput )
-    {
-      if (  g_lumi < 0.1f )
-	return pHist->GetRMS();
-      else
-	return pHist->GetRMS() / ( TMath::Sqrt( pHist->GetSumOfWeights() * g_lumi));
-      
-    }
-    if ( inpEnum == DataInput )
-    {
-      return pHist->GetMeanError();
-    }      
-}
+
 
 struct ResponseSourceHistos
 {
@@ -222,15 +208,29 @@ void PlotResponse( std::vector<GraphFormating> & algoForamting,
 		    it != itAlgos->end();
 		    ++it )
 	    {
-		p_dataCalibPoints->SetPoint(i, it->histZPt->m_pHist->GetMean(), it->histDataResponse->m_pHist->GetMean());
-		p_dataCalibPoints->SetPointError(i, 
-						CalcHistoError( it->histZPt->m_pHist, it->inputType ), 
-						CalcHistoError( it->histDataResponse->m_pHist, it->inputType ));
+		p_dataCalibPoints->SetPoint(i, it->histZPt->m_pHist->GetMean(), 
+					    it->histDataResponse->m_pHist->GetMean());
+		
+/*		if ( it->inputType == DataInput )
+		{*/
+		  p_dataCalibPoints->SetPointError(i, 
+						  CalcHistoError( it->histZPt->m_pHist, 
+								  it->inputType,
+								  g_lumi ), 
+						  CalcHistoError( it->histDataResponse->m_pHist, 
+								  it->inputType,
+								  g_lumi ));
+/*		}
+		else
+		{
+		  p_dataCalibPoints->SetPointError(i,0.0f, 0.0f);
+		  
+		}*/
 		if (g_txtoutput) {
 			txtfile << std::setw(4) << i << std::setw(12) << it->histZPt->m_pHist->GetMean() 
 			        << std::setw(12) << it->histDataResponse->m_pHist->GetMean();
-			txtfile << std::setw(12) << CalcHistoError( it->histZPt->m_pHist, it->inputType ) 
-			        << std::setw(12) << CalcHistoError( it->histDataResponse->m_pHist, it->inputType ) << "\n";
+			txtfile << std::setw(12) << CalcHistoError( it->histZPt->m_pHist, it->inputType, g_lumi ) 
+			        << std::setw(12) << CalcHistoError( it->histDataResponse->m_pHist, it->inputType, g_lumi ) << "\n";
 		}
 
 		i++;

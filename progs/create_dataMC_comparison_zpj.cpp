@@ -379,7 +379,7 @@ int main(int argc, char **argv) {
         h_pt_jet.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_jet.setTitleX("p_{T}^{jet}[GeV]");
         h_pt_jet.setBoardersX(0,189);
-        h_pt_jet.setBoardersY(0.0099,100.0);
+        h_pt_jet.setBoardersY(0.0099,230.0);
         h_pt_jet.setLogY();
 
 
@@ -464,7 +464,7 @@ int main(int argc, char **argv) {
         h_pt_jet2.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_jet2.setTitleX("p_{T}^{jet2}[GeV]");
         h_pt_jet2.setBoardersX(0,189);
-        h_pt_jet2.setBoardersY(0.0099,150.0);
+        h_pt_jet2.setBoardersY(0.0099,230.0);
         h_pt_jet2.setLogY();
 
 
@@ -488,8 +488,8 @@ int main(int argc, char **argv) {
         h_eta_z.setTitleX("#eta^{Z}");
 
         h_eta_z.addLatex(info_x,info_y,the_info_string,true);
-        h_eta_z.setBoardersY(0.001,124.9);
-        h_eta_z.scaleBoardersY(1,2.3);
+        //h_eta_z.setBoardersY(0.001,124.9);
+        h_eta_z.scaleBoardersY(1,1.5);
 
         formatHolder(h_eta_z);
         saveHolder(h_eta_z,g_img_formats, false, "", "", g_plotEnv);
@@ -546,7 +546,7 @@ int main(int argc, char **argv) {
         h_mass_z.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_mass_z.setTitleX("M_{Z}[GeV]");
         h_mass_z.setBoardersX(60.0,120.0);
-        h_mass_z.setBoardersY(0.01,54.9);
+        h_mass_z.setBoardersY(0.01,74.9);
 
         h_mass_z.addLatex(info_x,info_y,the_info_string,true);
         h_mass_z.scaleBoardersY(1,1.3);
@@ -569,7 +569,7 @@ int main(int argc, char **argv) {
         h_eta_mus.setTitleX("#eta^{#mu}");
 
         h_eta_mus.setBoardersX(-2.5,2.5);
-        h_eta_mus.setBoardersY(0.001,249.9);
+        h_eta_mus.setBoardersY(0.001,379.9);
 
         h_eta_mus.addLatex(info_x,info_y,the_info_string,true);
         h_eta_mus.scaleBoardersY(1,2);
@@ -589,7 +589,7 @@ int main(int argc, char **argv) {
         h_phi_mus.setTitleY("dN_{Events}/d#phi");
         h_phi_mus.setTitleX("#phi^{#mu}");
         h_phi_mus.setBoardersX(-3.14,3.14);
-        h_phi_mus.setBoardersY(0.01,159.9);
+        //h_phi_mus.setBoardersY(0.01,199.9);
 
         h_phi_mus.addLatex(info_x,info_y,the_info_string,true);
         h_phi_mus.scaleBoardersY(1,2);

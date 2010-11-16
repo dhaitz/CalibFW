@@ -140,19 +140,6 @@ TGraphErrors* histo2graph(TH1F* histo, double xmax,double ymax);
 void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int lines_width=2, int skip_colors=0, bool do_flag=false, int optStat = 0);
 void formatHolderAlt(CanvasHolder& h);
 
-//------------------------------------------------------------------------------
-double CalcHistoError( TH1D * pHist)
-{
-    if ( g_input_type == McInput )
-    {
-      return pHist->GetRMS() / ( TMath::Sqrt( pHist->GetSumOfWeights() * g_lumi));
-    }
-    if ( g_input_type == DataInput )
-    {
-      return pHist->GetMeanError();
-    }      
-}
-
 
 TGraphErrors * AddJetPoints ( 	boost::ptr_vector<DataHisto> & histDataResponse,
 			boost::ptr_vector<DataHisto> & histDataJet1Pt,
@@ -183,11 +170,20 @@ TGraphErrors * AddJetPoints ( 	boost::ptr_vector<DataHisto> & histDataResponse,
 	    std::cout << std::endl << "Adding " << i ;
 	  
             p_dataCalibPoints->SetPoint(i, it_jet1pt->m_pHist->GetMean(), 1.0f / it->m_pHist->GetMean());
-	    p_dataCalibPoints->SetPointError(i, 
-					     CalcHistoError(it_jet1pt->m_pHist), 
-					     /* calc using error propagation */
-					     CalcHistoError( it->m_pHist) * 1.0f / (TMath::Power(it->m_pHist->GetMean(), 2.0)) );
-	    //p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
+	    
+	    if ( g_input_type == DataInput )
+	    {
+		p_dataCalibPoints->SetPointError(i, 
+						  CalcHistoError(it_jet1pt->m_pHist, g_input_type, g_lumi), 
+						  /* calc using error propagation */
+						  CalcHistoError( it->m_pHist, g_input_type, g_lumi) * 1.0f / (TMath::Power(it->m_pHist->GetMean(), 2.0)) );
+		//p_dataCalibPoints->SetPoint(i,( i + 1.0f) * 30.0f, 1.2f);
+	    }
+/*	    if ( g_input_type == McInput )
+	    {
+		p_dataCalibPoints->SetPointError(i, 0.0f, 0.0f );
+	    }*/
+	    
             i++;
 	    it_jet1pt++;
 	    
