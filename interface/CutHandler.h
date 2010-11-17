@@ -18,7 +18,6 @@ const double g_kCutMuPt = 15.0; // Mu.Pt() > 15 !
 const double g_kCutZPt = 15.0; // Z.Pt() > 15 !
 const double g_kCutMuEta = 2.3;
 const double g_kCutLeadingJetEta = 1.3;
-const double g_kCut2ndJetToZPt = 0.2; // 2nd leading jet to Z pt
 const double g_kCutBackToBack = 0.2; // 2nd leading jet to Z pt
 
 
@@ -102,15 +101,21 @@ public:
 class SecondLeadingToZPtCut : public EventCutBase< EventResult * >
 {
 public:
+  SecondLeadingToZPtCut ( double f2ndJetRatio ) : m_f2ndJetRatio( f2ndJetRatio )
+  {
+    
+  }
+  
   bool IsInCut ( EventResult * pEv )
   {
-     return (pEv->GetCorrectedJetPt(1)/pEv->m_pData->Z->Pt() < g_kCut2ndJetToZPt);
+     return (pEv->GetCorrectedJetPt(1)/pEv->m_pData->Z->Pt() < m_f2ndJetRatio);
   }
   
   unsigned long GetId() { return SecondLeadingToZPtCut::CudId; }  
   std::string GetCutName() { return "5) 2nd leading jet to Z pt";  }
   std::string GetCutShortName() { return "SecondLeadingToZPt"; }
   static const long CudId = 16;
+  double m_f2ndJetRatio;
 };
 
 class BackToBackCut : public EventCutBase< EventResult * >
@@ -144,15 +149,21 @@ public:
 class ZPtCut : public EventCutBase< EventResult * >
 {
 public:
+  ZPtCut ( double fMinZPt ) : m_fMinZPt( fMinZPt )
+  {
+    
+  }
+  
   bool IsInCut ( EventResult * pEv )
   {
-     return (pEv->m_pData->Z->Pt() > g_kCutZPt);
+     return (pEv->m_pData->Z->Pt() > m_fMinZPt);
   }
   
   unsigned long GetId() { return ZPtCut::CudId; }  
   std::string GetCutName() { return "7.5) z pt";  }
   std::string GetCutShortName() { return "ZPt"; }
   static const long CudId = 128;
+  double m_fMinZPt;
 };
 
 class CutHandler{

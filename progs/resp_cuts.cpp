@@ -687,21 +687,31 @@ const double g_kCutBackToBack = 0.2; // 2nd leading jet to Z pt
                                1, g_kCutMuEta, g_kCutMuEta);
     hCutMuEta->Fill( g_kCutMuEta );
 
+    
+    
     TH1D* hCutLeadingJetEta = new TH1D("cut_" +  algoName + "_CutLeadingJetEta",
                                        "cut_" +  algoName + "_CutLeadingJetEta",
                                        1, g_kCutLeadingJetEta, g_kCutLeadingJetEta);
     hCutLeadingJetEta->Fill( g_kCutLeadingJetEta );
 
+    double f2ndJet = (( SecondLeadingToZPtCut *) g_cutHandler.GetById( 16 ))->m_f2ndJetRatio;
     TH1D* hCut2ndJetToZPt = new TH1D("cut_" +  algoName + "_Cut2ndJetToZPt",
                                      "cut_" +  algoName + "_Cut2ndJetToZPt",
-                                     1, g_kCut2ndJetToZPt, g_kCut2ndJetToZPt);
-    hCut2ndJetToZPt->Fill( g_kCut2ndJetToZPt );
+                                     1, f2ndJet, f2ndJet);
+    hCut2ndJetToZPt->Fill( f2ndJet);
 
     TH1D* hCutBackToBack = new TH1D("cut_" +  algoName + "_CutBackToBack",
                                     "cut_" +  algoName + "_CutBackToBack",
                                     1, g_kCutBackToBack, g_kCutBackToBack);
     hCutBackToBack->Fill( g_kCutBackToBack );
 
+    double fZPt = (( ZPtCut *) g_cutHandler.GetById( 128 ))->m_fMinZPt;
+    TH1D* hZPtCut = new TH1D("cut_" +  algoName + "_ZPt",
+                                     "cut_" +  algoName + "_ZPt",
+                                     1, fZPt, fZPt);
+    hCut2ndJetToZPt->Fill( fZPt);
+
+    
     pFileOut->cd();
     hCutZmassWindow->Write();
     hCutMuPt->Write( );
@@ -709,6 +719,7 @@ const double g_kCutBackToBack = 0.2; // 2nd leading jet to Z pt
     hCutLeadingJetEta->Write(  );
     hCut2ndJetToZPt->Write(  );
     hCutBackToBack->Write(  );
+    hZPtCut->Write(  );
 
 }
 
@@ -918,7 +929,7 @@ void DrawHistoSet( TString algoName,
     }
 
     // 2nd Leading Jet to Z pt
-    CHistDrawBase jet2toZ( "jet2toZ_" + algoName+ sPostfix,
+/*    CHistDrawBase jet2toZ( "jet2toZ_" + algoName+ sPostfix,
                            pFileOut);
     jet2toZ.AddModifier(new CModHorizontalLine( g_kCut2ndJetToZPt ));
     jet2toZ.AddModifier(new CModBinRange(0.0, 2.0));
@@ -926,7 +937,7 @@ void DrawHistoSet( TString algoName,
     CHistEvtData2ndJetToZPt jet2toZ_draw;
     ModEvtDraw( &jet2toZ_draw, useCutParameter, bPtCut, ptLow, ptHigh );
     jet2toZ.Execute < EventVector & > ( g_eventsDataset, &jet2toZ_draw );
-
+*/
     // zpt - jet1 pt
     CHistDrawBase jetPtzPt( "z_pt_minus_jet1_pt_" + algoName+ sPostfix,
                             pFileOut);
@@ -1390,10 +1401,10 @@ int main(int argc, char** argv)
     g_cutHandler.AddCut( new MuonPtCut());
     g_cutHandler.AddCut( new MuonEtaCut());
     g_cutHandler.AddCut( new LeadingJetEtaCut());
-    g_cutHandler.AddCut( new SecondLeadingToZPtCut());
+    g_cutHandler.AddCut( new SecondLeadingToZPtCut( p.getDouble( secname + ".cut_2jet" )));
     g_cutHandler.AddCut( new BackToBackCut());
     g_cutHandler.AddCut( new ZMassWindowCut());
-    g_cutHandler.AddCut( new ZPtCut());
+    g_cutHandler.AddCut( new ZPtCut(p.getDouble( secname + ".cut_zpt" )));
 
     resp_cuts(myAlgoList, g_sOutputPath + ".root");
 

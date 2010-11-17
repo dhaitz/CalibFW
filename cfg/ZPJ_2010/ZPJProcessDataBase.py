@@ -36,8 +36,19 @@ def getDefaultBinning():
 
   return custom_binning
 
-def getDataBaseConfig(  ):
+def getBaseConfig():
+  
   process = ZPJConfiguration.configuration("Zplusjet_process_data")
+  
+  process.general = ZPJConfiguration.section ("general")
+  
+  process.general.cut_zpt = 15.0
+  process.general.cut_2jet = 0.2
+  
+  return process
+
+def getDataBaseConfig(  ):
+  process = getBaseConfig()
   p=process
 
   _calib_data_path = "data/"
@@ -46,60 +57,56 @@ def getDataBaseConfig(  ):
   _json_file= _calib_data_path + "json/Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON_v3.txt"
   _process_algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo", "iterativeCone5PF", "iterativeCone5Calo"]
   
-  p.general = ZPJConfiguration.section ("general",
-      custom_binning = getDefaultBinning(),
-      is_data = _is_data,
-      write_events = "incut", # none, incut, all
+  p.general.custom_binning = getDefaultBinning()
+  p.general.is_data = _is_data
+  p.general.write_events = "incut" # none, incut, all
       
       # select specific plots here
-      plot_nocuts = 0,
-      plot_cuteff = 0,
+  p.general.plot_nocuts = 0
+  p.general.plot_cuteff = 0
       
-      fixed_weighting = 0,
-      do_l2_correction = 1,
-      do_l3_correction = 0,
-      use_hlt = 1,
-      do_l3_correction_formula = 0,
+  p.general.fixed_weighting = 0
+  p.general.do_l2_correction = 1
+  p.general.do_l3_correction = 0
+  p.general.use_hlt = 1
+  p.general.do_l3_correction_formula = 0
       
-      tchain_file_path = "not set",
-      l2_correction_data = getDefaultCorrectionL2(_calib_data_path),
-      l3_correction_data = getDefaultCorrectionL3(_calib_data_path),
-      output_path = "not set",
-      json_file = _json_file,
-      process_algos=_process_algos
-  )
+  p.general.tchain_file_path = "not set"
+  p.general.l2_correction_data = getDefaultCorrectionL2(_calib_data_path)
+  p.general.l3_correction_data = getDefaultCorrectionL3(_calib_data_path)
+  p.general.output_path = "not set"
+  p.general.json_file = _json_file
+  p.general.process_algos=_process_algos
   
   return p
 
 
 def getMCBaseConfig(  ):
-  process = ZPJConfiguration.configuration("Zplusjet_process_data")
+  process = getBaseConfig()
   p=process
 
   _calib_data_path = "data/"
   _is_data = 0
   _process_algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo", "iterativeCone5PF", "iterativeCone5Calo"]
 
-  p.general = ZPJConfiguration.section ("general",
-      custom_binning = getDefaultBinning(),
-      is_data = _is_data,
+  p.general.custom_binning = getDefaultBinning()
+  p.general.is_data = _is_data
 
-      # select specific plots here
-      plot_nocuts = 0,
-      plot_cuteff = 0,
+  # select specific plots here
+  p.general.plot_nocuts = 0
+  p.general.plot_cuteff = 0
 
-      write_events = "none", # none, incut, all
-      fixed_weighting = 0,
-      do_l2_correction = 1,
-      do_l3_correction = 0,
-      do_l3_correction_formula = 0,
-      tchain_file_path = "not set",
-      l2_correction_data = getDefaultCorrectionL2(_calib_data_path),
-	l3_correction_data = getDefaultCorrectionL3(_calib_data_path),
-      output_path = "not set",
-      json_file = "not set",
-      process_algos=_process_algos
-  )
+  p.general.write_events = "none" # none, incut, all
+  p.general.fixed_weighting = 0
+  p.general.do_l2_correction = 1
+  p.general.do_l3_correction = 0
+  p.general.do_l3_correction_formula = 0
+  p.general.tchain_file_path = "not set"
+  p.general.l2_correction_data = getDefaultCorrectionL2(_calib_data_path)
+  p.general.l3_correction_data = getDefaultCorrectionL3(_calib_data_path)
+  p.general.output_path = "not set"
+  p.general.json_file = "not set"
+  p.general.process_algos=_process_algos
 
   return p
 
