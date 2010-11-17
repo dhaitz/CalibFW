@@ -13,6 +13,17 @@ def getDefaultCorrection( data_path ):
       "kt6CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "KT6Calo_L2Relative.txt",
 	"iterativeCone5PFJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "IC5PF_L2Relative.txt",
 	"iterativeCone5CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "IC5PF_L2Relative.txt",
+	
+  g_l3_correction_data=["ak5PFJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "AK5PF_L3Absolute.txt",
+      "ak7PFJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "AK7PF_L3Absolute.txt",
+      "kt4PFJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "KT4PF_L3Absolute.txt",
+      "kt6PFJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "KT6PF_L3Absolute.txt",
+      "ak5CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "AK5Calo_L3Absolute.txt",
+      "ak7CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "AK7Calo_L3Absolute.txt",
+      "kt4CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "KT4Calo_L3Absolute.txt",
+      "kt6CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "KT6Calo_L3Absolute.txt",
+	"iterativeCone5PFJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "IC5PF_L3Absolute.txt",
+	"iterativeCone5CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "IC5PF_L3Absolute.txt",	
 ]
   return g_l2_correction_data
 
@@ -43,6 +54,7 @@ def getDataBaseConfig(  ):
       fixed_weighting = 0,
       do_l2_correction = 1,
       do_l3_correction = 0,
+      do_l3_correction_formula = 0,
       
       tchain_file_path = "not set",
       l2_correction_data = getDefaultCorrection(_calib_data_path),
@@ -74,6 +86,7 @@ def getMCBaseConfig(  ):
       fixed_weighting = 0,
       do_l2_correction = 1,
       do_l3_correction = 0,
+      do_l3_correction_formula = 0,
       tchain_file_path = "not set",
       l2_correction_data = getDefaultCorrection(_calib_data_path),
       output_path = "not set",

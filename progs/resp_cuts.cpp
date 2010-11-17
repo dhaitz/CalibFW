@@ -58,13 +58,15 @@ bool g_useHLT = false;
 bool g_plotNoCuts = false;
 bool g_plotCutEff = false;
 
-//bool g_doL1Correction = true;
 bool g_doL2Correction = true;
+bool g_doL3CorrectionFormula = false;
 bool g_doL3Correction = false;
+
 vString g_l2CorrFiles;
+vString g_l3CorrFiles;
 
 TString g_l3Formula;
-vdouble g_l3Params;
+vdouble g_l3FormulaParams;
 
 vdouble g_customBinning;
 
@@ -1089,7 +1091,9 @@ void processAlgo( std::string sName )
     if ( g_doL2Correction )
         jetCorr.AddCorrection( new L2Corr( TString(sName.c_str()), g_l2CorrFiles));
     if ( g_doL3Correction)
-        jetCorr.AddCorrection( new TF1Corr( g_l3Formula, g_l3Params) );
+        jetCorr.AddCorrection( new L2Corr( TString(sName.c_str()), g_l3CorrFiles));
+    if ( g_doL3CorrectionFormula)
+        jetCorr.AddCorrection( new TF1Corr( g_l3Formula, g_l3FormulaParams) );
 
 
 
@@ -1167,7 +1171,7 @@ void processAlgo( std::string sName )
     }
 
     // turn on l3 corr
-    if  ( g_doL3Correction )
+    if  ( g_doL3Correction || g_doL3CorrectionFormula )
     {
         (*g_logFile) << "l3 corrected jets " << std::endl;
 
@@ -1323,6 +1327,7 @@ int main(int argc, char** argv)
 
     g_doL2Correction = (bool) p.getInt( secname + ".do_l2_correction" );
     g_doL3Correction = (bool) p.getInt( secname + ".do_l3_correction" );
+    g_doL3CorrectionFormula = (bool) p.getInt( secname + ".do_l3_correction_formula" );
 
     g_plotNoCuts = (bool) p.getInt( secname + ".plot_nocuts" );
     g_plotCutEff = (bool) p.getInt( secname + ".plot_cuteff" );
@@ -1330,7 +1335,7 @@ int main(int argc, char** argv)
     g_useHLT = (bool) p.getInt( secname + ".use_hlt" );
 
     g_l3Formula = p.getString( secname + ".l3_formula" );
-    g_l3Params = p.getvDouble( secname + ".l3_params" );
+    g_l3FormulaParams = p.getvDouble( secname + ".l3_formula_params" );
 
 
     g_doData = (bool) p.getInt( secname + ".is_data" );
@@ -1378,6 +1383,7 @@ int main(int argc, char** argv)
     }
 
     g_l2CorrFiles = p.getvString(secname + ".l2_correction_data");
+    g_l3CorrFiles = p.getvString(secname + ".l3_correction_data");
 
     // init cuts
     g_cutHandler.AddCut( new JsonCut( g_json));

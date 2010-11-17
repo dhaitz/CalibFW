@@ -65,10 +65,10 @@ public:
     boost::scoped_ptr<TF1> m_corrFormula;
 };
 
-class L2Corr : public CorrBase
+class LFileCorr : public CorrBase
 {
-public:
-    L2Corr( TString algoName, vString algoFileMapping )
+public:  
+    void LoadCorrectionFile( TString algoName, vString algoFileMapping )
     {
         bool bFound = false;
         TString sData;
@@ -98,6 +98,17 @@ public:
         vParam.push_back( JetCorrectorParameters(sData.Data()) );
         m_JEC.reset( new FactorizedJetCorrector(vParam) );
     }
+
+    boost::scoped_ptr<FactorizedJetCorrector> m_JEC;
+};
+
+class L2Corr : public LFileCorr
+{
+public:
+    L2Corr( TString algoName, vString algoFileMapping )
+    {
+      LoadCorrectionFile( algoName, algoFileMapping );
+    }
     
     virtual void Correct( EventResult * evRes )
     {
@@ -108,8 +119,39 @@ public:
 	  evRes->m_l2CorrPtJets[i] = m_JEC->getCorrection();
 	}
     }
+};
 
-    boost::scoped_ptr<FactorizedJetCorrector> m_JEC;
+class L3Corr : public LFileCorr
+{
+public:
+    L3Corr( TString algoName, vString algoFileMapping )
+    {
+      LoadCorrectionFile( algoName, algoFileMapping );
+    }
+    
+    virtual void Correct( EventResult * evRes )
+    {
+	bool beforel2;
+	bool beforel3;
+        
+	for ( int i = 0; i < 3; i++ )
+	{
+	  // Important: use l2 corrected jets for input to l3 correct !!!
+	  beforel2 = evRes->m_bUseL2;
+	  beforel3 = evRes->m_bUseL3;
+	  
+	  evRes->m_bUseL2 = true;
+	  evRes->m_bUseL3 = false;
+	  
+	  m_JEC->setJetEta( evRes->m_pData->jets[i]->Eta() );
+	  m_JEC->setJetPt( evRes->GetCorrectedJetPt(i) );
+
+	  evRes->m_l3CorrPtJets[i] = m_JEC->getCorrection();
+	  
+	  evRes->m_bUseL2 = beforel2;
+	  evRes->m_bUseL3 = beforel3;
+	}	
+    }
 };
 
 class CompleteJetCorrector
