@@ -546,7 +546,7 @@ int main(int argc, char **argv) {
         h_mass_z.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_mass_z.setTitleX("M_{Z}[GeV]");
         h_mass_z.setBoardersX(60.0,120.0);
-        h_mass_z.setBoardersY(0.01,74.9);
+        //h_mass_z.setBoardersY(0.01,74.9);
 
         h_mass_z.addLatex(info_x,info_y,the_info_string,true);
         h_mass_z.scaleBoardersY(1,1.3);
@@ -569,10 +569,10 @@ int main(int argc, char **argv) {
         h_eta_mus.setTitleX("#eta^{#mu}");
 
         h_eta_mus.setBoardersX(-2.5,2.5);
-        h_eta_mus.setBoardersY(0.001,379.9);
+        //h_eta_mus.setBoardersY(0.001,379.9);
 
         h_eta_mus.addLatex(info_x,info_y,the_info_string,true);
-        h_eta_mus.scaleBoardersY(1,2);
+        h_eta_mus.scaleBoardersY(1,1.4);
 
         formatHolder(h_eta_mus);
         saveHolder(h_eta_mus,g_img_formats, false, "", "", g_plotEnv);

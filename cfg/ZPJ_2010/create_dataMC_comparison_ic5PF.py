@@ -12,15 +12,18 @@ def multiline_text(line1,line2,line3="",line4=""):
 #-----------------------------------
 
 
+import DataMC_Comparison_Base
+
 process = DataMC_Comparison_Base.GetDataMCBaseConfig()
 
-process.general.algos=["kt6PF"]
-process.general.good_algos=["kt 0.6"]
+process.general.algos=["iterativeCone5PF"]
+process.general.good_algos=["iterativeCone5"]
 
 process.general.info_string= multiline_text(ZPJBase.GetCutsText1(),
 				      ZPJBase.GetCutsText2(),
                                 "__ALGO__ Particle Flow jets",
                                  "__CORR__")
+
 process.update()
 process.dump_cfg()
 

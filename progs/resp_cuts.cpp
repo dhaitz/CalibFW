@@ -1091,7 +1091,7 @@ void processAlgo( std::string sName )
     if ( g_doL2Correction )
         jetCorr.AddCorrection( new L2Corr( TString(sName.c_str()), g_l2CorrFiles));
     if ( g_doL3Correction)
-        jetCorr.AddCorrection( new L2Corr( TString(sName.c_str()), g_l3CorrFiles));
+        jetCorr.AddCorrection( new L3Corr( TString(sName.c_str()), g_l3CorrFiles));
     if ( g_doL3CorrectionFormula)
         jetCorr.AddCorrection( new TF1Corr( g_l3Formula, g_l3FormulaParams) );
 
