@@ -243,18 +243,18 @@ bool IsEventHltAccepted( evtData & evt )
     }
 
     TObjString *theHLTbit = NULL;
-    std::cout << "Checking HLT of Event " << std::endl;
+    //std::cout << "Checking HLT of Event " << std::endl;
 
     for (int i=0; i<nHLTriggers; ++i) {
 	
 	theHLTbit = (TObjString*) evt.HLTriggers_accept->At(i);
 	TString curName = theHLTbit->GetString();
-	std::cout << "HLT " << curName.Data() << " included" << std::endl;
+	//std::cout << "HLT " << curName.Data() << " included" << std::endl;
         
         
         if (hltName == curName)
 	{
-	    std::cout << "!! HLT trigger " << curName.Data() << " matched" << std::endl;
+	    //std::cout << "!! HLT trigger " << curName.Data() << " matched" << std::endl;
             return true;
 	}
     }
