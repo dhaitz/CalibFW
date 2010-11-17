@@ -147,7 +147,9 @@ public:
 	  m_JEC->setJetPt( evRes->GetCorrectedJetPt(i) );
 
 	  evRes->m_l3CorrPtJets[i] = m_JEC->getCorrection();
-	  
+	
+//	std::cout << "l3 factor " << evRes->m_l3CorrPtJets[i]<< std::endl;
+  
 	  evRes->m_bUseL2 = beforel2;
 	  evRes->m_bUseL3 = beforel3;
 	}	
