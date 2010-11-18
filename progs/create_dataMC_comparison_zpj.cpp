@@ -3,7 +3,8 @@
 #include <map>
 #include <assert.h>
 #include <stdlib.h>
-
+#include <fstream>
+#include <iomanip>
 #include "TROOT.h"
 #include "TMinuit.h"
 #include "TString.h"
@@ -231,7 +232,8 @@ void PlotNumberOfEvents( TString algoname, TFile *  ifile )
 //------------------------------------------------------------------------------
 
 int main(int argc, char **argv) {
-
+	TString fileName("Datapoints_");
+	fstream txtfile;
 
     if (argc != 2 and argc !=3) {
         std::cout << "\nUsage:"
@@ -276,6 +278,8 @@ int main(int argc, char **argv) {
     double max_jes=p.getDouble(secname+".max_jes");
     double min_jer=p.getDouble(secname+".min_jer");
     double max_jer=p.getDouble(secname+".max_jer");
+    TString outputtype=p.getString(secname+"outputtype");
+    bool txtout=("outputtype"=="txt");
 
 // 0 = raw
 // 2 = level2
@@ -709,6 +713,12 @@ int main(int argc, char **argv) {
             the_gaus.FixParameter(3,1);
             the_gaus.SetLineStyle(2);
             respo->Fit(&the_gaus,"L");
+            if (txtout){
+	            std::cout << "Gauss: Mean " << the_gaus.GetParameter(0) 
+    	                  << " Sigma " << the_gaus.GetParameter(1) 
+        	              << " Norm " << the_gaus.GetParameter(2) 
+            	          << "\n";
+           	}
             the_gaus.FixParameter(0,the_gaus.GetParameter(0));
             the_gaus.FixParameter(1,the_gaus.GetParameter(1));
             the_gaus.FixParameter(2,the_gaus.GetParameter(2));
@@ -754,10 +764,23 @@ int main(int argc, char **argv) {
 
         // Prepare the response/MC plot for the response
         TGraph repsponse_data(responses_points_all_bins.size());
+        fileName = "Datapoints_ak5Calo.txt";
+        if (txtout) {
+        txtfile.open(fileName, std::ios::out | std::ios::trunc);
+        txtfile << "#Response (default: anti-kt 0.5 Algorithm, CaloJets)"
+                << "\n#  i    x           y\n" << std::fixed;
+        txtfile.precision(6);
+        }                                                                                                                                                
         for (int i=0;i<responses_points_all_bins.size();++i) {
-            // std::cout << "PUNTI DEI DATI " << responses_points_all_bins[i].x << " " << responses_points_all_bins[i].y<<std::endl;
             repsponse_data.SetPoint(i,responses_points_all_bins[i].x,responses_points_all_bins[i].y);
-        }
+            // std::cout << "Punkt " << i << ": " << responses_points_all_bins[i].x << ", " << responses_points_all_bins[i].y << std::endl;
+			if (txtout) {
+	            txtfile << std::setw(4) << i 
+    	                << std::setw(12) << responses_points_all_bins[i].x 
+        	            << std::setw(12) << responses_points_all_bins[i].y 
+            	        << std::endl;
+           	}
+       }
 
         //repsponse_data.SetMarkerSize(0.5);
         repsponse_data.SetName("data");
@@ -1047,7 +1070,7 @@ void getResponses(vdouble& responses,
             // don't use correction, raw
             if ( g_correction_level == 0 )
             {
-                response = ( jet->Pt() ) /Z->Pt();
+                response = ( jet->Pt() ) /Z->Pt();                
             }
 
             responses.push_back(response);
