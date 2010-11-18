@@ -120,6 +120,7 @@ class DataHisto
 double g_lumi=1.0f;
 char lumi_str[100];
 bool g_txtoutput = false;
+TString g_prefix = "Resonse";
 
 // yeah, i don't care either
 int g_correction_level = 0;
@@ -190,13 +191,14 @@ void PlotResponse( std::vector<GraphFormating> & algoForamting,
 	    std::cout << "Plotting " << itAlgoFormat->algoCaption.Data() << std::endl;
 
 	// preparing textfile output
-		fileName = "Response_";
+		if (g_txtoutput) {
+		fileName = g_prefix;
+		std::cout << "FILE "<< itAlgoFormat->algoCaption.Data() << std::endl;
 		fileName += itAlgoFormat->algoCaption.Data();
 		fileName += ".txt";
 		txtfile.open(fileName, std::ios::out | std::ios::trunc);
-		if (g_txtoutput) {
 			txtfile << "#Response " << itAlgoFormat->algoCaption.Data() 
-			        << "\n#  i    x           y           xerr        yerr\n" << std::fixed;
+			        << "\n#  i    x           y           xerr        yerr        y-yerr      y+yerr\n" << std::fixed;
 			txtfile.precision(6);
 		}
 
@@ -227,17 +229,23 @@ void PlotResponse( std::vector<GraphFormating> & algoForamting,
 		  
 		}*/
 		if (g_txtoutput) {
-			txtfile << std::setw(4) << i << std::setw(12) << it->histZPt->m_pHist->GetMean() 
-			        << std::setw(12) << it->histDataResponse->m_pHist->GetMean();
-			txtfile << std::setw(12) << CalcHistoError( it->histZPt->m_pHist, it->inputType, g_lumi ) 
-			        << std::setw(12) << CalcHistoError( it->histDataResponse->m_pHist, it->inputType, g_lumi ) << "\n";
+			txtfile << std::setw(4) << i 
+					<< std::setw(12) << it->histZPt->m_pHist->GetMean() 
+			        << std::setw(12) << it->histDataResponse->m_pHist->GetMean()
+			        << std::setw(12) << CalcHistoError( it->histZPt->m_pHist, it->inputType, g_lumi ) 
+			        << std::setw(12) << CalcHistoError( it->histDataResponse->m_pHist, it->inputType, g_lumi )
+			        << std::setw(12) << it->histDataResponse->m_pHist->GetMean()-CalcHistoError( it->histDataResponse->m_pHist, it->inputType, g_lumi )
+			        << std::setw(12) << it->histDataResponse->m_pHist->GetMean()+CalcHistoError( it->histDataResponse->m_pHist, it->inputType, g_lumi ) 
+			        << std::endl;
 		}
 
 		i++;
 /*		if (( it->size() - i ) <= iCutEntries )
 		  break;*/
 	    }
-	  
+	  	if (g_txtoutput) {
+	  		txtfile.close();
+	  	}
 	    p_dataCalibPoints->SetLineColor(itAlgoFormat->lineColor);
 	    p_dataCalibPoints->SetMarkerColor(itAlgoFormat->markerColor);
     //        p_dataCalibPoints->SetMarkerSize(1.0);
@@ -330,6 +338,7 @@ int main(int argc, char **argv) {
     
     TString info_string = p.getString(secname+".info_string");
     TString sGlobalPrefix = p.getString(secname+".global_prefix");
+    g_prefix = sGlobalPrefix;
     vString algos = p.getvString(secname+".algos");
     vString good_algos = p.getvString(secname+".good_algos");
     vString source_type = p.getvString(secname+".source_type");
@@ -339,9 +348,9 @@ int main(int argc, char **argv) {
     double max_jes=p.getDouble(secname+".max_jes");
     double min_jer=p.getDouble(secname+".min_jer");
     double max_jer=p.getDouble(secname+".max_jer");
-    TString output = p.getString(secname+".output");
-    g_txtoutput = (output == "txt");
-       
+    TString outputtype = p.getString(secname+".outputtype");
+    g_txtoutput = (outputtype == "txt");
+
     /*
     if (p.getString(secname+".input_type") == "mc" )
       g_input_type = McInput;
@@ -419,10 +428,23 @@ int main(int argc, char **argv) {
     algoStyle.push_back( GraphFormating( 8, 8) );	
     algoStyle.push_back( GraphFormating( kOrange, kOrange) );
     algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
+    algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
 	
     Intervals intervals (fill_intervals(pt_bins));    
     for (int ialgo=0;ialgo<algos.size();++ialgo) {
-      
         TString algo(algos[ialgo]);
         TString goodalgo(good_algos[ialgo]);
 	std::cout << "Filling hist for algo " << goodalgo << std::endl;
@@ -441,20 +463,19 @@ int main(int argc, char **argv) {
 	  local_input_type = DataInput;
 	}
 
-	
 	respHistos.push_back( boost::ptr_vector<ResponseSourceHistos>() );
 
 	algoStyle[ialgo].algoCaption = goodalgo;
-	
+
 	// get the response and jet1pt histos from the root file
         for (Intervals::iterator interval=intervals.begin();
                 interval < intervals.end();++interval )
-        {	
+        {
 	    
-	  
+	  	std::cout << "Interval: " << interval->GetMin()<< " to " << interval-> GetMax();
 	    ResponseSourceHistos * pHistos = new ResponseSourceHistos;
 	    pHistos->inputType = local_input_type;
-            TString quantity="jetresp";
+        TString quantity="jetresp";
 	    
 	    TString histName = RootNamer::GetHistoName(algo,
 						      quantity, 
@@ -476,6 +497,7 @@ int main(int argc, char **argv) {
 						local_input_type,
 						g_correction_level,
 						&*interval);
+
 	    respo = (TH1D*) sourceFile->Get( histName );
 	    if ( respo == NULL )
 	      handleError("." , ("Can't load root histogram " + histName).Data() );
