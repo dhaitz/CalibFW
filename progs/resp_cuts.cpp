@@ -1144,9 +1144,9 @@ void processAlgo( std::string sName )
     PrintCutReport( std::cout );
     PrintCutReport( *g_logFile );
 
+    WriteSelectedEvents(sName, sPrefix, g_eventsDataset, g_resFile.get() );
     if (g_doData)
-    {
-        WriteSelectedEvents(sName, sPrefix, g_eventsDataset, g_resFile.get() );
+    {        
         PrintEventsReport(std::cout, true);
         PrintEventsReport(*g_logFile, true);
     }
@@ -1173,9 +1173,9 @@ void processAlgo( std::string sName )
         PrintCutReport( std::cout );
         PrintCutReport( *g_logFile );
 
+	WriteSelectedEvents(sName, sPrefix + "_l2corr", g_eventsDataset, g_resFile.get() );
         if (g_doData)
-        {
-            WriteSelectedEvents(sName, sPrefix + "_l2corr", g_eventsDataset, g_resFile.get() );
+        {            
             PrintEventsReport(std::cout, true);
             PrintEventsReport(*g_logFile, true);
         }
@@ -1203,9 +1203,9 @@ void processAlgo( std::string sName )
         PrintCutReport( std::cout );
         PrintCutReport( *g_logFile );
 
+	WriteSelectedEvents(sName, sPrefix + "_l3corr", g_eventsDataset, g_resFile.get() );
         if (g_doData)
-        {
-            WriteSelectedEvents(sName, sPrefix + "_l3corr", g_eventsDataset, g_resFile.get() );
+        {            
             PrintEventsReport(std::cout, true);
             PrintEventsReport(*g_logFile, true);
         }
