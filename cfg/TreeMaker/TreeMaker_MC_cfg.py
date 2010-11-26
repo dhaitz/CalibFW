@@ -4,6 +4,8 @@ import FWCore.ParameterSet.Config as cms
 import  Zplusjet.ZplusjetTreeMaker.Z_collections_noprecuts_cfi as Zs
 import Zplusjet.ZplusjetTreeMaker.Zplusjet_Base_cff as TreeBaseCfg
 
+defaultGlobalTag = "START38_V12::All"
+useDefaultGlobalTag = 0
 
 # Check if run by grid-control, if not, define some varibles
 try:
@@ -18,7 +20,13 @@ except NameError:
     TreeBaseCfg.GCSKIP_EVENTS__ = 0
     TreeBaseCfg.GCMAX_EVENTS__ = 50
     TreeBaseCfg.GCMY_JOBID__ = "23" 
+    useDefaultGlobalTag = 1
+
 
 # use Path combining RECO and GEN for processing 
 process = TreeBaseCfg.getBaseConfig(Zs.allgoodZToMuMuPath)
 
+if ( useDefaultGlobalTag ):
+    process.GlobalTag.globaltag = defaultGlobalTag
+else:
+    process.GlobalTag.globaltag = "@GLOBALTAG@"
