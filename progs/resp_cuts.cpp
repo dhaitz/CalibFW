@@ -75,6 +75,7 @@ WriteEventsEnum g_writeEventsSetting;
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
 std::string g_sJsonFile("not set");
 std::string g_sOutputPath = "default_zjetres";
+std::string g_sTrackedEventsFile;
 
 boost::scoped_ptr<std::ofstream> g_logFile;
 
@@ -150,7 +151,7 @@ boost::shared_ptr<Json_wrapper>  g_json;
 evtData g_ev;
 TChain * g_pChain;
 
-EventSet g_trackedEvents;
+EventDataVector g_trackedEvents;
 
 //EventSet g_eventsInCut;
 EventVector g_eventsDataset;
@@ -532,9 +533,6 @@ void PrintCutReport( std::ostream & out)
 
 void PrintTrackedEventsReport( bool bShort = false)
 {
-    std::set< EventId >::iterator iterTracked;
-    std::map< EventId, EventResult >::iterator iter;
-
     EventFormater eFormat;
 
     eFormat.Header(std::cout);
@@ -544,38 +542,31 @@ void PrintTrackedEventsReport( bool bShort = false)
     int iOutOfCut = 0;
     int iOutOfDataset = 0;
 
-    for ( iterTracked = g_trackedEvents.begin();
-            iterTracked != g_trackedEvents.end();
-            iterTracked++ )
+    for ( EventVector::iterator iter = g_eventsDataset.begin();
+	  !(iter == g_eventsDataset.end());
+	  iter++ )
     {
-        EventId id = *iterTracked;
-        /*   if ( g_eventsInCut.find( id) !=  g_eventsInCut.end() )
-           {
-             PrintEventById( id );
-             continue;
-           }
-        */
-        /*        if ( g_eventsDataset.find( id) !=  g_eventsDataset.end() )
-                {
-                    if ( !bShort )
-                    {
-                        PrintEventById( id, &eFormat, false );
-                        std::cout << " CutResult: " << g_eventsDataset[id].m_sCutResult << std::endl;
-                    }
-                    if ( g_eventsDataset[id].IsInCut() )
-                        iInCut++;
-                    else
-                        iOutOfCut++;
-
-                    continue;
-                }
-                if ( !bShort )
-                    std::cout << "!!>> not within dataset" << std::endl;
-        */
-        iOutOfDataset++;
+      bool bFound = false;
+      
+      for ( EventDataVector::iterator iterTracked = g_trackedEvents.begin();
+	      !(iterTracked == g_trackedEvents.end());
+	      iterTracked++ )
+      {	
+	{
+	  if ( ( iterTracked->cmsRun ==  iter->m_pData->cmsRun ) 
+	      && ( iterTracked->cmsEventNum ==  iter->m_pData->cmsEventNum ) )
+	  {
+	   if ( iter->IsInCut() ) 
+	     bFound = true;
+	  }
+	}
+      }
+	
+      if ( !bFound )
+      {
+	  std::cout << std::endl << "Event " << iter->m_pData->cmsRun << ":" << iter->m_pData->cmsEventNum << " not in tracked Events List";
+      }
     }
-
-    std::cout << "In Cut: " << iInCut << "  Out of Cut: "<< iOutOfCut << "  Out of Dataset: "<< iOutOfDataset << std::endl;
 }
 
 void PrintEventsReport( std::ostream & out, bool bOnlyInCut )
@@ -1060,33 +1051,34 @@ void DrawHistoSet( TString algoName,
       */
 }
 
-void loadTrackedEventsFromFile()
+void loadTrackedEventsFromFile( std::string fileName)
 {
-    ReadCsv csv( "trackedEvents.txt" );
-    std::vector< std::string> sRunNum = csv.ReadColumn(0);
-    std::vector< std::string> sLumi = csv.ReadColumn(1);
-    std::vector< std::string> sEvtNum = csv.ReadColumn(2);
+    ReadCsv csv( fileName);
+    std::vector< std::string> sRunNum = csv.ReadColumn(2);
+    std::vector< std::string> sEvtNum = csv.ReadColumn(4);
 
     std::vector< std::string>::iterator iterRun;
-    std::vector< std::string>::iterator iterLumi;
+//    std::vector< std::string>::iterator iterLumi;
     std::vector< std::string>::iterator iterEvtNum;
 
     std::cout << g_trackedEvents.size() << std::endl;
 
     iterEvtNum = sEvtNum.begin();
-    iterLumi = sLumi.begin();
+//    iterLumi = sLumi.begin();
 
     for (iterRun = sRunNum.begin();
             iterRun != sRunNum.end();
             iterRun++)
     {
-        EventId evtId(	atoi( (*iterRun).c_str() ),
-                       atoi( (*iterLumi).c_str() ),
-                       atoi( (*iterEvtNum).c_str() ));
-        g_trackedEvents.insert(evtId );
-        std::cout << "Added to tracked Events " << evtId.ToString() << std::endl;
+        evtData * evt = new evtData;
+	
+	evt->cmsRun = atoi( (*iterRun).c_str());
+	evt->cmsEventNum = atoi( (*iterEvtNum).c_str());
+
+	g_trackedEvents.push_back(evt);
+        std::cout << "Added to tracked Events " << std::endl;
         iterEvtNum++;
-        iterLumi++;
+        //iterLumi++;
     }
     std::cout << g_trackedEvents.size() << std::endl;
 }
@@ -1185,6 +1177,10 @@ void processAlgo( std::string sName )
     PrintCutReport( *g_logFile );
 
     WriteSelectedEvents(sName, sPrefix, g_eventsDataset, g_resFile.get() );
+    
+    if ( g_sTrackedEventsFile.length() > 0 )
+      PrintTrackedEventsReport();
+    
     if (g_doData)
     {        
         PrintEventsReport(std::cout, true);
@@ -1214,6 +1210,11 @@ void processAlgo( std::string sName )
         PrintCutReport( *g_logFile );
 
 	WriteSelectedEvents(sName, sPrefix + "_l2corr", g_eventsDataset, g_resFile.get() );
+	
+	if ( g_sTrackedEventsFile.length() > 0 )
+	  PrintTrackedEventsReport();
+
+	
         if (g_doData)
         {            
             PrintEventsReport(std::cout, true);
@@ -1242,8 +1243,12 @@ void processAlgo( std::string sName )
 
         PrintCutReport( std::cout );
         PrintCutReport( *g_logFile );
-
+	
 	WriteSelectedEvents(sName, sPrefix + "_l3corr", g_eventsDataset, g_resFile.get() );
+	
+	if ( g_sTrackedEventsFile.length() > 0 )
+	  PrintTrackedEventsReport();
+	
         if (g_doData)
         {            
             PrintEventsReport(std::cout, true);
@@ -1414,6 +1419,10 @@ int main(int argc, char** argv)
             (*g_logFile) << c;
     }
     cfgfile.close();
+    
+    g_sTrackedEventsFile = p.getString(secname + ".tracked_events");
+    if ( g_sTrackedEventsFile.length() > 0)
+      loadTrackedEventsFromFile( g_sTrackedEventsFile );
 
     if (g_doData) {
         g_sJsonFile = p.getString(secname + ".json_file");
