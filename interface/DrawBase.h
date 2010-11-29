@@ -45,11 +45,11 @@ public:
     virtual void Draw( TH1D * pHist, TData data ) = 0;
 };
 
-
-class CHistEvtMapBase : public  CHistDataDrawBase<  EventVector & >
+template < class THistType >
+class CHistEvtMapTemplate : public  CHistDataDrawBase<  EventVector & >
 {
 public:
-    CHistEvtMapBase()
+    CHistEvtMapTemplate()
     {
         m_bOnlyEventsInCut = true;
         m_bUsePtCut = true;
@@ -58,7 +58,7 @@ public:
 
     enum BinWithEnum { ZPtBinning, Jet1PtBinning };
 
-    void HistFill( TH1D * pHist,
+    virtual void HistFill( THistType * pHist,
                    double fillValue,
                    EventResult & Res )
     {
@@ -109,6 +109,23 @@ public:
     double m_dHighPtCut;
 };
 
+class CHistEvtMapBase : public  CHistEvtMapTemplate < TH1D >
+{
+  
+};
+
+class CHistEvtMapInt : public  CHistEvtMapTemplate < TH1I >
+{
+public:
+    virtual void HistFill( TH1I * pHist,
+                   int fillValue,
+                   EventResult & Res )
+    {
+        pHist->Fill( fillValue, Res.m_weight);
+    }
+};
+
+
 class CHistEvtDataZMass : public  CHistEvtMapBase
 {
 public:
@@ -142,6 +159,35 @@ public:
     }
 };
 
+class CHistEvtDataMet : public  CHistEvtMapBase
+{
+public:
+    virtual void Draw( TH1D * pHist, EventVector & data )
+    {
+        EventVector::iterator it;
+
+        for ( it = data.begin(); !(it == data.end()); ++it)
+        {
+            if (IsInSelection(it))
+                HistFill( pHist, it->m_pData->met->Energy(), (*it));
+        }
+    }
+};
+
+class CHistEvtDataTcMet : public  CHistEvtMapBase
+{
+public:
+    virtual void Draw( TH1D * pHist, EventVector & data )
+    {
+        EventVector::iterator it;
+
+        for ( it = data.begin(); !(it == data.end()); ++it)
+        {
+            if (IsInSelection(it))
+                HistFill( pHist, it->m_pData->tcmet->Pt(), (*it));
+        }
+    }
+};
 class CHistEvtDataZPtCutEff : public  CHistEvtMapBase
 {
 public:
@@ -495,6 +541,42 @@ public:
             if (IsInSelection(it))
                 HistFill( pHist, it->GetCorrectedJetPt(0) / it->m_pData->Z->Pt()
                           , (*it));
+        }
+    }
+};
+
+class CHistEvtDataMetJetResponse : public CHistEvtMapBase
+{
+public:
+    virtual void Draw( TH1D * pHist, EventVector & data )
+    {
+        EventVector::iterator it;
+
+        for ( it = data.begin();  !(it == data.end()); ++it)
+        {
+/*            if (IsInSelection(it))
+                HistFill( pHist,1.0 + ( (- it->m_pData->met->Energy()
+		
+		it->GetCorrectedJetPt(0) / it->m_pData->Z->Pt()
+                          , (*it));*/
+        }
+    }
+};
+
+class CHistEvtDataRecoVertices : public CHistEvtMapBase
+{
+public:
+    virtual void Draw( TH1D * pHist, EventVector & data )
+    {
+        EventVector::iterator it;
+
+        for ( it = data.begin();  !(it == data.end()); ++it)
+        {
+            if (IsInSelection(it))
+	    {
+		//std::cout << it->GetRecoVerticesCount() << std::endl;
+                HistFill( pHist, (double) it->GetRecoVerticesCount(), (*it));
+	    }
         }
     }
 };

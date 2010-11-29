@@ -12,9 +12,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/scoped_ptr.hpp>
 
-
 #include "RootIncludes.h"
-
 #include "PtBinWeighter.h"
 
 #define SAFE_DELETE( first ) {  if ( first != NULL ) { delete first; } }
@@ -29,8 +27,15 @@ public:
     TParticle *Z,*mu_minus,*mu_plus;
 
     TParticle *jets[3];
+    TParticle *met, *tcmet;
     
     TClonesArray * HLTriggers_accept;
+
+    TClonesArray * recoVertices;
+    TClonesArray * recoVerticesInfo;
+    TClonesArray * recoVerticesError;
+    
+    TVector3 * beamSpot;
 
     Double_t xsection;
     Double_t weight;
@@ -41,8 +46,9 @@ public:
 
       evtData()
       {
-	Z =  mu_minus = mu_plus = jets[0] = jets[1] =jets[2] = NULL;
-	HLTriggers_accept = NULL;
+	Z =  mu_minus = mu_plus = jets[0] = jets[1] =jets[2] = met = tcmet = NULL;
+	HLTriggers_accept = recoVertices = recoVerticesInfo = recoVerticesError = NULL;
+	beamSpot = NULL;
       }
 
       ~evtData()
@@ -53,7 +59,12 @@ public:
 	SAFE_DELETE ( jets[0] )
 	SAFE_DELETE ( jets[1] )
 	SAFE_DELETE ( jets[2] )
-	SAFE_DELETE ( HLTriggers_accept )
+	SAFE_DELETE ( met )
+	SAFE_DELETE ( tcmet )
+	SAFE_DELETE ( recoVertices )
+	SAFE_DELETE ( recoVerticesInfo )
+	SAFE_DELETE ( recoVerticesError )
+	SAFE_DELETE ( beamSpot )	
       }
 
     // true if the event is within cuts
@@ -64,6 +75,8 @@ public:
         ev->Z = new TParticle( *this->Z);
         ev->mu_minus = new TParticle( *this->mu_minus );
         ev->mu_plus= new TParticle( *this->mu_plus );
+	ev->met = new TParticle( *this->met );
+	ev->tcmet = new TParticle( *this->tcmet );
 
         for (int i = 0; i < 3; ++i)
         {
@@ -71,7 +84,13 @@ public:
         }
         
         ev->HLTriggers_accept= new TClonesArray( *this->HLTriggers_accept);
+	ev->recoVertices= new TClonesArray( *this->recoVertices);
+	ev->recoVerticesInfo= new TClonesArray( *this->recoVerticesInfo);
+	ev->recoVerticesError= new TClonesArray( *this->recoVerticesError);
+	
+	ev->beamSpot= new TVector3( *this->beamSpot);
 
+	
         ev->cmsEventNum = this->cmsEventNum;
         ev->cmsRun = this->cmsRun;
         ev->luminosityBlock = this->luminosityBlock;
@@ -234,7 +253,13 @@ public:
     {
        return this->GetCorrectedJetPt(0) / this->m_pData->Z->Pt(); 
     }
-    
+
+    int GetRecoVerticesCount()
+    {
+       return this->m_pData->recoVertices->GetEntries();
+    }
+
+
     bool IsInCut()
     {
         return (this->m_cutResult == InCut);

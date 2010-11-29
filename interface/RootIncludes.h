@@ -18,6 +18,7 @@
 #include "TF1.h"
 #include "TClonesArray.h"
 #include "TObjString.h"
+#include "TVector3.h"
 
 #endif
 
