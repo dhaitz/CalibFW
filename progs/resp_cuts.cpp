@@ -53,7 +53,6 @@ bool g_useEventWeight = false;
 // check if an event has certain hltrigger
 bool g_useHLT = false;
 
-
 // if true, all plots are done one time without cuts applied
 bool g_plotNoCuts = false;
 bool g_plotCutEff = false;
@@ -395,7 +394,10 @@ TChain * getChain( TString sName, evtData * pEv, std::string sRootfiles)
     pEv->jets[2]=new TParticle();
     pEv->mu_minus=new TParticle();
     pEv->mu_plus=new TParticle();
-
+    
+    pEv->met=new TParticle();
+    pEv->tcmet=new TParticle();
+    
     pEv->HLTriggers_accept = new TClonesArray("TObjString");
 
     int addedfiles = 0;
@@ -429,16 +431,26 @@ TChain * getChain( TString sName, evtData * pEv, std::string sRootfiles)
     mychain->SetBranchAddress("jet3",&pEv->jets[2]);
     mychain->SetBranchAddress("mu_plus",&pEv->mu_plus);
     mychain->SetBranchAddress("mu_minus",&pEv->mu_minus);
+    
+    mychain->SetBranchAddress("met",&pEv->met);
+    mychain->SetBranchAddress("tcmet",&pEv->tcmet);
 
     // Triggers
     mychain->SetBranchAddress("HLTriggers_accept",&pEv->HLTriggers_accept);
 
+    // Vertex Info
+    mychain->SetBranchAddress("recoVertices",&pEv->recoVertices);
+    mychain->SetBranchAddress("recoVerticesInfo",&pEv->recoVerticesInfo);
+    mychain->SetBranchAddress("recoVerticesError",&pEv->recoVerticesError);
+    
     // scalars
     mychain->SetBranchAddress("cmsEventNum",&pEv->cmsEventNum);
     mychain->SetBranchAddress("cmsRun",&pEv->cmsRun);
     mychain->SetBranchAddress("luminosityBlock",&pEv->luminosityBlock);
     mychain->SetBranchAddress("xsection",&pEv->xsection);
     mychain->SetBranchAddress("weight",&pEv->weight);
+    
+    mychain->SetBranchAddress("beamSpot",&pEv->beamSpot);
 
     return mychain;
 }
@@ -767,7 +779,26 @@ void DrawHistoSet( TString algoName,
     ModEvtDraw( &zPtdraw, useCutParameter, bPtCut, ptLow, ptHigh );
     zPt.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );
 
+  
+    // MET
+    CHistDrawBase met( "met_" + algoName + sPostfix,
+                       pFileOut);    
+    CHistEvtDataMet metdraw;
+    met.AddModifier(new CModBinRange(0.0, 300.0));
 
+    ModEvtDraw( &metdraw, useCutParameter, bPtCut, ptLow, ptHigh );
+    met.Execute < EventVector & > ( g_eventsDataset, &metdraw );
+
+    // tcMET
+    CHistDrawBase tcmet( "tcmet_" + algoName + sPostfix,
+                       pFileOut);    
+    CHistEvtDataTcMet tcmetdraw;
+    tcmet.AddModifier(new CModBinRange(0.0, 300.0));
+
+    ModEvtDraw( &tcmetdraw, useCutParameter, bPtCut, ptLow, ptHigh );
+    tcmet.Execute < EventVector & > ( g_eventsDataset, &metdraw );
+
+    
     if ( !bPtCut )
     {
         CHistDrawBase zPtEff( "zPt_CutEff" + algoName + sPostfix,
@@ -967,6 +998,15 @@ void DrawHistoSet( TString algoName,
     ModEvtDraw( &jetresp_draw, useCutParameter, bPtCut, ptLow, ptHigh );
     jetresp.Execute <  EventVector & > ( g_eventsDataset, &jetresp_draw );
 
+    CHistDrawBase recovert( "recovertices_" + algoName+ sPostfix,
+                           pFileOut);
+    recovert.AddModifier(new CModBinRange(-0.5, 14.5));
+
+    CHistEvtDataRecoVertices recovert_draw;
+    ModEvtDraw( &recovert_draw, useCutParameter, bPtCut, ptLow, ptHigh );
+    recovert.AddModifier(new CModBinCount(15));
+    recovert.Execute <  EventVector & > ( g_eventsDataset, &recovert_draw );
+    
     if ( g_plotCutEff )
     {
         CGrapErrorDrawBase < EventVector &,
