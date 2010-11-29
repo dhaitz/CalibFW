@@ -316,5 +316,6 @@ struct CompareEventResult : std::binary_function<EventResult,EventResult,bool> {
 
 typedef std::set<EventId> EventSet;
 typedef boost::ptr_vector<EventResult> EventVector;
+typedef boost::ptr_vector<evtData> EventDataVector;
 
 #endif
