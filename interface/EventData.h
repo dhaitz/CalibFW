@@ -83,12 +83,13 @@ public:
             ev->jets[i]= new TParticle( *this->jets[i]);
         }
         
-        ev->HLTriggers_accept= new TClonesArray( *this->HLTriggers_accept);
-	ev->recoVertices= new TClonesArray( *this->recoVertices);
-	ev->recoVerticesInfo= new TClonesArray( *this->recoVerticesInfo);
-	ev->recoVerticesError= new TClonesArray( *this->recoVerticesError);
+        this->HLTriggers_accept != NULL? ev->HLTriggers_accept= new TClonesArray( *this->HLTriggers_accept) : ev->HLTriggers_accept = NULL;
+		
+	this->recoVertices != NULL? ev->recoVertices= new TClonesArray( *this->recoVertices) : this->recoVertices = NULL;
+	this->recoVerticesInfo != NULL ? ev->recoVerticesInfo= new TClonesArray( *this->recoVerticesInfo): this->recoVerticesInfo = NULL;
+	this->recoVerticesError != NULL ? ev->recoVerticesError= new TClonesArray( *this->recoVerticesError) : this->recoVerticesError = NULL;
 	
-	ev->beamSpot= new TVector3( *this->beamSpot);
+	this->beamSpot != NULL ? ev->beamSpot= new TVector3( *this->beamSpot) : this->beamSpot = NULL;
 
 	
         ev->cmsEventNum = this->cmsEventNum;
@@ -256,7 +257,11 @@ public:
 
     int GetRecoVerticesCount()
     {
-       return this->m_pData->recoVertices->GetEntries();
+       int val = 0;
+	if(this->m_pData->recoVertices != NULL)
+	  val =  this->m_pData->recoVertices->GetEntries();
+
+	return val;
     }
 
 
