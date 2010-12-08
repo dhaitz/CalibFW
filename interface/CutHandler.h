@@ -13,8 +13,6 @@
 
 const double g_kZmass = 91.19;
 
-const double g_kCutZmassWindow = 20.0; // +/-
-const double g_kCutMuPt = 15.0; // Mu.Pt() > 15 !
 const double g_kCutZPt = 15.0; // Z.Pt() > 15 !
 const double g_kCutMuEta = 2.3;
 const double g_kCutLeadingJetEta = 1.3;
@@ -57,15 +55,21 @@ public:
 class MuonPtCut : public EventCutBase< EventResult * >
 {
 public:
+  MuonPtCut ( double fMinMuonPt ) 
+    : m_fMinMuonPt( fMinMuonPt )
+  {    
+  }  
+  
   bool IsInCut ( EventResult * pEv )
   {
-     return ( (  pEv->m_pData->mu_plus->Pt() > g_kCutMuPt ) && ( pEv->m_pData->mu_minus->Pt() > g_kCutMuPt ) );
+     return ( (  pEv->m_pData->mu_plus->Pt() > m_fMinMuonPt ) && ( pEv->m_pData->mu_minus->Pt() > m_fMinMuonPt ) );
   }
   
   unsigned long GetId() { return MuonPtCut::CudId; }  
   std::string GetCutName() { return "2) muon pt cut";  }
   std::string GetCutShortName() { return "MuonPt"; }
   static const long CudId = 2;
+  double m_fMinMuonPt;
 };
 
 class MuonEtaCut : public EventCutBase< EventResult * >
@@ -100,8 +104,7 @@ class SecondLeadingToZPtCut : public EventCutBase< EventResult * >
 {
 public:
   SecondLeadingToZPtCut ( double f2ndJetRatio ) : m_f2ndJetRatio( f2ndJetRatio )
-  {
-    
+  {    
   }
   
   bool IsInCut ( EventResult * pEv )
@@ -139,15 +142,21 @@ public:
 class ZMassWindowCut : public EventCutBase< EventResult * >
 {
 public:
+  ZMassWindowCut ( double fWindowSize ) : m_fWindowSize( fWindowSize )
+  {
+     
+  }
+  
   bool IsInCut ( EventResult * pEv )
   {
-     return (TMath::Abs(pEv->m_pData->Z->GetCalcMass() - g_kZmass ) < g_kCutZmassWindow );
+     return (TMath::Abs(pEv->m_pData->Z->GetCalcMass() - g_kZmass ) < m_fWindowSize );
   }
   
   unsigned long GetId() { return ZMassWindowCut::CudId; }  
   std::string GetCutName() { return "7) z mass window";  }
   std::string GetCutShortName() { return "ZMassWindow"; }
   static const long CudId = 64;
+  double m_fWindowSize;
 };
 
 class ZPtCut : public EventCutBase< EventResult * >

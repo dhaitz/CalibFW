@@ -681,7 +681,7 @@ const double g_kCutBackToBack = 0.2; // 2nd leading jet to Z pt
 */
 
     //TBranch * br = new TBranch(
-    TH1D* hCutZmassWindow = new TH1D("cut_" +  algoName + "_CutZmassWindow",
+/*    TH1D* hCutZmassWindow = new TH1D("cut_" +  algoName + "_CutZmassWindow",
                                      "cut_" +  algoName + "_CutZmassWindow",
                                      1, g_kCutZmassWindow, g_kCutZmassWindow);
     hCutZmassWindow->Fill( g_kCutZmassWindow );
@@ -708,12 +708,12 @@ const double g_kCutBackToBack = 0.2; // 2nd leading jet to Z pt
                                      "cut_" +  algoName + "_Cut2ndJetToZPt",
                                      1, f2ndJet, f2ndJet);
     hCut2ndJetToZPt->Fill( f2ndJet);
-/*
+
     TH1D* hCutBackToBack = new TH1D("cut_" +  algoName + "_CutBackToBack",
                                     "cut_" +  algoName + "_CutBackToBack",
                                     1, g_kCutBackToBack, g_kCutBackToBack);
     hCutBackToBack->Fill( g_kCutBackToBack );
-*/
+
     double fZPt = (( ZPtCut *) g_cutHandler.GetById( 128 ))->m_fMinZPt;
     TH1D* hZPtCut = new TH1D("cut_" +  algoName + "_ZPt",
                                      "cut_" +  algoName + "_ZPt",
@@ -729,7 +729,7 @@ const double g_kCutBackToBack = 0.2; // 2nd leading jet to Z pt
     hCut2ndJetToZPt->Write(  );
     //hCutBackToBack->Write(  );
     hZPtCut->Write(  );
-
+*/
 }
 
 void DrawJetResponsePlots( TString algoName,
@@ -737,6 +737,84 @@ void DrawJetResponsePlots( TString algoName,
 {
     // todo here
 }
+
+void Draw2ndLevelHistoSet( TString algoName,
+                   TString sPostfix,
+                   TFile * pFileOut,
+                   bool useCutParameter,
+                   bool bPtCut,
+                   double ptLow = 0.0,
+                   double ptHigh = 0.0)
+{
+    // Jet Resp
+    TString plotName = "jetresp_graph_" + algoName + sPostfix;
+    TString plotNameJetPt = "jetresp_jetpt_graph_" + algoName + sPostfix;
+    
+    TGraphErrors * resp_h = new TGraphErrors(g_newPtBins.size());
+    resp_h->SetName(  plotName );
+    resp_h->SetMarkerStyle(kFullDotMedium);
+	
+    TGraphErrors * resp_hJetPt = new TGraphErrors(g_newPtBins.size());
+    resp_hJetPt->SetName( plotNameJetPt );
+    resp_hJetPt->SetMarkerStyle(kFullDotMedium);
+    
+    double binArray[99];
+    int i = 1;
+    
+    binArray[0] = 0.0f;
+    BOOST_FOREACH( PtBin & bin, g_newPtBins )
+    {
+      binArray[i] = bin.GetMax();
+      i++;
+    }
+    
+    TH1D * resp_hist = new TH1D(  plotName + "_hist",
+                                  plotName + "_hist",
+                                  g_newPtBins.size(), &binArray[0]);
+    
+    i = 0;
+    BOOST_FOREACH( PtBin & bin, g_newPtBins )
+    {
+        std::stringstream newTags (stringstream::in| stringstream::out);
+        newTags << sPostfix << std::setprecision(0) << std::fixed << "_Pt" << bin.m_fLowestPt << "to" << bin.m_fHighestPt;
+	
+	TString sout = "jetresp_" + algoName+ newTags.str().c_str() + "_hist";
+	TString sZPt = "zPt_" + algoName+ newTags.str().c_str() + "_hist";
+	TString sJetPt = "jet1_pt_" + algoName+ newTags.str().c_str() + "_hist";
+	std::cout << "using " << sout.Data() << std::endl;
+	
+	TH1D * pRespHist = (TH1D *)g_resFile->Get( sout );
+	TH1D * pZPtHist = (TH1D *)g_resFile->Get( sZPt );
+	TH1D * pJetPtHist = (TH1D *)g_resFile->Get( sJetPt );
+	
+	resp_h->SetPoint( i, 
+			  pZPtHist->GetMean(), 
+			  pRespHist->GetMean() );
+	resp_h->SetPointError( i, 
+			      pZPtHist->GetMeanError(), 
+			      pRespHist->GetMeanError() );
+	
+	
+	resp_hJetPt->SetPoint( i, 
+			      pJetPtHist->GetMean(), 
+			      pRespHist->GetMean() );
+	resp_hJetPt->SetPointError( i, 
+			      pJetPtHist->GetMeanError(), 
+			      pRespHist->GetMeanError() );	
+	
+	// resize bin
+	resp_hist->SetBinContent( i + 1, pRespHist->GetMean() );
+	resp_hist->SetBinError( i + 1, pRespHist->GetMeanError() );
+	
+	i++;
+    }
+	
+    g_resFile->cd();
+    resp_h->Write( plotName + "_graph" );
+    resp_hJetPt->Write( plotNameJetPt + "_graph" );
+    resp_hist->Write( plotName + "_hist" );
+}
+
 
 
 void DrawHistoSet( TString algoName,
@@ -752,8 +830,8 @@ void DrawHistoSet( TString algoName,
 
     // ZMass with cut/
     ModifierList modList;
-    modList.push_back( new CModHorizontalLine( g_kZmass - g_kCutZmassWindow ));
-    modList.push_back( new CModHorizontalLine( g_kZmass + g_kCutZmassWindow));
+//    modList.push_back( new CModHorizontalLine( g_kZmass - g_kCutZmassWindow ));
+//    modList.push_back( new CModHorizontalLine( g_kZmass + g_kCutZmassWindow));
     modList.push_back( new CModTdrStyle());
 
     CHistDrawBase zmass( "zmass_" + algoName + sPostfix,
@@ -825,7 +903,6 @@ void DrawHistoSet( TString algoName,
 
     // mu plus pt with cut
     modList.clear();
-    modList.push_back( new CModHorizontalLine( g_kCutMuPt ));
 
     CHistDrawBase muplus_pt( "muplus_pt_" + algoName+ sPostfix,
                              pFileOut,	 modList);
@@ -836,7 +913,6 @@ void DrawHistoSet( TString algoName,
 
     // mu minus pt with cut
     modList.clear();
-    modList.push_back( new CModHorizontalLine( g_kCutMuPt ));
 
     CHistDrawBase muminus_pt( "muminus_pt_" + algoName+ sPostfix,
                               pFileOut,	 modList);
@@ -887,7 +963,6 @@ void DrawHistoSet( TString algoName,
 
     // mu all pt
     modList.clear();
-    modList.push_back( new CModHorizontalLine( g_kCutMuPt ));
 
     CHistDrawBase muall_pt( "mus_pt_" + algoName+ sPostfix,
                             pFileOut,	 modList);
@@ -1118,6 +1193,9 @@ void drawHistoBins( std::string sName,
     // cut / nocut without bins...
     std::stringstream newTags (stringstream::in| stringstream::out);
     DrawHistoSet( sName,tags, pFileOut, bUseCut, false );
+    
+    // Draw Histos which use other histos as input
+    Draw2ndLevelHistoSet( sName,tags, pFileOut, bUseCut, false );
 
 }
 
@@ -1453,12 +1531,12 @@ int main(int argc, char** argv)
 
     // init cuts
     g_cutHandler.AddCut( new JsonCut( g_json));
-    g_cutHandler.AddCut( new MuonPtCut());
+    g_cutHandler.AddCut( new MuonPtCut(p.getDouble( secname + ".cut_muonpt")));
     g_cutHandler.AddCut( new MuonEtaCut());
     g_cutHandler.AddCut( new LeadingJetEtaCut());
     g_cutHandler.AddCut( new SecondLeadingToZPtCut( p.getDouble( secname + ".cut_2jet" )));
     g_cutHandler.AddCut( new BackToBackCut(p.getDouble( secname + ".cut_backness" )));
-    g_cutHandler.AddCut( new ZMassWindowCut());
+    g_cutHandler.AddCut( new ZMassWindowCut(p.getDouble( secname + ".cut_zmass")));
     g_cutHandler.AddCut( new ZPtCut(p.getDouble( secname + ".cut_zpt" )));
     g_cutHandler.AddCut( new JetPtCut(p.getDouble( secname + ".cut_jetpt")));
 
