@@ -316,7 +316,13 @@ void importEvents( bool bUseJson,
             // either keep it or kick it
             //if ( res->IsInCut() || ( ! bDiscardOutOfCutEvents ))
             //{
+
+		// HACK
             calcJetEnergyCorrection(res, correction);
+	    if ( res->GetCorrectedJetPt(1) < 5.0  )
+ 		res->m_pData->jets[1]->SetMomentum(0.0,0.0,0.0,0.0);
+            if ( res->GetCorrectedJetPt(2) < 5.0  )
+                res->m_pData->jets[2]->SetMomentum(0.0,0.0,0.0,0.0);
 
             g_cutHandler.SetEnableCut( JsonCut::CudId, bUseJson );
             g_cutHandler.ApplyCuts( res );
@@ -702,12 +708,12 @@ const double g_kCutBackToBack = 0.2; // 2nd leading jet to Z pt
                                      "cut_" +  algoName + "_Cut2ndJetToZPt",
                                      1, f2ndJet, f2ndJet);
     hCut2ndJetToZPt->Fill( f2ndJet);
-
+/*
     TH1D* hCutBackToBack = new TH1D("cut_" +  algoName + "_CutBackToBack",
                                     "cut_" +  algoName + "_CutBackToBack",
                                     1, g_kCutBackToBack, g_kCutBackToBack);
     hCutBackToBack->Fill( g_kCutBackToBack );
-
+*/
     double fZPt = (( ZPtCut *) g_cutHandler.GetById( 128 ))->m_fMinZPt;
     TH1D* hZPtCut = new TH1D("cut_" +  algoName + "_ZPt",
                                      "cut_" +  algoName + "_ZPt",
@@ -721,7 +727,7 @@ const double g_kCutBackToBack = 0.2; // 2nd leading jet to Z pt
     hCutMuEta->Write(  );
     hCutLeadingJetEta->Write(  );
     hCut2ndJetToZPt->Write(  );
-    hCutBackToBack->Write(  );
+    //hCutBackToBack->Write(  );
     hZPtCut->Write(  );
 
 }
@@ -970,7 +976,7 @@ void DrawHistoSet( TString algoName,
 
 
     // back to back
-    CHistDrawBase back2back( "back2back_" + algoName+ sPostfix,
+  /*  CHistDrawBase back2back( "back2back_" + algoName+ sPostfix,
                              pFileOut,
                              CHistEtaMod::DefaultModifiers());
     back2back.AddModifier(new CModHorizontalLine( g_kCutBackToBack));
@@ -979,7 +985,7 @@ void DrawHistoSet( TString algoName,
     CHistEvtDataBack2Back back2back_draw;
     ModEvtDraw( &back2back_draw, useCutParameter, bPtCut, ptLow, ptHigh );
     back2back.Execute <  EventVector & > ( g_eventsDataset, &back2back_draw );
-
+*/
     // Jet Response binned as z.pt()
     CHistDrawBase jetresp( "jetresp_" + algoName+ sPostfix,
                            pFileOut);
@@ -1451,9 +1457,10 @@ int main(int argc, char** argv)
     g_cutHandler.AddCut( new MuonEtaCut());
     g_cutHandler.AddCut( new LeadingJetEtaCut());
     g_cutHandler.AddCut( new SecondLeadingToZPtCut( p.getDouble( secname + ".cut_2jet" )));
-    g_cutHandler.AddCut( new BackToBackCut());
+    g_cutHandler.AddCut( new BackToBackCut(p.getDouble( secname + ".cut_backness" )));
     g_cutHandler.AddCut( new ZMassWindowCut());
     g_cutHandler.AddCut( new ZPtCut(p.getDouble( secname + ".cut_zpt" )));
+    g_cutHandler.AddCut( new JetPtCut(p.getDouble( secname + ".cut_jetpt")));
 
     resp_cuts(myAlgoList, g_sOutputPath + ".root");
 

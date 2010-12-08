@@ -18,8 +18,6 @@ const double g_kCutMuPt = 15.0; // Mu.Pt() > 15 !
 const double g_kCutZPt = 15.0; // Z.Pt() > 15 !
 const double g_kCutMuEta = 2.3;
 const double g_kCutLeadingJetEta = 1.3;
-const double g_kCutBackToBack = 0.2; // 2nd leading jet to Z pt
-
 
 template < class TEvent > 
 class EventCutBase
@@ -120,15 +118,21 @@ public:
 
 class BackToBackCut : public EventCutBase< EventResult * >
 {
-public:
+public: 
+  BackToBackCut ( double fBackness ) : m_fBackness( fBackness )
+  {
+     
+  }
+
   bool IsInCut ( EventResult * pEv )
   {
-     return (TMath::Abs( TMath::Abs(pEv->m_pData->jets[0]->Phi() - pEv->m_pData->Z->Phi()) - TMath::Pi()) < g_kCutBackToBack);
+     return (TMath::Abs( TMath::Abs(pEv->m_pData->jets[0]->Phi() - pEv->m_pData->Z->Phi()) - TMath::Pi()) < m_fBackness);
   }
   
   unsigned long GetId() { return BackToBackCut::CudId; }  
   std::string GetCutName() { return "6) back to back/jet to z";  }
   std::string GetCutShortName() { return "BackToBack"; }
+  double m_fBackness;
   static const long CudId = 32;
 };
 
@@ -165,6 +169,27 @@ public:
   static const long CudId = 128;
   double m_fMinZPt;
 };
+
+class JetPtCut : public EventCutBase< EventResult * >
+{
+public:
+  JetPtCut ( double fMinJetPt ) : m_fMinJetPt ( fMinJetPt )
+  {
+  }
+
+  bool IsInCut ( EventResult * pEv )
+  {
+     return ( pEv->GetCorrectedJetPt(0) > m_fMinJetPt );
+  }
+
+  unsigned long GetId() { return MuonPtCut::CudId; }
+  std::string GetCutName() { return "10) jet pt cut";  }
+  std::string GetCutShortName() { return "JetPt"; }
+  double m_fMinJetPt;
+
+  static const long CudId = 256;
+};
+
 
 class CutHandler{
   
