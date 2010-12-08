@@ -44,6 +44,8 @@ def getBaseConfig():
   
   process.general.cut_zpt = 15.0
   process.general.cut_2jet = 0.2
+  process.general.cut_jetpt = 5.0
+  process.general.cut_backness = 0.34
   
   return process
 
