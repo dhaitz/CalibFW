@@ -24,8 +24,8 @@ double ScalarProductTParticle( TParticle * p1, TParticle * p2 )
 {
  return p1->Energy() * p2->Energy() - 
 	p1->Px()*p2->Px() - 
-	p1->Py()*p2->Py() - 
-	p1->Pz()*p2->Pz(); 
+	p1->Py()*p2->Py() -
+ 	p1->Pz()*p2->Pz(); 
 }
 
 #endif
