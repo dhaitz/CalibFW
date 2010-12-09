@@ -1142,10 +1142,11 @@ void DrawHistoSet( TString algoName,
     // RECO VERT
     CHistDrawBase recovert( "recovertices_" + algoName+ sPostfix,
                            pFileOut);
-    recovert.AddModifier(new CModBinRange(-0.5, 14.5));
+    recovert.AddModifier(new CModBinRange(0.0, 15));
+    recovert.AddModifier(new CModBinCount(15));
+    
     CHistEvtDataRecoVertices recovert_draw;
     ModEvtDraw( &recovert_draw, useCutParameter, bPtCut, ptLow, ptHigh );
-    recovert.AddModifier(new CModBinCount(15));
     recovert.Execute <  EventVector & > ( g_eventsDataset, &recovert_draw );
     
     if ( g_plotCutEff )
@@ -1179,6 +1180,15 @@ void DrawHistoSet( TString algoName,
                     ZptEff_draw.m_tdraw.m_cutBitmask = curId;
                     ZptEff_draw.Execute( g_eventsDataset,
                                          PassAllEventSelector( ));
+		    
+		    CGrapErrorDrawBase < EventVector &,
+                    CGraphDrawRecoVertCutEff<PassAllEventSelector> ,
+                    PassAllEventSelector >  RecoEff_draw(
+                        "CutEffOverRecoVert_" + algoName+ sPostfix + "_" + currCut->GetCutShortName(),
+                        pFileOut);
+                    RecoEff_draw.m_tdraw.m_cutBitmask = curId;
+                    RecoEff_draw.Execute( g_eventsDataset,
+                                         PassAllEventSelector( ));
                 }
             }
 
@@ -1188,6 +1198,13 @@ void DrawHistoSet( TString algoName,
                 "CutEffOverZPt_" + algoName+ sPostfix+ "_overall"  , pFileOut);
 
             ZptEff_draw.Execute( g_eventsDataset, PassAllEventSelector());
+	    
+	    CGrapErrorDrawBase < EventVector &,
+            CGraphDrawRecoVertCutEff<PassAllEventSelector> ,
+            PassAllEventSelector >  RecoEff_draw(
+                "CutEffOverRecoVert_" + algoName+ sPostfix+ "_overall"  , pFileOut);
+
+            RecoEff_draw.Execute( g_eventsDataset, PassAllEventSelector());
         }
     }
     /*

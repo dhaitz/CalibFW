@@ -426,7 +426,6 @@ public:
     {
         EventVector::iterator it;
 
-        double ptVal;
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
             if (IsInSelection(it)&& (  it->m_pData->jets[m_iJetNum]->P() > 0.01f ))
@@ -577,7 +576,7 @@ public:
             if (IsInSelection(it))
 	    {
 		//std::cout << it->GetRecoVerticesCount() << std::endl;
-                HistFill( pHist, (double) it->GetRecoVerticesCount(), (*it));
+                HistFill( pHist, (double) it->GetRecoVerticesCount() + 0.1f, (*it));
 	    }
         }
     }
@@ -887,6 +886,85 @@ public:
     unsigned long m_cutBitmask;
 };
 
+
+
+template < class TDataExtractor >
+class CGraphDrawRecoVertCutEff
+{
+public:
+    CGraphDrawRecoVertCutEff()
+    {	
+        m_iRecoNum = 10;
+	m_cutBitmask = 0;
+    }
+
+    unsigned int GetPointCount( EventVector & data )
+    {
+        return (unsigned int)m_iRecoNum;
+    }
+
+    class LocalBin
+    {
+    public:
+        LocalBin() : m_iRejectedEvents(0), m_iAllEvents(0)
+        {
+
+        }
+        int m_iRejectedEvents;
+        int m_iAllEvents;
+    };
+
+    void Draw( TGraphErrors * pGraph, EventVector & data, TDataExtractor selektor  )
+    {
+
+        for (int iBin = 0; iBin < m_iRecoNum; iBin ++ )
+        {
+            LocalBin locacBin;
+
+            for (EventVector::iterator it = data.begin(); !(it == data.end()); ++it)
+            {
+	      if ( selektor.IsEventIncluded( *it ))
+	      {
+                if (iBin == it->GetRecoVerticesCount())
+                {
+		    if ( m_cutBitmask == 0 )
+		    {
+                    if (! it->IsInCut())
+                        locacBin.m_iRejectedEvents++;
+		    }
+		    else
+		    {
+			// check only for 1 cut
+		     	unsigned long res =  ( it->m_cutBitmask & m_cutBitmask );
+			if ( res > 0  ) 
+			  locacBin.m_iRejectedEvents++; 
+		    }
+                    locacBin.m_iAllEvents++;
+		    
+                }
+	      }
+            }
+            // gotta be more like undefined and have no value at all...
+            double fCutEff = 1.0f;
+
+            // prevent division by zero
+            if ( locacBin.m_iAllEvents > 0 )
+                fCutEff = (double) locacBin.m_iRejectedEvents / (double) locacBin.m_iAllEvents;
+
+            std::cout << "CuttEff RecoNum Bin " << iBin
+                      << " EventsDropped: " << fCutEff
+                      << " Rejected: " << locacBin.m_iRejectedEvents
+                      << " All Events: " << locacBin.m_iAllEvents << std::endl;
+            pGraph->SetPoint( iBin,
+                              iBin,
+                              fCutEff );
+
+        }
+    }
+
+    int m_iRecoNum;
+    unsigned long m_cutBitmask;
+};
 
 /* Plots the Cut Efficiency over the JetResponse of the events to see
  * wether there is a corellation
