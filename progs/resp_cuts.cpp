@@ -298,6 +298,7 @@ void importEvents( bool bUseJson,
                 bUseEvent = false;
                 std::cout << "Excluded Event due to exclusion list." << std::endl;
 
+#include "../interface/DrawBase.h"
                 break;
             }
         }
@@ -887,18 +888,30 @@ void DrawHistoSet( TString algoName,
 
     if ( !bPtCut )
     {  
-      // Eventcount    
+      // Eventcount over Zpt
       CHistDrawBase evtCount( "eventcount_" + algoName + sPostfix,
 			pFileOut);
-      CHistEvtDataZPt zPtdraw;
-      /* dont use dynamic binning, it is bad when comparing MC and Data
-      if ( useCutParameter )
-	zPt.AddModifier(new CModBinRange(ptLow - ( ptLow * .3f ), ptHigh + ( ptLow * .3f )));
-      else*/
-      zPt.AddModifier(new CModBinRange(0.0, 500.0));
+      CHistEvtDataZPt evtCount_draw;
+      CModCustomBin * cbMod = new CModCustomBin();
+        
+      cbMod->m_iBinCount = g_newPtBins.size();
+      
+      cbMod->m_dBins[0] = g_newPtBins[0].GetMin();
+      
+      std::cout << cbMod->m_dBins[0] << std::endl;
+      
+      int i = 1;
+      BOOST_FOREACH( PtBin & bin, g_newPtBins )
+      {
+	cbMod->m_dBins[i] = bin.GetMax();
+	std::cout << cbMod->m_dBins[i] << std::endl;
+	i++;
+      }
+      
+      evtCount.AddModifier(cbMod);
 
-      ModEvtDraw( &zPtdraw, useCutParameter, bPtCut, ptLow, ptHigh );
-      zPt.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );
+      ModEvtDraw( &evtCount_draw, useCutParameter, bPtCut, ptLow, ptHigh );
+      evtCount.Execute < EventVector & > ( g_eventsDataset, &evtCount_draw );
     }
     
     // MET

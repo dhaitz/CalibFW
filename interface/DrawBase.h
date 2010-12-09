@@ -691,15 +691,7 @@ class CModCustomBin : public CHistModifierBase
 public:
     CModCustomBin();
 
-    void ModifyBeforeHistCreation( void * pDrawBase  )
-    {
-	 ((CHistDrawBase *)pDrawBase)->m_iBinCount = m_iBinCount;
-	 
-	 for ( int i = 0; i < m_iBinCount; i++ )
-	 {
-	    ((CHistDrawBase *)pDrawBase)->m_dCustomBins[i] = m_dBins[i];
-	 }
-    }
+    void ModifyBeforeHistCreation( void * pDrawBase  );
 
     int m_iBinCount;
     double m_dBins[256];
@@ -1211,7 +1203,6 @@ public:
         m_lineColor = kBlack;
 	
 	m_bUseCustomBin = false;
-	m_iCustomBinSize = 0;
 
         m_bDrawLegend = false;
 
@@ -1249,7 +1240,7 @@ public:
 
         TCanvas *c = new TCanvas( this->m_sName + "_c", this->m_sCaption,200,10,600,600);
 	
-	TH1D * resp_h = null;
+	TH1D * resp_h = NULL;
 	
 	if ( !m_bUseCustomBin )
 	{
@@ -1262,7 +1253,7 @@ public:
 	{
 	  resp_h = new TH1D(	this->m_sName,
 				    this->m_sCaption,				  
-				    m_iBinCount, &m_bUseCustomBin[0] );
+				    m_iBinCount, &m_dCustomBins[0] );
 	}
         resp_h->Sumw2();
         this->StyleHisto( resp_h );
@@ -1340,7 +1331,6 @@ public:
     Color_t m_lineColor;
     
     bool m_bUseCustomBin;
-    int m_iCustomBinSize;
     double m_dCustomBins[256];
 
     std::vector<CHistModifierBase *> m_histMods;

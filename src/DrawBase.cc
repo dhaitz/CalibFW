@@ -169,6 +169,23 @@ void CModBinCount::ModifyBeforeHistCreation( void * pB  )
     pDrawBase->m_iBinCount = this->m_iBinCount;
 }
 
+CModCustomBin::CModCustomBin()
+{
+}
+
+
+void CModCustomBin::ModifyBeforeHistCreation( void * pDrawBase  )
+{
+      ((CHistDrawBase *)pDrawBase)->m_iBinCount = m_iBinCount;
+      
+      for ( int i = 0; i <= m_iBinCount; i++ )
+      {
+	((CHistDrawBase *)pDrawBase)->m_dCustomBins[i] = m_dBins[i];
+      }
+      
+      ((CHistDrawBase *)pDrawBase)->m_bUseCustomBin = true;
+}
+
 CModHorizontalLine::CModHorizontalLine( double xVal )
 {
   this->m_xVal = xVal; 
