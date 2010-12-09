@@ -738,7 +738,10 @@ void DrawJetResponsePlots( TString algoName,
     // todo here
 }
 
-void Draw2ndLevelHistoSet( TString algoName,
+
+
+void Draw2ndLevelResponse( TString algoName,
+			   TString respType,
                    TString sPostfix,
                    TFile * pFileOut,
                    bool useCutParameter,
@@ -747,8 +750,8 @@ void Draw2ndLevelHistoSet( TString algoName,
                    double ptHigh = 0.0)
 {
     // Jet Resp
-    TString plotName = "jetresp_graph_" + algoName + sPostfix;
-    TString plotNameJetPt = "jetresp_jetpt_graph_" + algoName + sPostfix;
+    TString plotName = respType + "_graph_" + algoName + sPostfix;
+    TString plotNameJetPt = respType + "_jetpt_graph_" + algoName + sPostfix;
     
     TGraphErrors * resp_h = new TGraphErrors(g_newPtBins.size());
     resp_h->SetName(  plotName );
@@ -778,7 +781,7 @@ void Draw2ndLevelHistoSet( TString algoName,
         std::stringstream newTags (stringstream::in| stringstream::out);
         newTags << sPostfix << std::setprecision(0) << std::fixed << "_Pt" << bin.m_fLowestPt << "to" << bin.m_fHighestPt;
 	
-	TString sout = "jetresp_" + algoName+ newTags.str().c_str() + "_hist";
+	TString sout = respType + "_" + algoName+ newTags.str().c_str() + "_hist";
 	TString sZPt = "zPt_" + algoName+ newTags.str().c_str() + "_hist";
 	TString sJetPt = "jet1_pt_" + algoName+ newTags.str().c_str() + "_hist";
 	std::cout << "using " << sout.Data() << std::endl;
@@ -815,7 +818,32 @@ void Draw2ndLevelHistoSet( TString algoName,
     resp_hist->Write( plotName + "_hist" );
 }
 
-
+void Draw2ndLevelHistoSet( TString algoName,
+                   TString sPostfix,
+                   TFile * pFileOut,
+                   bool useCutParameter,
+                   bool bPtCut,
+                   double ptLow = 0.0,
+                   double ptHigh = 0.0)
+{
+  Draw2ndLevelResponse( algoName,
+			"jetresp",
+                   sPostfix,
+                   pFileOut,
+                    useCutParameter,
+                    bPtCut,
+                   ptLow,
+                   ptHigh);
+  Draw2ndLevelResponse( algoName,
+			"mpfjetresp",
+                   sPostfix,
+                   pFileOut,
+                    useCutParameter,
+                    bPtCut,
+                   ptLow,
+                   ptHigh);
+  
+}
 
 void DrawHistoSet( TString algoName,
                    TString sPostfix,
@@ -1070,10 +1098,20 @@ void DrawHistoSet( TString algoName,
     ModEvtDraw( &jetresp_draw, useCutParameter, bPtCut, ptLow, ptHigh );
     jetresp.Execute <  EventVector & > ( g_eventsDataset, &jetresp_draw );
 
+
+    CHistDrawBase metjetresp( "mpfjetresp_" + algoName+ sPostfix,
+                           pFileOut);
+    metjetresp.AddModifier(new CModBinRange(0.0, 2.0));
+
+    // MPF Resp
+    CHistEvtDataMetJetResponse mpfjetresp_draw;
+    ModEvtDraw( &mpfjetresp_draw, useCutParameter, bPtCut, ptLow, ptHigh );
+    metjetresp.Execute <  EventVector & > ( g_eventsDataset, &mpfjetresp_draw );
+
+    // RECO VERT
     CHistDrawBase recovert( "recovertices_" + algoName+ sPostfix,
                            pFileOut);
     recovert.AddModifier(new CModBinRange(-0.5, 14.5));
-
     CHistEvtDataRecoVertices recovert_draw;
     ModEvtDraw( &recovert_draw, useCutParameter, bPtCut, ptLow, ptHigh );
     recovert.AddModifier(new CModBinCount(15));

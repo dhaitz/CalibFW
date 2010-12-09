@@ -554,11 +554,13 @@ public:
 
         for ( it = data.begin();  !(it == data.end()); ++it)
         {
-/*            if (IsInSelection(it))
-                HistFill( pHist,1.0 + ( (- it->m_pData->met->Energy()
+            if (IsInSelection(it))
+	    {
+	        double scalPtEt = ScalarProductTParticle( it->m_pData->Z, it->m_pData->met );
+		double scalPtSq = ScalarProductTParticle( it->m_pData->Z, it->m_pData->Z );
 		
-		it->GetCorrectedJetPt(0) / it->m_pData->Z->Pt()
-                          , (*it));*/
+                HistFill( pHist,1.0 - (scalPtEt /scalPtSq), (*it));             
+	    }
         }
     }
 };
