@@ -869,6 +869,8 @@ void DrawHistoSet( TString algoName,
     CHistEvtDataZMass zdraw;
     ModEvtDraw( &zdraw, useCutParameter, bPtCut, ptLow, ptHigh );
     zmass.Execute < EventVector & > ( g_eventsDataset, &zdraw );
+    
+    
     // ZPt
     CHistDrawBase zPt( "zPt_" + algoName + sPostfix,
                        pFileOut);
@@ -882,7 +884,23 @@ void DrawHistoSet( TString algoName,
     ModEvtDraw( &zPtdraw, useCutParameter, bPtCut, ptLow, ptHigh );
     zPt.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );
 
-  
+
+    if ( !bPtCut )
+    {  
+      // Eventcount    
+      CHistDrawBase evtCount( "eventcount_" + algoName + sPostfix,
+			pFileOut);
+      CHistEvtDataZPt zPtdraw;
+      /* dont use dynamic binning, it is bad when comparing MC and Data
+      if ( useCutParameter )
+	zPt.AddModifier(new CModBinRange(ptLow - ( ptLow * .3f ), ptHigh + ( ptLow * .3f )));
+      else*/
+      zPt.AddModifier(new CModBinRange(0.0, 500.0));
+
+      ModEvtDraw( &zPtdraw, useCutParameter, bPtCut, ptLow, ptHigh );
+      zPt.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );
+    }
+    
     // MET
     CHistDrawBase met( "met_" + algoName + sPostfix,
                        pFileOut);    

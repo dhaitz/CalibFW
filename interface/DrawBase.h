@@ -686,6 +686,25 @@ private:
     int m_iBinCount;
 };
 
+class CModCustomBin : public CHistModifierBase
+{
+public:
+    CModCustomBin();
+
+    void ModifyBeforeHistCreation( void * pDrawBase  )
+    {
+	 ((CHistDrawBase *)pDrawBase)->m_iBinCount = m_iBinCount;
+	 
+	 for ( int i = 0; i < m_iBinCount; i++ )
+	 {
+	    ((CHistDrawBase *)pDrawBase)->m_dCustomBins[i] = m_dBins[i];
+	 }
+    }
+
+    int m_iBinCount;
+    double m_dBins[256];
+};
+
 class CPlotL2Corr
 {
 public:
@@ -1190,6 +1209,9 @@ public:
         m_dBinLower = 0.0;
         m_dBinUpper = 200.0;
         m_lineColor = kBlack;
+	
+	m_bUseCustomBin = false;
+	m_iCustomBinSize = 0;
 
         m_bDrawLegend = false;
 
@@ -1226,9 +1248,22 @@ public:
         //std::cout << "Generating " << this->m_sName << " ... ";
 
         TCanvas *c = new TCanvas( this->m_sName + "_c", this->m_sCaption,200,10,600,600);
-        TH1D * resp_h = new TH1D(	this->m_sName,
-                                  this->m_sCaption,
-                                  m_iBinCount,m_dBinLower,m_dBinUpper);
+	
+	TH1D * resp_h = null;
+	
+	if ( !m_bUseCustomBin )
+	{
+	  resp_h = new TH1D(	this->m_sName,
+				    this->m_sCaption,				  
+				    m_iBinCount,m_dBinLower,m_dBinUpper);
+	  
+	}
+	else
+	{
+	  resp_h = new TH1D(	this->m_sName,
+				    this->m_sCaption,				  
+				    m_iBinCount, &m_bUseCustomBin[0] );
+	}
         resp_h->Sumw2();
         this->StyleHisto( resp_h );
 
@@ -1303,6 +1338,10 @@ public:
     double m_dBinLower;
     double m_dBinUpper;
     Color_t m_lineColor;
+    
+    bool m_bUseCustomBin;
+    int m_iCustomBinSize;
+    double m_dCustomBins[256];
 
     std::vector<CHistModifierBase *> m_histMods;
 };
