@@ -48,7 +48,8 @@ def getBaseConfig():
   process.general.cut_muonpt = 15.0
   process.general.cut_zmass = 20.0
   process.general.cut_backness = 0.2
-  process.general.cut_2jet_backness = 0.20
+  # selected very high in order to always apply by default
+  process.general.cut_2jet_backness = 4.0
   
   process.general.use_geometric_topology = 0
   
