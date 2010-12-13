@@ -103,12 +103,18 @@ public:
 class SecondLeadingToZPtCut : public EventCutBase< EventResult * >
 {
 public:
-  SecondLeadingToZPtCut ( double f2ndJetRatio ) : m_f2ndJetRatio( f2ndJetRatio )
+  SecondLeadingToZPtCut ( double f2ndJetRatio, double f2ndBackness  ) 
+  : m_f2ndJetRatio( f2ndJetRatio ), m_f2nd_Backness( f2ndBackness )
   {    
   }
   
   bool IsInCut ( EventResult * pEv )
-  {
+  {	
+     if ( 
+       TMath::Abs( DeltaHelper::GetDeltaCenterZero( pEv->m_pData->jets[1], pEv->m_pData->jets[0] ) )
+	< ( TMath::Pi() - m_f2nd_Backness ))
+       return true;
+
      return (pEv->GetCorrectedJetPt(1)/pEv->m_pData->Z->Pt() < m_f2ndJetRatio);
   }
   
@@ -117,6 +123,27 @@ public:
   std::string GetCutShortName() { return "SecondLeadingToZPt"; }
   static const long CudId = 16;
   double m_f2ndJetRatio;
+  double m_f2nd_Backness;
+};
+
+class SecondLeadingNotBackToBackCut : public EventCutBase< EventResult * >
+{
+public:
+  SecondLeadingNotBackToBackCut ( double fBackness )
+    : m_fBackness(fBackness )
+  {    
+  }
+  
+  bool IsInCut ( EventResult * pEv )
+  {
+     return (TMath::Abs( TMath::Abs(pEv->m_pData->jets[1]->Phi() - pEv->m_pData->Z->Phi()) - TMath::Pi()) > m_fBackness);
+  }
+  
+  unsigned long GetId() { return SecondLeadingNotBackToBackCut::CudId; }  
+  std::string GetCutName() { return "5) 2nd leading not Back to Back to Z pt";  }
+  std::string GetCutShortName() { return "SecondLeadingNotBackToBackCut"; }
+  static const long CudId = 512;
+  double m_fBackness;
 };
 
 class BackToBackCut : public EventCutBase< EventResult * >

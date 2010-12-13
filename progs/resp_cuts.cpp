@@ -61,6 +61,8 @@ bool g_doL2Correction = true;
 bool g_doL3CorrectionFormula = false;
 bool g_doL3Correction = false;
 
+bool g_useGeometricTopology = false;
+
 vString g_l2CorrFiles;
 vString g_l3CorrFiles;
 
@@ -163,42 +165,6 @@ PtBinWeighter g_mcWeighter;
 
 // set via config file
 boost::ptr_vector<PtBin> g_newPtBins;
-
-/* Danillos Custom Binning*/
-/*[] = {
-    PtBin(0.0, 25.0),
-    PtBin(25.0, 30.0),
-    PtBin(30.0, 36.0),
-    PtBin(36.0, 43.0),
-    PtBin(43.0, 51.0),
-    PtBin(51.0, 61.0),
-    PtBin(61.0, 73.0),
-    PtBin(73.0, 87.0),
-    PtBin(87.0, 104.0),
-    PtBin(104.0, 124.0),
-    PtBin(124.0, 148.0),
-    PtBin(148.0, 177.0),
-    PtBin(177.0, 212.0),
-    PtBin(212.0, 254.0),
-    PtBin(254.0, 304.0),
-    PtBin(304.0, 364.0)
-};
-
-0.0, 25.0, 30.0,  36.0, 36.0, 43.0, 51.0, 61.0, 73.0,87.0, 104.0, 124.0, 148.0, 177.0 212.0, 254.0, 304.0, 364.0
-/* MC Sample binning */
-/*
-PtBin g_newPtBins[] = {
-		PtBin(0.0, 15.0),
-		PtBin(15.0, 20.0),
-		PtBin(20.0, 30.0),
-		PtBin(30.0, 50.0),
-		PtBin(50.0, 80.0),
-		PtBin(80.0, 120.0),
-		PtBin(120.0, 170.0),
-		PtBin(170.0, 230.0),
-		PtBin(230.0, 300.0),
-		PtBin(300.0, 99999.0)
-};*/
 
 void calcJetEnergyCorrection( EventResult * res, CompleteJetCorrector *  pJetCorr )
 {
@@ -1109,17 +1075,41 @@ void DrawHistoSet( TString algoName,
     jetPtzPt.Execute < EventVector & > ( g_eventsDataset, &jetPtzPt_draw );
 
 
-    // back to back
-  /*  CHistDrawBase back2back( "back2back_" + algoName+ sPostfix,
+    // back to back Jet 1
+    CHistDrawBase back2back( "jet1_back2back_" + algoName+ sPostfix,
                              pFileOut,
                              CHistEtaMod::DefaultModifiers());
-    back2back.AddModifier(new CModHorizontalLine( g_kCutBackToBack));
-    back2back.AddModifier(new CModBinRange(0.0, 3.5));
-
-    CHistEvtDataBack2Back back2back_draw;
+    back2back.AddModifier(new CModBinRange(-7, 7));
+    back2back.AddModifier(new CModBinCount(35));
+    
+    CHistEvtDataBack2Back back2back_draw(0);
     ModEvtDraw( &back2back_draw, useCutParameter, bPtCut, ptLow, ptHigh );
     back2back.Execute <  EventVector & > ( g_eventsDataset, &back2back_draw );
-*/
+
+    // back to back between jet1 and 2
+    CHistDrawBase jet1PhiToJet( "jet2_phi_minus_jet1_phi" + algoName+ sPostfix,
+                             pFileOut,
+                             CHistEtaMod::DefaultModifiers());
+    jet1PhiToJet.AddModifier(new CModBinRange(-7, 7));
+    jet1PhiToJet.AddModifier(new CModBinCount(35));
+    
+    CHistEvtDataJe1tPhiToJet jet1PhiToJet_draw(1);
+    ModEvtDraw( &jet1PhiToJet_draw, useCutParameter, bPtCut, ptLow, ptHigh );
+    jet1PhiToJet.Execute <  EventVector & > ( g_eventsDataset, &jet1PhiToJet_draw );
+
+
+    // back to back Jet 2
+    CHistDrawBase jet2_back2back( "jet2_back2back_" + algoName+ sPostfix,
+                             pFileOut,
+                             CHistEtaMod::DefaultModifiers());
+    jet2_back2back.AddModifier(new CModBinRange(-7, 7));
+    jet2_back2back.AddModifier(new CModBinCount(35));
+    
+    CHistEvtDataBack2Back jet2_back2back_draw(1);
+    ModEvtDraw( &jet2_back2back_draw, useCutParameter, bPtCut, ptLow, ptHigh );
+    jet2_back2back.Execute <  EventVector & > ( g_eventsDataset, &jet2_back2back_draw );
+
+    
     // Jet Response binned as z.pt()
     CHistDrawBase jetresp( "jetresp_" + algoName+ sPostfix,
                            pFileOut);
@@ -1142,7 +1132,7 @@ void DrawHistoSet( TString algoName,
     // RECO VERT
     CHistDrawBase recovert( "recovertices_" + algoName+ sPostfix,
                            pFileOut);
-    recovert.AddModifier(new CModBinRange(0.0, 15));
+    recovert.AddModifier(new CModBinRange(-0.5, 14.5));
     recovert.AddModifier(new CModBinCount(15));
     
     CHistEvtDataRecoVertices recovert_draw;
@@ -1555,6 +1545,8 @@ int main(int argc, char** argv)
     g_doL3Correction = (bool) p.getInt( secname + ".do_l3_correction" );
     g_doL3CorrectionFormula = (bool) p.getInt( secname + ".do_l3_correction_formula" );
 
+    g_useGeometricTopology = (bool) p.getInt( secname + ".use_geometric_topology" );
+    
     g_plotNoCuts = (bool) p.getInt( secname + ".plot_nocuts" );
     g_plotCutEff = (bool) p.getInt( secname + ".plot_cuteff" );
 
@@ -1620,7 +1612,13 @@ int main(int argc, char** argv)
     g_cutHandler.AddCut( new MuonPtCut(p.getDouble( secname + ".cut_muonpt")));
     g_cutHandler.AddCut( new MuonEtaCut());
     g_cutHandler.AddCut( new LeadingJetEtaCut());
-    g_cutHandler.AddCut( new SecondLeadingToZPtCut( p.getDouble( secname + ".cut_2jet" )));
+    
+    //if ( g_useGeometricTopology )      
+      //g_cutHandler.AddCut( new SecondLeadingNotBackToBackCut( p.getDouble( secname + ".cut_2jet_backness" )));
+    //else
+    g_cutHandler.AddCut( new SecondLeadingToZPtCut( p.getDouble( secname + ".cut_2jet" ),
+						    p.getDouble( secname + ".cut_2jet_backness" )));
+    
     g_cutHandler.AddCut( new BackToBackCut(p.getDouble( secname + ".cut_backness" )));
     g_cutHandler.AddCut( new ZMassWindowCut(p.getDouble( secname + ".cut_zmass")));
     g_cutHandler.AddCut( new ZPtCut(p.getDouble( secname + ".cut_zpt" )));

@@ -47,7 +47,10 @@ def getBaseConfig():
   process.general.cut_jetpt = 5.0
   process.general.cut_muonpt = 15.0
   process.general.cut_zmass = 20.0
-  process.general.cut_backness = 0.34
+  process.general.cut_backness = 0.2
+  process.general.cut_2jet_backness = 0.20
+  
+  process.general.use_geometric_topology = 0
   
   return process
 
@@ -68,9 +71,10 @@ def getDataBaseConfig(  ):
       # select specific plots here
   p.general.plot_nocuts = 0
   p.general.plot_cuteff = 0
-      
+
+  
   p.general.fixed_weighting = 0
-  p.general.do_l2_correction = 1
+  p.general.do_l2_correction = 0
   p.general.do_l3_correction = 0
   p.general.use_hlt = 1
   p.general.do_l3_correction_formula = 0

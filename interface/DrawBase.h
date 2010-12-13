@@ -11,6 +11,7 @@
 #include "PtBinWeighter.h"
 
 
+
 class EventSelectionBase
 {
 public:
@@ -511,18 +512,62 @@ public:
 };
 
 
-class CHistEvtDataBack2Back : public CHistEvtMapBase
+class CHistEvtDataJe1tPhiToJet : public CHistEvtDataJetBase
 {
 public:
+      CHistEvtDataJe1tPhiToJet( int iJetNum ) : CHistEvtDataJetBase( iJetNum)
+    {
+    }
+
+  
     virtual void Draw( TH1D * pHist, EventVector & data )
     {
         EventVector::iterator it;
 
         for ( it = data.begin(); !(it == data.end()); ++it)
         {
-            if (IsInSelection(it))
-                HistFill( pHist, TMath::Abs( TMath::Abs(it->m_pData->jets[0]->Phi() - it->m_pData->Z->Phi()) - TMath::Pi())
-                          , (*it));
+            if (IsInSelection(it) && ( it->m_pData->jets[m_iJetNum]->Pt() > 0.0f))
+	    {
+	       double delta = DeltaHelper::GetDeltaCenterZero( it->m_pData->jets[0], 
+								it->m_pData->jets[m_iJetNum]);
+		HistFill( pHist, delta , (*it));
+	    }
+
+        }
+    }
+};
+
+
+class CHistEvtDataBack2Back : public CHistEvtDataJetBase
+{
+public:
+      CHistEvtDataBack2Back( int iJetNum ) : CHistEvtDataJetBase( iJetNum)
+    {
+    }
+
+  
+    virtual void Draw( TH1D * pHist, EventVector & data )
+    {
+        EventVector::iterator it;
+
+        for ( it = data.begin(); !(it == data.end()); ++it)
+        {
+/* version with > 0 scale*/
+/*             if (IsInSelection(it))
+                HistFill( pHist, TMath::Abs( TMath::Abs(it->m_pData->jets[m_iJetNum]->Phi() - it->m_pData->Z->Phi()) - TMath::Pi())
+                          , (*it));*/
+//	    double deltaPhi = 0.0f;
+	    
+	    
+	    if (IsInSelection(it) && ( it->m_pData->jets[m_iJetNum]->Pt() > 0.0f))
+	    {
+	      
+/*		TVector3 tZ ( it->m_pData->Z->Px(), it->m_pData->Z->Py(), it->m_pData->Z->Pz());
+		TVector3 tJet ( it->m_pData->jets[m_iJetNum]->Px(), it->m_pData->jets[m_iJetNum]->Py(), it->m_pData->jets[m_iJetNum]->Pz());		
+*/		
+	       double delta = DeltaHelper::GetDeltaCenterZero( it->m_pData->Z, it->m_pData->jets[m_iJetNum]);
+	      HistFill( pHist, delta , (*it));
+	    }
         }
     }
 };
@@ -576,7 +621,7 @@ public:
             if (IsInSelection(it))
 	    {
 		//std::cout << it->GetRecoVerticesCount() << std::endl;
-                HistFill( pHist, (double) it->GetRecoVerticesCount() + 0.1f, (*it));
+                HistFill( pHist, (double) it->GetRecoVerticesCount(), (*it));
 	    }
         }
     }
@@ -868,11 +913,11 @@ public:
             // prevent division by zero
             if ( locacBin.m_iAllEvents > 0 )
                 fCutEff = (double) locacBin.m_iRejectedEvents / (double) locacBin.m_iAllEvents;
-
+/*
             std::cout << "CuttEff Bin " <<  locacBin.m_bin.good_id()
                       << " EventsDropped: " << fCutEff
                       << " Rejected: " << locacBin.m_iRejectedEvents
-                      << " All Events: " << locacBin.m_iAllEvents << std::endl;
+                      << " All Events: " << locacBin.m_iAllEvents << std::endl;*/
             pGraph->SetPoint( iBin,
                               locacBin.m_bin.GetBinCenter(),
                               fCutEff );
@@ -950,11 +995,11 @@ public:
             // prevent division by zero
             if ( locacBin.m_iAllEvents > 0 )
                 fCutEff = (double) locacBin.m_iRejectedEvents / (double) locacBin.m_iAllEvents;
-
+/*
             std::cout << "CuttEff RecoNum Bin " << iBin
                       << " EventsDropped: " << fCutEff
                       << " Rejected: " << locacBin.m_iRejectedEvents
-                      << " All Events: " << locacBin.m_iAllEvents << std::endl;
+                      << " All Events: " << locacBin.m_iAllEvents << std::endl;*/
             pGraph->SetPoint( iBin,
                               iBin,
                               fCutEff );
@@ -1028,11 +1073,11 @@ public:
             // prevent division by zero
             if ( locacBin.m_iAllEvents > 0 )
                 fCutEff = (double) locacBin.m_iRejectedEvents / (double) locacBin.m_iAllEvents;
-
+/*
             std::cout << "CuttEff Bin " <<  locacBin.m_bin.good_id()
                       << " EventsDropped: " << fCutEff
                       << " Rejected: " << locacBin.m_iRejectedEvents
-                      << " All Events: " << locacBin.m_iAllEvents << std::endl;
+                      << " All Events: " << locacBin.m_iAllEvents << std::endl;*/
             pGraph->SetPoint( iBin,
                               locacBin.m_bin.GetBinCenter(),
                               fCutEff );
