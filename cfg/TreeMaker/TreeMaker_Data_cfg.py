@@ -4,6 +4,10 @@ import FWCore.ParameterSet.Config as cms
 import  Zplusjet.ZplusjetTreeMaker.Z_collections_noprecuts_cfi as Zs
 import Zplusjet.ZplusjetTreeMaker.Zplusjet_Base_cff as TreeBaseCfg
 
+defaultGlobalTag = "FT_R_38X_V14A::All"
+useDefaultGlobalTag = 0
+
+
 try:
     TreeBaseCfg.GCFILE_NAMES__ = __FILE_NAMES__
     TreeBaseCfg.GCSKIP_EVENTS__ = __SKIP_EVENTS__
@@ -19,8 +23,13 @@ except NameError:
     TreeBaseCfg.GCSKIP_EVENTS__ = 0
     TreeBaseCfg.GCMAX_EVENTS__ = 10000
     TreeBaseCfg.GCMY_JOBID__ = "23" 
+    useDefaultGlobalTag = 1
 
 # use only RECO Path for processing 
 process = TreeBaseCfg.getBaseConfig(Zs.goodZToMuMuRecoPath)
-process.GlobalTag.globaltag = "@GLOBALTAG@"
+
+if ( useDefaultGlobalTag ):
+    process.GlobalTag.globaltag = defaultGlobalTag
+else:
+    process.GlobalTag.globaltag = "@GLOBALTAG@"
 
