@@ -599,12 +599,18 @@ public:
         for ( it = data.begin();  !(it == data.end()); ++it)
         {
             if (IsInSelection(it))
-	    {
-	        double scalPtEt = ScalarProductTParticle( it->m_pData->Z, it->m_pData->met );
-		double scalPtSq = ScalarProductTParticle( it->m_pData->Z, it->m_pData->Z );
-		
-                HistFill( pHist,1.0 - (scalPtEt /scalPtSq), (*it));             
-	    }
+            {
+            // Just perform the operations here, Z component of met not 100% under control
+            //double scalPtEt = ScalarProductTParticle( it->m_pData->Z, it->m_pData->met );
+            //double scalPtSq = ScalarProductTParticle( it->m_pData->Z, it->m_pData->Z );
+            
+            double scalPtEt = it->m_pData->Z->Px()*it->m_pData->met->Px() +
+                              it->m_pData->Z->Py()*it->m_pData->met->Py();
+            double scalPtSq = it->m_pData->Z->Px()*it->m_pData->Z->Px() +
+                              it->m_pData->Z->Py()*it->m_pData->Z->Py();
+            
+            HistFill( pHist,1.0 + (scalPtEt /scalPtSq), (*it));
+            }
         }
     }
 };
