@@ -1,4 +1,4 @@
-import json, copy
+import copy
 
 def GetBaseConfig():
     d = dict()
