@@ -360,7 +360,7 @@ class CanvasHolder:public TObject{
   // DP
  TStyle* getStyle(){return theStyle;};
 
- TH1* getHisto(int index){if(index >= ehistos.size() or index<0)return 0;else return ehistos[index].theHisto;};
+ TH1* getHisto(unsigned int index){if(index >= ehistos.size() or index<0)return 0;else return ehistos[index].theHisto;};
 
  void setGrid(bool val=true){m_grid_x=m_grid_y=val;};
  void setGridX(bool val=true){m_grid_x=val;};

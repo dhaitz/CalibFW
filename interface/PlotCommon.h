@@ -1,11 +1,13 @@
 #ifndef PLOTCOMMON_H
 #define PLOTCOMMON_H
 
+#include <exception>
 
 //#include "Singleton.h"
 #include "EventData.h"
 #include "MinimalParser.h"
 #include "PtBinWeighter.h"
+
 
 
 
@@ -56,7 +58,7 @@ void saveHolder(CanvasHolder &h,
         std::cout << "DEBUG: log scale for the canvas " << (can_name+"_log_y").Data() << std::endl;
         h.setCanvasTitle(can_name+"_log_y");
         h.setLogY();
-        for (int i=0;i<formats.size();++i) 
+        for (unsigned int i=0;i<formats.size();++i)
 	{
 //             h.draw();
             h.save(formats[i].Data());
@@ -66,7 +68,7 @@ void saveHolder(CanvasHolder &h,
     {
 	// make needed folder      
 //      h.save("png");
-        for (int i=0;i<formats.size();++i)
+        for ( unsigned int i=0;i<formats.size();++i)
         {
 //         h.draw();
 	    system ( "mkdir plot_out");
@@ -93,6 +95,7 @@ double CalcHistoError( TH1D * pHist,
     {
       return pHist->GetMeanError();
     }      
+    throw "This InputTypeEnum is not supported";
 }
 
 class Intervals : public std::vector<PtBin>
