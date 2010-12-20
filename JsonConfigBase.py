@@ -11,8 +11,7 @@ def GetBaseConfig():
             "CutLeadingJetEta": 1.3,
             "CutSecondLeadingToZPt": 0.2,
             "CutBack2Back": 0.34,
-            "Cuts": ["json", 
-                     "muon_pt",
+            "Cuts": ["muon_pt",
                      "zmass_window",
                      "zmass_window",
                      "back_to_back",
@@ -42,6 +41,7 @@ def GetDataBaseConfig():
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["InputType"] = "data"
+    d["Cuts"].append( "json" )
 
     return d
 
