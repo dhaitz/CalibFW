@@ -3,7 +3,7 @@ import copy
 def GetBaseConfig():
     d = dict()
     
-    d["Algos"] = ["ak5PF", "ak5Calo"]
+    d["Algos"] = ["ak5PF"]
     d["Pipelines"] = { "default": {
             "CutMuonEta": 2.3,
             "CutMuonPt": 15,

@@ -14,7 +14,7 @@ conf["Pipelines"] = pipesPtBin
 conf["Pipelines"] = dict( conf["Pipelines"].items() +  pipesPtCutNocut.items() )
 f = open("conf.json", "w")
 
-#conf["Pipelines"] = JsonConfigBase.Expand( conf["Pipelines"], 30)
+conf["Pipelines"] = JsonConfigBase.Expand( conf["Pipelines"], 10)
 
 
 print ( "Configured " + str( len( conf["Pipelines"] )) + " Pipelines" )
