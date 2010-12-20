@@ -1,5 +1,5 @@
 #include "DrawBase.h"
-
+/*l
 CModBinRange::CModBinRange( double lower, double upper)
 {
     this->m_dBinLower = lower;
@@ -202,4 +202,6 @@ void CModHorizontalLine::ModifyAfterHistoDraw( TCanvas * pC, TH1 * pHist )
   
 }
 
+
+*/
 

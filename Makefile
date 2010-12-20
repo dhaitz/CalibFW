@@ -25,7 +25,7 @@ clean:
 	rm -rf obj/*
 	rm -rf obj
 	rm -rf bin/*.exe
-exe: 
+exe: all
 	$(MAKE) -C $(SRC) exe
 
 progs:

@@ -1,5 +1,5 @@
 [Buildset]
-BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
+BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x00\x0e\x00C\x00a\x00l\x00i\x00b\x00F\x00W)
 
 [Launch]
 Launch Configurations=Launch Configuration 0
@@ -11,20 +11,20 @@ Name=New Native Application Configuration
 Type=Native Application
 
 [Launch][Launch Configuration 0][Data]
-Arguments=/local/scratch/hauth/Ana/CalibFW/cfg/ZPJ_2010/process_naf_mc_fall10.py
+Arguments=cfg/ZPJ_2010/process_local_data.py
 Debugger Shell=
 Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
 Dependency Action=Nothing
 Display Demangle Names=true
 Display Static Members=false
 EnvironmentGroup=default
-Executable=file:///local/scratch/hauth/Ana/CalibFW/bin/resp_cuts.exe
-GDB Path=
+Executable=bin/resp_cuts.exe
+GDB Path=gdb
 Remote GDB Config Script=
 Remote GDB Run Script=
 Remote GDB Shell Script=
 Try Setting Breakpoints On Loading Libraries=true
-Working Directory=file:///local/scratch/hauth/Ana/CalibFW
+Working Directory=file:///home/poseidon/uni/code/CalibFW
 isExecutable=true
 
 [MakeBuilder]
