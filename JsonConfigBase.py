@@ -5,6 +5,7 @@ def GetBaseConfig():
     
     d["Algos"] = ["ak5PF"]
     d["Pipelines"] = { "default": {
+            "RootFileFolder": "",
             "CutMuonEta": 2.3,
             "CutMuonPt": 15,
             "CutZMassWindow": 20,
@@ -41,9 +42,29 @@ def GetDataBaseConfig():
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["InputType"] = "data"
-    d["Cuts"].append( "json" )
+    
+    for key, val in d["Pipelines"].items(): 
+        val["Cuts"].append( "json" )
 
     return d
+
+
+def ExpandRange( pipelineDict, varName, vals, setRootFolder):
+    newDict = dict()
+
+    for name, elem in pipelineDict.items():
+        for v in vals:
+            newPipe = copy.deepcopy(elem)
+            newPipe[ varName ] = vals
+            
+            newName = name + "var_" + varName + "_" + str(v)
+            if ( setRootFolder ):
+                newDict["RootFileFolder"] = newName
+            
+            newDict[newName] = newPipe
+
+    return newDict
+
 
 def ExpandCutNoCut( pipelineDict):
     newDict = dict()

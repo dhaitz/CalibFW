@@ -1,3 +1,24 @@
+/*
+
+ CalibFW resp_cuts.cpp:
+
+ HOWTO:
+
+ # Add a new Plot:
+
+ - DrawBase.h
+ 1) Use the IMPL_HIST2D_MOD1 to generate a Consumer class which plots a histogramm. If your plotting requirement is
+ more complex, derive from the class  DrawHist1dConsumerBase<EventResult> ( for 1d Histo ) and implement
+ ProcessFilteredEvent.
+
+ - resp_cuts.h: CreateDefaultPipeline
+ 2) Use the PLOT_HIST2D macro to add your histogram the default plotting pipeline and give a name which is used to store
+ the histo in the root file.
+
+ > done
+
+
+ */
 #include "RootIncludes.h"
 
 #include <stdio.h>
@@ -118,15 +139,15 @@ std::map<std::string, std::string> g_l2CorrData;
  };
  */
 
-#define PLOT_HIST2D( PIPELINE, DRAW_CONSUMER, QUANTITY_NAME) \
-{ Hist2D * hist_##DRAW_CONSUMER = new Hist2D; \
+#define PLOT_HIST1D( PIPELINE, DRAW_CONSUMER, QUANTITY_NAME) \
+{ Hist1D * hist_##DRAW_CONSUMER = new Hist1D; \
 DRAW_CONSUMER * object_##DRAW_CONSUMER = new  DRAW_CONSUMER(); \
 object_##DRAW_CONSUMER->m_sQuantityName = #QUANTITY_NAME; \
 object_##DRAW_CONSUMER->m_hist = hist_##DRAW_CONSUMER; \
 PIPELINE->m_consumer.push_back(object_##DRAW_CONSUMER); }
 
-#define PLOT_HIST2D_CONST1( PIPELINE, DRAW_CONSUMER, QUANTITY_NAME, CONST_PARAMS) \
-{ Hist2D * hist_##DRAW_CONSUMER = new Hist2D; \
+#define PLOT_HIST1D_CONST1( PIPELINE, DRAW_CONSUMER, QUANTITY_NAME, CONST_PARAMS) \
+{ Hist1D * hist_##DRAW_CONSUMER = new Hist1D; \
 DRAW_CONSUMER * object_##DRAW_CONSUMER = new  DRAW_CONSUMER( CONST_PARAMS ); \
 object_##DRAW_CONSUMER->m_sQuantityName = #QUANTITY_NAME; \
 object_##DRAW_CONSUMER->m_hist = hist_##DRAW_CONSUMER; \
@@ -216,6 +237,8 @@ void RunPipelinesForEvent(EventResult & event)
 	}
 }
 
+// Generates the default pipeline which is run on all events.
+// insert new Plots here if you want a new plot
 EventPipeline * CreateDefaultPipeline()
 {
 	EventPipeline * pline = new EventPipeline();
@@ -227,42 +250,46 @@ EventPipeline * CreateDefaultPipeline()
 	 sname << i << "jetresp";
 	 */
 
-	PLOT_HIST2D(pline, DrawZMassConsumer, zmass)
-	PLOT_HIST2D(pline, DrawZPtConsumer, z_pt)
+	PLOT_HIST1D(pline, DrawZMassConsumer, zmass)
+	PLOT_HIST1D(pline, DrawZPtConsumer, z_pt)
 
 	// Jet Pt
-	PLOT_HIST2D_CONST1(pline, DrawJetPtConsumer, jet1_pt, 0)
-	PLOT_HIST2D_CONST1(pline, DrawJetPtConsumer, jet2_pt, 1)
-	PLOT_HIST2D_CONST1(pline, DrawJetPtConsumer, jet3_pt, 2)
+	PLOT_HIST1D_CONST1(pline, DrawJetPtConsumer, jet1_pt, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetPtConsumer, jet2_pt, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetPtConsumer, jet3_pt, 2)
 
 	// Jet Phi
-	PLOT_HIST2D_CONST1(pline, DrawJetPhiConsumer, jet1_phi, 0)
-	PLOT_HIST2D_CONST1(pline, DrawJetPhiConsumer, jet2_phi, 1)
-	PLOT_HIST2D_CONST1(pline, DrawJetPhiConsumer, jet3_phi, 2)
+	PLOT_HIST1D_CONST1(pline, DrawJetPhiConsumer, jet1_phi, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetPhiConsumer, jet2_phi, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetPhiConsumer, jet3_phi, 2)
 
 	// Jet Eta
-	PLOT_HIST2D_CONST1(pline, DrawJetEtaConsumer, jet1_eta, 0)
-	PLOT_HIST2D_CONST1(pline, DrawJetEtaConsumer, jet2_eta, 1)
-	PLOT_HIST2D_CONST1(pline, DrawJetEtaConsumer, jet3_eta, 2)
+	PLOT_HIST1D_CONST1(pline, DrawJetEtaConsumer, jet1_eta, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetEtaConsumer, jet2_eta, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetEtaConsumer, jet3_eta, 2)
 
-	PLOT_HIST2D(pline, DrawZEtaConsumer, z_eta)
-	PLOT_HIST2D(pline, DrawZPhiConsumer, z_phi)
+	PLOT_HIST1D(pline, DrawZEtaConsumer, z_eta)
+	PLOT_HIST1D(pline, DrawZPhiConsumer, z_phi)
 
-	PLOT_HIST2D(pline, DrawMuPlusPtConsumer, mu_plus_pt)
-	PLOT_HIST2D(pline, DrawMuMinusPtConsumer, mu_minus_pt)
-	PLOT_HIST2D(pline, DrawMuPlusEtaConsumer, mu_plus_eta)
-	PLOT_HIST2D(pline, DrawMuMinusEtaConsumer, mu_minus_eta)
-	PLOT_HIST2D(pline, DrawMuPlusPhiConsumer, mu_plus_phi)
-	PLOT_HIST2D(pline, DrawMuMinusPhiConsumer, mu_minus_phi)
+	// Response
+	PLOT_HIST1D(pline, DrawJetRespConsumer, jetresp)
+	PLOT_HIST1D(pline, DrawMpfJetRespConsumer, mpfresp)
 
-	PLOT_HIST2D(pline, DrawMuAllPtConsumer, mus_pt)
-	PLOT_HIST2D(pline, DrawMuAllEtaConsumer, mus_eta)
-	PLOT_HIST2D(pline, DrawMuAllPhiConsumer, mus_phi)
+	PLOT_HIST1D(pline, DrawMuPlusPtConsumer, mu_plus_pt)
+	PLOT_HIST1D(pline, DrawMuMinusPtConsumer, mu_minus_pt)
+	PLOT_HIST1D(pline, DrawMuPlusEtaConsumer, mu_plus_eta)
+	PLOT_HIST1D(pline, DrawMuMinusEtaConsumer, mu_minus_eta)
+	PLOT_HIST1D(pline, DrawMuPlusPhiConsumer, mu_plus_phi)
+	PLOT_HIST1D(pline, DrawMuMinusPhiConsumer, mu_minus_phi)
 
-	PLOT_HIST2D(pline, DrawMetConsumer, met)
-	PLOT_HIST2D(pline, DrawTcMetConsumer, tcmet)
+	PLOT_HIST1D(pline, DrawMuAllPtConsumer, mus_pt)
+	PLOT_HIST1D(pline, DrawMuAllEtaConsumer, mus_eta)
+	PLOT_HIST1D(pline, DrawMuAllPhiConsumer, mus_phi)
 
-	PLOT_HIST2D(pline, DrawRecoVertConsumer, recovert)
+	PLOT_HIST1D(pline, DrawMetConsumer, met)
+	PLOT_HIST1D(pline, DrawTcMetConsumer, tcmet)
+
+	PLOT_HIST1D(pline, DrawRecoVertConsumer, recovert)
 
 	/*	Hist2D * hist = new Hist2D;
 	 DrawZMassConsumer * massc = new DrawZMassConsumer();
@@ -310,11 +337,11 @@ bool IsEventHltAccepted(evtData & evt)
 		TString curName = theHLTbit->GetString();
 		//std::cout << "HLT " << curName.Data() << " included" << std::endl;
 
-/*	    if ( res->GetCorrectedJetPt(1) < 5.0  )
- 		res->m_pData->jets[1]->SetMomentum(0.0,0.0,0.0,0.0);
-            if ( res->GetCorrectedJetPt(2) < 5.0  )
-                res->m_pData->jets[2]->SetMomentum(0.0,0.0,0.0,0.0);
-*/
+		/*	    if ( res->GetCorrectedJetPt(1) < 5.0  )
+		 res->m_pData->jets[1]->SetMomentum(0.0,0.0,0.0,0.0);
+		 if ( res->GetCorrectedJetPt(2) < 5.0  )
+		 res->m_pData->jets[2]->SetMomentum(0.0,0.0,0.0,0.0);
+		 */
 		if (hltName == curName)
 		{
 			//std::cout << "!! HLT trigger " << curName.Data() << " matched" << std::endl;
@@ -636,57 +663,57 @@ void PrintEventsReport(std::ostream & out, bool bOnlyInCut)
 void WriteSelectedEvents(TString algoName, TString prefix,
 		EventVector & events, TFile * pFileOut)
 {/*
-	if (g_writeEventsSetting == NoEvents)
-		return;
+ if (g_writeEventsSetting == NoEvents)
+ return;
 
-	TTree* gentree = new TTree(algoName + prefix + "_events", algoName + prefix
-			+ "_events");
+ TTree* gentree = new TTree(algoName + prefix + "_events", algoName + prefix
+ + "_events");
 
-	evtData localData;
-	Double_t l2corr = 1.0f;
-	Double_t l2corrPtJet2 = 1.0f;
-	Double_t l2corrPtJet3 = 1.0f;
+ evtData localData;
+ Double_t l2corr = 1.0f;
+ Double_t l2corrPtJet2 = 1.0f;
+ Double_t l2corrPtJet3 = 1.0f;
 
-	localData.jets[0] = new TParticle();
-	localData.Z = new TParticle();
+ localData.jets[0] = new TParticle();
+ localData.Z = new TParticle();
 
-	// more data can go here
-	gentree->Branch("Z", "TParticle", &localData.Z);
-	gentree->Branch("jet1", "TParticle", &localData.jets[0]);
-	gentree->Branch("jet2", "TParticle", &localData.jets[1]);
-	gentree->Branch("jet3", "TParticle", &localData.jets[2]);
-	gentree->Branch("l2corrJet", &l2corr, "l2corrJet/D");
-	gentree->Branch("l2corrPtJet2", &l2corrPtJet2, "l2corrPtJet2/D");
-	gentree->Branch("l2corrPtJet3", &l2corrPtJet3, "l2corrPtJet3/D");
+ // more data can go here
+ gentree->Branch("Z", "TParticle", &localData.Z);
+ gentree->Branch("jet1", "TParticle", &localData.jets[0]);
+ gentree->Branch("jet2", "TParticle", &localData.jets[1]);
+ gentree->Branch("jet3", "TParticle", &localData.jets[2]);
+ gentree->Branch("l2corrJet", &l2corr, "l2corrJet/D");
+ gentree->Branch("l2corrPtJet2", &l2corrPtJet2, "l2corrPtJet2/D");
+ gentree->Branch("l2corrPtJet3", &l2corrPtJet3, "l2corrPtJet3/D");
 
-	gentree->Branch("cmsEventNum", &localData.cmsEventNum, "cmsEventNum/L");
-	gentree->Branch("cmsRun", &localData.cmsRun, "cmsRun/L");
-	gentree->Branch("luminosityBlock", &localData.luminosityBlock, "cmsRun/L");
-	//  gentree->Branch("xsection",&localData.xsection,"xsection/D");
+ gentree->Branch("cmsEventNum", &localData.cmsEventNum, "cmsEventNum/L");
+ gentree->Branch("cmsRun", &localData.cmsRun, "cmsRun/L");
+ gentree->Branch("luminosityBlock", &localData.luminosityBlock, "cmsRun/L");
+ //  gentree->Branch("xsection",&localData.xsection,"xsection/D");
 
-	EventVector::iterator it;
-	for (it = events.begin(); !(it == events.end()); ++it)
-	{
-		if (it->IsInCut() || (g_writeEventsSetting == AllEvents))
-		{
-			localData.Z = new TParticle(*it->m_pData->Z);
-			localData.jets[0] = new TParticle(*it->m_pData->jets[0]);
-			localData.jets[1] = new TParticle(*it->m_pData->jets[1]);
-			localData.jets[2] = new TParticle(*it->m_pData->jets[2]);
-			l2corr = it->m_l2CorrPtJets[0];
-			l2corrPtJet2 = it->m_l2CorrPtJets[1];
-			l2corrPtJet3 = it->m_l2CorrPtJets[2];
+ EventVector::iterator it;
+ for (it = events.begin(); !(it == events.end()); ++it)
+ {
+ if (it->IsInCut() || (g_writeEventsSetting == AllEvents))
+ {
+ localData.Z = new TParticle(*it->m_pData->Z);
+ localData.jets[0] = new TParticle(*it->m_pData->jets[0]);
+ localData.jets[1] = new TParticle(*it->m_pData->jets[1]);
+ localData.jets[2] = new TParticle(*it->m_pData->jets[2]);
+ l2corr = it->m_l2CorrPtJets[0];
+ l2corrPtJet2 = it->m_l2CorrPtJets[1];
+ l2corrPtJet3 = it->m_l2CorrPtJets[2];
 
-			localData.cmsEventNum = it->m_pData->cmsEventNum;
-			localData.cmsRun = it->m_pData->cmsRun;
-			localData.luminosityBlock = it->m_pData->luminosityBlock;
+ localData.cmsEventNum = it->m_pData->cmsEventNum;
+ localData.cmsRun = it->m_pData->cmsRun;
+ localData.luminosityBlock = it->m_pData->luminosityBlock;
 
-			gentree->Fill();
-		}
-	}
+ gentree->Fill();
+ }
+ }
 
-	pFileOut->cd();
-	gentree->Write();*/
+ pFileOut->cd();
+ gentree->Write();*/
 }
 
 void DrawJetResponsePlots(TString algoName, TFile * pFileOut)
@@ -950,8 +977,8 @@ void DrawHistoSet(TString algoName, TString sPostfix, TFile * pFileOut,
 	 ModEvtDraw( &recovert_draw, useCutParameter, bPtCut, ptLow, ptHigh );
 	 recovert.AddModifier(new CModBinCount(15));
 	 recovert.Execute <  EventVector & > ( g_eventsDataset, &recovert_draw );
-    recovert.AddModifier(new CModBinCount(15));
-    
+	 recovert.AddModifier(new CModBinCount(15));
+
 	 if ( g_plotCutEff )
 	 {
 	 CGrapErrorDrawBase < EventVector &,
@@ -1051,9 +1078,9 @@ void drawHistoBins(std::string sName, std::string tags, TFile * pFileOut,
 // cut / nocut without bins...
 std::stringstream newTags (stringstream::in| stringstream::out);
 DrawHistoSet( sName,tags, pFileOut, bUseCut, false );
-    
-    // Draw Histos which use other histos as input
-    //Draw2ndLevelHistoSet( sName,tags, pFileOut, bUseCut, false );
+
+// Draw Histos which use other histos as input
+//Draw2ndLevelHistoSet( sName,tags, pFileOut, bUseCut, false );
 
 }
 

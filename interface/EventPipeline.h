@@ -6,6 +6,8 @@
 
 #include <boost/property_tree/ptree.hpp>
 
+#include <memory>
+
 #include <sstream>
 #include <typeinfo>
 
@@ -17,17 +19,65 @@
 #include "PtBinWeighter.h"
 #include "EventData.h"
 
+
+/*
+This macro implements a Setting Propery including the property tree get\put methods
+ */
+
 #define IMPL_SETTING(TYPE, SNAME) \
 private: \
 TYPE m_##SNAME; 															\
 public: \
 std::string Key##SNAME () { return "##SNAME"; } 							\
 std::string FullKey##SNAME () { return GetSettingsRoot() + "." + #SNAME; } 							\
-TYPE Get##SNAME ( ) { return GetPropTree()->get< TYPE >( FullKey##SNAME ()); }		\
-void Set##SNAME ( TYPE val) { GetPropTree()->put( FullKey##SNAME (), val); }											\
+VarCache<TYPE> Cache##SNAME; \
+TYPE Get##SNAME ( ) { if (Cache##SNAME.IsCached()) { return Cache##SNAME.GetValue(); } 	\
+	TYPE  val = GetPropTree()->get< TYPE >( FullKey##SNAME ());	\
+	Cache##SNAME.SetCache( val ); \
+	return val;}		\
+void Set##SNAME ( TYPE val) { GetPropTree()->put( FullKey##SNAME (), val);	\
+								Cache##SNAME.SetCache( val );}	\
+
+
+#define RETURN_CACHED(CACHE_MEMBER,VALUEPATH) \
+{ if (! CACHE_MEMBER.IsCached() ) \
+		CACHE_MEMBER.SetCache( VALUEPATH ); \
+return CACHE_MEMBER.GetValue(); }\
 
 namespace CalibFW
 {
+
+template <class TData >
+class VarCache
+{
+public:
+	VarCache() : m_isCached(false)
+	{
+
+	}
+
+	void SetCache( TData t)
+	{
+		m_val = t;
+		m_isCached = true;
+	}
+
+	TData GetValue( )
+	{
+		if (!m_isCached)
+			CALIB_LOG_FATAL("not Cached variable used")
+
+		return m_val;
+	}
+
+	bool IsCached()
+	{
+		return m_isCached;
+	}
+
+	bool m_isCached;
+	TData m_val;
+};
 
 class PropertyTreeSupport
 {
@@ -68,6 +118,8 @@ IMPL_PROPERTY(std::string, SettingsRoot)
 IMPL_SETTING(double, FilterPtBinLow)
 IMPL_SETTING(double, FilterPtBinHigh)
 IMPL_SETTING(std::string, AlgoName)
+IMPL_SETTING(std::string, RootFileFolder)
+
 
 // Cut settings
 IMPL_SETTING(double, CutMuonPt)
@@ -119,16 +171,20 @@ double m_cutZPt;
  g_cutHandler.AddCut( new ZPtCut(p.getDouble( secname + ".cut_zpt" )));
  */
 
+VarCache< stringvector > m_filter;
+
 stringvector GetFilter()
 {
-	return PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".Filter");
+	RETURN_CACHED( m_filter, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".Filter") )
 }
 
 // TODO: maybe cache this for better performance
+
+VarCache< stringvector > m_cuts;
+
 stringvector GetCuts()
 {
-
-	return PropertyTreeSupport::GetAsStringList( GetPropTree(),GetSettingsRoot() + ".Cuts" );
+	RETURN_CACHED( m_cuts,PropertyTreeSupport::GetAsStringList( GetPropTree(),GetSettingsRoot() + ".Cuts" ) )
 }
 /*
  void AddFilter( std::string sFilterId)
