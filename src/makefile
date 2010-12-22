@@ -17,11 +17,11 @@ ROOTLIBS      = $(shell root-config --libs --glibs)
 ROOTGLIBS     = $(shell root-config --glibs)
 ROOTLDFLAGS   = $(shell root-config --ldflags)
 
-BOOST_INC = /afs/naf.desy.de/group/cms/sw/slc4_ia32_gcc345/external/boost/1.38.0/include/
+BOOST_INC = /afs/naf.desy.de/group/cms/sw/slc5_ia32_gcc434/external/boost/1.42.0/include
 
 CPPFLAGS      = -I${BOOST_INC} -I${INCL}/
 CXX 	      = /usr/bin/g++
-CXXFLAGS      = -O0 -g -Wall -fPIC $(ROOTCFLAGS)
+CXXFLAGS      = -O3 -Wall -fPIC $(ROOTCFLAGS)
 LD	      = /usr/bin/g++
 LDFLAGS       = $(ROOTLDFLAGS) -rdynamic
 
