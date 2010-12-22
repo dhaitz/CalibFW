@@ -180,6 +180,25 @@ stringvector GetFilter()
 }
 
 
+std::vector<PtBin> GetAsPtBins( stringvector & sv )
+{
+	std::vector< PtBin >  bins;
+
+	int i = 0;
+	for ( stringvector::iterator it = (sv.begin() + 1);
+			it != sv.end();
+			it ++)
+	{
+		int ilow = atoi ( sv[i].c_str() );
+		int ihigh = atoi ( sv[i+1].c_str() );
+
+		bins.push_back( PtBin( ilow, ihigh));
+		i++;
+	}
+
+	return bins;
+}
+
 VarCache< stringvector > m_jetRespBins;
 
 stringvector GetJetResponseBins()

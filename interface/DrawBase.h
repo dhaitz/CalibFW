@@ -557,39 +557,33 @@ IMPL_HIST1D_JET_MOD1(DrawJetPhiConsumer ,
 class DrawJetRespGraph: public DrawGraphErrorsConsumerBase<EventResult>
 {
 public:
-	DrawJetRespGraph( std::string sInpHist ) : m_sInpHist( sInpHist) ,
-		DrawGraphErrorsConsumerBase<EventResult>()
+	DrawJetRespGraph( std::string sInpHist ) : 	DrawGraphErrorsConsumerBase<EventResult>(),
+		m_sInpHist( sInpHist)
 	{
+
 	}
 
 	virtual void Process()
 	{
 		// move throug the histos
-
 		stringvector sv = this->GetPipelineSettings()->GetJetResponseBins();
-
-		CALIB_LOG(sv.size())
+		std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
 
 		int i = 0;
-		for ( stringvector::iterator it = (sv.begin() + 1);
-				it != sv.end();
+		for (std::vector< PtBin >::iterator it = bins.begin();
+				it != bins.end();
 				it ++)
 		{
-			int ilow = atoi ( sv[i].c_str() );
-			int ihigh = atoi ( sv[i+1].c_str() );
-
-			PtBin * ptBin = new PtBin( ilow, ihigh);
-
 			this->GetPipelineSettings()->GetRootOutFile()->cd( "" );
 
 			TString sName = RootNamer::GetHistoName(
 					this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
-					this->GetPipelineSettings()->GetInputType(), 0, ptBin, false);
+					this->GetPipelineSettings()->GetInputType(), 0, &(*it), false);
 			TH1D * hresp = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get( sName );
 
 			sName = RootNamer::GetHistoName(
 					this->GetPipelineSettings()->GetAlgoName(), "z_pt",
-					this->GetPipelineSettings()->GetInputType(), 0, ptBin, false);
+					this->GetPipelineSettings()->GetInputType(), 0, &(*it), false);
 			TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get( sName );
 
 			m_graph->AddPoint( hpt->GetMean(), hresp->GetMean(), hpt->GetMeanError(), hresp->GetMeanError());
