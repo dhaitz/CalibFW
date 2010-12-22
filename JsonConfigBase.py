@@ -5,6 +5,7 @@ def GetBaseConfig():
     
     d["Algos"] = ["ak5PF"]
     d["Pipelines"] = { "default": {
+            "Level": 1,
             "RootFileFolder": "",
             "CutMuonEta": 2.3,
             "CutMuonPt": 15,
@@ -13,12 +14,11 @@ def GetBaseConfig():
             "CutSecondLeadingToZPt": 0.2,
             "CutBack2Back": 0.34,
             "Cuts": ["muon_pt",
-                     "zmass_window",
-                     "zmass_window",
-                     "back_to_back",
-                     "secondleading_to_zpt",
+                     "muon_eta",
                      "leadingjet_eta",
-                     "muon_eta"],
+                     "secondleading_to_zpt",
+                     "back_to_back",
+                     "zmass_window"],
             "Filter":[]
                       }
             }
@@ -48,14 +48,16 @@ def GetDataBaseConfig():
 
     return d
 
-
+# does not work right now
 def ExpandRange( pipelineDict, varName, vals, setRootFolder):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
         for v in vals:
+            print( elem )
             newPipe = copy.deepcopy(elem)
-            newPipe[ varName ] = vals
+            print( newPipe )
+            newPipe[ varName ] = v
             
             newName = name + "var_" + varName + "_" + str(v)
             if ( setRootFolder ):

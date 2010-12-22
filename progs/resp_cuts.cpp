@@ -153,6 +153,21 @@ object_##DRAW_CONSUMER->m_sQuantityName = #QUANTITY_NAME; \
 object_##DRAW_CONSUMER->m_hist = hist_##DRAW_CONSUMER; \
 PIPELINE->m_consumer.push_back(object_##DRAW_CONSUMER); }
 
+#define PLOT_GRAPHERRORS( PIPELINE, DRAW_CONSUMER, QUANTITY_NAME) \
+{ GraphErrors * hist_##DRAW_CONSUMER = new GraphErrors; \
+DRAW_CONSUMER * object_##DRAW_CONSUMER = new  DRAW_CONSUMER(); \
+object_##DRAW_CONSUMER->m_sQuantityName = #QUANTITY_NAME; \
+object_##DRAW_CONSUMER->m_graph = hist_##DRAW_CONSUMER; \
+PIPELINE->m_consumer.push_back(object_##DRAW_CONSUMER); }
+
+#define PLOT_GRAPHERRORS_COND1( PIPELINE, DRAW_CONSUMER, QUANTITY_NAME, CONST_PARAMS) \
+{ GraphErrors * hist_##DRAW_CONSUMER = new GraphErrors; \
+DRAW_CONSUMER * object_##DRAW_CONSUMER = new  DRAW_CONSUMER( CONST_PARAMS); \
+object_##DRAW_CONSUMER->m_sQuantityName = #QUANTITY_NAME; \
+object_##DRAW_CONSUMER->m_graph = hist_##DRAW_CONSUMER; \
+PIPELINE->m_consumer.push_back(object_##DRAW_CONSUMER); }
+
+
 class ExcludedEvent
 {
 public:
@@ -205,8 +220,6 @@ TChain * g_pChain;
 
 EventDataVector g_trackedEvents;
 
-//EventSet g_eventsInCut;
-EventVector g_eventsDataset;
 PtBinWeighter g_mcWeighter;
 
 typedef std::vector<PipelineSettings *> PipelineSettingsVector;
@@ -231,10 +244,35 @@ void RunPipelinesForEvent(EventResult & event)
 	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
 			== g_pipelines.end()); it++)
 	{
-		g_cutHandler.ConfigureCuts(it->GetSettings());
-		g_cutHandler.ApplyCuts(&event);
-		it->RunEvent(event);
+		if (it->GetSettings()->GetLevel() == 1)
+		{
+			g_cutHandler.ConfigureCuts(it->GetSettings());
+			g_cutHandler.ApplyCuts(&event);
+			it->RunEvent(event);
+		}
 	}
+}
+
+void RunPipelines(int level)
+{
+	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
+			== g_pipelines.end()); it++)
+	{
+		if (it->GetSettings()->GetLevel() == level)
+		{
+			it->Run();
+		}
+	}
+}
+
+EventPipeline * CreateLevel2Pipeline()
+{
+	EventPipeline * pline = new EventPipeline();
+
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, jetresp, "jetresp" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, mpfresp, "mpfresp" )
+
+	return pline;
 }
 
 // Generates the default pipeline which is run on all events.
@@ -291,6 +329,7 @@ EventPipeline * CreateDefaultPipeline()
 
 	PLOT_HIST1D(pline, DrawRecoVertConsumer, recovert)
 
+	//PLOT_GRAPHERRORS( pline, DrawJetRespBase, jetresp )
 	/*	Hist2D * hist = new Hist2D;
 	 DrawZMassConsumer * massc = new DrawZMassConsumer();
 	 massc->m_sQuantityName = "zmass";
@@ -397,13 +436,16 @@ void importEvents(bool bUseJson,
 	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 			== g_pipeSettings.end()); it++)
 	{
-		EventPipeline * pLine = CreateDefaultPipeline();
+		if ((*it)->GetLevel() == 1)
+		{
+			EventPipeline * pLine = CreateDefaultPipeline();
 
-		// set the algo used for this run
-		(*it)->SetAlgoName(g_sCurAlgo);
+			// set the algo used for this run
+			(*it)->SetAlgoName(g_sCurAlgo);
 
-		pLine->InitPipeline(*it);
-		g_pipelines.push_back(pLine);
+			pLine->InitPipeline(*it);
+			g_pipelines.push_back(pLine);
+		}
 	}
 
 	CALIB_LOG_FILE( "Running " << g_pipelines.size() << " Pipeline(s) on events")
@@ -456,10 +498,36 @@ void importEvents(bool bUseJson,
 		it->FinishPipeline();
 	}
 
-	CALIB_LOG_FILE("All pipelines done")
+	CALIB_LOG_FILE("All level 1 pipelines done")
 
-	// sort by evt/run number
-	g_eventsDataset.sort(CompareEventResult());
+	CALIB_LOG_FILE("Running level 2 pipelines")
+
+	// cloning of a pipeline ?? goes here maybe
+	// clone default pipeline for the number of settings we have
+	g_pipelines.clear();
+
+	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
+			== g_pipeSettings.end()); it++)
+	{
+		if ((*it)->GetLevel() == 2)
+		{
+			EventPipeline * pLine = CreateLevel2Pipeline();
+
+			// set the algo used for this run
+			(*it)->SetAlgoName(g_sCurAlgo);
+
+			pLine->InitPipeline(*it);
+			g_pipelines.push_back(pLine);
+		}
+	}
+
+	RunPipelines(2);
+	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
+			== g_pipelines.end()); it++)
+	{
+		it->FinishPipeline();
+	}
+	CALIB_LOG_FILE("All level 2 pipelines done")
 }
 
 TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
@@ -536,130 +604,67 @@ inline void PrintEvent(EventResult & data, std::ostream & out,
 		delete pForm;
 }
 
-void ReapplyCut(bool bUseJson)
-{
-	for (EventVector::iterator iter = g_eventsDataset.begin(); !(iter
-			== g_eventsDataset.end()); ++iter)
-	{
-		//        applyCut( &*iter, bUseJson );
-		g_cutHandler.SetEnableCut(JsonCut::CudId, bUseJson);
-		g_cutHandler.ApplyCuts(&*iter);
-	}
-}
+/*
+ void PrintTrackedEventsReport(bool bShort = false)
+ {
+ EventFormater eFormat;
 
-void PrintCutReport(std::ostream & out)
-{
-	std::map<std::string, long> CountMap;
+ eFormat.Header(std::cout);
+ std::cout << std::endl;
 
-	for (EventVector::iterator iter = g_eventsDataset.begin(); !(iter
-			== g_eventsDataset.end()); ++iter)
-	{
-		CountMap[iter->m_sCutUsed]++;
-	}
+ for (EventVector::iterator iter = g_eventsDataset.begin(); !(iter
+ == g_eventsDataset.end()); iter++)
+ {
+ bool bFound = false;
 
-	out << std::setprecision(3) << std::fixed;
-	out << "--- Event Cut Report ---" << std::endl;
-	out << std::setw(35) << "CutName" << std::setw(20) << "EvtsLeftRel [%]"
-			<< std::setw(20) << "EvtsLeft" << std::setw(20)
-			<< "EvtsDropRel [%]" << std::setw(20) << "EvtsDropAbs"
-			<< std::setw(20) << std::endl;
+ for (EventDataVector::iterator iterTracked = g_trackedEvents.begin(); !(iterTracked
+ == g_trackedEvents.end()); iterTracked++)
+ {
+ {
+ if ((iterTracked->cmsRun == iter->m_pData->cmsRun)
+ && (iterTracked->cmsEventNum
+ == iter->m_pData->cmsEventNum))
+ {
+ if (iter->IsInCut())
+ bFound = true;
+ }
+ }
+ }
 
-	/// todo: actually use the processed events from root file
+ if (!bFound)
+ {
+ std::cout << std::endl << "Event " << iter->m_pData->cmsRun << ":"
+ << iter->m_pData->cmsEventNum
+ << " not in tracked Events List";
+ }
+ }
+ }
 
-	long overallCountLeft = g_lOverallNumberOfProcessedEvents;
-	//long refCount = g_eventsDataset.size();
-	double droppedRel;
+ void PrintEventsReport(std::ostream & out, bool bOnlyInCut)
+ {
+ EventVector::iterator iterInCut;
 
-	out << std::setw(35) << "NumberOfProcessedEvents" << std::setw(20)
-			<< overallCountLeft << std::endl;
+ EventFormater eFormat;
+ eFormat.Header(out);
+ out << std::endl;
 
-	droppedRel = 1.0f - (double) (g_eventsDataset.size())
-			/ (double) overallCountLeft;
-	overallCountLeft = g_eventsDataset.size();
-	out << std::setw(35) << "0) precuts" << std::setw(20)
-			<< (1.0f - droppedRel) * 100.0f << std::setw(20)
-			<< overallCountLeft << std::setw(20) << droppedRel * 100.0f
-			<< std::setw(20) << (g_lOverallNumberOfProcessedEvents
-			- g_eventsDataset.size()) << std::endl;
+ out << "Events in Cut" << std::endl << std::endl;
 
-	for (std::map<std::string, long>::iterator iter = CountMap.begin(); !(iter
-			== CountMap.end()); ++iter)
-	{
-		droppedRel = 1.0f - (double) (overallCountLeft - iter->second)
-				/ (double) overallCountLeft;
-		overallCountLeft -= iter->second;
-		if (iter->first == "8) within cut")
-			out << std::setw(35) << iter->first << std::setw(20)
-					<< iter->second << std::endl;
-		else
-			out << std::setw(35) << iter->first << std::setw(20) << (1.0f
-					- droppedRel) * 100.0f << std::setw(20) << overallCountLeft
-					<< std::setw(20) << droppedRel * 100.0f << std::setw(20)
-					<< iter->second << std::endl;
-	}
+ int i = 0;
 
-}
+ for (iterInCut = g_eventsDataset.begin(); !(iterInCut
+ == g_eventsDataset.end()); iterInCut++)
+ {
+ if (iterInCut->IsInCut() || (!bOnlyInCut))
+ {
+ PrintEvent(*iterInCut, out, NULL, true);
+ ++i;
+ }
+ }
 
-void PrintTrackedEventsReport(bool bShort = false)
-{
-	EventFormater eFormat;
-
-	eFormat.Header(std::cout);
-	std::cout << std::endl;
-
-	for (EventVector::iterator iter = g_eventsDataset.begin(); !(iter
-			== g_eventsDataset.end()); iter++)
-	{
-		bool bFound = false;
-
-		for (EventDataVector::iterator iterTracked = g_trackedEvents.begin(); !(iterTracked
-				== g_trackedEvents.end()); iterTracked++)
-		{
-			{
-				if ((iterTracked->cmsRun == iter->m_pData->cmsRun)
-						&& (iterTracked->cmsEventNum
-								== iter->m_pData->cmsEventNum))
-				{
-					if (iter->IsInCut())
-						bFound = true;
-				}
-			}
-		}
-
-		if (!bFound)
-		{
-			std::cout << std::endl << "Event " << iter->m_pData->cmsRun << ":"
-					<< iter->m_pData->cmsEventNum
-					<< " not in tracked Events List";
-		}
-	}
-}
-
-void PrintEventsReport(std::ostream & out, bool bOnlyInCut)
-{
-	EventVector::iterator iterInCut;
-
-	EventFormater eFormat;
-	eFormat.Header(out);
-	out << std::endl;
-
-	out << "Events in Cut" << std::endl << std::endl;
-
-	int i = 0;
-
-	for (iterInCut = g_eventsDataset.begin(); !(iterInCut
-			== g_eventsDataset.end()); iterInCut++)
-	{
-		if (iterInCut->IsInCut() || (!bOnlyInCut))
-		{
-			PrintEvent(*iterInCut, out, NULL, true);
-			++i;
-		}
-	}
-
-	cout << ">> " << i << " Events in Cut" << std::endl;
-}
-
+ cout << ">> " << i << " Events in Cut" << std::endl;
+ }
+ */
 void WriteSelectedEvents(TString algoName, TString prefix,
 		EventVector & events, TFile * pFileOut)
 {/*

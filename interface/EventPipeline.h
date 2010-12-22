@@ -120,6 +120,8 @@ IMPL_SETTING(double, FilterPtBinHigh)
 IMPL_SETTING(std::string, AlgoName)
 IMPL_SETTING(std::string, RootFileFolder)
 
+// only level 1 runs directly on data
+IMPL_SETTING(int, Level)
 
 // Cut settings
 IMPL_SETTING(double, CutMuonPt)
@@ -131,7 +133,6 @@ IMPL_SETTING(double, CutLeadingJetEta)
 IMPL_SETTING(double, CutSecondLeadingToZPt)
 IMPL_SETTING(double, CutBack2Back)
 IMPL_SETTING(double, CutJetPt)
-
 
 IMPL_PROPERTY(TFile *, RootOutFile)
 
@@ -178,6 +179,13 @@ stringvector GetFilter()
 	RETURN_CACHED( m_filter, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".Filter") )
 }
 
+
+VarCache< stringvector > m_jetRespBins;
+
+stringvector GetJetResponseBins()
+{
+	RETURN_CACHED( m_jetRespBins, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".JetResponseBins") )
+}
 // TODO: maybe cache this for better performance
 
 VarCache< stringvector > m_cuts;
@@ -345,10 +353,16 @@ virtual void Finish() = 0;
 
 // this method is only called for events which have passed the filter imposed on the
 // pipeline
-virtual void ProcessFilteredEvent(TData & event) = 0;
+virtual void ProcessFilteredEvent(TData & event){
+}
 
 // this method is called for all events
 virtual void ProcessEvent(TData & event, FilterResult & result)
+{
+}
+
+// this method is called for seconddary pipelines
+virtual void Process()
 {
 }
 
@@ -405,6 +419,15 @@ void FinishPipeline()
 	for (FilterVector::iterator itfilter = m_filter.begin(); !(itfilter
 					== m_filter.end()); itfilter++)
 	itfilter->Finish();
+}
+
+void Run()
+{
+	for (ConsumerVector::iterator itcons = m_consumer.begin(); !(itcons
+					== m_consumer.end()); itcons++)
+	{
+		itcons->Process();
+	}
 }
 
 void RunEvent(EventResult & evt)

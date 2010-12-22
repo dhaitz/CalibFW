@@ -39,13 +39,35 @@ public:
 		CALIB_LOG_FILE("Cut Report:")
 		CALIB_LOG_FILE("Overall Event Count: "  << m_eventCount )
 
-		for ( std::map<std::string, unsigned long>::iterator it = m_cutRejected.begin();
-				it != m_cutRejected.end();
-				it++)
+        unsigned long overallCountLeft = m_eventCount;
+		double droppedRel = 0.0f;
+
+		CALIB_LOG_FILE( std::setprecision(3) << std::fixed )
+		CALIB_LOG_FILE( "--- Event Cut Report ---" )
+		CALIB_LOG_FILE( std::setw(20) << "CutName" << std::setw(23) << "EvtsLeftRel [%]" << std::setw(23)<< "EvtsLeft" << std::setw(23)<< "EvtsDropRel [%]"<< std::setw(21)  << "EvtsDropAbs")
+
+		BOOST_FOREACH( EventCutBase< EventResult *> &c, g_cutHandler.GetCuts() )
 		{
-			CALIB_LOG_FILE((*it).first  << " : " << (*it).second << " : "
-					<<  std::setprecision(5) << (((float)(*it).second)/(float)m_eventCount) )
+			unsigned long rejAbs = m_cutRejected[c.GetCutShortName()];
+
+			if ( c.m_bCutEnabled )
+			{
+		        droppedRel = 1.0f -(double) ( overallCountLeft - rejAbs ) / (double) overallCountLeft;
+
+				CALIB_LOG_FILE(std::setw(20) << c.GetCutShortName() << " : "
+								<< std::setw(20) << std::setprecision(5) << (1.0f - droppedRel) * 100.0f
+								<< std::setw(20) << overallCountLeft - rejAbs
+								<< std::setw(20) << std::setprecision(5) << droppedRel * 100.0f
+								<< std::setw(20) << rejAbs)
+
+		        overallCountLeft -= rejAbs;
+			}
+			else
+			{
+				CALIB_LOG_FILE(std::setw(20) << c.GetCutShortName()  << " : disabled")
+			}
 		}
+		CALIB_LOG_FILE( "Events left after Cuts : " << overallCountLeft )
 	}
 
 	// this method is only called for events which have passed the filter imposed on the
@@ -59,7 +81,6 @@ public:
 	virtual void ProcessEvent(EventResult & event, FilterResult & result)
 	{
 		m_eventCount++;
-
 		BOOST_FOREACH( EventCutBase< EventResult *> &c, g_cutHandler.GetCuts() )
 		{
 			if ( c.m_bCutEnabled )
@@ -67,6 +88,9 @@ public:
 				if ( g_cutHandler.IsCutInBitmask( c.GetId(), event.m_cutBitmask ))
 				{
 					m_cutRejected[ c.GetCutShortName() ]++;
+					// we only want to store the number of events, which were effectively kicked by one
+					// cut here
+					break;
 				}
 			}
 		}

@@ -4,8 +4,13 @@
 #include <string>
 #include <iostream>
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <boost/ptr_container/ptr_list.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
-#include <boost/smart_ptr/scoped_ptr.hpp>
+
+
 
 #include <typeinfo>
 
@@ -147,6 +152,87 @@ class HistBase: public PlotBase<THistType>
 {
 };
 
+
+template < class THistType >
+class GraphBase: public PlotBase<THistType>
+{
+};
+
+
+class GraphErrors: public PlotBase< GraphErrors>
+{
+public:
+
+	class DataPoint
+	{
+	public:
+		DataPoint ( double x, double y, double xe, double ye)
+			: m_fx( x), m_fy(y), m_fxe(xe), m_fye( ye)
+		{
+
+		}
+
+		double m_fx, m_fy, m_fxe, m_fye;
+	};
+
+	GraphErrors() :
+		m_sName("default_graph_name"), m_sCaption("default_graph_caption")
+	{
+	}
+
+	void Init()
+	{
+	}
+
+	void Store(TFile * pRootFile)
+	{
+		this->RunModifierBeforeCreation( this );
+		m_graph = new TGraphErrors( m_points.size());
+		m_graph->SetName( m_sName.c_str() );
+		//m_graph->SetCaption( m_sCaption.c_str() );
+
+		this->RunModifierBeforeDataEntry( this );
+
+		unsigned long l = 0;
+		for ( boost::ptr_vector<DataPoint>::iterator it = m_points.begin();
+			!( it == m_points.end()); it++)
+		{
+			m_graph->SetPoint(l,  it->m_fx, it->m_fy);
+			m_graph->SetPointError(l,  it->m_fxe, it->m_fye);
+
+			l++;
+		}
+
+		this->RunModifierAfterDataEntry(this );
+		this->RunModifierAfterDraw( this );
+
+		CALIB_LOG( "Storing GraphErrors " + this->m_sRootFileFolder + "/" + this->m_sName + "_graph" )
+
+		if ( pRootFile->cd( this->m_sRootFileFolder.c_str() ) == false)
+		{
+			pRootFile->mkdir( this->m_sRootFileFolder.c_str() );
+			pRootFile->cd( this->m_sRootFileFolder.c_str() );
+		}
+		m_graph->Write((this->m_sName + "_graph").c_str());
+	}
+
+	void AddPoint( double x, double y, double xe, double ye )
+	{
+		m_points.push_back( new DataPoint( x, y, xe, ye ) );
+	}
+
+	std::string m_sName;
+	std::string m_sCaption;
+	std::string m_sRootFileFolder;
+	int m_iBinCount;
+	double m_dBinLower;
+	double m_dBinUpper;
+
+	boost::ptr_vector<DataPoint> m_points;
+
+	TGraphErrors * m_graph;
+};
+
 class Hist1D: public HistBase< Hist1D>
 {
 public:
@@ -161,8 +247,8 @@ public:
 	void Init()
 	{
 		this->RunModifierBeforeCreation( this );
-		m_hist.reset(new TH1D(this->m_sName.c_str(), this->m_sCaption.c_str(),
-				this->m_iBinCount, this->m_dBinLower, this->m_dBinUpper));
+		m_hist = new TH1D(this->m_sName.c_str(), this->m_sCaption.c_str(),
+				this->m_iBinCount, this->m_dBinLower, this->m_dBinUpper);
 		this->RunModifierBeforeDataEntry( this );
 	}
 
@@ -193,7 +279,7 @@ public:
 	double m_dBinLower;
 	double m_dBinUpper;
 
-	boost::scoped_ptr<TH1D> m_hist;
+	TH1D * m_hist;
 };
 
 class EventDump: public EventConsumerBase<EventResult>
@@ -260,6 +346,36 @@ public:
 	}
 
 	std::string m_sQuantityName;
+};
+
+template<class TData>
+class DrawGraphErrorsConsumerBase: public DrawConsumerBase<TData>
+{
+public:
+	DrawGraphErrorsConsumerBase() :
+		m_graph(NULL)
+	{
+	}
+
+	virtual void Init(EventPipeline * pset)
+	{
+		DrawConsumerBase<TData>::Init(pset);
+		CALIB_LOG( "Initializing GraphErrors for " << this->GetProductName() )
+
+		m_graph->m_sName = m_graph->m_sCaption = this->GetProductName();
+		m_graph->m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+		m_graph->Init();
+	}
+
+	virtual void Finish()
+	{
+		// store hist
+		// + modifiers
+		//CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
+		m_graph->Store(this->GetPipelineSettings()->GetRootOutFile());
+	}
+	// already configured histogramm
+	GraphErrors * m_graph;
 };
 
 template<class TData>
@@ -437,105 +553,51 @@ IMPL_HIST1D_JET_MOD1(DrawJetPhiConsumer ,
 		new ModHistBinRange(-3.5f, 3.5f) )
 
 
-class EventSelectionBase
+
+class DrawJetRespGraph: public DrawGraphErrorsConsumerBase<EventResult>
 {
 public:
-	// default implementation, no selection performed
-	virtual bool IsEventInSelecction(EventId id)
+	DrawJetRespGraph( std::string sInpHist ) : m_sInpHist( sInpHist) ,
+		DrawGraphErrorsConsumerBase<EventResult>()
 	{
-		return true;
-	}
-};
-
-class CutSelection: public EventSelectionBase
-{
-public:
-	CutSelection(EventSet * eventsInCut)
-	{
-		this->m_pEventsInCut = eventsInCut;
 	}
 
-	virtual inline bool IsEventInSelecction(EventId id)
+	virtual void Process()
 	{
-		return (m_pEventsInCut->find(id) != m_pEventsInCut->end());
-	}
+		// move throug the histos
 
-private:
-	EventSet * m_pEventsInCut;
+		stringvector sv = this->GetPipelineSettings()->GetJetResponseBins();
 
-};
+		CALIB_LOG(sv.size())
 
-template<class TData>
-class CHistDataDrawBase
-{
-public:
-	virtual void Draw(TH1D * pHist, TData data) = 0;
-};
-
-template<class THistType>
-class CHistEvtMapTemplate: public CHistDataDrawBase<EventResult>
-{
-public:
-	CHistEvtMapTemplate()
-	{
-		m_bOnlyEventsInCut = true;
-		m_bUsePtCut = true;
-		m_binWith = ZPtBinning;
-	}
-
-	enum BinWithEnum
-	{
-		ZPtBinning, Jet1PtBinning
-	};
-
-	virtual void HistFill(THistType * pHist, double fillValue,
-			EventResult & Res)
-	{
-		pHist->Fill(fillValue, Res.m_weight);
-	}
-
-	BinWithEnum m_binWith;
-
-	// default behavior, might get more complex later on
-	bool IsInSelection(EventResult & evRes)
-	{
-		bool bPass = true;
-		// no section here is allowed to set to true again, just to false ! avoids coding errors
-		if (this->m_bOnlyEventsInCut)
+		int i = 0;
+		for ( stringvector::iterator it = (sv.begin() + 1);
+				it != sv.end();
+				it ++)
 		{
-			if (!evRes.IsInCut())
-				bPass = false;
-		}
-		else
-		{
-			// all events which are valid in jSON file
-			// does this work for mc ??
-			if (!evRes.IsValidEvent())
-				bPass = false;
+			int ilow = atoi ( sv[i].c_str() );
+			int ihigh = atoi ( sv[i+1].c_str() );
+
+			PtBin * ptBin = new PtBin( ilow, ihigh);
+
+			this->GetPipelineSettings()->GetRootOutFile()->cd( "" );
+
+			TString sName = RootNamer::GetHistoName(
+					this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+					this->GetPipelineSettings()->GetInputType(), 0, ptBin, false);
+			TH1D * hresp = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get( sName );
+
+			sName = RootNamer::GetHistoName(
+					this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+					this->GetPipelineSettings()->GetInputType(), 0, ptBin, false);
+			TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get( sName );
+
+			m_graph->AddPoint( hpt->GetMean(), hresp->GetMean(), hpt->GetMeanError(), hresp->GetMeanError());
+			i++;
 		}
 
-		if (m_bUsePtCut)
-		{
-			double fBinVal;
-			if (m_binWith == ZPtBinning)
-				fBinVal = evRes.m_pData->Z->Pt();
-			else
-				fBinVal = evRes.GetCorrectedJetPt(0);
-
-			if (!(fBinVal >= this->m_dLowPtCut))
-				bPass = false;
-
-			if (!(fBinVal < this->m_dHighPtCut))
-				bPass = false;
-		}
-
-		return bPass;
 	}
-
-	bool m_bOnlyEventsInCut;
-	bool m_bUsePtCut;
-	double m_dLowPtCut;
-	double m_dHighPtCut;
+	std::string m_sInpHist;
 };
 
 }
