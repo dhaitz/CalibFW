@@ -206,7 +206,7 @@ public:
 		this->RunModifierAfterDataEntry(this );
 		this->RunModifierAfterDraw( this );
 
-		CALIB_LOG( "Storing GraphErrors " + this->m_sRootFileFolder + "/" + this->m_sName + "_graph" )
+		//CALIB_LOG( "Storing GraphErrors " + this->m_sRootFileFolder + "/" + this->m_sName + "_graph" )
 
 		if ( pRootFile->cd( this->m_sRootFileFolder.c_str() ) == false)
 		{
@@ -257,7 +257,7 @@ public:
 		this->RunModifierAfterDataEntry(this );
 		this->RunModifierAfterDraw( this );
 
-		CALIB_LOG( "Storing Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
+		//CALIB_LOG( "Storing Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
 
 		if ( pRootFile->cd( this->m_sRootFileFolder.c_str() ) == false)
 		{
