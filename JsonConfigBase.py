@@ -7,6 +7,7 @@ def GetBaseConfig():
     d["Pipelines"] = { "default": {
             "Level": 1,
             "RootFileFolder": "",
+            "AdditionalConsumer": [],
             "CutMuonEta": 2.3,
             "CutMuonPt": 15,
             "CutZMassWindow": 20,
@@ -43,13 +44,14 @@ def GetDataBaseConfig():
     d["UseEventWeight"] = 0
     d["InputType"] = "data"
     
-    for key, val in d["Pipelines"].items(): 
+    for key, val in d["Pipelines"].items():
+        val["Cuts"].append( "hlt" ) 
         val["Cuts"].append( "json" )
 
     return d
 
 # does not work right now
-def ExpandRange( pipelineDict, varName, vals, setRootFolder):
+def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
@@ -59,14 +61,17 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder):
             print( newPipe )
             newPipe[ varName ] = v
             
-            newName = name + "var_" + varName + "_" + str(v)
-            if ( setRootFolder ):
-                newDict["RootFileFolder"] = newName
+            newName = name + "var_" + varName + "_" + str(v).replace(".", "_")
             
             newDict[newName] = newPipe
+            if ( setRootFolder ):
+                newDict[newName]["RootFileFolder"] = newName
 
-    return newDict
 
+    if includeSource:
+        return dict( pipelineDict.items() +  newDict.items() )
+    else:
+        return newDict
 
 def ExpandCutNoCut( pipelineDict):
     newDict = dict()
@@ -82,18 +87,23 @@ def ExpandCutNoCut( pipelineDict):
 
     return newDict
 
-def Expand( pipelineDict, expandCount):
+def Expand( pipelineDict, expandCount, includeSource):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
         for i in range( expandCount):
             newPipe = copy.deepcopy(elem)
             newDict[name + str(i) ] = newPipe
+    
+    if includeSource:
+        return dict( pipelineDict.items() +  newDict.items() )
+    else:
+        return newDict
 
-    return newDict
-
-def ExpandPtBins( pipelineDict, ptbins):
+def ExpandPtBins( pipelineDict, ptbins, includeSource):
     newDict = dict()
+    
+    
     
     for name, elem in pipelineDict.items():
         i = 0
@@ -110,8 +120,51 @@ def ExpandPtBins( pipelineDict, ptbins):
             newDict[name + ptbinsname ] = newPipe
             i = i + 1
 
-    return newDict
+    if includeSource:
+        return dict( pipelineDict.items() +  newDict.items() )
+    else:
+        return newDict
     
     
     
+def ExpandDefaultDataConfig( ptBins, conf_template):
+    conf = conf_template
+    
+    secLevelPline = { "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
+    secLevelPline["sec_default"]["Level"] = 2
+    secLevelPline["sec_default"]["JetResponseBins"] = ptBins
+   
+    conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )
+    conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
+    
+    #merge all
+#    conf["Pipelines"] = dict( conf["Pipelines"].items() +  secLevelPline.items() )
+    
+    conf["Pipelines"]["default"]["AdditionalConsumer"] = ["cut_statistics"]
 
+    return conf
+
+def StoreSettings( settings, filename):
+    f = open(filename, "w")
+    
+    jsonOut = str(settings)
+    # make it json conform
+    jsonOut = jsonOut.replace( "\'", "\"")
+    
+    try:
+        import json
+        print json.dumps( settings, sort_keys=True, indent=4 )
+        json.dump( settings, f, sort_keys=True, indent=4 )
+            
+    except BaseException:
+    
+        f.write ( jsonOut )
+    
+        print "No json Module found. Using fallback method ..."
+        
+    f.close()
+    
+    print ( "Configured " + str( len( settings["Pipelines"] )) + " Pipelines" )
+    
+    
+    

@@ -271,6 +271,31 @@ EventPipeline * CreateLevel2Pipeline()
 	return pline;
 }
 
+void AddConsumerToPipeline( EventPipeline * pline, std::string consumerName)
+{
+	if ( consumerName == EventStorerConsumer().GetId())
+	{
+		pline->m_consumer.push_back( new EventStorerConsumer() );
+	}
+
+	if ( consumerName == CutStatisticsConsumer().GetId())
+	{
+		pline->m_consumer.push_back( new CutStatisticsConsumer() );
+	}
+}
+
+void AddConsumersToPipeline( EventPipeline * pline, std::vector<std::string> consList )
+{
+	BOOST_FOREACH( std::string s, consList )
+	{
+		CALIB_LOG( "Adding consumer " << s)
+		AddConsumerToPipeline( pline, s);
+	}
+}
+
+
+
+
 // Generates the default pipeline which is run on all events.
 // insert new Plots here if you want a new plot
 EventPipeline * CreateDefaultPipeline()
@@ -333,10 +358,6 @@ EventPipeline * CreateDefaultPipeline()
 
 	 pline->m_consumer.push_back(massc);
 	 */
-	CutStatisticsConsumer *cs = new CutStatisticsConsumer();
-	pline->m_consumer.push_back(cs);
-
-	pline->m_consumer.push_back( new EventStorerConsumer() );
 
 	return pline;
 }
@@ -437,6 +458,8 @@ void importEvents(bool bUseJson,
 		{
 			EventPipeline * pLine = CreateDefaultPipeline();
 
+			AddConsumersToPipeline( pLine,(*it)->GetAdditionalConsumer());
+
 			// set the algo used for this run
 			(*it)->SetAlgoName(g_sCurAlgo);
 
@@ -506,6 +529,8 @@ void importEvents(bool bUseJson,
 		if ((*it)->GetLevel() == 2)
 		{
 			EventPipeline * pLine = CreateLevel2Pipeline();
+
+			AddConsumersToPipeline( pLine,(*it)->GetAdditionalConsumer());
 
 			// set the algo used for this run
 			(*it)->SetAlgoName(g_sCurAlgo);
@@ -596,128 +621,6 @@ inline void PrintEvent(EventResult & data, std::ostream & out,
 	if (p == NULL)
 		// own formater created, delete it again
 		delete pForm;
-}
-
-/*
- void PrintTrackedEventsReport(bool bShort = false)
- {
- EventFormater eFormat;
-
- eFormat.Header(std::cout);
- std::cout << std::endl;
-
- for (EventVector::iterator iter = g_eventsDataset.begin(); !(iter
- == g_eventsDataset.end()); iter++)
- {
- bool bFound = false;
-
- for (EventDataVector::iterator iterTracked = g_trackedEvents.begin(); !(iterTracked
- == g_trackedEvents.end()); iterTracked++)
- {
- {
- if ((iterTracked->cmsRun == iter->m_pData->cmsRun)
- && (iterTracked->cmsEventNum
- == iter->m_pData->cmsEventNum))
- {
- if (iter->IsInCut())
- bFound = true;
- }
- }
- }
-
- if (!bFound)
- {
- std::cout << std::endl << "Event " << iter->m_pData->cmsRun << ":"
- << iter->m_pData->cmsEventNum
- << " not in tracked Events List";
- }
- }
- }
-
- void PrintEventsReport(std::ostream & out, bool bOnlyInCut)
- {
- EventVector::iterator iterInCut;
-
- EventFormater eFormat;
- eFormat.Header(out);
- out << std::endl;
-
- out << "Events in Cut" << std::endl << std::endl;
-
- int i = 0;
-
- for (iterInCut = g_eventsDataset.begin(); !(iterInCut
- == g_eventsDataset.end()); iterInCut++)
- {
- if (iterInCut->IsInCut() || (!bOnlyInCut))
- {
- PrintEvent(*iterInCut, out, NULL, true);
- ++i;
- }
- }
-
- cout << ">> " << i << " Events in Cut" << std::endl;
- }
- */
-void WriteSelectedEvents(TString algoName, TString prefix,
-		EventVector & events, TFile * pFileOut)
-{/*
- if (g_writeEventsSetting == NoEvents)
- return;
-
- TTree* gentree = new TTree(algoName + prefix + "_events", algoName + prefix
- + "_events");
-
- evtData localData;
- Double_t l2corr = 1.0f;
- Double_t l2corrPtJet2 = 1.0f;
- Double_t l2corrPtJet3 = 1.0f;
-
- localData.jets[0] = new TParticle();
- localData.Z = new TParticle();
-
- // more data can go here
- gentree->Branch("Z", "TParticle", &localData.Z);
- gentree->Branch("jet1", "TParticle", &localData.jets[0]);
- gentree->Branch("jet2", "TParticle", &localData.jets[1]);
- gentree->Branch("jet3", "TParticle", &localData.jets[2]);
- gentree->Branch("l2corrJet", &l2corr, "l2corrJet/D");
- gentree->Branch("l2corrPtJet2", &l2corrPtJet2, "l2corrPtJet2/D");
- gentree->Branch("l2corrPtJet3", &l2corrPtJet3, "l2corrPtJet3/D");
-
- gentree->Branch("cmsEventNum", &localData.cmsEventNum, "cmsEventNum/L");
- gentree->Branch("cmsRun", &localData.cmsRun, "cmsRun/L");
- gentree->Branch("luminosityBlock", &localData.luminosityBlock, "cmsRun/L");
- //  gentree->Branch("xsection",&localData.xsection,"xsection/D");
-
- EventVector::iterator it;
- for (it = events.begin(); !(it == events.end()); ++it)
- {
- if (it->IsInCut() || (g_writeEventsSetting == AllEvents))
- {
- localData.Z = new TParticle(*it->m_pData->Z);
- localData.jets[0] = new TParticle(*it->m_pData->jets[0]);
- localData.jets[1] = new TParticle(*it->m_pData->jets[1]);
- localData.jets[2] = new TParticle(*it->m_pData->jets[2]);
- l2corr = it->m_l2CorrPtJets[0];
- l2corrPtJet2 = it->m_l2CorrPtJets[1];
- l2corrPtJet3 = it->m_l2CorrPtJets[2];
-
- localData.cmsEventNum = it->m_pData->cmsEventNum;
- localData.cmsRun = it->m_pData->cmsRun;
- localData.luminosityBlock = it->m_pData->luminosityBlock;
-
- gentree->Fill();
- }
- }
-
- pFileOut->cd();
- gentree->Write();*/
-}
-
-void DrawJetResponsePlots(TString algoName, TFile * pFileOut)
-{
-	// todo here
 }
 
 void DrawHistoSet(TString algoName, TString sPostfix, TFile * pFileOut,
@@ -1345,6 +1248,7 @@ int main(int argc, char** argv)
 	// init cuts
 	// values are set for each Pipeline individually
 	g_cutHandler.AddCut(new JsonCut(&(*g_json)));
+	g_cutHandler.AddCut(new HltCut());
 	g_cutHandler.AddCut(new MuonPtCut(0.0));
 	g_cutHandler.AddCut(new MuonEtaCut());
 	g_cutHandler.AddCut(new LeadingJetEtaCut());

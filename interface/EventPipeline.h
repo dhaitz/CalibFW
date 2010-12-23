@@ -19,9 +19,8 @@
 #include "PtBinWeighter.h"
 #include "EventData.h"
 
-
 /*
-This macro implements a Setting Propery including the property tree get\put methods
+ This macro implements a Setting Propery including the property tree get\put methods
  */
 
 #define IMPL_SETTING(TYPE, SNAME) \
@@ -47,22 +46,23 @@ return CACHE_MEMBER.GetValue(); }\
 namespace CalibFW
 {
 
-template <class TData >
+template<class TData>
 class VarCache
 {
 public:
-	VarCache() : m_isCached(false)
+	VarCache() :
+		m_isCached(false)
 	{
 
 	}
 
-	void SetCache( TData t)
+	void SetCache(TData t)
 	{
 		m_val = t;
 		m_isCached = true;
 	}
 
-	TData GetValue( )
+	TData GetValue()
 	{
 		if (!m_isCached)
 			CALIB_LOG_FATAL("not Cached variable used")
@@ -90,22 +90,19 @@ public:
 		{
 			BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
 					propTree->get_child(path))
-			{
-				fvec.push_back(v.second.data());
-			}
+{			fvec.push_back(v.second.data());
 		}
-		catch ( boost::property_tree::ptree_bad_path & e)
-		{
-			// no problem, node optional
-		}
-		return fvec;
 	}
+	catch ( boost::property_tree::ptree_bad_path & e)
+	{
+		// no problem, node optional
+	}
+	return fvec;
+}
 };
 
 class PipelineSettings
 {
-
-
 
 public:
 PipelineSettings()
@@ -121,7 +118,6 @@ enum WriteEventsEnum
 IMPL_PROPERTY(boost::property_tree::ptree * , PropTree)
 IMPL_PROPERTY(std::string, SettingsRoot)
 
-
 IMPL_SETTING(double, FilterPtBinLow)
 IMPL_SETTING(double, FilterPtBinHigh)
 IMPL_SETTING(std::string, AlgoName)
@@ -130,15 +126,14 @@ IMPL_SETTING(std::string, RootFileFolder)
 // only level 1 runs directly on data
 IMPL_SETTING(int, Level)
 
-
 IMPL_SETTING(std::string, WriteEvents)
 
 WriteEventsEnum GetWriteEventsEnum()
 {
 	if (this->GetWriteEvents() == "all")
-		return AllEvents;
+	return AllEvents;
 	if (this->GetWriteEvents() == "incut")
-		return OnlyInCutEvents;
+	return OnlyInCutEvents;
 
 	return NoEvents;
 }
@@ -163,11 +158,11 @@ InputTypeEnum GetInputType()
 	InputTypeEnum inp;
 
 	if (sInp == "mc")
-		inp = McInput;
+	inp = McInput;
 	else if (sInp == "data")
-		inp = DataInput;
+	inp = DataInput;
 	else
-		CALIB_LOG_FATAL("Input type " + sInp + " not supported.")
+	CALIB_LOG_FATAL("Input type " + sInp + " not supported.")
 
 	return inp;
 }
@@ -199,10 +194,16 @@ stringvector GetFilter()
 	RETURN_CACHED( m_filter, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".Filter") )
 }
 
+VarCache< stringvector > m_additionalConsumer;
+
+stringvector GetAdditionalConsumer()
+{
+	RETURN_CACHED( m_additionalConsumer, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".AdditionalConsumer") )
+}
 
 std::vector<PtBin> GetAsPtBins( stringvector & sv )
 {
-	std::vector< PtBin >  bins;
+	std::vector< PtBin > bins;
 
 	int i = 0;
 	for ( stringvector::iterator it = (sv.begin() + 1);
@@ -392,7 +393,8 @@ virtual void Finish() = 0;
 
 // this method is only called for events which have passed the filter imposed on the
 // pipeline
-virtual void ProcessFilteredEvent(TData & event){
+virtual void ProcessFilteredEvent(TData & event)
+{
 }
 
 // this method is called for all events
@@ -403,6 +405,11 @@ virtual void ProcessEvent(TData & event, FilterResult & result)
 // this method is called for seconddary pipelines
 virtual void Process()
 {
+}
+
+virtual std::string GetId()
+{
+	return "default";
 }
 
 PipelineSettings * GetPipelineSettings()

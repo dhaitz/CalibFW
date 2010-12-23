@@ -61,6 +61,11 @@ public:
 		 m_gentree->Write();
 	}
 
+	virtual std::string GetId()
+	{
+		return "event_storer";
+	}
+
 	// this method is only called for events which have passed the filter imposed on the
 	// pipeline
 	virtual void ProcessFilteredEvent(EventResult & event)

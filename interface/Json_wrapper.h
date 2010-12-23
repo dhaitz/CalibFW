@@ -25,6 +25,11 @@ class Json_wrapper{
     
     Json* m_json;
       bool m_isValid;
+
+      // for caching the last event
+      int m_lastRun;
+      int m_lastLumiSec;
+      bool m_lastResult;
     
 //ClassDef(Json_wrapper,1) 
     

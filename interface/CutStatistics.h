@@ -34,6 +34,11 @@ public:
 		}
 	}
 
+	virtual std::string GetId()
+	{
+		return "cut_statistics";
+	}
+
 	virtual void Finish()
 	{
 		CALIB_LOG_FILE("Cut Report:")

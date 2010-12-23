@@ -347,6 +347,66 @@ public:
 	static const long CudId = 256;
 };
 
+
+class HltCut: public EventCutBase<EventResult *>
+{
+public:
+	HltCut()
+	{
+	}
+
+	bool IsInCut(EventResult * pEv)
+	{
+		TString hltName = "HLT_Mu9";
+
+		/* 1 trigger approach */
+		if (pEv->m_pData->cmsRun >= 147146)
+			hltName = "HLT_Mu15_v1";
+
+		const int nHLTriggers = pEv->m_pData->HLTriggers_accept->GetEntries();
+
+		if (nHLTriggers == 0)
+		{
+			CALIB_LOG_FATAL( "No HLT Trigger in Event!");
+		}
+
+		TObjString *theHLTbit = NULL;
+
+		for (int i = 0; i < nHLTriggers; ++i)
+		{
+
+			theHLTbit = (TObjString*) pEv->m_pData->HLTriggers_accept->At(i);
+			TString curName = theHLTbit->GetString();
+
+			if (hltName == curName)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	void Configure( PipelineSettings * pset)
+	{
+		// No Config here. Json is global for now
+	}
+
+	unsigned long GetId()
+	{
+		return HltCut::CudId;
+	}
+	std::string GetCutName()
+	{
+		return "Hlt Cut";
+	}
+	std::string GetCutShortName()
+	{
+		return "hlt";
+	}
+	static const long CudId = 512;
+};
+
 class CutHandler
 {
 
