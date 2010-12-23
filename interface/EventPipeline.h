@@ -105,11 +105,18 @@ public:
 class PipelineSettings
 {
 
+
+
 public:
 PipelineSettings()
 {
 	SetSettingsRoot("default");
 }
+
+enum WriteEventsEnum
+{
+	NoEvents, OnlyInCutEvents, AllEvents
+};
 
 IMPL_PROPERTY(boost::property_tree::ptree * , PropTree)
 IMPL_PROPERTY(std::string, SettingsRoot)
@@ -122,6 +129,19 @@ IMPL_SETTING(std::string, RootFileFolder)
 
 // only level 1 runs directly on data
 IMPL_SETTING(int, Level)
+
+
+IMPL_SETTING(std::string, WriteEvents)
+
+WriteEventsEnum GetWriteEventsEnum()
+{
+	if (this->GetWriteEvents() == "all")
+		return AllEvents;
+	if (this->GetWriteEvents() == "incut")
+		return OnlyInCutEvents;
+
+	return NoEvents;
+}
 
 // Cut settings
 IMPL_SETTING(double, CutMuonPt)

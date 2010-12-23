@@ -60,6 +60,7 @@ public:
 		HLTriggers_accept = recoVertices = recoVerticesInfo = recoVerticesError
 				= NULL;
 		beamSpot = NULL;
+		weight = 1.0f;
 	}
 
 	~evtData()

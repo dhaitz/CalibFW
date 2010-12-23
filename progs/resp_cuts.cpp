@@ -61,6 +61,7 @@ using namespace std::rel_ops;
 #include "PtBinWeighter.h"
 #include "CutHandler.h"
 #include "EventPipeline.h"
+#include "EventStorer.h"
 
 using namespace CalibFW;
 
@@ -105,11 +106,6 @@ vdouble g_customBinning;
 
 std::string g_sCurAlgo;
 
-enum WriteEventsEnum
-{
-	NoEvents, OnlyInCutEvents, AllEvents
-};
-WriteEventsEnum g_writeEventsSetting;
 
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
 std::string g_sJsonFile("not set");
@@ -340,6 +336,8 @@ EventPipeline * CreateDefaultPipeline()
 	CutStatisticsConsumer *cs = new CutStatisticsConsumer();
 	pline->m_consumer.push_back(cs);
 
+	pline->m_consumer.push_back( new EventStorerConsumer() );
+
 	return pline;
 }
 
@@ -398,7 +396,6 @@ void importEvents(bool bUseJson,
 	int entries = g_pChain->GetEntries();
 
 	TString sNewFile = "";
-	bool bUseEvent;
 	long lProcEvents = 0;
 	g_lOverallNumberOfProcessedEvents = 0;
 
@@ -452,40 +449,37 @@ void importEvents(bool bUseJson,
 	CALIB_LOG_FILE( "Processing " << entries << " events ...")
 	for (Long_t ievt = 0; ievt < entries; ++ievt)
 	{
-
-		bUseEvent = true;
 		g_pChain->GetEntry(ievt);
 
-		// check if this event matches our hlt trigger criteria
+		// TODO check if this event matches our hlt trigger criteria
 		/*        if ( bUseEvent && g_useHLT )
 		 {
 		 bUseEvent = IsEventHltAccepted( g_ev );
 		 }
 		 */
-		if (bUseEvent)
+
+		EventResult * res = new EventResult;
+		res->m_pData = &g_ev;
+		
+		res->m_weight = 1.0f;
+		if (g_useWeighting)
 		{
-			EventResult * res = new EventResult;
-			res->m_pData = &g_ev;
-
-			if (g_useWeighting)
+			if (g_useEventWeight)
 			{
-				if (g_useEventWeight)
-				{
-					res->m_weight = res->m_pData->weight;
-				}
-				else
-				{
-					res->m_weight = g_mcWeighter.GetWeightByXSection(
-							res->m_pData->xsection);
-				}
+				res->m_weight = res->m_pData->weight;
 			}
-
-			calcJetEnergyCorrection(res, correction);
-			RunPipelinesForEvent(*res);
-
-			delete res;
-			//g_eventsDataset.push_back( res );
+			else
+			{
+				res->m_weight = g_mcWeighter.GetWeightByXSection(
+						res->m_pData->xsection);
+			}
 		}
+
+		calcJetEnergyCorrection(res, correction);
+		RunPipelinesForEvent(*res);
+
+		delete res;
+
 
 		if (((ievt % 5000) == 0) || (ievt == (entries - 1)))
 			CALIB_LOG( (ievt + 1) << " of " << entries << " done [ " << floor( 100.0f * (float)(ievt +1)/(float)entries) << " % ]")

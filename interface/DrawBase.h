@@ -285,7 +285,7 @@ public:
 class EventDump: public EventConsumerBase<EventResult>
 {
 public:
-	virtual void Init()
+	virtual void Init(EventPipeline * pset)
 	{
 		CALIB_LOG("EventDump::Init called")
 	}
