@@ -19,6 +19,7 @@
 #include "EventData.h"
 #include "PtBinWeighter.h"
 #include "EventPipeline.h"
+#include "CutHandler.h"
 
 namespace CalibFW
 {
@@ -206,7 +207,7 @@ public:
 		this->RunModifierAfterDataEntry(this );
 		this->RunModifierAfterDraw( this );
 
-		//CALIB_LOG( "Storing GraphErrors " + this->m_sRootFileFolder + "/" + this->m_sName + "_graph" )
+		CALIB_LOG( "Storing GraphErrors " + this->m_sRootFileFolder + "/" + this->m_sName + "_graph" )
 
 		if ( pRootFile->cd( this->m_sRootFileFolder.c_str() ) == false)
 		{
@@ -257,7 +258,7 @@ public:
 		this->RunModifierAfterDataEntry(this );
 		this->RunModifierAfterDraw( this );
 
-		//CALIB_LOG( "Storing Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
+		CALIB_LOG( "Storing Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
 
 		if ( pRootFile->cd( this->m_sRootFileFolder.c_str() ) == false)
 		{
@@ -553,6 +554,155 @@ IMPL_HIST1D_JET_MOD1(DrawJetPhiConsumer ,
 		new ModHistBinRange(-3.5f, 3.5f) )
 
 
+class GraphXProviderBase
+{
+public:
+	virtual double GetXValue(EventResult & event) = 0;
+
+};
+
+template <class TBinInfo>
+class BinnedCounterBase
+{
+public:
+	template <class TInf>
+	class Bin
+	{
+	public:
+		PtBin m_bin;
+		TInf m_binInfo;
+	};
+
+	BinnedCounterBase( double start, double stepSize, int binCount)
+	{
+		for (unsigned int iBin = 0; iBin < binCount; iBin ++ )
+		{
+		     Bin<TBinInfo> * pBin = new Bin<TBinInfo>();
+		     pBin->m_bin = PtBin( (double) iBin * stepSize + start,
+		                            ((double) (iBin + 1)) * stepSize + start);
+		     m_binList.push_back( pBin );
+		}
+    }
+
+	TBinInfo * GetBinInfo( double val)
+	{
+
+		for (int i = 0;	i < m_binList.size(); i++)
+		{
+			if ( m_binList[i].m_bin.IsInBin( val ))
+			{
+				return &m_binList[i].m_binInfo;
+			}
+		}
+		return NULL;
+	}
+
+
+	boost::ptr_vector<Bin<TBinInfo > > m_binList;
+
+};
+
+class CutEffBinInfo
+{
+public:
+	CutEffBinInfo() : m_rejected( 0 ), m_accepted(0)
+	{
+
+	}
+
+	unsigned long m_rejected;
+	unsigned long m_accepted;
+};
+
+
+class CutEffBinnedCounter: public BinnedCounterBase< CutEffBinInfo>
+{
+public:
+	CutEffBinnedCounter( double start, double stepSize, int binCount):
+		BinnedCounterBase< CutEffBinInfo>( start, stepSize, binCount)
+	{
+
+	}
+};
+
+class GraphXProviderZpt : public GraphXProviderBase
+{
+public:
+	virtual double GetLow() { return 0.0f; }
+	virtual double GetHigh() { return 500.0f; }
+	virtual int GetBinCount() { return 50; }
+	virtual double GetXValue(EventResult & event) { return event.m_pData->Z->Pt();}
+};
+
+class GraphXProviderRecoVert : public GraphXProviderBase
+{
+public:
+	virtual double GetLow() { return -0.5f; }
+	virtual double GetHigh() { return 14.5f; }
+	virtual int GetBinCount() { return 15; }
+	virtual double GetXValue(EventResult & event) { return event.GetRecoVerticesCount();}
+};
+
+template <class TXProvider>
+class DrawCutEffGraph: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+	DrawCutEffGraph( int cutId ) : 	DrawGraphErrorsConsumerBase<EventResult>(),
+		m_iCutId( cutId)
+	{
+		m_binCounter.reset( new CutEffBinnedCounter( m_xProvider.GetLow(),
+				(  m_xProvider.GetHigh() -  m_xProvider.GetLow()) / (double) m_xProvider.GetBinCount(),
+				m_xProvider.GetBinCount()));
+	}
+
+	// this method is called for all events
+	virtual void ProcessEvent(EventResult & event, FilterResult & result)
+	{
+		CutEffBinInfo * pInfo = m_binCounter->GetBinInfo(	m_xProvider.GetXValue( event ));
+
+		// is null is returned, out of our range, but is fine
+		if ( pInfo != NULL)
+		{
+			if ( g_cutHandler.IsCutInBitmask( m_iCutId, event.m_cutBitmask ))
+				pInfo->m_rejected++;
+			else
+				pInfo->m_accepted++;
+		}
+	}
+
+	virtual void Finish()
+	{
+		// plot the efficiency
+		for (int i = 0;	i < m_binCounter->m_binList.size(); i++)
+		{
+			unsigned long overall = m_binCounter->m_binList[i].m_binInfo.m_rejected  + m_binCounter->m_binList[i].m_binInfo.m_accepted;
+
+			if ( overall > 0)
+			{
+			m_graph->AddPoint( m_binCounter->m_binList[i].m_bin.GetBinCenter(),
+					 (double)m_binCounter->m_binList[i].m_binInfo.m_rejected /
+					 (double)overall,
+					 0.0f, 0.0f);
+			}
+			 else
+			 {
+					m_graph->AddPoint( m_binCounter->m_binList[i].m_bin.GetBinCenter(),
+							 1.0f,
+							 0.0f, 0.0f);
+			 }
+
+		}
+
+		// store hist
+		// + modifiers
+		//CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
+		DrawGraphErrorsConsumerBase<EventResult>::Finish();
+	}
+
+	int m_iCutId;
+	TXProvider m_xProvider;
+	std::auto_ptr<CutEffBinnedCounter> m_binCounter;
+};
 
 class DrawJetRespGraph: public DrawGraphErrorsConsumerBase<EventResult>
 {

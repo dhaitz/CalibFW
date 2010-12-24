@@ -163,6 +163,12 @@ object_##DRAW_CONSUMER->m_sQuantityName = #QUANTITY_NAME; \
 object_##DRAW_CONSUMER->m_graph = hist_##DRAW_CONSUMER; \
 PIPELINE->m_consumer.push_back(object_##DRAW_CONSUMER); }
 
+#define PLOT_GRAPHERRORS_CONST( PIPELINE, DRAW_CONSUMER, QUANTITY_NAME, CONST) \
+{ GraphErrors * hist_##DRAW_CONSUMER = new GraphErrors; \
+DRAW_CONSUMER * object_##DRAW_CONSUMER = new  CONST; \
+object_##DRAW_CONSUMER->m_sQuantityName = QUANTITY_NAME; \
+object_##DRAW_CONSUMER->m_graph = hist_##DRAW_CONSUMER; \
+PIPELINE->m_consumer.push_back(object_##DRAW_CONSUMER); }
 
 class ExcludedEvent
 {
@@ -350,6 +356,21 @@ EventPipeline * CreateDefaultPipeline()
 
 	PLOT_HIST1D(pline, DrawRecoVertConsumer, recovert)
 
+	for ( CutHandler::CutVector::iterator it = g_cutHandler.GetCuts().begin();
+			!( it == g_cutHandler.GetCuts().end()); it++)
+	{
+		GraphErrors * hist_CutEff = new GraphErrors;
+		DrawCutEffGraph<GraphXProviderZpt>  * object_consumer = new DrawCutEffGraph<GraphXProviderZpt>( it->GetId() );
+		object_consumer->m_sQuantityName = "cuteff_" + it->GetCutShortName() + "_zpt";
+		object_consumer->m_graph = hist_CutEff;
+		pline->m_consumer.push_back(object_consumer);
+
+		hist_CutEff = new GraphErrors;
+		DrawCutEffGraph<GraphXProviderRecoVert>  * object_consumerReco = new DrawCutEffGraph<GraphXProviderRecoVert>( it->GetId() );
+		object_consumerReco->m_sQuantityName = "cuteff_" + it->GetCutShortName() + "_nrv";
+		object_consumerReco->m_graph = hist_CutEff;
+		pline->m_consumer.push_back(object_consumerReco);
+	}
 	//PLOT_GRAPHERRORS( pline, DrawJetRespBase, jetresp )
 	/*	Hist2D * hist = new Hist2D;
 	 DrawZMassConsumer * massc = new DrawZMassConsumer();
