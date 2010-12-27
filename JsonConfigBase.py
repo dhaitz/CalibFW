@@ -132,7 +132,9 @@ def ExpandDefaultDataConfig( ptBins, conf_template):
     
     secLevelPline = { "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
     secLevelPline["sec_default"]["Level"] = 2
-    secLevelPline["sec_default"]["JetResponseBins"] = ptBins
+    secLevelPline["sec_default"]["CustomBins"] = ptBins
+
+    conf["Pipelines"]["default"]["CustomBins"] = ptBins
    
     conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )
     conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
