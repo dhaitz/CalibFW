@@ -240,7 +240,7 @@ public:
 
 	Hist1D() :
 		m_sName("default_hist_name"), m_sCaption("default_hist_caption"),
-				m_iBinCount(100), m_dBinLower(0.0f), m_dBinUpper(200.0f)
+				m_iBinCount(100), m_dBinLower(0.0f), m_dBinUpper(200.0f), m_bUseCustomBin(false)
 	{
 
 	}
@@ -248,8 +248,18 @@ public:
 	void Init()
 	{
 		this->RunModifierBeforeCreation( this );
+
+		if ( m_bUseCustomBin )
+		{
+			m_hist = new TH1D(    this->m_sName.c_str(),
+				              this->m_sCaption.c_str(),
+				              m_iBinCount, &m_dCustomBins[0] );
+		}
+		else
+		{
 		m_hist = new TH1D(this->m_sName.c_str(), this->m_sCaption.c_str(),
 				this->m_iBinCount, this->m_dBinLower, this->m_dBinUpper);
+		}
 		this->RunModifierBeforeDataEntry( this );
 	}
 
@@ -279,6 +289,10 @@ public:
 	int m_iBinCount;
 	double m_dBinLower;
 	double m_dBinUpper;
+	  double m_dCustomBins[255];
+
+
+	 bool m_bUseCustomBin;
 
 	TH1D * m_hist;
 };
@@ -431,6 +445,30 @@ private:
 	double m_dBinUpper;
 };
 
+class ModHistCustomBinnig : public ModifierBase<Hist1D>
+{
+public:
+	ModHistCustomBinnig( )
+	{
+
+	}
+
+   virtual void BeforeCreation(Hist1D * pElem)
+   {
+	   pElem->m_iBinCount = m_iBinCount;
+
+	      for ( int i = 0; i <= m_iBinCount; i++ )
+	      {
+	    	  pElem->m_dCustomBins[i] = m_dBins[i];
+	      }
+
+	      pElem->m_bUseCustomBin = true;
+   }
+
+    int m_iBinCount;
+    double m_dBins[255];
+};
+
 class ModHistBinCount : public ModifierBase<Hist1D>
 {
 public:
@@ -554,6 +592,35 @@ IMPL_HIST1D_JET_MOD1(DrawJetPhiConsumer ,
 		new ModHistBinRange(-3.5f, 3.5f) )
 
 
+class DrawEventCount: public DrawHist1dConsumerBase<EventResult>
+{ public:
+virtual void Init(EventPipeline * pset) {
+	ModHistCustomBinnig * cbMod = new ModHistCustomBinnig;
+
+	stringvector sVec = pset->GetSettings()->GetCustomBins();
+	std::vector<PtBin> custBins = pset->GetSettings()->GetAsPtBins(  sVec );
+
+    cbMod->m_iBinCount = custBins.size();
+    cbMod->m_dBins[0] = custBins[0].GetMin();
+
+	  int i = 1;
+	  BOOST_FOREACH( PtBin & bin, custBins )
+	  {
+		cbMod->m_dBins[i] = bin.GetMax();
+		i++;
+      }
+
+	m_hist->AddModifier( cbMod );
+
+	DrawHist1dConsumerBase<EventResult>::Init(pset);
+}
+virtual void ProcessFilteredEvent(EventResult & res)
+{
+	m_hist->Fill( res.m_pData->Z->Pt(), res.m_weight );
+}
+};
+
+
 class GraphXProviderBase
 {
 public:
@@ -658,6 +725,9 @@ public:
 	// this method is called for all events
 	virtual void ProcessEvent(EventResult & event, FilterResult & result)
 	{
+		if ( !g_cutHandler.IsValidEvent( &event))
+			return;
+
 		CutEffBinInfo * pInfo = m_binCounter->GetBinInfo(	m_xProvider.GetXValue( event ));
 
 		// is null is returned, out of our range, but is fine
@@ -716,7 +786,7 @@ public:
 	virtual void Process()
 	{
 		// move throug the histos
-		stringvector sv = this->GetPipelineSettings()->GetJetResponseBins();
+		stringvector sv = this->GetPipelineSettings()->GetCustomBins();
 		std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
 
 		int i = 0;

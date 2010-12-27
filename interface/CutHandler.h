@@ -457,8 +457,6 @@ public:
 	bool ApplyCuts(EventResult * evt)
 	{
 		evt->m_cutBitmask = 0;
-		evt->m_sCutResult = " -- not set any more --";
-		evt->m_sCutUsed = "";
 
 		for (CutVector::iterator it = m_cuts.begin(); !(it == m_cuts.end()); it++)
 		{
@@ -467,26 +465,12 @@ public:
 				if (!it->IsInCut(evt))
 				{
 					evt->m_cutBitmask = evt->m_cutBitmask | it->GetId();
-
-					// legacy stuff
-					if (evt->m_sCutUsed == "")
-					{
-						evt->m_sCutUsed = it->GetCutName();
-					}
-
-					if (it->GetId() == (unsigned long)JsonCut::CudId)
-						evt->m_cutResult = NotInJson;
-					else
-						evt->m_cutResult = NotInCutParameters;
 				}
 			}
 		}
 
 		if (evt->m_cutBitmask == 0)
 		{
-			// all cuts are good
-			evt->m_sCutUsed = "8) within cut";
-			evt->m_cutResult = InCut;
 			return true;
 		}
 
@@ -508,6 +492,16 @@ public:
 	void SetEnableCut(unsigned long CutId, bool val)
 	{
 		GetById(CutId)->m_bCutEnabled = val;
+	}
+
+	// is in Json file and passend the HLT selection, so is a valid event
+	// from a technical standpoint, but not necessarily in physics cuts
+	bool IsValidEvent( EventResult * pEvRes)
+	{
+		// for MC Events, this should always return true
+		return (! IsCutInBitmask( JsonCut::CudId, pEvRes->m_cutBitmask ) &&
+				! IsCutInBitmask( HltCut::CudId, pEvRes->m_cutBitmask ));
+
 	}
 
 };

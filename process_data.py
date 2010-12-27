@@ -4,7 +4,7 @@ import copy
 
 conf = JsonConfigBase.GetDataBaseConfig()
 
-conf["InputFiles"] = "/local/scratch/hauth/data/ZPJ2010/skim_data/data*_job_Mu_4*.root" 
+conf["InputFiles"] = "/home/poseidon/data/ZPJ2010/skim_data/data*_job_Mu_4*.root" 
 conf["OutputPath"] = "proto"
 
 conf = JsonConfigBase.ExpandDefaultDataConfig( [0,30,60,100,140,300], conf )

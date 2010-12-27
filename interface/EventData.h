@@ -15,6 +15,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/scoped_ptr.hpp>
 
+
 #include "RootIncludes.h"
 #include "GlobalInclude.h"
 #include "PtBinWeighter.h"
@@ -225,10 +226,6 @@ public:
 	Int_t m_luminosityBlock;
 };
 
-enum CutResultEnum
-{
-	CutStatusUnknown, InCut, NotInJson, NotInCutParameters
-};
 
 class EventResult
 {
@@ -265,9 +262,6 @@ public:
 	Double_t m_l3CorrPtJets[3];
 
 	unsigned long m_cutBitmask;
-	CutResultEnum m_cutResult;
-	TString m_sCutResult;
-	std::string m_sCutUsed;
 
 	// only useful for mc
 	double m_weight;
@@ -309,16 +303,9 @@ public:
 
 	bool IsInCut()
 	{
-		return (this->m_cutResult == InCut);
+		return (  this->m_cutBitmask == 0);
 	}
 
-	// is in Json file but not necessarily in cuts
-	bool IsValidEvent()
-	{
-		// todo: remove, just for testing
-		return ((this->m_cutResult == InCut) || (this->m_cutResult
-				== NotInCutParameters));
-	}
 
 	evtData * m_pData;
 };

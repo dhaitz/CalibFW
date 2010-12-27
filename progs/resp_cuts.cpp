@@ -69,29 +69,8 @@ using namespace CalibFW;
 
 // DP made the variables not const to set them by command line args
 
-//const TString g_sDataSource("/scratch/hh/lustre/cms/user/hauth/Zplusjet/data_job*.root");
-//const std::string g_sDataSource = "/local/scratch/hauth/data/Zplusjet_2010_08_16/data_job*.root";
+
 std::string g_sSource("");
-//const TString g_sDataSource("/local/scratch/hauth/data/Zplusjet_2010_08_16/mc_job*.root");
-bool g_doMc = true;
-bool g_doData = true;
-
-// if true, the number in Event.weight is used for MC weigting
-bool g_useWeighting = false;
-bool g_useEventWeight = false;
-
-// check if an event has certain hltrigger
-bool g_useHLT = false;
-
-// if true, all plots are done one time without cuts applied
-bool g_plotNoCuts = false;
-bool g_plotCutEff = false;
-
-bool g_doL2Correction = true;
-bool g_doL3CorrectionFormula = false;
-bool g_doL3Correction = false;
-
-bool g_useGeometricTopology = false;
 
 vString g_l2CorrFiles;
 vString g_l3CorrFiles;
@@ -105,6 +84,9 @@ vdouble g_l3FormulaParams;
 vdouble g_customBinning;
 
 std::string g_sCurAlgo;
+
+bool g_useWeighting;
+bool g_useEventWeight;
 
 
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
@@ -371,6 +353,14 @@ EventPipeline * CreateDefaultPipeline()
 		object_consumerReco->m_graph = hist_CutEff;
 		pline->m_consumer.push_back(object_consumerReco);
 	}
+
+	// event count
+	Hist1D * hist_evCount = new Hist1D;
+	DrawEventCount * object_eVconsumer = new DrawEventCount;
+	object_eVconsumer->m_sQuantityName = "eventcount";
+	object_eVconsumer->m_hist = hist_evCount;
+	pline->m_consumer.push_back(object_eVconsumer);
+
 	//PLOT_GRAPHERRORS( pline, DrawJetRespBase, jetresp )
 	/*	Hist2D * hist = new Hist2D;
 	 DrawZMassConsumer * massc = new DrawZMassConsumer();
@@ -381,54 +371,6 @@ EventPipeline * CreateDefaultPipeline()
 	 */
 
 	return pline;
-}
-
-bool IsEventHltAccepted(evtData & evt)
-{
-	TString hltName = "HLT_Mu9";
-
-	/* 1 trigger approach */
-	if (evt.cmsRun >= 147146)
-		hltName = "HLT_Mu15_v1";
-
-	/*
-	 * 2 trigger approach old
-	 if ( evt.cmsRun > 147196  )
-	 hltName = "HLT_Mu11";
-	 if ( evt.cmsRun > 148108 )
-	 hltName = "HLT_Mu15_v1";
-	 */
-	const int nHLTriggers = evt.HLTriggers_accept->GetEntries();
-
-	if (nHLTriggers == 0)
-	{
-		std::cout << "No HLT Trigger in Event! \n";
-		exit(0);
-	}
-
-	TObjString *theHLTbit = NULL;
-	//std::cout << "Checking HLT of Event " << std::endl;
-
-	for (int i = 0; i < nHLTriggers; ++i)
-	{
-
-		theHLTbit = (TObjString*) evt.HLTriggers_accept->At(i);
-		TString curName = theHLTbit->GetString();
-		//std::cout << "HLT " << curName.Data() << " included" << std::endl;
-
-		/*	    if ( res->GetCorrectedJetPt(1) < 5.0  )
-		 res->m_pData->jets[1]->SetMomentum(0.0,0.0,0.0,0.0);
-		 if ( res->GetCorrectedJetPt(2) < 5.0  )
-		 res->m_pData->jets[2]->SetMomentum(0.0,0.0,0.0,0.0);
-		 */
-		if (hltName == curName)
-		{
-			//std::cout << "!! HLT trigger " << curName.Data() << " matched" << std::endl;
-			return true;
-		}
-	}
-
-	return false;
 }
 
 void importEvents(bool bUseJson,
@@ -495,16 +437,10 @@ void importEvents(bool bUseJson,
 	{
 		g_pChain->GetEntry(ievt);
 
-		// TODO check if this event matches our hlt trigger criteria
-		/*        if ( bUseEvent && g_useHLT )
-		 {
-		 bUseEvent = IsEventHltAccepted( g_ev );
-		 }
-		 */
-
 		EventResult * res = new EventResult;
 		res->m_pData = &g_ev;
 		
+		// the weight of data events can be strange when read from root file. better reset here
 		res->m_weight = 1.0f;
 		if (g_useWeighting)
 		{

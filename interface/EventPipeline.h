@@ -222,9 +222,9 @@ std::vector<PtBin> GetAsPtBins( stringvector & sv )
 
 VarCache< stringvector > m_jetRespBins;
 
-stringvector GetJetResponseBins()
+stringvector GetCustomBins()
 {
-	RETURN_CACHED( m_jetRespBins, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".JetResponseBins") )
+	RETURN_CACHED( m_jetRespBins, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".CustomBins") )
 }
 // TODO: maybe cache this for better performance
 
@@ -288,6 +288,12 @@ PipelineSettings * m_pipelineSettings;
 class PtWindowFilter: public FilterBase<EventResult>
 {
 public:
+	PtWindowFilter( ) : FilterBase<EventResult>(), m_binWith( ZPtBinning)
+	{
+
+
+	}
+
 
 virtual bool DoesEventPass(EventResult & event)
 {
@@ -350,21 +356,8 @@ public:
 
 virtual bool DoesEventPass(EventResult & event)
 {
-	bool bPass = true;
 	// no section here is allowed to set to true again, just to false ! avoids coding errors
-	if (!event.IsInCut())
-	{
-		bPass = false;
-	}
-	else
-	{
-		// all events which are valid in jSON file
-		// does this work for mc ??
-		if (!event.IsValidEvent())
-		bPass = false;
-	}
-
-	return bPass;
+	return event.IsInCut();
 }
 
 virtual std::string GetFilterId()
