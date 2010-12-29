@@ -234,6 +234,66 @@ public:
 	TGraphErrors * m_graph;
 };
 
+
+class Hist2D: public HistBase< Hist2D>
+{
+public:
+
+	Hist2D() :
+		m_sName("default_hist_name"), m_sCaption("default_hist_caption"),
+				m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(200.0f),
+				m_iBinYCount(100), m_dBinYLower(0.0f), m_dBinYUpper(200.0f)
+	{
+
+	}
+
+	void Init()
+	{
+		this->RunModifierBeforeCreation( this );
+
+		m_hist = new TH2D(this->m_sName.c_str(), this->m_sCaption.c_str(),
+				this->m_iBinXCount, this->m_dBinXLower, this->m_dBinXUpper,
+				this->m_iBinYCount, this->m_dBinYLower, this->m_dBinYUpper);
+		m_hist->Sumw2();
+
+		this->RunModifierBeforeDataEntry( this );
+	}
+
+	void Store(TFile * pRootFile)
+	{
+		this->RunModifierAfterDataEntry(this );
+		this->RunModifierAfterDraw( this );
+
+		CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
+
+		if ( pRootFile->cd( this->m_sRootFileFolder.c_str() ) == false)
+		{
+			pRootFile->mkdir( this->m_sRootFileFolder.c_str() );
+			pRootFile->cd( this->m_sRootFileFolder.c_str() );
+		}
+		m_hist->Write((this->m_sName + "_hist").c_str());
+	}
+
+	void Fill(double x, double y, double weight)
+	{
+		m_hist->Fill(x, y, weight);
+	}
+
+	TH2D * GetRawHisto(){ return m_hist; }
+
+	std::string m_sName;
+	std::string m_sCaption;
+	std::string m_sRootFileFolder;
+	int m_iBinXCount;
+	double m_dBinXLower;
+	double m_dBinXUpper;
+	int m_iBinYCount;
+	double m_dBinYLower;
+	double m_dBinYUpper;
+
+	TH2D * m_hist;
+};
+
 class Hist1D: public HistBase< Hist1D>
 {
 public:
@@ -259,7 +319,10 @@ public:
 		{
 		m_hist = new TH1D(this->m_sName.c_str(), this->m_sCaption.c_str(),
 				this->m_iBinCount, this->m_dBinLower, this->m_dBinUpper);
+
 		}
+		m_hist->Sumw2();
+
 		this->RunModifierBeforeDataEntry( this );
 	}
 
@@ -282,6 +345,8 @@ public:
 	{
 		m_hist->Fill(val, weight);
 	}
+
+	TH1D * GetRawHisto(){ return m_hist; }
 
 	std::string m_sName;
 	std::string m_sCaption;
@@ -425,6 +490,38 @@ public:
 	Hist1D * m_hist;
 };
 
+template<class TData>
+class DrawHist2DConsumerBase: public DrawConsumerBase<TData>
+{
+public:
+	DrawHist2DConsumerBase() :
+		m_hist(NULL)
+	{
+	}
+
+	virtual void Init(EventPipeline * pset)
+	{
+		DrawConsumerBase<TData>::Init(pset);
+		CALIB_LOG( "Initializing 2d Hist for " << this->GetProductName() )
+
+		/* m_hist->m_sName = "nname"; //this->GetProductName();
+		 m_hist->m_sCaption = "ccapt" ;//this->GetProductName(); */
+		m_hist->m_sName = m_hist->m_sCaption = this->GetProductName();
+		m_hist->m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+		m_hist->Init();
+	}
+
+	virtual void Finish()
+	{
+		// store hist
+		// + modifiers
+		//CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
+		m_hist->Store(this->GetPipelineSettings()->GetRootOutFile());
+	}
+	// already configured histogramm
+	Hist2D * m_hist;
+};
+
 // MODS
 
 class ModHistBinRange : public ModifierBase<Hist1D>
@@ -445,12 +542,54 @@ private:
 	double m_dBinUpper;
 };
 
+class ModHist2DBinRange : public ModifierBase<Hist2D>
+{
+public:
+	ModHist2DBinRange( double lowerx, double upperx, double lowery, double uppery) :
+		m_dBinXLower(lowerx),m_dBinXUpper(upperx),
+		m_dBinYLower(lowery),m_dBinYUpper(uppery)
+	{
+	}
+
+	virtual void BeforeCreation(Hist2D * pElem)
+	{
+		pElem->m_dBinXLower = this->m_dBinXLower;
+		pElem->m_dBinXUpper = this->m_dBinXUpper;
+		pElem->m_dBinYLower = this->m_dBinYLower;
+		pElem->m_dBinYUpper = this->m_dBinYUpper;
+	}
+
+private:
+	double m_dBinXLower;
+	double m_dBinXUpper;
+	double m_dBinYLower;
+	double m_dBinYUpper;
+};
+
 class ModHistCustomBinnig : public ModifierBase<Hist1D>
 {
 public:
 	ModHistCustomBinnig( )
 	{
 
+	}
+
+	ModHistCustomBinnig ( stringvector customBins )
+	{
+		std::vector<PtBin> custBins = PipelineSettings::GetAsPtBins(  customBins );
+
+		if ( custBins.size() == 0 )
+			CALIB_LOG_FATAL("No bins specified for Plot !")
+
+		this->m_iBinCount = custBins.size();
+		this->m_dBins[0] = custBins[0].GetMin();
+
+		  int i = 1;
+		  BOOST_FOREACH( PtBin & bin, custBins )
+		  {
+			this->m_dBins[i] = bin.GetMax();
+			i++;
+		  }
 	}
 
    virtual void BeforeCreation(Hist1D * pElem)
@@ -486,6 +625,25 @@ private:
 
 };
 
+class ModHist2DBinCount : public ModifierBase<Hist2D>
+{
+public:
+	ModHist2DBinCount( unsigned int countx, unsigned int county) :
+		m_iBinXCount(countx), m_iBinYCount(county)
+	{
+	}
+
+	virtual void BeforeCreation(Hist2D * pElem)
+	{
+		pElem->m_iBinXCount = m_iBinXCount;
+		pElem->m_iBinYCount = m_iBinYCount;
+	}
+
+private:
+	unsigned int m_iBinXCount;
+	unsigned int m_iBinYCount;
+};
+
 class DrawJetConsumerBase: public DrawHist1dConsumerBase<EventResult>
 {
 public:
@@ -504,8 +662,8 @@ IMPL_HIST1D_MOD1(DrawZMassConsumer ,m_hist->Fill(res.m_pData->Z->GetCalcMass() ,
 IMPL_HIST1D_MOD1(DrawZPtConsumer ,m_hist->Fill(res.m_pData->Z->Pt() , res.m_weight); ,
 		new ModHistBinRange(0.0f, 200.0f))
 
-IMPL_HIST1D_MOD1(DrawZEtaConsumer ,m_hist->Fill(res.m_pData->Z->Phi() , res.m_weight); ,
-		new ModHistBinRange(-3.0f, 3.0f))
+IMPL_HIST1D_MOD1(DrawZEtaConsumer ,m_hist->Fill(res.m_pData->Z->Phi() - TMath::Pi() , res.m_weight); ,
+		new ModHistBinRange(-3.5f, 3.5f))
 
 IMPL_HIST1D_MOD1(DrawZPhiConsumer ,m_hist->Fill(res.m_pData->Z->Eta() , res.m_weight); ,
 		new ModHistBinRange(-3.5f, 3.5f))
@@ -523,9 +681,9 @@ IMPL_HIST1D_MOD1(DrawMuMinusEtaConsumer ,m_hist->Fill(res.m_pData->mu_minus->Eta
 		new ModHistBinRange(-3.0f, 3.0f))
 
 // mus phi
-IMPL_HIST1D_MOD1(DrawMuPlusPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawMuPlusPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() - TMath::Pi() , res.m_weight); ,
 		new ModHistBinRange(-3.5f, 3.5f))
-IMPL_HIST1D_MOD1(DrawMuMinusPhiConsumer ,m_hist->Fill(res.m_pData->mu_minus->Phi() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawMuMinusPhiConsumer ,m_hist->Fill(res.m_pData->mu_minus->Phi()  - TMath::Pi(), res.m_weight); ,
 		new ModHistBinRange(-3.5f, 3.5f))
 
 // Both mus
@@ -533,7 +691,7 @@ IMPL_HIST1D_MOD1(DrawMuAllPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , 
 		new ModHistBinRange(0.0f, 200.0f))
 IMPL_HIST1D_MOD1(DrawMuAllEtaConsumer ,m_hist->Fill(res.m_pData->mu_plus->Eta() , res.m_weight); m_hist->Fill(res.m_pData->mu_minus->Eta() , res.m_weight); ,
 		new ModHistBinRange(-3.0f, 3.0f))
-IMPL_HIST1D_MOD1(DrawMuAllPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() , res.m_weight); m_hist->Fill(res.m_pData->mu_minus->Phi() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawMuAllPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() - TMath::Pi(), res.m_weight); m_hist->Fill(res.m_pData->mu_minus->Phi() - TMath::Pi() , res.m_weight); ,
 		new ModHistBinRange(-3.5f, 3.5f))
 
 
@@ -586,30 +744,38 @@ IMPL_HIST1D_JET_MOD1(DrawJetPhiConsumer ,
 		{
 				if ( res.IsJetValid( m_jetNum ))
 				{
-					m_hist->Fill(res.m_pData->jets[m_jetNum]->Phi() , res.m_weight);
+					m_hist->Fill(res.m_pData->jets[m_jetNum]->Phi() - TMath::Pi() , res.m_weight);
 				}
 		},
 		new ModHistBinRange(-3.5f, 3.5f) )
+
+IMPL_HIST1D_JET_MOD1(DrawJetDeltaPhiConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( DeltaHelper::GetDeltaPhiCenterZero( res.m_pData->Z,
+							res.m_pData->jets[m_jetNum]),
+							res.m_weight);
+				}
+		},
+		new ModHistBinRange(-3.5f, 3.5f) )
+
+IMPL_HIST1D_JET_MOD1(DrawJetDeltaEtaConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( TMath::Abs(  res.m_pData->Z->Eta() -
+							res.m_pData->jets[m_jetNum]->Eta()),
+							res.m_weight);
+				}
+		},
+		new ModHistBinRange(0.0f, 4.0f) )
 
 
 class DrawEventCount: public DrawHist1dConsumerBase<EventResult>
 { public:
 virtual void Init(EventPipeline * pset) {
-	ModHistCustomBinnig * cbMod = new ModHistCustomBinnig;
-
-	stringvector sVec = pset->GetSettings()->GetCustomBins();
-	std::vector<PtBin> custBins = pset->GetSettings()->GetAsPtBins(  sVec );
-
-    cbMod->m_iBinCount = custBins.size();
-    cbMod->m_dBins[0] = custBins[0].GetMin();
-
-	  int i = 1;
-	  BOOST_FOREACH( PtBin & bin, custBins )
-	  {
-		cbMod->m_dBins[i] = bin.GetMax();
-		i++;
-      }
-
+	ModHistCustomBinnig * cbMod = new ModHistCustomBinnig( pset->GetSettings()->GetCustomBins());
 	m_hist->AddModifier( cbMod );
 
 	DrawHist1dConsumerBase<EventResult>::Init(pset);
@@ -620,6 +786,38 @@ virtual void ProcessFilteredEvent(EventResult & res)
 }
 };
 
+class DrawEtaPhiMapConsumer: public DrawHist2DConsumerBase<EventResult>
+{
+	public:
+	virtual void Init(EventPipeline * pset) {
+
+	m_hist->AddModifier( new ModHist2DBinRange(0.0f, 4.0f, -3.2, 3.2 ));
+	m_hist->AddModifier( new ModHist2DBinCount(40, 40));
+
+	DrawHist2DConsumerBase<EventResult>::Init(pset);
+}/*
+virtual void ProcessFilteredEvent(EventResult & res)
+{
+	m_hist->Fill( res.m_pData->Z->Pt(), res.m_weight );
+}*/
+};
+
+class DrawEtaPhiJetMapConsumer: public DrawEtaPhiMapConsumer
+{
+	public:
+	DrawEtaPhiJetMapConsumer( int jetNum) : m_jetNum(jetNum)
+	{}
+
+	virtual void ProcessFilteredEvent(EventResult & res)
+	{
+		m_hist->Fill(
+				TMath::Abs(res.m_pData->Z->Eta()- res.m_pData->jets[m_jetNum]->Eta()),
+				DeltaHelper::GetDeltaPhiCenterZero(res.m_pData->Z, res.m_pData->jets[m_jetNum]),
+				res.m_weight );
+	}
+
+	int m_jetNum;
+};
 
 class GraphXProviderBase
 {
@@ -628,76 +826,13 @@ public:
 
 };
 
-template <class TBinInfo>
-class BinnedCounterBase
-{
-public:
-	template <class TInf>
-	class Bin
-	{
-	public:
-		PtBin m_bin;
-		TInf m_binInfo;
-	};
-
-	BinnedCounterBase( double start, double stepSize, int binCount)
-	{
-		for (unsigned int iBin = 0; iBin < binCount; iBin ++ )
-		{
-		     Bin<TBinInfo> * pBin = new Bin<TBinInfo>();
-		     pBin->m_bin = PtBin( (double) iBin * stepSize + start,
-		                            ((double) (iBin + 1)) * stepSize + start);
-		     m_binList.push_back( pBin );
-		}
-    }
-
-	TBinInfo * GetBinInfo( double val)
-	{
-
-		for (int i = 0;	i < m_binList.size(); i++)
-		{
-			if ( m_binList[i].m_bin.IsInBin( val ))
-			{
-				return &m_binList[i].m_binInfo;
-			}
-		}
-		return NULL;
-	}
-
-
-	boost::ptr_vector<Bin<TBinInfo > > m_binList;
-
-};
-
-class CutEffBinInfo
-{
-public:
-	CutEffBinInfo() : m_rejected( 0 ), m_accepted(0)
-	{
-
-	}
-
-	unsigned long m_rejected;
-	unsigned long m_accepted;
-};
-
-
-class CutEffBinnedCounter: public BinnedCounterBase< CutEffBinInfo>
-{
-public:
-	CutEffBinnedCounter( double start, double stepSize, int binCount):
-		BinnedCounterBase< CutEffBinInfo>( start, stepSize, binCount)
-	{
-
-	}
-};
 
 class GraphXProviderZpt : public GraphXProviderBase
 {
 public:
 	virtual double GetLow() { return 0.0f; }
-	virtual double GetHigh() { return 500.0f; }
-	virtual int GetBinCount() { return 50; }
+	virtual double GetHigh() { return 300.0f; }
+	virtual int GetBinCount() { return 60; }
 	virtual double GetXValue(EventResult & event) { return event.m_pData->Z->Pt();}
 };
 
@@ -710,6 +845,34 @@ public:
 	virtual double GetXValue(EventResult & event) { return event.GetRecoVerticesCount();}
 };
 
+class DrawDeltaPhiRange: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+	DrawDeltaPhiRange( ) : 	DrawGraphErrorsConsumerBase<EventResult>()
+	{
+	}
+	virtual void Finish()
+	{
+		// plot the efficiency
+		for (double i = 0;	i < 2 * TMath::Pi(); i+= 0.1 )
+		{
+			TVector3 v1 = TVector3(1.0,0.0,0.0);
+			TVector3 v2 = TVector3( TMath::Cos(i) , TMath::Sin(i) ,0.0);
+
+			m_graph->AddPoint(
+					i,
+					DeltaHelper::GetDeltaPhiCenterZero(v1, v2),
+					 0.0f,
+					 0.0f);
+		}
+
+		// store hist
+		// + modifiers
+		//CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
+		DrawGraphErrorsConsumerBase<EventResult>::Finish();
+	}
+};
+
 template <class TXProvider>
 class DrawCutEffGraph: public DrawGraphErrorsConsumerBase<EventResult>
 {
@@ -717,9 +880,20 @@ public:
 	DrawCutEffGraph( int cutId ) : 	DrawGraphErrorsConsumerBase<EventResult>(),
 		m_iCutId( cutId)
 	{
+		m_hist_rejected.AddModifier( new ModHistBinRange( m_xProvider.GetLow(),m_xProvider.GetHigh()));
+		m_hist_rejected.AddModifier( new ModHistBinCount( m_xProvider.GetBinCount() ));
+
+
+		m_hist_overall.AddModifier( new ModHistBinRange( m_xProvider.GetLow(),m_xProvider.GetHigh()));
+		m_hist_overall.AddModifier( new ModHistBinCount( m_xProvider.GetBinCount() ));
+
+
+		m_hist_rejected.Init();
+		m_hist_overall.Init();
+		/*
 		m_binCounter.reset( new CutEffBinnedCounter( m_xProvider.GetLow(),
 				(  m_xProvider.GetHigh() -  m_xProvider.GetLow()) / (double) m_xProvider.GetBinCount(),
-				m_xProvider.GetBinCount()));
+				m_xProvider.GetBinCount()));*/
 	}
 
 	// this method is called for all events
@@ -727,39 +901,48 @@ public:
 	{
 		if ( !g_cutHandler.IsValidEvent( &event))
 			return;
-
+/*
 		CutEffBinInfo * pInfo = m_binCounter->GetBinInfo(	m_xProvider.GetXValue( event ));
-
+*/
 		// is null is returned, out of our range, but is fine
-		if ( pInfo != NULL)
+		//if ( pInfo != NULL)
 		{
 			if ( g_cutHandler.IsCutInBitmask( m_iCutId, event.m_cutBitmask ))
-				pInfo->m_rejected++;
-			else
-				pInfo->m_accepted++;
+				m_hist_rejected.Fill( m_xProvider.GetXValue( event ), event.m_weight );
+
+
+			m_hist_overall.Fill( m_xProvider.GetXValue( event ), event.m_weight );
 		}
 	}
 
 	virtual void Finish()
 	{
+		m_hist_rejected.GetRawHisto()->Divide( m_hist_overall.GetRawHisto() );
+
 		// plot the efficiency
-		for (int i = 0;	i < m_binCounter->m_binList.size(); i++)
+		for (int i = 0;	i < m_hist_rejected.GetRawHisto()->GetNbinsX(); i++)
 		{
+			m_graph->AddPoint( m_hist_rejected.GetRawHisto()->GetBinCenter(i),
+					m_hist_rejected.GetRawHisto()->GetBinContent(i),
+					 0.0f,
+					 m_hist_rejected.GetRawHisto()->GetBinError(i));
+
+			/*
 			unsigned long overall = m_binCounter->m_binList[i].m_binInfo.m_rejected  + m_binCounter->m_binList[i].m_binInfo.m_accepted;
 
 			if ( overall > 0)
 			{
-			m_graph->AddPoint( m_binCounter->m_binList[i].m_bin.GetBinCenter(),
-					 (double)m_binCounter->m_binList[i].m_binInfo.m_rejected /
-					 (double)overall,
-					 0.0f, 0.0f);
+				m_graph->AddPoint( m_binCounter->m_binList[i].m_bin.GetBinCenter(),
+						 (double)m_binCounter->m_binList[i].m_binInfo.m_rejected /
+						 (double)overall,
+						 0.0f, 0.0f);
 			}
 			 else
 			 {
 					m_graph->AddPoint( m_binCounter->m_binList[i].m_bin.GetBinCenter(),
 							 1.0f,
 							 0.0f, 0.0f);
-			 }
+			 }*/
 
 		}
 
@@ -771,13 +954,19 @@ public:
 
 	int m_iCutId;
 	TXProvider m_xProvider;
-	std::auto_ptr<CutEffBinnedCounter> m_binCounter;
+
+	// only used for the internal binning and not stored to root file
+	Hist1D m_hist_rejected;
+	Hist1D m_hist_overall;
+
+	//std::auto_ptr<CutEffBinnedCounter> m_binCounter;
 };
 
 class DrawJetRespGraph: public DrawGraphErrorsConsumerBase<EventResult>
 {
 public:
-	DrawJetRespGraph( std::string sInpHist ) : 	DrawGraphErrorsConsumerBase<EventResult>(),
+	DrawJetRespGraph( std::string sInpHist ) :
+		DrawGraphErrorsConsumerBase<EventResult>(),
 		m_sInpHist( sInpHist)
 	{
 
@@ -785,9 +974,14 @@ public:
 
 	virtual void Process()
 	{
-		// move throug the histos
+		// move through the histos
 		stringvector sv = this->GetPipelineSettings()->GetCustomBins();
 		std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+		m_histResp.m_sCaption = m_histResp.m_sName = this->GetProductName();
+		m_histResp.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+		m_histResp.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+		m_histResp.Init();
 
 		int i = 0;
 		for (std::vector< PtBin >::iterator it = bins.begin();
@@ -806,12 +1000,22 @@ public:
 					this->GetPipelineSettings()->GetInputType(), 0, &(*it), false);
 			TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get( sName );
 
-			m_graph->AddPoint( hpt->GetMean(), hresp->GetMean(), hpt->GetMeanError(), hresp->GetMeanError());
+			m_graph->AddPoint( hpt->GetMean(),
+					hresp->GetMean(),
+					hpt->GetMeanError(),
+					hresp->GetMeanError());
+
+			m_histResp.GetRawHisto()->SetBinContent(i +1, hresp->GetMean() );
+			m_histResp.GetRawHisto()->SetBinError(i +1, hresp->GetMeanError() );
 			i++;
 		}
 
+		m_histResp.Store(this->GetPipelineSettings()->GetRootOutFile());
+
 	}
 	std::string m_sInpHist;
+
+	Hist1D m_histResp;
 };
 
 }

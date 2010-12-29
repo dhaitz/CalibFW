@@ -6,6 +6,7 @@
 #include "TParticle.h"
 #include "TChain.h"
 #include "TH1D.h"
+#include "TH2D.h"
 #include "TGraphErrors.h"
 #include "TLegend.h"
 #include "TCanvas.h"
@@ -30,19 +31,31 @@ double ScalarProductTParticle( TParticle * p1, TParticle * p2 )
 
 class DeltaHelper
 {
-public:  
-  static double GetDeltaCenterZero ( TParticle * p1, TParticle * p2 )
+ public:
+  static double GetDeltaPhiCenterZero ( TVector3 & v1, TVector3 & v2)
+  {
+	  double delta = ROOT::Math::VectorUtil::DeltaPhi( v1, v2);
+	/*if (delta > 0.0)
+		delta -= TMath::Pi();
+	  else
+		delta += TMath::Pi();
+*/
+	return delta;
+  }
+
+  /* calcualtes the delta Phi between 2 particles
+	  if the the particles are have the same direction in x-y-space. this returns 0
+	  for 0 to Phi, this function returns a positiv DeltaPhi. For the region Pi to 2Pi, a negative
+	  Delta Phi is returned.
+	  The range of delta phi is [-Pi,Pi]
+	  See also the class DrawDeltaPhiRange to get a plot of the range
+  */
+  static double GetDeltaPhiCenterZero ( TParticle * p1, TParticle * p2 )
   {
 	TVector3 tZ (p1->Px(), p1->Py(), p1->Pz());
 	TVector3 tJet ( p2->Px(), p2->Py(), p2->Pz());
-	
-	double delta = ROOT::Math::VectorUtil::DeltaPhi( tZ, tJet);
-	if (delta > 0.0)
-	    delta -= TMath::Pi();
-	  else
-	    delta += TMath::Pi();
-		
-	return delta;
+
+	return DeltaHelper::GetDeltaPhiCenterZero( tZ, tJet);
   }
 
 };

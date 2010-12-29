@@ -201,13 +201,13 @@ stringvector GetAdditionalConsumer()
 	RETURN_CACHED( m_additionalConsumer, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".AdditionalConsumer") )
 }
 
-std::vector<PtBin> GetAsPtBins( stringvector & sv )
+static std::vector<PtBin> GetAsPtBins( stringvector & sv )
 {
 	std::vector< PtBin > bins;
 
 	int i = 0;
 	for ( stringvector::iterator it = (sv.begin() + 1);
-			it != sv.end();
+			it < sv.end();
 			it ++)
 	{
 		int ilow = atoi ( sv[i].c_str() );

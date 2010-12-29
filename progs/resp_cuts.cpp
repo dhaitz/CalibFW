@@ -232,7 +232,13 @@ void RunPipelinesForEvent(EventResult & event)
 		{
 			g_cutHandler.ConfigureCuts(it->GetSettings());
 			g_cutHandler.ApplyCuts(&event);
-			it->RunEvent(event);
+
+			// don't run event if it was not accepted by JSON file.
+			// this events can contain "unphysical" results due to measurement errors
+
+			// IsValidEvent checks if in JSON and in HLT selection
+			if ( g_cutHandler.IsValidEvent( &event ) )
+				it->RunEvent(event);
 		}
 	}
 }
@@ -315,6 +321,16 @@ EventPipeline * CreateDefaultPipeline()
 	PLOT_HIST1D_CONST1(pline, DrawJetEtaConsumer, jet2_eta, 1)
 	PLOT_HIST1D_CONST1(pline, DrawJetEtaConsumer, jet3_eta, 2)
 
+	// Jet Delta Eta wrt to Z
+	PLOT_HIST1D_CONST1(pline, DrawJetDeltaEtaConsumer, jet1_deltaeta_z, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetDeltaEtaConsumer, jet2_deltaeta_z, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetDeltaEtaConsumer, jet3_deltaeta_z, 2)
+
+	// Jet Delta Phi wrt to Z
+	PLOT_HIST1D_CONST1(pline, DrawJetDeltaPhiConsumer, jet1_deltaphi_z, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetDeltaPhiConsumer, jet2_deltaphi_z, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetDeltaPhiConsumer, jet3_deltaphi_z, 2)
+
 	PLOT_HIST1D(pline, DrawZEtaConsumer, z_eta)
 	PLOT_HIST1D(pline, DrawZPhiConsumer, z_phi)
 
@@ -361,6 +377,22 @@ EventPipeline * CreateDefaultPipeline()
 	object_eVconsumer->m_hist = hist_evCount;
 	pline->m_consumer.push_back(object_eVconsumer);
 
+	// Jet 1 Eta Phi map
+	Hist2D * hist_ePhiMapJet = new Hist2D;
+	DrawEtaPhiJetMapConsumer * object_ePhiMapJetconsumer = new DrawEtaPhiJetMapConsumer(0);
+	object_ePhiMapJetconsumer->m_sQuantityName = "etaphi_jet1_to_z";
+	object_ePhiMapJetconsumer->m_hist = hist_ePhiMapJet;
+	pline->m_consumer.push_back(object_ePhiMapJetconsumer);
+
+	// Jet 2 Eta Phi map
+	Hist2D * hist_ePhiMapJet2 = new Hist2D;
+	DrawEtaPhiJetMapConsumer * object_ePhiMapJetconsumer2 = new DrawEtaPhiJetMapConsumer(1);
+	object_ePhiMapJetconsumer2->m_sQuantityName = "etaphi_jet2_to_z";
+	object_ePhiMapJetconsumer2->m_hist = hist_ePhiMapJet2;
+	pline->m_consumer.push_back(object_ePhiMapJetconsumer2);
+
+
+	PLOT_GRAPHERRORS( pline, DrawDeltaPhiRange, deltaphi_test )
 	//PLOT_GRAPHERRORS( pline, DrawJetRespBase, jetresp )
 	/*	Hist2D * hist = new Hist2D;
 	 DrawZMassConsumer * massc = new DrawZMassConsumer();

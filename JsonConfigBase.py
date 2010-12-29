@@ -127,22 +127,38 @@ def ExpandPtBins( pipelineDict, ptbins, includeSource):
     
     
     
-def ExpandDefaultDataConfig( ptBins, conf_template):
+def ExpandDefaultDataConfig( ptBins, conf_template, useFolders):
     conf = conf_template
+    
+    conf["Pipelines"]["default"]["CustomBins"] = ptBins
+    conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )
     
     secLevelPline = { "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
     secLevelPline["sec_default"]["Level"] = 2
     secLevelPline["sec_default"]["CustomBins"] = ptBins
 
-    conf["Pipelines"]["default"]["CustomBins"] = ptBins
-   
-    conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )
     conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
     
     #merge all
-#    conf["Pipelines"] = dict( conf["Pipelines"].items() +  secLevelPline.items() )
-    
     conf["Pipelines"]["default"]["AdditionalConsumer"] = ["cut_statistics"]
+
+    if useFolders:
+        for p, pval in conf["Pipelines"].items():
+            
+            ptVal = "NoBinning"
+            
+            if "ptbin" in pval["Filter"]:
+                ptVal = "Pt" + str(pval["FilterPtBinLow"]) + "to" + str(pval["FilterPtBinHigh"])  
+                
+            if "incut" in pval["Filter"]:
+                ptVal = ptVal + "_incut"
+            else:
+                ptVal = ptVal + "_allevents"           
+            
+            pval["RootFileFolder"] = ptVal
+
+        
+    conf["Pipelines"] = dict( conf["Pipelines"].items() +  secLevelPline.items() )
 
     return conf
 
