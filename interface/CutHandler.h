@@ -484,7 +484,7 @@ public:
 		return m_cuts;
 	}
 
-	bool IsCutInBitmask( unsigned long cutId, unsigned long bitmask)
+	static bool IsCutInBitmask( unsigned long cutId, unsigned long bitmask)
 	{
 		return ( cutId & bitmask ) > 0;
 	}
@@ -496,7 +496,7 @@ public:
 
 	// is in Json file and passend the HLT selection, so is a valid event
 	// from a technical standpoint, but not necessarily in physics cuts
-	bool IsValidEvent( EventResult * pEvRes)
+	static bool IsValidEvent( EventResult * pEvRes)
 	{
 		// for MC Events, this should always return true
 		return (! IsCutInBitmask( JsonCut::CudId, pEvRes->m_cutBitmask ) &&

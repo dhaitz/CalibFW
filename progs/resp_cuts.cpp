@@ -16,8 +16,6 @@
  the histo in the root file.
 
  > done
-
-
  */
 #include "RootIncludes.h"
 
@@ -393,6 +391,21 @@ EventPipeline * CreateDefaultPipeline()
 
 
 	PLOT_GRAPHERRORS( pline, DrawDeltaPhiRange, deltaphi_test )
+
+
+	GraphErrors * hist_DrawJetPt = new GraphErrors;
+	DrawJetPt<GraphXProviderJetPhiDeltaZ<0> >  * object_DrawJetPt = new DrawJetPt<GraphXProviderJetPhiDeltaZ<0> >( 0 );
+	object_DrawJetPt->m_sQuantityName = "jet1pt_deltaphi";
+	object_DrawJetPt->m_graph = hist_DrawJetPt;
+	pline->m_consumer.push_back(object_DrawJetPt);
+
+	hist_DrawJetPt = new GraphErrors;
+	DrawJetPt<GraphXProviderJetPhiDeltaZ<1> >  * object_DrawJet2Pt = new DrawJetPt<GraphXProviderJetPhiDeltaZ<1> >( 1 );
+	object_DrawJet2Pt->m_sQuantityName = "jet2pt_deltaphi";
+	object_DrawJet2Pt->m_graph = hist_DrawJetPt;
+	pline->m_consumer.push_back(object_DrawJet2Pt);
+
+
 	//PLOT_GRAPHERRORS( pline, DrawJetRespBase, jetresp )
 	/*	Hist2D * hist = new Hist2D;
 	 DrawZMassConsumer * massc = new DrawZMassConsumer();
@@ -612,316 +625,6 @@ inline void PrintEvent(EventResult & data, std::ostream & out,
 		delete pForm;
 }
 
-void DrawHistoSet(TString algoName, TString sPostfix, TFile * pFileOut,
-		bool useCutParameter, bool bPtCut, double ptLow = 0.0, double ptHigh =
-				0.0)
-{
-	std::cout << "Drawing Plots " << algoName << sPostfix << " Cuts: "
-			<< useCutParameter << " PtCut-low: " << ptLow << " Pt-Cut-high:"
-			<< ptHigh << std::endl;
-	/*
-	 // ZMass with cut/
-	 ModifierList modList;
-	 modList.push_back( new CModHorizontalLine( g_kZmass - g_kCutZmassWindow ));
-	 modList.push_back( new CModHorizontalLine( g_kZmass + g_kCutZmassWindow));
-	 modList.push_back( new CModTdrStyle());
-	 */
-	/*    CHistDrawBase zmass( "zmass_" + algoName + sPostfix,
-	 pFileOut,
-	 modList);
-
-	 CHistEvtDataZMass zdraw;
-	 ModEvtDraw( &zdraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 zmass.Execute < EventVector > ( g_eventsDataset, &zdraw );
-	 */
-	/*
-	 // ZPt
-	 CHistDrawBase zPt( "zPt_" + algoName + sPostfix,
-	 pFileOut);
-	 CHistEvtDataZPt zPtdraw;
-	 zPt.AddModifier(new CModBinRange(0.0, 500.0));
-
-	 ModEvtDraw( &zPtdraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 zPt.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );
-
-
-	 // MET
-	 CHistDrawBase met( "met_" + algoName + sPostfix,
-	 pFileOut);
-	 CHistEvtDataMet metdraw;
-	 met.AddModifier(new CModBinRange(0.0, 300.0));
-
-	 ModEvtDraw( &metdraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 met.Execute < EventVector & > ( g_eventsDataset, &metdraw );
-
-	 // tcMET
-	 CHistDrawBase tcmet( "tcmet_" + algoName + sPostfix,
-	 pFileOut);
-	 CHistEvtDataTcMet tcmetdraw;
-	 tcmet.AddModifier(new CModBinRange(0.0, 300.0));
-
-	 ModEvtDraw( &tcmetdraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 tcmet.Execute < EventVector & > ( g_eventsDataset, &metdraw );
-
-
-	 if ( !bPtCut )
-	 {
-	 CHistDrawBase zPtEff( "zPt_CutEff" + algoName + sPostfix,
-	 pFileOut);
-	 CHistEvtDataZPtCutEff zPtEffdraw;
-	 zPtEff.AddModifier(new CModBinRange(0.0, 500.0));
-
-	 ModEvtDraw( &zPtEffdraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 zPtEff.Execute < EventVector & > ( g_eventsDataset, &zPtdraw );
-	 }
-
-	 // ZEta
-	 CHistDrawBase zEta( "zEta_" + algoName + sPostfix,
-	 pFileOut,
-	 CHistEtaMod::DefaultModifiers());
-	 CHistEvtDataZEta zEtadraw;
-	 ModEvtDraw( &zEtadraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 zEta.Execute < EventVector & > ( g_eventsDataset, &zEtadraw );
-
-	 // ZPhi
-	 CHistDrawBase zPhi( "zPhi_" + algoName+ sPostfix,
-	 pFileOut,
-	 CHistPhiMod::DefaultModifiers());
-	 CHistEvtDataZPhi zPhiDraw;
-	 ModEvtDraw( &zPhiDraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 zPhi.Execute < EventVector & > ( g_eventsDataset, &zPhiDraw  );
-
-	 // mu plus pt with cut
-	 modList.clear();
-	 modList.push_back( new CModHorizontalLine( g_kCutMuPt ));
-
-	 CHistDrawBase muplus_pt( "muplus_pt_" + algoName+ sPostfix,
-	 pFileOut,	 modList);
-	 muplus_pt.AddModifier(new CModBinRange(0.0, 500.0));
-	 CHistEvtDataMuPlusPt muplus_ptdraw;
-	 ModEvtDraw( &muplus_ptdraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 muplus_pt.Execute < EventVector & > ( g_eventsDataset, &muplus_ptdraw );
-
-	 // mu minus pt with cut
-	 modList.clear();
-	 modList.push_back( new CModHorizontalLine( g_kCutMuPt ));
-
-	 CHistDrawBase muminus_pt( "muminus_pt_" + algoName+ sPostfix,
-	 pFileOut,	 modList);
-	 muminus_pt.AddModifier(new CModBinRange(0.0, 500.0));
-
-	 CHistEvtDataMuMinusPt muminus_ptdraw;
-	 ModEvtDraw( &muminus_ptdraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 muminus_pt.Execute < EventVector & > ( g_eventsDataset, &muminus_ptdraw );
-
-	 // mu minus eta with cut
-	 CHistDrawBase muminus_eta( "muminus_eta_" + algoName+ sPostfix,  pFileOut,
-	 CHistEtaMod::DefaultModifiers());
-	 muminus_eta.AddModifier(new CModHorizontalLine( g_kCutMuEta ));
-	 muminus_eta.AddModifier(new CModHorizontalLine( - g_kCutMuEta ));
-
-	 CHistEvtDataMuMinusEta muminus_etadraw;
-	 ModEvtDraw( &muminus_etadraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 muminus_eta.Execute < EventVector & > ( g_eventsDataset, &muminus_etadraw );
-
-	 // mu plus eta with cut
-	 CHistDrawBase muplus_eta( "muplus_eta_" + algoName+ sPostfix,
-	 pFileOut,
-	 CHistEtaMod::DefaultModifiers());
-	 muplus_eta.AddModifier(new CModHorizontalLine( g_kCutMuEta ));
-	 muplus_eta.AddModifier(new CModHorizontalLine( - g_kCutMuEta ));
-
-	 CHistEvtDataMuMinusEta muplus_etadraw;
-	 ModEvtDraw( &muplus_etadraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 muplus_eta.Execute < EventVector & > ( g_eventsDataset, &muplus_etadraw );
-
-	 // mu minus phi
-	 CHistDrawBase muminus_phi( "muminus_phi_" + algoName+ sPostfix,
-	 pFileOut,
-	 CHistPhiMod::DefaultModifiers());
-	 CHistEvtDataMuMinusPhi muminus_phidraw;
-	 ModEvtDraw( &muminus_phidraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 muminus_phi.Execute < EventVector & > ( g_eventsDataset, &muminus_phidraw );
-
-	 // mu plus phi
-	 CHistDrawBase muplus_phi( "muplus_phi_" + algoName+ sPostfix,
-	 pFileOut,
-	 CHistPhiMod::DefaultModifiers());
-	 CHistEvtDataMuPlusPhi muplus_phidraw;
-	 ModEvtDraw( &muplus_phidraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 muplus_phi.Execute < EventVector & > ( g_eventsDataset, &muplus_phidraw );
-
-
-	 // mu all pt
-	 modList.clear();
-	 modList.push_back( new CModHorizontalLine( g_kCutMuPt ));
-
-	 CHistDrawBase muall_pt( "mus_pt_" + algoName+ sPostfix,
-	 pFileOut,	 modList);
-
-	 CHistEvtDataMuAllPt muall_ptdraw;
-	 muall_pt.AddModifier(new CModBinRange(0.0, 500.0));
-	 ModEvtDraw( &muall_ptdraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 muall_pt.Execute < EventVector & > ( g_eventsDataset, &muall_ptdraw );
-
-	 // mu all eta
-	 CHistDrawBase muall_eta( "mus_eta_" + algoName+ sPostfix,  pFileOut,
-	 CHistEtaMod::DefaultModifiers());
-
-	 CHistEvtDataMuAllEta muall_etadraw;
-	 ModEvtDraw( &muall_etadraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 muall_eta.Execute < EventVector & > ( g_eventsDataset, &muall_etadraw );
-
-	 // mu all phi
-	 CHistDrawBase muall_phi( "mus_phi_" + algoName+ sPostfix,
-	 pFileOut,
-	 CHistPhiMod::DefaultModifiers());
-	 CHistEvtDataMuAllPhi muall_phidraw;
-	 ModEvtDraw( &muall_phidraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 muall_phi.Execute < EventVector & > ( g_eventsDataset, &muall_phidraw );
-
-	 // jet1 eta with cut
-	 for (int i = 0; i < 3; ++i)
-	 {
-	 std::stringstream sname ;
-	 sname << "jet" << (i+1);
-	 CHistDrawBase jet1_eta( sname.str() + "_eta_" + algoName+ sPostfix,
-	 pFileOut,
-	 CHistEtaMod::DefaultModifiers());
-
-	 if ( i == 0 )
-	 {
-	 jet1_eta.AddModifier(new CModHorizontalLine( g_kCutLeadingJetEta ));
-	 jet1_eta.AddModifier(new CModHorizontalLine( - g_kCutLeadingJetEta ));
-	 }
-
-	 CHistEvtDataJetEta jet1_etadraw(i);
-	 ModEvtDraw( &jet1_etadraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 jet1_eta.Execute <  EventVector & > ( g_eventsDataset, &jet1_etadraw );
-
-	 // jet pt
-	 CHistDrawBase jet_pt( sname.str() + "_pt_" + algoName+ sPostfix,
-	 pFileOut);
-
-	 CHistEvtDataJetPt jet_ptdraw(i);
-
-
-	 jet_pt.AddModifier(new CModBinRange(0.0, 500.0));
-
-	 ModEvtDraw( &jet_ptdraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 jet_pt.Execute <  EventVector & > ( g_eventsDataset, &jet_ptdraw );
-
-	 // jet phi
-	 CHistDrawBase jet_phi( sname.str() + "_phi_" + algoName+ sPostfix,
-	 pFileOut,
-	 CHistPhiMod::DefaultModifiers());
-
-	 CHistEvtDataJetPhi jet_phidraw(i);
-	 ModEvtDraw( &jet_phidraw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 jet_phi.Execute < EventVector & > ( g_eventsDataset, &jet_phidraw );
-	 }
-	 */
-	// 2nd Leading Jet to Z pt
-	/*    CHistDrawBase jet2toZ( "jet2toZ_" + algoName+ sPostfix,
-	 pFileOut);
-	 jet2toZ.AddModifier(new CModHorizontalLine( g_kCut2ndJetToZPt ));
-	 jet2toZ.AddModifier(new CModBinRange(0.0, 2.0));
-
-	 CHistEvtData2ndJetToZPt jet2toZ_draw;
-	 ModEvtDraw( &jet2toZ_draw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 jet2toZ.Execute < EventVector & > ( g_eventsDataset, &jet2toZ_draw );
-	 */
-	// zpt - jet1 pt
-	/*    CHistDrawBase jetPtzPt( "z_pt_minus_jet1_pt_" + algoName+ sPostfix,
-	 pFileOut);
-	 jetPtzPt.AddModifier(new CModBinRange(-80.0, 80.0));
-	 CHistEvtDataJetPtMinusZPt jetPtzPt_draw(0);
-	 ModEvtDraw( &jetPtzPt_draw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 jetPtzPt.Execute < EventVector & > ( g_eventsDataset, &jetPtzPt_draw );
-
-
-	 // back to back
-	 CHistDrawBase back2back( "back2back_" + algoName+ sPostfix,
-	 pFileOut,
-	 CHistEtaMod::DefaultModifiers());
-	 back2back.AddModifier(new CModHorizontalLine( g_kCutBackToBack));
-	 back2back.AddModifier(new CModBinRange(0.0, 3.5));
-
-	 CHistEvtDataBack2Back back2back_draw;
-	 ModEvtDraw( &back2back_draw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 back2back.Execute <  EventVector & > ( g_eventsDataset, &back2back_draw );
-
-	 // Jet Response binned as z.pt()
-	 CHistDrawBase jetresp( "jetresp_" + algoName+ sPostfix,
-	 pFileOut);
-	 jetresp.AddModifier(new CModBinRange(0.0, 2.0));
-
-	 CHistEvtDataJetResponse jetresp_draw;
-	 ModEvtDraw( &jetresp_draw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 jetresp.Execute <  EventVector & > ( g_eventsDataset, &jetresp_draw );
-
-	 CHistDrawBase recovert( "recovertices_" + algoName+ sPostfix,
-	 pFileOut);
-	 recovert.AddModifier(new CModBinRange(-0.5, 14.5));
-
-	 CHistEvtDataRecoVertices recovert_draw;
-	 ModEvtDraw( &recovert_draw, useCutParameter, bPtCut, ptLow, ptHigh );
-	 recovert.AddModifier(new CModBinCount(15));
-	 recovert.Execute <  EventVector & > ( g_eventsDataset, &recovert_draw );
-	 recovert.AddModifier(new CModBinCount(15));
-
-	 if ( g_plotCutEff )
-	 {
-	 CGrapErrorDrawBase < EventVector &,
-	 CGraphDrawJetResponseCutEff<PtBinEventSelector> ,
-	 PtBinEventSelector >  JetRespCuttEff_draw(
-	 "CutEffOverJetResponse_" + algoName+ sPostfix, pFileOut);
-	 JetRespCuttEff_draw.Execute( g_eventsDataset,
-	 PtBinEventSelector( false, // we want ALL events for this plot !!
-	 bPtCut,
-	 ptLow,
-	 ptHigh  ) );
-
-	 if (! bPtCut )
-	 {
-	 int cutsCount = 10;
-
-	 for ( int i = 0; i < cutsCount; i++ )
-	 {
-	 unsigned long curId = (unsigned long) pow( 2, i );
-	 EventCutBase<EventResult *> * currCut = g_cutHandler.GetById(  curId );
-
-	 if ( currCut != NULL )
-	 {
-	 CGrapErrorDrawBase < EventVector &,
-	 CGraphDrawZPtCutEff<PassAllEventSelector> ,
-	 PassAllEventSelector >  ZptEff_draw(
-	 "CutEffOverZPt_" + algoName+ sPostfix + "_" + currCut->GetCutShortName(),
-	 pFileOut);
-	 ZptEff_draw.m_tdraw.m_cutBitmask = curId;
-	 ZptEff_draw.Execute( g_eventsDataset,
-	 PassAllEventSelector( ));
-	 }
-	 }
-
-	 CGrapErrorDrawBase < EventVector &,
-	 CGraphDrawZPtCutEff<PassAllEventSelector> ,
-	 PassAllEventSelector >  ZptEff_draw(
-	 "CutEffOverZPt_" + algoName+ sPostfix+ "_overall"  , pFileOut);
-
-	 ZptEff_draw.Execute( g_eventsDataset, PassAllEventSelector());
-	 }
-	 }*/
-	/*
-	 CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
-	 l2corr_draw.Execute( g_eventsDataset );
-	 */
-	// Jet Response binned as jet1.pt() here ??
-	/*    CGrapErrorDrawBase < EventVector &, CGraphDrawEvtMap< CPlotL2Corr > >  l2corr_draw( "l2corr_" + algoName+ sPostfix, pFileOut);
-
-	 l2corr_draw.Execute( g_eventsDataset );
-	 */
-}
 
 void loadTrackedEventsFromFile(std::string fileName)
 {
@@ -953,27 +656,6 @@ void loadTrackedEventsFromFile(std::string fileName)
 	std::cout << g_trackedEvents.size() << std::endl;
 }
 
-void drawHistoBins(std::string sName, std::string tags, TFile * pFileOut,
-		bool bUseCut)
-{
-	// cut / nocut , ptBins
-	BOOST_FOREACH( PtBin & bin, g_newPtBins )
-{	std::stringstream newTags (stringstream::in| stringstream::out);
-	newTags << tags << std::setprecision(0) << std::fixed << "_Pt" << bin.m_fLowestPt << "to" << bin.m_fHighestPt;
-	//tags
-
-	DrawHistoSet( sName, newTags.str(), pFileOut , bUseCut, true,
-			bin.m_fLowestPt, bin.m_fHighestPt );
-}
-
-// cut / nocut without bins...
-std::stringstream newTags (stringstream::in| stringstream::out);
-DrawHistoSet( sName,tags, pFileOut, bUseCut, false );
-
-// Draw Histos which use other histos as input
-//Draw2ndLevelHistoSet( sName,tags, pFileOut, bUseCut, false );
-
-}
 
 void ResetExcludedEvents()
 {

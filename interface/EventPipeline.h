@@ -489,8 +489,10 @@ void RunEvent(EventResult & evt)
 					== m_consumer.end()); itcons++)
 	{
 		if (bPassed)
-		itcons->ProcessFilteredEvent(evt);
+			itcons->ProcessFilteredEvent(evt);
 
+		// ensure the event is valid, ( if coming from data )
+		//if ( CutHandler::IsValidEvent( evt))
 		itcons->ProcessEvent(evt, fres);
 	}
 }

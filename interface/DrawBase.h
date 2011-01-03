@@ -845,6 +845,17 @@ public:
 	virtual double GetXValue(EventResult & event) { return event.GetRecoVerticesCount();}
 };
 
+template < int TJetNum >
+class GraphXProviderJetPhiDeltaZ : public GraphXProviderBase
+{
+public:
+	virtual double GetXValue(EventResult & event)
+	{
+		return  DeltaHelper::GetDeltaPhiCenterZero( event.m_pData->Z,
+				event.m_pData->jets[TJetNum]);
+	}
+};
+
 class DrawDeltaPhiRange: public DrawGraphErrorsConsumerBase<EventResult>
 {
 public:
@@ -871,6 +882,36 @@ public:
 		//CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
 		DrawGraphErrorsConsumerBase<EventResult>::Finish();
 	}
+};
+
+
+class DrawJetGraphBase:public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+	DrawJetGraphBase( int jetNum) : DrawGraphErrorsConsumerBase<EventResult>(), m_jetNum (jetNum)
+		{
+
+		}
+	int m_jetNum;
+
+};
+
+template <class TXProvider>
+class DrawJetPt: public DrawJetGraphBase
+{
+public:
+	DrawJetPt( int jetNum ) : DrawJetGraphBase( jetNum)
+	{
+	}
+
+	// this method is called for all events
+	virtual void ProcessFilteredEvent(EventResult & event )
+	{
+		m_graph->AddPoint( 	m_xProvider.GetXValue( event),
+							event.GetCorrectedJetPt(this->m_jetNum),
+							0.0f, 0.0f );
+	}
+	TXProvider m_xProvider;
 };
 
 template <class TXProvider>
