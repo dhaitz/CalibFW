@@ -4,8 +4,11 @@ import copy
 
 conf = JsonConfigBase.GetMcBaseConfig()
 
-conf["InputFiles"] = "/local/scratch/hauth/data/ZPJ2010/skim_data/data*_job_Mu_*.root" 
-conf["OutputPath"] = "proto"
+conf["InputFiles"] = "/afs/naf.desy.de/user/h/hauth/lustre/ZPJ2010/skim_zjet_fall10/*.root" 
+conf["OutputPath"] = "proto_mc"
+
+conf["UseWeighting"] = 1
+conf["UseEventWeight"] = 1
 
 conf = JsonConfigBase.ExpandDefaultDataConfig( [0,30,60,100,140,300], conf )
 
