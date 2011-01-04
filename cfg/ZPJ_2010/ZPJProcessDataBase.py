@@ -30,7 +30,6 @@ def getDefaultCorrectionL3( data_path ):
         "iterativeCone5CaloJets_Zplusjet:" + data_path + "jec_data/" + globalTag + "IC5PF_L3Absolute.txt"]
   return g_l3_correction_data
 
-
 def getDefaultBinning():
   custom_binning = [0.0, 25.0, 30.0, 36.0, 43.0, 51.0, 61.0, 73.0, 87.0, 104.0, 124.0, 148.0, 177.0, 212.0, 254.0, 304.0, 364.0]
 
@@ -44,10 +43,10 @@ def getBaseConfig():
   
   process.general.cut_zpt = 15.0
   process.general.cut_2jet = 0.2
-  process.general.cut_jetpt = 5.0
+  process.general.cut_jetpt = 0.0
   process.general.cut_muonpt = 15.0
   process.general.cut_zmass = 20.0
-  process.general.cut_backness = 0.2
+  process.general.cut_backness = 0.34
   # selected very high in order to always apply by default
   process.general.cut_2jet_backness = 4.0
   
@@ -62,16 +61,21 @@ def getDataBaseConfig(  ):
   _calib_data_path = "data/"
   _is_data = 1
 
-  _json_file= _calib_data_path + "json/Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON_v3.txt"
-  _process_algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo", "iterativeCone5PF", "iterativeCone5Calo"]
-  
+  _json_file= _calib_data_path + "json/Cert_136033-149442_7TeV_Nov4ReReco_Collisions10_JSON.txt"
+  #_process_algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo", "iterativeCone5PF", "iterativeCone5Calo"]
+  _process_algos=["ak5PF"]
+
+  _data_path = "/afs/naf.desy.de/user/h/hauth/lustre/ZPJ2010/"
+
+  p.general.tchain_file_path = _data_path + "skim_data_2010a+b/data_*.root" 
+
   p.general.custom_binning = getDefaultBinning()
   p.general.is_data = _is_data
   p.general.write_events = "incut" # none, incut, all
       
       # select specific plots here
-  p.general.plot_nocuts = 0
-  p.general.plot_cuteff = 0
+  p.general.plot_nocuts = 1
+  p.general.plot_cuteff = 1
 
   
   p.general.fixed_weighting = 0
@@ -80,7 +84,6 @@ def getDataBaseConfig(  ):
   p.general.use_hlt = 1
   p.general.do_l3_correction_formula = 0
       
-  p.general.tchain_file_path = "not set"
   p.general.l2_correction_data = getDefaultCorrectionL2(_calib_data_path)
   p.general.l3_correction_data = getDefaultCorrectionL3(_calib_data_path)
   p.general.output_path = "not set"
@@ -96,21 +99,24 @@ def getMCBaseConfig(  ):
 
   _calib_data_path = "data/"
   _is_data = 0
-  _process_algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo", "iterativeCone5PF", "iterativeCone5Calo"]
+  #_process_algos=["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo", "iterativeCone5PF", "iterativeCone5Calo"]
+  _process_algos=["ak5PF"]
+
+  _data_path="/scratch/hh/lustre/cms/user/hauth/ZPJ2010/archive/2010_11_16/skim_zjet_fall10/"
+  p.general.tchain_file_path = _data_path + "mc_job*.root" 
 
   p.general.custom_binning = getDefaultBinning()
   p.general.is_data = _is_data
 
   # select specific plots here
-  p.general.plot_nocuts = 0
-  p.general.plot_cuteff = 0
+  p.general.plot_nocuts = 1
+  p.general.plot_cuteff = 1
 
   p.general.write_events = "none" # none, incut, all
   p.general.fixed_weighting = 0
-  p.general.do_l2_correction = 1
+  p.general.do_l2_correction = 0
   p.general.do_l3_correction = 0
   p.general.do_l3_correction_formula = 0
-  p.general.tchain_file_path = "not set"
   p.general.l2_correction_data = getDefaultCorrectionL2(_calib_data_path)
   p.general.l3_correction_data = getDefaultCorrectionL3(_calib_data_path)
   p.general.output_path = "not set"
