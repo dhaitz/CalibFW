@@ -428,8 +428,8 @@ void importEvents(bool bUseJson,
 	long lProcEvents = 0;
 	g_lOverallNumberOfProcessedEvents = 0;
 
-	// TODO dont do this if we have no weighting to analyze
-	if (g_useEventWeight && g_useWeighting)
+	// TODO dont do this if we have no weighting to analyze or the weighting is in the events themself
+	if ( !g_useEventWeight && g_useWeighting)
 	{
 		CALIB_LOG_FILE( "Analyzing Events for weighting " )
 		for (Long_t ievt = 0; ievt < entries; ++ievt)
