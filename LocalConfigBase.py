@@ -1,10 +1,13 @@
 import copy
 
+def GetPath():
+    return "/local/scratch/hauth/data/ZPJ2010/"
+
 def GetLocalDataPath():
-    return "/home/poseidon/uni/data/"
+    return GetPath()
 
 def GetLocalOutputPath():
-    return "/home/poseidon/uni/data/"
+    return GetPath()
     
     
     

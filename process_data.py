@@ -1,4 +1,5 @@
 
+import sys
 import JsonConfigBase
 import LocalConfigBase
 import subprocess
@@ -19,7 +20,4 @@ conf = JsonConfigBase.ExpandDefaultDataConfig( [0,30,60,100,140,300], conf, True
 
 #conf["Pipelines"] = dict( conf["Pipelines"].items() + muon_var.items() )
 #conf["Pipelines"] = dict( conf["Pipelines"].items() + zmass_var.items() )
-
-
-JsonConfigBase.StoreSettings( conf, "process_data.json")
-subprocess.call(["bin/resp_cuts.exe","process_data.json"])
+JsonConfigBase.Run( conf, sys.argv[0] + ".json")

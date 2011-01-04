@@ -1,9 +1,10 @@
 import copy
+import subprocess
 
 def GetBaseConfig():
     d = dict()
     
-    d["Algos"] = ["ak5PF"]
+    d["Algos"] = ["ak5PF","ak7PF", "ak5Calo", "ak7Calo", "kt4PF","kt6PF", "kt4Calo", "kt6Calo", "ic5PF", "ic5Calo"]
     d["Pipelines"] = { "default": {
             "Level": 1,
             "RootFileFolder": "",
@@ -13,6 +14,7 @@ def GetBaseConfig():
             "CutZMassWindow": 20,
             "CutLeadingJetEta": 1.3,
             "CutSecondLeadingToZPt": 0.2,
+            "CutSecondLeadingToZPtJet2Threshold" : 5.0,
             "CutBack2Back": 0.34,
             "Cuts": ["muon_pt",
                      "muon_eta",
@@ -140,7 +142,7 @@ def ExpandDefaultDataConfig( ptBins, conf_template, useFolders):
     conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
     
     #merge all
-    conf["Pipelines"]["default"]["AdditionalConsumer"] = ["cut_statistics"]
+    conf["Pipelines"]["default"]["AdditionalConsumer"] = ["cut_statistics", "event_storer"]
 
     if useFolders:
         for p, pval in conf["Pipelines"].items():
@@ -185,4 +187,9 @@ def StoreSettings( settings, filename):
     print ( "Configured " + str( len( settings["Pipelines"] )) + " Pipelines" )
     
     
+def Run( settings, filename):    
+    StoreSettings( settings, filename)
+    print "Running config from file " + filename
+    subprocess.call(["bin/resp_cuts.exe",filename])
+
     

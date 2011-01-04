@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <sstream>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -57,7 +58,10 @@ public:
 
 	virtual void Finish()
 	{
-		 this->GetPipelineSettings()->GetRootOutFile()->cd();
+		 //this->GetPipelineSettings()->GetRootOutFile()->cd( this->GetPipelineSettings()->GetRootFileFolder().c_str() );
+
+		// store to root for now
+		this->GetPipelineSettings()->GetRootOutFile()->cd( );
 		 m_gentree->Write();
 	}
 
@@ -84,6 +88,11 @@ public:
 		m_localData.weight = event.m_weight;
 
 		 m_gentree->Fill();
+
+		 std::stringstream sout;
+		 m_evtFormater.FormatEventResultCorrected(sout, &event);
+
+		 CALIB_LOG_FILE( sout.str() )
 	}
 
 	 evtData m_localData;
@@ -91,6 +100,7 @@ public:
 	 Double_t m_l2corrPtJet2;
 	 Double_t m_l2corrPtJet3;
 	TTree* m_gentree;
+	EventFormater m_evtFormater;
 };
 
 

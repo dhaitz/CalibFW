@@ -180,12 +180,17 @@ public:
 
 	bool IsInCut(EventResult * pEv)
 	{
+
+		if ( pEv->GetCorrectedJetPt(1) < m_f2ndJetThreshold )
+			return true;
+
 		return (pEv->GetCorrectedJetPt(1) / pEv->m_pData->Z->Pt()
 				< m_f2ndJetRatio);
 	}
 	void Configure( PipelineSettings * pset)
 	{
 		m_f2ndJetRatio = pset->GetCutSecondLeadingToZPt();
+		m_f2ndJetThreshold = pset->GetCutSecondLeadingToZPtJet2Threshold();
 	}
 
 	unsigned long GetId()
@@ -202,7 +207,8 @@ public:
 	}
 	static const long CudId = 16;
 	double m_f2ndJetRatio;
-  double m_f2nd_Backness;
+	double m_f2ndJetThreshold;
+    double m_f2nd_Backness;
 };
 
 class BackToBackCut: public EventCutBase<EventResult *>

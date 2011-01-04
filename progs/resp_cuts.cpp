@@ -478,6 +478,7 @@ void importEvents(bool bUseJson,
 
 	CALIB_LOG_FILE( "Running " << g_pipelines.size() << " Pipeline(s) on events")
 	CALIB_LOG_FILE( "Processing " << entries << " events ...")
+	CALIB_LOG_FILE( "algo " << g_sCurAlgo)
 	for (Long_t ievt = 0; ievt < entries; ++ievt)
 	{
 		g_pChain->GetEntry(ievt);
@@ -505,10 +506,9 @@ void importEvents(bool bUseJson,
 
 		delete res;
 
-
 		if (((ievt % 5000) == 0) || (ievt == (entries - 1)))
-			CALIB_LOG( (ievt + 1) << " of " << entries << " done [ " << floor( 100.0f * (float)(ievt +1)/(float)entries) << " % ]")
-
+			CALIB_LOG( (ievt + 1) << " of " << entries << " done [ " << std::fixed <<  std::setprecision(0)
+			<< floor( 100.0f * (float)(ievt +1)/(float)entries) << " % ]")
 	}
 
 	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
@@ -693,7 +693,6 @@ void processAlgo()
 	BOOST_FOREACH( std::string sAlgo, algoList)
 {	g_pChain = getChain(sAlgo, &g_ev, g_sSource);
 	g_sCurAlgo = sAlgo;
-	std::string sPrefix;
 	/*
 	 if (g_doMc)
 	 {
@@ -705,7 +704,6 @@ void processAlgo()
 
 	 if (g_doData)
 	 {*/
-	sPrefix = "_data";
 	importEvents(true, std::vector<ExcludedEvent *>(), false,
 			&jetCorr);
 	//}
@@ -893,6 +891,8 @@ int main(int argc, char** argv)
 
 	// removes the old file
 	std::string sRootOutputFilename = (g_sOutputPath + ".root");
+
+	//Todo: close file to free memory of already written histos
 	g_resFile = new TFile(sRootOutputFilename.c_str(), "RECREATE");
 	CALIB_LOG_FILE("Writing to root file " << sRootOutputFilename)
 
