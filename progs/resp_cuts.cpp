@@ -82,6 +82,8 @@ vdouble g_l3FormulaParams;
 vdouble g_customBinning;
 
 std::string g_sCurAlgo;
+int g_iAlgoOverallCount;
+int g_iCurAlgoCount;
 
 bool g_useWeighting;
 bool g_useEventWeight;
@@ -506,9 +508,18 @@ void importEvents(bool bUseJson,
 
 		delete res;
 
+
+
 		if (((ievt % 5000) == 0) || (ievt == (entries - 1)))
-			CALIB_LOG( (ievt + 1) << " of " << entries << " done [ " << std::fixed <<  std::setprecision(0)
-			<< floor( 100.0f * (float)(ievt +1)/(float)entries) << " % ]")
+		{
+			float localPercent = floor( 100.0f * (float)(ievt +1)/(float)entries);
+			float overallPercent =  floor( ( (float)g_iCurAlgoCount / (float)g_iAlgoOverallCount
+					+ (localPercent * 0.01f) * (1.0f) / (float)g_iAlgoOverallCount ) *100.0f);
+
+			CALIB_LOG( (ievt + 1) << " of " << entries << " done [ this algo " << std::fixed <<  std::setprecision(0)
+			<< localPercent << " % ] [ overall " << overallPercent << " % ]" )
+
+		}
 	}
 
 	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
@@ -690,6 +701,9 @@ void processAlgo()
 	stringvector algoList = PropertyTreeSupport::GetAsStringList(&g_propTree,
 			"Algos");
 
+	g_iAlgoOverallCount = algoList.size();
+	g_iCurAlgoCount = 0;
+
 	BOOST_FOREACH( std::string sAlgo, algoList)
 {	g_pChain = getChain(sAlgo, &g_ev, g_sSource);
 	g_sCurAlgo = sAlgo;
@@ -707,6 +721,8 @@ void processAlgo()
 	importEvents(true, std::vector<ExcludedEvent *>(), false,
 			&jetCorr);
 	//}
+
+	g_iCurAlgoCount++;
 
 	delete g_pChain;
 }
