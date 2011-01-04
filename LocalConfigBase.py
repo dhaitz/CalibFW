@@ -1,7 +1,7 @@
 import copy
 
 def GetPath():
-    return "/local/scratch/hauth/data/ZPJ2010/"
+    return "/afs/naf.desy.de/user/h/hauth/lustre/ZPJ2010/"
 
 def GetLocalDataPath():
     return GetPath()
