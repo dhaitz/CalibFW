@@ -4,7 +4,7 @@ import subprocess
 def GetBaseConfig():
     d = dict()
     
-    d["Algos"] = ["ak5PF","ak7PF", "ak5Calo", "ak7Calo", "kt4PF","kt6PF", "kt4Calo", "kt6Calo", "ic5PF", "ic5Calo"]
+    d["Algos"] = ["ak5PFJets","ak7PFJets", "ak5CaloJets", "ak7CaloJets", "kt4PFJets","kt6PFJets", "kt4CaloJets", "kt6CaloJets", "ic5PFJets", "ic5CaloJets"]
     d["Pipelines"] = { "default": {
             "Level": 1,
             "RootFileFolder": "",

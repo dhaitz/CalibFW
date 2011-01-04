@@ -553,7 +553,7 @@ void importEvents(bool bUseJson,
 
 TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 {
-	TChain * mychain = new TChain(sName + "Jets_Zplusjet");
+	TChain * mychain = new TChain(sName + "_Zplusjet");
 
 	pEv->Z = new TParticle();
 	pEv->jets[0] = new TParticle();
