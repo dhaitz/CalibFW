@@ -207,7 +207,7 @@ public:
 		this->RunModifierAfterDataEntry(this );
 		this->RunModifierAfterDraw( this );
 
-		CALIB_LOG( "Storing GraphErrors " + this->m_sRootFileFolder + "/" + this->m_sName + "_graph" )
+		//CALIB_LOG( "Storing GraphErrors " + this->m_sRootFileFolder + "/" + this->m_sName + "_graph" )
 
 		if ( pRootFile->cd( this->m_sRootFileFolder.c_str() ) == false)
 		{
@@ -264,7 +264,7 @@ public:
 		this->RunModifierAfterDataEntry(this );
 		this->RunModifierAfterDraw( this );
 
-		CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
+		//CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
 
 		if ( pRootFile->cd( this->m_sRootFileFolder.c_str() ) == false)
 		{
@@ -331,7 +331,7 @@ public:
 		this->RunModifierAfterDataEntry(this );
 		this->RunModifierAfterDraw( this );
 
-		CALIB_LOG( "Storing Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
+		//CALIB_LOG( "Storing Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
 
 		if ( pRootFile->cd( this->m_sRootFileFolder.c_str() ) == false)
 		{
@@ -440,7 +440,7 @@ public:
 	virtual void Init(EventPipeline * pset)
 	{
 		DrawConsumerBase<TData>::Init(pset);
-		CALIB_LOG( "Initializing GraphErrors for " << this->GetProductName() )
+		//CALIB_LOG( "Initializing GraphErrors for " << this->GetProductName() )
 
 		m_graph->m_sName = m_graph->m_sCaption = this->GetProductName();
 		m_graph->m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
@@ -470,7 +470,7 @@ public:
 	virtual void Init(EventPipeline * pset)
 	{
 		DrawConsumerBase<TData>::Init(pset);
-		CALIB_LOG( "Initializing Hist for " << this->GetProductName() )
+		//CALIB_LOG( "Initializing Hist for " << this->GetProductName() )
 
 		/* m_hist->m_sName = "nname"; //this->GetProductName();
 		 m_hist->m_sCaption = "ccapt" ;//this->GetProductName(); */
@@ -502,7 +502,7 @@ public:
 	virtual void Init(EventPipeline * pset)
 	{
 		DrawConsumerBase<TData>::Init(pset);
-		CALIB_LOG( "Initializing 2d Hist for " << this->GetProductName() )
+		//CALIB_LOG( "Initializing 2d Hist for " << this->GetProductName() )
 
 		/* m_hist->m_sName = "nname"; //this->GetProductName();
 		 m_hist->m_sCaption = "ccapt" ;//this->GetProductName(); */

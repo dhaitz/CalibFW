@@ -428,12 +428,12 @@ void importEvents(bool bUseJson,
 
 	TString sNewFile = "";
 	long lProcEvents = 0;
-	g_lOverallNumberOfProcessedEvents = 0;
+	unsigned long lOverallNumberOfProcessedEvents = 0;
 
 	// TODO dont do this if we have no weighting to analyze or the weighting is in the events themself
-	if ( !g_useEventWeight && g_useWeighting)
+//	if ( !g_useEventWeight && g_useWeighting)
 	{
-		CALIB_LOG_FILE( "Analyzing Events for weighting " )
+		CALIB_LOG_FILE( "Analyzing Events for weighting and Overall Event number" )
 		for (Long_t ievt = 0; ievt < entries; ++ievt)
 		{
 			g_pChain->GetEntry(ievt);
@@ -449,7 +449,7 @@ void importEvents(bool bUseJson,
 				lProcEvents = TMath::Nint(pH->GetMean());
 				CALIB_LOG_FILE( "new file: " << sNewFile.Data() << " number "
 						<< lProcEvents )
-				g_lOverallNumberOfProcessedEvents += lProcEvents;
+				lOverallNumberOfProcessedEvents += lProcEvents;
 
 				g_mcWeighter.IncreaseCountByXSection(g_ev.xsection,
 						TMath::Nint(pH->GetMean()));
@@ -472,6 +472,7 @@ void importEvents(bool bUseJson,
 
 			// set the algo used for this run
 			(*it)->SetAlgoName(g_sCurAlgo);
+			(*it)->SetOverallNumberOfProcessedEvents ( lOverallNumberOfProcessedEvents );
 
 			pLine->InitPipeline(*it);
 			g_pipelines.push_back(pLine);

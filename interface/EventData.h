@@ -130,7 +130,7 @@ public:
 
 	static TString GetHistoName(TString algoName, TString quantName,
 			InputTypeEnum inpType, int corr = 0, PtBin * pBin = NULL, bool isNoCut = false,
-			TString algoNameAppend = "_Zplusjet")
+			TString algoNameAppend = "Zplusjet")
 	{
 		TString sinput = "";
 		TString scorr = "";

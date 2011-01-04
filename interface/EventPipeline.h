@@ -117,6 +117,8 @@ enum WriteEventsEnum
 
 IMPL_PROPERTY(boost::property_tree::ptree * , PropTree)
 IMPL_PROPERTY(std::string, SettingsRoot)
+IMPL_PROPERTY(unsigned long, OverallNumberOfProcessedEvents )
+
 
 IMPL_SETTING(double, FilterPtBinLow)
 IMPL_SETTING(double, FilterPtBinHigh)

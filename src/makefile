@@ -21,7 +21,7 @@ BOOST_INC = /afs/naf.desy.de/group/cms/sw/slc5_ia32_gcc434/external/boost/1.42.0
 
 CPPFLAGS      = -I${BOOST_INC} -I${INCL}/
 CXX 	      = /usr/bin/g++
-CXXFLAGS      = -O0 -g -Wall -fPIC $(ROOTCFLAGS)
+CXXFLAGS      = -O3 -g -Wall -fPIC $(ROOTCFLAGS)
 LD	      = /usr/bin/g++
 LDFLAGS       = $(ROOTLDFLAGS) -rdynamic
 
