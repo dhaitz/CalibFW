@@ -467,6 +467,9 @@ void importEvents(bool bUseJson,
 		}
 	}
 
+	if ( g_useWeighting)
+		g_mcWeighter.Print();
+
 	// cloning of a pipeline ?? goes here maybe
 	// clone default pipeline for the number of settings we have
 	g_pipelines.clear();
