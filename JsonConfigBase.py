@@ -34,6 +34,8 @@ def GetMcBaseConfig():
     
     d["UseWeighting"] = 1
     d["UseEventWeight"] = 0
+    d["UseGlobalWeightBin"] = 0
+    
     d["InputType"] = "mc"
 
     return d

@@ -122,6 +122,9 @@ IMPL_PROPERTY(unsigned long, OverallNumberOfProcessedEvents )
 
 IMPL_SETTING(double, FilterPtBinLow)
 IMPL_SETTING(double, FilterPtBinHigh)
+IMPL_SETTING( int, FilterRecoVertLow)
+IMPL_SETTING( int, FilterRecoVertHigh)
+
 IMPL_SETTING(std::string, AlgoName)
 IMPL_SETTING(std::string, RootFileFolder)
 
@@ -288,6 +291,28 @@ virtual std::string ToString(bool bVerbose = false)
 PipelineSettings * m_pipelineSettings;
 };
 
+
+class RecoVertFilter: public FilterBase<EventResult>
+{
+public:
+	RecoVertFilter( ) : FilterBase<EventResult>()
+	{
+
+
+	}
+
+	virtual bool DoesEventPass(EventResult & event)
+	{
+		return ( m_pipelineSettings->GetFilterRecoVertLow() >=  event.GetRecoVerticesCount()
+				&& event.GetRecoVerticesCount() << m_pipelineSettings->GetFilterRecoVertHigh());
+	}
+
+	virtual std::string GetFilterId()
+	{
+		return "recovert";
+	}
+};
+
 class PtWindowFilter: public FilterBase<EventResult>
 {
 public:
@@ -435,6 +460,8 @@ void InitPipeline(PipelineSettings * pset)
 		m_filter.push_back( new PtWindowFilter);
 		else if ( sid == InCutFilter().GetFilterId())
 		m_filter.push_back( new InCutFilter);
+		else if ( sid == RecoVertFilter() .GetFilterId())
+		m_filter.push_back( new RecoVertFilter);
 		else
 		CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 	}

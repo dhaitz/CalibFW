@@ -87,6 +87,7 @@ int g_iCurAlgoCount;
 
 bool g_useWeighting;
 bool g_useEventWeight;
+bool g_useGlobalWeightBin;
 
 
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
@@ -430,6 +431,7 @@ void importEvents(bool bUseJson,
 	long lProcEvents = 0;
 	unsigned long lOverallNumberOfProcessedEvents = 0;
 
+	bool globalBinInitDone = false;
 	// TODO dont do this if we have no weighting to analyze or the weighting is in the events themself
 //	if ( !g_useEventWeight && g_useWeighting)
 	{
@@ -450,6 +452,14 @@ void importEvents(bool bUseJson,
 				CALIB_LOG_FILE( "new file: " << sNewFile.Data() << " number "
 						<< lProcEvents )
 				lOverallNumberOfProcessedEvents += lProcEvents;
+
+				if ( g_useGlobalWeightBin && (!globalBinInitDone))
+				{
+					CALIB_LOG_FILE("Initializing global weighting bin with xsection " << g_ev.xsection)
+					 g_mcWeighter.Reset();
+					 g_mcWeighter.AddBin(PtBin(0.0, 999999.0), g_ev.xsection);
+					 globalBinInitDone = true;
+				}
 
 				g_mcWeighter.IncreaseCountByXSection(g_ev.xsection,
 						TMath::Nint(pH->GetMean()));
@@ -493,7 +503,7 @@ void importEvents(bool bUseJson,
 		res->m_weight = 1.0f;
 		if (g_useWeighting)
 		{
-			if (g_useEventWeight)
+			if (g_useEventWeight )
 			{
 				res->m_weight = res->m_pData->weight;
 			}
@@ -927,6 +937,7 @@ int main(int argc, char** argv)
 	// weighting settings
 	g_useWeighting = g_propTree.get<bool> ("UseEventWeight");
 	g_useEventWeight = g_propTree.get<bool> ("UseWeighting");
+	g_useGlobalWeightBin = g_propTree.get<bool> ("UseGlobalWeightBin");
 
 	/*
 	 g_l2CorrFiles = p.getvString(secname + ".l2_correction_data");
