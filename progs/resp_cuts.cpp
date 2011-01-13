@@ -360,13 +360,13 @@ EventPipeline * CreateDefaultPipeline()
 	{
 		GraphErrors * hist_CutEff = new GraphErrors;
 		DrawCutEffGraph<GraphXProviderZpt>  * object_consumer = new DrawCutEffGraph<GraphXProviderZpt>( it->GetId() );
-		object_consumer->m_sQuantityName = "cuteff_" + it->GetCutShortName() + "_zpt";
+		object_consumer->m_sQuantityName = "cut_ineff_" + it->GetCutShortName() + "_zpt";
 		object_consumer->m_graph = hist_CutEff;
 		pline->m_consumer.push_back(object_consumer);
 
 		hist_CutEff = new GraphErrors;
 		DrawCutEffGraph<GraphXProviderRecoVert>  * object_consumerReco = new DrawCutEffGraph<GraphXProviderRecoVert>( it->GetId() );
-		object_consumerReco->m_sQuantityName = "cuteff_" + it->GetCutShortName() + "_nrv";
+		object_consumerReco->m_sQuantityName = "cut_ineff_" + it->GetCutShortName() + "_nrv";
 		object_consumerReco->m_graph = hist_CutEff;
 		pline->m_consumer.push_back(object_consumerReco);
 	}
