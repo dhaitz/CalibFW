@@ -832,7 +832,7 @@ class GraphXProviderZpt : public GraphXProviderBase
 public:
 	virtual double GetLow() { return 0.0f; }
 	virtual double GetHigh() { return 300.0f; }
-	virtual int GetBinCount() { return 60; }
+	virtual int GetBinCount() { return 45; }
 	virtual double GetXValue(EventResult & event) { return event.m_pData->Z->Pt();}
 };
 
