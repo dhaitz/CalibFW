@@ -31,7 +31,10 @@ double ScalarProductTParticle( TParticle * p1, TParticle * p2 )
 
 class DeltaHelper
 {
+
  public:
+
+
   static double GetDeltaPhiCenterZero ( TVector3 & v1, TVector3 & v2)
   {
 	  double delta = ROOT::Math::VectorUtil::DeltaPhi( v1, v2);
@@ -43,6 +46,11 @@ class DeltaHelper
 	return delta;
   }
 
+  static TVector3 ConvertToVector ( TParticle * p1)
+  {
+	  return TVector3 (p1->Px(), p1->Py(), p1->Pz());
+  }
+
   /* calcualtes the delta Phi between 2 particles
 	  if the the particles are have the same direction in x-y-space. this returns 0
 	  for 0 to Phi, this function returns a positiv DeltaPhi. For the region Pi to 2Pi, a negative
@@ -50,14 +58,21 @@ class DeltaHelper
 	  The range of delta phi is [-Pi,Pi]
 	  See also the class DrawDeltaPhiRange to get a plot of the range
   */
-  static double GetDeltaPhiCenterZero ( TParticle * p1, TParticle * p2 )
+  static double GetDeltaPhiCenterZero ( TParticle * p1,
+		  TParticle * p2 )
   {
-	TVector3 tZ (p1->Px(), p1->Py(), p1->Pz());
-	TVector3 tJet ( p2->Px(), p2->Py(), p2->Pz());
-
-	return DeltaHelper::GetDeltaPhiCenterZero( tZ, tJet);
+	 TVector3 v1 = ConvertToVector(p1);
+	 TVector3 v2 = ConvertToVector(p2);
+	return DeltaHelper::GetDeltaPhiCenterZero( v1, v2);
   }
 
+  static double GetDeltaR ( TParticle * p1,
+		  TParticle * p2 )
+  {
+	 TVector3 v1 = ConvertToVector(p1);
+	 TVector3 v2 = ConvertToVector(p2);
+	return ROOT::Math::VectorUtil::DeltaR( v1, v2);
+  }
 };
 
 

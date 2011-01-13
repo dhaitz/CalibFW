@@ -41,13 +41,13 @@ Json_wrapper::Json_wrapper(const char* json_name)
 		}
 		else
 		{
-			std::cout << "Failed to parse JSON! Exiting... \n" << std::endl;
+			std::cout << "Failed to parse JSON! Skipping JSON file. \n" << std::endl;
 
 		}
 	}
 	else
 	{
-		std::cout << "Could not read JSON file! Exiting... \n";
+		std::cout << "Could not read JSON file! Skipping JSON file. \n";
 
 	}
 

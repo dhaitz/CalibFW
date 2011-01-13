@@ -208,7 +208,54 @@ public:
 	static const long CudId = 16;
 	double m_f2ndJetRatio;
 	double m_f2ndJetThreshold;
-    double m_f2nd_Backness;
+};
+
+
+class SecondLeadingToZPtGeomCut: public EventCutBase<EventResult *>
+{
+public:
+	SecondLeadingToZPtGeomCut(double f2ndJetRatio) :
+		m_f2ndJetRatio(f2ndJetRatio)
+	{
+	}
+
+	bool IsInCut(EventResult * pEv)
+	{
+
+		if ( pEv->GetCorrectedJetPt(1) < m_f2ndJetThreshold )
+			return true;
+
+		return (pEv->GetCorrectedJetPt(1) / pEv->m_pData->Z->Pt()
+				< m_f2ndJetRatio);
+	}
+	void Configure( PipelineSettings * pset)
+	{
+		m_f2ndJetRatio = pset->GetCutSecondLeadingToZPt();
+		m_f2ndJetThreshold = pset->GetCutSecondLeadingToZPtJet2Threshold();
+	}
+
+	unsigned long GetId()
+	{
+		return SecondLeadingToZPtGeomCut::CudId;
+	}
+	std::string GetCutName()
+	{
+		return "2nd leading jet to Z pt Geom";
+	}
+	std::string GetCutShortName()
+	{
+		return "secondleading_to_zpt_geom";
+	}
+	static const long CudId = 1024;
+
+	double m_f2ndJetRatio;
+	double m_f2ndJetThreshold;
+
+	// the region in phi-eta space around the Jet1 that should be considered with this cut
+	double m_fJetRcone;
+	// the region in phi-eta space around the Z that should be considered with this cut
+	double m_fZRcone;
+
 };
 
 class BackToBackCut: public EventCutBase<EventResult *>
