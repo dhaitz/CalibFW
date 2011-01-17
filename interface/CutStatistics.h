@@ -22,14 +22,20 @@ namespace CalibFW
 class CutStatisticsConsumer: public EventConsumerBase<EventResult>
 {
 public:
+	CutStatisticsConsumer( CutHandler * pHandler) : m_pCutHandler ( pHandler )
+	{
+
+
+	}
+
 	virtual void Init(EventPipeline * pset)
 	{
 		m_cutRejected.clear();
 		m_eventCount = 0;
 
-		BOOST_FOREACH( EventCutBase< EventResult *> &c, g_cutHandler.GetCuts() )
+		BOOST_FOREACH( EventCutBase< EventResult *> * c, m_pCutHandler->GetCuts() )
 		{
-			m_cutRejected[ c.GetCutShortName() ] = 0;
+			m_cutRejected[ c->GetCutShortName() ] = 0;
 		}
 
 		EventConsumerBase<EventResult>::Init( pset );
@@ -62,15 +68,15 @@ virtual void Finish()
 			<< std::setw(21) << GetPipelineSettings()->GetOverallNumberOfProcessedEvents() - overallCountLeft)
 
 
-	BOOST_FOREACH( EventCutBase< EventResult *> &c, g_cutHandler.GetCuts() )
+	BOOST_FOREACH( EventCutBase< EventResult *> * c, m_pCutHandler->GetCuts() )
 	{
-		unsigned long rejAbs = m_cutRejected[c.GetCutShortName()];
+		unsigned long rejAbs = m_cutRejected[c->GetCutShortName()];
 
-		if ( c.m_bCutEnabled )
+		if ( c->m_bCutEnabled )
 		{
 			droppedRel = 1.0f -(double) ( overallCountLeft - rejAbs ) / (double) overallCountLeft;
 
-			CALIB_LOG_FILE(std::setw(20) << c.GetCutShortName() << " : "
+			CALIB_LOG_FILE(std::setw(20) << c->GetCutShortName() << " : "
 					<< std::setw(20) << std::setprecision(5) << (1.0f - droppedRel) * 100.0f
 					<< std::setw(20) << overallCountLeft - rejAbs
 					<< std::setw(20) << std::setprecision(5) << droppedRel * 100.0f
@@ -80,7 +86,7 @@ virtual void Finish()
 		}
 		else
 		{
-			CALIB_LOG_FILE(std::setw(20) << c.GetCutShortName() << " : disabled")
+			CALIB_LOG_FILE(std::setw(20) << c->GetCutShortName() << " : disabled")
 		}
 	}
 	CALIB_LOG_FILE( "Events left after Cuts : " << overallCountLeft )
@@ -97,13 +103,13 @@ virtual void ProcessFilteredEvent(EventResult & event)
 virtual void ProcessEvent(EventResult & event, FilterResult & result)
 {
 	m_eventCount++;
-	BOOST_FOREACH( EventCutBase< EventResult *> &c, g_cutHandler.GetCuts() )
+	BOOST_FOREACH( EventCutBase< EventResult *>  * c, m_pCutHandler->GetCuts() )
 	{
-		if ( c.m_bCutEnabled )
+		if ( c->m_bCutEnabled )
 		{
-			if ( g_cutHandler.IsCutInBitmask( c.GetId(), event.m_cutBitmask ))
+			if (  m_pCutHandler->IsCutInBitmask( c->GetId(), event.m_cutBitmask ))
 			{
-				m_cutRejected[ c.GetCutShortName() ]++;
+				m_cutRejected[ c->GetCutShortName() ]++;
 				// we only want to store the number of events, which were effectively kicked by one
 				// cut here
 				break;
@@ -112,6 +118,7 @@ virtual void ProcessEvent(EventResult & event, FilterResult & result)
 	}
 }
 
+CutHandler * m_pCutHandler;
 std::map<std::string, unsigned long> m_cutRejected;
 unsigned long m_eventCount;
 };

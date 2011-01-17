@@ -43,6 +43,8 @@ void Set##SNAME ( TYPE val) { GetPropTree()->put( FullKey##SNAME (), val);	\
 		CACHE_MEMBER.SetCache( VALUEPATH ); \
 return CACHE_MEMBER.GetValue(); }\
 
+
+
 namespace CalibFW
 {
 
@@ -119,11 +121,17 @@ IMPL_PROPERTY(boost::property_tree::ptree * , PropTree)
 IMPL_PROPERTY(std::string, SettingsRoot)
 IMPL_PROPERTY(unsigned long, OverallNumberOfProcessedEvents )
 
-
+// Filter Settings
 IMPL_SETTING(double, FilterPtBinLow)
 IMPL_SETTING(double, FilterPtBinHigh)
 IMPL_SETTING( int, FilterRecoVertLow)
 IMPL_SETTING( int, FilterRecoVertHigh)
+
+IMPL_SETTING(double, FilterSecondJetRatioLow)
+IMPL_SETTING(double, FilterSecondJetRatioHigh)
+
+
+IMPL_SETTING(unsigned long, FilterInCutIgnored)
 
 IMPL_SETTING(std::string, AlgoName)
 IMPL_SETTING(std::string, RootFileFolder)
@@ -152,6 +160,7 @@ IMPL_SETTING(double, CutMuonEta)
 IMPL_SETTING(double, CutLeadingJetEta)
 IMPL_SETTING(double, CutSecondLeadingToZPt)
 IMPL_SETTING(double, CutSecondLeadingToZPtJet2Threshold)
+IMPL_SETTING(double, CutSecondLeadingToZPtDeltaR)
 IMPL_SETTING(double, CutBack2Back)
 IMPL_SETTING(double, CutJetPt)
 
@@ -172,26 +181,6 @@ InputTypeEnum GetInputType()
 
 	return inp;
 }
-
-// Cut Settings
-Json_wrapper * m_cutJson;
-
-double m_cutMuonPt;
-//double m_cutLeadingJetEtaCut;
-double m_cutSecondLeadingToZPt;
-double m_cutBackToBack;
-double m_cutZMass;
-double m_cutZPt;
-/*	g_cutHandler.AddCut( new SecondLeadingToZPtCut( p.getDouble( secname + ".cut_2jet" )));
- g_cutHandler.AddCut( new JsonCut( g_json));
- g_cutHandler.AddCut( new MuonPtCut(15.0));
- g_cutHandler.AddCut( new MuonEtaCut());
- g_cutHandler.AddCut( new LeadingJetEtaCut());
- g_cutHandler.AddCut( new SecondLeadingToZPtCut( p.getDouble( secname + ".cut_2jet" )));
- g_cutHandler.AddCut( new BackToBackCut(0.2));
- g_cutHandler.AddCut( new ZMassWindowCut(20.0));
- g_cutHandler.AddCut( new ZPtCut(p.getDouble( secname + ".cut_zpt" )));
- */
 
 VarCache< stringvector > m_filter;
 
@@ -313,6 +302,37 @@ public:
 	}
 };
 
+
+class SecondJetRatioFilter: public FilterBase<EventResult>
+{
+public:
+	SecondJetRatioFilter( ) : FilterBase<EventResult>()
+	{
+	}
+
+
+	virtual bool DoesEventPass(EventResult & event)
+	{
+	bool bPass = true;
+	double fBinVal = event.GetCorrectedJetPt(1) / event.m_pData->Z->Pt();
+
+
+	if (!(fBinVal >= m_pipelineSettings->GetFilterSecondJetRatioLow()))
+		bPass = false;
+
+	if (!(fBinVal < m_pipelineSettings->GetFilterSecondJetRatioHigh()))
+		bPass = false;
+
+	return bPass;
+}
+
+virtual std::string GetFilterId()
+{
+	return "secondjetratio";
+}
+};
+
+
 class PtWindowFilter: public FilterBase<EventResult>
 {
 public:
@@ -384,8 +404,9 @@ public:
 
 virtual bool DoesEventPass(EventResult & event)
 {
+	unsigned long ignoredCut = m_pipelineSettings->GetFilterInCutIgnored();
 	// no section here is allowed to set to true again, just to false ! avoids coding errors
-	return event.IsInCut();
+	return event.IsInCutWhenIgnoringCut(ignoredCut);
 }
 
 virtual std::string GetFilterId()
@@ -433,6 +454,7 @@ virtual std::string GetId()
 	return "default";
 }
 
+
 PipelineSettings * GetPipelineSettings()
 {
 	return this->m_pipeline->GetSettings();
@@ -441,12 +463,15 @@ PipelineSettings * GetPipelineSettings()
 EventPipeline * m_pipeline;
 };
 
+
+
 class EventPipeline
 {
 public:
 
 typedef boost::ptr_vector<EventConsumerBase<EventResult> > ConsumerVector;
 typedef boost::ptr_vector<FilterBase<EventResult> > FilterVector;
+
 
 void InitPipeline(PipelineSettings * pset)
 {
@@ -460,8 +485,10 @@ void InitPipeline(PipelineSettings * pset)
 		m_filter.push_back( new PtWindowFilter);
 		else if ( sid == InCutFilter().GetFilterId())
 		m_filter.push_back( new InCutFilter);
-		else if ( sid == RecoVertFilter() .GetFilterId())
+		else if ( sid == RecoVertFilter().GetFilterId())
 		m_filter.push_back( new RecoVertFilter);
+		else if ( sid == SecondJetRatioFilter().GetFilterId())
+		m_filter.push_back( new SecondJetRatioFilter);
 		else
 		CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 	}

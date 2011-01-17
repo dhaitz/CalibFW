@@ -118,6 +118,12 @@ template < class TPlotType >
 class PlotBase
 {
 public:
+
+	PlotBase()
+	{
+		SetNameAndCaption( RootNamer::GetTempHistoName() );
+	}
+
 	void AddModifier(ModifierBase<TPlotType> * mod)
 	{
 		m_modifiers.push_back( mod );
@@ -141,6 +147,14 @@ public:
 	}
 
 	std::vector<ModifierBase<TPlotType> *> m_modifiers;
+
+	void SetNameAndCaption( std::string sName)
+	{
+		m_sName = m_sCaption = sName;
+	}
+	std::string m_sName;
+	std::string m_sCaption;
+	std::string m_sRootFileFolder;
 };
 
 class PlotSettings
@@ -176,8 +190,7 @@ public:
 		double m_fx, m_fy, m_fxe, m_fye;
 	};
 
-	GraphErrors() :
-		m_sName("default_graph_name"), m_sCaption("default_graph_caption")
+	GraphErrors() : PlotBase< GraphErrors>()
 	{
 	}
 
@@ -188,6 +201,8 @@ public:
 	void Store(TFile * pRootFile)
 	{
 		this->RunModifierBeforeCreation( this );
+
+        //RootFileHelper::SafeCd( gDirectory,  this->m_sRootFileFolder );
 		m_graph = new TGraphErrors( m_points.size());
 		m_graph->SetName( m_sName.c_str() );
 		//m_graph->SetCaption( m_sCaption.c_str() );
@@ -208,12 +223,7 @@ public:
 		this->RunModifierAfterDraw( this );
 
 		//CALIB_LOG( "Storing GraphErrors " + this->m_sRootFileFolder + "/" + this->m_sName + "_graph" )
-
-		if ( pRootFile->cd( this->m_sRootFileFolder.c_str() ) == false)
-		{
-			pRootFile->mkdir( this->m_sRootFileFolder.c_str() );
-			pRootFile->cd( this->m_sRootFileFolder.c_str() );
-		}
+        RootFileHelper::SafeCd( pRootFile, this->m_sRootFileFolder );
 		m_graph->Write((this->m_sName + "_graph").c_str());
 	}
 
@@ -222,9 +232,7 @@ public:
 		m_points.push_back( new DataPoint( x, y, xe, ye ) );
 	}
 
-	std::string m_sName;
-	std::string m_sCaption;
-	std::string m_sRootFileFolder;
+
 	int m_iBinCount;
 	double m_dBinLower;
 	double m_dBinUpper;
@@ -239,18 +247,17 @@ class Hist2D: public HistBase< Hist2D>
 {
 public:
 
-	Hist2D() :
-		m_sName("default_hist_name"), m_sCaption("default_hist_caption"),
-				m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(200.0f),
+	Hist2D() : HistBase< Hist2D>(),
+		m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(200.0f),
 				m_iBinYCount(100), m_dBinYLower(0.0f), m_dBinYUpper(200.0f)
 	{
-
 	}
 
 	void Init()
 	{
 		this->RunModifierBeforeCreation( this );
 
+        //RootFileHelper::SafeCd( gDirectory,  this->m_sRootFileFolder );
 		m_hist = new TH2D(this->m_sName.c_str(), this->m_sCaption.c_str(),
 				this->m_iBinXCount, this->m_dBinXLower, this->m_dBinXUpper,
 				this->m_iBinYCount, this->m_dBinYLower, this->m_dBinYUpper);
@@ -265,12 +272,7 @@ public:
 		this->RunModifierAfterDraw( this );
 
 		//CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
-
-		if ( pRootFile->cd( this->m_sRootFileFolder.c_str() ) == false)
-		{
-			pRootFile->mkdir( this->m_sRootFileFolder.c_str() );
-			pRootFile->cd( this->m_sRootFileFolder.c_str() );
-		}
+        RootFileHelper::SafeCd( pRootFile, this->m_sRootFileFolder );
 		m_hist->Write((this->m_sName + "_hist").c_str());
 	}
 
@@ -281,9 +283,6 @@ public:
 
 	TH2D * GetRawHisto(){ return m_hist; }
 
-	std::string m_sName;
-	std::string m_sCaption;
-	std::string m_sRootFileFolder;
 	int m_iBinXCount;
 	double m_dBinXLower;
 	double m_dBinXUpper;
@@ -298,8 +297,7 @@ class Hist1D: public HistBase< Hist1D>
 {
 public:
 
-	Hist1D() :
-		m_sName("default_hist_name"), m_sCaption("default_hist_caption"),
+	Hist1D() : HistBase< Hist1D>(),
 				m_iBinCount(100), m_dBinLower(0.0f), m_dBinUpper(200.0f), m_bUseCustomBin(false)
 	{
 
@@ -309,6 +307,7 @@ public:
 	{
 		this->RunModifierBeforeCreation( this );
 
+        //RootFileHelper::SafeCd( gDirectory,  this->m_sRootFileFolder );
 		if ( m_bUseCustomBin )
 		{
 			m_hist = new TH1D(    this->m_sName.c_str(),
@@ -333,11 +332,7 @@ public:
 
 		//CALIB_LOG( "Storing Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
 
-		if ( pRootFile->cd( this->m_sRootFileFolder.c_str() ) == false)
-		{
-			pRootFile->mkdir( this->m_sRootFileFolder.c_str() );
-			pRootFile->cd( this->m_sRootFileFolder.c_str() );
-		}
+        RootFileHelper::SafeCd( pRootFile, this->m_sRootFileFolder );
 		m_hist->Write((this->m_sName + "_hist").c_str());
 	}
 
@@ -348,9 +343,7 @@ public:
 
 	TH1D * GetRawHisto(){ return m_hist; }
 
-	std::string m_sName;
-	std::string m_sCaption;
-	std::string m_sRootFileFolder;
+
 	int m_iBinCount;
 	double m_dBinLower;
 	double m_dBinUpper;
@@ -706,6 +699,11 @@ IMPL_HIST1D_MOD2(DrawRecoVertConsumer ,m_hist->Fill( (double)res.GetRecoVertices
 		new ModHistBinRange(-0.5, 14.5),
 		new ModHistBinCount(15))
 
+// SecondJet Pt / Z.Pt
+IMPL_HIST1D_MOD1(Draw2ndJetPtDivZPtConsumer ,m_hist->Fill( res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt() , res.m_weight); ,
+				new ModHistBinRange(0.0, 2.0))
+
+
 //JET RESP
 IMPL_HIST1D_MOD1(DrawJetRespConsumer ,m_hist->Fill( res.GetCorrectedJetPt(0) / res.m_pData->Z->Pt() , res.m_weight); ,
 		new ModHistBinRange(0.0, 2.0))
@@ -760,6 +758,39 @@ IMPL_HIST1D_JET_MOD1(DrawJetDeltaPhiConsumer ,
 		},
 		new ModHistBinRange(-3.5f, 3.5f) )
 
+IMPL_HIST1D_JET_MOD1(DrawJetDeltaPhiWrtJet1Consumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( DeltaHelper::GetDeltaPhiCenterZero( res.m_pData->jets[0],
+							res.m_pData->jets[m_jetNum]),
+							res.m_weight);
+				}
+		},
+		new ModHistBinRange(-3.5f, 3.5f) )
+
+IMPL_HIST1D_JET_MOD1(DrawJetDeltaEtaWrtJet1Consumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( TMath::Abs(  res.m_pData->jets[0]->Eta() -
+							res.m_pData->jets[m_jetNum]->Eta()),
+							res.m_weight);
+				}
+		},
+		new ModHistBinRange(-3.5f, 3.5f) )
+
+IMPL_HIST1D_JET_MOD1(DrawJetDeltaRWrtJet1Consumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( DeltaHelper::GetDeltaR(res.m_pData->jets[0],res.m_pData->jets[m_jetNum]),
+							res.m_weight);
+				}
+		},
+		new ModHistBinRange(0.0f, 6.0f) )
+
+
 IMPL_HIST1D_JET_MOD1(DrawJetDeltaEtaConsumer ,
 		{
 				if ( res.IsJetValid( m_jetNum ))
@@ -786,21 +817,202 @@ virtual void ProcessFilteredEvent(EventResult & res)
 }
 };
 
+
+class DrawDeltaRMapConsumer: public DrawHist2DConsumerBase<EventResult>
+{
+	public:
+	virtual void Init(EventPipeline * pset) {
+
+		m_hist->AddModifier( new ModHist2DBinRange(0.0f, 5.0f, 0.0, 50.0 ));
+		m_hist->AddModifier( new ModHist2DBinCount(120, 120));
+
+		DrawHist2DConsumerBase<EventResult>::Init(pset);
+	}
+};
+
+
+class DrawDeltaRJetMapConsumer: public DrawDeltaRMapConsumer
+{
+	public:
+	DrawDeltaRJetMapConsumer( int jetNum) : m_jetNum(jetNum)
+	{}
+
+	virtual void ProcessFilteredEvent(EventResult & res)
+	{
+		if ( res.IsJetValid ( m_jetNum))
+		{
+			m_hist->Fill(
+					DeltaHelper::GetDeltaR(res.m_pData->jets[0],res.m_pData->jets[m_jetNum]),
+					res.GetCorrectedJetPt(m_jetNum),
+					res.m_weight );
+		}
+	}
+
+	int m_jetNum;
+};
+
+class DrawDeltaRJetRatioJetMapConsumer: public DrawDeltaRMapConsumer
+{
+	public:
+	DrawDeltaRJetRatioJetMapConsumer( int jetNum) : m_jetNum(jetNum)
+	{}
+
+	virtual void Init(EventPipeline * pset) {
+
+		m_hist->AddModifier( new ModHist2DBinRange(0.0f, 5.0f, 0.0, 1.2 ));
+		m_hist->AddModifier( new ModHist2DBinCount(120, 120));
+
+		DrawHist2DConsumerBase<EventResult>::Init(pset);
+	}
+
+	virtual void ProcessFilteredEvent(EventResult & res)
+	{
+		if ( res.IsJetValid ( m_jetNum))
+		{
+			m_hist->Fill(
+					DeltaHelper::GetDeltaR(res.m_pData->jets[0],res.m_pData->jets[m_jetNum]),
+					res.GetCorrectedJetPt(m_jetNum) / res.GetCorrectedJetPt(0),
+					res.m_weight );
+		}
+	}
+
+	int m_jetNum;
+};
+
+class DrawDeltaRJetRatioZMapConsumer: public DrawDeltaRMapConsumer
+{
+	public:
+	DrawDeltaRJetRatioZMapConsumer( int jetNum) : m_jetNum(jetNum)
+	{}
+
+	virtual void Init(EventPipeline * pset) {
+
+		m_hist->AddModifier( new ModHist2DBinRange(0.0f, 5.0f, 0.0, 1.2 ));
+		m_hist->AddModifier( new ModHist2DBinCount(120, 120));
+
+		DrawHist2DConsumerBase<EventResult>::Init(pset);
+	}
+
+	virtual void ProcessFilteredEvent(EventResult & res)
+	{
+		if ( res.IsJetValid ( m_jetNum))
+		{
+			m_hist->Fill(
+					DeltaHelper::GetDeltaR(res.m_pData->jets[0],res.m_pData->jets[m_jetNum]),
+					res.GetCorrectedJetPt(m_jetNum) / res.m_pData->Z->Pt(),
+					res.m_weight );
+		}
+	}
+
+	int m_jetNum;
+};
+
+
 class DrawEtaPhiMapConsumer: public DrawHist2DConsumerBase<EventResult>
 {
 	public:
 	virtual void Init(EventPipeline * pset) {
 
-	m_hist->AddModifier( new ModHist2DBinRange(0.0f, 4.0f, -3.2, 3.2 ));
-	m_hist->AddModifier( new ModHist2DBinCount(40, 40));
+		m_hist->AddModifier( new ModHist2DBinRange(0.0f, 4.0f, -3.2, 3.2 ));
+		m_hist->AddModifier( new ModHist2DBinCount(40, 40));
 
-	DrawHist2DConsumerBase<EventResult>::Init(pset);
-}/*
-virtual void ProcessFilteredEvent(EventResult & res)
-{
-	m_hist->Fill( res.m_pData->Z->Pt(), res.m_weight );
-}*/
+		DrawHist2DConsumerBase<EventResult>::Init(pset);
+	}
+
 };
+
+class DrawPhiJet2PtConsumer: public DrawHist2DConsumerBase<EventResult>
+{
+	public:
+	virtual void Init(EventPipeline * pset) {
+
+		m_hist->AddModifier( new ModHist2DBinRange(-3.2, 3.2, 0.0, 50.0f ));
+		m_hist->AddModifier( new ModHist2DBinCount(40, 40));
+
+		DrawHist2DConsumerBase<EventResult>::Init(pset);
+	}
+
+	virtual void ProcessFilteredEvent(EventResult & res)
+	{
+		if ( res.IsJetValid ( 1))
+		{
+			m_hist->Fill(DeltaHelper::GetDeltaPhiCenterZero(res.m_pData->jets[1], res.m_pData->jets[0]),
+					res.GetCorrectedJetPt(1),
+					res.m_weight );
+		}
+	}
+};
+
+class DrawPhiJet2RatioConsumer: public DrawHist2DConsumerBase<EventResult>
+{
+	public:
+	virtual void Init(EventPipeline * pset) {
+
+		m_hist->AddModifier( new ModHist2DBinRange(-3.2, 3.2, 0.0, 1.2f ));
+		m_hist->AddModifier( new ModHist2DBinCount(40, 40));
+
+		DrawHist2DConsumerBase<EventResult>::Init(pset);
+	}
+
+	virtual void ProcessFilteredEvent(EventResult & res)
+	{
+		if ( res.IsJetValid ( 1))
+		{
+			m_hist->Fill(DeltaHelper::GetDeltaPhiCenterZero(res.m_pData->jets[1], res.m_pData->jets[0]),
+					res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt(),
+					res.m_weight );
+		}
+	}
+};
+
+
+class DrawEtaJet2PtConsumer: public DrawHist2DConsumerBase<EventResult>
+{
+	public:
+	virtual void Init(EventPipeline * pset) {
+
+		m_hist->AddModifier( new ModHist2DBinRange(0.0f, 5.0f, 0.0, 50.0f ));
+		m_hist->AddModifier( new ModHist2DBinCount(40, 40));
+
+		DrawHist2DConsumerBase<EventResult>::Init(pset);
+	}
+
+	virtual void ProcessFilteredEvent(EventResult & res)
+	{
+		if ( res.IsJetValid ( 1))
+		{
+			m_hist->Fill(TMath::Abs(  res.m_pData->jets[0]->Eta() -
+					res.m_pData->jets[1]->Eta()),
+					res.GetCorrectedJetPt(1),
+					res.m_weight );
+		}
+	}
+};
+
+class DrawEtaJet2RatioConsumer: public DrawHist2DConsumerBase<EventResult>
+{
+	public:
+	virtual void Init(EventPipeline * pset) {
+
+		m_hist->AddModifier( new ModHist2DBinRange(0.0, 5.0f, 0.0, 1.2f ));
+		m_hist->AddModifier( new ModHist2DBinCount(40, 40));
+
+		DrawHist2DConsumerBase<EventResult>::Init(pset);
+	}
+
+	virtual void ProcessFilteredEvent(EventResult & res)
+	{
+		if ( res.IsJetValid ( 1))
+		{
+			m_hist->Fill( TMath::Abs( res.m_pData->jets[0]->Eta() -
+					res.m_pData->jets[1]->Eta()),
+					res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt(),
+					res.m_weight );
+		}
+	}
+};
+
+
 
 class DrawEtaPhiJetMapConsumer: public DrawEtaPhiMapConsumer
 {
@@ -810,10 +1022,13 @@ class DrawEtaPhiJetMapConsumer: public DrawEtaPhiMapConsumer
 
 	virtual void ProcessFilteredEvent(EventResult & res)
 	{
-		m_hist->Fill(
-				TMath::Abs(res.m_pData->Z->Eta()- res.m_pData->jets[m_jetNum]->Eta()),
-				DeltaHelper::GetDeltaPhiCenterZero(res.m_pData->Z, res.m_pData->jets[m_jetNum]),
-				res.m_weight );
+		if ( res.IsJetValid ( m_jetNum))
+		{
+			m_hist->Fill(
+					TMath::Abs(res.m_pData->Z->Eta()- res.m_pData->jets[m_jetNum]->Eta()),
+					DeltaHelper::GetDeltaPhiCenterZero(res.m_pData->Z, res.m_pData->jets[m_jetNum]),
+					res.m_weight );
+		}
 	}
 
 	int m_jetNum;
@@ -915,40 +1130,33 @@ public:
 };
 
 template <class TXProvider>
-class DrawCutEffGraph: public DrawGraphErrorsConsumerBase<EventResult>
+class DrawCutIneffGraph: public DrawGraphErrorsConsumerBase<EventResult>
 {
 public:
-	DrawCutEffGraph( int cutId ) : 	DrawGraphErrorsConsumerBase<EventResult>(),
+	DrawCutIneffGraph( int cutId ) : DrawGraphErrorsConsumerBase<EventResult>(),
 		m_iCutId( cutId)
 	{
 		m_hist_rejected.AddModifier( new ModHistBinRange( m_xProvider.GetLow(),m_xProvider.GetHigh()));
 		m_hist_rejected.AddModifier( new ModHistBinCount( m_xProvider.GetBinCount() ));
 
-
 		m_hist_overall.AddModifier( new ModHistBinRange( m_xProvider.GetLow(),m_xProvider.GetHigh()));
 		m_hist_overall.AddModifier( new ModHistBinCount( m_xProvider.GetBinCount() ));
 
-
 		m_hist_rejected.Init();
 		m_hist_overall.Init();
-		/*
-		m_binCounter.reset( new CutEffBinnedCounter( m_xProvider.GetLow(),
-				(  m_xProvider.GetHigh() -  m_xProvider.GetLow()) / (double) m_xProvider.GetBinCount(),
-				m_xProvider.GetBinCount()));*/
+
 	}
 
 	// this method is called for all events
 	virtual void ProcessEvent(EventResult & event, FilterResult & result)
 	{
-		if ( !g_cutHandler.IsValidEvent( &event))
+		if ( CutHandler::IsValidEvent( &event))
 			return;
-/*
-		CutEffBinInfo * pInfo = m_binCounter->GetBinInfo(	m_xProvider.GetXValue( event ));
-*/
+
 		// is null is returned, out of our range, but is fine
 		//if ( pInfo != NULL)
 		{
-			if ( g_cutHandler.IsCutInBitmask( m_iCutId, event.m_cutBitmask ))
+			if (CutHandler::IsCutInBitmask( m_iCutId, event.m_cutBitmask ))
 				m_hist_rejected.Fill( m_xProvider.GetXValue( event ), event.m_weight );
 
 
@@ -967,24 +1175,6 @@ public:
 					m_hist_rejected.GetRawHisto()->GetBinContent(i),
 					 0.0f,
 					 m_hist_rejected.GetRawHisto()->GetBinError(i));
-
-			/*
-			unsigned long overall = m_binCounter->m_binList[i].m_binInfo.m_rejected  + m_binCounter->m_binList[i].m_binInfo.m_accepted;
-
-			if ( overall > 0)
-			{
-				m_graph->AddPoint( m_binCounter->m_binList[i].m_bin.GetBinCenter(),
-						 (double)m_binCounter->m_binList[i].m_binInfo.m_rejected /
-						 (double)overall,
-						 0.0f, 0.0f);
-			}
-			 else
-			 {
-					m_graph->AddPoint( m_binCounter->m_binList[i].m_bin.GetBinCenter(),
-							 1.0f,
-							 0.0f, 0.0f);
-			 }*/
-
 		}
 
 		// store hist
@@ -999,8 +1189,6 @@ public:
 	// only used for the internal binning and not stored to root file
 	Hist1D m_hist_rejected;
 	Hist1D m_hist_overall;
-
-	//std::auto_ptr<CutEffBinnedCounter> m_binCounter;
 };
 
 class DrawJetRespGraph: public DrawGraphErrorsConsumerBase<EventResult>

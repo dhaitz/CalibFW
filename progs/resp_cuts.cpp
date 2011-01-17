@@ -89,7 +89,6 @@ bool g_useWeighting;
 bool g_useEventWeight;
 bool g_useGlobalWeightBin;
 
-
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
 std::string g_sJsonFile("not set");
 std::string g_sOutputPath = "default_zjetres";
@@ -128,6 +127,20 @@ PIPELINE->m_consumer.push_back(object_##DRAW_CONSUMER); }
 #define PLOT_HIST1D_CONST1( PIPELINE, DRAW_CONSUMER, QUANTITY_NAME, CONST_PARAMS) \
 { Hist1D * hist_##DRAW_CONSUMER = new Hist1D; \
 DRAW_CONSUMER * object_##DRAW_CONSUMER = new  DRAW_CONSUMER( CONST_PARAMS ); \
+object_##DRAW_CONSUMER->m_sQuantityName = #QUANTITY_NAME; \
+object_##DRAW_CONSUMER->m_hist = hist_##DRAW_CONSUMER; \
+PIPELINE->m_consumer.push_back(object_##DRAW_CONSUMER); }
+
+#define PLOT_HIST2D_CONST1( PIPELINE, DRAW_CONSUMER, QUANTITY_NAME, CONST_PARAMS) \
+{ Hist2D * hist_##DRAW_CONSUMER = new Hist2D; \
+DRAW_CONSUMER * object_##DRAW_CONSUMER = new  DRAW_CONSUMER( CONST_PARAMS ); \
+object_##DRAW_CONSUMER->m_sQuantityName = #QUANTITY_NAME; \
+object_##DRAW_CONSUMER->m_hist = hist_##DRAW_CONSUMER; \
+PIPELINE->m_consumer.push_back(object_##DRAW_CONSUMER); }
+
+#define PLOT_HIST2D( PIPELINE, DRAW_CONSUMER, QUANTITY_NAME) \
+{ Hist2D * hist_##DRAW_CONSUMER = new Hist2D; \
+DRAW_CONSUMER * object_##DRAW_CONSUMER = new  DRAW_CONSUMER(); \
 object_##DRAW_CONSUMER->m_sQuantityName = #QUANTITY_NAME; \
 object_##DRAW_CONSUMER->m_hist = hist_##DRAW_CONSUMER; \
 PIPELINE->m_consumer.push_back(object_##DRAW_CONSUMER); }
@@ -198,12 +211,14 @@ std::vector<ExcludedEvent *> g_mcExcludedEvents;
 TFile * g_resFile;
 
 TString g_sOutFolder("out/");
-boost::scoped_ptr<Json_wrapper> g_json;
+std::auto_ptr<Json_wrapper> g_json;
 
 evtData g_ev;
 TChain * g_pChain;
 
 EventDataVector g_trackedEvents;
+
+CutHandler g_cutHandler;
 
 PtBinWeighter g_mcWeighter;
 
@@ -238,7 +253,7 @@ void RunPipelinesForEvent(EventResult & event)
 			// this events can contain "unphysical" results due to measurement errors
 
 			// IsValidEvent checks if in JSON and in HLT selection
-			if ( g_cutHandler.IsValidEvent( &event ) )
+			if (g_cutHandler.IsValidEvent(&event))
 				it->RunEvent(event);
 		}
 	}
@@ -266,30 +281,27 @@ EventPipeline * CreateLevel2Pipeline()
 	return pline;
 }
 
-void AddConsumerToPipeline( EventPipeline * pline, std::string consumerName)
+void AddConsumerToPipeline(EventPipeline * pline, std::string consumerName)
 {
-	if ( consumerName == EventStorerConsumer().GetId())
+	if (consumerName == EventStorerConsumer().GetId())
 	{
-		pline->m_consumer.push_back( new EventStorerConsumer() );
+		pline->m_consumer.push_back(new EventStorerConsumer());
 	}
 
-	if ( consumerName == CutStatisticsConsumer().GetId())
+	if (consumerName == CutStatisticsConsumer(&g_cutHandler).GetId())
 	{
-		pline->m_consumer.push_back( new CutStatisticsConsumer() );
+		pline->m_consumer.push_back(new CutStatisticsConsumer(&g_cutHandler));
 	}
 }
 
-void AddConsumersToPipeline( EventPipeline * pline, std::vector<std::string> consList )
+void AddConsumersToPipeline(EventPipeline * pline,
+		std::vector<std::string> consList)
 {
 	BOOST_FOREACH( std::string s, consList )
-	{
-		CALIB_LOG( "Adding consumer " << s)
-		AddConsumerToPipeline( pline, s);
-	}
+{	CALIB_LOG( "Adding consumer " << s)
+	AddConsumerToPipeline( pline, s);
 }
-
-
-
+}
 
 // Generates the default pipeline which is run on all events.
 // insert new Plots here if you want a new plot
@@ -312,6 +324,8 @@ EventPipeline * CreateDefaultPipeline()
 	PLOT_HIST1D_CONST1(pline, DrawJetPtConsumer, jet2_pt, 1)
 	PLOT_HIST1D_CONST1(pline, DrawJetPtConsumer, jet3_pt, 2)
 
+	PLOT_HIST1D(pline, Draw2ndJetPtDivZPtConsumer, jet2_pt_over_z_pt)
+
 	// Jet Phi
 	PLOT_HIST1D_CONST1(pline, DrawJetPhiConsumer, jet1_phi, 0)
 	PLOT_HIST1D_CONST1(pline, DrawJetPhiConsumer, jet2_phi, 1)
@@ -331,6 +345,11 @@ EventPipeline * CreateDefaultPipeline()
 	PLOT_HIST1D_CONST1(pline, DrawJetDeltaPhiConsumer, jet1_deltaphi_z, 0)
 	PLOT_HIST1D_CONST1(pline, DrawJetDeltaPhiConsumer, jet2_deltaphi_z, 1)
 	PLOT_HIST1D_CONST1(pline, DrawJetDeltaPhiConsumer, jet3_deltaphi_z, 2)
+
+	// Jet Delte Phi/Eta/R wrt to Jet1
+	PLOT_HIST1D_CONST1(pline, DrawJetDeltaRWrtJet1Consumer, jet2_delta_r_wrt_jet1, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetDeltaEtaWrtJet1Consumer, jet2_delta_eta_wrt_jet1, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetDeltaPhiWrtJet1Consumer, jet2_delta_phi_wrt_jet1, 1)
 
 	PLOT_HIST1D(pline, DrawZEtaConsumer, z_eta)
 	PLOT_HIST1D(pline, DrawZPhiConsumer, z_phi)
@@ -355,59 +374,59 @@ EventPipeline * CreateDefaultPipeline()
 
 	PLOT_HIST1D(pline, DrawRecoVertConsumer, recovert)
 
-	for ( CutHandler::CutVector::iterator it = g_cutHandler.GetCuts().begin();
-			!( it == g_cutHandler.GetCuts().end()); it++)
+	for (CutHandler::CutVector::iterator it = g_cutHandler.GetCuts().begin(); !(it
+			== g_cutHandler.GetCuts().end()); it++)
 	{
-		GraphErrors * hist_CutEff = new GraphErrors;
-		DrawCutEffGraph<GraphXProviderZpt>  * object_consumer = new DrawCutEffGraph<GraphXProviderZpt>( it->GetId() );
-		object_consumer->m_sQuantityName = "cut_ineff_" + it->GetCutShortName() + "_zpt";
-		object_consumer->m_graph = hist_CutEff;
+		GraphErrors * hist_CutIneff = new GraphErrors;
+		DrawCutIneffGraph<GraphXProviderZpt> * object_consumer =
+				new DrawCutIneffGraph<GraphXProviderZpt> ((*it)->GetId());
+		object_consumer->m_sQuantityName = "cut_ineff_"
+				+ (*it)->GetCutShortName() + "_zpt";
+		object_consumer->m_graph = hist_CutIneff;
 		pline->m_consumer.push_back(object_consumer);
 
-		hist_CutEff = new GraphErrors;
-		DrawCutEffGraph<GraphXProviderRecoVert>  * object_consumerReco = new DrawCutEffGraph<GraphXProviderRecoVert>( it->GetId() );
-		object_consumerReco->m_sQuantityName = "cut_ineff_" + it->GetCutShortName() + "_nrv";
-		object_consumerReco->m_graph = hist_CutEff;
+		hist_CutIneff = new GraphErrors;
+		DrawCutIneffGraph<GraphXProviderRecoVert> * object_consumerReco =
+				new DrawCutIneffGraph<GraphXProviderRecoVert> ((*it)->GetId());
+		object_consumerReco->m_sQuantityName = "cut_ineff_"
+				+ (*it)->GetCutShortName() + "_nrv";
+		object_consumerReco->m_graph = hist_CutIneff;
 		pline->m_consumer.push_back(object_consumerReco);
 	}
 
 	// event count
-	Hist1D * hist_evCount = new Hist1D;
-	DrawEventCount * object_eVconsumer = new DrawEventCount;
-	object_eVconsumer->m_sQuantityName = "eventcount";
-	object_eVconsumer->m_hist = hist_evCount;
-	pline->m_consumer.push_back(object_eVconsumer);
+	PLOT_HIST1D(pline, DrawEventCount, eventcount)
 
 	// Jet 1 Eta Phi map
-	Hist2D * hist_ePhiMapJet = new Hist2D;
-	DrawEtaPhiJetMapConsumer * object_ePhiMapJetconsumer = new DrawEtaPhiJetMapConsumer(0);
-	object_ePhiMapJetconsumer->m_sQuantityName = "etaphi_jet1_to_z";
-	object_ePhiMapJetconsumer->m_hist = hist_ePhiMapJet;
-	pline->m_consumer.push_back(object_ePhiMapJetconsumer);
-
+	PLOT_HIST2D_CONST1(pline, DrawEtaPhiJetMapConsumer, etaphi_jet1_to_z, 0)
 	// Jet 2 Eta Phi map
-	Hist2D * hist_ePhiMapJet2 = new Hist2D;
-	DrawEtaPhiJetMapConsumer * object_ePhiMapJetconsumer2 = new DrawEtaPhiJetMapConsumer(1);
-	object_ePhiMapJetconsumer2->m_sQuantityName = "etaphi_jet2_to_z";
-	object_ePhiMapJetconsumer2->m_hist = hist_ePhiMapJet2;
-	pline->m_consumer.push_back(object_ePhiMapJetconsumer2);
+	PLOT_HIST2D_CONST1(pline, DrawEtaPhiJetMapConsumer, etaphi_jet2_to_z, 1)
 
+	// Jet 2 Delta R to Jet1 map
+	PLOT_HIST2D_CONST1(pline, DrawDeltaRJetMapConsumer, deltar_jet2_to_jet1_jet2_pt, 1)
+	PLOT_HIST2D_CONST1(pline, DrawDeltaRJetRatioJetMapConsumer, deltar_jet2_to_jet1_ratiojet, 1)
+	PLOT_HIST2D_CONST1(pline, DrawDeltaRJetRatioZMapConsumer, deltar_jet2_to_jet1_ratioz, 1)
+
+	PLOT_HIST2D(pline, DrawPhiJet2PtConsumer, deltaphi_jet2_to_jet1_jet2_pt)
+	PLOT_HIST2D(pline, DrawPhiJet2RatioConsumer, deltaphi_jet2_to_jet1_ratioz)
+	PLOT_HIST2D(pline, DrawEtaJet2PtConsumer, deltaeta_jet2_to_jet1_jet2_pt)
+	PLOT_HIST2D(pline, DrawEtaJet2RatioConsumer, deltaeta_jet2_to_jet1_ratioz)
 
 	PLOT_GRAPHERRORS( pline, DrawDeltaPhiRange, deltaphi_test )
 
-
 	GraphErrors * hist_DrawJetPt = new GraphErrors;
-	DrawJetPt<GraphXProviderJetPhiDeltaZ<0> >  * object_DrawJetPt = new DrawJetPt<GraphXProviderJetPhiDeltaZ<0> >( 0 );
-	object_DrawJetPt->m_sQuantityName = "jet1pt_deltaphi";
+	DrawJetPt<GraphXProviderJetPhiDeltaZ<0> > * object_DrawJetPt =
+			new DrawJetPt<GraphXProviderJetPhiDeltaZ<0> > (0);
+	object_DrawJetPt->m_sQuantityName = "jet1_pt_deltaphi";
 	object_DrawJetPt->m_graph = hist_DrawJetPt;
 	pline->m_consumer.push_back(object_DrawJetPt);
 
 	hist_DrawJetPt = new GraphErrors;
-	DrawJetPt<GraphXProviderJetPhiDeltaZ<1> >  * object_DrawJet2Pt = new DrawJetPt<GraphXProviderJetPhiDeltaZ<1> >( 1 );
-	object_DrawJet2Pt->m_sQuantityName = "jet2pt_deltaphi";
+	DrawJetPt<GraphXProviderJetPhiDeltaZ<1> > * object_DrawJet2Pt =
+			new DrawJetPt<GraphXProviderJetPhiDeltaZ<1> > (1);
+	object_DrawJet2Pt->m_sQuantityName = "jet2_pt_deltaphi";
 	object_DrawJet2Pt->m_graph = hist_DrawJetPt;
 	pline->m_consumer.push_back(object_DrawJet2Pt);
-
 
 	//PLOT_GRAPHERRORS( pline, DrawJetRespBase, jetresp )
 	/*	Hist2D * hist = new Hist2D;
@@ -433,7 +452,7 @@ void importEvents(bool bUseJson,
 
 	bool globalBinInitDone = false;
 	// TODO dont do this if we have no weighting to analyze or the weighting is in the events themself
-//	if ( !g_useEventWeight && g_useWeighting)
+	//	if ( !g_useEventWeight && g_useWeighting)
 	{
 		CALIB_LOG_FILE( "Analyzing Events for weighting and Overall Event number" )
 		for (Long_t ievt = 0; ievt < entries; ++ievt)
@@ -453,12 +472,12 @@ void importEvents(bool bUseJson,
 						<< lProcEvents )
 				lOverallNumberOfProcessedEvents += lProcEvents;
 
-				if ( g_useGlobalWeightBin && (!globalBinInitDone))
+				if (g_useGlobalWeightBin && (!globalBinInitDone))
 				{
 					CALIB_LOG_FILE("Initializing global weighting bin with xsection " << g_ev.xsection)
-					 g_mcWeighter.Reset();
-					 g_mcWeighter.AddBin(PtBin(0.0, 999999.0), g_ev.xsection);
-					 globalBinInitDone = true;
+					g_mcWeighter.Reset();
+					g_mcWeighter.AddBin(PtBin(0.0, 999999.0), g_ev.xsection);
+					globalBinInitDone = true;
 				}
 
 				g_mcWeighter.IncreaseCountByXSection(g_ev.xsection,
@@ -467,7 +486,7 @@ void importEvents(bool bUseJson,
 		}
 	}
 
-	if ( g_useWeighting)
+	if (g_useWeighting)
 		g_mcWeighter.Print();
 
 	// cloning of a pipeline ?? goes here maybe
@@ -481,11 +500,12 @@ void importEvents(bool bUseJson,
 		{
 			EventPipeline * pLine = CreateDefaultPipeline();
 
-			AddConsumersToPipeline( pLine,(*it)->GetAdditionalConsumer());
+			AddConsumersToPipeline(pLine, (*it)->GetAdditionalConsumer());
 
 			// set the algo used for this run
 			(*it)->SetAlgoName(g_sCurAlgo);
-			(*it)->SetOverallNumberOfProcessedEvents ( lOverallNumberOfProcessedEvents );
+			(*it)->SetOverallNumberOfProcessedEvents(
+					lOverallNumberOfProcessedEvents);
 
 			pLine->InitPipeline(*it);
 			g_pipelines.push_back(pLine);
@@ -501,12 +521,12 @@ void importEvents(bool bUseJson,
 
 		EventResult * res = new EventResult;
 		res->m_pData = &g_ev;
-		
+
 		// the weight of data events can be strange when read from root file. better reset here
 		res->m_weight = 1.0f;
 		if (g_useWeighting)
 		{
-			if (g_useEventWeight )
+			if (g_useEventWeight)
 			{
 				res->m_weight = res->m_pData->weight;
 			}
@@ -522,16 +542,16 @@ void importEvents(bool bUseJson,
 
 		delete res;
 
-
-
 		if (((ievt % 5000) == 0) || (ievt == (entries - 1)))
 		{
-			float localPercent = floor( 100.0f * (float)(ievt +1)/(float)entries);
-			float overallPercent =  floor( ( (float)g_iCurAlgoCount / (float)g_iAlgoOverallCount
-					+ (localPercent * 0.01f) * (1.0f) / (float)g_iAlgoOverallCount ) *100.0f);
+			float localPercent = floor(100.0f * (float) (ievt + 1)
+					/ (float) entries);
+			float overallPercent = floor(((float) g_iCurAlgoCount
+					/ (float) g_iAlgoOverallCount + (localPercent * 0.01f)
+					* (1.0f) / (float) g_iAlgoOverallCount) * 100.0f);
 
-			CALIB_LOG( (ievt + 1) << " of " << entries << " done [ this algo " << std::fixed <<  std::setprecision(0)
-			<< localPercent << " % ] [ overall " << overallPercent << " % ]" )
+			CALIB_LOG( (ievt + 1) << " of " << entries << " done [ this algo " << std::fixed << std::setprecision(0)
+					<< localPercent << " % ] [ overall " << overallPercent << " % ]" )
 
 		}
 	}
@@ -557,7 +577,7 @@ void importEvents(bool bUseJson,
 		{
 			EventPipeline * pLine = CreateLevel2Pipeline();
 
-			AddConsumersToPipeline( pLine,(*it)->GetAdditionalConsumer());
+			AddConsumersToPipeline(pLine, (*it)->GetAdditionalConsumer());
 
 			// set the algo used for this run
 			(*it)->SetAlgoName(g_sCurAlgo);
@@ -650,7 +670,6 @@ inline void PrintEvent(EventResult & data, std::ostream & out,
 		delete pForm;
 }
 
-
 void loadTrackedEventsFromFile(std::string fileName)
 {
 	ReadCsv csv(fileName);
@@ -680,7 +699,6 @@ void loadTrackedEventsFromFile(std::string fileName)
 	}
 	std::cout << g_trackedEvents.size() << std::endl;
 }
-
 
 void ResetExcludedEvents()
 {
@@ -924,7 +942,7 @@ int main(int argc, char** argv)
 
 	//Todo: close file to free memory of already written histos
 	g_resFile = new TFile(sRootOutputFilename.c_str(), "RECREATE");
-	CALIB_LOG_FILE("Writing to root file " << sRootOutputFilename)
+	CALIB_LOG_FILE("Writing to the root file " << sRootOutputFilename)
 
 	// insert config into log file
 	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump:" );
@@ -949,7 +967,7 @@ int main(int argc, char** argv)
 
 	// init cuts
 	// values are set for each Pipeline individually
-	g_cutHandler.AddCut(new JsonCut(&(*g_json)));
+	g_cutHandler.AddCut(new JsonCut(g_json.get()));
 	g_cutHandler.AddCut(new HltCut());
 	g_cutHandler.AddCut(new MuonPtCut(0.0));
 	g_cutHandler.AddCut(new MuonEtaCut());
@@ -958,6 +976,7 @@ int main(int argc, char** argv)
 	g_cutHandler.AddCut(new BackToBackCut(0.0));
 	g_cutHandler.AddCut(new ZMassWindowCut(0.0));
 	g_cutHandler.AddCut(new ZPtCut(0.0));
+    g_cutHandler.AddCut(new SecondLeadingToZPtCutDir());
 
 	PipelineSettings * pset = NULL;
 

@@ -6,7 +6,6 @@
 
 
 #include <boost/shared_ptr.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "GlobalInclude.h"
 #include "EventPipeline.h"
@@ -14,7 +13,8 @@
 #include "EventData.h"
 #include "Json_wrapper.h"
 
-using namespace CalibFW;
+namespace CalibFW
+{
 
 const double g_kZmass = 91.19;
 
@@ -26,9 +26,12 @@ template<class TEvent>
 class EventCutBase
 {
 public:
+	/*
+		returns true, if an Event passes the cuts, this Method returns True. The Event passes the cut.
+	 */
 	virtual bool IsInCut(TEvent evt) = 0;
 	virtual unsigned long GetId() = 0;
-	virtual std::string GetCutName() = 0;
+	virtual std::string GetCutName() { return "No Cut Name given";}
 	virtual std::string GetCutShortName() = 0;
 	virtual void Configure( PipelineSettings * pset) =0;
 
@@ -209,6 +212,48 @@ public:
 	double m_f2ndJetRatio;
 	double m_f2ndJetThreshold;
 };
+
+
+class SecondLeadingToZPtCutDir: public EventCutBase<EventResult *>
+{
+public:
+	SecondLeadingToZPtCutDir()
+	{
+	}
+
+	bool IsInCut(EventResult * pEv)
+	{
+
+		if ( pEv->GetCorrectedJetPt(1) < m_f2ndJetThreshold )
+			return true;
+
+        if ( DeltaHelper::GetDeltaR(pEv->m_pData->jets[0], pEv->m_pData->jets[1]) > m_fDeltaR )
+            return true;
+
+		return (pEv->GetCorrectedJetPt(1) / pEv->m_pData->Z->Pt()
+				< m_f2ndJetRatio);
+	}
+	void Configure( PipelineSettings * pset)
+	{
+		m_f2ndJetRatio = pset->GetCutSecondLeadingToZPt();
+		m_f2ndJetThreshold = pset->GetCutSecondLeadingToZPtJet2Threshold();
+        m_fDeltaR = pset->GetCutSecondLeadingToZPtDeltaR();
+	}
+
+	unsigned long GetId()
+	{
+		return SecondLeadingToZPtCutDir::CudId;
+	}
+	std::string GetCutShortName()
+	{
+		return "secondleading_to_zpt_dir";
+	}
+	static const long CudId = 2048;
+	double m_f2ndJetRatio;
+    double m_fDeltaR;
+	double m_f2ndJetThreshold;
+};
+
 
 
 class SecondLeadingToZPtGeomCut: public EventCutBase<EventResult *>
@@ -442,7 +487,6 @@ public:
 
 	void Configure( PipelineSettings * pset)
 	{
-		// No Config here. Json is global for now
 	}
 
 	unsigned long GetId()
@@ -465,7 +509,15 @@ class CutHandler
 
 public:
 
-	typedef boost::ptr_vector<EventCutBase<EventResult *> > CutVector;
+	typedef std::vector<EventCutBase<EventResult *> *> CutVector;
+
+	~CutHandler()
+	{
+		for (CutVector::iterator it = m_cuts.begin(); !(it == m_cuts.end()); it++)
+		{
+			delete (*it);
+		}
+	}
 
 	void AddCut(EventCutBase<EventResult *> * pCut)
 	{
@@ -480,14 +532,14 @@ public:
 
 		for (CutVector::iterator it = m_cuts.begin(); !(it == m_cuts.end()); it++)
 		{
-			if ( find(svec.begin(), svec.end(), it->GetCutShortName()) == svec.end())
+			if ( find(svec.begin(), svec.end(), (*it)->GetCutShortName()) == svec.end())
 			{
-				it->m_bCutEnabled = false;
+				(*it)->m_bCutEnabled = false;
 			}
 			else
 			{
-				it->m_bCutEnabled = true;
-				it->Configure(pset);
+				(*it)->m_bCutEnabled = true;
+				(*it)->Configure(pset);
 			}
 		}
 	}
@@ -496,9 +548,9 @@ public:
 	{
 		for (CutVector::iterator it = m_cuts.begin(); !(it == m_cuts.end()); it++)
 		{
-			if (it->GetId() == id)
+			if ((*it)->GetId() == id)
 			{
-				return &*it;
+				return (*it);
 			}
 		}
 
@@ -513,11 +565,11 @@ public:
 
 		for (CutVector::iterator it = m_cuts.begin(); !(it == m_cuts.end()); it++)
 		{
-			if (it->m_bCutEnabled)
+			if ((*it)->m_bCutEnabled)
 			{
-				if (!it->IsInCut(evt))
+				if (!(*it)->IsInCut(evt))
 				{
-					evt->m_cutBitmask = evt->m_cutBitmask | it->GetId();
+					evt->m_cutBitmask = evt->m_cutBitmask | (*it)->GetId();
 				}
 			}
 		}
@@ -529,8 +581,6 @@ public:
 
 		return false;
 	}
-
-	CutVector m_cuts;
 
 	CutVector & GetCuts()
 	{
@@ -557,9 +607,9 @@ public:
 
 	}
 
+private:
+	CutVector m_cuts;
 };
 
-// global cut handler used by all parts of the program
-CutHandler g_cutHandler;
-
+}
 #endif 

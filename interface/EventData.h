@@ -15,7 +15,6 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/scoped_ptr.hpp>
 
-
 #include "RootIncludes.h"
 #include "GlobalInclude.h"
 #include "PtBinWeighter.h"
@@ -127,10 +126,19 @@ public:
 class RootNamer
 {
 public:
+	static unsigned long m_lTempNameAppend;
+
+	static std::string GetTempHistoName()
+	{
+		std::stringstream tempname;
+		m_lTempNameAppend++;
+		tempname << "root_temp_histo_" << m_lTempNameAppend;
+		return tempname.str();
+	}
 
 	static TString GetHistoName(TString algoName, TString quantName,
-			InputTypeEnum inpType, int corr = 0, PtBin * pBin = NULL, bool isNoCut = false,
-			TString algoNameAppend = "Zplusjet")
+			InputTypeEnum inpType, int corr = 0, PtBin * pBin = NULL,
+			bool isNoCut = false, TString algoNameAppend = "Zplusjet")
 	{
 		TString sinput = "";
 		TString scorr = "";
@@ -155,14 +163,12 @@ public:
 		if (pBin != NULL)
 			tagList.push_back(pBin->id().Data());
 
-		if ( isNoCut)
+		if (isNoCut)
 			tagList.push_back("nocut");
 
 		std::stringstream fullString;
 
-		for (stringvector::iterator it = tagList.begin();
-				it != tagList.end();
-				it++)
+		for (stringvector::iterator it = tagList.begin(); it != tagList.end(); it++)
 		{
 			fullString << (*it);
 			if (it != (tagList.end() - 1))
@@ -171,6 +177,8 @@ public:
 		return fullString.str();
 	}
 };
+
+unsigned long RootNamer::m_lTempNameAppend = 0;
 
 class EventId
 {
@@ -226,7 +234,6 @@ public:
 	Int_t m_luminosityBlock;
 };
 
-
 class EventResult
 {
 public:
@@ -268,9 +275,9 @@ public:
 
 	// if a jet has .Pt() == 0.0f , there is no 2nd/3rd jet in this event. dont add this
 	// to distributions
-	bool IsJetValid( int jetNum )
+	bool IsJetValid(int jetNum)
 	{
-		return (this->GetCorrectedJetPt( jetNum ) > 0.0f  );
+		return (this->GetCorrectedJetPt(jetNum) > 0.0f);
 	}
 
 	double GetCorrectedJetPt(int jetIndex)
@@ -303,7 +310,13 @@ public:
 
 	bool IsInCut()
 	{
-		return (  this->m_cutBitmask == 0);
+		return (this->m_cutBitmask == 0);
+	}
+
+	bool IsInCutWhenIgnoringCut(unsigned long ignoredCut)
+	{
+		// ~ is bitwise negation
+		return (((~ignoredCut ) & this->m_cutBitmask) == 0);
 	}
 
 

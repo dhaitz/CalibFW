@@ -196,7 +196,7 @@ public:
                 ++iter)
         {
             CALIB_LOG_FILE( "pt" << iter->m_bin.m_fLowestPt << "-" << iter->m_bin.m_fHighestPt
-                      << "  xsection: " << iter->m_xsection << "  entries: " << iter->m_entryCount << "  weight: " << this->GetWeightByXSection(iter->m_xsection ) << std::endl)
+                      << "  xsection: " << iter->m_xsection << "  entries: " << iter->m_entryCount << "  weight: " << this->GetWeightByXSection(iter->m_xsection ))
         }
     }
 

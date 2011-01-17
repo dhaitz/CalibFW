@@ -29,6 +29,19 @@ double ScalarProductTParticle( TParticle * p1, TParticle * p2 )
         p1->Pz()*p2->Pz(); 
 }
 
+class RootFileHelper
+{
+public:
+    static void SafeCd( TDirectory * pDir, std::string dirName )
+    {
+        if ( pDir->cd( dirName.c_str() ) == false)
+		{
+			pDir->mkdir( dirName.c_str() );
+			pDir->cd( dirName.c_str() );
+		}
+    }   
+};
+
 class DeltaHelper
 {
 
@@ -71,7 +84,11 @@ class DeltaHelper
   {
 	 TVector3 v1 = ConvertToVector(p1);
 	 TVector3 v2 = ConvertToVector(p2);
-	return ROOT::Math::VectorUtil::DeltaR( v1, v2);
+    
+    //std::cout << "calc";
+	double val = ROOT::Math::VectorUtil::DeltaR( v1, v2);
+    //std::cout << "done";
+    return val;
   }
 };
 

@@ -4,7 +4,7 @@ import subprocess
 def GetBaseConfig():
     d = dict()
     
-    d["Algos"] = ["ak5PFJets","ak5PFJetsL1"]#"ak7PFJets", "ak5CaloJets", "ak7CaloJets", "kt4PFJets","kt6PFJets", "kt4CaloJets", "kt6CaloJets", "ic5PFJets", "ic5CaloJets"]
+    d["Algos"] = ["ak5PFJets"]#"ak7PFJets", "ak5CaloJets", "ak7CaloJets", "kt4PFJets","kt6PFJets", "kt4CaloJets", "kt6CaloJets", "ic5PFJets", "ic5CaloJets"]
     d["Pipelines"] = { "default": {
             "Level": 1,
             "RootFileFolder": "",
@@ -46,6 +46,7 @@ def GetDataBaseConfig():
     d["JsonFile"] = "data/json/Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON_v3.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
+    d["UseGlobalWeightBin"] = 0
     d["InputType"] = "data"
     
     for key, val in d["Pipelines"].items():
@@ -81,8 +82,10 @@ def ExpandCutNoCut( pipelineDict):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
+        
         nocutPipe = copy.deepcopy(elem)
         cutPipe = copy.deepcopy(elem)
+        cutPipe["FilterInCutIgnored"] = 0
         
         cutPipe["Filter"].append ("incut")
 
@@ -106,9 +109,7 @@ def Expand( pipelineDict, expandCount, includeSource):
 
 def ExpandPtBins( pipelineDict, ptbins, includeSource):
     newDict = dict()
-    
-    
-    
+        
     for name, elem in pipelineDict.items():
         i = 0
         for upper in ptbins[1:]:
@@ -200,5 +201,12 @@ def Run( settings, filename):
     StoreSettings( settings, filename)
     print "Running config from file " + filename
     subprocess.call(["bin/resp_cuts.exe",filename])
+    try:
+        import pynotify
+        if pynotify.init("CalibFW resp_cuts"):
+            n = pynotify.Notification("CalibFW resp_cuts", "run with config " + filename + " done")
+            n.show()
+    except:
+        pass
 
     
