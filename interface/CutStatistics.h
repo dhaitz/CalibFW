@@ -6,9 +6,6 @@
 
 #include <math.h>
 
-#include <boost/smart_ptr/shared_ptr.hpp>
-#include <boost/smart_ptr/scoped_ptr.hpp>
-
 #include "CutHandler.h"
 #include "GlobalInclude.h"
 #include "RootIncludes.h"

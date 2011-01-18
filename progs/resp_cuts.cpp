@@ -32,8 +32,6 @@
 
 #include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/weak_ptr.hpp>
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -218,7 +216,7 @@ TChain * g_pChain;
 
 EventDataVector g_trackedEvents;
 
-CutHandler g_cutHandler;
+std::auto_ptr< CutHandler > g_cutHandler;
 
 PtBinWeighter g_mcWeighter;
 
@@ -246,14 +244,14 @@ void RunPipelinesForEvent(EventResult & event)
 	{
 		if (it->GetSettings()->GetLevel() == 1)
 		{
-			g_cutHandler.ConfigureCuts(it->GetSettings());
-			g_cutHandler.ApplyCuts(&event);
+			g_cutHandler->ConfigureCuts(it->GetSettings());
+			g_cutHandler->ApplyCuts(&event);
 
 			// don't run event if it was not accepted by JSON file.
 			// this events can contain "unphysical" results due to measurement errors
 
 			// IsValidEvent checks if in JSON and in HLT selection
-			if (g_cutHandler.IsValidEvent(&event))
+			if (g_cutHandler->IsValidEvent(&event))
 				it->RunEvent(event);
 		}
 	}
@@ -288,9 +286,9 @@ void AddConsumerToPipeline(EventPipeline * pline, std::string consumerName)
 		pline->m_consumer.push_back(new EventStorerConsumer());
 	}
 
-	if (consumerName == CutStatisticsConsumer(&g_cutHandler).GetId())
+	if (consumerName == CutStatisticsConsumer(g_cutHandler.get()).GetId())
 	{
-		pline->m_consumer.push_back(new CutStatisticsConsumer(&g_cutHandler));
+		pline->m_consumer.push_back(new CutStatisticsConsumer(g_cutHandler.get()));
 	}
 }
 
@@ -374,8 +372,8 @@ EventPipeline * CreateDefaultPipeline()
 
 	PLOT_HIST1D(pline, DrawRecoVertConsumer, recovert)
 
-	for (CutHandler::CutVector::iterator it = g_cutHandler.GetCuts().begin(); !(it
-			== g_cutHandler.GetCuts().end()); it++)
+	for (CutHandler::CutVector::iterator it = g_cutHandler->GetCuts().begin(); !(it
+			== g_cutHandler->GetCuts().end()); it++)
 	{
 		GraphErrors * hist_CutIneff = new GraphErrors;
 		DrawCutIneffGraph<GraphXProviderZpt> * object_consumer =
@@ -486,6 +484,7 @@ void importEvents(bool bUseJson,
 		}
 	}
 
+
 	if (g_useWeighting)
 		g_mcWeighter.Print();
 
@@ -566,6 +565,7 @@ void importEvents(bool bUseJson,
 
 	CALIB_LOG_FILE("Running level 2 pipelines")
 
+
 	// cloning of a pipeline ?? goes here maybe
 	// clone default pipeline for the number of settings we have
 	g_pipelines.clear();
@@ -593,6 +593,8 @@ void importEvents(bool bUseJson,
 	{
 		it->FinishPipeline();
 	}
+
+	g_pipelines.clear();
 	CALIB_LOG_FILE("All level 2 pipelines done")
 }
 
@@ -892,50 +894,14 @@ int main(int argc, char** argv)
 
 	g_sOutputPath = g_propTree.get<std::string> ("OutputPath");
 	std::string sLogFileName = g_sOutputPath + ".log";
-	g_logFile.reset(new ofstream(sLogFileName.c_str(), ios_base::trunc));
+	g_logFile = new ofstream(sLogFileName.c_str(), ios_base::trunc);
 
 	CreateWeightBins();
-	/*
-	 if ((bool) p.getInt(secname + ".fixed_weighting"))
-	 {
-	 g_mcWeighter.Reset();
-	 g_mcWeighter.AddBin(PtBin(0.0, 999999.0), 1300);
-	 }
-
-	 if ((bool) p.getInt(secname + ".use_event_weight"))
-	 {
-	 g_useEventWeight = true;
-	 }
-
-	 g_writeEventsSetting = NoEvents;
-
-	 if (p.getString(secname + ".write_events") == "incut")
-	 g_writeEventsSetting = OnlyInCutEvents;
-	 if (p.getString(secname + ".write_events") == "all")
-	 g_writeEventsSetting = AllEvents;
-
-	 g_doL2Correction = (bool) p.getInt(secname + ".do_l2_correction");
-	 g_doL3Correction = (bool) p.getInt(secname + ".do_l3_correction");
-	 g_doL3CorrectionFormula = (bool) p.getInt(secname
-	 + ".do_l3_correction_formula");
-
-	 g_plotNoCuts = (bool) p.getInt(secname + ".plot_nocuts");
-	 g_plotCutEff = (bool) p.getInt(secname + ".plot_cuteff");
-
-	 g_useHLT = (bool) p.getInt(secname + ".use_hlt");
-
-	 g_l3Formula = p.getString(secname + ".l3_formula");
-	 g_l3FormulaParams = p.getvDouble(secname + ".l3_formula_params");
-
-	 g_doData = (bool) p.getInt(secname + ".is_data");
-	 g_doMc = !g_doData;
-
-	 g_sSource = p.getString(secname + ".tchain_file_path");
-	 */
 
 	// input files
 	g_sSource = g_propTree.get<std::string> ("InputFiles");
 	CALIB_LOG_FILE("Using InputFiles " << g_sSource)
+
 
 	// removes the old file
 	std::string sRootOutputFilename = (g_sOutputPath + ".root");
@@ -948,35 +914,39 @@ int main(int argc, char** argv)
 	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump:" );
 	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
 
+
 	/*
 	 g_sTrackedEventsFile = p.getString(secname + ".tracked_events");
 	 if (g_sTrackedEventsFile.length() > 0)
 	 loadTrackedEventsFromFile(g_sTrackedEventsFile);
 	 */
-	g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
 
 	// weighting settings
 	g_useWeighting = g_propTree.get<bool> ("UseEventWeight");
 	g_useEventWeight = g_propTree.get<bool> ("UseWeighting");
 	g_useGlobalWeightBin = g_propTree.get<bool> ("UseGlobalWeightBin");
 
+	g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
+
 	/*
 	 g_l2CorrFiles = p.getvString(secname + ".l2_correction_data");
 	 g_l3CorrFiles = p.getvString(secname + ".l3_correction_data");
 	 */
 
+
+	g_cutHandler.reset ( new CutHandler() );
 	// init cuts
 	// values are set for each Pipeline individually
-	g_cutHandler.AddCut(new JsonCut(g_json.get()));
-	g_cutHandler.AddCut(new HltCut());
-	g_cutHandler.AddCut(new MuonPtCut(0.0));
-	g_cutHandler.AddCut(new MuonEtaCut());
-	g_cutHandler.AddCut(new LeadingJetEtaCut());
-	g_cutHandler.AddCut(new SecondLeadingToZPtCut(0.0));
-	g_cutHandler.AddCut(new BackToBackCut(0.0));
-	g_cutHandler.AddCut(new ZMassWindowCut(0.0));
-	g_cutHandler.AddCut(new ZPtCut(0.0));
-    g_cutHandler.AddCut(new SecondLeadingToZPtCutDir());
+	g_cutHandler->AddCut(new JsonCut(g_json.get()));
+	g_cutHandler->AddCut(new HltCut());
+	g_cutHandler->AddCut(new MuonPtCut(0.0));
+	g_cutHandler->AddCut(new MuonEtaCut());
+	g_cutHandler->AddCut(new LeadingJetEtaCut());
+	g_cutHandler->AddCut(new SecondLeadingToZPtCut(0.0));
+	g_cutHandler->AddCut(new BackToBackCut(0.0));
+	g_cutHandler->AddCut(new ZMassWindowCut(0.0));
+	g_cutHandler->AddCut(new ZPtCut(0.0));
+    g_cutHandler->AddCut(new SecondLeadingToZPtCutDir());
 
 	PipelineSettings * pset = NULL;
 
@@ -991,22 +961,13 @@ int main(int argc, char** argv)
 
 	g_pipeSettings.push_back( pset );
 }
-/*
- PipelineSettingsVector vSettings;
 
- vSettings.push_back(pset);
- pset = new PipelineSettings( *pset );
- pset->AddFilter("incut");
- vSettings.push_back(pset);
-
- vSettings = ExpandPtBins( vSettings, g_newPtBins );
-
- g_pipeSettings = vSettings;
- */
 processAlgo();
-
 g_resFile->Close();
 g_logFile->close();
+
+// todo this delete produces seg fault
+//delete g_logFile;
 
 return 0;
 }

@@ -11,7 +11,7 @@
 #include <vector>
 #include <exception>
 
-boost::scoped_ptr<std::ofstream> g_logFile;
+std::ofstream * g_logFile;
 
 #define FLOAT_COMPARE( first, second ) (  TMath::Abs( (first - second) / second) < 0.02 )
 #define CALIB_LOG( out )  {std::cout << out << std::endl;}

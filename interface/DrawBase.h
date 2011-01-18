@@ -202,15 +202,15 @@ public:
 	{
 		this->RunModifierBeforeCreation( this );
 
-        //RootFileHelper::SafeCd( gDirectory,  this->m_sRootFileFolder );
-		m_graph = new TGraphErrors( m_points.size());
+        RootFileHelper::SafeCd( gROOT,  this->m_sRootFileFolder );
+		m_graph = RootFileHelper::GetStandaloneTGraphErrors( m_points.size());
 		m_graph->SetName( m_sName.c_str() );
 		//m_graph->SetCaption( m_sCaption.c_str() );
 
 		this->RunModifierBeforeDataEntry( this );
 
 		unsigned long l = 0;
-		for ( boost::ptr_vector<DataPoint>::iterator it = m_points.begin();
+		for ( std::vector<DataPoint>::iterator it = m_points.begin();
 			!( it == m_points.end()); it++)
 		{
 			m_graph->SetPoint(l,  it->m_fx, it->m_fy);
@@ -229,7 +229,7 @@ public:
 
 	void AddPoint( double x, double y, double xe, double ye )
 	{
-		m_points.push_back( new DataPoint( x, y, xe, ye ) );
+		m_points.push_back(  DataPoint( x, y, xe, ye ) );
 	}
 
 
@@ -237,7 +237,7 @@ public:
 	double m_dBinLower;
 	double m_dBinUpper;
 
-	boost::ptr_vector<DataPoint> m_points;
+	std::vector<DataPoint> m_points;
 
 	TGraphErrors * m_graph;
 };
@@ -257,8 +257,9 @@ public:
 	{
 		this->RunModifierBeforeCreation( this );
 
-        //RootFileHelper::SafeCd( gDirectory,  this->m_sRootFileFolder );
-		m_hist = new TH2D(this->m_sName.c_str(), this->m_sCaption.c_str(),
+        RootFileHelper::SafeCd( gROOT,  this->m_sRootFileFolder );
+		m_hist = RootFileHelper::GetStandaloneTH2D_1(
+				this->m_sName, this->m_sCaption,
 				this->m_iBinXCount, this->m_dBinXLower, this->m_dBinXUpper,
 				this->m_iBinYCount, this->m_dBinYLower, this->m_dBinYUpper);
 		m_hist->Sumw2();
@@ -307,17 +308,20 @@ public:
 	{
 		this->RunModifierBeforeCreation( this );
 
-        //RootFileHelper::SafeCd( gDirectory,  this->m_sRootFileFolder );
+        RootFileHelper::SafeCd( gROOT,  this->m_sRootFileFolder );
 		if ( m_bUseCustomBin )
 		{
-			m_hist = new TH1D(    this->m_sName.c_str(),
+			m_hist = RootFileHelper::GetStandaloneTH1D_1( this->m_sName,
+					this->m_sCaption,
+					m_iBinCount, &m_dCustomBins[0]);
+					/*new TH1D(    this->m_sName.c_str(),
 				              this->m_sCaption.c_str(),
-				              m_iBinCount, &m_dCustomBins[0] );
+				              m_iBinCount, &m_dCustomBins[0] );*/
 		}
 		else
 		{
-		m_hist = new TH1D(this->m_sName.c_str(), this->m_sCaption.c_str(),
-				this->m_iBinCount, this->m_dBinLower, this->m_dBinUpper);
+			m_hist = RootFileHelper::GetStandaloneTH1D_2( this->m_sName,
+					this->m_sCaption, this->m_iBinCount, this->m_dBinLower, this->m_dBinUpper);
 
 		}
 		m_hist->Sumw2();
@@ -1144,24 +1148,19 @@ public:
 
 		m_hist_rejected.Init();
 		m_hist_overall.Init();
-
 	}
 
 	// this method is called for all events
 	virtual void ProcessEvent(EventResult & event, FilterResult & result)
 	{
-		if ( CutHandler::IsValidEvent( &event))
+		if ( ! CutHandler::IsValidEvent( &event))
 			return;
 
-		// is null is returned, out of our range, but is fine
-		//if ( pInfo != NULL)
-		{
-			if (CutHandler::IsCutInBitmask( m_iCutId, event.m_cutBitmask ))
-				m_hist_rejected.Fill( m_xProvider.GetXValue( event ), event.m_weight );
+		if (CutHandler::IsCutInBitmask( m_iCutId, event.m_cutBitmask ))
+			m_hist_rejected.Fill( m_xProvider.GetXValue( event ), event.m_weight );
 
 
-			m_hist_overall.Fill( m_xProvider.GetXValue( event ), event.m_weight );
-		}
+		m_hist_overall.Fill( m_xProvider.GetXValue( event ), event.m_weight );
 	}
 
 	virtual void Finish()
@@ -1203,6 +1202,8 @@ public:
 
 	virtual void Process()
 	{
+		Hist1D m_histResp;
+
 		// move through the histos
 		stringvector sv = this->GetPipelineSettings()->GetCustomBins();
 		std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
@@ -1212,22 +1213,40 @@ public:
 		m_histResp.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
 		m_histResp.Init();
 
+
 		int i = 0;
 		for (std::vector< PtBin >::iterator it = bins.begin();
 				it != bins.end();
 				it ++)
 		{
-			this->GetPipelineSettings()->GetRootOutFile()->cd( "" );
+			TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+			sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+			// cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
 
 			TString sName = RootNamer::GetHistoName(
 					this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
-					this->GetPipelineSettings()->GetInputType(), 0, &(*it), false);
-			TH1D * hresp = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get( sName );
+					this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+			TH1D * hresp = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+			if (hresp == NULL)
+			{
+				CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+			}
 
 			sName = RootNamer::GetHistoName(
 					this->GetPipelineSettings()->GetAlgoName(), "z_pt",
-					this->GetPipelineSettings()->GetInputType(), 0, &(*it), false);
-			TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get( sName );
+					this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+			TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+			if (hpt == NULL)
+			{
+				CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+			}
+
 
 			m_graph->AddPoint( hpt->GetMean(),
 					hresp->GetMean(),
@@ -1243,8 +1262,9 @@ public:
 
 	}
 	std::string m_sInpHist;
+	std::string m_sFolder;
 
-	Hist1D m_histResp;
+
 };
 
 }

@@ -136,6 +136,8 @@ IMPL_SETTING(unsigned long, FilterInCutIgnored)
 IMPL_SETTING(std::string, AlgoName)
 IMPL_SETTING(std::string, RootFileFolder)
 
+IMPL_SETTING(std::string, SecondLevelFolderTemplate)
+
 // only level 1 runs directly on data
 IMPL_SETTING(int, Level)
 

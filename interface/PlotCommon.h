@@ -14,7 +14,15 @@
 class PlotEnv// : Templates::Singleton<PlotEnv>
 {
   //friend class Templates::Singleton<PlotEnv>;
-  
+/*	template <class T>
+	T* getObject(const char* objname, const char* filename){
+	  TFile ifile(filename);
+	  T* obj = (T*) ifile.Get(objname);
+	  obj->SetDirectory(gROOT);
+	  ifile.Close();
+	  return obj;
+	  }
+	*/
 public:
   void LoadFromConfig( MinimalParser p)
   {
@@ -58,24 +66,15 @@ void saveHolder(CanvasHolder &h,
         std::cout << "DEBUG: log scale for the canvas " << (can_name+"_log_y").Data() << std::endl;
         h.setCanvasTitle(can_name+"_log_y");
         h.setLogY();
-        for (unsigned int i=0;i<formats.size();++i)
+    }
+
+    for ( unsigned int i=0;i<formats.size();++i)
 	{
-//             h.draw();
-            h.save(formats[i].Data());
-        }
-    }
-    else
-    {
-	// make needed folder      
-//      h.save("png");
-        for ( unsigned int i=0;i<formats.size();++i)
-        {
 //         h.draw();
-	    system ( "mkdir plot_out");
-	    system ( ("mkdir plot_out/" + env.m_sConfigFileName).Data() );
-            h.save(formats[i].Data(), "" , ("plot_out/" + env.m_sConfigFileName + "/").Data());
-        }
-    }
+		system ( "mkdir plot_out");
+		system ( ("mkdir plot_out/" + env.m_sConfigFileName).Data() );
+		h.save(formats[i].Data(), "" , ("plot_out/" + env.m_sConfigFileName + "/").Data());
+	}
 }
 
 
