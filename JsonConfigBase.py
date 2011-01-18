@@ -25,7 +25,6 @@ def GetBaseConfig():
             "Filter":[]
                       }
             }
-            
     
     return d
 
@@ -43,7 +42,7 @@ def GetMcBaseConfig():
 def GetDataBaseConfig():
     d = GetBaseConfig()
     
-    d["JsonFile"] = "data/json/Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON_v3.txt"
+    d["JsonFile"] = "data/json/Cert_136033-149442_7TeV_Nov4ReReco_Collisions10_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
@@ -60,17 +59,22 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
-        for v in vals:
-            print( elem )
-            newPipe = copy.deepcopy(elem)
-            print( newPipe )
-            newPipe[ varName ] = v
-            
-            newName = name + "var_" + varName + "_" + str(v).replace(".", "_")
-            
-            newDict[newName] = newPipe
-            if ( setRootFolder ):
-                newDict[newName]["RootFileFolder"] = newName
+        
+        if elem["Level"] == 1:            
+            for v in vals:
+                #print( elem )
+                newPipe = copy.deepcopy(elem)
+                #print( newPipe )
+                newPipe[ varName ] = v
+                
+                varadd = "_var_" + varName + "_" + str(v).replace(".", "_")
+                
+                newName = name + varadd            
+                newRootFileFolder =  newPipe["RootFileFolder"] + varadd
+                
+                newDict[newName] = newPipe
+                if ( setRootFolder ):
+                    newDict[newName]["RootFileFolder"] = newRootFileFolder
 
 
     if includeSource:
@@ -139,6 +143,8 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders):
     secLevelPline = { "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
     secLevelPline["sec_default"]["Level"] = 2
     secLevelPline["sec_default"]["CustomBins"] = ptBins
+    secLevelPline["sec_default"]["SecondLevelFolderTemplate"] = "XXPT_BINXX_incut"
+
 
     conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
 
