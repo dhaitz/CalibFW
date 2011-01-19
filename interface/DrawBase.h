@@ -704,7 +704,9 @@ IMPL_HIST1D_MOD2(DrawRecoVertConsumer ,m_hist->Fill( (double)res.GetRecoVertices
 		new ModHistBinCount(15))
 
 // SecondJet Pt / Z.Pt
-IMPL_HIST1D_MOD1(Draw2ndJetPtDivZPtConsumer ,m_hist->Fill( res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt() , res.m_weight); ,
+IMPL_HIST1D_MOD1(Draw2ndJetPtDivZPtConsumer ,
+{ if ( res.IsJetValid( 1 ))
+{ m_hist->Fill( res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt() , res.m_weight); }} ,
 				new ModHistBinRange(0.0, 2.0))
 
 

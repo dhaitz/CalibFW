@@ -137,7 +137,7 @@ public:
             if ( FLOAT_COMPARE((*iter).m_xsection, xsection ) )
             {
                 (*iter).m_entryCount += incBy;
-                std::cout << "file xsec " << (*iter).m_xsection << " mail xsec" << xsection << " count " << incBy << std::endl;
+                CALIB_LOG_FILE( "file xsec " << xsection << " count " << incBy )
             }
         }
     }

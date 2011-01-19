@@ -922,8 +922,8 @@ int main(int argc, char** argv)
 	 */
 
 	// weighting settings
-	g_useWeighting = g_propTree.get<bool> ("UseEventWeight");
-	g_useEventWeight = g_propTree.get<bool> ("UseWeighting");
+	g_useEventWeight = g_propTree.get<bool> ("UseEventWeight");
+	g_useWeighting = g_propTree.get<bool> ("UseWeighting");
 	g_useGlobalWeightBin = g_propTree.get<bool> ("UseGlobalWeightBin");
 
 	g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
