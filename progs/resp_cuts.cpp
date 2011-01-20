@@ -87,6 +87,8 @@ bool g_useWeighting;
 bool g_useEventWeight;
 bool g_useGlobalWeightBin;
 
+bool g_corrWithFormula;
+
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
 std::string g_sJsonFile("not set");
 std::string g_sOutputPath = "default_zjetres";
@@ -213,6 +215,7 @@ std::auto_ptr<Json_wrapper> g_json;
 
 evtData g_ev;
 TChain * g_pChain;
+TF1* g_corrFormula;
 
 EventDataVector g_trackedEvents;
 
@@ -230,11 +233,19 @@ PipelineVector g_pipelines;
 boost::ptr_vector<PtBin> g_newPtBins;
 
 void calcJetEnergyCorrection(EventResult * res, CompleteJetCorrector * pJetCorr)
-{
+{/*
 	for (int i = 0; i < 3; i++)
 	{
 		pJetCorr->CalcCorrectionForEvent(res);
-	}
+	}*/
+    if ( g_corrWithFormula )
+{
+    
+    res->m_l3CorrPtJets[0] = g_corrFormula->Eval( res->GetCorrectedJetPt( 0 ));
+    res->m_l3CorrPtJets[1] = g_corrFormula->Eval( res->GetCorrectedJetPt( 1 ));
+res->m_l3CorrPtJets[2] = g_corrFormula->Eval( res->GetCorrectedJetPt( 2 ));
+res->m_bUseL3 = true;
+}
 }
 
 void RunPipelinesForEvent(EventResult & event)
@@ -889,6 +900,8 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+
+
 	std::string jsonConfig = argv[1];
 	boost::property_tree::json_parser::read_json(jsonConfig, g_propTree);
 
@@ -902,6 +915,10 @@ int main(int argc, char** argv)
 	g_sSource = g_propTree.get<std::string> ("InputFiles");
 	CALIB_LOG_FILE("Using InputFiles " << g_sSource)
 
+    // TODO: remove this and use the correction classes
+    g_corrWithFormula = g_propTree.get<bool> ("CorrWithFormula", false);
+
+    g_corrFormula = new TF1("corr_func", g_propTree.get<std::string> ("CorrFormula", "").c_str());
 
 	// removes the old file
 	std::string sRootOutputFilename = (g_sOutputPath + ".root");

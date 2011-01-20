@@ -146,6 +146,7 @@ int g_correction_level = 0;
 TString g_sCorrectionAdd = "";
 TString g_sCorrection_level = "";
 vString g_img_formats;
+TString g_jetAppendix = "";
 
 PlotEnv g_plotEnv;
 
@@ -163,8 +164,14 @@ void formatHolder(CanvasHolder& h, const char* legSym="lf",  int size=1,int line
 
 void PlotNumberOfEvents( TString algoname, TFile *  ifile )
 {
-   TString treename=algoname+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_events";
-    TTree* tree = (TTree*) ifile->Get(treename);
+   TString treename= algoname+ g_jetAppendix + g_sCorrectionAdd + "_events";
+    TTree* tree = RootFileHelper::SafeGet<TTree *>(ifile, treename.Data());
+
+    if ( tree == NULL )
+    {
+    	std::cout << "Cant load " << treename.Data() << std::endl;
+    	exit(0);
+    }
 
     Long64_t cmsRun;
 
@@ -261,6 +268,7 @@ int main(int argc, char **argv) {
 //
 // Section general
 //
+    g_jetAppendix = p.getString(secname+".jet_appendix");
     lumi = p.getDouble(secname+".lumi");
     int pt_rebin_factor = p.getInt(secname+".pt_rebin_factor");
     int phi_rebin_factor = p.getInt(secname+".phi_rebin_factor");
@@ -281,6 +289,7 @@ int main(int argc, char **argv) {
     TString outputtype=p.getString(secname+"outputtype");
     bool txtout=("outputtype"=="txt");
 
+    TString baseFolder("NoBinning_incut/");
 // 0 = raw
 // 2 = level2
 // 3 = level3
@@ -294,7 +303,7 @@ int main(int argc, char **argv) {
         g_sCorrection_level = "corrected for #eta dependence";
     }
     
-    sprintf(lumi_str,"#scale[.8]{#int} L = %1.2f pb^{-1}",lumi);
+    sprintf(lumi_str,"#scale[.8]{#int} L = %1.0f pb^{-1}",lumi);
 
 //------------------------------------------------------------------------------
 
@@ -334,8 +343,8 @@ int main(int argc, char **argv) {
         // Eta jet
         quantity="jet1_eta_";
         CanvasHolder h_eta_jet(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder + quantity+algo+g_jetAppendix +"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder + quantity+algo+g_jetAppendix +"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_eta_jet,
                     eta_rebin_factor,
                     ifileMc, ifileData);
@@ -355,8 +364,8 @@ int main(int argc, char **argv) {
         // Phi jet
         quantity="jet1_phi_";
         CanvasHolder h_phi_jet(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_phi_jet,
                     phi_rebin_factor,
                     ifileMc, ifileData);
@@ -374,8 +383,8 @@ int main(int argc, char **argv) {
         // Pt jet
         quantity="jet1_pt_";
         CanvasHolder h_pt_jet(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_pt_jet,
                     pt_rebin_factor,
                     ifileMc, ifileData);
@@ -383,7 +392,7 @@ int main(int argc, char **argv) {
         h_pt_jet.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_jet.setTitleX("p_{T}^{jet}[GeV]");
         h_pt_jet.setBoardersX(0,189);
-        h_pt_jet.setBoardersY(0.0099,230.0);
+        h_pt_jet.setBoardersY(0.0099,950.0);
         h_pt_jet.setLogY();
 
 
@@ -395,8 +404,8 @@ int main(int argc, char **argv) {
             // Pt jet l2 corr
             quantity="jet1_pt_";
             CanvasHolder h_pt_jet_l2(quantity+algo+"l2");
-            fill_holder(quantity+algo+"Jets_Zplusjet_mc_hist",
-                        quantity+algo+"Jets_Zplusjet_data_l2corr_hist",
+            fill_holder(quantity+algo+g_jetAppendix+"_Zplusjet_mc_hist",
+                        quantity+algo+g_jetAppendix+"_Zplusjet_data_l2corr_hist",
                         h_pt_jet_l2,
                         pt_rebin_factor,
                         ifileMc, ifileData);
@@ -418,8 +427,8 @@ int main(int argc, char **argv) {
         // Eta jet2
         quantity="jet2_eta_";
         CanvasHolder h_eta_jet2(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_eta_jet2,
                     eta_rebin_factor,
                     ifileMc, ifileData);
@@ -439,8 +448,8 @@ int main(int argc, char **argv) {
         // Phi jet2
         quantity="jet2_phi_";
         CanvasHolder h_phi_jet2(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_phi_jet2,
                     phi_rebin_factor,
                     ifileMc, ifileData);
@@ -459,8 +468,8 @@ int main(int argc, char **argv) {
         // Pt jet2
         quantity="jet2_pt_";
         CanvasHolder h_pt_jet2(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_pt_jet2,
                     pt_rebin_factor,
                     ifileMc, ifileData);
@@ -468,7 +477,7 @@ int main(int argc, char **argv) {
         h_pt_jet2.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
         h_pt_jet2.setTitleX("p_{T}^{jet2}[GeV]");
         h_pt_jet2.setBoardersX(0,189);
-        h_pt_jet2.setBoardersY(0.0099,230.0);
+        h_pt_jet2.setBoardersY(0.0099,950.0);
         h_pt_jet2.setLogY();
 
 
@@ -480,10 +489,10 @@ int main(int argc, char **argv) {
 //------------------------------------------------------------------------------
 
         // Eta Z
-        quantity="zEta_";
+        quantity="z_eta_";
         CanvasHolder h_eta_z(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_eta_z,
                     eta_rebin_factor,
                     ifileMc, ifileData);
@@ -499,10 +508,10 @@ int main(int argc, char **argv) {
         saveHolder(h_eta_z,g_img_formats, false, "", "", g_plotEnv);
 
         // Phi z
-        quantity="zPhi_";
+        quantity="z_phi_";
         CanvasHolder h_phi_z(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder + quantity+algo+g_jetAppendix+"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_phi_z,
                     phi_rebin_factor,
                     ifileMc, ifileData);
@@ -519,10 +528,10 @@ int main(int argc, char **argv) {
         saveHolder(h_phi_z,g_img_formats, false, "", "", g_plotEnv);
 
         // Pt z
-        quantity="zPt_";
+        quantity="z_pt_";
         CanvasHolder h_pt_z(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder +quantity+algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder +quantity+algo+g_jetAppendix+"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_pt_z,
                     pt_rebin_factor,
                     ifileMc, ifileData);
@@ -541,8 +550,8 @@ int main(int argc, char **argv) {
         // z mass
         quantity="zmass_";
         CanvasHolder h_mass_z(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder +quantity+algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder +quantity+algo+g_jetAppendix+"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_mass_z,
                     mass_rebin_factor,
                     ifileMc, ifileData);
@@ -563,8 +572,8 @@ int main(int argc, char **argv) {
         // Eta mus
         quantity="mus_eta_";
         CanvasHolder h_eta_mus(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder +quantity+algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder +quantity+algo+g_jetAppendix+"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_eta_mus,
                     eta_rebin_factor,
                     ifileMc, ifileData);
@@ -584,8 +593,8 @@ int main(int argc, char **argv) {
         // Phi mus
         quantity="mus_phi_";
         CanvasHolder h_phi_mus(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder +quantity+algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder +quantity+algo+g_jetAppendix+"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_phi_mus,
                     phi_rebin_factor,
                     ifileMc, ifileData);
@@ -604,8 +613,8 @@ int main(int argc, char **argv) {
         // Pt mus
         quantity="mus_pt_";
         CanvasHolder h_pt_mus(quantity+algo);
-        fill_holder(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
-                    quantity+algo+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_hist",
+        fill_holder(baseFolder +quantity+algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_hist",
+        		baseFolder +quantity+algo+g_jetAppendix+"_Zplusjet_data" + g_sCorrectionAdd + "_hist",
                     h_pt_mus,
                     pt_rebin_factor,
                     ifileMc, ifileData);
@@ -622,35 +631,6 @@ int main(int argc, char **argv) {
         saveHolder(h_pt_mus,g_img_formats, false, "", "", g_plotEnv);
 
 //------------------------------------------------------------------------------
-// cut plots
-//   KEY: TH1D     jet2toZ_kt4PFJets_Zplusjet_mc_hist;1    jet2toZ_kt4PFJets_Zplusjet_mc
-//   KEY: TH1D     z_pt_minus_jet1_pt_kt4PFJets_Zplusjet_mc_hist;1 z_pt_minus_jet1_pt_kt4PFJets_Zplusjet_mc
-//   KEY: TH1D     back2back_kt4PFJets_Zplusjet_mc_hist;1  back2back_kt4PFJets_Zplusjet_mc
-
-//     // F2J
-//     quantity="jet2toZ_";
-//     CanvasHolder h_f2j(quantity+algo);
-//     fill_holder(quantity+algo+"Jets_Zplusjet_mc_hist",
-//                 quantity+algo+"Jets_Zplusjet_data_nocut_hist",
-//                 h_f2j,
-//                 mass_rebin_factor,
-//                 ifile);
-//
-//     h_f2j.setTitleY("dN_{Events}/dp_{T} [GeV^{-1}]");
-//     h_f2j.setTitleX("p_{T}^{#mu}[GeV]");
-//     h_f2j.setBoardersX(0,190);
-//
-//     TString info_string_f2j(the_info_string);
-//     info_string_f2j.ReplaceAll(" , p_{T}^{jet2}/p_{T}^{Z}< 0.2","");
-//     h_f2j.addLatex(info_x,info_y,info_string_f2j,true);
-//     h_f2j.addVLine(0.2);
-//     h_f2j.scaleBoardersY(1,1.3);
-//
-//     formatHolder(h_f2j);
-//     saveHolder(h_f2j,img_formats);
-
-
-//------------------------------------------------------------------------------
 // Il reame della response.. Specchio Specchio delle mie brame
 
         LocalIntervals intervals (fill_intervals(pt_bins));
@@ -665,6 +645,9 @@ int main(int argc, char **argv) {
         for (LocalIntervals::iterator interval=intervals.begin();
                 interval < intervals.end();++interval ) {
 
+        	TString folderName;
+
+        	folderName = interval->id() + "_incut/";
             // Get responses
             vdouble responses;
             TFile data_ifile(data_input_file);
@@ -677,7 +660,9 @@ int main(int argc, char **argv) {
             quantity="jetresp_";
             CanvasHolder h_resp(quantity+algo+"_"+interval->id());
 
-            TH1D* respo = (TH1D*) ifileMc->Get(quantity+algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_" + interval->id()+  "_hist");
+            TH1D* respo =
+            		RootFileHelper::SafeGet<TH1D *>(ifileMc,  (folderName + quantity+algo+g_jetAppendix+"_Zplusjet_mc" +
+													g_sCorrectionAdd + "_" + interval->id()+  "_hist").Data());
             respo->Rebin(pt_rebin_factor);
             respo->SetFillColor(kRed-9);
             respo->SetLineColor(kRed-9);
@@ -685,9 +670,11 @@ int main(int argc, char **argv) {
             respo->Scale(1./respo->Integral());
 
             // Fill The response histo
-            TString zpt_name("zPt_");
-            zpt_name+=algo+"Jets_Zplusjet_mc" + g_sCorrectionAdd + "_" + interval->id()+"_hist";
-            TH1D* zpt = (TH1D*) ifileMc->Get(zpt_name);
+            TString zpt_name("z_pt_");
+            zpt_name+=algo+g_jetAppendix+"_Zplusjet_mc" + g_sCorrectionAdd + "_" + interval->id()+"_hist";
+
+            TH1D* zpt = RootFileHelper::SafeGet<TH1D *>(ifileMc, ( folderName + zpt_name).Data());
+
             repsponse_mc.SetPoint(ibin,zpt->GetMean(),respo->GetMean());
             repsponse_mc.SetPointError(ibin,zpt->GetMeanError(),respo->GetRMS());
             ibin++;
@@ -701,31 +688,38 @@ int main(int argc, char **argv) {
 
             // fit section
 
-            TF1 the_gaus(interval->id()+"the_gaus",
+            TF1 *  the_gaus = new TF1(interval->id()+"the_gaus",
                          "[2]/(sqrt(2*TMath::Pi())*[1]*[4]) * exp(-0.5*((x-[0]*[3])/([1]*[4]))**2)",
                          0.,2.);
-            the_gaus.SetParNames("Mean","Sigma","Norm","JES","JER");
-            the_gaus.SetParameters(.8,.5,1);
+            the_gaus->SetParNames("Mean","Sigma","Norm","JES","JER");
+            the_gaus->SetParameters(.8,.5,1);
 
 //             the_gaus.FixParameter(2,1);
 
-            the_gaus.FixParameter(4,1);
-            the_gaus.FixParameter(3,1);
-            the_gaus.SetLineStyle(2);
-            respo->Fit(&the_gaus,"L");
+            the_gaus->FixParameter(4,1);
+            the_gaus->FixParameter(3,1);
+            the_gaus->SetLineStyle(1);
+            the_gaus->SetLineColor( kBlack );
+            the_gaus->SetFillColor( kBlack );
+            the_gaus->SetMarkerColor(kBlack);
+            respo->Fit(the_gaus,"L");
             if (txtout){
-	            std::cout << "Gauss: Mean " << the_gaus.GetParameter(0) 
-    	                  << " Sigma " << the_gaus.GetParameter(1) 
-        	              << " Norm " << the_gaus.GetParameter(2) 
+	            std::cout << "Gauss: Mean " << the_gaus->GetParameter(0) 
+    	                  << " Sigma " << the_gaus->GetParameter(1) 
+        	              << " Norm " << the_gaus->GetParameter(2) 
             	          << "\n";
            	}
-            the_gaus.FixParameter(0,the_gaus.GetParameter(0));
-            the_gaus.FixParameter(1,the_gaus.GetParameter(1));
-            the_gaus.FixParameter(2,the_gaus.GetParameter(2));
-            functions.push_back(the_gaus);
+            the_gaus->FixParameter(0,the_gaus->GetParameter(0));
+            the_gaus->FixParameter(1,the_gaus->GetParameter(1));
+            the_gaus->FixParameter(2,the_gaus->GetParameter(2));
+
+            the_gaus->SetLineWidth( 4 );
+
+            functions.push_back(*the_gaus);
 
             // end fit section
-            h_resp.addObjFormated(&the_gaus,"Gaussian Fit","L");
+            
+            h_resp.addObjFormated(the_gaus,"Gaussian Fit","L");
 
             h_resp.setTitleY("Arb. Units");
             h_resp.setTitleX("Jet Response");
@@ -743,7 +737,7 @@ int main(int argc, char **argv) {
             formatHolder(h_resp);
 
 //             h_resp.normalizeHistos();
-            h_resp.setBoardersY(0.0001,0.199);
+            h_resp.setBoardersY(0.0001,0.28);
             h_resp.setBoardersX(0,1.98);
             h_resp.draw();
 
@@ -945,7 +939,7 @@ int main(int argc, char **argv) {
         h_contours.addLatex(jes-0.01,jer_p2s+0.01,"2-#sigma");
 
         //Let's write the result on the plot
-        char result[200];
+        char result[255];
         sprintf(result,"#scale[.8]{#splitline{s_{Data}/s_{MC} = %1.2f^{+%1.2f}_{-%1.2f}}{r_{Data}/r_{MC} = %1.2f^{+%1.2f}_{-%1.2f}}}",
                 jes,jes_p1s-jes,jes-jes_m1s,  jer,jer_p1s-jer,jer-jer_m1s);
 
@@ -953,7 +947,7 @@ int main(int argc, char **argv) {
         std::cout << "\nJet Energy Scale wrt Monte Carlo &=& "<<jes<<"^{+"<<jes_p1s-jes<<"}_{-"<<jes-jes_m1s<<"} \\\\" << std::endl;
         std::cout << "Jet Energy Resolution wrt Monte Carlo &=& "<<jer<<"^{+"<<jer_p1s-jer<<"}_{-"<<jer-jer_m1s<<"} \\\\" << std::endl;
 
-        char resultL[100];
+        char resultL[255];
         sprintf(resultL,"\nJet Energy Scale wrt Monte Carlo &=&  %1.2f^{+%1.2f}_{-%1.2f}\nJet Energy Resolution wrt Monte Carlo &=& %1.2f^{+%1.2f}_{-%1.2f}\n\n",
                 jes,jes_p1s-jes,jes-jes_m1s,  jer,jer_p1s-jer,jer-jer_m1s);
 
@@ -962,6 +956,8 @@ int main(int argc, char **argv) {
         std::cout << "\n\nRESULT\n\n" << resultL << std::endl;
 
         h_contours.addLatex(info_x,info_y*0.85,result,true);
+
+
 
         // info
 	/*
@@ -1044,10 +1040,12 @@ void getResponses(vdouble& responses,
                   pt_interval interval,
                   TString algoname)
 {
-    TString treename=algoname+"Jets_Zplusjet_data" + g_sCorrectionAdd + "_events";
+	//ak5PFJets_events
+    TString treename=algoname+"Jets" + g_sCorrectionAdd + "_events";
     std::cout << "Generating Response for " << treename << std::endl;
 
-    TTree* tree = (TTree*) ifile->Get(treename);
+    TTree* tree = RootFileHelper::SafeGet<TTree *>(ifile,  treename.Data());
+
     TParticle* Z=new TParticle();
     TParticle* jet=new TParticle();
     Double_t l2corr;
@@ -1099,8 +1097,11 @@ void fill_holder(TString h_name_mc,
 
     std::cout <<"in func\n" << h_name_mc.Data() << " " << h_name_data.Data() << std::endl ;
 
-    TH1D* hmc =( TH1D*)ifileMc->Get(h_name_mc);
-    TH1D* hdata =( TH1D*)ifileData->Get(h_name_data);
+    //TH1D* hmc =( TH1D*)ifileMc->Get(h_name_mc);
+
+    TH1D* hmc = RootFileHelper::SafeGet< TH1D *>( ifileMc, h_name_mc.Data());
+    TH1D* hdata =RootFileHelper::SafeGet< TH1D *>( ifileData, h_name_data.Data());
+
 
     hmc->Sumw2();
     hmc->Rebin(rebin_factor);
@@ -1113,6 +1114,8 @@ void fill_holder(TString h_name_mc,
 
     // Scale to data
     hmc->Scale(lumi);
+
+    hdata->SetMarkerStyle(20);
 
     hdata->Sumw2();
     hdata->Rebin(rebin_factor);

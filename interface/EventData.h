@@ -135,6 +135,15 @@ public:
 		return tempname.str();
 	}
 
+    static TString GetFolderName( PtBin * pBin )
+    {
+        if ( pBin == NULL )
+            return "NoBinning_incut/";
+        else
+            return pBin->id() + "_incut/";
+
+    }
+
 	static TString GetHistoName(TString algoName, TString quantName,
 			InputTypeEnum inpType, int corr = 0, PtBin * pBin = NULL,
 			bool isNoCut = false, TString algoNameAppend = "Zplusjet")

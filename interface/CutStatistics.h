@@ -53,9 +53,11 @@ virtual void Finish()
 
 	CALIB_LOG_FILE( std::setprecision(3) << std::fixed )
 	CALIB_LOG_FILE( "--- Event Cut Report ---" )
-	CALIB_LOG_FILE( std::setw(20) << "CutName" << std::setw(23) << "EvtsLeftRel [%]" << std::setw(23)<< "EvtsLeft" << std::setw(23)<< "EvtsDropRel [%]"<< std::setw(21) << "EvtsDropAbs")
+	CALIB_LOG_FILE( std::setw(20) << "CutName" << std::setw(23) << "EvtsLeftRel [%]" << std::setw(23)<< "EvtsLeft"
+			<< std::setw(23)<< "EvtsDropRel [%]"<< std::setw(21) << "EvtsDropAbs")
 
-	CALIB_LOG_FILE( std::setw(20) << "# processed events :" << std::setw(46) << this->GetPipelineSettings()->GetOverallNumberOfProcessedEvents() )
+	CALIB_LOG_FILE( std::setw(20) << "# processed events :" << std::setw(46)
+					<< this->GetPipelineSettings()->GetOverallNumberOfProcessedEvents() )
 
 	double precutsLetfRel = (double) ( overallCountLeft ) / (double) GetPipelineSettings()->GetOverallNumberOfProcessedEvents();
 	CALIB_LOG_FILE( std::setw(20) << "precuts :"

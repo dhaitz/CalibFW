@@ -8,20 +8,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 
-#include "TROOT.h"
-#include "TMinuit.h"
-#include "TString.h"
-#include "TF2.h"
-#include "TH1F.h"
-#include "TLine.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TParticle.h"
-#include "TAxis.h"
-#include "TMath.h"
-#include "TList.h"
-#include "TGraphErrors.h"
-
+#include "RootIncludes.h"
 
 #include "CanvasHolder.h"
 #include "MinimalParser.h"
@@ -212,25 +199,31 @@ TGraphErrors * AddJetPoints ( 	boost::ptr_vector<DataHisto> & histDataResponse,
         p_dataCalibPoints->SetMarkerStyle(21);
 	p_dataCalibPoints->SetName( sName);
 	
+TF1 * pDataFit = NULL;
 	if ( g_input_type == DataInput )
 {
 	std::cout << "Fitting " << g_sFitFunc << std::endl;
 			// do the fit !
-			TF1 * pDataFit = new TF1( "jecFit" + g_sFitName, g_sFitFunc);
+			pDataFit = new TF1( "jecFit" + g_sFitName, g_sFitFunc);
 			pDataFit->SetParameter(0, 1.0f);
-			pDataFit->SetParameter(1, 1.0f);
+			pDataFit->SetParameter(1, 2.0f);
 			pDataFit->SetParameter(2, 1.0f);
 			pDataFit->SetParameter(3, 1.0f);
 			pDataFit->SetParameter(4, 1.0f);
 	
 			pDataFit->SetLineColor(kBlue);
 			pDataFit->SetLineWidth(1.5f);
+            pDataFit->SetLineStyle(1);
 			p_dataCalibPoints-> Fit( pDataFit);
 }
 
 	std::cout << std::endl << "Adding OBJ" << std::endl;
-        canvas.addObjFormated(p_dataCalibPoints, sCaption,"P");   
-	return    p_dataCalibPoints;
+        canvas.addObjFormated(p_dataCalibPoints, sCaption,"P");
+    /*
+if ( pDataFit != NULL )   
+        canvas.addObjFormated(pDataFit, "Data Fit","L");*/
+	
+return    p_dataCalibPoints;
 }
 			
 
@@ -258,7 +251,7 @@ void PlotJetCorrection( TString algo,
 
 }
 
-
+/*
 void getResponses(vdouble& responses,
                   Points& points_zpt, // x value is Z.Pt
 		  Points& points_jet1pt, // x value is jet1.Pt
@@ -269,7 +262,7 @@ void getResponses(vdouble& responses,
     TString treename=algoname+"Jets_Zplusjet_data_events";
     std::cout << "Generating Response for " << treename << std::endl;
 
-    TTree* tree = (TTree*) ifile->Get(treename);
+    TTree* tree = RootFileHelper::SafeGet<TTree *> (ifile, treename.Data());
     TParticle* Z=new TParticle();
     TParticle* jet=new TParticle();
     Double_t l2corr;
@@ -299,7 +292,7 @@ void getResponses(vdouble& responses,
         }
     }
 }
-
+*/
 
 
 
@@ -339,6 +332,7 @@ int main(int argc, char **argv) {
 
     TString info_string = p.getString(secname+".info_string");
     vString algos = p.getvString(secname+".algos");
+    vString algos_appendix = p.getvString(secname+".algos_appendix");
     vString good_algos = p.getvString(secname+".good_algos");
     vint pt_bins = p.getvInt(secname+".pt_bins");
     vString img_formats= p.getvString(secname+".img_formats");
@@ -347,6 +341,8 @@ int main(int argc, char **argv) {
     double min_jer=p.getDouble(secname+".min_jer");
     double max_jer=p.getDouble(secname+".max_jer");
     
+    TString sResponseName = p.getString(secname+".response_name");
+
     if (p.getString(secname+".input_type") == "mc" )
       g_input_type = McInput;
     if (p.getString(secname+".input_type") == "data" )
@@ -360,7 +356,7 @@ int main(int argc, char **argv) {
 // 3 = level3
     g_correction_level = p.getInt(secname+".correction_level");
 
-    sprintf(lumi_str,"#scale[.8]{#int} L = %1.2f pb^{-1}",g_lumi);
+    sprintf(lumi_str,"#scale[.8]{#int} L = %1.0f pb^{-1}",g_lumi);
 
 //------------------------------------------------------------------------------
 
@@ -382,6 +378,7 @@ int main(int argc, char **argv) {
     int ibin=0;
     TString sGlobalPrefix = "L3_calc_";
 
+    
     
     if ( g_correction_level == 3 )
 	    g_sCorrection_level = "L3 corrected";
@@ -435,30 +432,30 @@ int main(int argc, char **argv) {
 	  for (Intervals::iterator interval=intervals.begin();
 		  interval < intervals.end();++interval )
 	  {	
-	      TString quantity="jetresp";
+	      TString quantity=sResponseName;
 	      
-	      TString histName = RootNamer::GetHistoName(algo,
+	      TString histName = RootNamer::GetFolderName( &*interval ) + 
+                            RootNamer::GetHistoName(algo,
 							quantity, 
 							g_input_type,
 							g_correction_level,
 							&*interval);
 	      std::cout << std::endl <<  histName.Data();
-	      TH1D* respo = (TH1D*) ifile->Get( histName );
+	      TH1D* respo = RootFileHelper::SafeGet<TH1D*>( ifile, (histName + "_hist").Data() );
 	      
-	      if ( respo == NULL )
-		handleError("create_L3_corr" , ("Can't load root histogram " + histName).Data() );
+
 
 	      dataHistResponse.push_back( new DataHisto(interval->GetMin(), interval->GetMax(), respo) );
 	      
 	      quantity="jet1_pt";
-	      histName = RootNamer::GetHistoName(algo,
+	      histName = RootNamer::GetFolderName( &*interval ) +
+                            RootNamer::GetHistoName(algo,
 						  quantity, 
 						  g_input_type,
 						  g_correction_level,
 						  &*interval);
-	      respo = (TH1D*) ifile->Get( histName );
-	      if ( respo == NULL )
-		handleError("create_L3_corr" , ("Can't load root histogram " + histName).Data() );
+	      respo = RootFileHelper::SafeGet<TH1D*>( ifile, (histName + "_hist").Data() );
+
 
 	      dataHistJet1Pt.push_back( new DataHisto(interval->GetMin(), interval-> GetMax(), respo) );
 	  }
@@ -475,8 +472,8 @@ int main(int argc, char **argv) {
         h_corr.setTitleY("Jet Energy Correction");
         h_corr.setTitleX("p_{T}^{jet} [GeV/c]");
 
-        h_corr.setBoardersY(0.8, 1.8);
-	h_corr.setBoardersX(0.11, 179.0);
+        h_corr.setBoardersY(0.91, 1.49);
+	    h_corr.setBoardersX(0.11, 179.0);
 	//h_corr.setBoardersX(0.0f, 170.0f );
         h_corr.setLegPos(.75,.75,.95,.87);
 	
