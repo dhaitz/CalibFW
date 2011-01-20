@@ -1,4 +1,8 @@
 #include "Json_wrapper.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -64,11 +68,11 @@ Json_wrapper::~Json_wrapper()
 
 bool Json_wrapper::has(int run, int ls)
 {
-
-	// If a run selection is there, apply it.
-	if (m_json)
+	if (m_json == NULL)
 	{
-
+		std::cout <<  "JSON file not correctly loaded."  << std::endl;
+		exit(0);
+	}
 		// can we used the cached data
 		if ((run == m_lastRun) && (ls == m_lastLumiSec))
 			return m_lastResult;
@@ -111,10 +115,9 @@ bool Json_wrapper::has(int run, int ls)
 			m_lastResult = false;
 			return false;
 		}
-	}
+
 	m_lastResult = true;
 	return true;
-
 }
 
 //------------------------------------------------------------------------------
