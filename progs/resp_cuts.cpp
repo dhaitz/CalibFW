@@ -242,13 +242,15 @@ void calcJetEnergyCorrection(EventResult * res, CompleteJetCorrector * pJetCorr)
 		pJetCorr->CalcCorrectionForEvent(res);
 	}*/
     if ( g_corrWithFormula )
-{
+	{
+
+		res->m_l3CorrPtJets[0] = g_corrFormula->Eval( res->GetCorrectedJetPt( 0 ));
+		res->m_l3CorrPtJets[1] = g_corrFormula->Eval( res->GetCorrectedJetPt( 1 ));
+		res->m_l3CorrPtJets[2] = g_corrFormula->Eval( res->GetCorrectedJetPt( 2 ));
+		res->m_bUseL3 = true;
+	}
+
     
-    res->m_l3CorrPtJets[0] = g_corrFormula->Eval( res->GetCorrectedJetPt( 0 ));
-    res->m_l3CorrPtJets[1] = g_corrFormula->Eval( res->GetCorrectedJetPt( 1 ));
-res->m_l3CorrPtJets[2] = g_corrFormula->Eval( res->GetCorrectedJetPt( 2 ));
-res->m_bUseL3 = true;
-}
 }
 
 void RunPipelinesForEvent(EventResult & event)
@@ -259,6 +261,8 @@ void RunPipelinesForEvent(EventResult & event)
 		if (it->GetSettings()->GetLevel() == 1)
 		{
 			g_cutHandler->ConfigureCuts(it->GetSettings());
+			it->m_corr.CalcCorrectionForEvent( &event );
+
 			g_cutHandler->ApplyCuts(&event);
 
 			// don't run event if it was not accepted by JSON file.
@@ -521,6 +525,18 @@ void importEvents(bool bUseJson,
 					lOverallNumberOfProcessedEvents);
 
 			pLine->InitPipeline(*it);
+
+			// setup jetcor for this algo
+			if ( (*it)->GetL2Corr().size() > 0 )
+			{
+				pLine->m_corr.AddCorrection(new L2Corr( g_sCurAlgo, (*it)->GetL2Corr() ));
+			}
+
+			if ( (*it)->GetL3Corr().size() > 0 )
+			{
+				pLine->m_corr.AddCorrection(new L3Corr( g_sCurAlgo, (*it)->GetL3Corr() ));
+			}
+
 			g_pipelines.push_back(pLine);
 		}
 	}
@@ -668,7 +684,7 @@ TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 
 	return mychain;
 }
-
+/*
 inline void PrintEvent(EventResult & data, std::ostream & out,
 		EventFormater * p = NULL, bool bAddNewline = true)
 {
@@ -686,7 +702,7 @@ inline void PrintEvent(EventResult & data, std::ostream & out,
 		// own formater created, delete it again
 		delete pForm;
 }
-
+*/
 void loadTrackedEventsFromFile(std::string fileName)
 {
 	ReadCsv csv(fileName);
@@ -754,121 +770,27 @@ void processAlgo()
 	g_iCurAlgoCount = 0;
 
 	BOOST_FOREACH( std::string sAlgo, algoList)
-{	g_pChain = getChain(sAlgo, &g_ev, g_sSource);
-	g_sCurAlgo = sAlgo;
-	/*
-	 if (g_doMc)
-	 {
-	 sPrefix = "_mc";
-	 importEvents(false, true, g_mcExcludedEvents, false, &jetCorr);
+	{	g_pChain = getChain(sAlgo, &g_ev, g_sSource);
+		g_sCurAlgo = sAlgo;
+		/*
+		 if (g_doMc)
+		 {
+		 sPrefix = "_mc";
+		 importEvents(false, true, g_mcExcludedEvents, false, &jetCorr);
 
-	 g_mcWeighter.Print();
-	 }
+		 g_mcWeighter.Print();
+		 }
 
-	 if (g_doData)
-	 {*/
-	importEvents(true, std::vector<ExcludedEvent *>(), false,
-			&jetCorr);
-	//}
+		 if (g_doData)
+		 {*/
+		importEvents(true, std::vector<ExcludedEvent *>(), false,
+				&jetCorr);
+		//}
 
-	g_iCurAlgoCount++;
+		g_iCurAlgoCount++;
 
-	delete g_pChain;
-}
-/*
- //	std::cout << "MC Weighting Report" << std::endl;
- //	DrawMcEventCount( sName, g_resFileMc);
-
- // RAW
- drawHistoBins(sName, sPrefix , g_resFile.get(),  true);
- if ( g_plotNoCuts)
- drawHistoBins(sName, sPrefix + "_nocut", g_resFile.get(), false);
-
- PrintCutReport( std::cout );
- PrintCutReport( *g_logFile );
-
- WriteSelectedEvents(sName, sPrefix, g_eventsDataset, g_resFile.get() );
-
- if ( g_sTrackedEventsFile.length() > 0 )
- PrintTrackedEventsReport();
-
- if (g_doData)
- {
- PrintEventsReport(std::cout, true);
- PrintEventsReport(*g_logFile, true);
- }
-
- // turn on l2 corr
- if  ( g_doL2Correction )
- {
- (*g_logFile) << "l2 corrected jets " << std::endl;
-
- for ( EventVector::iterator iter = g_eventsDataset.begin();
- !(iter == g_eventsDataset.end());
- ++iter)
- {
- iter->m_bUseL2 = true;
- }
-
- ReapplyCut(g_doData);
-
- drawHistoBins(sName, sPrefix + "_l2corr", g_resFile.get(),  true);
-
- if ( g_plotNoCuts)
- drawHistoBins(sName, sPrefix + "_l2corr_nocut", g_resFile.get(), false);
-
- PrintCutReport( std::cout );
- PrintCutReport( *g_logFile );
-
- WriteSelectedEvents(sName, sPrefix + "_l2corr", g_eventsDataset, g_resFile.get() );
-
- if ( g_sTrackedEventsFile.length() > 0 )
- PrintTrackedEventsReport();
-
-
- if (g_doData)
- {
- PrintEventsReport(std::cout, true);
- PrintEventsReport(*g_logFile, true);
- }
- }
-
- // turn on l3 corr
- if  ( g_doL3Correction || g_doL3CorrectionFormula )
- {
- (*g_logFile) << "l3 corrected jets " << std::endl;
-
- // important: reapply cuts without the l3 correction in order to have the same data base as the l3 calculation
- ReapplyCut(g_doData);
-
- for ( EventVector::iterator iter = g_eventsDataset.begin();
- !(iter == g_eventsDataset.end());
- ++iter)
- {
- // l2 is already on
- iter->m_bUseL3 = true;
- }
- drawHistoBins(sName, sPrefix + "_l3corr", g_resFile.get(),  true);
- if ( g_plotNoCuts)
- drawHistoBins(sName, sPrefix + "_l3corr_nocut", g_resFile.get(), false);
-
- PrintCutReport( std::cout );
- PrintCutReport( *g_logFile );
-
- WriteSelectedEvents(sName, sPrefix + "_l3corr", g_eventsDataset, g_resFile.get() );
-
- if ( g_sTrackedEventsFile.length() > 0 )
- PrintTrackedEventsReport();
-
- if (g_doData)
- {
- PrintEventsReport(std::cout, true);
- PrintEventsReport(*g_logFile, true);
- }
- }
- //    drawJetResponsePlots( sName, g_resFile.get() );
- WriteCuts( sName, g_resFile.get() );
- */
+		delete g_pChain;
+	}
 
 }
 

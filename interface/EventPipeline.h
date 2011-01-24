@@ -151,6 +151,7 @@ IMPL_SETTING(std::string, RootFileFolder)
 
 IMPL_SETTING(std::string, SecondLevelFolderTemplate)
 
+
 // only level 1 runs directly on data
 IMPL_SETTING(int, Level)
 
@@ -203,6 +204,21 @@ stringvector GetFilter()
 {
 	RETURN_CACHED( m_filter, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".Filter") )
 }
+
+VarCache< stringvector > m_L2Corr;
+
+stringvector GetL2Corr()
+{
+	RETURN_CACHED( m_L2Corr, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".L2Corr") )
+}
+
+VarCache< stringvector > m_L3Corr;
+
+stringvector GetL3Corr()
+{
+	RETURN_CACHED( m_L3Corr, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".L3Corr") )
+}
+
 
 VarCache< stringvector > m_additionalConsumer;
 

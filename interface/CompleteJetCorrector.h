@@ -1,18 +1,21 @@
 #ifndef __COMPLETE_JET_CORRECTOR_H
 #define __COMPLETE_JET_CORRECTOR_H
 
+#include "GlobalInclude.h"
 #include "RootIncludes.h"
 
 #include "JetCorrectorParameters.h"
 #include "FactorizedJetCorrector.h"
 
+#include <string>
+#include <vector>
 
 #include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/scoped_ptr.hpp>
 
 #include "EventData.h"
-
+#include "MinimalParser.h"
 
 class CorrBase
 {
@@ -69,16 +72,18 @@ public:
 class LFileCorr : public CorrBase
 {
 public:  
-    void LoadCorrectionFile( TString algoName, vString algoFileMapping )
+    void LoadCorrectionFile( std::string algoName, stringvector algoFileMapping )
     {
         bool bFound = false;
-        TString sData;
+        std::string sData;
 
-        BOOST_FOREACH( TString e, algoFileMapping )
+        BOOST_FOREACH( std::string e, algoFileMapping )
         {
-            TObjArray * parts = e.Tokenize(":");
-            TString sAlgName = ((TObjString*)parts->At(0))->GetString();
-            sData = ((TObjString*)parts->At(1))->GetString();
+        	TString myTstring(e.c_str());
+
+            TObjArray * parts = myTstring.Tokenize(":");
+            std::string sAlgName = ((TObjString*)parts->At(0))->GetString().Data();
+            sData = ((TObjString*)parts->At(1))->GetString().Data();
 
             if (sAlgName == algoName)
             {
@@ -91,12 +96,11 @@ public:
 
         if ( ! bFound )
         {
-            std::cout << "No JetEnergyCorrections data for " << algoName << " found" << std::endl;
-            exit( 10 );
+        	CALIB_LOG_FATAL( "No JetEnergyCorrections data for " << algoName << " found")
         }
 
-        std::cout << "Loading JetEnergyCorrections " << sData << std::endl;
-        vParam.push_back( JetCorrectorParameters(sData.Data()) );
+        CALIB_LOG_FILE("Loading JetEnergyCorrections " << sData )
+        vParam.push_back( JetCorrectorParameters(sData) );
         m_JEC.reset( new FactorizedJetCorrector(vParam) );
     }
 
@@ -106,7 +110,7 @@ public:
 class L2Corr : public LFileCorr
 {
 public:
-    L2Corr( TString algoName, vString algoFileMapping )
+    L2Corr( std::string  algoName, stringvector algoFileMapping )
     {
       LoadCorrectionFile( algoName, algoFileMapping );
     }
@@ -114,18 +118,19 @@ public:
     virtual void Correct( EventResult * evRes )
     {
         for ( int i = 0; i < 3; i++ )
-	{	  
-	  m_JEC->setJetEta(evRes->m_pData->jets[i]->Eta());
-	  m_JEC->setJetPt(evRes->m_pData->jets[i]->Pt());
-	  evRes->m_l2CorrPtJets[i] = m_JEC->getCorrection();
-	}
+		{
+		  m_JEC->setJetEta(evRes->m_pData->jets[i]->Eta());
+		  m_JEC->setJetPt(evRes->m_pData->jets[i]->Pt());
+		  evRes->m_l2CorrPtJets[i] = m_JEC->getCorrection();
+		  evRes->m_bUseL2 = true;
+		}
     }
 };
 
 class L3Corr : public LFileCorr
 {
 public:
-    L3Corr( TString algoName, vString algoFileMapping )
+    L3Corr( std::string algoName, stringvector algoFileMapping )
     {
       LoadCorrectionFile( algoName, algoFileMapping );
     }
@@ -152,7 +157,7 @@ public:
 //	std::cout << "l3 factor " << evRes->m_l3CorrPtJets[i]<< std::endl;
   
 	  evRes->m_bUseL2 = beforel2;
-	  evRes->m_bUseL3 = beforel3;
+	  evRes->m_bUseL3 = true;
 	}	
     }
 };

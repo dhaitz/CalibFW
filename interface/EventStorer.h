@@ -58,6 +58,10 @@ public:
 		 m_gentree->Branch("cmsRun", &m_localData.cmsRun, "cmsRun/L");
 		 m_gentree->Branch("luminosityBlock", &m_localData.luminosityBlock, "cmsRun/L");
 		m_gentree->Branch("eventWeight", &m_localData.weight, "eventWeight/D");
+
+		std::stringstream sout;
+		m_evtFormater.Header ( sout );
+		CALIB_LOG_FILE( sout.str() )
 	}
 
 	virtual void Finish()
