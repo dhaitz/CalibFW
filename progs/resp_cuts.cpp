@@ -947,7 +947,10 @@ int main(int argc, char** argv)
 	g_useWeighting = g_propTree.get<bool> ("UseWeighting");
 	g_useGlobalWeightBin = g_propTree.get<bool> ("UseGlobalWeightBin");
 	g_eventReweighting = g_propTree.get<bool> ("EventReweighting", false);
-
+    
+    if ( g_eventReweighting )
+      CALIB_LOG_FILE( "\n\n --------> reweightin events for # reco !!\n\n" )
+    
 	g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
 
 	/*
