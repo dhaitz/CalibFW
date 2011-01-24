@@ -86,8 +86,11 @@ int g_iCurAlgoCount;
 bool g_useWeighting;
 bool g_useEventWeight;
 bool g_useGlobalWeightBin;
+bool g_eventReweighting;
 
 bool g_corrWithFormula;
+
+
 
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
 std::string g_sJsonFile("not set");
@@ -533,17 +536,18 @@ void importEvents(bool bUseJson,
 		res->m_pData = &g_ev;
 
 		// the weight of data events can be strange when read from root file. better reset here
-		res->m_weight = 1.0f;
+		res->SetWeight(1.0f);
+		res->m_bEventReweighting = g_eventReweighting;
 		if (g_useWeighting)
 		{
 			if (g_useEventWeight)
 			{
-				res->m_weight = res->m_pData->weight;
+				res->SetWeight( res->m_pData->weight);
 			}
 			else
 			{
-				res->m_weight = g_mcWeighter.GetWeightByXSection(
-						res->m_pData->xsection);
+				res->SetWeight( g_mcWeighter.GetWeightByXSection(
+						res->m_pData->xsection));
 			}
 		}
 
@@ -942,6 +946,7 @@ int main(int argc, char** argv)
 	g_useEventWeight = g_propTree.get<bool> ("UseEventWeight");
 	g_useWeighting = g_propTree.get<bool> ("UseWeighting");
 	g_useGlobalWeightBin = g_propTree.get<bool> ("UseGlobalWeightBin");
+	g_eventReweighting = g_propTree.get<bool> ("EventReweighting", false);
 
 	g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
 
@@ -982,6 +987,8 @@ int main(int argc, char** argv)
 processAlgo();
 g_resFile->Close();
 g_logFile->close();
+
+CALIB_LOG_FILE("Output file " << sRootOutputFilename << " closed.")
 
 // todo this delete produces seg fault
 //delete g_logFile;

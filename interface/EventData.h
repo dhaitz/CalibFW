@@ -251,6 +251,7 @@ public:
 		m_pData = NULL;
 		m_bUseL2 = false;
 		m_bUseL3 = false;
+		m_bEventReweighting = false;
 
 		m_l2CorrPtJets[0] = 1.0f;
 		m_l2CorrPtJets[1] = 1.0f;
@@ -278,8 +279,6 @@ public:
 
 	unsigned long m_cutBitmask;
 
-	// only useful for mc
-	double m_weight;
 
 	// if a jet has .Pt() == 0.0f , there is no 2nd/3rd jet in this event. dont add this
 	// to distributions
@@ -329,6 +328,61 @@ public:
 
 
 	evtData * m_pData;
+
+
+	double GetWeight( )
+	{
+		if ( ! m_bEventReweighting)
+		{
+			return m_weight;
+		}
+		else
+		{
+			double add=1.0f;
+
+			switch ( this->GetRecoVerticesCount() )
+			{
+			case 1:
+				add =  1.4361101137043686;// orig  1.4961101137043686;
+				break;
+			case 2:
+				add = 0.9526167265264238;// orig1.026167265264238;
+				break;
+			case 3:
+				add = 0.80542188805346695;
+				break;
+			case 4:
+				add = 0.65220042700827331;
+				break;
+			case 5:
+				add = 0.66773504273504269;
+				break;
+			case 6:
+				add = 0.72688153284777646;
+				break;
+			case 7:
+				add = 1.0978997178397725;
+				break;
+			case 8:
+				add = 1.0f;
+				break;
+			}
+
+			return (m_weight * add);
+		}
+	}
+
+
+	void SetWeight( double v)
+	{
+		m_weight = v;
+	}
+
+	bool m_bEventReweighting;
+private:
+	// only useful for mc
+	double m_weight;
+
 };
 
 // uses evtData to output a formated line containing all important

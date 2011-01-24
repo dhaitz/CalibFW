@@ -18,6 +18,7 @@
 #include "RootIncludes.h"
 #include "PtBinWeighter.h"
 #include "EventData.h"
+#include "CompleteJetCorrector.h"
 
 /*
  This macro implements a Setting Propery including the property tree get\put methods
@@ -37,6 +38,20 @@ TYPE Get##SNAME ( ) { if (Cache##SNAME.IsCached()) { return Cache##SNAME.GetValu
 void Set##SNAME ( TYPE val) { GetPropTree()->put( FullKey##SNAME (), val);	\
 								Cache##SNAME.SetCache( val );}	\
 
+
+#define IMPL_SETTING_DEFAULT(TYPE, SNAME, DEFAULT_VAL) \
+private: \
+TYPE m_##SNAME; 															\
+public: \
+std::string Key##SNAME () { return "##SNAME"; } 							\
+std::string FullKey##SNAME () { return GetSettingsRoot() + "." + #SNAME; } 							\
+VarCache<TYPE> Cache##SNAME; \
+TYPE Get##SNAME ( ) { if (Cache##SNAME.IsCached()) { return Cache##SNAME.GetValue(); } 	\
+	TYPE  val = GetPropTree()->get< TYPE >( FullKey##SNAME (), DEFAULT_VAL );	\
+	Cache##SNAME.SetCache( val ); \
+	return val;}		\
+void Set##SNAME ( TYPE val) { GetPropTree()->put( FullKey##SNAME (), val);	\
+								Cache##SNAME.SetCache( val );}	\
 
 #define RETURN_CACHED(CACHE_MEMBER,VALUEPATH) \
 { if (! CACHE_MEMBER.IsCached() ) \
@@ -129,8 +144,6 @@ IMPL_SETTING( int, FilterRecoVertHigh)
 
 IMPL_SETTING(double, FilterSecondJetRatioLow)
 IMPL_SETTING(double, FilterSecondJetRatioHigh)
-
-
 IMPL_SETTING(unsigned long, FilterInCutIgnored)
 
 IMPL_SETTING(std::string, AlgoName)
@@ -294,8 +307,9 @@ public:
 
 	virtual bool DoesEventPass(EventResult & event)
 	{
-		return ( m_pipelineSettings->GetFilterRecoVertLow() >=  event.GetRecoVerticesCount()
-				&& event.GetRecoVerticesCount() << m_pipelineSettings->GetFilterRecoVertHigh());
+		//return (  event.GetRecoVerticesCount()  == m_pipelineSettings->GetFilterRecoVertLow() );
+		return (  event.GetRecoVerticesCount()  >= m_pipelineSettings->GetFilterRecoVertLow()
+				&& event.GetRecoVerticesCount() <= m_pipelineSettings->GetFilterRecoVertHigh() );
 	}
 
 	virtual std::string GetFilterId()
@@ -465,8 +479,6 @@ PipelineSettings * GetPipelineSettings()
 EventPipeline * m_pipeline;
 };
 
-
-
 class EventPipeline
 {
 public:
@@ -484,15 +496,15 @@ void InitPipeline(PipelineSettings * pset)
 	BOOST_FOREACH( std::string sid, fvec )
 	{ // make this more beatiful :)
 		if ( sid == PtWindowFilter().GetFilterId())
-		m_filter.push_back( new PtWindowFilter);
+			m_filter.push_back( new PtWindowFilter);
 		else if ( sid == InCutFilter().GetFilterId())
-		m_filter.push_back( new InCutFilter);
+			m_filter.push_back( new InCutFilter);
 		else if ( sid == RecoVertFilter().GetFilterId())
-		m_filter.push_back( new RecoVertFilter);
+			m_filter.push_back( new RecoVertFilter);
 		else if ( sid == SecondJetRatioFilter().GetFilterId())
-		m_filter.push_back( new SecondJetRatioFilter);
+			m_filter.push_back( new SecondJetRatioFilter);
 		else
-		CALIB_LOG_FATAL( "Filter " << sid << " not found." )
+			CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 	}
 
 	for (FilterVector::iterator itfilter = m_filter.begin();
@@ -580,6 +592,7 @@ const FilterVector& GetFilters()
 
 ConsumerVector m_consumer;
 FilterVector m_filter;
+CompleteJetCorrector m_corr;
 
 PipelineSettings * m_pipelineSettings;
 };

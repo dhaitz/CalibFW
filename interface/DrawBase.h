@@ -654,64 +654,64 @@ public:
 
 
 // Z STUFF
-IMPL_HIST1D_MOD1(DrawZMassConsumer ,m_hist->Fill(res.m_pData->Z->GetCalcMass() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawZMassConsumer ,m_hist->Fill(res.m_pData->Z->GetCalcMass() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 200.0f))
-IMPL_HIST1D_MOD1(DrawZPtConsumer ,m_hist->Fill(res.m_pData->Z->Pt() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawZPtConsumer ,m_hist->Fill(res.m_pData->Z->Pt() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 200.0f))
 
-IMPL_HIST1D_MOD1(DrawZEtaConsumer ,m_hist->Fill(res.m_pData->Z->Phi() - TMath::Pi() , res.m_weight); ,
-		new ModHistBinRange(-3.5f, 3.5f))
+IMPL_HIST1D_MOD1(DrawZEtaConsumer ,m_hist->Fill(res.m_pData->Z->Phi() - TMath::Pi() , res.GetWeight( )); ,
+		new ModHistBinRange(-5.0f, 5.0f))
 
-IMPL_HIST1D_MOD1(DrawZPhiConsumer ,m_hist->Fill(res.m_pData->Z->Eta() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawZPhiConsumer ,m_hist->Fill(res.m_pData->Z->Eta() , res.GetWeight( )); ,
 		new ModHistBinRange(-3.5f, 3.5f))
 
 // mus pt
-IMPL_HIST1D_MOD1(DrawMuPlusPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawMuPlusPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 200.0f))
-IMPL_HIST1D_MOD1(DrawMuMinusPtConsumer ,m_hist->Fill(res.m_pData->mu_minus->Pt() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawMuMinusPtConsumer ,m_hist->Fill(res.m_pData->mu_minus->Pt() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 200.0f))
 
 // mus Eta
-IMPL_HIST1D_MOD1(DrawMuPlusEtaConsumer ,m_hist->Fill(res.m_pData->mu_plus->Eta() , res.m_weight); ,
-		new ModHistBinRange(-3.0f, 3.0f))
-IMPL_HIST1D_MOD1(DrawMuMinusEtaConsumer ,m_hist->Fill(res.m_pData->mu_minus->Eta() , res.m_weight); ,
-		new ModHistBinRange(-3.0f, 3.0f))
+IMPL_HIST1D_MOD1(DrawMuPlusEtaConsumer ,m_hist->Fill(res.m_pData->mu_plus->Eta() , res.GetWeight( )); ,
+		new ModHistBinRange(-5.0f, 5.0f))
+IMPL_HIST1D_MOD1(DrawMuMinusEtaConsumer ,m_hist->Fill(res.m_pData->mu_minus->Eta() , res.GetWeight( )); ,
+		new ModHistBinRange(-5.0f, 5.0f))
 
 // mus phi
-IMPL_HIST1D_MOD1(DrawMuPlusPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() - TMath::Pi() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawMuPlusPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() - TMath::Pi() , res.GetWeight( )); ,
 		new ModHistBinRange(-3.5f, 3.5f))
-IMPL_HIST1D_MOD1(DrawMuMinusPhiConsumer ,m_hist->Fill(res.m_pData->mu_minus->Phi()  - TMath::Pi(), res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawMuMinusPhiConsumer ,m_hist->Fill(res.m_pData->mu_minus->Phi()  - TMath::Pi(), res.GetWeight( )); ,
 		new ModHistBinRange(-3.5f, 3.5f))
 
 // Both mus
-IMPL_HIST1D_MOD1(DrawMuAllPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , res.m_weight); m_hist->Fill(res.m_pData->mu_minus->Pt() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawMuAllPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Pt() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 200.0f))
-IMPL_HIST1D_MOD1(DrawMuAllEtaConsumer ,m_hist->Fill(res.m_pData->mu_plus->Eta() , res.m_weight); m_hist->Fill(res.m_pData->mu_minus->Eta() , res.m_weight); ,
-		new ModHistBinRange(-3.0f, 3.0f))
-IMPL_HIST1D_MOD1(DrawMuAllPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() - TMath::Pi(), res.m_weight); m_hist->Fill(res.m_pData->mu_minus->Phi() - TMath::Pi() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawMuAllEtaConsumer ,m_hist->Fill(res.m_pData->mu_plus->Eta() , res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Eta() , res.GetWeight( )); ,
+		new ModHistBinRange(-5.0f, 5.0f))
+IMPL_HIST1D_MOD1(DrawMuAllPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() - TMath::Pi(), res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Phi() - TMath::Pi() , res.GetWeight( )); ,
 		new ModHistBinRange(-3.5f, 3.5f))
 
 
 // MET
-IMPL_HIST1D_MOD1(DrawMetConsumer ,m_hist->Fill(res.m_pData->met->Pt() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawMetConsumer ,m_hist->Fill(res.m_pData->met->Pt() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 300.0f))
-IMPL_HIST1D_MOD1(DrawTcMetConsumer ,m_hist->Fill(res.m_pData->tcmet->Pt() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawTcMetConsumer ,m_hist->Fill(res.m_pData->tcmet->Pt() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 300.0f))
 
 //RECO VERT
-IMPL_HIST1D_MOD2(DrawRecoVertConsumer ,m_hist->Fill( (double)res.GetRecoVerticesCount() , res.m_weight); ,
+IMPL_HIST1D_MOD2(DrawRecoVertConsumer ,m_hist->Fill( (double)res.GetRecoVerticesCount() , res.GetWeight( )); ,
 		new ModHistBinRange(-0.5, 14.5),
 		new ModHistBinCount(15))
 
 // SecondJet Pt / Z.Pt
 IMPL_HIST1D_MOD1(Draw2ndJetPtDivZPtConsumer ,
 { if ( res.IsJetValid( 1 ))
-{ m_hist->Fill( res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt() , res.m_weight); }} ,
+{ m_hist->Fill( res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt() , res.GetWeight( )); }} ,
 				new ModHistBinRange(0.0, 2.0))
 
 
 //JET RESP
-IMPL_HIST1D_MOD1(DrawJetRespConsumer ,m_hist->Fill( res.GetCorrectedJetPt(0) / res.m_pData->Z->Pt() , res.m_weight); ,
+IMPL_HIST1D_MOD1(DrawJetRespConsumer ,m_hist->Fill( res.GetCorrectedJetPt(0) / res.m_pData->Z->Pt() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0, 2.0))
 // MPF RESP
 IMPL_HIST1D_MOD1(DrawMpfJetRespConsumer ,
@@ -721,7 +721,7 @@ IMPL_HIST1D_MOD1(DrawMpfJetRespConsumer ,
 			double scalPtSq = res.m_pData->Z->Px()*res.m_pData->Z->Px() +
 								res.m_pData->Z->Py()*res.m_pData->Z->Py();
 
-			m_hist->Fill( 1.0 + (scalPtEt /scalPtSq), res.m_weight);
+			m_hist->Fill( 1.0 + (scalPtEt /scalPtSq), res.GetWeight( ));
 		},
 		new ModHistBinRange(0.0, 2.0))
 
@@ -730,7 +730,7 @@ IMPL_HIST1D_JET_MOD1(DrawJetPtConsumer ,
 		{
 				if ( res.IsJetValid( m_jetNum ))
 				{
-					m_hist->Fill(res.GetCorrectedJetPt( m_jetNum ) , res.m_weight);
+					m_hist->Fill(res.GetCorrectedJetPt( m_jetNum ) , res.GetWeight( ));
 				}
 		},
 		new ModHistBinRange(0.0f, 200.0f) )
@@ -739,16 +739,16 @@ IMPL_HIST1D_JET_MOD1(DrawJetEtaConsumer ,
 		{
 				if ( res.IsJetValid( m_jetNum ))
 				{
-					m_hist->Fill(res.m_pData->jets[m_jetNum]->Eta() , res.m_weight);
+					m_hist->Fill(res.m_pData->jets[m_jetNum]->Eta() , res.GetWeight( ));
 				}
 		},
-		new ModHistBinRange(-3.0f, 3.0f) )
+		new ModHistBinRange(-4.0f, 4.0f) )
 
 IMPL_HIST1D_JET_MOD1(DrawJetPhiConsumer ,
 		{
 				if ( res.IsJetValid( m_jetNum ))
 				{
-					m_hist->Fill(res.m_pData->jets[m_jetNum]->Phi() - TMath::Pi() , res.m_weight);
+					m_hist->Fill(res.m_pData->jets[m_jetNum]->Phi() - TMath::Pi() , res.GetWeight( ));
 				}
 		},
 		new ModHistBinRange(-3.5f, 3.5f) )
@@ -759,7 +759,7 @@ IMPL_HIST1D_JET_MOD1(DrawJetDeltaPhiConsumer ,
 				{
 					m_hist->Fill( DeltaHelper::GetDeltaPhiCenterZero( res.m_pData->Z,
 							res.m_pData->jets[m_jetNum]),
-							res.m_weight);
+							res.GetWeight( ));
 				}
 		},
 		new ModHistBinRange(-3.5f, 3.5f) )
@@ -770,7 +770,7 @@ IMPL_HIST1D_JET_MOD1(DrawJetDeltaPhiWrtJet1Consumer ,
 				{
 					m_hist->Fill( DeltaHelper::GetDeltaPhiCenterZero( res.m_pData->jets[0],
 							res.m_pData->jets[m_jetNum]),
-							res.m_weight);
+							res.GetWeight( ));
 				}
 		},
 		new ModHistBinRange(-3.5f, 3.5f) )
@@ -781,7 +781,7 @@ IMPL_HIST1D_JET_MOD1(DrawJetDeltaEtaWrtJet1Consumer ,
 				{
 					m_hist->Fill( TMath::Abs(  res.m_pData->jets[0]->Eta() -
 							res.m_pData->jets[m_jetNum]->Eta()),
-							res.m_weight);
+							res.GetWeight( ));
 				}
 		},
 		new ModHistBinRange(-3.5f, 3.5f) )
@@ -791,7 +791,7 @@ IMPL_HIST1D_JET_MOD1(DrawJetDeltaRWrtJet1Consumer ,
 				if ( res.IsJetValid( m_jetNum ))
 				{
 					m_hist->Fill( DeltaHelper::GetDeltaR(res.m_pData->jets[0],res.m_pData->jets[m_jetNum]),
-							res.m_weight);
+							res.GetWeight( ));
 				}
 		},
 		new ModHistBinRange(0.0f, 6.0f) )
@@ -803,7 +803,7 @@ IMPL_HIST1D_JET_MOD1(DrawJetDeltaEtaConsumer ,
 				{
 					m_hist->Fill( TMath::Abs(  res.m_pData->Z->Eta() -
 							res.m_pData->jets[m_jetNum]->Eta()),
-							res.m_weight);
+							res.GetWeight( ));
 				}
 		},
 		new ModHistBinRange(0.0f, 4.0f) )
@@ -819,7 +819,7 @@ virtual void Init(EventPipeline * pset) {
 }
 virtual void ProcessFilteredEvent(EventResult & res)
 {
-	m_hist->Fill( res.m_pData->Z->Pt(), res.m_weight );
+	m_hist->Fill( res.m_pData->Z->Pt(), res.GetWeight( ) );
 }
 };
 
@@ -850,7 +850,7 @@ class DrawDeltaRJetMapConsumer: public DrawDeltaRMapConsumer
 			m_hist->Fill(
 					DeltaHelper::GetDeltaR(res.m_pData->jets[0],res.m_pData->jets[m_jetNum]),
 					res.GetCorrectedJetPt(m_jetNum),
-					res.m_weight );
+					res.GetWeight( ) );
 		}
 	}
 
@@ -878,7 +878,7 @@ class DrawDeltaRJetRatioJetMapConsumer: public DrawDeltaRMapConsumer
 			m_hist->Fill(
 					DeltaHelper::GetDeltaR(res.m_pData->jets[0],res.m_pData->jets[m_jetNum]),
 					res.GetCorrectedJetPt(m_jetNum) / res.GetCorrectedJetPt(0),
-					res.m_weight );
+					res.GetWeight( ) );
 		}
 	}
 
@@ -906,7 +906,7 @@ class DrawDeltaRJetRatioZMapConsumer: public DrawDeltaRMapConsumer
 			m_hist->Fill(
 					DeltaHelper::GetDeltaR(res.m_pData->jets[0],res.m_pData->jets[m_jetNum]),
 					res.GetCorrectedJetPt(m_jetNum) / res.m_pData->Z->Pt(),
-					res.m_weight );
+					res.GetWeight( ) );
 		}
 	}
 
@@ -944,7 +944,7 @@ class DrawPhiJet2PtConsumer: public DrawHist2DConsumerBase<EventResult>
 		{
 			m_hist->Fill(DeltaHelper::GetDeltaPhiCenterZero(res.m_pData->jets[1], res.m_pData->jets[0]),
 					res.GetCorrectedJetPt(1),
-					res.m_weight );
+					res.GetWeight( ) );
 		}
 	}
 };
@@ -966,7 +966,7 @@ class DrawPhiJet2RatioConsumer: public DrawHist2DConsumerBase<EventResult>
 		{
 			m_hist->Fill(DeltaHelper::GetDeltaPhiCenterZero(res.m_pData->jets[1], res.m_pData->jets[0]),
 					res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt(),
-					res.m_weight );
+					res.GetWeight( ) );
 		}
 	}
 };
@@ -990,7 +990,7 @@ class DrawEtaJet2PtConsumer: public DrawHist2DConsumerBase<EventResult>
 			m_hist->Fill(TMath::Abs(  res.m_pData->jets[0]->Eta() -
 					res.m_pData->jets[1]->Eta()),
 					res.GetCorrectedJetPt(1),
-					res.m_weight );
+					res.GetWeight( ) );
 		}
 	}
 };
@@ -1013,7 +1013,7 @@ class DrawEtaJet2RatioConsumer: public DrawHist2DConsumerBase<EventResult>
 			m_hist->Fill( TMath::Abs( res.m_pData->jets[0]->Eta() -
 					res.m_pData->jets[1]->Eta()),
 					res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt(),
-					res.m_weight );
+					res.GetWeight( ) );
 		}
 	}
 };
@@ -1033,7 +1033,7 @@ class DrawEtaPhiJetMapConsumer: public DrawEtaPhiMapConsumer
 			m_hist->Fill(
 					TMath::Abs(res.m_pData->Z->Eta()- res.m_pData->jets[m_jetNum]->Eta()),
 					DeltaHelper::GetDeltaPhiCenterZero(res.m_pData->Z, res.m_pData->jets[m_jetNum]),
-					res.m_weight );
+					res.GetWeight( ) );
 		}
 	}
 
@@ -1159,10 +1159,10 @@ public:
 			return;
 
 		if (CutHandler::IsCutInBitmask( m_iCutId, event.m_cutBitmask ))
-			m_hist_rejected.Fill( m_xProvider.GetXValue( event ), event.m_weight );
+			m_hist_rejected.Fill( m_xProvider.GetXValue( event ), event.GetWeight( ) );
 
 
-		m_hist_overall.Fill( m_xProvider.GetXValue( event ), event.m_weight );
+		m_hist_overall.Fill( m_xProvider.GetXValue( event ), event.GetWeight( ) );
 	}
 
 	virtual void Finish()

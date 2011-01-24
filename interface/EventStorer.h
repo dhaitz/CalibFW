@@ -93,7 +93,7 @@ public:
 		 m_localData.cmsEventNum = event.m_pData->cmsEventNum;
 		 m_localData.cmsRun = event.m_pData->cmsRun;
 		 m_localData.luminosityBlock = event.m_pData->luminosityBlock;
-		m_localData.weight = event.m_weight;
+		 m_localData.weight = event.GetWeight();
 
 		 m_gentree->Fill();
 

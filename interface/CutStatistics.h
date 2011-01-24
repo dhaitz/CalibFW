@@ -101,6 +101,8 @@ virtual void ProcessFilteredEvent(EventResult & event)
 // this method is called for all events
 virtual void ProcessEvent(EventResult & event, FilterResult & result)
 {
+	// TODO: only use events, which did pass all filters except incut
+
 	m_eventCount++;
 	BOOST_FOREACH( EventCutBase< EventResult *>  * c, m_pCutHandler->GetCuts() )
 	{
