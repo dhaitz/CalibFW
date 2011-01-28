@@ -1210,8 +1210,8 @@ public:
 		stringvector sv = this->GetPipelineSettings()->GetCustomBins();
 		std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
 
-		m_histResp.m_sCaption = m_histResp.m_sName = this->GetProductName();
-		m_histResp.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+		m_histResp.m_sCaption = m_histResp.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+		//m_histResp.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
 		m_histResp.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
 		m_histResp.Init();
 

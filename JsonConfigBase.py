@@ -159,16 +159,18 @@ def ExpandPtBins( pipelineDict, ptbins, includeSource):
     else:
         return newDict
     
-def ExpandDefaultMcConfig( ptBins, conf_template, useFolders):
+def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = ""):
     conf = conf_template
 
     conf["Pipelines"]["default"]["CustomBins"] = ptBins
     conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )
 
-    secLevelPline = { "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
-    secLevelPline["sec_default"]["Level"] = 2
-    secLevelPline["sec_default"]["CustomBins"] = ptBins
-    secLevelPline["sec_default"]["SecondLevelFolderTemplate"] = "XXPT_BINXX_incut"
+    secLevelPline = { FolderPrefix + "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
+    secLevelPline[FolderPrefix + "sec_default"]["Level"] = 2
+    secLevelPline[FolderPrefix + "sec_default"]["CustomBins"] = ptBins
+    secLevelPline[FolderPrefix + "sec_default"]["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"
+    secLevelPline[FolderPrefix + "sec_default"]["RootFileFolder"] = FolderPrefix
+
 
 
     conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
@@ -189,19 +191,21 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders):
             else:
                 ptVal = ptVal + "_allevents"
 
-            pval["RootFileFolder"] = ptVal
+            pval["RootFileFolder"] = FolderPrefix + ptVal
 
+    for (key, val) in conf["Pipelines"].items():
+        secLevelPline[ FolderPrefix + key ] = val
 
-    conf["Pipelines"] = dict( conf["Pipelines"].items() +  secLevelPline.items() )
+    conf["Pipelines"] = secLevelPline
 
     return conf
 
     
     
-def ExpandDefaultDataConfig( ptBins, conf_template, useFolders):
-    conf = ExpandDefaultMcConfig( ptBins, conf_template, useFolders)
+def ExpandDefaultDataConfig( ptBins, conf_template, useFolders, FolderPrefix = ""):
+    conf = ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix)
 
-    conf["Pipelines"]["default"]["AdditionalConsumer"].append( "event_storer" )
+    conf["Pipelines"][FolderPrefix + "default"]["AdditionalConsumer"].append( "event_storer" )
 
     return conf
 
