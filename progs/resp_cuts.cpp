@@ -263,6 +263,9 @@ void RunPipelinesForEvent(EventResult & event)
 			g_cutHandler->ConfigureCuts(it->GetSettings());
 			it->m_corr.CalcCorrectionForEvent( &event );
 
+            // the fitting corrections have already been loaded with the pipeline
+            
+
 			g_cutHandler->ApplyCuts(&event);
 
 			// don't run event if it was not accepted by JSON file.
@@ -282,6 +285,9 @@ void RunPipelines(int level)
 	{
 		if (it->GetSettings()->GetLevel() == level)
 		{
+            
+            
+
 			it->Run();
 		}
 	}
