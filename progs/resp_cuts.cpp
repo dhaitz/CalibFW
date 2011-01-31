@@ -434,6 +434,10 @@ EventPipeline * CreateDefaultPipeline()
 	PLOT_HIST2D(pline, DrawEtaJet2PtConsumer, deltaeta_jet2_to_jet1_jet2_pt)
 	PLOT_HIST2D(pline, DrawEtaJet2RatioConsumer, deltaeta_jet2_to_jet1_ratioz)
 
+    // sec / third jet activity ... 
+    PLOT_HIST2D(pline, DrawJetActivityRecoVertMapConsumer, secondary_jet_activity)
+
+
 	PLOT_GRAPHERRORS( pline, DrawDeltaPhiRange, deltaphi_test )
 
 	GraphErrors * hist_DrawJetPt = new GraphErrors;
