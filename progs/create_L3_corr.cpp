@@ -199,101 +199,62 @@ TGraphErrors * AddJetPoints ( 	boost::ptr_vector<DataHisto> & histDataResponse,
         p_dataCalibPoints->SetMarkerStyle(21);
 	p_dataCalibPoints->SetName( sName);
 	
+
 TF1 * pDataFit = NULL;
 	if ( g_input_type == DataInput )
-{
-	std::cout << "Fitting " << g_sFitFunc << std::endl;
-			// do the fit !
-			pDataFit = new TF1( "jecFit" + g_sFitName, g_sFitFunc);
-			pDataFit->SetParameter(0, 1.0f);
-			pDataFit->SetParameter(1, 2.0f);
-			pDataFit->SetParameter(2, 1.0f);
-			pDataFit->SetParameter(3, 1.0f);
-			pDataFit->SetParameter(4, 1.0f);
-	
-			pDataFit->SetLineColor(kBlue);
-			pDataFit->SetLineWidth(1.5f);
-            pDataFit->SetLineStyle(1);
-			p_dataCalibPoints-> Fit( pDataFit);
-}
+	{
+		std::cout << "\n\nFitting " << g_sFitFunc << std::endl;
+		// do the fit !
+		pDataFit = new TF1( "jecFit" + g_sFitName, g_sFitFunc);
+		pDataFit->SetParameter(0, 1.0f);
+		pDataFit->SetParameter(1, 2.0f);
+		pDataFit->SetParameter(2, 1.0f);
+		pDataFit->SetParameter(3, 1.0f);
+		pDataFit->SetParameter(4, 1.0f);
 
-	std::cout << std::endl << "Adding OBJ" << std::endl;
-        canvas.addObjFormated(p_dataCalibPoints, sCaption,"P");
-    /*
-if ( pDataFit != NULL )   
-        canvas.addObjFormated(pDataFit, "Data Fit","L");*/
-	
-return    p_dataCalibPoints;
-}
-			
+		pDataFit->SetLineColor(kRed);
+		pDataFit->SetLineWidth(4.5f);
+		pDataFit->SetLineStyle(1);
+		p_dataCalibPoints->Fit( pDataFit);
 
-void PlotJetCorrection( TString algo, 
-			boost::ptr_vector<DataHisto> & histDataResponse,
-			boost::ptr_vector<DataHisto> & histDataJet1Pt,
-			vString & img_formats, 
-			TString sGlobalPrefix,
-			TString the_info_string,
-			TString plot_function, 
-			TString funcName, 
-			int iCutEntries = 0)
-{
-// JET Correction
-
-	
-	/*
-        if ( g_correction_level == 2 )
-            h_corr.addLatex(0.08,0.05, "Work in progress - L2 corrected Jets"  ,true);
-        if ( g_correction_level == 0 )
-            h_corr.addLatex(0.08,0.05, "Work in progress - uncorrected Jets"  ,true);
-*/
-//	h_corr.addLatex(0.08,0.01, "Fit function: " + plot_function, true);
-
-
-}
+		// double fit
+		p_dataCalibPoints->Fit( pDataFit);
 
 /*
-void getResponses(vdouble& responses,
-                  Points& points_zpt, // x value is Z.Pt
-		  Points& points_jet1pt, // x value is jet1.Pt
-                  TFile* ifile,
-                  PtBin interval,
-                  TString algoname)
-{
-    TString treename=algoname+"Jets_Zplusjet_data_events";
-    std::cout << "Generating Response for " << treename << std::endl;
+		pDataFit->Draw("L");
+		if ( pDataFit != NULL )
+		{
+			canvas.addObjFormated(pDataFit, sCaption,"A");
+			std::cout << "XX" << pDataFit->Eval(60.0);
+		}*/
+	}
+	
+	std::cout << std::endl << "Adding OBJ" << std::endl;
+        canvas.addObjFormated(p_dataCalibPoints, sCaption,"P");
 
-    TTree* tree = RootFileHelper::SafeGet<TTree *> (ifile, treename.Data());
-    TParticle* Z=new TParticle();
-    TParticle* jet=new TParticle();
-    Double_t l2corr;
+	if ( pDataFit != NULL )
+	{
+	//	p_dataCalibPoints->SaveAs("data.out")
+	}
+/*
+    if ( pDataFit != NULL )
+    {
+    	TCanvas * c = new TCanvas("second");
+    	c->cd();
 
-    tree->SetBranchAddress("Z",&Z);
-    tree->SetBranchAddress("jet1",&jet);
-    tree->SetBranchAddress("l2corrJet",&l2corr);
+    	p_dataCalibPoints->DrawClone("P");
 
-    double response;
-    for (int ievt=0;ievt< tree->GetEntries();++ievt) {
-        tree->GetEntry(ievt);
-        if (interval.IsInBin(Z->Pt())) {
+    	pDataFit = new TF1( "jecFit" , "0.8056+23.2718/(((log(x)^(2.2362)))+39.7226)");
+        pDataFit->DrawClone("LSAME");
 
-	    double corrPtJet1 = 1.0f;
-            if ( g_correction_level == 2 )
-            {
-	      // use corrected jet !!
-	      corrPtJet1 = l2corr;
-            }
+        c->Print("second.png");
 
-	    response = ( jet->Pt() * corrPtJet1 ) /Z->Pt();
-
-            responses.push_back(response);
-	    
-            points_zpt.push_back(point(Z->Pt(),response));
-	    points_jet1pt.push_back(point(jet->Pt() * corrPtJet1,response));
-        }
-    }
+        pDataFit->Print();
+    }*/
+	
+    return p_dataCalibPoints;
 }
-*/
-
+			
 
 
 int main(int argc, char **argv) {
@@ -332,7 +293,7 @@ int main(int argc, char **argv) {
 
     TString info_string = p.getString(secname+".info_string");
     vString algos = p.getvString(secname+".algos");
-    vString algos_appendix = p.getvString(secname+".algos_appendix");
+    TString algos_appendix = p.getString(secname+".algos_appendix");
     vString good_algos = p.getvString(secname+".good_algos");
     vint pt_bins = p.getvInt(secname+".pt_bins");
     vString img_formats= p.getvString(secname+".img_formats");
@@ -377,6 +338,7 @@ int main(int argc, char **argv) {
     
     int ibin=0;
     TString sGlobalPrefix = "L3_calc_";
+
 
     
     
@@ -435,7 +397,7 @@ int main(int argc, char **argv) {
 	      TString quantity=sResponseName;
 	      
 	      TString histName = RootNamer::GetFolderName( &*interval ) + 
-                            RootNamer::GetHistoName(algo,
+                            RootNamer::GetHistoName(algo + algos_appendix,
 							quantity, 
 							g_input_type,
 							g_correction_level,
@@ -449,7 +411,7 @@ int main(int argc, char **argv) {
 	      
 	      quantity="jet1_pt";
 	      histName = RootNamer::GetFolderName( &*interval ) +
-                            RootNamer::GetHistoName(algo,
+                            RootNamer::GetHistoName(algo + algos_appendix,
 						  quantity, 
 						  g_input_type,
 						  g_correction_level,
