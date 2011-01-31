@@ -74,6 +74,7 @@ void saveHolder(CanvasHolder &h,
 		system ( "mkdir plot_out");
 		system ( ("mkdir plot_out/" + env.m_sConfigFileName).Data() );
 		h.save(formats[i].Data(), "" , ("plot_out/" + env.m_sConfigFileName + "/").Data());
+		h.save("root", "" , ("plot_out/" + env.m_sConfigFileName + "/").Data());
 	}
 }
 

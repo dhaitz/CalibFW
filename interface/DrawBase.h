@@ -243,13 +243,59 @@ public:
 };
 
 
+class Profile2D: public PlotBase< Profile2D>
+{
+public:
+	Profile2D() : PlotBase< Profile2D>(),
+		m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(200.0f)
+	{
+	}
+
+	void Init()
+	{
+		this->RunModifierBeforeCreation( this );
+
+        RootFileHelper::SafeCd( gROOT,  this->m_sRootFileFolder );
+		m_profile = RootFileHelper::GetStandaloneTProfile(
+				this->m_sName, this->m_sCaption,
+				this->m_iBinXCount, this->m_dBinXLower, this->m_dBinXUpper);
+		m_profile->Sumw2();
+
+		this->RunModifierBeforeDataEntry( this );
+	}
+
+	void Store(TFile * pRootFile)
+	{
+		this->RunModifierAfterDataEntry(this );
+		this->RunModifierAfterDraw( this );
+
+		//CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
+        RootFileHelper::SafeCd( pRootFile, this->m_sRootFileFolder );
+		m_profile->Write((this->m_sName + "_profile").c_str());
+	}
+
+	void Fill(double x, double y, double weight)
+	{
+		m_profile->Fill(x, y, weight);
+	}
+
+	TProfile * GetRawProfile(){ return m_profile; }
+
+	int m_iBinXCount;
+	double m_dBinXLower;
+	double m_dBinXUpper;
+
+	TProfile* m_profile;
+};
+
 class Hist2D: public HistBase< Hist2D>
 {
 public:
 
 	Hist2D() : HistBase< Hist2D>(),
 		m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(200.0f),
-				m_iBinYCount(100), m_dBinYLower(0.0f), m_dBinYUpper(200.0f)
+				m_iBinYCount(100), m_dBinYLower(0.0f), m_dBinYUpper(200.0f),
+                m_bDoProfile( false )
 	{
 	}
 
@@ -265,6 +311,19 @@ public:
 		m_hist->Sumw2();
 
 		this->RunModifierBeforeDataEntry( this );
+
+        if ( m_bDoProfile )
+        {
+        	m_profile.m_sName = this->m_sName + "_profiley";
+        	m_profile.m_sCaption = this->m_sCaption + "_profiley";
+
+            m_profile.m_iBinXCount = this->m_iBinXCount;
+
+            m_profile.m_dBinXLower = this->m_dBinXLower;
+            m_profile.m_dBinXUpper = this->m_dBinXUpper,
+            m_profile.m_sRootFileFolder = this->m_sRootFileFolder;
+            m_profile.Init();
+        }
 	}
 
 	void Store(TFile * pRootFile)
@@ -275,11 +334,17 @@ public:
 		//CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
         RootFileHelper::SafeCd( pRootFile, this->m_sRootFileFolder );
 		m_hist->Write((this->m_sName + "_hist").c_str());
+
+        if ( m_bDoProfile )
+            m_profile.Store( pRootFile );
 	}
 
 	void Fill(double x, double y, double weight)
 	{
 		m_hist->Fill(x, y, weight);
+
+        if (m_bDoProfile)
+            m_profile.Fill(x, y, weight);
 	}
 
 	TH2D * GetRawHisto(){ return m_hist; }
@@ -291,8 +356,14 @@ public:
 	double m_dBinYLower;
 	double m_dBinYUpper;
 
+    bool m_bDoProfile ;
+
+    Profile2D m_profile;
+
 	TH2D * m_hist;
 };
+
+
 
 class Hist1D: public HistBase< Hist1D>
 {
@@ -836,6 +907,35 @@ class DrawDeltaRMapConsumer: public DrawHist2DConsumerBase<EventResult>
 	}
 };
 
+
+class DrawJetActivityRecoVertMapConsumer: public DrawHist2DConsumerBase<EventResult>
+{
+	public:
+	DrawJetActivityRecoVertMapConsumer()
+	{}
+
+	virtual void Init(EventPipeline * pset) 
+    {
+        // magic master switch
+        m_hist->m_bDoProfile = true;
+
+   		m_hist->AddModifier( new ModHist2DBinRange( -0.5, 14.5 ,0.0f, 200.0f));
+		m_hist->AddModifier( new ModHist2DBinCount(15, 50));
+
+		DrawHist2DConsumerBase<EventResult>::Init(pset);
+	}
+
+	virtual void ProcessFilteredEvent(EventResult & res)
+	{
+		if ( res.IsJetValid ( 1))
+		{
+			m_hist->Fill(
+                    res.GetRecoVerticesCount(),
+                    res.GetCorrectedJetPt(1) + res.GetCorrectedJetPt(2),
+					res.GetWeight( ) );
+		}
+	}
+};
 
 class DrawDeltaRJetMapConsumer: public DrawDeltaRMapConsumer
 {

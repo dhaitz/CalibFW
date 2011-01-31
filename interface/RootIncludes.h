@@ -21,6 +21,7 @@
 #include "TClonesArray.h"
 #include "TObjString.h"
 #include "TVector3.h"
+#include "TProfile.h"
 #include "Math/GenVector/VectorUtil.h"
 
 double ScalarProductTParticle( TParticle * p1, TParticle * p2 )
@@ -82,6 +83,14 @@ public:
 			return new TH1D(    sName.c_str(),
     					              sCaption.c_str(),
     					              binCount, min, max );
+		}
+
+
+   static TProfile * GetStandaloneTProfile( std::string m_sName, std::string m_sCaption,
+			int m_iBinXCount, double m_dBinXLower, double m_dBinXUpper )
+		{
+			return new TProfile(m_sName.c_str(), m_sCaption.c_str(),
+    				m_iBinXCount, m_dBinXLower, m_dBinXUpper);
 		}
 
 
