@@ -19,9 +19,9 @@ the_eta_rebin_factor=5
 the_phi_rebin_factor=5
 the_pt_rebin_factor=4
 the_mass_rebin_factor=2
-the_lumi=21.88;
+the_lumi=36.1;
 #the_pt_bins=[0,25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364]
-the_pt_bins=[0,30,60,100,140,220]
+the_pt_bins=[0,30,60,100,140,300]
 
 # modify how to bin data here
 the_algos=["ak5PF"]
@@ -43,12 +43,14 @@ the_info_string= multiline_text(ZPJBase.GetCutsText1(),
 the_img_formats=["png"]
 
 p.general=ZPJConfiguration.section ("general",
-    correction_level = 2,
+    correction_level = 0,
     input_type = "data", # data or mc
     plot_file_postfix = "_data",
     skip_bins_end = 0,
-    mc_input_file=ZPJLocalConfig.GetLocalRootFilePath() +"zplusjet_mc_fall10_cb.root",
-    data_input_file=ZPJLocalConfig.GetLocalRootFilePath() +"mu_data_2010a+b.root",
+    response_name = "jetresp",
+    algos_appendix = "Jets",
+    mc_input_file=ZPJLocalConfig.GetLocalRootFilePath() +"mc_fall10_dy_pu_reco1-2.root",
+    data_input_file=ZPJLocalConfig.GetLocalRootFilePath() +"data_nov4_reco1-2.root",
     eta_rebin_factor=the_eta_rebin_factor,
     phi_rebin_factor=the_phi_rebin_factor,
     pt_rebin_factor=the_pt_rebin_factor,
