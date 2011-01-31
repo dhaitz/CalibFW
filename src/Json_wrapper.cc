@@ -51,7 +51,7 @@ Json_wrapper::Json_wrapper(const char* json_name)
 	}
 	else
 	{
-		std::cout << "Could not read JSON file! Skipping JSON file. \n";
+		std::cout << "Could not read JSON file! Skipping JSON file (" << json_name << ").\n";
 
 	}
 
