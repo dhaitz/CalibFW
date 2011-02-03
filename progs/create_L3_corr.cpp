@@ -202,7 +202,7 @@ TGraphErrors* AddJetPoints(boost::ptr_vector<DataHisto> & histDataResponse,
 		pDataFit->SetParameter(1, 2.0f);
 		pDataFit->SetParameter(2, 1.0f);
 		pDataFit->SetParameter(3, 1.0f);
-		pDataFit->SetParameter(4, 1.0f);
+//		pDataFit->SetParameter(4, 1.0f);
 
 		pDataFit->SetLineColor(kRed);
 		pDataFit->SetLineWidth(4.5f);
@@ -211,6 +211,13 @@ TGraphErrors* AddJetPoints(boost::ptr_vector<DataHisto> & histDataResponse,
 
 		// double fit
 		p_dataCalibPoints->Fit(pDataFit);
+
+		std::cout << "Parameter: \n" 
+		<< "  a_0 = " << pDataFit->GetParameter(0) << "\n"
+		<< "  a_1 = " << pDataFit->GetParameter(1) << "\n"
+		<< "  a_2 = " << pDataFit->GetParameter(2) << "\n"
+		<< "  a_3 = " << pDataFit->GetParameter(3) << "\n";
+//		<< "  a_4 = " << pDataFit->GetParameter(4) << "\n";
 
 		/*
 				pDataFit->Draw("L");
@@ -361,7 +368,7 @@ int main(int argc, char** argv)
 		CanvasHolder h_corr(algo+"_JetCorrection");
 
 
-		for (int count = 0 ; count < 2; count ++) {
+		for (int count = 0 ; count < 2-(g_input_type == DataInput); count ++) {
 			dataHistResponse.clear();
 			dataHistJet1Pt.clear();
 
