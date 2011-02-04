@@ -21,10 +21,10 @@ enum plot_styles_enum {
      mpf_ratio};
 
 
-plot_style plot_styles[4] = {plot_style(22,2,2,kBlue),
-plot_style(23,2,2,kRed),
-plot_style(21,2,2,kBlue),
-plot_style(8,2,2,kRed)};
+plot_style plot_styles[4] = {plot_style(22,1,2,kBlue),
+plot_style(23,1,2,kRed),
+plot_style(21,1,2,kBlue),
+plot_style(8,1,2,kRed)};
 
 //------------------------------------------------------------------------------
 
@@ -61,6 +61,12 @@ extrapolator(TString pt_bin,
   m_comment = comment;
   m_prefix=prefix;
   m_pt_bin = pt_bin;
+  
+  m_extrapolated_resp_mpf=0;
+  m_extrapolated_resp_mpf_err=0;
+  m_extrapolated_resp_balance=0;
+  m_extrapolated_resp_balance_err=0;
+
 }
 
 void extrapolate(){
@@ -107,7 +113,11 @@ void extrapolate(){
      
           
 }  
-  
+
+double m_extrapolated_resp_mpf;
+double m_extrapolated_resp_mpf_err;
+double m_extrapolated_resp_balance;
+double m_extrapolated_resp_balance_err;
   
   
 private:
@@ -133,15 +143,54 @@ GraphContent m_build_extr_graph(const char* name,vector<double> cut_values,vecto
   double center_err_err=0;
   
   for (unsigned int ipoint=0;ipoint<size;++ipoint){
+
     center=balance_histos[ipoint]->GetMean();
     center_err=balance_histos[ipoint]->GetMeanError();
     
+/*    TF1 gaus("gaus","gaus",center-2*rms,center+2*rms);
+    gaus.SetParameter(0,1.);
+    gaus.FixParameter(0,1.);
+    gaus.SetParameter(1,center);
+    gaus.SetParameter(2,rms);
+    balance_histos[ipoint]->Fit(&gaus,"LQ",0,center-1*rms,center+1*rms);
+    center = gaus.GetParameter(1);
+    center_err = gaus.GetParError(1);
+
+    gaus.SetParameter(0,1.);
+    gaus.FixParameter(0,1.);
+    gaus.SetParameter(1,center);
+    gaus.SetParameter(2,rms);
+    balance_histos[ipoint]->Fit(&gaus,"L",0,center-2*rms,center+2*rms);
+    center = gaus.GetParameter(1);
+    center_err = gaus.GetParError(1);  */  
+   
+    gStyle->SetOptStat(111111111);
+    TCanvas c;
+    c.cd();
+    balance_histos[ipoint]->Draw("hist");
+//     gaus.Draw("Same");
+    TString cname(balance_histos[ipoint]->GetName());
+    cname+="_";
+    cname+= (int) (cut_values[ipoint]*100);
+    cname+=".png";
+//     c.Print(cname);
+    gStyle->SetOptStat(0);
+    
+//     double rms=balance_histos[ipoint]->GetRMS();
+//     cout << "Mean: " << center << " ";
+//     balance_histos[ipoint]->GetXaxis()->SetRangeUser(center-2*rms,center+2*rms);
+//     center=balance_histos[ipoint]->GetMean();
+//     cout << "- Truncated Mean: " << center << "\n";
+//     
     // Small study about the precision of RMS
     double sqrtNminus1=TMath::Sqrt(balance_histos[ipoint]->GetEntries()-1);    
     double center_err_err = balance_histos[ipoint]->GetRMSError()/sqrtNminus1;
     
-    extrapolated_graph.addPoint(m_cut_values[ipoint],0,
-                                center,center_err,center_err_err);
+    if (balance_histos[ipoint]->GetEntries()>25)
+      extrapolated_graph.addPoint(m_cut_values[ipoint],0,
+                                  center,center_err,center_err_err);
+        
+                                
     }// end loop on points
   if (decorrelate)
     extrapolated_graph.decorrelate();
@@ -158,6 +207,8 @@ void do_plot(TString name,
              TGraphErrors* g2,
              TString formula){
   
+  TString g2name(g2->GetName());
+  bool do_mpf = not g2name.Contains("MPF");
 
   // Get at first x max and x min, y max and y min
   double x1first,y1first,x2first,y2first, x1last,y1last,x2last,y2last;
@@ -199,11 +250,11 @@ void do_plot(TString name,
   TCanvas c;
   dummy_h.Draw();
   g1->Draw("PESAME");
-  g2->Draw("PESAME");
+  if (do_mpf) g2->Draw("PESAME");
   func1.Draw("Same");
-  func2.Draw("Same");
+  if (do_mpf) func2.Draw("Same");
   func1_band->Draw("SameE3");
-  func2_band->Draw("SameE3");
+  if (do_mpf) func2_band->Draw("SameE3");
   
   // add a bit of space
   c.SetLeftMargin(c.GetLeftMargin()+0.02);
@@ -211,7 +262,7 @@ void do_plot(TString name,
   c.SetBottomMargin(c.GetBottomMargin()+0.02);
   
   // TLatex'es
-  TLatex lumi_latex(.18, .93 , "#scale[.6]{#int L = 36.1 pb^{-1}}");
+  TLatex lumi_latex(.18, .93 , "#scale[.6]{#int L = 36 pb^{-1}}");
   lumi_latex.SetNDC();
   
   TLatex cem_latex(.78, .93 , "#scale[.6]{#sqrt{s}= 7 TeV}");
@@ -237,12 +288,13 @@ void do_plot(TString name,
   legend.SetFillColor(kWhite);
   legend.SetHeader(leg_header);
   legend.AddEntry(g1,g1->GetName());
-  legend.AddEntry(g2,g2->GetName());  
+  if (do_mpf) legend.AddEntry(g2,g2->GetName());  
   legend.Draw("Same");  
   
   dummy_h.GetYaxis()->SetRangeUser(y_min*0.7,y_max*1.3);
   
   c.Print(m_prefix+"_"+name+".png");
+  c.Print(m_prefix+"_"+name+".pdf");
 
   };    
 
@@ -308,6 +360,7 @@ for (int iarg=2;iarg<argc;iarg++){
   } 
 
 }
+
 
 
 
