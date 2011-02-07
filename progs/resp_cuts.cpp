@@ -376,6 +376,27 @@ EventPipeline * CreateDefaultPipeline()
 	PLOT_HIST1D(pline, DrawZEtaConsumer, z_eta)
 	PLOT_HIST1D(pline, DrawZPhiConsumer, z_phi)
 
+	// matched calo jets
+	PLOT_HIST1D_CONST1(pline, DrawMatchCaloJetPtRatioConsumer, jet1_calo_match_ptratio, 0)
+	PLOT_HIST1D_CONST1(pline, DrawMatchCaloJetPtRatioConsumer, jet2_calo_match_ptratio, 1)
+	PLOT_HIST1D_CONST1(pline, DrawMatchCaloJetPtRatioConsumer, jet3_calo_match_ptratio, 2)
+
+	PLOT_HIST1D_CONST1(pline, DrawMatchCaloJetPtConsumer, jet1_calo_match_pt, 0)
+	PLOT_HIST1D_CONST1(pline, DrawMatchCaloJetPtConsumer, jet2_calo_match_pt, 1)
+	PLOT_HIST1D_CONST1(pline, DrawMatchCaloJetPtConsumer, jet3_calo_match_pt, 2)
+
+	PLOT_HIST1D_CONST1(pline, DrawPfChargedHadronEnergyFractionPtConsumer, jet1_chargedhadronenergy_fraction, 0)
+	PLOT_HIST1D_CONST1(pline, DrawPfChargedHadronEnergyFractionPtConsumer, jet2_chargedhadronenergy_fraction, 1)
+	PLOT_HIST1D_CONST1(pline, DrawPfChargedHadronEnergyFractionPtConsumer, jet3_chargedhadronenergy_fraction, 2)
+
+	PLOT_HIST1D_CONST1(pline, DrawPfNeutralHadronEnergyFractionPtConsumer, jet1_neutralhadronenergy_fraction, 0)
+	PLOT_HIST1D_CONST1(pline, DrawPfNeutralHadronEnergyFractionPtConsumer, jet2_neutralhadronenergy_fraction, 1)
+	PLOT_HIST1D_CONST1(pline, DrawPfNeutralHadronEnergyFractionPtConsumer, jet3_neutralhadronenergy_fraction, 2)
+
+	PLOT_HIST1D_CONST1(pline, DrawPfPhotonEnergyFractionPtConsumer, jet1_photonenergy_fraction, 0)
+	PLOT_HIST1D_CONST1(pline, DrawPfPhotonEnergyFractionPtConsumer, jet2_photonenergy_fraction, 1)
+	PLOT_HIST1D_CONST1(pline, DrawPfPhotonEnergyFractionPtConsumer, jet3_photonenergy_fraction, 2)
+
 	// Response
 	PLOT_HIST1D(pline, DrawJetRespConsumer, jetresp)
 	PLOT_HIST1D(pline, DrawMpfJetRespConsumer, mpfresp)
@@ -647,6 +668,16 @@ TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 	pEv->jets[0] = new TParticle();
 	pEv->jets[1] = new TParticle();
 	pEv->jets[2] = new TParticle();
+
+	pEv->matched_calo_jets[0] = new TParticle();
+	pEv->matched_calo_jets[1] = new TParticle();
+	pEv->matched_calo_jets[2] = new TParticle();
+
+	pEv->pfProperties[0] = new PFProperties();
+	pEv->pfProperties[1] = new PFProperties();
+	pEv->pfProperties[2] = new PFProperties();
+
+
 	pEv->mu_minus = new TParticle();
 	pEv->mu_plus = new TParticle();
 
@@ -691,6 +722,14 @@ TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 	mychain->SetBranchAddress("weight", &pEv->weight);
 
 	mychain->SetBranchAddress("beamSpot", &pEv->beamSpot);
+
+	mychain->SetBranchAddress("matched_calo_jet", &pEv->matched_calo_jets[0]);
+	mychain->SetBranchAddress("matched_calo_jet2", &pEv->matched_calo_jets[1]);
+	mychain->SetBranchAddress("matched_calo_jet3", &pEv->matched_calo_jets[2]);
+
+	mychain->SetBranchAddress("pfjet_part1_properties",pEv->pfProperties[0]);
+	mychain->SetBranchAddress("pfjet_part2_properties",pEv->pfProperties[1]);
+	mychain->SetBranchAddress("pfjet_part3_properties",pEv->pfProperties[2]);
 
 	return mychain;
 }

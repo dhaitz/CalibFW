@@ -28,6 +28,31 @@ enum InputTypeEnum
 {
 	McInput, DataInput
 };
+/*
+ * - Charged Energy Fraction distribution: ChargedHadronEnergy
+- Neutral Energy Fraction distribution: NeutralHadronEnergy
+- Photon Energy Fraction distributin: PhotonEnergy
+ *
+ */
+
+
+typedef struct {float ChargedHadronEnergy,
+                ChargedHadronMultiplicity,
+                NeutralHadronEnergy,
+                NeutralHadronMultiplicity,
+                ChargedEmEnergy,
+                NeutralEmEnergy,
+
+                NeutralMultiplicity,
+                ChargedMultiplicity,
+
+                ElectronEnergy,
+                ElectronMultiplicity,
+                MuonEnergy,
+                MuonMultiplicity,
+                PhotonEnergy,
+                PhotonMultiplicity,
+              Constituents;} PFProperties;
 
 class evtData: boost::noncopyable
 {
@@ -35,7 +60,11 @@ public:
 	TParticle *Z, *mu_minus, *mu_plus;
 
 	TParticle *jets[3];
+	TParticle *matched_calo_jets[3];
+
 	TParticle *met, *tcmet;
+
+	PFProperties * pfProperties[3];
 
 	TClonesArray * HLTriggers_accept;
 
@@ -56,6 +85,10 @@ public:
 	{
 		Z = mu_minus = mu_plus = jets[0] = jets[1] = jets[2] = met = tcmet
 				= NULL;
+
+		pfProperties[0] = pfProperties[1] =pfProperties[2] = NULL;
+
+		matched_calo_jets[0] =matched_calo_jets[1] = matched_calo_jets[2] = NULL;
 		HLTriggers_accept = recoVertices = recoVerticesInfo = recoVerticesError
 				= NULL;
 		beamSpot = NULL;
@@ -70,6 +103,16 @@ public:
 		SAFE_DELETE ( jets[0] )
 		SAFE_DELETE ( jets[1] )
 		SAFE_DELETE ( jets[2] )
+
+		SAFE_DELETE ( matched_calo_jets[0] )
+		SAFE_DELETE ( matched_calo_jets[1] )
+		SAFE_DELETE ( matched_calo_jets[2] )
+
+		SAFE_DELETE ( pfProperties[0] )
+		SAFE_DELETE ( pfProperties[1] )
+		SAFE_DELETE ( pfProperties[2] )
+
+
 		SAFE_DELETE ( met )
 		SAFE_DELETE ( tcmet )
 		SAFE_DELETE ( recoVertices )
@@ -93,6 +136,18 @@ public:
 		for (int i = 0; i < 3; ++i)
 		{
 			ev->jets[i] = new TParticle(*this->jets[i]);
+		}
+
+		for (int i = 0; i < 3; ++i)
+		{
+			if (this->matched_calo_jets[i] != NULL )
+				ev->matched_calo_jets[i] = new TParticle(*this->matched_calo_jets[i]);
+		}
+
+		for (int i = 0; i < 3; ++i)
+		{
+			if (this->pfProperties[i] != NULL )
+				ev->pfProperties[i] = new PFProperties(*this->pfProperties[i]);
 		}
 
 		this->HLTriggers_accept != NULL ? ev->HLTriggers_accept

@@ -879,6 +879,63 @@ IMPL_HIST1D_JET_MOD1(DrawJetDeltaEtaConsumer ,
 		},
 		new ModHistBinRange(0.0f, 4.0f) )
 
+// matched jet pf / calo
+// Jets
+IMPL_HIST1D_JET_MOD1(DrawMatchCaloJetPtRatioConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ) && ( res.m_pData->matched_calo_jets[m_jetNum] != NULL)
+						&& (res.m_pData->matched_calo_jets[m_jetNum]->Pt() > 0))
+				{
+					m_hist->Fill( res.m_pData->matched_calo_jets[m_jetNum]->Pt() / res.GetCorrectedJetPt( m_jetNum ) ,
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 2.0f) )
+
+IMPL_HIST1D_JET_MOD1(DrawMatchCaloJetPtConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ) && ( res.m_pData->matched_calo_jets[m_jetNum] != NULL)
+						&& (res.m_pData->matched_calo_jets[m_jetNum]->Pt() > 0))
+				{
+					m_hist->Fill( res.m_pData->matched_calo_jets[m_jetNum]->Pt() ,
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 200.0f) )
+
+IMPL_HIST1D_JET_MOD1(DrawPfChargedHadronEnergyFractionPtConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedHadronEnergy /
+							res.m_pData->jets[ m_jetNum]->Energy(),
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 1.5f) )
+
+IMPL_HIST1D_JET_MOD1(DrawPfNeutralHadronEnergyFractionPtConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralHadronEnergy /
+							res.m_pData->jets[ m_jetNum]->Energy(),
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 1.5f) )
+
+IMPL_HIST1D_JET_MOD1(DrawPfPhotonEnergyFractionPtConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->PhotonEnergy /
+							res.m_pData->jets[ m_jetNum]->Energy(),
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 1.5f) )
+
 
 class DrawEventCount: public DrawHist1dConsumerBase<EventResult>
 { public:
