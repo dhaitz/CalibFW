@@ -730,10 +730,10 @@ IMPL_HIST1D_MOD1(DrawZMassConsumer ,m_hist->Fill(res.m_pData->Z->GetCalcMass() ,
 IMPL_HIST1D_MOD1(DrawZPtConsumer ,m_hist->Fill(res.m_pData->Z->Pt() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 200.0f))
 
-IMPL_HIST1D_MOD1(DrawZEtaConsumer ,m_hist->Fill(res.m_pData->Z->Phi() - TMath::Pi() , res.GetWeight( )); ,
+IMPL_HIST1D_MOD1(DrawZEtaConsumer ,m_hist->Fill(res.m_pData->Z->Eta() - TMath::Pi() , res.GetWeight( )); ,
 		new ModHistBinRange(-5.0f, 5.0f))
 
-IMPL_HIST1D_MOD1(DrawZPhiConsumer ,m_hist->Fill(res.m_pData->Z->Eta() , res.GetWeight( )); ,
+IMPL_HIST1D_MOD1(DrawZPhiConsumer ,m_hist->Fill(res.m_pData->Z->Phi() , res.GetWeight( )); ,
 		new ModHistBinRange(-3.5f, 3.5f))
 
 // mus pt
