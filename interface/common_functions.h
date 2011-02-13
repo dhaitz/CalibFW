@@ -13,6 +13,7 @@
 #include "TFile.h"
 #include "TString.h"
 
+#include "TMatrixDSym.h"
 
 //------------------------------------------------------------------------------
 
@@ -28,16 +29,35 @@ void setTDRStyle(){
   }  
   
 //------------------------------------------------------------------------------  
-  
+
 template <class T>
-T* getObject(const char* objname, const char* filename){
+T* getObject(const char* objname, TString filename){  
+  if (filename=="")
+    return NULL;
   TFile ifile(filename);
   T* obj = (T*) ifile.Get(objname);
+  ifile.Close();
+  if (obj==NULL){
+    cerr << "FATAL Could not read " << objname << " from " << filename.Data() << ".\n";
+    exit (0);
+    }
+  return obj;
+  }
+
+//------------------------------------------------------------------------------  
+
+template <>
+TH1D* getObject<TH1D>(const char* objname, TString filename){
+  if (filename=="")
+    return NULL;  
+  cerr << "Trying to read " << objname << " from " << filename.Data() << ".\n";
+  TFile ifile(filename);
+  TH1D* obj = (TH1D*) ifile.Get(objname);
   obj->SetDirectory(gROOT);
   ifile.Close();
   return obj;
   }
-
+  
 //------------------------------------------------------------------------------
 
 template <class T>
@@ -46,13 +66,16 @@ vector<T*> getObjects(vector<TString> objnames, const char* filename){
   const unsigned int vsize=objnames.size();
   vector<T*> obj_vec(vsize);
   T* obj=0;
-
+  
+  cout << "---- RootFile " << filename << "\n";
   for (unsigned int iobj=0;iobj<vsize;iobj++){  
+    cout << "    Getting  " << objnames[iobj].Data() << endl;
     obj = (T*) ifile.Get(objnames[iobj]);
     obj->SetDirectory(gROOT);
     obj_vec[iobj]=obj;
     
     }
+  cout << "----\n";
   ifile.Close();
   return obj_vec;
   }
@@ -175,7 +198,7 @@ GraphContent divide(GraphContent& divisor){
   double ey=0;
   
   //cout << " [GraphContent::divide] Cycle on content...\n";
-  for (unsigned int ipoint=0;ipoint<this->size();++ipoint){
+  for (unsigned int ipoint=0;ipoint<std::min(this->size(),divisor.size());++ipoint){
     this->getPoint(ipoint,dividend_x,dividend_ex,dividend_y,dividend_ey,dummy);
     divisor.getPoint(ipoint,divisor_x,divisor_ex,divisor_y,divisor_ey,dummy);
     ey = TMath::Sqrt(dividend_ey*dividend_ey + divisor_ey*divisor_ey);
@@ -219,7 +242,7 @@ class plot_style{
                                 
                 
   plot_style(int the_marker_style,
-             int the_marker_size,
+             double the_marker_size,
              int the_line_size,
              int the_marker_color,
              int the_fill_color=kWhite):
@@ -244,42 +267,16 @@ T* setStyle(T* obj){
              
   private:
   int marker_style;
-  int marker_size;
+  double marker_size;
   int line_size;
   int color;
   int fill_color;
   
   };         
 
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
 
-TGraphErrors* make_band(TF1& f){
-  
-//   const int nbins=100;
-//   TString bandname("band_");
-//   bandname+=f.GetName();
-//   TH1F *h =new  TH1F("band","band",nbins,f.GetXmin(),f.GetXmax());
-//   h->SetMarkerStyle(0);
-//   h->SetMarkerColor(f.GetLineColor());
-//   h->SetLineColor(f.GetLineColor());
-//   h->SetFillColor(f.GetLineColor());
-//   h->SetFillStyle(3002);
-//   const int npar = f.GetNpar();
-//   for (int ibin=1;ibin<nbins-1;ibin++){
-//     double bin_center=h->GetBinCenter(ibin);
-//     
-//     // Calculate error
-//     double bin_error=0;
-//     for (int ipar=0;ipar<npar;++ipar){
-//       double par_error = f.GetParError(ipar);
-//       bin_error += par_error * f.GradientPar(ipar,&bin_center);
-//       } 
-//     
-//     h->SetBinContent(ibin,f.Eval(bin_center));
-//     h->SetBinError(ibin,bin_error);
-//     }
-//   return h;
-//   }
+TGraphErrors* make_band(TF1& f, TMatrixDSym& cov){
 
   const int npoints=100;
   TString bandname("band_");
@@ -293,24 +290,138 @@ TGraphErrors* make_band(TF1& f){
   const int npar = f.GetNpar();
   const double step = (f.GetXmax()-f.GetXmin())/npoints;
   double point = f.GetXmin();
-  
+ 
+  double point_error2=0;
+  double gradi=0;
+  double gradj=0;
   for (int ipoint=0;ipoint<npoints;ipoint++){
-    
-    double point_error=0;
-    for (int ipar=0;ipar<npar;++ipar){
-      double par_error = f.GetParError(ipar);
-      point_error += par_error * f.GradientPar(ipar,&point);
-      }     
+    point_error2=0;
+    for (int ipar=0;ipar<npar;++ipar)
+      for (int jpar=0;jpar<npar;++jpar){
+        gradi=f.GradientPar(ipar,&point);
+        gradj=f.GradientPar(jpar,&point);
+        point_error2 += gradi* cov[ipar][jpar]*gradj;
+        }
     g->SetPoint(ipoint,point,f.Eval(point));
-    g->SetPointError(ipoint,0,point_error);
-    
+    g->SetPointError(ipoint,0,TMath::Sqrt(point_error2));
     point+=step;
-  }
+  }// end loop on reference points on function
     
   return g;
   }
+  
+//------------------------------------------------------------------------------
+// COVARIANCE NOT CONSIDERED PROPERLY!
+// TGraphErrors* make_band_simple(TF1& f){
+// 
+//   const int npoints=100;
+//   TString bandname("band_");
+//   bandname+=f.GetName();
+//   TGraphErrors *g =new  TGraphErrors(npoints);
+//   g->SetMarkerStyle(0);
+//   g->SetMarkerColor(f.GetLineColor());
+//   g->SetLineColor(f.GetLineColor());
+//   g->SetFillColor(f.GetLineColor());
+//   g->SetFillStyle(3002);
+//   const int npar = f.GetNpar();
+//   const double step = (f.GetXmax()-f.GetXmin())/npoints;
+//   double point = f.GetXmin();
+//   
+//   for (int ipoint=0;ipoint<npoints;ipoint++){
+//     
+//     double point_error2=0;
+//     for (int ipar=0;ipar<npar;++ipar){
+//       double par_error = f.GetParError(ipar);
+//       double point_error=(par_error * f.GradientPar(ipar,&point));
+//       point_error2 += point_error*point_error;
+//       }     
+//     g->SetPoint(ipoint,point,f.Eval(point));
+//     g->SetPointError(ipoint,0,TMath::Sqrt(point_error2));
+//     
+//     point+=step;
+//   }
+//     
+//   return g;
+//   }
+
+//------------------------------------------------------------------------------
+
+TGraph** make_bands_up_down(TF1& f,TMatrixDSym& cov ){
+
+  TGraphErrors* ge = make_band(f,cov);
+
+  const int npoints=ge->GetN();
+  
+  TGraph** up_down= new TGraph*[2];
+  up_down[0]=new TGraph(npoints);up_down[0]->SetName("UPBand");
+  up_down[1]=new TGraph(npoints);up_down[1]->SetName("DownBand");
+  
+  int linew=f.GetLineWidth()/2;
+  if (linew==0)
+    linew=1;
+  
+  for (int i=0;i<2;++i){
+    up_down[i]->SetFillColor(0);
+    up_down[i]->SetLineColor(ge->GetLineColor());
+    up_down[i]->SetLineWidth(linew);
+    up_down[i]->SetLineStyle(2);
+    }
+  
+  double x,y,ey;
+  for (int i=0;i<npoints;++i){
+    
+    ge->GetPoint(i,x,y);
+    ey = ge->GetErrorY(i);
+    
+    up_down[0]->SetPoint(i,x,y-ey);
+    up_down[1]->SetPoint(i,x,y+ey);
+    }
+  
+  delete ge;
+  
+
+  return up_down;
+  }
 
 
+//------------------------------------------------------------------------------
+void getMinMax(double& minx, double& maxx,
+               double& miny, double& maxy,
+               TH1* h1, TH1* h2, TH1* h3=0){
+  
+  maxy = std::max(h1->GetMaximum(), h2->GetMaximum());
+  if (h3) maxy = std::max(maxy, h3->GetMaximum());
+
+  miny = std::min(h1->GetMinimum(), h2->GetMinimum());
+  if (h3) miny = std::min(miny, h3->GetMinimum());  
+  
+  const int nbins1=h1->GetNbinsX();
+  const int nbins2=h2->GetNbinsX();
+  
+  minx = std::min(h1->GetBinLowEdge(1), h1->GetBinLowEdge(1));
+  if (h3) minx = std::min(minx, h3->GetBinLowEdge(1));
+
+  // Just use the last bin center
+  maxx = std::min(h1->GetBinCenter(nbins1), h2->GetBinCenter(nbins2));
+  if (h3) {
+      const int nbins3=h3->GetNbinsX();
+      maxx = std::max(maxx, h3->GetBinCenter(nbins3));
+      }
+  
+  
+/*  maxx = std::min(h1->GetBinLowEdge(nbins1-1)+h1->GetBinWidth(nbins1-1), h2->GetBinLowEdge(nbins2-1)+h2->GetBinWidth(nbins2-1));
+  if (h3) {
+      const int nbins3=h3->GetNbinsX();
+      max = std::max(maxx, h3->GetBinLowEdge(nbins3-1)+h3->GetBinWidth(nbins3-1));
+      }*/
+      
+  maxx*=1.2;
+  maxy*=1.2;
+  minx*=1.;
+  miny*=.8;
+  
+  
+  }
 
 //------------------------------------------------------------------------------
 
