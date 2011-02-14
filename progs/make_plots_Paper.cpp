@@ -147,12 +147,10 @@ TLatex* make_ks_summary(TString position,
     herwig_ks += ks_herwig;
     herwig_ks = herwig_ks(0,5);    
     text += "#color[";
-    text += herwig_color + "]{P-val = " + herwig_ks + "}}";
+    text += herwig_color + "]{P-val = " + herwig_ks + "}";
     }  
-  else
-    text+="}}";
     
-  text+="}";
+  text+="}}}";
 
   TLatex* latex = new TLatex(0,0,text.Data());
   latex->SetNDC();
@@ -432,6 +430,7 @@ for (int iarg=2;iarg<argc;iarg++){
   
   TString histo_name_mc("calo_pf_avg_ratio_vs_pf_pt_");
   histo_name_mc+=algorithm+"PFJets"+correction_level+"_Zplusjet_mc_hist";
+
   TString comment (make_comment(correction_level,algorithm));
   
   drawHistos(plot_hdr+"calo_PF_ratio_vs_pf_pt",
