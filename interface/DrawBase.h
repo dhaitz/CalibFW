@@ -936,6 +936,16 @@ IMPL_HIST1D_JET_MOD1(DrawPfPhotonEnergyFractionPtConsumer ,
 		},
 		new ModHistBinRange(0.0f, 1.5f) )
 
+IMPL_HIST1D_JET_MOD1(ConstituentsConsumer ,
+        {
+                if ( res.IsJetValid( m_jetNum ))
+                {
+                    m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->Constituents,
+                                  res.GetWeight( ));
+                }
+        },
+        new ModHistBinRange(0.0f, 100.f) )
+
 
 class DrawEventCount: public DrawHist1dConsumerBase<EventResult>
 { public:
@@ -1651,6 +1661,83 @@ public:
         }
 
         m_histPhotonFrac.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+    }
+    std::string m_sInpHist;
+    std::string m_sFolder;
+
+
+};
+
+
+class DrawConstituents: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+    DrawConstituents( std::string sInpHist ) :
+        DrawGraphErrorsConsumerBase<EventResult>(),
+        m_sInpHist( sInpHist)
+    {
+
+    }
+    virtual void Process()
+    {
+        Hist1D m_histConstituents;
+
+        // move through the histos
+        stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+        std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+        m_histConstituents.m_sCaption = m_histConstituents.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+        //m_histChargedHadrFrac.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+        m_histConstituents.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+        m_histConstituents.Init();
+
+
+        int i = 0;
+        for (std::vector< PtBin >::iterator it = bins.begin();
+                it != bins.end();
+                it ++)
+        {
+            TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+            sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+            // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+            TString sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hconst = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+            if (hconst == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+            sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+            if (hpt == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+
+            m_graph->AddPoint( hpt->GetMean(),
+                               hconst->GetMean(),
+                               hpt->GetMeanError(),
+                               hconst->GetMeanError());
+
+            m_histConstituents.GetRawHisto()->SetBinContent(i +1, hconst->GetMean() );
+            m_histConstituents.GetRawHisto()->SetBinError(i +1, hconst->GetMeanError() );
+            i++;
+        }
+
+        m_histConstituents.Store(this->GetPipelineSettings()->GetRootOutFile());
 
     }
     std::string m_sInpHist;

@@ -310,6 +310,9 @@ EventPipeline * CreateLevel2Pipeline()
     PLOT_GRAPHERRORS_COND1( pline, DrawJetNeutralHadronEnergy, jet1_neutralhadronenergy_fraction, "jet1_neutralhadronenergy_fraction" )
     PLOT_GRAPHERRORS_COND1( pline, DrawPhotonEnergy, jet1_photonenergy_fraction, "jet1_photonenergy_fraction" )
     PLOT_GRAPHERRORS_COND1( pline, DrawMatchAvgCaloJetPtRatio, calo_pf_avg_ratio_vs_pf_pt, "jet1_calo_match_ptratio" )
+    
+    PLOT_GRAPHERRORS_COND1( pline, DrawConstituents, jet1_constituents, "jet1_constituents" )
+    
     PLOT_GRAPHERRORS_COND2( pline, DrawMatchAvgAvgCaloJetPtRatio, calo_avg_pf_avg_ratio_vs_z_pt , "jet1_calo_match_pt", "jet1_pt" )
     
 
@@ -409,6 +412,10 @@ EventPipeline * CreateDefaultPipeline()
 	PLOT_HIST1D_CONST1(pline, DrawPfPhotonEnergyFractionPtConsumer, jet1_photonenergy_fraction, 0)
 	PLOT_HIST1D_CONST1(pline, DrawPfPhotonEnergyFractionPtConsumer, jet2_photonenergy_fraction, 1)
 	PLOT_HIST1D_CONST1(pline, DrawPfPhotonEnergyFractionPtConsumer, jet3_photonenergy_fraction, 2)
+
+    PLOT_HIST1D_CONST1(pline, ConstituentsConsumer, jet1_constituents, 0)
+    PLOT_HIST1D_CONST1(pline, ConstituentsConsumer, jet2_constituents, 1)
+    PLOT_HIST1D_CONST1(pline, ConstituentsConsumer, jet3_constituents, 2)
 
 	// Response
 	PLOT_HIST1D(pline, DrawJetRespConsumer, jetresp)
