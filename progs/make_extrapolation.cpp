@@ -31,6 +31,21 @@ plot_style(23,1.5,2,kRed),
 plot_style(21,1.5,2,kBlue),
 plot_style(8,1.5,2,kRed)};
 
+
+// enum plot_styles_enum { 
+//      data,
+//      pythia_h,
+//      herwig_h,
+//      balance_g,
+//      mpf_g};
+// 
+// 
+// plot_style plot_styles[5] = {plot_style(8,1.5,2,1),
+//                              plot_style(0,0,2,kRed), // No points for them
+//                              plot_style(0,0,2,kBlue),// No points for them
+//                              plot_style(21,1.5,2,kBlue),
+//                              plot_style(8,1.5,2,kRed)};  
+
 //------------------------------------------------------------------------------
 
 class extrapolator {  
@@ -498,6 +513,162 @@ void  do_response_plot(TString name, TGraphErrors* graph,TGraphErrors* extr_grap
   
   
   }
+//------------------------------------------------------------------------------
+
+TLegend* buildLegend(TString header,
+                     TObject* obj1, TString obj1_name,
+                     TObject* obj2, TString obj2_name,
+                     TObject* obj3, TString obj3_name,
+                     TString position){
+
+  
+  TLegend* l = 0;
+  if (position.Contains("ur"))
+    l = new TLegend(.65,.7,.85,.85);
+  if (position.Contains("ul"))
+    l = new TLegend(.2,.7,.35,.85);
+  if (position.Contains("br"))
+    l = new TLegend(.7,.2,.85,.35);  
+  if (position.Contains("bl"))
+    l = new TLegend(.2,.2,.35,.35);  
+  
+  l->SetFillColor(kWhite);
+  l->SetBorderSize(0);
+  
+  l->SetHeader(header);
+  l->AddEntry(obj1,obj1_name);
+  l->AddEntry(obj2,obj2_name);
+  if (obj3) l->AddEntry(obj3,obj3_name);
+  
+  
+  return l;
+  
+  };
+//------------------------------------------------------------------------------
+void add_topline(TCanvas& c){
+
+  c.cd();
+  
+  // add a bit of space
+  c.SetLeftMargin(c.GetLeftMargin()+0.02);
+  c.SetTopMargin(c.GetTopMargin()+0.05);
+  c.SetBottomMargin(c.GetBottomMargin()+0.02);
+  
+  TLatex lumi_latex(.18, .93 , "#scale[.6]{#int L = 36 pb^{-1}}");
+  lumi_latex.SetNDC();
+  lumi_latex.DrawClone();
+  
+  TLatex cem_latex(.78, .93 , "#scale[.6]{#sqrt{s}= 7 TeV}");
+  cem_latex.SetNDC();    
+  cem_latex.DrawClone();
+  
+  
+  }
+//------------------------------------------------------------------------------
+
+void make_jme1010(TString name,
+                  TString x_axis_name,
+                  TString y_axis_name,
+                  TString comment,
+                  TString extr_cut,
+                  TGraphErrors* data_bal,
+                  TGraphErrors* data_mpf,
+                  TGraphErrors* mc_bal,
+                  TGraphErrors* mc_mpf){
+    
+  // Title offset
+  data_bal->GetYaxis()->SetTitleOffset(1.5);         
+  data_bal->GetYaxis()->SetRangeUser(.9,1.1); 
+
+  // Divide the Graphs
+  GraphContent balance_ratio_gc(*data_bal);
+  GraphContent balance_divisor_gc(*mc_bal);
+  balance_ratio_gc.divide_inplace(balance_divisor_gc);
+  TGraphErrors* balance_ratiog = balance_ratio_gc.getGraph();
+
+  GraphContent mpf_ratio_gc(*data_mpf);
+  GraphContent mpf_divisor_gc(*mc_mpf);
+  mpf_ratio_gc.divide_inplace(mpf_divisor_gc);
+  TGraphErrors* mpf_ratiog = mpf_ratio_gc.getGraph();
+  
+  // Set The Styles
+  balance_ratiog = plot_styles[balance_ratio].setStyle<TGraphErrors>(balance_ratiog);
+  mpf_ratiog = plot_styles[mpf_ratio].setStyle<TGraphErrors>(mpf_ratiog);
+    
+  // The Legend
+  TLegend* leg = buildLegend("Z+jet",
+                             balance_ratiog,"p_{T} Balance",
+                             mpf_ratiog,"MPF",
+                             0,"",
+                             "ur");
+
+  
+  // Build a mega TGraphErrors with all points and errors!
+  balance_ratio_gc.addGraphContent(mpf_ratio_gc);
+  TGraphErrors megag (*balance_ratio_gc.getGraph());
+  
+  megag.Print();
+  
+  TGraphErrors megag_dummy(megag);
+  megag_dummy.SetPoint(0,-100,0);
+  megag_dummy.SetPoint(1,250,2);
+  
+  // Make the first drawn beautiful
+  megag_dummy.GetXaxis()->SetTitle(x_axis_name);
+  megag_dummy.GetYaxis()->SetTitle(y_axis_name);  
+  megag_dummy.GetXaxis()->SetMoreLogLabels();
+  
+  // Perform the fit!
+  TF1 fitf("FittingFunction", "[0]+x*[1]", 20, 200);
+  fitf.SetLineWidth(2);
+  TFitResultPtr fitresp = megag.Fit(&fitf,"LSR");
+  
+  // The band(s)
+  TMatrixDSym cov((*fitresp).GetCovarianceMatrix());
+  TGraphErrors* yellowband = make_band(fitf,cov);
+  yellowband->SetFillColor(kYellow);
+  yellowband->SetFillStyle(1);
+  
+  TGraph** updownband = make_bands_up_down(fitf,cov);
+  
+  // Latex for the comment
+  TLatex commentlatex(.2,.8,comment);
+  commentlatex.SetNDC();  
+  
+  // Latex for the extrapol
+  TLatex extrcutlatex(.6,.2,extr_cut);
+  extrcutlatex.SetNDC();  
+    
+  // Draw Everything
+                       
+  TCanvas c;
+  c.cd();
+  
+  c.SetLogx();  
+  
+  megag_dummy.Draw("APE");
+  megag.Draw("SamePE");  // To be sure of the procedure  
+  yellowband->Draw("E4");
+  fitf.Draw("CSame");
+  updownband[0]->Draw("SameC");
+  updownband[1]->Draw("SameC");
+  balance_ratiog->Draw("PE1Same");
+  mpf_ratiog->Draw("PE1Same");
+  add_topline(c);
+  megag_dummy.GetYaxis()->SetRangeUser(.81,1.19);
+  megag_dummy.GetXaxis()->SetRangeUser(20,250);
+  leg->Draw();
+  
+  commentlatex.Draw();
+  extrcutlatex.Draw();
+  
+  c.Print(name+".png");
+  c.Print(name+".pdf");
+  
+  delete leg;
+  
+  
+  }
 
 //------------------------------------------------------------------------------
 
@@ -621,27 +792,49 @@ for (int iarg=2;iarg<argc;iarg++){
   gStyle->SetOptStat(0);
   gStyle->SetOptFit(0);
   
-  do_response_plot("extr_resp_balance_data",
+  do_response_plot(title+"_extr_resp_balance_data",
                    plot_styles[2].setStyle<TGraphErrors>(balance_response_graph),
                    plot_styles[3].setStyle<TGraphErrors>(balance_response_graph_extr),
                    "P_{T} Balance",comment_balance);
                    
-  do_response_plot("extr_resp_mpf_data",
+  do_response_plot(title+"_p_mpf_data",
                    plot_styles[2].setStyle<TGraphErrors>(mpf_response_graph),
                    plot_styles[3].setStyle<TGraphErrors>(mpf_response_graph_extr),
                    "MPF",comment_mpf);
                    
-  do_response_plot("extr_resp_balance_mc",
+  do_response_plot(title+"_p_balance_mc",
                    plot_styles[2].setStyle<TGraphErrors>(balance_response_graph_mc),
                    plot_styles[3].setStyle<TGraphErrors>(balance_response_graph_extr_mc),
                    "P_{T} Balance",comment_balance);
   
-  do_response_plot("extr_resp_mpf_mc",
+  do_response_plot(title+"_p_mpf_mc",
                    plot_styles[2].setStyle<TGraphErrors>(mpf_response_graph_mc),
                    plot_styles[3].setStyle<TGraphErrors>(mpf_response_graph_extr_mc),
                    "MPF",comment_mpf);
   
-  
+
+  TString extr_comment("#scale[.6]{");
+  extr_comment+=cut_name+" #rightarrow 0}";
+  make_jme1010(title+"_balance_data_over_pythia_mc_extrapolation",
+               "p_{T}^{Z}",
+               "Data/Pythia Z2",
+               comment_balance,
+               extr_comment,
+               balance_response_graph_extr,
+               mpf_response_graph_extr,
+               balance_response_graph_extr_mc,
+               mpf_response_graph_extr_mc);  
+               
+  make_jme1010(title+"_balance_data_over_pythia_mc",
+               "p_{T}^{Z}",
+               "Data/Pythia Z2",
+               comment_balance,
+               "",
+               balance_response_graph,
+               mpf_response_graph,
+               balance_response_graph_mc,
+               mpf_response_graph_mc);                 
+               
 
   TFile ofile(title+"_ofile.root","RECREATE");
   balance_response_graph_extr->Write();
