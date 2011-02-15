@@ -41,7 +41,10 @@ L1_noPU_latex="#scale[.6]{#splitline{#splitline{anti-kt 0.5 Particle Flow Jets}{
 L1_PU_latex="#scale[.6]{#splitline{#splitline{anti-kt 0.5 Particle Flow Jets}{jet area PU und UE subtracted}}{PU simulated}}"
 
 fully_corr_latex="#scale[.6]{#splitline{#splitline{anti-kt 0.5 Particle Flow Jets}{Fully Corrected}}{Z2 Tune with PU simulated}}"
-fully_corr_latex_mpf="#scale[.6]{#splitline{#splitline{anti-kt 0.5 Particle Flow Jets}{L1 Corrected}}{Z2 Tune with PU simulated}}"
+fully_corr_latex_mpf="#scale[.6]{#splitline{#splitline{anti-kt 0.5 Particle Flow Jets}{Fully Corrected}}{Z2 Tune with PU simulated}}"
+
+L1_corr_latex="#scale[.6]{#splitline{#splitline{anti-kt 0.5 Particle Flow Jets}{Corrected for PU}}{Z2 Tune with PU simulated}}"
+L1_corr_latex_mpf="#scale[.6]{#splitline{#splitline{anti-kt 0.5 Particle Flow Jets}{Corrected for PU}}{Z2 Tune with PU simulated}}"
 
 #---------------------------------------------
 # 2nd pt jet cut 
@@ -76,14 +79,21 @@ the_balance_histo_names_data_deltaphi=\
  "@PTBIN@_incut_var_CutBack2Back_0_02/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist"]
 
 the_mpf_histo_names_data_deltaphi=map(lambda name: name.replace("jetresp","mpfresp"),the_balance_histo_names_data_deltaphi)
-# WARNING !!!!!!!!!! TEMPORARY!!!!!!!
 the_balance_histo_names_mc_deltaphi=map(lambda name: name.replace("data","mc"),the_balance_histo_names_data_deltaphi)
+the_balance_histo_names_mc_deltaphi=map(lambda name: name.replace("L1L2L3Res","L1L2L3"),the_balance_histo_names_mc_deltaphi)
 #the_balance_histo_names_mc_deltaphi=map(lambda name: name.replace("data","data"),the_balance_histo_names_data_deltaphi)
 the_mpf_histo_names_mc_deltaphi=map(lambda name: name.replace("jetresp","mpfresp"),the_balance_histo_names_mc_deltaphi)
 
 
 #-------------------------------------------------------------------------------
-makeL1 = lambda name: name.replace("ak5PFJets","ak5PFJetsL1")
+def makeL1(name):
+  string = 'L1L2L3Res'
+  if string in name:
+    return name.replace(string,"L1")
+  string = 'L1L2L3'
+  if string in name:
+    return name.replace(string,"L1")
+  
 #-------------------------------------------------------------------------------
 
 p.pt_extrapolation_fullycorr=ZPJConfiguration.section(\
@@ -105,76 +115,68 @@ p.pt_extrapolation_fullycorr=ZPJConfiguration.section(\
     balance_histo_names_mc=the_balance_histo_names_mc,
     mpf_histo_names_mc=the_mpf_histo_names_mc,
     pt_bins=the_pt_bins)
-
+    
 #-------------------------------------------------------------------------------
 
-p.pt_extrapolation=ZPJConfiguration.section(\
-    "pt_extrapolation",
-    filename_data = the_filename_data,
-    filename_mc = the_filename_mc,
-    comment = noL1_noPU_latex,
-    cut_vals=the_2nd_pt_cut_vals,
-    cut_name="p_{T}^{jet 2}/p_{T}^{Z}",
-    balance_histo_names_data=the_balance_histo_names_data,
-    mpf_histo_names_data=the_mpf_histo_names_data,
-    balance_histo_names_mc=the_balance_histo_names_mc,
-    mpf_histo_names_mc=the_mpf_histo_names_mc,
-    pt_bins=the_pt_bins)
-
-#-------------------------------------------------------------------------------
-
-p.pt_extrapolationL1=ZPJConfiguration.section(\
-    "pt_extrapolationL1",
-    filename_data = the_filename_data,
-    filename_mc = the_filename_mc,
-    comment = L1_noPU_latex,
-    cut_vals=the_2nd_pt_cut_vals,
-    cut_name="p_{T}^{jet 2}/p_{T}^{Z}",
-    balance_histo_names_data=map(makeL1,the_balance_histo_names_data),
-    mpf_histo_names_data=map(makeL1,the_mpf_histo_names_data),
-    balance_histo_names_mc=map(makeL1,the_balance_histo_names_mc),
-    mpf_histo_names_mc=map(makeL1,the_mpf_histo_names_mc),
-    pt_bins=the_pt_bins)
-
-#-------------------------------------------------------------------------------
-
-p.pt_extrapolation_pu=ZPJConfiguration.section(\
-    "pt_extrapolation_pu",
+p.deltaphi_extrapolation_fullycorr=ZPJConfiguration.section(\
+    "deltaphi_extrapolation_fullycorr",
     filename_data = the_filename_data,
     filename_mc = the_filename_mc_pu,
-    comment = noL1_PU_latex,
-    cut_vals=the_2nd_pt_cut_vals,
-    cut_name="p_{T}^{jet 2}/p_{T}^{Z}",
-    balance_histo_names_data=the_balance_histo_names_data,
-    mpf_histo_names_data=the_mpf_histo_names_data,
-    balance_histo_names_mc=the_balance_histo_names_mc,
-    mpf_histo_names_mc=the_mpf_histo_names_mc,
-    pt_bins=the_pt_bins)
-
-#-------------------------------------------------------------------------------
-
-p.pt_extrapolation_puL1=ZPJConfiguration.section(\
-    "pt_extrapolation_puL1",
-    filename_data = the_filename_data,
-    filename_mc = the_filename_mc_pu,
-    comment = L1_PU_latex,
-    cut_vals=the_2nd_pt_cut_vals,
-    cut_name="p_{T}^{jet 2}/p_{T}^{Z}",
-    balance_histo_names_data=map(makeL1,the_balance_histo_names_data),
-    mpf_histo_names_data=map(makeL1,the_mpf_histo_names_data),
-    balance_histo_names_mc=map(makeL1,the_balance_histo_names_mc),
-    mpf_histo_names_mc=map(makeL1,the_mpf_histo_names_mc),
-    pt_bins=the_pt_bins)
-
-#-------------------------------------------------------------------------------
-# Deltaphi
-p.deltaphi_extrapolation=ZPJConfiguration.section(\
-    "deltaphi_extrapolation",
-    filename_data = the_filename_data,
-    filename_mc = the_filename_mc,
-    comment =  noL1_noPU_latex,
+    comment_balance = fully_corr_latex,
+    comment_mpf = fully_corr_latex_mpf,
     cut_vals=the_deltaphi_cut_vals,
     cut_name="#Delta #Phi(Z,jet1)",
+
+    balance_response_graph_name_mc=the_balance_response_graph_name_mc,
+    balance_response_graph_name_data=the_balance_response_graph_name_data,
+    mpf_response_graph_name_mc=the_mpf_response_graph_name_mc,
+    mpf_response_graph_name_data=the_mpf_response_graph_name_data,
+
+    balance_histo_names_data=the_balance_histo_names_data_deltaphi,
+    mpf_histo_names_data=the_mpf_histo_names_data_deltaphi,
+    balance_histo_names_mc=the_balance_histo_names_mc_deltaphi,
+    mpf_histo_names_mc=the_mpf_histo_names_mc_deltaphi,
+    pt_bins=the_pt_bins)
+
+    
+#-------------------------------------------------------------------------------
+
+p.pt_extrapolation_L1=ZPJConfiguration.section(\
+    "pt_extrapolation_L1",
+    filename_data = the_filename_data,
+    filename_mc = the_filename_mc_pu,
+    comment_balance = L1_corr_latex,
+    comment_mpf = L1_corr_latex_mpf,
+    cut_vals=the_2nd_pt_cut_vals,
+    cut_name="p_{T}^{jet 2}/p_{T}^{Z}",
+
+    balance_response_graph_name_mc=makeL1(the_balance_response_graph_name_mc),
+    balance_response_graph_name_data=makeL1(the_balance_response_graph_name_data),
+    mpf_response_graph_name_mc=makeL1(the_mpf_response_graph_name_mc),
+    mpf_response_graph_name_data=makeL1(the_mpf_response_graph_name_data),
+
+    balance_histo_names_data=map(makeL1,the_balance_histo_names_data),
+    mpf_histo_names_data=map(makeL1,the_mpf_histo_names_data),
+    balance_histo_names_mc=map(makeL1,the_balance_histo_names_mc),
+    mpf_histo_names_mc=map(makeL1,the_mpf_histo_names_mc),
+    pt_bins=the_pt_bins)
+    
+#-------------------------------------------------------------------------------
+
+p.deltaphi_extrapolation_fullycorr=ZPJConfiguration.section(\
+    "deltaphi_extrapolation_fullycorr",
+    filename_data = the_filename_data,
+    filename_mc = the_filename_mc_pu,
+    comment_balance = fully_corr_latex,
+    comment_mpf = fully_corr_latex_mpf,
+    cut_vals=the_deltaphi_cut_vals,
+    cut_name="#Delta #Phi(Z,jet1)",
+
+    balance_response_graph_name_mc=the_balance_response_graph_name_mc,
+    balance_response_graph_name_data=the_balance_response_graph_name_data,
+    mpf_response_graph_name_mc=the_mpf_response_graph_name_mc,
+    mpf_response_graph_name_data=the_mpf_response_graph_name_data,
+
     balance_histo_names_data=the_balance_histo_names_data_deltaphi,
     mpf_histo_names_data=the_mpf_histo_names_data_deltaphi,
     balance_histo_names_mc=the_balance_histo_names_mc_deltaphi,
@@ -183,13 +185,20 @@ p.deltaphi_extrapolation=ZPJConfiguration.section(\
 
 #-------------------------------------------------------------------------------
 
-p.deltaphi_extrapolationL1=ZPJConfiguration.section(\
-    "deltaphi_extrapolationL1",
+p.deltaphi_extrapolation_L1=ZPJConfiguration.section(\
+    "deltaphi_extrapolation_L1",
     filename_data = the_filename_data,
-    filename_mc = the_filename_mc,
-    comment = L1_noPU_latex,
+    filename_mc = the_filename_mc_pu,
+    comment_balance = L1_corr_latex,
+    comment_mpf = L1_corr_latex_mpf,
     cut_vals=the_deltaphi_cut_vals,
     cut_name="#Delta #Phi(Z,jet1)",
+
+    balance_response_graph_name_mc=makeL1(the_balance_response_graph_name_mc),
+    balance_response_graph_name_data=makeL1(the_balance_response_graph_name_data),
+    mpf_response_graph_name_mc=makeL1(the_mpf_response_graph_name_mc),
+    mpf_response_graph_name_data=makeL1(the_mpf_response_graph_name_data),
+
     balance_histo_names_data=map(makeL1,the_balance_histo_names_data_deltaphi),
     mpf_histo_names_data=map(makeL1,the_mpf_histo_names_data_deltaphi),
     balance_histo_names_mc=map(makeL1,the_balance_histo_names_mc_deltaphi),
@@ -197,32 +206,28 @@ p.deltaphi_extrapolationL1=ZPJConfiguration.section(\
     pt_bins=the_pt_bins)
 
 
-#-------------------------------------------------------------------------------
-p.deltaphi_extrapolation_pu=ZPJConfiguration.section(\
-    "deltaphi_extrapolation_pu",
-    filename_data = the_filename_data,
-    filename_mc = the_filename_mc_pu,
-    comment =  noL1_PU_latex,
-    cut_vals=the_deltaphi_cut_vals,
-    cut_name="#Delta #Phi(Z,jet1)",
-    balance_histo_names_data=the_balance_histo_names_data_deltaphi,
-    mpf_histo_names_data=the_mpf_histo_names_data_deltaphi,
-    balance_histo_names_mc=the_balance_histo_names_mc_deltaphi,
-    mpf_histo_names_mc=the_mpf_histo_names_mc_deltaphi,
-    pt_bins=the_pt_bins)
+
 
 #-------------------------------------------------------------------------------
-p.deltaphi_extrapolation_puL1=ZPJConfiguration.section(\
-    "deltaphi_extrapolation_puL1",
+
+p.pt_extrapolation_fullycorr_ak7=ZPJConfiguration.section(\
+    "pt_extrapolation_fullycorr_ak7",
     filename_data = the_filename_data,
     filename_mc = the_filename_mc_pu,
-    comment = L1_PU_latex,
-    cut_vals=the_deltaphi_cut_vals,
-    cut_name="#Delta #Phi(Z,jet1)",
-    balance_histo_names_data=map(makeL1,the_balance_histo_names_data_deltaphi),
-    mpf_histo_names_data=map(makeL1,the_mpf_histo_names_data_deltaphi),
-    balance_histo_names_mc=map(makeL1,the_balance_histo_names_mc_deltaphi),
-    mpf_histo_names_mc=map(makeL1,the_mpf_histo_names_mc_deltaphi),
+    comment_balance = fully_corr_latex,
+    comment_mpf = fully_corr_latex_mpf,
+    cut_vals=the_2nd_pt_cut_vals,
+    cut_name="p_{T}^{jet 2}/p_{T}^{Z}",
+
+    balance_response_graph_name_mc=the_balance_response_graph_name_mc.replace("ak5","ak7"),
+    balance_response_graph_name_data=the_balance_response_graph_name_data.replace("ak5","ak7"),
+    mpf_response_graph_name_mc=the_mpf_response_graph_name_mc.replace("ak5","ak7"),
+    mpf_response_graph_name_data=the_mpf_response_graph_name_data.replace("ak5","ak7"),
+
+    balance_histo_names_data=map(lambda name: name.replace("ak5","ak7"),the_balance_histo_names_data),
+    mpf_histo_names_data=map(lambda name: name.replace("ak5","ak7"),the_mpf_histo_names_data),
+    balance_histo_names_mc=map(lambda name: name.replace("ak5","ak7"),the_balance_histo_names_mc),
+    mpf_histo_names_mc=map(lambda name: name.replace("ak5","ak7"),the_mpf_histo_names_mc),
     pt_bins=the_pt_bins)
 
 

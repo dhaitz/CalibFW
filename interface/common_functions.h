@@ -31,12 +31,13 @@ void setTDRStyle(){
 //------------------------------------------------------------------------------  
 
 template <class T>
-T* getObject(const char* objname, TString filename){  
+T* getObject(const char* objname, TString filename, bool close=true){  
   if (filename=="")
     return NULL;
   TFile ifile(filename);
   T* obj = (T*) ifile.Get(objname);
-  ifile.Close();
+  if (close)
+    ifile.Close();
   if (obj==NULL){
     cerr << "FATAL Could not read " << objname << " from " << filename.Data() << ".\n";
     exit (0);
@@ -47,14 +48,15 @@ T* getObject(const char* objname, TString filename){
 //------------------------------------------------------------------------------  
 
 template <>
-TH1D* getObject<TH1D>(const char* objname, TString filename){
+TH1D* getObject<TH1D>(const char* objname, TString filename, bool close){
   if (filename=="")
     return NULL;  
   cerr << "Trying to read " << objname << " from " << filename.Data() << ".\n";
   TFile ifile(filename);
   TH1D* obj = (TH1D*) ifile.Get(objname);
   obj->SetDirectory(gROOT);
-  ifile.Close();
+  if (close)
+    ifile.Close();
   return obj;
   }
   
@@ -102,6 +104,20 @@ public:
   
 GraphContent(){};  
 
+
+//---------------------------------------
+GraphContent(TGraphErrors& g){
+    m_name=g.GetName();
+    double x,ex,y,ey;
+    for (int ipoint=0;ipoint<g.GetN();++ipoint){
+      g.GetPoint(ipoint,x,y);
+      ey=g.GetErrorY(ipoint);
+      ex=g.GetErrorX(ipoint);
+      addPoint(x,ex,y,ey);
+    }
+  };  
+
+
 //---------------------------------------
 GraphContent(const char* name, GraphContent g){
     m_name=name;
@@ -112,6 +128,14 @@ GraphContent(const char* name, GraphContent g){
       addPoint(x,ex,y,ey,eey);
     }
   };  
+
+//---------------------------------------
+void addGraphContent(GraphContent& g){
+  for (unsigned int i=0;i<g.size();++i)
+    this->addPoint(g.xvals[i],g.exvals[i],
+                   g.yvals[i],g.eyvals[i],
+                   g.eeyvals[i]);
+  }
 
 //---------------------------------------
 
@@ -195,19 +219,32 @@ GraphContent divide(GraphContent& divisor){
   
   double dividend_x,dividend_ex,dividend_y,dividend_ey;
   double divisor_x,divisor_ex,divisor_y,divisor_ey;
-  double ey=0;
+  double x,ex,y,ey;
   
   //cout << " [GraphContent::divide] Cycle on content...\n";
   for (unsigned int ipoint=0;ipoint<std::min(this->size(),divisor.size());++ipoint){
     this->getPoint(ipoint,dividend_x,dividend_ex,dividend_y,dividend_ey,dummy);
     divisor.getPoint(ipoint,divisor_x,divisor_ex,divisor_y,divisor_ey,dummy);
-    ey = TMath::Sqrt(dividend_ey*dividend_ey + divisor_ey*divisor_ey);
-    dividend.addPoint(dividend_x,dividend_ex,dividend_y/divisor_y,ey);
+    
+    y = dividend_y/divisor_y;    
+    ey = y*TMath::Sqrt(dividend_ey*dividend_ey/(dividend_y*dividend_y) + divisor_ey*divisor_ey/(divisor_y*divisor_y));
+    x = (dividend_x+divisor_x)/2.;    
+    ex = TMath::Sqrt(dividend_ex*dividend_ex + divisor_ex*divisor_ex)/2.;    
+    
+    dividend.addPoint(x,
+                      ex,
+                      y,
+                      ey);
   }
 
   return dividend;
 }
+//---------------------------------------
 
+void divide_inplace(GraphContent& divisor){
+
+  *this = divide(divisor);
+}
 //---------------------------------------
 TString getName(){return m_name;};
 void setName(const char* name){m_name=name;};
@@ -309,40 +346,6 @@ TGraphErrors* make_band(TF1& f, TMatrixDSym& cov){
     
   return g;
   }
-  
-//------------------------------------------------------------------------------
-// COVARIANCE NOT CONSIDERED PROPERLY!
-// TGraphErrors* make_band_simple(TF1& f){
-// 
-//   const int npoints=100;
-//   TString bandname("band_");
-//   bandname+=f.GetName();
-//   TGraphErrors *g =new  TGraphErrors(npoints);
-//   g->SetMarkerStyle(0);
-//   g->SetMarkerColor(f.GetLineColor());
-//   g->SetLineColor(f.GetLineColor());
-//   g->SetFillColor(f.GetLineColor());
-//   g->SetFillStyle(3002);
-//   const int npar = f.GetNpar();
-//   const double step = (f.GetXmax()-f.GetXmin())/npoints;
-//   double point = f.GetXmin();
-//   
-//   for (int ipoint=0;ipoint<npoints;ipoint++){
-//     
-//     double point_error2=0;
-//     for (int ipar=0;ipar<npar;++ipar){
-//       double par_error = f.GetParError(ipar);
-//       double point_error=(par_error * f.GradientPar(ipar,&point));
-//       point_error2 += point_error*point_error;
-//       }     
-//     g->SetPoint(ipoint,point,f.Eval(point));
-//     g->SetPointError(ipoint,0,TMath::Sqrt(point_error2));
-//     
-//     point+=step;
-//   }
-//     
-//   return g;
-//   }
 
 //------------------------------------------------------------------------------
 
