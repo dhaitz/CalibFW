@@ -32,7 +32,7 @@ the_pt_bins=["Pt0to15",
              "Pt30to60",
              "Pt60to100",
              "Pt100to500",
-             "Pt50to500"]
+             "Pt30to500"]
 
 
 noL1_noPU_latex="#scale[.6]{#splitline{#splitline{anti-kt 0.5 Particle Flow Jets}{uncorrected}}{No PU simulated}}"
@@ -138,7 +138,32 @@ p.deltaphi_extrapolation_fullycorr=ZPJConfiguration.section(\
     mpf_histo_names_mc=the_mpf_histo_names_mc_deltaphi,
     pt_bins=the_pt_bins)
 
+
+#-------------------------------------------------------------------------------
+
+p.deltaphi_extrapolation_fullycorr_ak7=ZPJConfiguration.section(\
+    "deltaphi_extrapolation_fullycorr_ak7",
+    filename_data = the_filename_data,
+    filename_mc = the_filename_mc_pu,
+    comment_balance = fully_corr_latex.replace("0.5","0.7"),
+    comment_mpf = fully_corr_latex_mpf.replace("0.5","0.7"),
+    cut_vals=the_deltaphi_cut_vals,
+    cut_name="#Delta #Phi(Z,jet1)",
+
+    balance_response_graph_name_mc=the_balance_response_graph_name_mc.replace("ak5","ak7"),
+    balance_response_graph_name_data=the_balance_response_graph_name_data.replace("ak5","ak7"),
+    mpf_response_graph_name_mc=the_mpf_response_graph_name_mc.replace("ak5","ak7"),
+    mpf_response_graph_name_data=the_mpf_response_graph_name_data.replace("ak5","ak7"),
+
+    balance_histo_names_data=map(lambda name: name.replace("ak5","ak7"),the_balance_histo_names_data_deltaphi),
+    mpf_histo_names_data=map(lambda name: name.replace("ak5","ak7"),the_mpf_histo_names_data_deltaphi),
+    balance_histo_names_mc=map(lambda name: name.replace("ak5","ak7"),the_balance_histo_names_mc_deltaphi),
+    mpf_histo_names_mc=map(lambda name: name.replace("ak5","ak7"),the_mpf_histo_names_mc_deltaphi),
+    pt_bins=the_pt_bins)    
     
+
+    
+
 #-------------------------------------------------------------------------------
 
 p.pt_extrapolation_L1=ZPJConfiguration.section(\
@@ -214,8 +239,8 @@ p.pt_extrapolation_fullycorr_ak7=ZPJConfiguration.section(\
     "pt_extrapolation_fullycorr_ak7",
     filename_data = the_filename_data,
     filename_mc = the_filename_mc_pu,
-    comment_balance = fully_corr_latex,
-    comment_mpf = fully_corr_latex_mpf,
+    comment_balance = fully_corr_latex.replace("0.5","0.7"),
+    comment_mpf = fully_corr_latex_mpf.replace("0.5","0.7"),
     cut_vals=the_2nd_pt_cut_vals,
     cut_name="p_{T}^{jet 2}/p_{T}^{Z}",
 

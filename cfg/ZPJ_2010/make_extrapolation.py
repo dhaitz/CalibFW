@@ -11,11 +11,13 @@ import ZPJConfiguration
 process=ZPJConfiguration.configuration("my_cfg")
 p=process
 
-the_filename_data="/home/piparo/DiplomarbeitThomas/extrapolation_1_2_data_60_500.root"
-the_filename_mc="/home/piparo/DiplomarbeitThomas/extrapolation_dy_nopu_60_500.root"
-the_filename_mc_pu="/home/piparo/DiplomarbeitThomas/extrapolation_dy_pu_1_2_60_500.root"
+basedir="/home/piparo/Paper/"
+
+the_filename_data=basedir+"extrapolation_data.root"
+the_filename_mc=basedir+"extrapolation_dy_pu.root"
+the_filename_mc_pu=basedir+"extrapolation_dy_pu.root"
              
-the_pt_bins=["Pt60to500"]
+the_pt_bins=["Pt10to500"]
 
 
 #the_filename_data="/home/piparo/DiplomarbeitThomas/extrapolation_1_2_data.root"
@@ -23,9 +25,13 @@ the_pt_bins=["Pt60to500"]
 #the_filename_mc_pu="/home/piparo/DiplomarbeitThomas/extrapolation_dy_pu_1_2.root"
 
 
-#the_pt_bins=["Pt30to60",
+#the_pt_bins=["Pt0to10",
+             #"Pt10to30",
+             #"Pt30to60",
              #"Pt60to100",
              #"Pt10to500"]
+
+the_pt_bins=["Pt30to60","Pt60to100","Pt100to140","Pt140to500","Pt10to500"]
 
 
 noL1_noPU_latex="#scale[.6]{#splitline{#splitline{anti-kt 0.5 Particle Flow Jets}{uncorrected}}{No PU simulated}}"
@@ -36,7 +42,7 @@ L1_PU_latex="#scale[.6]{#splitline{#splitline{anti-kt 0.5 Particle Flow Jets}{je
 
 #---------------------------------------------
 # 2nd pt jet cut 
-the_2nd_pt_cut_vals = [ 0.2, 0.15,0.1,0.05]
+the_2nd_pt_cut_vals = [ 0.2, 0.15, .1,.05]
 the_balance_histo_names_data=\
 ["@PTBIN@_incut_var_CutSecondLeadingToZPt_0_2/jetresp_ak5PFJets_Zplusjet_data_@PTBIN@_hist",
 "@PTBIN@_incut_var_CutSecondLeadingToZPt_0_15/jetresp_ak5PFJets_Zplusjet_data_@PTBIN@_hist",

@@ -11,6 +11,7 @@
 #include "TF1.h"
 #include "TFitResultPtr.h"
 #include "TFitResult.h"
+#include "TObjString.h"
 
 #include "TMatrixTSym.h"
 
@@ -52,6 +53,7 @@ class extrapolator {
  
 public:
 extrapolator(TString pt_bin,
+             double lower_pt_bin_edge,
              TString prefix,
              TString ifilename_data,TString ifilename_mc,
              TString comment_balance,
@@ -70,6 +72,7 @@ extrapolator(TString pt_bin,
     mpf_histo_names_mc[iname].ReplaceAll("@PTBIN@",pt_bin);
     }
   
+  m_lower_pt_bin_edge = lower_pt_bin_edge;
 
   m_balance_histos_data = getObjects<TH1D>(balance_histo_names_data, ifilename_data);
   m_mpf_histos_data = getObjects<TH1D>(mpf_histo_names_data, ifilename_data);  
@@ -171,6 +174,7 @@ TString m_comment_mpf;
 TString m_pt_bin;
 TString m_prefix;
 
+double m_lower_pt_bin_edge;
 double m_extr_balance,m_extr_balancee;
 double m_extr_mpf,m_extr_mpfe;
 double m_extr_mc_balance,m_extr_mc_balancee;
@@ -187,60 +191,23 @@ GraphContent m_build_extr_graph(const char* name,vector<double> cut_values,vecto
   double center_err=0;
   double center_err_err=0;
   
+  double point_x=0;
   for (unsigned int ipoint=0;ipoint<size;++ipoint){
-
+//     point_x = m_cut_values[ipoint];
+//     if (point_x*m_lower_pt_bin_edge < 5 and m_lower_pt_bin_edge>0.001)
+//       break;
+    
     center=balance_histos[ipoint]->GetMean();
     center_err=balance_histos[ipoint]->GetMeanError();
     double rms = balance_histos[ipoint]->GetRMS();
-    
-//     balance_histos[ipoint]->GetXaxis()->SetRangeUser(center-2*rms,center+2*rms);
-//     center=balance_histos[ipoint]->GetMean();
-//     center_err=balance_histos[ipoint]->GetMeanError();
-    
-//     double rms = balance_histos[ipoint]->GetRMS();
-//     TF1 gaus("gaus","gaus",center-1*rms,2);
-//     gaus.SetParameter(0,1.);
-//     gaus.SetParameter(1,center);
-//     gaus.SetParameter(2,rms);
-//     balance_histos[ipoint]->Fit(&gaus,"L",0,center-1*rms,2);
-//     center = gaus.GetParameter(1);
-//     center_err = gaus.GetParError(1);
-// 
-// /*    gaus.SetParameter(0,1.);
-//     gaus.FixParameter(0,1.);
-//     gaus.SetParameter(1,center);
-//     gaus.SetParameter(2,rms);
-//     balance_histos[ipoint]->Fit(&gaus,"L",0,center-2*rms,center+2*rms);
-//     center = gaus.GetParameter(1);
-//     center_err = gaus.GetParError(1);   */ 
-//    
-//     gStyle->SetOptStat(111111111);
-//     TCanvas c;
-//     c.cd();
-//     balance_histos[ipoint]->Draw("hist");
-// //     gaus.Draw("Same");
-//     TString cname(balance_histos[ipoint]->GetName());
-//     cname+="_";
-//     cname+= (int) (cut_values[ipoint]*100);
-//     cname+=".png";
-//     c.Print(cname);
-//     gStyle->SetOptStat(0);
-    
-//     double rms=balance_histos[ipoint]->GetRMS();
-//     cout << "Mean: " << center << " ";
-//     balance_histos[ipoint]->GetXaxis()->SetRangeUser(center-2*rms,center+2*rms);
-//     center=balance_histos[ipoint]->GetMean();
-//     cout << "- Truncated Mean: " << center << "\n";
-//     
+        
     // Small study about the precision of RMS
     double sqrtNminus1=TMath::Sqrt(balance_histos[ipoint]->GetEntries()-1);    
     double center_err_err = balance_histos[ipoint]->GetRMSError()/sqrtNminus1;
     
-    if (balance_histos[ipoint]->GetEntries()>30)
+    if (balance_histos[ipoint]->GetEntries()>25)
       extrapolated_graph.addPoint(m_cut_values[ipoint],0,
-                                  center,center_err,center_err_err);
-        
-                                
+                                  center,center_err,center_err_err);                
     }// end loop on points
   if (decorrelate)
     extrapolated_graph.decorrelate();
@@ -367,8 +334,8 @@ void do_plot(TString name,
     dummy_h.GetYaxis()->SetRangeUser(y_min*0.7,y_max*1.3);
   
   c.Print(m_prefix+"_"+name+".png");
-  c.Print(m_prefix+"_"+name+".pdf");
-  c.Print(m_prefix+"_"+name+".eps");
+//   c.Print(m_prefix+"_"+name+".pdf");
+//   c.Print(m_prefix+"_"+name+".eps");
   
   // Fill the extrapolation values
   double fit_plus_err_at_zero=0;
@@ -507,8 +474,8 @@ void  do_response_plot(TString name, TGraphErrors* graph,TGraphErrors* extr_grap
   
   
   c.Print(name+".png");
-  c.Print(name+".pdf");
-  c.Print(name+".eps");
+//   c.Print(name+".pdf");
+//   c.Print(name+".eps");
   
   
   
@@ -603,11 +570,21 @@ void make_jme1010(TString name,
                              "ur");
 
   
+  
+  
   // Build a mega TGraphErrors with all points and errors!
   balance_ratio_gc.addGraphContent(mpf_ratio_gc);
   TGraphErrors megag (*balance_ratio_gc.getGraph());
   
   megag.Print();
+  
+  // Plug In and write on file
+  TFile jme1010Plot(name+".root","RECREATE");
+  megag.Write("combined_balance_mpf");
+  balance_ratiog->Write("balnce");
+  mpf_ratiog->Write("mpf");
+  jme1010Plot.Close();
+  
   
   TGraphErrors megag_dummy(megag);
   megag_dummy.SetPoint(0,-100,0);
@@ -619,7 +596,7 @@ void make_jme1010(TString name,
   megag_dummy.GetXaxis()->SetMoreLogLabels();
   
   // Perform the fit!
-  TF1 fitf("FittingFunction", "[0]+x*[1]", 20, 200);
+  TF1 fitf("FittingFunction", "[0]+[1]*log(x)", 20, 200);
   fitf.SetLineWidth(2);
   TFitResultPtr fitresp = megag.Fit(&fitf,"LSR");
   
@@ -663,7 +640,7 @@ void make_jme1010(TString name,
   extrcutlatex.Draw();
   
   c.Print(name+".png");
-  c.Print(name+".pdf");
+//   c.Print(name+".pdf");
   
   delete leg;
   
@@ -747,7 +724,15 @@ for (int iarg=2;iarg<argc;iarg++){
   vString::iterator ibin;
   for (ibin=pt_bins.begin();ibin!=pt_bins.end();ibin++){
 
+    // Get bin low edge from name
+    TString dummy(*ibin);
+    dummy.ReplaceAll("Pt","");
+    dummy = ((TObjString*)(dummy.Tokenize("to")->At(0)))->GetString();
+    
+    cout << " ******** " << dummy.Data() << " " << dummy.Atof() << endl;
+    
     extrapolator the_extrapolator(*ibin,
+                                  dummy.Atof(),
                                   title,
                                   filename_data,filename_mc,
                                   comment_balance,
