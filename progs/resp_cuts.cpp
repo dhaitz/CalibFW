@@ -306,6 +306,11 @@ EventPipeline * CreateLevel2Pipeline()
 
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, jetresp, "jetresp" )
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, mpfresp, "mpfresp" )
+
+
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetCorrGraph, balance_jetcorr, "jetresp" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetCorrGraph, mpf_jetcorr, "mpfresp" )
+
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetChargedHadronEnergy, jet1_chargedhadronenergy_fraction, "jet1_chargedhadronenergy_fraction" )
     PLOT_GRAPHERRORS_COND1( pline, DrawJetNeutralHadronEnergy, jet1_neutralhadronenergy_fraction, "jet1_neutralhadronenergy_fraction" )
     PLOT_GRAPHERRORS_COND1( pline, DrawPhotonEnergy, jet1_photonenergy_fraction, "jet1_photonenergy_fraction" )
