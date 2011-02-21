@@ -1436,6 +1436,86 @@ public:
 
 };
 
+
+class DrawJetCorrGraph: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+	DrawJetCorrGraph( std::string sInpHist ) :
+		DrawGraphErrorsConsumerBase<EventResult>(),
+		m_sInpHist( sInpHist)
+	{
+
+	}
+
+	virtual void Process()
+	{
+		Hist1D m_histResp;
+
+		// move through the histos
+		stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+		std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+		m_histResp.m_sCaption = m_histResp.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+		//m_histResp.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+		m_histResp.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+		m_histResp.Init();
+
+
+		int i = 0;
+		for (std::vector< PtBin >::iterator it = bins.begin();
+				it != bins.end();
+				it ++)
+		{
+			TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+			sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+			// cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd(
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+			TString sName = RootNamer::GetHistoName(
+					this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+					this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+			TH1D * hresp = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+			if (hresp == NULL)
+			{
+				CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+			}
+
+			sName = RootNamer::GetHistoName(
+					this->GetPipelineSettings()->GetAlgoName(), "jet1_pt",
+					this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+			TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+			if (hpt == NULL)
+			{
+				CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+			}
+
+			double fR = 1.0 / hresp->GetMean();
+			double fRError = hresp->GetMeanError() / (TMath::Power(hresp->GetMean(), 2.0));
+
+			m_graph->AddPoint( hpt->GetMean(),
+					fR,
+					hpt->GetMeanError(),
+					fRError);
+
+			m_histResp.GetRawHisto()->SetBinContent(i +1, fR );
+			m_histResp.GetRawHisto()->SetBinError(i +1, fRError );
+			i++;
+		}
+
+		m_histResp.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+	}
+	std::string m_sInpHist;
+	std::string m_sFolder;
+
+
+};
+
 // DP: New plot classes for ChargedHadronEnergy, Neutral and Photon fraction
 
 class DrawJetChargedHadronEnergy: public DrawGraphErrorsConsumerBase<EventResult>
@@ -1918,4 +1998,5 @@ public:
 
 }
 #endif
+
 
