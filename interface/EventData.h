@@ -80,6 +80,7 @@ public:
 	Long_t cmsEventNum;
 	Long_t cmsRun;
 	Int_t luminosityBlock;
+    Int_t partonFlavour;
 
 	evtData()
 	{
@@ -172,6 +173,8 @@ public:
 
 		ev->xsection = this->xsection;
 		ev->weight = this->weight;
+
+        ev->partonFlavour = this->partonFlavour;
 
 		return ev;
 	}
