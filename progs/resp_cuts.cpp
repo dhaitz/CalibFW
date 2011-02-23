@@ -359,6 +359,8 @@ EventPipeline * CreateDefaultPipeline()
 	 sname << i << "jetresp";
 	 */
 
+    PLOT_HIST1D(pline, DrawPartonFlavourConsumer, partonflavour )
+
 	PLOT_HIST1D(pline, DrawZMassConsumer, zmass)
 	PLOT_HIST1D(pline, DrawZPtConsumer, z_pt)
 
@@ -730,6 +732,8 @@ TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 
 	mychain->SetBranchAddress("met", &pEv->met);
 	mychain->SetBranchAddress("tcmet", &pEv->tcmet);
+    
+    mychain->SetBranchAddress("matrix_element_flavour", &pEv->partonFlavour );
 
 	// Triggers
 	mychain->SetBranchAddress("HLTriggers_accept", &pEv->HLTriggers_accept);
