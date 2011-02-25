@@ -182,7 +182,7 @@ double m_extr_mc_mpf,m_extr_mc_mpfe;
 
 //------------------------------------------------------------------------------
 template <class T>
-GraphContent m_build_extr_graph(const char* name,vector<double> cut_values,vector<T*> balance_histos, bool decorrelate=true){
+GraphContent m_build_extr_graph(const char* name,vector<double> cut_values,vector<T*> balance_histos, bool decorrelate=false){
   
   const unsigned int size = balance_histos.size();
   GraphContent extrapolated_graph;
@@ -193,9 +193,9 @@ GraphContent m_build_extr_graph(const char* name,vector<double> cut_values,vecto
   
   double point_x=0;
   for (unsigned int ipoint=0;ipoint<size;++ipoint){
-//     point_x = m_cut_values[ipoint];
-//     if (point_x*m_lower_pt_bin_edge < 5 and m_lower_pt_bin_edge>0.001)
-//       break;
+    point_x = m_cut_values[ipoint];
+    if (point_x*m_lower_pt_bin_edge < 5 and m_lower_pt_bin_edge>0.001 and not (m_cut_name.Contains("Phi")or m_cut_name.Contains("phi")))
+      break;
     
     center=balance_histos[ipoint]->GetMean();
     center_err=balance_histos[ipoint]->GetMeanError();
@@ -205,7 +205,7 @@ GraphContent m_build_extr_graph(const char* name,vector<double> cut_values,vecto
     double sqrtNminus1=TMath::Sqrt(balance_histos[ipoint]->GetEntries()-1);    
     double center_err_err = balance_histos[ipoint]->GetRMSError()/sqrtNminus1;
     
-    if (balance_histos[ipoint]->GetEntries()>25)
+    if (balance_histos[ipoint]->GetEntries()>20)
       extrapolated_graph.addPoint(m_cut_values[ipoint],0,
                                   center,center_err,center_err_err);                
     }// end loop on points
@@ -599,6 +599,7 @@ void make_jme1010(TString name,
   TF1 fitf("FittingFunction", "[0]+[1]*log(x)", 20, 200);
   fitf.SetLineWidth(2);
   TFitResultPtr fitresp = megag.Fit(&fitf,"LSR");
+  fitresp = megag.Fit(&fitf,"LSR");
   
   // The band(s)
   TMatrixDSym cov((*fitresp).GetCovarianceMatrix());
