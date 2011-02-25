@@ -57,7 +57,7 @@ typedef struct {float ChargedHadronEnergy,
 class evtData: boost::noncopyable
 {
 public:
-	TParticle *Z, *mu_minus, *mu_plus;
+	TParticle *Z, *matched_Z,*mu_minus, *mu_plus;
 
 	TParticle *jets[3];
 	TParticle *matched_calo_jets[3];
@@ -84,7 +84,7 @@ public:
 
 	evtData()
 	{
-		Z = mu_minus = mu_plus = jets[0] = jets[1] = jets[2] = met = tcmet
+		Z = matched_Z = mu_minus = mu_plus = jets[0] = jets[1] = jets[2] = met = tcmet
 				= NULL;
 
 		pfProperties[0] = pfProperties[1] =pfProperties[2] = NULL;
@@ -98,29 +98,30 @@ public:
 
 	~evtData()
 	{
-		SAFE_DELETE ( Z )
-		SAFE_DELETE ( mu_minus )
-		SAFE_DELETE ( mu_plus )
-		SAFE_DELETE ( jets[0] )
-		SAFE_DELETE ( jets[1] )
-		SAFE_DELETE ( jets[2] )
-
-		SAFE_DELETE ( matched_calo_jets[0] )
-		SAFE_DELETE ( matched_calo_jets[1] )
-		SAFE_DELETE ( matched_calo_jets[2] )
-
-		SAFE_DELETE ( pfProperties[0] )
-		SAFE_DELETE ( pfProperties[1] )
-		SAFE_DELETE ( pfProperties[2] )
-
-
-		SAFE_DELETE ( met )
-		SAFE_DELETE ( tcmet )
-		SAFE_DELETE ( recoVertices )
-		SAFE_DELETE ( recoVerticesInfo )
-		SAFE_DELETE ( recoVerticesError )
-		SAFE_DELETE ( HLTriggers_accept )
-		SAFE_DELETE ( beamSpot )
+// 		SAFE_DELETE ( Z )
+//      SAFE_DELETE ( matched_Z )
+// 		SAFE_DELETE ( mu_minus )
+// 		SAFE_DELETE ( mu_plus )
+// 		SAFE_DELETE ( jets[0] )
+// 		SAFE_DELETE ( jets[1] )
+// 		SAFE_DELETE ( jets[2] )
+// 
+// 		SAFE_DELETE ( matched_calo_jets[0] )
+// 		SAFE_DELETE ( matched_calo_jets[1] )
+// 		SAFE_DELETE ( matched_calo_jets[2] )
+// 
+// 		SAFE_DELETE ( pfProperties[0] )
+// 		SAFE_DELETE ( pfProperties[1] )
+// 		SAFE_DELETE ( pfProperties[2] )
+// 
+// 
+// 		SAFE_DELETE ( met )
+// 		SAFE_DELETE ( tcmet )
+// 		SAFE_DELETE ( recoVertices )
+// 		SAFE_DELETE ( recoVerticesInfo )
+// 		SAFE_DELETE ( recoVerticesError )
+// 		SAFE_DELETE ( HLTriggers_accept )
+// 		SAFE_DELETE ( beamSpot )
 	}
 
 	// true if the event is within cuts
@@ -129,6 +130,7 @@ public:
 	{
 		evtData * ev = new evtData();
 		ev->Z = new TParticle(*this->Z);
+        ev->matched_Z = new TParticle(*this->matched_Z);
 		ev->mu_minus = new TParticle(*this->mu_minus);
 		ev->mu_plus = new TParticle(*this->mu_plus);
 		ev->met = new TParticle(*this->met);

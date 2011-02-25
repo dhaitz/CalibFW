@@ -319,6 +319,11 @@ EventPipeline * CreateLevel2Pipeline()
     PLOT_GRAPHERRORS_COND1( pline, DrawConstituents, jet1_constituents, "jet1_constituents" )
     
     PLOT_GRAPHERRORS_COND2( pline, DrawMatchAvgAvgCaloJetPtRatio, calo_avg_pf_avg_ratio_vs_z_pt , "jet1_calo_match_pt", "jet1_pt" )
+
+    PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, zmass, "zmass" )  
+        
+    // Matched Z
+    PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, matchedZ_ptratio, "matchedZ_ptratio" )    
     
 
 	return pline;
@@ -423,7 +428,10 @@ EventPipeline * CreateDefaultPipeline()
     PLOT_HIST1D_CONST1(pline, ConstituentsConsumer, jet1_constituents, 0)
     PLOT_HIST1D_CONST1(pline, ConstituentsConsumer, jet2_constituents, 1)
     PLOT_HIST1D_CONST1(pline, ConstituentsConsumer, jet3_constituents, 2)
-
+    
+    // Matched Z
+    PLOT_HIST1D(pline, DrawZMatchConsumer, matchedZ_ptratio)    
+    
 	// Response
 	PLOT_HIST1D(pline, DrawJetRespConsumer, jetresp)
 	PLOT_HIST1D(pline, DrawMpfJetRespConsumer, mpfresp)
@@ -724,6 +732,7 @@ TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 	// TParticles
 
 	mychain->SetBranchAddress("Z", &pEv->Z);
+    mychain->SetBranchAddress("matched_Z", &pEv->matched_Z);
 	mychain->SetBranchAddress("jet", &pEv->jets[0]);
 	mychain->SetBranchAddress("jet2", &pEv->jets[1]);
 	mychain->SetBranchAddress("jet3", &pEv->jets[2]);

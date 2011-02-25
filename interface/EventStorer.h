@@ -45,6 +45,7 @@ public:
 
 		 // more data can go here
 		 m_gentree->Branch("Z", "TParticle", &m_localData.Z);
+             m_gentree->Branch("matched_Z", "TParticle", &m_localData.matched_Z);
 		 m_gentree->Branch("mu_plus", "TParticle", &m_localData.mu_plus);
 		 m_gentree->Branch("mu_minus", "TParticle", &m_localData.mu_minus);
 		 m_gentree->Branch("jet1", "TParticle", &m_localData.jets[0]);
@@ -83,6 +84,7 @@ public:
 	virtual void ProcessFilteredEvent(EventResult & event)
 	{		
 		 m_localData.Z = new TParticle(*event.m_pData->Z);
+//          m_localData.matched_Z = new TParticle(*event.m_pData->matched_Z);
 
 		 m_localData.mu_plus = new TParticle(*event.m_pData->mu_plus);
 		 m_localData.mu_minus = new TParticle(*event.m_pData->mu_minus);
