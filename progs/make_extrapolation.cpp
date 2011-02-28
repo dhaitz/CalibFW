@@ -57,11 +57,11 @@ void add_topline(TCanvas& c){
   c.SetTopMargin(c.GetTopMargin()+0.05);
   c.SetBottomMargin(c.GetBottomMargin()+0.02);
   
-  TLatex lumi_latex(.18, .93 , "#scale[.6]{#bf{CMS}}");
+  TLatex lumi_latex(.18, .93 , "#scale[.7]{CMS}");
   lumi_latex.SetNDC();
   lumi_latex.DrawClone();
   
-  TLatex cem_latex(.7, .93 , "#scale[.6]{36 pb^{-1}} #sqrt{s}= 7 TeV}");
+  TLatex cem_latex(.65, .93 , "#bf{#scale[.7]{36 pb^{-1}      #sqrt{s}= 7 TeV}}");
   cem_latex.SetNDC();    
   cem_latex.DrawClone();
   
@@ -332,7 +332,7 @@ void do_plot(TString name,
   ptbin_str.ReplaceAll("Pt","#scale[.6]{");
   ptbin_str.ReplaceAll("to"," < p_{T}^{Z} < ");
   ptbin_str+="}";
-  TLatex ptbin_latex(.22, .2 ,ptbin_str);
+  TLatex ptbin_latex(.22, .25 ,ptbin_str);
   ptbin_latex.SetNDC();  
   
 //   lumi_latex.Draw("Same");
