@@ -48,6 +48,26 @@ plot_style(8,1.5,2,kRed)};
 //                              plot_style(8,1.5,2,kRed)};  
 
 //------------------------------------------------------------------------------
+void add_topline(TCanvas& c){
+
+  c.cd();
+  
+  // add a bit of space
+  c.SetLeftMargin(c.GetLeftMargin()+0.02);
+  c.SetTopMargin(c.GetTopMargin()+0.05);
+  c.SetBottomMargin(c.GetBottomMargin()+0.02);
+  
+  TLatex lumi_latex(.18, .93 , "#scale[.6]{#bf{CMS}}");
+  lumi_latex.SetNDC();
+  lumi_latex.DrawClone();
+  
+  TLatex cem_latex(.7, .93 , "#scale[.6]{36 pb^{-1}} #sqrt{s}= 7 TeV}");
+  cem_latex.SetNDC();    
+  cem_latex.DrawClone();
+  
+  
+  }
+//------------------------------------------------------------------------------
 
 class extrapolator {  
  
@@ -182,7 +202,7 @@ double m_extr_mc_mpf,m_extr_mc_mpfe;
 
 //------------------------------------------------------------------------------
 template <class T>
-GraphContent m_build_extr_graph(const char* name,vector<double> cut_values,vector<T*> balance_histos, bool decorrelate=false){
+GraphContent m_build_extr_graph(const char* name,vector<double> cut_values,vector<T*> balance_histos, bool decorrelate=true){
   
   const unsigned int size = balance_histos.size();
   GraphContent extrapolated_graph;
@@ -269,7 +289,7 @@ void do_plot(TString name,
   TGraph** func_2_bands_ud = make_bands_up_down(func2, cov2 );
 
   
-  TCanvas c;
+  TCanvas c("ciccio","pippo",600,600);
   dummy_h.Draw();
   g1->Draw("PESAME");
   if (do_mpf) g2->Draw("PESAME");
@@ -286,16 +306,17 @@ void do_plot(TString name,
     }
     
   // add a bit of space
-  c.SetLeftMargin(c.GetLeftMargin()+0.02);
-  c.SetTopMargin(c.GetTopMargin()+0.05);
-  c.SetBottomMargin(c.GetBottomMargin()+0.02);
-  
-  // TLatex'es
-  TLatex lumi_latex(.18, .93 , "#scale[.6]{#int L = 36 pb^{-1}}");
-  lumi_latex.SetNDC();
-  
-  TLatex cem_latex(.78, .93 , "#scale[.6]{#sqrt{s}= 7 TeV}");
-  cem_latex.SetNDC();  
+  add_topline(c);
+//   c.SetLeftMargin(c.GetLeftMargin()+0.02);
+//   c.SetTopMargin(c.GetTopMargin()+0.05);
+//   c.SetBottomMargin(c.GetBottomMargin()+0.02);
+//   
+//   // TLatex'es
+//   TLatex lumi_latex(.18, .93 , "#scale[.6]{#int L = 36 pb^{-1}}");
+//   lumi_latex.SetNDC();
+//   
+//   TLatex cem_latex(.78, .93 , "#scale[.6]{#sqrt{s}= 7 TeV}");
+//   cem_latex.SetNDC();  
 
   
   TString comment(m_comment_balance);
@@ -314,8 +335,8 @@ void do_plot(TString name,
   TLatex ptbin_latex(.22, .2 ,ptbin_str);
   ptbin_latex.SetNDC();  
   
-  lumi_latex.Draw("Same");
-  cem_latex.Draw("Same");
+//   lumi_latex.Draw("Same");
+//   cem_latex.Draw("Same");
   comment_latex.Draw("Same");
   ptbin_latex.Draw("Same");
 
@@ -436,31 +457,34 @@ void  do_response_plot(TString name, TGraphErrors* graph,TGraphErrors* extr_grap
   else
     dummy_h.GetYaxis()->SetTitle("Z+jet MPF");
 
-  TCanvas c;
+  TCanvas c("ciccio","pippo",600,600);
   dummy_h.Draw();
   
   dummy_h.GetYaxis()->SetRangeUser(y_min*0.7,y_max*1.3);  
   
   graph->Draw("PESAME");
   extr_graph->Draw("PESAME");
-    
+
+  add_topline(c);
+  
   // add a bit of space
-  c.SetLeftMargin(c.GetLeftMargin()+0.02);
-  c.SetTopMargin(c.GetTopMargin()+0.05);
-  c.SetBottomMargin(c.GetBottomMargin()+0.02);
-  
-  // TLatex'es
-  TLatex lumi_latex(.18, .93 , "#scale[.6]{#int L = 36 pb^{-1}}");
-  lumi_latex.SetNDC();
-  
-  TLatex cem_latex(.78, .93 , "#scale[.6]{#sqrt{s}= 7 TeV}");
-  cem_latex.SetNDC();  
-   
+//   c.SetLeftMargin(c.GetLeftMargin()+0.02);
+//   c.SetTopMargin(c.GetTopMargin()+0.05);
+//   c.SetBottomMargin(c.GetBottomMargin()+0.02);
+//   
+//   // TLatex'es
+//   TLatex lumi_latex(.18, .93 , "#scale[.6]{#int L = 36 pb^{-1}}");
+//   lumi_latex.SetNDC();
+//   
+//   TLatex cem_latex(.78, .93 , "#scale[.6]{#sqrt{s}= 7 TeV}");
+//   cem_latex.SetNDC();  
+//    
+// 
+//   lumi_latex.Draw("Same");
+//   cem_latex.Draw("Same");
   TLatex comment_latex(.22, .8 ,comment);
   comment_latex.SetNDC();
 
-  lumi_latex.Draw("Same");
-  cem_latex.Draw("Same");
   comment_latex.Draw("Same");
 
   // Make Legend
@@ -511,26 +535,7 @@ TLegend* buildLegend(TString header,
   return l;
   
   };
-//------------------------------------------------------------------------------
-void add_topline(TCanvas& c){
 
-  c.cd();
-  
-  // add a bit of space
-  c.SetLeftMargin(c.GetLeftMargin()+0.02);
-  c.SetTopMargin(c.GetTopMargin()+0.05);
-  c.SetBottomMargin(c.GetBottomMargin()+0.02);
-  
-  TLatex lumi_latex(.18, .93 , "#scale[.6]{#int L = 36 pb^{-1}}");
-  lumi_latex.SetNDC();
-  lumi_latex.DrawClone();
-  
-  TLatex cem_latex(.78, .93 , "#scale[.6]{#sqrt{s}= 7 TeV}");
-  cem_latex.SetNDC();    
-  cem_latex.DrawClone();
-  
-  
-  }
 //------------------------------------------------------------------------------
 
 void make_jme1010(TString name,
@@ -619,7 +624,7 @@ void make_jme1010(TString name,
     
   // Draw Everything
                        
-  TCanvas c;
+  TCanvas c("ciccio","pippo",600,600);
   c.cd();
   
   c.SetLogx();  
@@ -652,7 +657,7 @@ void make_jme1010(TString name,
 
 int main(int argc, char** argv){
 
-setTDRStyle();
+setTDRStyle_mod();
 gStyle->SetOptStat(0);
 gStyle->SetOptFit(0);
 

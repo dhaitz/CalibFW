@@ -10,9 +10,9 @@ import ZPJConfiguration
 process=ZPJConfiguration.configuration("my_cfg")
 p=process
 
-the_filename_data="/home/piparo/Paper/extrapolation_data.root"
-the_filename_mc="/home/piparo/Paper/extrapolation_data.root"
-the_filename_mc_pu="/home/piparo/Paper/extrapolation_dy_pu.root"
+the_filename_data="/home/piparo/Paper/extrapolation_data_03.root"
+the_filename_mc="/home/piparo/Paper/extrapolation_data_03.root"
+the_filename_mc_pu="/home/piparo/Paper/extrapolation_dy_pu_03_ALLALGOSRENAMEME.root"
  
 #the_filename_data="/home/piparo/Paper/extrapolation_data_less2vtx.root"
 #the_filename_mc="/home/piparo/Paper/extrapolation_data_less2vtx.root"
@@ -32,7 +32,7 @@ the_pt_bins=["Pt0to15",
              "Pt30to60",
              "Pt60to100",
              "Pt100to500",
-             "Pt30to500"]
+             "Pt30to500"][-3:]
 
 
 noL1_noPU_latex="#scale[.6]{#splitline{#splitline{anti-kt 0.5 Particle Flow Jets}{uncorrected}}{No PU simulated}}"
@@ -48,16 +48,21 @@ L1_corr_latex_mpf="#scale[.6]{#splitline{#splitline{anti-kt 0.5 Particle Flow Je
 
 #---------------------------------------------
 # 2nd pt jet cut 
-the_2nd_pt_cut_vals = [ 0.3 , 0.2, .17 , 0.15, 0.13, 0.1, 0.05, 0.03  ]
+the_2nd_pt_cut_vals = [0.4, 0.35, 0.3, 0.25, .2, 0.17, 0.15, 0.13, 0.1, 0.05][2:6]
 the_balance_histo_names_data=\
-["@PTBIN@_incut_var_CutSecondLeadingToZPt_0_3/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist",
+["@PTBIN@_incut_var_CutSecondLeadingToZPt_0_4/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist",
+ "@PTBIN@_incut_var_CutSecondLeadingToZPt_0_35/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist",
+ "@PTBIN@_incut_var_CutSecondLeadingToZPt_0_3/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist",
+ "@PTBIN@_incut_var_CutSecondLeadingToZPt_0_25/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist",
  "@PTBIN@_incut_var_CutSecondLeadingToZPt_0_2/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist",
  "@PTBIN@_incut_var_CutSecondLeadingToZPt_0_17/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist",
  "@PTBIN@_incut_var_CutSecondLeadingToZPt_0_15/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist",
  "@PTBIN@_incut_var_CutSecondLeadingToZPt_0_13/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist",
  "@PTBIN@_incut_var_CutSecondLeadingToZPt_0_1/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist",
- "@PTBIN@_incut_var_CutSecondLeadingToZPt_0_05/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist",
- "@PTBIN@_incut_var_CutSecondLeadingToZPt_0_03/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist"]
+ "@PTBIN@_incut_var_CutSecondLeadingToZPt_0_05/jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_@PTBIN@_hist"][2:6]
+
+#XXXXXXXXXXXXXXXXXXXXXX
+#the_balance_histo_names_data = map(lambda s:s.replace("L1L2L3Res",""), the_balance_histo_names_data)
 
 the_mpf_histo_names_data=map(lambda name: name.replace("jetresp","mpfresp"),the_balance_histo_names_data)
 #the_mpf_histo_names_data=map(lambda name: name.replace("L1L2L3Res","L1"),the_mpf_histo_names_data)
@@ -115,7 +120,72 @@ p.pt_extrapolation_fullycorr=ZPJConfiguration.section(\
     balance_histo_names_mc=the_balance_histo_names_mc,
     mpf_histo_names_mc=the_mpf_histo_names_mc,
     pt_bins=the_pt_bins)
-    
+#-------------------------------------------------------------------------------
+
+p.pt_extrapolation_uncorr=ZPJConfiguration.section(\
+    "pt_extrapolation_uncorr",
+    filename_data = the_filename_data.replace("L1L2L3Res",""),
+    filename_mc = the_filename_mc_pu.replace("L1L2L3",""),
+    comment_balance = fully_corr_latex.replace("Fully","Not"),
+    comment_mpf = fully_corr_latex_mpf.replace("Fully","Not"),
+    cut_vals=the_2nd_pt_cut_vals,
+    cut_name="p_{T}^{jet 2}/p_{T}^{Z}",
+
+    balance_response_graph_name_mc=the_balance_response_graph_name_mc.replace("L1L2L3",""),
+    balance_response_graph_name_data=the_balance_response_graph_name_data.replace("L1L2L3Res",""),
+    mpf_response_graph_name_mc=the_mpf_response_graph_name_mc.replace("L1L2L3",""),
+    mpf_response_graph_name_data=the_mpf_response_graph_name_data.replace("L1L2L3Res",""),
+
+    balance_histo_names_data=map(lambda name: name.replace("L1L2L3Res",""),the_balance_histo_names_data),
+    mpf_histo_names_data=map(lambda name: name.replace("L1L2L3Res",""),the_mpf_histo_names_data),
+    balance_histo_names_mc=map(lambda name: name.replace("L1L2L3",""),the_balance_histo_names_mc),
+    mpf_histo_names_mc=map(lambda name: name.replace("L1L2L3",""),the_mpf_histo_names_mc),
+    pt_bins=the_pt_bins)
+
+#-------------------------------------------------------------------------------
+
+p.pt_extrapolation_uncorrL1=ZPJConfiguration.section(\
+    "pt_extrapolation_uncorrL1",
+    filename_data = the_filename_data.replace("L1L2L3Res","L1"),
+    filename_mc = the_filename_mc_pu.replace("L1L2L3","L1"),
+    comment_balance = fully_corr_latex.replace("Fully","L1"),
+    comment_mpf = fully_corr_latex_mpf.replace("Fully","L1"),
+    cut_vals=the_2nd_pt_cut_vals,
+    cut_name="p_{T}^{jet 2}/p_{T}^{Z}",
+
+    balance_response_graph_name_mc=the_balance_response_graph_name_mc.replace("L1L2L3","L1"),
+    balance_response_graph_name_data=the_balance_response_graph_name_data.replace("L1L2L3Res","L1"),
+    mpf_response_graph_name_mc=the_mpf_response_graph_name_mc.replace("L1L2L3","L1"),
+    mpf_response_graph_name_data=the_mpf_response_graph_name_data.replace("L1L2L3Res","L1"),
+
+    balance_histo_names_data=map(lambda name: name.replace("L1L2L3Res","L1"),the_balance_histo_names_data),
+    mpf_histo_names_data=map(lambda name: name.replace("L1L2L3Res","L1"),the_mpf_histo_names_data),
+    balance_histo_names_mc=map(lambda name: name.replace("L1L2L3","L1"),the_balance_histo_names_mc),
+    mpf_histo_names_mc=map(lambda name: name.replace("L1L2L3","L1"),the_mpf_histo_names_mc),
+    pt_bins=the_pt_bins)
+
+#-------------------------------------------------------------------------------
+
+p.pt_extrapolation_L1L2L3=ZPJConfiguration.section(\
+    "pt_extrapolation_L1L2L3",
+    filename_data = the_filename_data.replace("L1L2L3Res","L1L2L3"),
+    filename_mc = the_filename_mc_pu.replace("L1L2L3","L1L2L3"),
+    comment_balance = fully_corr_latex.replace("Fully","L1L2L3"),
+    comment_mpf = fully_corr_latex_mpf.replace("Fully","L1L2L3"),
+    cut_vals=the_2nd_pt_cut_vals,
+    cut_name="p_{T}^{jet 2}/p_{T}^{Z}",
+
+    balance_response_graph_name_mc=the_balance_response_graph_name_mc.replace("L1L2L3","L1L2L3"),
+    balance_response_graph_name_data=the_balance_response_graph_name_data.replace("L1L2L3Res","L1L2L3"),
+    mpf_response_graph_name_mc=the_mpf_response_graph_name_mc.replace("L1L2L3","L1L2L3"),
+    mpf_response_graph_name_data=the_mpf_response_graph_name_data.replace("L1L2L3Res","L1L2L3"),
+
+    balance_histo_names_data=map(lambda name: name.replace("L1L2L3Res","L1L2L3"),the_balance_histo_names_data),
+    mpf_histo_names_data=map(lambda name: name.replace("L1L2L3Res","L1L2L3"),the_mpf_histo_names_data),
+    balance_histo_names_mc=map(lambda name: name.replace("L1L2L3","L1L2L3"),the_balance_histo_names_mc),
+    mpf_histo_names_mc=map(lambda name: name.replace("L1L2L3","L1L2L3"),the_mpf_histo_names_mc),
+    pt_bins=the_pt_bins)
+
 #-------------------------------------------------------------------------------
 
 p.deltaphi_extrapolation_fullycorr=ZPJConfiguration.section(\

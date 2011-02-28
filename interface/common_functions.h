@@ -30,6 +30,16 @@ void setTDRStyle(){
   
 //------------------------------------------------------------------------------  
 
+  
+void setTDRStyle_mod(){
+  TString tdr_style_file(".L $FWPATH");
+  tdr_style_file+="/macros/tdrstyle_mod.C";
+  gROOT->ProcessLine(tdr_style_file.Data());
+  gROOT->ProcessLine("TDR_Style()");
+  }  
+  
+//------------------------------------------------------------------------------ 
+
 template <class T>
 T* getObject(const char* objname, TString filename, bool close=true){  
   if (filename=="")
