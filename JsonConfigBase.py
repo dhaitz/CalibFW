@@ -45,6 +45,16 @@ def GetBaseConfig():
     
     return d
 
+def GetMikkoCuts( conf ):
+    conf["Pipelines"]["default"]["Cuts"].append("jet_pt")
+    conf["Pipelines"]["default"]["CutJetPt"] = 10.0
+    conf["Pipelines"]["default"]["CutSecondLeadingToZPt"] = 0.3
+    conf["Pipelines"]["default"]["CutSecondLeadingToZPtJet2Threshold"] = 5.0
+    conf["Pipelines"]["default"]["CutBack2Back"] = 1.047
+
+    return conf
+
+
 def GetMcBaseConfig():
     d = GetBaseConfig()
     
