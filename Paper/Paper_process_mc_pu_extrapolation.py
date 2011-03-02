@@ -19,14 +19,11 @@ conf = JsonConfigBase.GetMcBaseConfig()
 # etc
 
 # add the l1 corr to the list
-#conf["Algos"].append( "ak5PFJetsL1" )
-#conf["Algos"].append( "ak5PFJetsL1L2L3" )
 conf["Algos"] = ["ak5PFJets","ak7PFJets","ak7PFJetsL1","ak7PFJetsL1L2","ak7PFJetsL1L2L3","ak5PFJetsL1","ak5PFJetsL1L2", "ak5PFJetsL1L2L3"]
-#conf["Algos"] = ["ak5PFJetsL1L2L3"]
 
 # easy ...
 conf["InputFiles"] = "/afs/naf.desy.de/user/p/piparo/lustre/Paper/ZPJ2011_DY_pu_corrected_newcoll/dy_fall10_*.root" 
-conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "extrapolation_dy_pu_03_ALLALGOSRENAMEME"
+conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "extrapolation_dy_pu_03
 
 # apply weighting to the events
 conf["UseWeighting"] = 1
