@@ -669,7 +669,8 @@ void make_jme1010(TString name,
   
   c.Print(name+".png");
   c.Print(name+".pdf");
-  
+  c.Print(name+".eps");
+    
   delete leg;
   
   
