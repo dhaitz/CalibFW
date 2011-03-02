@@ -10,8 +10,6 @@
 #include <boost/ptr_container/ptr_list.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
-
-
 #include <typeinfo>
 
 #include "GlobalInclude.h"
@@ -93,16 +91,16 @@ virtual void Init(EventPipeline * pset) { \
 virtual void ProcessFilteredEvent(EventResult & res) { \
 DATAPATH  }}; \
 
-// #define IMPL_HIST1D_JET_MOD2(CLASSNAME, DATAPATH, MOD1, MOD2)     \
-// class CLASSNAME: public DrawJetConsumerBase     { public: \
-// CLASSNAME ( int jetNum ) : DrawJetConsumerBase( jetNum) {} \
-// virtual void Init(EventPipeline * pset) { \
-//       m_hist->AddModifier( MOD1 );  m_hist->AddModifier( MOD2 );  \
-//       DrawJetConsumerBase::Init(pset); \
-// }     \
-// virtual void ProcessFilteredEvent(EventResult & res) { \
-// DATAPATH  }}; \
 
+#define IMPL_HIST1D_JET_MOD2(CLASSNAME, DATAPATH, MOD1, MOD2)	\
+class CLASSNAME: public DrawJetConsumerBase	{ public: \
+CLASSNAME ( int jetNum ) : DrawJetConsumerBase( jetNum) {} \
+virtual void Init(EventPipeline * pset) { \
+	m_hist->AddModifier( MOD1 ); m_hist->AddModifier( MOD2 );	\
+	DrawJetConsumerBase::Init(pset); \
+}	\
+virtual void ProcessFilteredEvent(EventResult & res) { \
+DATAPATH  }}; \
 
 
 template < class TDrawElement >
@@ -740,8 +738,9 @@ public:
 IMPL_HIST1D_MOD2(DrawZMassConsumer ,m_hist->Fill(res.m_pData->Z->GetCalcMass() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 200.0f),
         new ModHistBinCount(300))
-IMPL_HIST1D_MOD1(DrawZPtConsumer ,m_hist->Fill(res.m_pData->Z->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 200.0f))
+IMPL_HIST1D_MOD2(DrawZPtConsumer ,m_hist->Fill(res.m_pData->Z->Pt() , res.GetWeight( )); ,
+		new ModHistBinRange(0.0f, 1000.0f),
+		new ModHistBinCount(500))
 
 IMPL_HIST1D_MOD1(DrawZEtaConsumer ,m_hist->Fill(res.m_pData->Z->Eta()  , res.GetWeight( )); ,
 		new ModHistBinRange(-5.0f, 5.0f))
@@ -756,11 +755,12 @@ IMPL_HIST1D_MOD2(DrawPartonFlavourConsumer ,m_hist->Fill(res.m_pData->partonFlav
         new ModHistBinCount(100))
 
 // mus pt
-IMPL_HIST1D_MOD1(DrawMuPlusPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 200.0f))
-IMPL_HIST1D_MOD1(DrawMuMinusPtConsumer ,m_hist->Fill(res.m_pData->mu_minus->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 200.0f))
-
+IMPL_HIST1D_MOD2(DrawMuPlusPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , res.GetWeight( )); ,
+		new ModHistBinRange(0.0f, 1000.0f),
+		new ModHistBinCount(500))
+IMPL_HIST1D_MOD2(DrawMuMinusPtConsumer ,m_hist->Fill(res.m_pData->mu_minus->Pt() , res.GetWeight( )); ,
+		new ModHistBinRange(0.0f, 1000.0f),
+		new ModHistBinCount(500))
 // mus Eta
 IMPL_HIST1D_MOD1(DrawMuPlusEtaConsumer ,m_hist->Fill(res.m_pData->mu_plus->Eta() , res.GetWeight( )); ,
 		new ModHistBinRange(-5.0f, 5.0f))
@@ -774,8 +774,9 @@ IMPL_HIST1D_MOD1(DrawMuMinusPhiConsumer ,m_hist->Fill(res.m_pData->mu_minus->Phi
 		new ModHistBinRange(-3.5f, 3.5f))
 
 // Both mus
-IMPL_HIST1D_MOD1(DrawMuAllPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 200.0f))
+IMPL_HIST1D_MOD2(DrawMuAllPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Pt() , res.GetWeight( )); ,
+		new ModHistBinRange(0.0f, 1000.0f),
+		new ModHistBinCount(500))
 IMPL_HIST1D_MOD1(DrawMuAllEtaConsumer ,m_hist->Fill(res.m_pData->mu_plus->Eta() , res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Eta() , res.GetWeight( )); ,
 		new ModHistBinRange(-5.0f, 5.0f))
 IMPL_HIST1D_MOD1(DrawMuAllPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() - TMath::Pi(), res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Phi() - TMath::Pi() , res.GetWeight( )); ,
@@ -783,11 +784,12 @@ IMPL_HIST1D_MOD1(DrawMuAllPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() 
 
 
 // MET
-IMPL_HIST1D_MOD1(DrawMetConsumer ,m_hist->Fill(res.m_pData->met->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 300.0f))
-IMPL_HIST1D_MOD1(DrawTcMetConsumer ,m_hist->Fill(res.m_pData->tcmet->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 300.0f))
-
+IMPL_HIST1D_MOD2(DrawMetConsumer ,m_hist->Fill(res.m_pData->met->Pt() , res.GetWeight( )); ,
+		new ModHistBinRange(0.0f, 1000.0f),
+		new ModHistBinCount(500))
+IMPL_HIST1D_MOD2(DrawTcMetConsumer ,m_hist->Fill(res.m_pData->tcmet->Pt() , res.GetWeight( )); ,
+		new ModHistBinRange(0.0f, 1000.0f),
+		new ModHistBinCount(500))
 //RECO VERT
 IMPL_HIST1D_MOD2(DrawRecoVertConsumer ,m_hist->Fill( (double)res.GetRecoVerticesCount() , res.GetWeight( )); ,
 		new ModHistBinRange(-0.5, 14.5),
@@ -825,14 +827,15 @@ IMPL_HIST1D_MOD1(DrawZMatchConsumer ,
 
 
 // Jets
-IMPL_HIST1D_JET_MOD1(DrawJetPtConsumer ,
+IMPL_HIST1D_JET_MOD2(DrawJetPtConsumer ,
 		{
 				if ( res.IsJetValid( m_jetNum ))
 				{
 					m_hist->Fill(res.GetCorrectedJetPt( m_jetNum ) , res.GetWeight( ));
 				}
 		},
-		new ModHistBinRange(0.0f, 200.0f) )
+		new ModHistBinRange(0.0f, 1000.0f),
+		new ModHistBinCount(500))
 
 IMPL_HIST1D_JET_MOD1(DrawJetEtaConsumer ,
 		{
@@ -920,7 +923,7 @@ IMPL_HIST1D_JET_MOD1(DrawMatchCaloJetPtRatioConsumer ,
 		},
 		new ModHistBinRange(0.0f, 2.0f) )
 
-IMPL_HIST1D_JET_MOD1(DrawMatchCaloJetPtConsumer ,
+IMPL_HIST1D_JET_MOD2(DrawMatchCaloJetPtConsumer ,
 		{
 				if ( res.IsJetValid( m_jetNum ) && ( res.m_pData->matched_calo_jets[m_jetNum] != NULL)
 						&& (res.m_pData->matched_calo_jets[m_jetNum]->Pt() > 0))
@@ -929,7 +932,8 @@ IMPL_HIST1D_JET_MOD1(DrawMatchCaloJetPtConsumer ,
 							res.GetWeight( ));
 				}
 		},
-		new ModHistBinRange(0.0f, 200.0f) )
+		new ModHistBinRange(0.0f, 1000.0f),
+		new ModHistBinCount(500))
 
 IMPL_HIST1D_JET_MOD1(DrawPfChargedHadronEnergyFractionPtConsumer ,
 		{
