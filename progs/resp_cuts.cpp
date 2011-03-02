@@ -323,7 +323,7 @@ EventPipeline * CreateLevel2Pipeline()
     PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, zmass, "zmass" )  
         
     // Matched Z
-    PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, matchedZ_ptratio, "matchedZ_ptratio" )    
+    PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, matchedZ_ptratio, "matchedZ_ptratio" )
     
 
 	return pline;
@@ -430,7 +430,7 @@ EventPipeline * CreateDefaultPipeline()
     PLOT_HIST1D_CONST1(pline, ConstituentsConsumer, jet3_constituents, 2)
     
     // Matched Z
-    PLOT_HIST1D(pline, DrawZMatchConsumer, matchedZ_ptratio)    
+    PLOT_HIST1D(pline, DrawZMatchConsumer, matchedZ_ptratio)
     
 	// Response
 	PLOT_HIST1D(pline, DrawJetRespConsumer, jetresp)
@@ -979,6 +979,7 @@ int main(int argc, char** argv)
 	g_cutHandler->AddCut(new SecondLeadingToZPtCut(0.0));
 	g_cutHandler->AddCut(new BackToBackCut(0.0));
 	g_cutHandler->AddCut(new ZMassWindowCut(0.0));
+	g_cutHandler->AddCut(new JetPtCut(0.0));
 	g_cutHandler->AddCut(new ZPtCut(0.0));
     g_cutHandler->AddCut(new SecondLeadingToZPtCutDir());
 
