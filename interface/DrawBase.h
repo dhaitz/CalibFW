@@ -93,6 +93,16 @@ virtual void Init(EventPipeline * pset) { \
 virtual void ProcessFilteredEvent(EventResult & res) { \
 DATAPATH  }}; \
 
+// #define IMPL_HIST1D_JET_MOD2(CLASSNAME, DATAPATH, MOD1, MOD2)     \
+// class CLASSNAME: public DrawJetConsumerBase     { public: \
+// CLASSNAME ( int jetNum ) : DrawJetConsumerBase( jetNum) {} \
+// virtual void Init(EventPipeline * pset) { \
+//       m_hist->AddModifier( MOD1 );  m_hist->AddModifier( MOD2 );  \
+//       DrawJetConsumerBase::Init(pset); \
+// }     \
+// virtual void ProcessFilteredEvent(EventResult & res) { \
+// DATAPATH  }}; \
+
 
 
 template < class TDrawElement >
@@ -727,8 +737,9 @@ public:
 
 
 // Z STUFF
-IMPL_HIST1D_MOD1(DrawZMassConsumer ,m_hist->Fill(res.m_pData->Z->GetCalcMass() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 200.0f))
+IMPL_HIST1D_MOD2(DrawZMassConsumer ,m_hist->Fill(res.m_pData->Z->GetCalcMass() , res.GetWeight( )); ,
+		new ModHistBinRange(0.0f, 200.0f),
+        new ModHistBinCount(300))
 IMPL_HIST1D_MOD1(DrawZPtConsumer ,m_hist->Fill(res.m_pData->Z->Pt() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 200.0f))
 
@@ -803,6 +814,15 @@ IMPL_HIST1D_MOD1(DrawMpfJetRespConsumer ,
 			m_hist->Fill( 1.0 + (scalPtEt /scalPtSq), res.GetWeight( ));
 		},
 		new ModHistBinRange(0.0, 2.0))
+
+
+// Matched Z
+IMPL_HIST1D_MOD1(DrawZMatchConsumer ,
+                 {if (res.m_pData->matched_Z!=NULL and res.m_pData->matched_Z->Pt() >0)
+                 { m_hist->Fill( res.m_pData->Z->Pt() / res.m_pData->matched_Z->Pt(), res.GetWeight( ));}},
+            new ModHistBinRange(0.0, 6.0))
+
+
 
 // Jets
 IMPL_HIST1D_JET_MOD1(DrawJetPtConsumer ,
@@ -980,6 +1000,40 @@ class DrawDeltaRMapConsumer: public DrawHist2DConsumerBase<EventResult>
 
 		DrawHist2DConsumerBase<EventResult>::Init(pset);
 	}
+};
+
+
+class DrawBalanceMpfConsumer: public DrawHist2DConsumerBase<EventResult>
+{
+      public:
+      virtual void Init(EventPipeline * pset) {
+
+            m_hist->AddModifier( new ModHist2DBinRange(0.0f, 3.0f, 0.0f, 3.0f ));
+            m_hist->AddModifier( new ModHist2DBinCount(100, 100));
+
+            DrawHist2DConsumerBase<EventResult>::Init(pset);
+      }
+      
+
+      virtual void ProcessFilteredEvent(EventResult & res)
+      {
+            if ( res.IsJetValid ( 1))
+            {
+                  double balance = res.GetCorrectedJetPt(0) / res.m_pData->Z->Pt();
+                  double scalPtEt = res.m_pData->Z->Px()*res.m_pData->met->Px() +
+                                                res.m_pData->Z->Py()*res.m_pData->met->Py();
+                  double scalPtSq = res.m_pData->Z->Px()*res.m_pData->Z->Px() +
+                                                res.m_pData->Z->Py()*res.m_pData->Z->Py();
+                  double mpf =  1.0 + (scalPtEt /scalPtSq);
+              
+                  m_hist->Fill(
+                    balance,
+                    mpf,
+                    res.GetWeight( ) );
+            }
+      }      
+      
+      
 };
 
 
@@ -1452,6 +1506,89 @@ public:
 	{
 	}
 
+// The Gen Z ratio
+
+class DrawZMatchConsumerGraph: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+      DrawZMatchConsumerGraph( std::string sInpHist ) :
+            DrawGraphErrorsConsumerBase<EventResult>(),
+            m_sInpHist( sInpHist)
+      {
+
+      }
+
+      virtual void Process()
+      {
+            Hist1D m_histResp;
+
+            // move through the histos
+            stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+            std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+            m_histResp.m_sCaption = m_histResp.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+            //m_histResp.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+            m_histResp.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+            m_histResp.Init();
+
+
+            int i = 0;
+            for (std::vector< PtBin >::iterator it = bins.begin();
+                        it != bins.end();
+                        it ++)
+            {
+                  TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+                  sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+                  // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+                  TString sName = RootNamer::GetHistoName(
+                              this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                              this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+                  TH1D * hresp = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+                  if (hresp == NULL)
+                  {
+                        CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+                  }
+
+                  sName = RootNamer::GetHistoName(
+                              this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                              this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+                  TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+                  if (hpt == NULL)
+                  {
+                        CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+                  }
+
+
+                  m_graph->AddPoint( hpt->GetMean(),
+                              hresp->GetMean(),
+                              hpt->GetMeanError(),
+                              hresp->GetMeanError());
+
+                  m_histResp.GetRawHisto()->SetBinContent(i +1, hresp->GetMean() );
+                  m_histResp.GetRawHisto()->SetBinError(i +1, hresp->GetMeanError() );
+                  i++;
+            }
+
+            m_histResp.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+      }
+      std::string m_sInpHist;
+      std::string m_sFolder;
+
+
+};
+
+
+
+
+
 	virtual void Process()
 	{
 		Hist1D m_histResp;
@@ -1587,6 +1724,7 @@ public:
 	std::string m_sInpHist;
 	std::string m_sFolder;
 };
+
 
 // DP: New plot classes for ChargedHadronEnergy, Neutral and Photon fraction
 
