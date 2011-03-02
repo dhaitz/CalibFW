@@ -52,19 +52,41 @@ void add_topline(TCanvas& c){
 
   c.cd();
   
-  // add a bit of space
-  c.SetLeftMargin(c.GetLeftMargin()+0.02);
-  c.SetTopMargin(c.GetTopMargin()+0.05);
-  c.SetBottomMargin(c.GetBottomMargin()+0.02);
+//   // add a bit of space
+//   c.SetLeftMargin(c.GetLeftMargin()+0.02);
+//   c.SetTopMargin(c.GetTopMargin()+0.05);
+//   c.SetBottomMargin(c.GetBottomMargin()+0.02);
+//   
+//   TLatex lumi_latex(.18, .93 , "#scale[.7]{CMS}");
+//   lumi_latex.SetNDC();
+//   lumi_latex.DrawClone();
+//   
+//   TLatex cem_latex(.65, .93 , "#bf{#scale[.7]{36 pb^{-1}      #sqrt{s}= 7 TeV}}");
+//   cem_latex.SetNDC();    
+//   cem_latex.DrawClone();
   
-  TLatex lumi_latex(.18, .93 , "#scale[.7]{CMS}");
-  lumi_latex.SetNDC();
-  lumi_latex.DrawClone();
+  double intLumi=36;
+  bool wide = false;
+  TLatex *latex = new TLatex();
+  latex->SetNDC();
+  latex->SetTextSize(0.045);
   
-  TLatex cem_latex(.65, .93 , "#bf{#scale[.7]{36 pb^{-1}      #sqrt{s}= 7 TeV}}");
-  cem_latex.SetNDC();    
-  cem_latex.DrawClone();
-  
+  latex->SetTextAlign(31); // align right
+  latex->DrawLatex(wide ? 0.98 : 0.95, 0.96, "#sqrt{s} = 7 TeV");
+  if (intLumi > 0.) {
+    latex->SetTextAlign(11); // align left
+    //latex->DrawLatex(0.15,0.96,Form("CMS preliminary, %.2g nb^{-1}",intLumi));
+    latex->DrawLatex(wide ? 0.06 : 0.15, 0.96,
+		     Form("CMS preliminary, %.2g pb^{-1}",intLumi));
+  }
+  else if (intLumi==0) { // simulation
+    latex->SetTextAlign(11); // align left
+    latex->DrawLatex(wide ? 0.06 : 0.15, 0.96, "CMS simulation (Fall10 QCD)");
+  }
+  else {
+    latex->SetTextAlign(11); // align left
+    latex->DrawLatex(0.15,0.96,"CMS preliminary 2010");
+  }
   
   }
 //------------------------------------------------------------------------------
@@ -355,8 +377,8 @@ void do_plot(TString name,
     dummy_h.GetYaxis()->SetRangeUser(y_min*0.7,y_max*1.3);
   
   c.Print(m_prefix+"_"+name+".png");
-//   c.Print(m_prefix+"_"+name+".pdf");
-//   c.Print(m_prefix+"_"+name+".eps");
+  c.Print(m_prefix+"_"+name+".pdf");
+  c.Print(m_prefix+"_"+name+".eps");
   
   // Fill the extrapolation values
   double fit_plus_err_at_zero=0;
@@ -498,8 +520,8 @@ void  do_response_plot(TString name, TGraphErrors* graph,TGraphErrors* extr_grap
   
   
   c.Print(name+".png");
-//   c.Print(name+".pdf");
-//   c.Print(name+".eps");
+  c.Print(name+".pdf");
+  c.Print(name+".eps");
   
   
   
@@ -646,7 +668,7 @@ void make_jme1010(TString name,
   extrcutlatex.Draw();
   
   c.Print(name+".png");
-//   c.Print(name+".pdf");
+  c.Print(name+".pdf");
   
   delete leg;
   
