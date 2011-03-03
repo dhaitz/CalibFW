@@ -159,7 +159,7 @@ void extrapolate(){
           "Z+jet Balance",
           plot_styles[response_data].setStyle<TGraphErrors>(extr_balance_data.getGraph()),
           plot_styles[response_mc].setStyle<TGraphErrors>(extr_balance_mc.getGraph()),
-          "[0]+[1]*x");
+          "[0]+[1]*(x-[2])");
 
   do_plot(m_pt_bin+"_response_mpf_extrapolation_data_mc",
           "MPF",
@@ -167,7 +167,7 @@ void extrapolate(){
           "Z+jet MPF",
           plot_styles[response_data].setStyle<TGraphErrors>(extr_mpf_data.getGraph()),
           plot_styles[response_mc].setStyle<TGraphErrors>(extr_mpf_mc.getGraph()),
-          "[0]+[1]*x");          
+          "[0]+[1]*(x-[2])");
 
   do_plot(m_pt_bin+"_data_over_mc",
           "Method",
@@ -175,7 +175,7 @@ void extrapolate(){
           "Data / MC",
           plot_styles[balance_ratio].setStyle<TGraphErrors>(extr_balance_ratio.getGraph()),
           plot_styles[mpf_ratio].setStyle<TGraphErrors>(extr_mpf_ratio.getGraph()),
-          "[0]+[1]*x");     
+          "[0]+[1]*(x-[2])");
 
      
           
@@ -271,11 +271,17 @@ void do_plot(TString name,
 
   // Get at first x max and x min, y max and y min
   double x1first,y1first,x2first,y2first, x1last,y1last,x2last,y2last;
+  double x1first_err,y1first_err ,x2first_err,y2first_err;
+
   g1->GetPoint(0,x1first,y1first);
   g1->GetPoint(g1->GetN()-1,x1last,y1last);
   g2->GetPoint(0,x2first,y2first);
   g2->GetPoint(g2->GetN()-2,x2last,y2last);
-  
+
+
+  y1first_err = g1->GetErrorY(0);
+  y2first_err = g2->GetErrorY(0);
+
   double x_max = max( max(x1first,x1last), max(x2first,x2last) );
   double y_min = min( min(y1first,y1last), min(y2first,y2last) );
   double y_max = max( max(y1first,y1last), max(y2first,y2last) );  
@@ -294,22 +300,34 @@ void do_plot(TString name,
     func2.SetParameter(ipar,1);
     }
   
+  //"[0]+[1]*(x-[2])"
+  func1.FixParameter(0, y1first );
+  func2.FixParameter(0, y2first );
+
+  func1.FixParameter(2, x1first );
+  func2.FixParameter(2, x2first );
+
   TFitResultPtr fitres1p = g1->Fit(&func1,"S");
   TFitResultPtr fitres2p = g2->Fit(&func2,"S");
-  
+
   // Dummy for x axis
   TH1F dummy_h("dummy","dummy",2,0,x_max*1.3);
   dummy_h.GetXaxis()->SetTitle(x_axis_title);
   dummy_h.GetYaxis()->SetTitle(y_axis_title);
-  
+
   // Make the bands
+  // so ParGradient will not treat this as a constant, but a parameter
+  func1.ReleaseParameter(0 );
+  func2.ReleaseParameter(0 );
+
   TMatrixDSym cov1((*fitres1p).GetCovarianceMatrix());
+  cov1[0][0] = y1first_err *  y1first_err;
   cov1.Print();
   TGraph** func_1_bands_ud = make_bands_up_down(func1, cov1 );
   TMatrixDSym cov2((*fitres2p).GetCovarianceMatrix());
+  cov2[0][0] = y2first_err * y2first_err;
   cov2.Print();  
   TGraph** func_2_bands_ud = make_bands_up_down(func2, cov2 );
-
   
   TCanvas c("ciccio","pippo",600,600);
   dummy_h.Draw();
@@ -596,8 +614,6 @@ void make_jme1010(TString name,
                              0,"",
                              "ur");
 
-  
-  
   
   // Build a mega TGraphErrors with all points and errors!
   balance_ratio_gc.addGraphContent(mpf_ratio_gc);
