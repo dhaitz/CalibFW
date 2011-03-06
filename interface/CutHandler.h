@@ -430,7 +430,7 @@ public:
 
 	unsigned long GetId()
 	{
-		return MuonPtCut::CudId;
+		return JetPtCut::CudId;
 	}
 	std::string GetCutName()
 	{
