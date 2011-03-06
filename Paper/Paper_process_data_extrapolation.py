@@ -13,6 +13,8 @@ import copy
 # also sets the Algos to process
 conf = JsonConfigBase.GetDataBaseConfig()
 
+JsonConfigBase.GetMikkoCuts( conf )
+
 # if you want to change the values of default values, do it now:
 #
 # conf["Pipelines"]["default"]["CutZMassWindow"] = 23 
@@ -21,11 +23,11 @@ conf = JsonConfigBase.GetDataBaseConfig()
 # add the l1 corr to the list
 #conf["Algos"].append( "ak5PFJetsL1" )
 #conf["Algos"].append( "ak5PFJetsL1L2L3Res" )
-conf["Algos"] = ["ak5PFJets","ak7PFJets","ak7PFJetsL1","ak7PFJetsL1L2","ak7PFJetsL1L2L3Res","ak5PFJetsL1","ak5PFJetsL1L2", "ak5PFJetsL1L2L3Res"]
-
+#conf["Algos"] = ["ak5PFJets","ak7PFJets","ak7PFJetsL1","ak7PFJetsL1L2","ak7PFJetslL1L2L3Res","ak5PFJetsL1","ak5PFJetsL1L2", "ak5PFJetsL1L2L3Res"]
+conf["Algos"] = ["ak5PFJets","ak5PFJetsL1L2L3Res"]
 
 # easy ...
-conf["InputFiles"] = "/afs/naf.desy.de/user/p/piparo/lustre/Paper/ZPJ2011_data_nov4_corrected_newcoll/*root" 
+conf["InputFiles"] = LocalConfigBase.GetLocalDataPath() + "Paper/ZPJ2011_data_nov4_corrected_newcoll_struct/*.root" 
 conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "extrapolation_data_03"
 
 conf = JsonConfigBase.ExpandDefaultDataConfig( [0,15,30,60,100,500], conf, True )
@@ -39,10 +41,11 @@ myown["RootFileFolder"] = "Pt30to500_incut"
 
 conf["Pipelines"][ "Pt30to500_incut" ] = myown
 
-second_leading_jetpt = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutSecondLeadingToZPt", [0.05,0.1, 0.13, 0.15, .17, 0.2, 0.25, 0.3, 0.35, 0.4], True, True  )
-CutBack2Back = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutBack2Back", [.02,.04,.1,.14,.24,.34], True, True  )
+second_leading_jetpt = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutSecondLeadingiToZPt", [ .17, 0.2, 0.25, 0.3], True, True  )
+#second_leading_jetpt = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutSecondLeadingToZPt", [0.05,0.1, 0.13, 0.15, .17, 0.2, 0.25, 0.3, 0.35, 0.4], True, True  )
+#CutBack2Back = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutBack2Back", [.02,.04,.1,.14,.24,.34], True, True  )
 
-conf["Pipelines"] = dict( conf["Pipelines"].items() + second_leading_jetpt.items()+CutBack2Back.items() )
+conf["Pipelines"] = dict( conf["Pipelines"].items() + second_leading_jetpt.items())#+CutBack2Back.items() )
 
 # creates the file process_mc_dy.py.json containing all settings and runs bin/resp_cuts.exe 
 JsonConfigBase.Run( conf, sys.argv[0] + ".json")

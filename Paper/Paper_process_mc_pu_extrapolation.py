@@ -19,11 +19,15 @@ conf = JsonConfigBase.GetMcBaseConfig()
 # etc
 
 # add the l1 corr to the list
-conf["Algos"] = ["ak5PFJets","ak7PFJets","ak7PFJetsL1","ak7PFJetsL1L2","ak7PFJetsL1L2L3","ak5PFJetsL1","ak5PFJetsL1L2", "ak5PFJetsL1L2L3"]
+#conf["Algos"] = ["ak5PFJets","ak7PFJets","ak7PFJetsL1","ak7PFJetsL1L2","ak7PFJetsL1L2L3","ak5PFJetsL1","ak5PFJetsL1L2", "ak5PFJetsL1L2L3"]
+
+#conf["Algos"] = ["ak5PFJets","ak5PFJetsL1","ak5PFJetsL1L2","ak5PFJetsL1L2L3"]
+conf["Algos"] = ["ak5PFJets","ak5PFJetsL1L2L3"]
+JsonConfigBase.GetMikkoCuts( conf )
 
 # easy ...
-conf["InputFiles"] = "/afs/naf.desy.de/user/p/piparo/lustre/Paper/ZPJ2011_DY_pu_corrected_newcoll/dy_fall10_*.root" 
-conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "extrapolation_dy_pu_03
+conf["InputFiles"] = LocalConfigBase.GetLocalDataPath() + "Paper/ZPJ2011_DY_pu_corrected_newcoll/*.root"
+conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "extrapolation_dy_pu_03"
 
 # apply weighting to the events
 conf["UseWeighting"] = 1
@@ -48,10 +52,11 @@ conf["Pipelines"][ "Pt30to500_incut" ] = myown
 # this methods can be used to create cut variations on any arbitrary configuration variable
 # I can show you how this works face to face or by phone. it is way easier to explain then
 
-second_leading_jetpt = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutSecondLeadingToZPt", [0.05,0.1, 0.13, 0.15, .17, 0.2, 0.25, 0.3, 0.35, 0.4], True, True  )
-CutBack2Back = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutBack2Back", [.02,.04,.1,.14,.24,.34], True, True  )
+second_leading_jetpt = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutSecondLeadingToZPt", [ .17, 0.2, 0.25, 0.3], True, True  )
+#second_leading_jetpt = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutSecondLeadingToZPt", [0.05,0.1, 0.13, 0.15, .17, 0.2, 0.25, 0.3, 0.35, 0.4], True, True  )
+#CutBack2Back = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutBack2Back", [.02,.04,.1,.14,.24,.34], True, True  )
 
-conf["Pipelines"] = dict( conf["Pipelines"].items() + second_leading_jetpt.items()+CutBack2Back.items() )
+conf["Pipelines"] = dict( conf["Pipelines"].items() + second_leading_jetpt.items()) #+CutBack2Back.items() )
 
 # creates the file process_mc_dy.py.json containing all settings and runs bin/resp_cuts.exe 
 JsonConfigBase.Run( conf, sys.argv[0] + ".json")
