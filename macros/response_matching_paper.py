@@ -57,9 +57,9 @@ gStyle.SetOptStat(0)
 #    latex.SetNDC()
 #    latex.Draw()
 
-def plotRatio( source_plot, title ):
+def plotRatio( source_plot_data, source_plot_mc, title, caption ):
 
-    c=TCanvas(source_plot,source_plot,600,600)
+    c=TCanvas(source_plot_data,source_plot_data,600,600)
 
     c.SetLeftMargin( 0.24 )  
 
@@ -67,8 +67,8 @@ def plotRatio( source_plot, title ):
 
     prefix = "pt_ratio_"
 
-    AvgAvg_mc = CalibFwPlotBase.safeGet(ifile_mc,source_plot + "_mc_graph")
-    AvgAvg_data = CalibFwPlotBase.safeGet(ifile_data,source_plot + "_data_graph")
+    AvgAvg_mc = CalibFwPlotBase.safeGet(ifile_mc,source_plot_mc + "_mc_graph")
+    AvgAvg_data = CalibFwPlotBase.safeGet(ifile_data,source_plot_data + "_data_graph")
 
     AvgAvg_mc.SetLineColor(kBlue)
     AvgAvg_mc.SetMarkerColor(kBlue)
@@ -96,7 +96,7 @@ def plotRatio( source_plot, title ):
     mg.GetYaxis().SetTitleSize(0.048)
 
     #latex=TLatex(.2,.8,"#bf{#scale[.7]{#splitline{%s}{Anti-kt R=0.5 PF Fully Corrected Jets}}}" %label)
-    latex=TLatex(.27,.85,"#bf{#scale[.7]{Anti-kt R=0.5 PF Raw Jets}}")
+    latex=TLatex(.27,.85, caption)
     latex.SetNDC()
     latex.Draw()
 
@@ -111,19 +111,57 @@ def plotRatio( source_plot, title ):
     leg.Draw()
 
         #raw_input()
-    c.Print(prefix + source_plot + ".png" )  
-    c.Print(prefix + source_plot + ".pdf" )  
-    c.Print(prefix + source_plot + ".eps" )  
-    c.Print(prefix + source_plot + ".root" )  
-    c.Draw()
-    s = raw_input('press return to go on')
+    c.Print(prefix + source_plot_data + ".png" )  
+    c.Print(prefix + source_plot_data + ".pdf" )  
+    c.Print(prefix + source_plot_data + ".eps" )  
+    c.Print(prefix + source_plot_data + ".root" )  
+    #c.Draw()
+    #s = raw_input('press return to go on')
 
-
+#raw
 plotRatio   ("calo_avg_pf_avg_ratio_vs_z_pt_ak5PFJets_Zplusjet", 
-            "Calo to PF Ratio;p_{T}^{Z};#frac{< p_{T}^{Calo} >}{< p_{T}^{PF} >}")
+            "calo_avg_pf_avg_ratio_vs_z_pt_ak5PFJets_Zplusjet",
+            "Calo to PF Ratio;p_{T}^{Z};#frac{< p_{T}^{Calo} >}{< p_{T}^{PF} >}",
+            "#bf{#scale[.7]{Anti-kt R=0.5 PF Raw Jets}}")
 
 plotRatio   ("calo_pf_avg_ratio_vs_pf_pt_ak5PFJets_Zplusjet", 
-            "Calo to PF Ratio;p_{T}^{PF};<#frac{p_{T}^{Calo}}{p_{T}^{PF}}>")
+            "calo_pf_avg_ratio_vs_pf_pt_ak5PFJets_Zplusjet",
+            "Calo to PF Ratio;p_{T}^{PF};<#frac{p_{T}^{Calo}}{p_{T}^{PF}}>",
+            "#bf{#scale[.7]{Anti-kt R=0.5 PF Raw Jets}}")
 
 
+#L1L2L3 (Res)
+plotRatio   ("calo_avg_pf_avg_ratio_vs_z_pt_ak5PFJetsL1L2L3Res_Zplusjet", 
+            "calo_avg_pf_avg_ratio_vs_z_pt_ak5PFJetsL1L2L3_Zplusjet", 
+            "Calo to PF Ratio;p_{T}^{Z};#frac{< p_{T}^{Calo} >}{< p_{T}^{PF} >}",
+            "#bf{#scale[.7]{Anti-kt R=0.5 PF fully corrected Jets}}")
+
+plotRatio   ("calo_pf_avg_ratio_vs_pf_pt_ak5PFJetsL1L2L3Res_Zplusjet", 
+             "calo_pf_avg_ratio_vs_pf_pt_ak5PFJetsL1L2L3_Zplusjet",
+            "Calo to PF Ratio;p_{T}^{PF};<#frac{p_{T}^{Calo}}{p_{T}^{PF}}>",
+            "#bf{#scale[.7]{Anti-kt R=0.5 PF fully corrected Jets}}")
+
+
+#L1L2
+plotRatio   ("calo_avg_pf_avg_ratio_vs_z_pt_ak5PFJetsL1L2_Zplusjet", 
+            "calo_avg_pf_avg_ratio_vs_z_pt_ak5PFJetsL1L2_Zplusjet", 
+            "Calo to PF Ratio;p_{T}^{Z};#frac{< p_{T}^{Calo} >}{< p_{T}^{PF} >}",
+            "#bf{#scale[.7]{Anti-kt R=0.5 PF PU and #eta corrected Jets}}")
+
+plotRatio   ("calo_pf_avg_ratio_vs_pf_pt_ak5PFJetsL1L2_Zplusjet", 
+             "calo_pf_avg_ratio_vs_pf_pt_ak5PFJetsL1L2_Zplusjet",
+            "Calo to PF Ratio;p_{T}^{PF};<#frac{p_{T}^{Calo}}{p_{T}^{PF}}>",
+            "#bf{#scale[.7]{Anti-kt R=0.5 PF PU and #eta corrected Jets}}")
+
+
+#L1
+plotRatio   ("calo_avg_pf_avg_ratio_vs_z_pt_ak5PFJetsL1_Zplusjet", 
+            "calo_avg_pf_avg_ratio_vs_z_pt_ak5PFJetsL1_Zplusjet", 
+            "Calo to PF Ratio;p_{T}^{Z};#frac{< p_{T}^{Calo} >}{< p_{T}^{PF} >}",
+            "#bf{#scale[.7]{Anti-kt R=0.5 PF PU corrected Jets}}")
+
+plotRatio   ("calo_pf_avg_ratio_vs_pf_pt_ak5PFJetsL1_Zplusjet", 
+             "calo_pf_avg_ratio_vs_pf_pt_ak5PFJetsL1_Zplusjet",
+            "Calo to PF Ratio;p_{T}^{PF};<#frac{p_{T}^{Calo}}{p_{T}^{PF}}>",
+            "#bf{#scale[.7]{Anti-kt R=0.5 PF PU corrected Jets}}")
 
