@@ -9,6 +9,9 @@ filename_data=prefix+"/extrapolation_data_03.root"
 ifile_data=TFile(filename_data)
 ifile_mc=TFile(filename_mc)
 
+out_file = TFile("pt_ratio.root", "RECREATE")
+out_file.cd()
+
 gROOT.ProcessLine(".L $FWPATH/macros/tdrstyle_mod.C")
 gROOT.ProcessLine("TDR_Style()")
 gStyle.SetPalette(2)
@@ -84,6 +87,9 @@ def plotRatio( source_plot_data, source_plot_mc, title, caption ):
     AvgAvg_data.SetLineWidth(2)
     AvgAvg_data.SetTitle("Data")
     AvgAvg_data.SetFillStyle(0)
+
+    AvgAvg_data.Write()
+    AvgAvg_mc.Write()
 
     AvgAvg_data.SetMarkerStyle(20)
     mg.Add( AvgAvg_data, "p" )
@@ -164,4 +170,9 @@ plotRatio   ("calo_pf_avg_ratio_vs_pf_pt_ak5PFJetsL1_Zplusjet",
              "calo_pf_avg_ratio_vs_pf_pt_ak5PFJetsL1_Zplusjet",
             "Calo to PF Ratio;p_{T}^{PF};<#frac{p_{T}^{Calo}}{p_{T}^{PF}}>",
             "#bf{#scale[.7]{Anti-kt R=0.5 PF PU corrected Jets}}")
+
+ifile_mc.Close()
+ifile_data.Close()
+
+out_file.Close()
 
