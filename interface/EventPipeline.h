@@ -144,6 +144,8 @@ IMPL_SETTING(double, FilterPtBinLow)
 IMPL_SETTING(double, FilterPtBinHigh)
 IMPL_SETTING( int, FilterRecoVertLow)
 IMPL_SETTING( int, FilterRecoVertHigh)
+IMPL_SETTING(double, FilterJetEtaLow)
+IMPL_SETTING(double, FilterJetEtaHigh)
 
 IMPL_SETTING(double, FilterSecondJetRatioLow)
 IMPL_SETTING(double, FilterSecondJetRatioHigh)
@@ -337,6 +339,28 @@ public:
 	}
 };
 
+class JetEtaFilter: public FilterBase<EventResult>
+{
+public:
+	JetEtaFilter( ) : FilterBase<EventResult>()
+	{
+
+
+	}
+
+	virtual bool DoesEventPass(EventResult & event)
+	{
+		//return (  event.GetRecoVerticesCount()  == m_pipelineSettings->GetFilterRecoVertLow() );
+		return (   TMath::Abs(event.m_pData->jets[0]->Eta()) >= m_pipelineSettings->GetFilterJetEtaLow()
+				&& TMath::Abs(event.m_pData->jets[0]->Eta()) <= m_pipelineSettings->GetFilterJetEtaHigh() );
+	}
+
+	virtual std::string GetFilterId()
+	{
+		return "jeteta";
+	}
+};
+
 
 class SecondJetRatioFilter: public FilterBase<EventResult>
 {
@@ -520,6 +544,8 @@ void InitPipeline(PipelineSettings * pset)
 			m_filter.push_back( new InCutFilter);
 		else if ( sid == RecoVertFilter().GetFilterId())
 			m_filter.push_back( new RecoVertFilter);
+		else if ( sid == JetEtaFilter().GetFilterId())
+			m_filter.push_back( new JetEtaFilter);
 		else if ( sid == SecondJetRatioFilter().GetFilterId())
 			m_filter.push_back( new SecondJetRatioFilter);
 		else
