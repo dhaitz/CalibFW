@@ -10,16 +10,18 @@
 
 int main(int argc, char** argv)
 {
-	/// Hardcoded values
-	const TString histoName("NoBinning_incut/z_pt_ak5PFJets_Zplusjet_data_hist");
-
 	/// Show usage if needed.
-	if (argc!=2 and argc!=3) {
-		std::cout << argc<< "Usage: " << argv[0] << " file [events per bin = 50]\n";
+	if (argc!=2 and argc!=3 and argc!=4) {
+		std::cout << "Usage: " << argv[0] << " file [events per bin = 50 [Histoname] ]\n";
 		return 0;
 	}
 	int eventsPerBin = 50;
 	if (argc==3) eventsPerBin = atoi(argv[2]);
+
+	const TString histoName("NoBinning_incut/z_pt_ak5PFJets_Zplusjet_data_hist");
+//	TString histoArg;
+//	if (argc==4) histoArg(argv[3]);
+//	if (histoArg.Length()>3) histoName = histoArg;
 
 	/// Read file
 	TString fileName(argv[1]);
