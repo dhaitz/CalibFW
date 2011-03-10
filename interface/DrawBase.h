@@ -935,40 +935,163 @@ IMPL_HIST1D_JET_MOD2(DrawMatchCaloJetPtConsumer ,
 		new ModHistBinRange(0.0f, 1000.0f),
 		new ModHistBinCount(500))
 
-IMPL_HIST1D_JET_MOD1(DrawPfChargedHadronEnergyFractionPtConsumer ,
+// Energy fractions // Test if jet.Energy = sum (calenergies)
+IMPL_HIST1D_JET_MOD1(DrawJetAllEnergyFractionPtConsumer , 
 		{
 				if ( res.IsJetValid( m_jetNum ))
 				{
-					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedHadronEnergy /
-							res.m_pData->jets[ m_jetNum]->Energy(),
+					m_hist->Fill( res.m_pData->jets[m_jetNum]->Energy()*0.9 / res.m_pData->jets[m_jetNum]->Energy(),
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 2.0f) )
+
+IMPL_HIST1D_JET_MOD1(DrawJetChargedHadronEnergyFractionPtConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedHadronEnergyFraction,
 							res.GetWeight( ));
 				}
 		},
 		new ModHistBinRange(0.0f, 1.5f) )
 
-IMPL_HIST1D_JET_MOD1(DrawPfNeutralHadronEnergyFractionPtConsumer ,
+IMPL_HIST1D_JET_MOD1(DrawJetNeutralHadronEnergyFractionPtConsumer ,
 		{
 				if ( res.IsJetValid( m_jetNum ))
 				{
-					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralHadronEnergy /
-							res.m_pData->jets[ m_jetNum]->Energy(),
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralHadronEnergyFraction,
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 1.5f) )
+		
+IMPL_HIST1D_JET_MOD1(DrawJetChargedEmEnergyFractionPtConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedEmEnergy / res.m_pData->jets[m_jetNum]->Energy(),
 							res.GetWeight( ));
 				}
 		},
 		new ModHistBinRange(0.0f, 1.5f) )
 
-IMPL_HIST1D_JET_MOD1(DrawPfPhotonEnergyFractionPtConsumer ,
+IMPL_HIST1D_JET_MOD1(DrawJetNeutralEmEnergyFractionPtConsumer ,
 		{
 				if ( res.IsJetValid( m_jetNum ))
 				{
-					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->PhotonEnergy /
-							res.m_pData->jets[ m_jetNum]->Energy(),
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralEmEnergy / res.m_pData->jets[m_jetNum]->Energy(),
 							res.GetWeight( ));
 				}
 		},
 		new ModHistBinRange(0.0f, 1.5f) )
 
-IMPL_HIST1D_JET_MOD1(ConstituentsConsumer ,
+IMPL_HIST1D_JET_MOD1(DrawJetElectronEnergyFractionPtConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ElectronEnergy / res.m_pData->jets[m_jetNum]->Energy(),
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 1.5f) )
+
+IMPL_HIST1D_JET_MOD1(DrawJetMuonEnergyFractionPtConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->MuonEnergy / res.m_pData->jets[m_jetNum]->Energy(),
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 1.5f) )
+
+IMPL_HIST1D_JET_MOD1(DrawJetPhotonEnergyFractionPtConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->PhotonEnergy / res.m_pData->jets[m_jetNum]->Energy(),
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 1.5f) )
+		
+// Multiplicities
+IMPL_HIST1D_JET_MOD2(DrawJetChargedHadronMultiplicityConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+//					CALIB_LOG( "pf multi " <<  res.m_pData->pfProperties[ m_jetNum]->ChargedHadronMultiplicity )
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedHadronMultiplicity,
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(-0.5f, 11.5f),
+		new ModHistBinCount(12)
+		
+		 )
+
+IMPL_HIST1D_JET_MOD1(DrawJetNeutralHadronMultiplicityConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralHadronMultiplicity,
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 12.f) )
+		
+IMPL_HIST1D_JET_MOD1(DrawJetChargedMultiplicityConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedMultiplicity,
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 12.f) )
+
+IMPL_HIST1D_JET_MOD1(DrawJetNeutralMultiplicityConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralMultiplicity,
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 12.f) )
+
+IMPL_HIST1D_JET_MOD1(DrawJetElectronMultiplicityConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ElectronMultiplicity,
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 400.f) )
+
+IMPL_HIST1D_JET_MOD1(DrawJetMuonMultiplicityConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->MuonMultiplicity,
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 12.f) )
+
+IMPL_HIST1D_JET_MOD1(DrawJetPhotonMultiplicityConsumer ,
+		{
+				if ( res.IsJetValid( m_jetNum ))
+				{
+					m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->PhotonMultiplicity,
+							res.GetWeight( ));
+				}
+		},
+		new ModHistBinRange(0.0f, 12.f) )
+
+IMPL_HIST1D_JET_MOD1(DrawJetConstituentsConsumer ,
         {
                 if ( res.IsJetValid( m_jetNum ))
                 {
@@ -1887,10 +2010,318 @@ public:
 };
 
 
-class DrawPhotonEnergy: public DrawGraphErrorsConsumerBase<EventResult>
+class DrawJetChargedEmEnergy: public DrawGraphErrorsConsumerBase<EventResult>
 {
 public:
-    DrawPhotonEnergy( std::string sInpHist ) :
+    DrawJetChargedEmEnergy( std::string sInpHist ) :
+        DrawGraphErrorsConsumerBase<EventResult>(),
+        m_sInpHist( sInpHist)
+    {
+
+    }
+
+    virtual void Process()
+    {
+        Hist1D m_histChargedEmFrac;
+
+        // move through the histos
+        stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+        std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+        m_histChargedEmFrac.m_sCaption = m_histChargedEmFrac.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+        //m_histChargedEmFrac.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+        m_histChargedEmFrac.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+        m_histChargedEmFrac.Init();
+
+
+        int i = 0;
+        for (std::vector< PtBin >::iterator it = bins.begin();
+                it != bins.end();
+                it ++)
+        {
+            TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+            sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+            // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+            TString sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hresp = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+            if (hresp == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+            sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+            if (hpt == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+
+            m_graph->AddPoint( hpt->GetMean(),
+                    hresp->GetMean(),
+                    hpt->GetMeanError(),
+                    hresp->GetMeanError());
+
+            m_histChargedEmFrac.GetRawHisto()->SetBinContent(i +1, hresp->GetMean() );
+            m_histChargedEmFrac.GetRawHisto()->SetBinError(i +1, hresp->GetMeanError() );
+            i++;
+        }
+
+        m_histChargedEmFrac.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+    }
+    std::string m_sInpHist;
+    std::string m_sFolder;
+
+
+};
+
+
+class DrawJetNeutralEmEnergy: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+    DrawJetNeutralEmEnergy( std::string sInpHist ) :
+        DrawGraphErrorsConsumerBase<EventResult>(),
+        m_sInpHist( sInpHist)
+    {
+
+    }
+    virtual void Process()
+    {
+        Hist1D m_histNeutralEmFrac;
+
+        // move through the histos
+        stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+        std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+        m_histNeutralEmFrac.m_sCaption = m_histNeutralEmFrac.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+        //m_histChargedHadrFrac.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+        m_histNeutralEmFrac.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+        m_histNeutralEmFrac.Init();
+
+
+        int i = 0;
+        for (std::vector< PtBin >::iterator it = bins.begin();
+                it != bins.end();
+                it ++)
+        {
+            TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+            sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+            // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+            TString sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hresp = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+            if (hresp == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+            sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+            if (hpt == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+
+            m_graph->AddPoint( hpt->GetMean(),
+                    hresp->GetMean(),
+                    hpt->GetMeanError(),
+                    hresp->GetMeanError());
+
+            m_histNeutralEmFrac.GetRawHisto()->SetBinContent(i +1, hresp->GetMean() );
+            m_histNeutralEmFrac.GetRawHisto()->SetBinError(i +1, hresp->GetMeanError() );
+            i++;
+        }
+
+        m_histNeutralEmFrac.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+    }
+    std::string m_sInpHist;
+    std::string m_sFolder;
+
+
+};
+
+class DrawJetElectronEnergy: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+    DrawJetElectronEnergy( std::string sInpHist ) :
+        DrawGraphErrorsConsumerBase<EventResult>(),
+        m_sInpHist( sInpHist)
+    {
+
+    }
+    virtual void Process()
+    {
+        Hist1D m_histElectronFrac;
+
+        // move through the histos
+        stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+        std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+        m_histElectronFrac.m_sCaption = m_histElectronFrac.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+        //m_histChargedHadrFrac.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+        m_histElectronFrac.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+        m_histElectronFrac.Init();
+
+
+        int i = 0;
+        for (std::vector< PtBin >::iterator it = bins.begin();
+                it != bins.end();
+                it ++)
+        {
+            TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+            sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+            // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+            TString sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hresp = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+            if (hresp == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+            sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+            if (hpt == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+
+            m_graph->AddPoint( hpt->GetMean(),
+                    hresp->GetMean(),
+                    hpt->GetMeanError(),
+                    hresp->GetMeanError());
+
+            m_histElectronFrac.GetRawHisto()->SetBinContent(i +1, hresp->GetMean() );
+            m_histElectronFrac.GetRawHisto()->SetBinError(i +1, hresp->GetMeanError() );
+            i++;
+        }
+
+        m_histElectronFrac.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+    }
+    std::string m_sInpHist;
+    std::string m_sFolder;
+
+
+};
+
+
+class DrawJetMuonEnergy: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+    DrawJetMuonEnergy( std::string sInpHist ) :
+        DrawGraphErrorsConsumerBase<EventResult>(),
+        m_sInpHist( sInpHist)
+    {
+
+    }
+    virtual void Process()
+    {
+        Hist1D m_histMuonFrac;
+
+        // move through the histos
+        stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+        std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+        m_histMuonFrac.m_sCaption = m_histMuonFrac.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+        //m_histChargedHadrFrac.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+        m_histMuonFrac.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+        m_histMuonFrac.Init();
+
+
+        int i = 0;
+        for (std::vector< PtBin >::iterator it = bins.begin();
+                it != bins.end();
+                it ++)
+        {
+            TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+            sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+            // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+            TString sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hresp = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+            if (hresp == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+            sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+            if (hpt == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+
+            m_graph->AddPoint( hpt->GetMean(),
+                    hresp->GetMean(),
+                    hpt->GetMeanError(),
+                    hresp->GetMeanError());
+
+            m_histMuonFrac.GetRawHisto()->SetBinContent(i +1, hresp->GetMean() );
+            m_histMuonFrac.GetRawHisto()->SetBinError(i +1, hresp->GetMeanError() );
+            i++;
+        }
+
+        m_histMuonFrac.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+    }
+    std::string m_sInpHist;
+    std::string m_sFolder;
+
+
+};
+
+
+class DrawJetPhotonEnergy: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+    DrawJetPhotonEnergy( std::string sInpHist ) :
         DrawGraphErrorsConsumerBase<EventResult>(),
         m_sInpHist( sInpHist)
     {
@@ -2032,6 +2463,544 @@ public:
         }
 
         m_histConstituents.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+    }
+    std::string m_sInpHist;
+    std::string m_sFolder;
+
+
+};
+
+
+class DrawJetChargedHadronMultiplicity: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+    DrawJetChargedHadronMultiplicity( std::string sInpHist ) :
+        DrawGraphErrorsConsumerBase<EventResult>(),
+        m_sInpHist( sInpHist)
+    {
+
+    }
+    virtual void Process()
+    {
+        Hist1D m_histChargedHadronMultiplicity;
+
+        // move through the histos
+        stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+        std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+        m_histChargedHadronMultiplicity.m_sCaption = m_histChargedHadronMultiplicity.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+        //m_histChargedHadrFrac.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+        m_histChargedHadronMultiplicity.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+        m_histChargedHadronMultiplicity.Init();
+
+
+        int i = 0;
+        for (std::vector< PtBin >::iterator it = bins.begin();
+                it != bins.end();
+                it ++)
+        {
+            TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+            sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+            // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+            TString sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hconst = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+            if (hconst == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+            sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+            if (hpt == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+
+            m_graph->AddPoint( hpt->GetMean(),
+                               hconst->GetMean(),
+                               hpt->GetMeanError(),
+                               hconst->GetMeanError());
+
+            m_histChargedHadronMultiplicity.GetRawHisto()->SetBinContent(i +1, hconst->GetMean() );
+            m_histChargedHadronMultiplicity.GetRawHisto()->SetBinError(i +1, hconst->GetMeanError() );
+            i++;
+        }
+
+        m_histChargedHadronMultiplicity.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+    }
+    std::string m_sInpHist;
+    std::string m_sFolder;
+
+
+};
+
+
+class DrawJetNeutralHadronMultiplicity: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+    DrawJetNeutralHadronMultiplicity( std::string sInpHist ) :
+        DrawGraphErrorsConsumerBase<EventResult>(),
+        m_sInpHist( sInpHist)
+    {
+
+    }
+    virtual void Process()
+    {
+        Hist1D m_histNeutralHadronMultiplicity;
+
+        // move through the histos
+        stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+        std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+        m_histNeutralHadronMultiplicity.m_sCaption = m_histNeutralHadronMultiplicity.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+        //m_histChargedHadrFrac.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+        m_histNeutralHadronMultiplicity.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+        m_histNeutralHadronMultiplicity.Init();
+
+
+        int i = 0;
+        for (std::vector< PtBin >::iterator it = bins.begin();
+                it != bins.end();
+                it ++)
+        {
+            TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+            sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+            // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+            TString sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hconst = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+            if (hconst == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+            sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+            if (hpt == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+
+            m_graph->AddPoint( hpt->GetMean(),
+                               hconst->GetMean(),
+                               hpt->GetMeanError(),
+                               hconst->GetMeanError());
+
+            m_histNeutralHadronMultiplicity.GetRawHisto()->SetBinContent(i +1, hconst->GetMean() );
+            m_histNeutralHadronMultiplicity.GetRawHisto()->SetBinError(i +1, hconst->GetMeanError() );
+            i++;
+        }
+
+        m_histNeutralHadronMultiplicity.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+    }
+    std::string m_sInpHist;
+    std::string m_sFolder;
+
+
+};
+
+class DrawJetChargedMultiplicity: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+    DrawJetChargedMultiplicity( std::string sInpHist ) :
+        DrawGraphErrorsConsumerBase<EventResult>(),
+        m_sInpHist( sInpHist)
+    {
+
+    }
+    virtual void Process()
+    {
+        Hist1D m_histChargedMultiplicity;
+
+        // move through the histos
+        stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+        std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+        m_histChargedMultiplicity.m_sCaption = m_histChargedMultiplicity.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+        //m_histChargedHadrFrac.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+        m_histChargedMultiplicity.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+        m_histChargedMultiplicity.Init();
+
+
+        int i = 0;
+        for (std::vector< PtBin >::iterator it = bins.begin();
+                it != bins.end();
+                it ++)
+        {
+            TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+            sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+            // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+            TString sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hconst = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+            if (hconst == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+            sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+            if (hpt == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+
+            m_graph->AddPoint( hpt->GetMean(),
+                               hconst->GetMean(),
+                               hpt->GetMeanError(),
+                               hconst->GetMeanError());
+
+            m_histChargedMultiplicity.GetRawHisto()->SetBinContent(i +1, hconst->GetMean() );
+            m_histChargedMultiplicity.GetRawHisto()->SetBinError(i +1, hconst->GetMeanError() );
+            i++;
+        }
+
+        m_histChargedMultiplicity.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+    }
+    std::string m_sInpHist;
+    std::string m_sFolder;
+
+
+};
+
+
+class DrawJetNeutralMultiplicity: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+    DrawJetNeutralMultiplicity( std::string sInpHist ) :
+        DrawGraphErrorsConsumerBase<EventResult>(),
+        m_sInpHist( sInpHist)
+    {
+
+    }
+    virtual void Process()
+    {
+        Hist1D m_histNeutralMultiplicity;
+
+        // move through the histos
+        stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+        std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+        m_histNeutralMultiplicity.m_sCaption = m_histNeutralMultiplicity.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+        //m_histChargedHadrFrac.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+        m_histNeutralMultiplicity.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+        m_histNeutralMultiplicity.Init();
+
+
+        int i = 0;
+        for (std::vector< PtBin >::iterator it = bins.begin();
+                it != bins.end();
+                it ++)
+        {
+            TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+            sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+            // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+            TString sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hconst = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+            if (hconst == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+            sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+            if (hpt == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+
+            m_graph->AddPoint( hpt->GetMean(),
+                               hconst->GetMean(),
+                               hpt->GetMeanError(),
+                               hconst->GetMeanError());
+
+            m_histNeutralMultiplicity.GetRawHisto()->SetBinContent(i +1, hconst->GetMean() );
+            m_histNeutralMultiplicity.GetRawHisto()->SetBinError(i +1, hconst->GetMeanError() );
+            i++;
+        }
+
+        m_histNeutralMultiplicity.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+    }
+    std::string m_sInpHist;
+    std::string m_sFolder;
+
+
+};
+
+
+class DrawJetElectronMultiplicity: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+    DrawJetElectronMultiplicity( std::string sInpHist ) :
+        DrawGraphErrorsConsumerBase<EventResult>(),
+        m_sInpHist( sInpHist)
+    {
+
+    }
+    virtual void Process()
+    {
+        Hist1D m_histElectronMultiplicity;
+
+        // move through the histos
+        stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+        std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+        m_histElectronMultiplicity.m_sCaption = m_histElectronMultiplicity.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+        //m_histChargedHadrFrac.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+        m_histElectronMultiplicity.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+        m_histElectronMultiplicity.Init();
+
+
+        int i = 0;
+        for (std::vector< PtBin >::iterator it = bins.begin();
+                it != bins.end();
+                it ++)
+        {
+            TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+            sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+            // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+            TString sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hconst = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+            if (hconst == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+            sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+            if (hpt == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+
+            m_graph->AddPoint( hpt->GetMean(),
+                               hconst->GetMean(),
+                               hpt->GetMeanError(),
+                               hconst->GetMeanError());
+
+            m_histElectronMultiplicity.GetRawHisto()->SetBinContent(i +1, hconst->GetMean() );
+            m_histElectronMultiplicity.GetRawHisto()->SetBinError(i +1, hconst->GetMeanError() );
+            i++;
+        }
+
+        m_histElectronMultiplicity.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+    }
+    std::string m_sInpHist;
+    std::string m_sFolder;
+
+
+};
+
+
+class DrawJetMuonMultiplicity: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+    DrawJetMuonMultiplicity( std::string sInpHist ) :
+        DrawGraphErrorsConsumerBase<EventResult>(),
+        m_sInpHist( sInpHist)
+    {
+
+    }
+    virtual void Process()
+    {
+        Hist1D m_histMuonMultiplicity;
+
+        // move through the histos
+        stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+        std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+        m_histMuonMultiplicity.m_sCaption = m_histMuonMultiplicity.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+        //m_histChargedHadrFrac.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+        m_histMuonMultiplicity.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+        m_histMuonMultiplicity.Init();
+
+
+        int i = 0;
+        for (std::vector< PtBin >::iterator it = bins.begin();
+                it != bins.end();
+                it ++)
+        {
+            TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+            sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+            // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+            TString sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hconst = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+            if (hconst == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+            sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+            if (hpt == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+
+            m_graph->AddPoint( hpt->GetMean(),
+                               hconst->GetMean(),
+                               hpt->GetMeanError(),
+                               hconst->GetMeanError());
+
+            m_histMuonMultiplicity.GetRawHisto()->SetBinContent(i +1, hconst->GetMean() );
+            m_histMuonMultiplicity.GetRawHisto()->SetBinError(i +1, hconst->GetMeanError() );
+            i++;
+        }
+
+        m_histMuonMultiplicity.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+    }
+    std::string m_sInpHist;
+    std::string m_sFolder;
+
+
+};
+
+
+class DrawJetPhotonMultiplicity: public DrawGraphErrorsConsumerBase<EventResult>
+{
+public:
+    DrawJetPhotonMultiplicity( std::string sInpHist ) :
+        DrawGraphErrorsConsumerBase<EventResult>(),
+        m_sInpHist( sInpHist)
+    {
+
+    }
+    virtual void Process()
+    {
+        Hist1D m_histPhotonMultiplicity;
+
+        // move through the histos
+        stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+        std::vector< PtBin > bins = this->GetPipelineSettings()->GetAsPtBins( sv );
+
+        m_histPhotonMultiplicity.m_sCaption = m_histPhotonMultiplicity.m_sName = this->GetPipelineSettings()->GetRootFileFolder() + this->GetProductName();
+        //m_histChargedHadrFrac.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+        m_histPhotonMultiplicity.AddModifier( new ModHistCustomBinnig( this->GetPipelineSettings()->GetCustomBins()) );
+        m_histPhotonMultiplicity.Init();
+
+
+        int i = 0;
+        for (std::vector< PtBin >::iterator it = bins.begin();
+                it != bins.end();
+                it ++)
+        {
+            TString sfolder = this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+            sfolder.ReplaceAll( "XXPT_BINXX", (*it).id() );
+
+            // cd to root folder
+            this->GetPipelineSettings()->GetRootOutFile()->cd( 
+               TString( this->GetPipelineSettings()->GetRootOutFile()->GetName()) + ":" );
+
+            TString sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), m_sInpHist.c_str(),
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hconst = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName );
+
+            if (hconst == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+            sName = RootNamer::GetHistoName(
+                    this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+                    this->GetPipelineSettings()->GetInputType(), 0, &(*it), false) + "_hist";
+            TH1D * hpt   = (TH1D * )this->GetPipelineSettings()->GetRootOutFile()->Get(sfolder + "/" + sName  );
+
+            if (hpt == NULL)
+            {
+                CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+            }
+
+
+            m_graph->AddPoint( hpt->GetMean(),
+                               hconst->GetMean(),
+                               hpt->GetMeanError(),
+                               hconst->GetMeanError());
+
+            m_histPhotonMultiplicity.GetRawHisto()->SetBinContent(i +1, hconst->GetMean() );
+            m_histPhotonMultiplicity.GetRawHisto()->SetBinError(i +1, hconst->GetMeanError() );
+            i++;
+        }
+
+        m_histPhotonMultiplicity.Store(this->GetPipelineSettings()->GetRootOutFile());
 
     }
     std::string m_sInpHist;

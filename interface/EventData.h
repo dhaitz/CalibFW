@@ -35,11 +35,15 @@ enum InputTypeEnum
  *
  */
 
-
-typedef struct {float ChargedHadronEnergy,
+// struct from Zplusjet/ZplusjetTreeMaker/interface/ZplusjetTreeMaker.h
+typedef struct {float ChargedHadronEnergy, 
                 ChargedHadronMultiplicity,
-                NeutralHadronEnergy,
+                ChargedHadronEnergyFraction,
+                
+                NeutralHadronEnergy,                        
                 NeutralHadronMultiplicity,
+                NeutralHadronEnergyFraction,
+                
                 ChargedEmEnergy,
                 NeutralEmEnergy,
 
@@ -48,11 +52,18 @@ typedef struct {float ChargedHadronEnergy,
 
                 ElectronEnergy,
                 ElectronMultiplicity,
+                ElectronEnergyFraction,
+                
                 MuonEnergy,
                 MuonMultiplicity,
+                MuonEnergyFraction,
+                
                 PhotonEnergy,
                 PhotonMultiplicity,
-              Constituents;} PFProperties;
+                PhotonEnergyFraction,
+
+                Constituents;} PFProperties;
+
 
 class evtData: boost::noncopyable
 {

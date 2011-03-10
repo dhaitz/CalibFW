@@ -312,12 +312,24 @@ EventPipeline * CreateLevel2Pipeline()
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetCorrGraph, mpf_jetcorr, "mpfresp" )
 
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetChargedHadronEnergy, jet1_chargedhadronenergy_fraction, "jet1_chargedhadronenergy_fraction" )
-    PLOT_GRAPHERRORS_COND1( pline, DrawJetNeutralHadronEnergy, jet1_neutralhadronenergy_fraction, "jet1_neutralhadronenergy_fraction" )
-    PLOT_GRAPHERRORS_COND1( pline, DrawPhotonEnergy, jet1_photonenergy_fraction, "jet1_photonenergy_fraction" )
-    PLOT_GRAPHERRORS_COND1( pline, DrawMatchAvgCaloJetPtRatio, calo_pf_avg_ratio_vs_pf_pt, "jet1_calo_match_ptratio" )
-    
-    PLOT_GRAPHERRORS_COND1( pline, DrawConstituents, jet1_constituents, "jet1_constituents" )
-    
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetNeutralHadronEnergy, jet1_neutralhadronenergy_fraction, "jet1_neutralhadronenergy_fraction" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetChargedEmEnergy, jet1_chargedemenergy_fraction, "jet1_chargedemenergy_fraction" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetNeutralEmEnergy, jet1_neutralemenergy_fraction, "jet1_neutralemenergy_fraction" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetElectronEnergy, jet1_electronenergy_fraction, "jet1_electronenergy_fraction" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetMuonEnergy, jet1_muonenergy_fraction, "jet1_muonenergy_fraction" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetPhotonEnergy, jet1_photonenergy_fraction, "jet1_photonenergy_fraction" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetChargedHadronMultiplicity, jet1_chargedhadronmultiplicity, "jet1_chargedhadronmultiplicity" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetNeutralHadronMultiplicity, jet1_neutralhadronmultiplicity, "jet1_neutralhadronmultiplicity" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetChargedMultiplicity, jet1_chargedmultiplicity, "jet1_chargedmultiplicity" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetNeutralMultiplicity, jet1_neutralmultiplicity, "jet1_neutralmultiplicity" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetElectronMultiplicity, jet1_electronmultiplicity, "jet1_electronmultiplicity" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetMuonMultiplicity, jet1_muonmultiplicity, "jet1_muonmultiplicity" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetPhotonMultiplicity, jet1_photonmultiplicity, "jet1_photonmultiplicity" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawMatchAvgCaloJetPtRatio, calo_pf_avg_ratio_vs_pf_pt, "jet1_calo_match_ptratio" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawConstituents, jet1_constituents, "jet1_constituents" )
+	PLOT_GRAPHERRORS_COND2( pline, DrawMatchAvgAvgCaloJetPtRatio, calo_avg_pf_avg_ratio_vs_z_pt , "jet1_calo_match_pt", "jet1_pt" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawMatchAvgCaloJetPtRatio, calo_pf_avg_ratio_vs_pf_pt, "jet1_calo_match_ptratio" )
+
     PLOT_GRAPHERRORS_COND2( pline, DrawMatchAvgAvgCaloJetPtRatio, calo_avg_pf_avg_ratio_vs_z_pt , "jet1_calo_match_pt", "jet1_pt" )
 
     PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, zmass, "zmass" )  
@@ -413,25 +425,89 @@ EventPipeline * CreateDefaultPipeline()
 	PLOT_HIST1D_CONST1(pline, DrawMatchCaloJetPtConsumer, jet2_calo_match_pt, 1)
 	PLOT_HIST1D_CONST1(pline, DrawMatchCaloJetPtConsumer, jet3_calo_match_pt, 2)
 
-	PLOT_HIST1D_CONST1(pline, DrawPfChargedHadronEnergyFractionPtConsumer, jet1_chargedhadronenergy_fraction, 0)
-	PLOT_HIST1D_CONST1(pline, DrawPfChargedHadronEnergyFractionPtConsumer, jet2_chargedhadronenergy_fraction, 1)
-	PLOT_HIST1D_CONST1(pline, DrawPfChargedHadronEnergyFractionPtConsumer, jet3_chargedhadronenergy_fraction, 2)
+	// All Energy comparison (test if ==1)
+	PLOT_HIST1D_CONST1(pline, DrawJetAllEnergyFractionPtConsumer, jet1_allenergy_fraction, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetAllEnergyFractionPtConsumer, jet2_allenergy_fraction, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetAllEnergyFractionPtConsumer, jet3_allenergy_fraction, 2)
 
-	PLOT_HIST1D_CONST1(pline, DrawPfNeutralHadronEnergyFractionPtConsumer, jet1_neutralhadronenergy_fraction, 0)
-	PLOT_HIST1D_CONST1(pline, DrawPfNeutralHadronEnergyFractionPtConsumer, jet2_neutralhadronenergy_fraction, 1)
-	PLOT_HIST1D_CONST1(pline, DrawPfNeutralHadronEnergyFractionPtConsumer, jet3_neutralhadronenergy_fraction, 2)
+	// ChargedHadron Energy
+	PLOT_HIST1D_CONST1(pline, DrawJetChargedHadronEnergyFractionPtConsumer, jet1_chargedhadronenergy_fraction, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetChargedHadronEnergyFractionPtConsumer, jet2_chargedhadronenergy_fraction, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetChargedHadronEnergyFractionPtConsumer, jet3_chargedhadronenergy_fraction, 2)
 
-	PLOT_HIST1D_CONST1(pline, DrawPfPhotonEnergyFractionPtConsumer, jet1_photonenergy_fraction, 0)
-	PLOT_HIST1D_CONST1(pline, DrawPfPhotonEnergyFractionPtConsumer, jet2_photonenergy_fraction, 1)
-	PLOT_HIST1D_CONST1(pline, DrawPfPhotonEnergyFractionPtConsumer, jet3_photonenergy_fraction, 2)
+	// NeutralHadron Energy
+	PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronEnergyFractionPtConsumer, jet1_neutralhadronenergy_fraction, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronEnergyFractionPtConsumer, jet2_neutralhadronenergy_fraction, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronEnergyFractionPtConsumer, jet3_neutralhadronenergy_fraction, 2)
+	
+	// ChargedEm Energy
+	PLOT_HIST1D_CONST1(pline, DrawJetChargedEmEnergyFractionPtConsumer, jet1_chargedemenergy_fraction, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetChargedEmEnergyFractionPtConsumer, jet2_chargedemenergy_fraction, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetChargedEmEnergyFractionPtConsumer, jet3_chargedemenergy_fraction, 2)
+	
+	// NeutralEm Energy
+	PLOT_HIST1D_CONST1(pline, DrawJetNeutralEmEnergyFractionPtConsumer, jet1_neutralemenergy_fraction, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetNeutralEmEnergyFractionPtConsumer, jet2_neutralemenergy_fraction, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetNeutralEmEnergyFractionPtConsumer, jet3_neutralemenergy_fraction, 2)
+	
+	// Electron Energy
+	PLOT_HIST1D_CONST1(pline, DrawJetElectronEnergyFractionPtConsumer, jet1_electronenergy_fraction, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetElectronEnergyFractionPtConsumer, jet2_electronenergy_fraction, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetElectronEnergyFractionPtConsumer, jet3_electronenergy_fraction, 2)
+	
+	// Muon Energy
+	PLOT_HIST1D_CONST1(pline, DrawJetMuonEnergyFractionPtConsumer, jet1_muonenergy_fraction, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetMuonEnergyFractionPtConsumer, jet2_muonenergy_fraction, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetMuonEnergyFractionPtConsumer, jet3_muonenergy_fraction, 2)
 
-    PLOT_HIST1D_CONST1(pline, ConstituentsConsumer, jet1_constituents, 0)
-    PLOT_HIST1D_CONST1(pline, ConstituentsConsumer, jet2_constituents, 1)
-    PLOT_HIST1D_CONST1(pline, ConstituentsConsumer, jet3_constituents, 2)
+	// Photon Energy
+	PLOT_HIST1D_CONST1(pline, DrawJetPhotonEnergyFractionPtConsumer, jet1_photonenergy_fraction, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetPhotonEnergyFractionPtConsumer, jet2_photonenergy_fraction, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetPhotonEnergyFractionPtConsumer, jet3_photonenergy_fraction, 2)
     
     // Matched Z
     PLOT_HIST1D(pline, DrawZMatchConsumer, matchedZ_ptratio)
     
+	// ChargedHadron Multiplicity
+    PLOT_HIST1D_CONST1(pline, DrawJetChargedHadronMultiplicityConsumer, jet1_chargedhadronmultiplicity, 0)
+    PLOT_HIST1D_CONST1(pline, DrawJetChargedHadronMultiplicityConsumer, jet2_chargedhadronmultiplicity, 1)
+    PLOT_HIST1D_CONST1(pline, DrawJetChargedHadronMultiplicityConsumer, jet3_chargedhadronmultiplicity, 2)
+    
+    // NeutralHadron Multiplicity
+    PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronMultiplicityConsumer, jet1_neutralhadronmultiplicity, 0)
+    PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronMultiplicityConsumer, jet2_neutralhadronmultiplicity, 1)
+    PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronMultiplicityConsumer, jet3_neutralhadronmultiplicity, 2)
+    
+    // Charged Multiplicity
+    PLOT_HIST1D_CONST1(pline, DrawJetChargedMultiplicityConsumer, jet1_chargedmultiplicity, 0)
+    PLOT_HIST1D_CONST1(pline, DrawJetChargedMultiplicityConsumer, jet2_chargedmultiplicity, 1)
+    PLOT_HIST1D_CONST1(pline, DrawJetChargedMultiplicityConsumer, jet3_chargedmultiplicity, 2)
+    
+    // Neutral Multiplicity
+    PLOT_HIST1D_CONST1(pline, DrawJetNeutralMultiplicityConsumer, jet1_neutralmultiplicity, 0)
+    PLOT_HIST1D_CONST1(pline, DrawJetNeutralMultiplicityConsumer, jet2_neutralmultiplicity, 1)
+    PLOT_HIST1D_CONST1(pline, DrawJetNeutralMultiplicityConsumer, jet3_neutralmultiplicity, 2)
+    
+    // Electron Multiplicity
+    PLOT_HIST1D_CONST1(pline, DrawJetElectronMultiplicityConsumer, jet1_electronmultiplicity, 0)
+    PLOT_HIST1D_CONST1(pline, DrawJetElectronMultiplicityConsumer, jet2_electronmultiplicity, 1)
+    PLOT_HIST1D_CONST1(pline, DrawJetElectronMultiplicityConsumer, jet3_electronmultiplicity, 2)
+    
+    // Muon Multiplicity
+    PLOT_HIST1D_CONST1(pline, DrawJetMuonMultiplicityConsumer, jet1_muonmultiplicity, 0)
+    PLOT_HIST1D_CONST1(pline, DrawJetMuonMultiplicityConsumer, jet2_muonmultiplicity, 1)
+    PLOT_HIST1D_CONST1(pline, DrawJetMuonMultiplicityConsumer, jet3_muonmultiplicity, 2)
+    
+    // Photon Multiplicity
+    PLOT_HIST1D_CONST1(pline, DrawJetPhotonMultiplicityConsumer, jet1_photonmultiplicity, 0)
+    PLOT_HIST1D_CONST1(pline, DrawJetPhotonMultiplicityConsumer, jet2_photonmultiplicity, 1)
+    PLOT_HIST1D_CONST1(pline, DrawJetPhotonMultiplicityConsumer, jet3_photonmultiplicity, 2)
+    
+    // Constituents
+    PLOT_HIST1D_CONST1(pline, DrawJetConstituentsConsumer, jet1_constituents, 0)
+    PLOT_HIST1D_CONST1(pline, DrawJetConstituentsConsumer, jet2_constituents, 1)
+    PLOT_HIST1D_CONST1(pline, DrawJetConstituentsConsumer, jet3_constituents, 2)
+
 	// Response
 	PLOT_HIST1D(pline, DrawJetRespConsumer, jetresp)
 	PLOT_HIST1D(pline, DrawMpfJetRespConsumer, mpfresp)
