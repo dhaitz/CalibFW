@@ -307,9 +307,9 @@ void do_plot(TString name,
   func1.FixParameter(2, x1first );
   func2.FixParameter(2, x2first );
 
-  std::cout << std::endl << name.Data() <<  " mpf fit" << std::endl;
+  std::cout << std::endl << name.Data() <<  " balance fit" << std::endl;
   TFitResultPtr fitres1p = g1->Fit(&func1,"S");
-  std::cout << std::endl << name.Data() <<   " balance fit" << std::endl;
+  std::cout << std::endl << name.Data() <<   " mpf fit" << std::endl;
   TFitResultPtr fitres2p = g2->Fit(&func2,"S");
 
   // Dummy for x axis
