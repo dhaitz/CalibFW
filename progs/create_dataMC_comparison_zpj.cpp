@@ -26,6 +26,8 @@
 typedef std::vector<TF1> vTF1;
 typedef std::vector< vdouble > vvdouble;
 
+
+
 class  MyLikelihood {
 
 public:
@@ -240,6 +242,30 @@ void PlotNumberOfEvents( TString algoname, TFile *  ifile )
 
 //------------------------------------------------------------------------------
 
+void plotCutComparison( TFile * f1, TFile * f2, 
+                        std::string graphName1, std::string graphName2,
+                        std::string plotName )
+{
+    TGraphErrors * g1 = RootFileHelper::SafeGet< TGraphErrors *>( f1, graphName1);
+    TGraphErrors * g2 = RootFileHelper::SafeGet< TGraphErrors *>( f2, graphName2);
+
+    CanvasHolder c1( plotName.c_str() );
+
+    g1->SetLineColor( kRed );
+    g1->SetMarkerStyle( 20 );
+    g1->SetMarkerColor( kRed );
+    c1.addObjFormated( g1, "MC","PE");
+    
+    
+    g2->SetLineColor( kBlack );
+    g2->SetMarkerStyle( 3 );
+    g2->SetMarkerColor( kBlack );
+
+    c1.addObjFormated( g2, "Data", "PE");
+
+    saveHolder(c1,g_img_formats, false, "", "", g_plotEnv);
+}
+
 int main(int argc, char **argv) {
 	TString fileName("Datapoints_");
 	fstream txtfile;
@@ -266,6 +292,54 @@ int main(int argc, char **argv) {
         if (verbosityi==1) p.setVerbose(true);
     }
 
+ /*KEY: TGraphErrors      cut_ineff_json_zpt_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1     Graph
+ KEY: TGraphErrors      cut_ineff_json_nrv_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1     Graph
+ KEY: TGraphErrors      cut_ineff_hlt_zpt_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1      Graph
+ KEY: TGraphErrors      cut_ineff_hlt_nrv_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1      Graph
+ KEY: TGraphErrors      cut_ineff_muon_pt_zpt_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1  Graph
+ KEY: TGraphErrors      cut_ineff_muon_pt_nrv_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1  Graph
+ KEY: TGraphErrors      cut_ineff_muon_eta_zpt_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1 Graph
+ KEY: TGraphErrors      cut_ineff_muon_eta_nrv_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1 Graph
+ KEY: TGraphErrors      cut_ineff_leadingjet_eta_zpt_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1   Graph
+ KEY: TGraphErrors      cut_ineff_leadingjet_eta_nrv_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1   Graph
+ KEY: TGraphErrors      cut_ineff_secondleading_to_zpt_zpt_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1     Graph
+ KEY: TGraphErrors      cut_ineff_secondleading_to_zpt_nrv_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1     Graph
+ KEY: TGraphErrors      cut_ineff_back_to_back_zpt_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1     Graph
+ KEY: TGraphErrors      cut_ineff_back_to_back_nrv_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1     Graph
+ KEY: TGraphErrors      cut_ineff_zmass_window_zpt_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1     Graph
+ KEY: TGraphErrors      cut_ineff_zmass_window_nrv_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1     Graph
+ KEY: TGraphErrors      cut_ineff_jet_pt_zpt_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1   Graph
+ KEY: TGraphErrors      cut_ineff_jet_pt_nrv_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1   Graph
+ KEY: TGraphErrors      cut_ineff_zpt_zpt_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1      Graph
+ KEY: TGraphErrors      cut_ineff_zpt_nrv_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1      Graph
+ KEY: TGraphErrors      cut_ineff_secondleading_to_zpt_dir_zpt_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1 Graph
+ KEY: TGraphErrors      cut_ineff_secondleading_to_zpt_dir_nrv_ak5PFJetsL1L2L3Res_Zplusjet_data_graph;1 Graph*/
+
+    std::vector< std::string > cutIneffGraphs;
+    cutIneffGraphs.push_back("cut_ineff_json_zpt_");
+    cutIneffGraphs.push_back("cut_ineff_json_nrv_");
+    cutIneffGraphs.push_back("cut_ineff_hlt_zpt_");
+    cutIneffGraphs.push_back("cut_ineff_hlt_nrv_");
+    cutIneffGraphs.push_back("cut_ineff_muon_pt_zpt_");
+    cutIneffGraphs.push_back("cut_ineff_muon_pt_nrv_");
+    cutIneffGraphs.push_back("cut_ineff_muon_eta_zpt_");
+    cutIneffGraphs.push_back("cut_ineff_muon_eta_nrv_");
+    cutIneffGraphs.push_back("cut_ineff_leadingjet_eta_zpt_");
+    cutIneffGraphs.push_back("cut_ineff_leadingjet_eta_nrv_");
+    cutIneffGraphs.push_back("cut_ineff_secondleading_to_zpt_zpt_");
+    cutIneffGraphs.push_back("cut_ineff_secondleading_to_zpt_nrv_");
+    cutIneffGraphs.push_back("cut_ineff_back_to_back_zpt_");
+    cutIneffGraphs.push_back("cut_ineff_back_to_back_nrv_");
+
+    cutIneffGraphs.push_back("cut_ineff_zmass_window_zpt_");
+    cutIneffGraphs.push_back("cut_ineff_zmass_window_nrv_");    
+    cutIneffGraphs.push_back("cut_ineff_jet_pt_zpt_");
+    cutIneffGraphs.push_back("cut_ineff_jet_pt_nrv_");
+    cutIneffGraphs.push_back("cut_ineff_zpt_zpt_");
+    cutIneffGraphs.push_back("cut_ineff_zpt_nrv_");
+    cutIneffGraphs.push_back("cut_ineff_secondleading_to_zpt_dir_zpt_");
+    cutIneffGraphs.push_back("cut_ineff_secondleading_to_zpt_dir_nrv_");
+
     TString secname("general");
 //
 // Section general
@@ -289,16 +363,19 @@ int main(int argc, char **argv) {
     double max_jes=p.getDouble(secname+".max_jes");
     double min_jer=p.getDouble(secname+".min_jer");
     double max_jer=p.getDouble(secname+".max_jer");
+    bool bDoLikelihoodFit = !( p.getInt( secname + ".omit_likelihood" ) > 0 );
     TString outputtype=p.getString(secname+"outputtype");
     bool txtout=("outputtype"=="txt");
 
     TString baseFolder("NoBinning_incut/");
+    if (! (p.getString(secname+".base_folder") == ""))
+        baseFolder = p.getString(secname+".base_folder");
+
 // 0 = raw
 // 2 = level2
 // 3 = level3
     g_correction_level = p.getInt(secname+".correction_level");
 
-    
     
     if ( g_correction_level == 2)
     {
@@ -341,6 +418,17 @@ int main(int argc, char **argv) {
 
         PlotNumberOfEvents( algo, ifileData );
 
+
+        for (std::vector< std::string >::iterator it = cutIneffGraphs.begin();
+                it != cutIneffGraphs.end();
+                it ++ )
+        {
+            plotCutComparison( ifileMc, ifileData,
+            baseFolder.Data() + (*it) +  quantity.Data()+algo.Data()+g_jetAppendix.Data() +"_Zplusjet_mc_graph", 
+            baseFolder.Data() + (*it) +  quantity.Data()+algo.Data()+g_dataAppendix.Data()+ g_jetAppendix.Data() +"_Zplusjet_data_graph",
+            (*it) +  quantity.Data()+algo.Data());
+        }
+
 //------------------------------------------------------------------------------
 
         // Eta jet
@@ -357,11 +445,12 @@ int main(int argc, char **argv) {
 
         h_eta_jet.addLatex(info_x,info_y,the_info_string,true);
         h_eta_jet.scaleBoardersY(1,2);
-        h_eta_jet.setBoardersX(-1.4,1.4);
+
         //h_eta_jet.setBoardersY(0.001,129.0);
 	h_eta_jet.scaleBoardersY(1.0,1.2);
 
         formatHolder(h_eta_jet);
+        h_eta_jet.setBoardersX(-1.49,1.4);
         saveHolder(h_eta_jet,g_img_formats, false, "", "", g_plotEnv);
 
         // Phi jet
@@ -521,7 +610,7 @@ int main(int argc, char **argv) {
 
         h_phi_z.setTitleY("dN_{Events}/d#phi");
         h_phi_z.setTitleX("#phi^{Z}");
-        h_phi_z.setBoardersX(-3.14,3.14);
+        h_phi_z.setBoardersX(-4,4);
         //h_phi_z.setBoardersY(0.001,74.9);
 
         h_phi_z.addLatex(info_x,info_y,the_info_string,true);
@@ -633,6 +722,9 @@ int main(int argc, char **argv) {
         formatHolder(h_pt_mus);
         saveHolder(h_pt_mus,g_img_formats, false, "", "", g_plotEnv);
 
+
+    if ( bDoLikelihoodFit )
+{
 //------------------------------------------------------------------------------
 // Il reame della response.. Specchio Specchio delle mie brame
 
@@ -1006,6 +1098,7 @@ int main(int argc, char **argv) {
 
         final->Print( sOutputFolder + algo + postFix + "_Contours.png");
         final->Print( sOutputFolder + algo + postFix + "_Contours.pdf");
+}
     } // end loop on algos
 }
 
