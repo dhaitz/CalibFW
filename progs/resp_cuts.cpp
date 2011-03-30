@@ -53,11 +53,14 @@ using namespace std::rel_ops;
 #include "EventData.h"
 
 #include "CutStatistics.h"
-#include "DrawBase.h"
+
 #include "PtBinWeighter.h"
 #include "CutHandler.h"
-#include "EventPipeline.h"
-#include "EventStorer.h"
+
+
+#include "ZJetPipeline.h"
+#include "ZJetEventStorer.h"
+#include "ZJetDrawConsumer.h"
 
 using namespace CalibFW;
 
@@ -72,7 +75,7 @@ vString g_l2CorrFiles;
 vString g_l3CorrFiles;
 
 // TODO: delete this pointer when done
-PipelineSettings g_defaultSettings;
+//PipelineSettings g_defaultSettings;
 
 TString g_l3Formula;
 vdouble g_l3FormulaParams;
@@ -233,8 +236,8 @@ std::auto_ptr< CutHandler > g_cutHandler;
 
 PtBinWeighter g_mcWeighter;
 
-typedef std::vector<PipelineSettings *> PipelineSettingsVector;
-typedef boost::ptr_vector<EventPipeline> PipelineVector;
+typedef std::vector<ZJetPipelineSettings *> PipelineSettingsVector;
+typedef boost::ptr_vector<ZJetPipeline > PipelineVector;
 
 PipelineSettingsVector g_pipeSettings;
 PipelineVector g_pipelines;
@@ -300,9 +303,9 @@ void RunPipelines(int level)
 	}
 }
 
-EventPipeline * CreateLevel2Pipeline()
+ZJetPipeline * CreateLevel2Pipeline()
 {
-	EventPipeline * pline = new EventPipeline();
+	ZJetPipeline * pline = new ZJetPipeline();
 
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, jetresp, "jetresp" )
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, mpfresp, "mpfresp" )
@@ -341,7 +344,7 @@ EventPipeline * CreateLevel2Pipeline()
 	return pline;
 }
 
-void AddConsumerToPipeline(EventPipeline * pline, std::string consumerName)
+void AddConsumerToPipeline(ZJetPipeline * pline, std::string consumerName)
 {
 	if (consumerName == EventStorerConsumer().GetId())
 	{
@@ -354,7 +357,7 @@ void AddConsumerToPipeline(EventPipeline * pline, std::string consumerName)
 	}
 }
 
-void AddConsumersToPipeline(EventPipeline * pline,
+void AddConsumersToPipeline(ZJetPipeline * pline,
 		std::vector<std::string> consList)
 {
 	BOOST_FOREACH( std::string s, consList )
@@ -363,11 +366,12 @@ void AddConsumersToPipeline(EventPipeline * pline,
 }
 }
 
+
 // Generates the default pipeline which is run on all events.
 // insert new Plots here if you want a new plot
-EventPipeline * CreateDefaultPipeline()
+ZJetPipeline * CreateDefaultPipeline()
 {
-	EventPipeline * pline = new EventPipeline();
+	ZJetPipeline * pline = new ZJetPipeline();
 	//	pline->m_consumer.push_back(new EventDump());
 
 	/*	for (int i = 0; i < 400; i++ )
@@ -657,7 +661,7 @@ void importEvents(bool bUseJson,
 	{
 		if ((*it)->GetLevel() == 1)
 		{
-			EventPipeline * pLine = CreateDefaultPipeline();
+			ZJetPipeline * pLine = CreateDefaultPipeline();
 
 			AddConsumersToPipeline(pLine, (*it)->GetAdditionalConsumer());
 
@@ -748,7 +752,7 @@ void importEvents(bool bUseJson,
 	{
 		if ((*it)->GetLevel() == 2)
 		{
-			EventPipeline * pLine = CreateLevel2Pipeline();
+			ZJetPipeline * pLine = CreateLevel2Pipeline();
 
 			AddConsumersToPipeline(pLine, (*it)->GetAdditionalConsumer());
 
@@ -973,10 +977,10 @@ void CreateWeightBins()
 	g_mcWeighter.AddBin(PtBin(300.0, 999999.0), 7.586e-02);
 }
 
-PipelineSettings * CreateDefaultSettings(std::string sAlgoName,
+ZJetPipelineSettings * CreateDefaultSettings(std::string sAlgoName,
 		InputTypeEnum inpType)
 {
-	PipelineSettings * psetting = new PipelineSettings();
+	ZJetPipelineSettings * psetting = new ZJetPipelineSettings();
 	return psetting;
 }
 
@@ -1059,11 +1063,11 @@ int main(int argc, char** argv)
 	g_cutHandler->AddCut(new ZPtCut(0.0));
     g_cutHandler->AddCut(new SecondLeadingToZPtCutDir());
 
-	PipelineSettings * pset = NULL;
+	ZJetPipelineSettings * pset = NULL;
 
 	BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
 			g_propTree.get_child("Pipelines") )
-{	pset = new PipelineSettings();
+{	pset = new ZJetPipelineSettings();
 	pset->SetPropTree( &g_propTree );
 
 	std::string sKeyName = v.first.data();
