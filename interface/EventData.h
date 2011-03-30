@@ -1,5 +1,4 @@
-#ifndef ___EVENTDATA_H
-#define ___EVENTDATA_H
+#pragma once
 
 #include <set>
 
@@ -515,4 +514,4 @@ typedef std::set<EventId> EventSet;
 typedef boost::ptr_vector<EventResult> EventVector;
 typedef boost::ptr_vector<evtData> EventDataVector;
 
-#endif
+

@@ -12,6 +12,7 @@
 #include "RootIncludes.h"
 #include "EventData.h"
 #include "Json_wrapper.h"
+#include "ZJetPipeline.h"
 
 namespace CalibFW
 {
@@ -33,7 +34,7 @@ public:
 	virtual unsigned long GetId() = 0;
 	virtual std::string GetCutName() { return "No Cut Name given";}
 	virtual std::string GetCutShortName() = 0;
-	virtual void Configure( PipelineSettings * pset) =0;
+	virtual void Configure( ZJetPipelineSettings * pset) =0;
 
 	bool m_bCutEnabled;
 };
@@ -57,7 +58,7 @@ public:
 				pEv->m_pData->luminosityBlock);
 	}
 
-	void Configure( PipelineSettings * pset)
+	void Configure( ZJetPipelineSettings * pset)
 	{
 		// No Config here. Json is global for now
 	}
@@ -93,7 +94,7 @@ public:
 				&& (pEv->m_pData->mu_minus->Pt() > m_fMinMuonPt));
 	}
 
-	void Configure( PipelineSettings * pset)
+	void Configure( ZJetPipelineSettings * pset)
 	{
 		m_fMinMuonPt = pset->GetCutMuonPt();
 	}
@@ -123,7 +124,7 @@ public:
 				&& (TMath::Abs(pEv->m_pData->mu_minus->Eta()) < m_fMuEta));
 	}
 
-	void Configure( PipelineSettings * pset)
+	void Configure( ZJetPipelineSettings * pset)
 	{
 		m_fMuEta = pset->GetCutMuonEta();
 	}
@@ -152,7 +153,7 @@ public:
 		return (TMath::Abs(pEv->m_pData->jets[0]->Eta()) < m_fLeadingJetEta);
 	}
 
-	void Configure( PipelineSettings * pset)
+	void Configure( ZJetPipelineSettings * pset)
 	{
 		m_fLeadingJetEta = pset->GetCutLeadingJetEta();
 	}
@@ -190,7 +191,7 @@ public:
 		return (pEv->GetCorrectedJetPt(1) / pEv->m_pData->Z->Pt()
 				< m_f2ndJetRatio);
 	}
-	void Configure( PipelineSettings * pset)
+	void Configure( ZJetPipelineSettings * pset)
 	{
 		m_f2ndJetRatio = pset->GetCutSecondLeadingToZPt();
 		m_f2ndJetThreshold = pset->GetCutSecondLeadingToZPtJet2Threshold();
@@ -233,7 +234,7 @@ public:
 		return (pEv->GetCorrectedJetPt(1) / pEv->m_pData->Z->Pt()
 				< m_f2ndJetRatio);
 	}
-	void Configure( PipelineSettings * pset)
+	void Configure( ZJetPipelineSettings * pset)
 	{
 		m_f2ndJetRatio = pset->GetCutSecondLeadingToZPt();
 		m_f2ndJetThreshold = pset->GetCutSecondLeadingToZPtJet2Threshold();
@@ -273,7 +274,7 @@ public:
 		return (pEv->GetCorrectedJetPt(1) / pEv->m_pData->Z->Pt()
 				< m_f2ndJetRatio);
 	}
-	void Configure( PipelineSettings * pset)
+	void Configure( ZJetPipelineSettings * pset)
 	{
 		m_f2ndJetRatio = pset->GetCutSecondLeadingToZPt();
 		m_f2ndJetThreshold = pset->GetCutSecondLeadingToZPtJet2Threshold();
@@ -317,7 +318,7 @@ public:
 		return (TMath::Abs(TMath::Abs(pEv->m_pData->jets[0]->Phi()
 				- pEv->m_pData->Z->Phi()) - TMath::Pi()) < m_fBackness);
 	}
-	void Configure( PipelineSettings * pset)
+	void Configure( ZJetPipelineSettings * pset)
 	{
 		m_fBackness = pset->GetCutBack2Back();
 	}
@@ -346,7 +347,7 @@ public:
 	{
 
 	}
-	void Configure( PipelineSettings * pset)
+	void Configure( ZJetPipelineSettings * pset)
 	{
 		m_fWindowSize  = pset->GetCutZMassWindow();
 	}
@@ -382,7 +383,7 @@ public:
 
 	}
 
-	void Configure( PipelineSettings * pset)
+	void Configure( ZJetPipelineSettings * pset)
 	{
 		m_fMinZPt  = pset->GetCutZPt();
 	}
@@ -417,7 +418,7 @@ public:
 	{
 	}
 
-	void Configure( PipelineSettings * pset)
+	void Configure( ZJetPipelineSettings * pset)
 	{
 		m_fMinJetPt  = pset->GetCutJetPt();
 	}
@@ -485,7 +486,7 @@ public:
 		return false;
 	}
 
-	void Configure( PipelineSettings * pset)
+	void Configure( ZJetPipelineSettings * pset)
 	{
 	}
 
@@ -525,7 +526,7 @@ public:
 		m_cuts.push_back(pCut);
 	}
 
-	void ConfigureCuts(PipelineSettings * pset)
+	void ConfigureCuts(ZJetPipelineSettings * pset)
 	{
 		// "activated" cuts
 		stringvector svec = pset->GetCuts();

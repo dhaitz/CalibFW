@@ -19,16 +19,45 @@
 #include "RootIncludes.h"
 #include "EventData.h"
 #include "PtBinWeighter.h"
-#include "EventPipeline.h"
+#include "ZJetPipeline.h"
+#include "ZJetConsumer.h"
 
 namespace CalibFW
 {
-class EventStorerConsumer: public EventConsumerBase<EventResult>
+
+class EventDump: public ZJetConsumerBase
 {
 public:
-	virtual void Init(EventPipeline * pset)
+	virtual void Init(ZJetPipeline * pset)
 	{
-		EventConsumerBase<EventResult>::Init( pset );
+		CALIB_LOG("EventDump::Init called")
+	}
+
+	virtual void Finish()
+	{
+		CALIB_LOG("EventDump::Finish called")
+	}
+
+	// this method is only called for events which have passed the filter imposed on the
+	// pipeline
+	virtual void ProcessFilteredEvent(EventResult & event)
+	{
+		CALIB_LOG("Filtered EventNum " << event.m_pData->cmsEventNum)
+	}
+
+	// this method is called for all events
+	virtual void ProcessEvent(EventResult & event, FilterResult & result)
+	{
+		CALIB_LOG("Unfiltered EventNum " << event.m_pData->cmsEventNum)
+	}
+};
+
+class EventStorerConsumer: public ZJetConsumerBase
+{
+public:
+	virtual void Init(ZJetPipeline * pset)
+	{
+		ZJetConsumerBase::Init( pset );
 
 		m_l2corr = 1.0f;
 	 	m_l2corrPtJet2 = 1.0f;
