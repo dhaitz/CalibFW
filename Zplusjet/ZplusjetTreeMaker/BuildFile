@@ -1,0 +1,22 @@
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/Candidate>
+<use name=DataFormats/METReco>
+<use name=DataFormats/VertexReco>
+<use name=DataFormats/BeamSpot>
+
+<use name=root>
+<lib name=EG>
+
+<flags EDM_PLUGIN=1>
+<!--Flags CXXFLAGS="-O0 -g -DDEBUG"-->
+<export>
+    <use name=FWCore/Framework>
+    <use name=FWCore/PluginManager>
+    <use name=FWCore/ParameterSet>
+    <use name=DataFormats/JetReco>
+    <use name=root> 
+    <lib name=1>
+</export>

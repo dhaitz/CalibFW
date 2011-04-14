@@ -1,0 +1,4 @@
+<!--bin name="TestZplusjetTreeMaker"  file="zjet_t.cpp" >
+	<use name="Zplusjet/ZplusjetTreeMaker"/>
+	<use name="cppunit" />
+</bin-->
