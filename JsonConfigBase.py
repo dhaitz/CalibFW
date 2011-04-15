@@ -2,7 +2,7 @@ import copy
 import subprocess
 
 def getDefaultCorrectionL2( data_path ):
-  globalTag = "GR_R_38X_V14_"
+  globalTag = "GR_R_311_V2_"
   
   g_l2_correction_data=["ak5PFJets:" + data_path + "jec_data/" + globalTag + "AK5PF_L2Relative.txt",
       "ak7PFJets:" + data_path + "jec_data/" + globalTag + "AK7PF_L2Relative.txt",
@@ -77,7 +77,7 @@ def GetDefaultDataPipeline():
 def GetDataBaseConfig():
     d = GetBaseConfig()
     
-    d["JsonFile"] = "data/json/Cert_136033-149442_7TeV_Nov4ReReco_Collisions10_JSON.txt"
+    d["JsonFile"] = "data/json/Cert_160404-161216_7TeV_PromptReco_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
@@ -254,4 +254,3 @@ def Run( settings, filename):
     except:
         pass
 
-    
