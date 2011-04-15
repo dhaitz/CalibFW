@@ -11,3 +11,5 @@ bin/
 *.pdf
 *.png
 *.tar.gz
+cintdict.cc
+cintdict.h

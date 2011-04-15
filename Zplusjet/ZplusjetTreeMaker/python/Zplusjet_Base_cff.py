@@ -93,7 +93,7 @@ def getBaseConfig( Zlist , is_data):
     p.processedEventsPath = cms.Path(process.processedEvents)
 
     # The Zs  and the Z+jet-analyzer
-    import  Zplusjet.ZplusjetTreeMaker.Z_collections_noprecuts_cfi as Zs 
+    import Zplusjet.ZplusjetTreeMaker.Z_collections_noprecuts_cfi as Zs 
     p.extend(Zs)
 
     p.flatTreeMaker = cms.EDAnalyzer('ZplusjetTreeMaker',

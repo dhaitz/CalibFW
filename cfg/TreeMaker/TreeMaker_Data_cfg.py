@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import FWCore.ParameterSet.Config as cms
 
-import  Zplusjet.ZplusjetTreeMaker.Z_collections_noprecuts_cfi as Zs
+import Zplusjet.ZplusjetTreeMaker.Z_collections_noprecuts_cfi as Zs
 import Zplusjet.ZplusjetTreeMaker.Zplusjet_Base_cff as TreeBaseCfg
 
 defaultGlobalTag = "FT_R_38X_V14A::All"
