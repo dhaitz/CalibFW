@@ -1,3 +1,13 @@
+lib/
+obj/
+bin/
+
+.*
+*.root
 *.exe
 *.o
-
+*.pyc
+*.py.json
+*.pdf
+*.png
+*.tar.gz
