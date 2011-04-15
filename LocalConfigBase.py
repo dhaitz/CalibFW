@@ -1,10 +1,10 @@
 import copy
 
 def GetPath():
-    return "/local/scratch/hauth/data/ZPJ2010/"
+	return "/scratch/hh/lustre/cms/user/berger/"
 
 def GetLocalDataPath():
-    return GetPath()
+	return "/scratch/hh/lustre/cms/user/berger/"
 
 def GetLocalOutputPath():
     return GetPath()
