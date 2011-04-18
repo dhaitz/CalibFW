@@ -278,10 +278,10 @@ void ZplusjetTreeMaker::analyze(const edm::Event& iEvent,
     double binningValue=0;
     try {
         edm::Handle<GenEventInfoProduct> genInfoProd;
-        iEvent.getByLabel( "generator", genInfoProd );
-        m_store_weight=genInfoProd->weight();
+        bool is_mc = iEvent.getByLabel( "generator", genInfoProd );
+        if (is_mc) m_store_weight=genInfoProd->weight();
         // Info on pt_hat aka. hard scatter
-        binningValue=genInfoProd->binningValues()[0];
+        if (is_mc) binningValue=genInfoProd->binningValues()[0];
         //hweight->Fill(weight);
     }
     catch (...) {
@@ -291,15 +291,15 @@ void ZplusjetTreeMaker::analyze(const edm::Event& iEvent,
     // The run info product
     m_store_xsection=1;
     m_store_filtereff=1;
-    try {
-        edm::Handle<GenRunInfoProduct> genRunInfo;
-        iEvent.getRun().getByLabel( "generator", genRunInfo );
-        m_store_xsection=genRunInfo->crossSection();
-        m_store_filtereff=genRunInfo->filterEfficiency();
-    }
-    catch (...) {
-        LogPrint ("GenRunInfoProduct") << "No GenRunInfoProduct found!";
-    }
+//    try {
+//        edm::Handle<GenRunInfoProduct> genRunInfo;
+//        iEvent.getRun().getByLabel( "generator", genRunInfo );
+//        m_store_xsection=genRunInfo->crossSection();
+//        m_store_filtereff=genRunInfo->filterEfficiency();
+//    }
+//    catch (...) {
+//        LogPrint ("GenRunInfoProduct") << "No GenRunInfoProduct found!";
+//    }
 
     m_store_matrix_element_flavour=0;
 
