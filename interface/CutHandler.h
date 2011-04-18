@@ -456,11 +456,13 @@ public:
 
 	bool IsInCut(EventResult * pEv)
 	{
-		TString hltName = "HLT_Mu9";
+		TString hltName = "HLT_Mu9";		// use always the lowest-pt unprescaled trigger
 
 		/* 1 trigger approach */
-		if (pEv->m_pData->cmsRun >= 147146)
+		if (pEv->m_pData->cmsRun >= 147146)	// 2010B up to about 149711 (json up to 149442)
 			hltName = "HLT_Mu15_v1";
+		if (pEv->m_pData->cmsRun >= 160000)	// 2011A (ongoing, json starting with 160404)
+			hltName = "HLT_Mu15_v2";
 
 		const int nHLTriggers = pEv->m_pData->HLTriggers_accept->GetEntries();
 

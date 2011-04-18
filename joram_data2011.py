@@ -7,10 +7,10 @@ import copy
 
 conf = JsonConfigBase.GetDataBaseConfig()
 
-conf["Algos"] = ["ak5PFJetsL1L2L3Res", "ak7PFJetsL1L2L3Res"]
+conf["Algos"] = ["ak5PFJetsL1L2L3Res"]#, "ak7PFJetsL1L2L3Res"]
 
 conf["InputFiles"] = "/scratch/hh/lustre/cms/user/berger/skim2011/skim2011_*_SingleMu.root"
-conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "data2011"
+conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "data2011_v3"
 
 
 conf = JsonConfigBase.ExpandDefaultDataConfig( [0,15,30,60,100,500], conf, True )
