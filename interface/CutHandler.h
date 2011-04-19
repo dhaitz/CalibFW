@@ -605,8 +605,10 @@ public:
 	static bool IsValidEvent( EventResult * pEvRes)
 	{
 		// for MC Events, this should always return true
-		return (! IsCutInBitmask( JsonCut::CudId, pEvRes->m_cutBitmask ) &&
-				! IsCutInBitmask( HltCut::CudId, pEvRes->m_cutBitmask ));
+		return true;	// I don't understand why I should include this check here.
+						// This logically leads to 100% accepted in json and hlt cut.
+//		return (! IsCutInBitmask( JsonCut::CudId, pEvRes->m_cutBitmask ) &&
+//				! IsCutInBitmask( HltCut::CudId, pEvRes->m_cutBitmask ));
 
 	}
 
