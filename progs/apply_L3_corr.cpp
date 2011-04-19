@@ -131,10 +131,9 @@ class DataHisto
 	return (this->m_binMax- this->m_binMin);
     }
 
-    
+    TH1D * m_pHist;
     double m_binMin;
     double m_binMax;
-    TH1D * m_pHist;
 };
 
 
@@ -277,9 +276,6 @@ int main(int argc, char **argv) {
 //
     lumi = p.getDouble(secname+".lumi");
     int pt_rebin_factor = p.getInt(secname+".pt_rebin_factor");
-    int phi_rebin_factor = p.getInt(secname+".phi_rebin_factor");
-    int mass_rebin_factor = p.getInt(secname+".mass_rebin_factor");
-    int eta_rebin_factor = p.getInt(secname+".eta_rebin_factor");
     TString mc_input_file = p.getString(secname+".mc_input_file");
     TString data_input_file = p.getString(secname+".data_input_file");
     TString info_string = p.getString(secname+".info_string");
@@ -289,10 +285,6 @@ int main(int argc, char **argv) {
     vint pt_data_bins = p.getvInt(secname+".pt_data_bins");
     vString img_formats= p.getvString(secname+".img_formats");
     vint runs_with_events = p.getvInt(secname+".runs_with_evts");
-    double min_jes=p.getDouble(secname+".min_jes");
-    double max_jes=p.getDouble(secname+".max_jes");
-    double min_jer=p.getDouble(secname+".min_jer");
-    double max_jer=p.getDouble(secname+".max_jer");
 
     g_l3_corr_formula = p.getString( secname + ".l3_corr_formula");
     g_l3_corr_params = p.getvDouble( secname+".l3_corr_params") ;
@@ -328,8 +320,6 @@ int main(int argc, char **argv) {
 //------------------------------------------------------------------------------
 
     TFile* ifileMc = new TFile (mc_input_file);
-    TFile* ifileData = new TFile (data_input_file);
-
 
     std::cout << "MC file : " << mc_input_file << std::endl;
     std::cout << "Data file : " << data_input_file << std::endl;
@@ -349,7 +339,7 @@ int main(int argc, char **argv) {
 
     TH1F nevts("nevts","nevts",tot_runs,first_run-0.5,last_run-0.5);
 
-    for (int irun=0;irun<runs_with_events.size();irun++) {
+    for (unsigned irun=0;irun<runs_with_events.size();irun++) {
         int run=runs_with_events[irun];
         /*    TString runs("the ");runs+=ibin;
             nevts.Fill(runs.Data(),1);*/
@@ -384,7 +374,7 @@ int main(int argc, char **argv) {
     int ibin=0;
     TString sGlobalPrefix = "L3_apply_";
 
-    for (int ialgo=0;ialgo<algos.size();++ialgo) {
+    for (unsigned ialgo=0;ialgo<algos.size();++ialgo) {
 
         TString algo(algos[ialgo]);
         TString goodalgo(good_algos[ialgo]);
@@ -453,8 +443,6 @@ int main(int argc, char **argv) {
             ibin++;
             // End fill The response histo
 
-            double maximum=0.03;
-
             h_resp.setLegPos(.77,.78,.95,.87);
 
             h_resp.addObjFormated(respo,"Monte Carlo","Hist");
@@ -520,7 +508,7 @@ int main(int argc, char **argv) {
             c_dataBinned->setBoardersY(0,10.0);
             c_dataBinned->setLegPos(.75,.75,.95,.87);
 
-            for (int i=0;i<responses_points_all_bins.size();++i)
+            for (unsigned i=0;i<responses_points_all_bins.size();++i)
             {
                 if ( interval->contains(responses_points_all_bins[i].x))
                 {
@@ -563,7 +551,7 @@ int main(int argc, char **argv) {
 
         // Prepare the response/MC plot for the response
         TGraphErrors repsponse_data(histData.size());
-        for (int i=0;i<histData.size();++i)
+        for (unsigned i=0;i<histData.size();++i)
         {
             repsponse_data.SetPoint(i,histData[i].GetBinCenter(), histData[i].m_pHist->GetMean());
     	    repsponse_data.SetPointError(i, histData[i].GetBinWidth() / 2.0f, histData[i].m_pHist->GetMeanError());
@@ -713,7 +701,7 @@ void getResponses(vdouble& responses,
 Intervals fill_intervals(vint edges) {
 
     Intervals intervals;
-    for (int i=0;i<edges.size()-1;i++)
+    for (unsigned i=0;i<edges.size()-1;i++)
         intervals.push_back(pt_interval(edges[i],edges[i+1]));
     return intervals;
 };
@@ -858,7 +846,7 @@ void saveHolder(CanvasHolder &h,
         std::cout << "DEBUG: log scale for the canvas " << (can_name+"_log_y").Data() << std::endl;
         h.setCanvasTitle(can_name+"_log_y");
         h.setLogY();
-        for (int i=0;i<formats.size();++i) {
+        for (unsigned i=0;i<formats.size();++i) {
 //             h.draw();
             h.save(formats[i].Data());
         }
@@ -866,7 +854,7 @@ void saveHolder(CanvasHolder &h,
     else
     {
 //      h.save("png");
-        for (int i=0;i<formats.size();++i)
+        for (unsigned i=0;i<formats.size();++i)
         {
 //         h.draw();
             h.save(formats[i].Data());

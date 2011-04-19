@@ -45,7 +45,7 @@ public:
         // function implementation using class data members
 
         double nll=0;
-        for (int ibin=m_skip_bins;ibin<m_vresponses.size();ibin++) {
+        for (unsigned ibin=m_skip_bins;ibin<m_vresponses.size();ibin++) {
 
             m_functions[ibin].SetParameter(3,x[0]);
             m_functions[ibin].SetParameter(4,x[1]);
@@ -53,7 +53,7 @@ public:
             //          m_functions[ibin].Dump();
 
             vdouble responses(m_vresponses[ibin]);
-            for (int iresp=0;iresp<responses.size();++iresp) {
+            for (unsigned iresp=0;iresp<responses.size();++iresp) {
                 double partial_L=m_functions[ibin].Eval(responses[iresp]);
                 // std::cout << "Partial L  = " << partial_L << std::endl;
                 nll+= -1 * TMath::Log(partial_L);
@@ -227,7 +227,7 @@ int main(int argc, char **argv) {
     double info_x=.3;
     double info_y=.78;
 
-    for (int ialgo=0;ialgo<algos.size();++ialgo) {
+    for (unsigned ialgo=0;ialgo<algos.size();++ialgo) {
 
         TString algo(algos[ialgo]);
         TString goodalgo(good_algos[ialgo]);
@@ -546,7 +546,7 @@ void getResponses(vdouble& responses,
 Intervals fill_intervals(vint edges) {
 
     Intervals intervals;
-    for (int i=0;i<edges.size()-1;i++)
+    for (unsigned i=0;i<edges.size()-1;i++)
         intervals.push_back(pt_interval(edges[i],edges[i+1]));
     return intervals;
 };
@@ -668,13 +668,13 @@ void saveHolder(CanvasHolder &h,vString formats, bool make_log, TString sNamePos
         std::cout << "DEBUG: log scale for the canvas " << (can_name+"_log_y").Data() << std::endl;
         h.setCanvasTitle(can_name+"_log_y");
         h.setLogY();
-        for (int i=0;i<formats.size();++i) {
+        for (unsigned i=0;i<formats.size();++i) {
 //             h.draw();
             h.save(formats[i].Data());
         }
     }
     else {
-        for (int i=0;i<formats.size();++i)
+        for (unsigned i=0;i<formats.size();++i)
 //         h.draw();
             h.save(formats[i].Data());
     }

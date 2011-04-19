@@ -107,10 +107,9 @@ class DataHisto
 	return (this->m_binMax- this->m_binMin);
     }
 
-    
+    TH1D * m_pHist;
     double m_binMin;
     double m_binMax;
-    TH1D * m_pHist;
 };
 
 
@@ -344,10 +343,6 @@ int main(int argc, char **argv) {
     vString source_type = p.getvString(secname+".source_type");
     vint pt_bins = p.getvInt(secname+".pt_bins");
     vString img_formats= p.getvString(secname+".img_formats");
-    double min_jes=p.getDouble(secname+".min_jes");
-    double max_jes=p.getDouble(secname+".max_jes");
-    double min_jer=p.getDouble(secname+".min_jer");
-    double max_jer=p.getDouble(secname+".max_jer");
     TString outputtype = p.getString(secname+".outputtype");
     g_txtoutput = (outputtype == "txt");
 
@@ -365,7 +360,7 @@ int main(int argc, char **argv) {
     g_correction_level = p.getInt(secname+".correction_level");
 
     if (g_lumi < .1f )
-      sprintf(lumi_str,"");
+      sprintf(lumi_str," ");
     else
       sprintf(lumi_str,"#scale[.8]{#int} L = %1.2f pb^{-1}",g_lumi);
 
@@ -394,11 +389,7 @@ int main(int argc, char **argv) {
     Points responses_points_all_bins_jetpt;
     
     Points jec_data_binned;
-    
-    int ibin=0;
 
-
-    
     if ( g_correction_level == 3 )
     {
 	g_sCorrection_level = "corrected for #eta and Pt dependence";
@@ -444,14 +435,14 @@ int main(int argc, char **argv) {
     algoStyle.push_back( GraphFormating( kBlack, kBlack) );	
 	
     Intervals intervals (fill_intervals(pt_bins));    
-    for (int ialgo=0;ialgo<algos.size();++ialgo) {
+    for (unsigned ialgo=0;ialgo<algos.size();++ialgo) {
         TString algo(algos[ialgo]);
         TString goodalgo(good_algos[ialgo]);
 	std::cout << "Filling hist for algo " << goodalgo << std::endl;
 	std::cout << source_type[ialgo];
 	
 	TFile *  sourceFile = NULL;
-	InputTypeEnum local_input_type;
+	InputTypeEnum local_input_type = UnknownInput;
 	
 	sourceFile = ifiles[ source_number[ ialgo ]];
 	if ( source_type[ialgo] == "mc")
@@ -555,7 +546,7 @@ double getY(TF1& func,double zval,double xval,double minYval,double maxYval) {
 Intervals fill_intervals(vint edges) {
 
     Intervals intervals;
-    for (int i=0;i<edges.size()-1;i++)
+    for (unsigned i=0;i<edges.size()-1;i++)
         intervals.push_back(PtBin(edges[i],edges[i+1]));
     return intervals;
 };

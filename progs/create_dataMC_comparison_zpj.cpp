@@ -44,7 +44,7 @@ public:
         // function implementation using class data members
 
         double nll=0;
-        for (int ibin=m_skip_bins;ibin<m_vresponses.size();ibin++) {
+        for (unsigned ibin=m_skip_bins;ibin<m_vresponses.size();ibin++) {
 
             m_functions[ibin].SetParameter(3,x[0]);
             m_functions[ibin].SetParameter(4,x[1]);
@@ -52,7 +52,7 @@ public:
             //          m_functions[ibin].Dump();
 
             vdouble responses(m_vresponses[ibin]);
-            for (int iresp=0;iresp<responses.size();++iresp) {
+            for (unsigned iresp=0;iresp<responses.size();++iresp) {
                 double partial_L=m_functions[ibin].Eval(responses[iresp]);
                 // std::cout << "Partial L  = " << partial_L << std::endl;
                 nll+= -1 * TMath::Log(partial_L);
@@ -405,7 +405,7 @@ int main(int argc, char **argv) {
 
 
 
-    for (int ialgo=0;ialgo<algos.size();++ialgo) {
+    for (unsigned ialgo=0;ialgo<algos.size();++ialgo) {
 
         TString algo(algos[ialgo]);
         TString goodalgo(good_algos[ialgo]);
@@ -860,7 +860,7 @@ int main(int argc, char **argv) {
                 << "\n#  i    x           y\n" << std::fixed;
         txtfile.precision(6);
         }                                                                                                                                                
-        for (int i=0;i<responses_points_all_bins.size();++i) {
+        for (unsigned i=0;i<responses_points_all_bins.size();++i) {
             repsponse_data.SetPoint(i,responses_points_all_bins[i].x,responses_points_all_bins[i].y);
             // std::cout << "Punkt " << i << ": " << responses_points_all_bins[i].x << ", " << responses_points_all_bins[i].y << std::endl;
 			if (txtout) {
@@ -1181,7 +1181,7 @@ void getResponses(vdouble& responses,
 LocalIntervals fill_intervals(vint edges) {
 
     LocalIntervals intervals;
-    for (int i=0;i<edges.size()-1;i++)
+    for (unsigned i=0;i<edges.size()-1;i++)
         intervals.push_back(pt_interval(edges[i],edges[i+1]));
     return intervals;
 };

@@ -231,8 +231,7 @@ GraphContent m_build_extr_graph(const char* name,vector<double> cut_values,vecto
   extrapolated_graph.setName(name);
   double center=0;
   double center_err=0;
-  double center_err_err=0;
-  
+
   double point_x=0;
   for (unsigned int ipoint=0;ipoint<size;++ipoint){
     point_x = m_cut_values[ipoint];
@@ -241,8 +240,7 @@ GraphContent m_build_extr_graph(const char* name,vector<double> cut_values,vecto
     
     center=balance_histos[ipoint]->GetMean();
     center_err=balance_histos[ipoint]->GetMeanError();
-    double rms = balance_histos[ipoint]->GetRMS();
-        
+
     // Small study about the precision of RMS
     double sqrtNminus1=TMath::Sqrt(balance_histos[ipoint]->GetEntries()-1);    
     double center_err_err = balance_histos[ipoint]->GetRMSError()/sqrtNminus1;
@@ -271,7 +269,7 @@ void do_plot(TString name,
 
   // Get at first x max and x min, y max and y min
   double x1first,y1first,x2first,y2first, x1last,y1last,x2last,y2last;
-  double x1first_err,y1first_err ,x2first_err,y2first_err;
+  double y1first_err,y2first_err;
 
   g1->GetPoint(0,x1first,y1first);
   g1->GetPoint(g1->GetN()-1,x1last,y1last);

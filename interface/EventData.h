@@ -25,7 +25,7 @@ enum CorrectionLevelEnum
 };
 enum InputTypeEnum
 {
-	McInput, DataInput
+	McInput, DataInput, UnknownInput
 };
 /*
  * - Charged Energy Fraction distribution: ChargedHadronEnergy
