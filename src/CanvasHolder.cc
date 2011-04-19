@@ -269,8 +269,6 @@ int CanvasHolder::getNextStyle(){
 
 
 void CanvasHolder::setDefaultStyle(){
-
-  int ylog=0;
   if(!theStyle) {
         //theStyle = new TStyle(getRnd().c_str(),getRnd().c_str());
         theStyle = new TStyle("cholder","cholder");
@@ -404,7 +402,6 @@ void CanvasHolder::setDefaultStyle(){
 
 // Change for log plots:
   theStyle->SetOptLogx(0);
-//  theStyle->SetOptLogy(ylog);
   theStyle->SetOptLogy(0);
   theStyle->SetOptLogz(0);
 

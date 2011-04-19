@@ -37,19 +37,19 @@ int main(int argc, char** argv)
 		return 2;
 	}
 
-	long count = 0;
+	int count = 0;
 	std::vector<int> counts;
 	std::vector<int> bins;
-	bins.push_back(zpt_histo->GetBinLowEdge(1));
+	bins.push_back((int)zpt_histo->GetBinLowEdge(1));
 	std::cout << "Calculation of optimal bin borders (≥"
 			  << eventsPerBin << " events per bin):\n";
 	for (int i = 1; i < zpt_histo->GetSize(); ++i)
 		if (count < eventsPerBin) {
-			count += zpt_histo->GetBinContent(i);
+			count += (int) zpt_histo->GetBinContent(i);
 		} else {
 			counts.push_back(count);
-			bins.push_back(zpt_histo->GetBinLowEdge(i));
-			count = zpt_histo->GetBinContent(i);
+			bins.push_back((int)zpt_histo->GetBinLowEdge(i));
+			count = (int) zpt_histo->GetBinContent(i);
 			std::cout
 				<< "Bin " << std::setw(2) << bins.size()-1
 				<< " from " << std::setw(3) << bins[bins.size()-2]
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 				<< ":" << std::setw(5) << counts.back() << " events\n";
 		}
 	counts.push_back(count);
-	bins.push_back(zpt_histo->GetBinLowEdge(zpt_histo->GetSize()));
+	bins.push_back((int)zpt_histo->GetBinLowEdge(zpt_histo->GetSize()));
 	std::cout
 		<< "Bin " << std::setw(2) << bins.size()-1
 		<< " from" << std::setw(4) << bins[bins.size()-2]

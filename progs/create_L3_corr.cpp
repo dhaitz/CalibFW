@@ -86,10 +86,9 @@ class DataHisto
 			return (this->m_binMax- this->m_binMin);
 		}
 
-
+		TH1D* m_pHist;
 		double m_binMin;
 		double m_binMax;
-		TH1D* m_pHist;
 };
 
 
@@ -128,7 +127,7 @@ void formatHolderAlt(CanvasHolder& h);
 TGraphErrors* AddJetPoints(boost::ptr_vector<DataHisto> & histDataResponse,
 						   boost::ptr_vector<DataHisto> & histDataJet1Pt,
 						   CanvasHolder& canvas,
-						   int iCutEntries = 0)
+						   unsigned iCutEntries = 0)
 {
 	TString sCaption;
 	TString sName;
@@ -205,7 +204,7 @@ TGraphErrors* AddJetPoints(boost::ptr_vector<DataHisto> & histDataResponse,
 //		pDataFit->SetParameter(4, 1.0f);
 
 		pDataFit->SetLineColor(kRed);
-		pDataFit->SetLineWidth(4.5f);
+		pDataFit->SetLineWidth(4);
 		pDataFit->SetLineStyle(1);
 		p_dataCalibPoints->Fit(pDataFit);
 
@@ -284,10 +283,6 @@ int main(int argc, char** argv)
 	// Section general
 	//
 	g_lumi = p.getDouble(secname+".lumi");
-	int pt_rebin_factor = p.getInt(secname+".pt_rebin_factor");
-	int phi_rebin_factor = p.getInt(secname+".phi_rebin_factor");
-	int mass_rebin_factor = p.getInt(secname+".mass_rebin_factor");
-	int eta_rebin_factor = p.getInt(secname+".eta_rebin_factor");
 	TString input_file = p.getString(secname+".input_file");
 
 	TString info_string = p.getString(secname+".info_string");
@@ -296,10 +291,6 @@ int main(int argc, char** argv)
 	vString good_algos = p.getvString(secname+".good_algos");
 	vint pt_bins = p.getvInt(secname+".pt_bins");
 	vString img_formats= p.getvString(secname+".img_formats");
-	double min_jes=p.getDouble(secname+".min_jes");
-	double max_jes=p.getDouble(secname+".max_jes");
-	double min_jer=p.getDouble(secname+".min_jer");
-	double max_jer=p.getDouble(secname+".max_jer");
 
 	TString sResponseName = p.getString(secname+".response_name");
 
@@ -335,7 +326,6 @@ int main(int argc, char** argv)
 
 	Points jec_data_binned;
 
-	int ibin=0;
 	TString sGlobalPrefix = "L3_calc_";
 
 
@@ -352,7 +342,7 @@ int main(int argc, char** argv)
 
 
 	Intervals intervals(fill_intervals(pt_bins));
-	for (int ialgo=0; ialgo<algos.size(); ++ialgo) {
+	for (unsigned ialgo=0; ialgo<algos.size(); ++ialgo) {
 
 		TString algo(algos[ialgo]);
 		TString goodalgo(good_algos[ialgo]);
@@ -415,9 +405,6 @@ int main(int argc, char** argv)
 
 				dataHistJet1Pt.push_back(new DataHisto(interval->GetMin(), interval-> GetMax(), respo));
 			}
-
-			TGraphErrors* jecGraph =
-				AddJetPoints(dataHistResponse,dataHistJet1Pt, h_corr, g_plotEnv.m_iSkipBinsEnd);
 
 		}
 
@@ -497,7 +484,7 @@ Intervals fill_intervals(vint edges)
 {
 
 	Intervals intervals;
-	for (int i=0; i<edges.size()-1; i++)
+	for (unsigned i=0; i<edges.size()-1; i++)
 		intervals.push_back(PtBin(edges[i],edges[i+1]));
 	return intervals;
 };
