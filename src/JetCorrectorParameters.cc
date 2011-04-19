@@ -449,6 +449,8 @@ JetCorrectorParameters const & JetCorrectorParametersCollection::operator[]( key
           std::stringstream sserr;
           sserr<<"cannot find key"; 
           handleError("JetCorrectorParameters::Definitions",sserr.str());
+          return i->second;
+          //return //Here should be a return statement.
     //throw std::exception (" cannot find key " ); 
   //throw cms::Exception("InvalidInput") << " cannot find key " << static_cast<int>(k) << std::endl;
 }
@@ -534,6 +536,7 @@ JetCorrectorParametersCollection::findKey( std::string const & label ) const {
           std::stringstream sserr;
           sserr<<"Cannot find label	"; 
           handleError("JetCorrectorParameters::Definitions",sserr.str());
+          return static_cast<key_type>(-1);
    // throw std::exception (" Cannot find label " );
   //hrow cms::Exception("InvalidInput") << " Cannot find label " << label << std::endl;
 

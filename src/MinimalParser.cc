@@ -147,12 +147,6 @@ bool MinimalParser::read (const char* section_name,
     val = CHECKSTRING;
 
     RooStringVar val_rsv(par_name,par_name,CHECKSTRING.Data());
-    //RooMsgService::instance().setGlobalKillBelow(RooMsgService::WARNING);
-    bool fail=RooArgSet(val_rsv).readFromFile(m_cfg_name.Data(),
-                                              0,
-                                              section_name,
-                                              0);
-    //RooMsgService::instance().setGlobalKillBelow(/*RooMsgService*/::INFO);
 
     val=val_rsv.getVal();
 
@@ -196,12 +190,6 @@ bool MinimalParser::read (const char* section_name,
     TString vector_as_string= CHECKSTRING;
 
     RooStringVar val_rsv(par_name,par_name,"");
-    //RooMsgService::instance().setGlobalKillBelow(RooMsgService::WARNING);
-    bool fail=RooArgSet(val_rsv).readFromFile(m_cfg_name.Data(),
-                                              0,
-                                              section_name,
-                                              0);
-    //RooMsgService::instance().setGlobalKillBelow(RooMsgService::INFO);
 
     vector_as_string= val_rsv.getVal();
 
@@ -271,7 +259,7 @@ bool MinimalParser::read (const char* section_name,
     bool retval = read(section_name,par_name,stringv, true);
 
     if (retval)
-        for (int i=0;i< stringv.size();++i)
+        for (unsigned i=0;i< stringv.size();++i)
             val.push_back( m_read_double(stringv[i]));
 
     return retval;
@@ -287,7 +275,7 @@ bool MinimalParser::read (const char* section_name,
     bool retval = read(section_name,par_name,doublev);
 
     if (retval)
-        for (int i=0;i< doublev.size();++i)
+        for (unsigned i=0;i< doublev.size();++i)
             val.push_back( (int) doublev[i]);
 
     return retval;
