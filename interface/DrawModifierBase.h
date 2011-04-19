@@ -7,6 +7,7 @@ template < class TDrawElement >
 class ModifierBase
 {
 public:
+	virtual ~ModifierBase() {}
 	virtual void BeforeCreation(TDrawElement * pElem)
 	{
 	}

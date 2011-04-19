@@ -392,8 +392,8 @@ class DrawConsumerBase: public EventConsumerBase<TData, TSettings>
 public:
 	DrawConsumerBase()
 	{
-
 	}
+	virtual ~DrawConsumerBase() {}
 
 	// generates a name for the created product
 	std::string GetProductName()

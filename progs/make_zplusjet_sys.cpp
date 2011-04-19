@@ -416,9 +416,6 @@ legend.Draw("Same");
 c.Print("ResponseBandPlot.png");
 
 // Plot the response with the uncertainty band
-             
-
-             
-
 
 }
+

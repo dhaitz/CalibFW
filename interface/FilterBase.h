@@ -26,6 +26,7 @@ class EventPipeline;
 template<class TData, class TSettings>
 class FilterBase {
 public:
+	virtual ~FilterBase() {}
 	virtual void Init(EventPipeline<TData, TSettings> * pset) {
 		m_pipeline = pset;
 	}

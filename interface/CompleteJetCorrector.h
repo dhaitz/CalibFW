@@ -22,8 +22,8 @@ class CorrBase
   public:
     CorrBase()
     {
-      
     }
+    virtual ~CorrBase() {}
     
     virtual void Correct( EventResult * evRes )
     {

@@ -30,6 +30,7 @@ public:
 	/*
 		returns true, if an Event passes the cuts, this Method returns True. The Event passes the cut.
 	 */
+	virtual ~EventCutBase() {}
 	virtual bool IsInCut(TEvent evt) = 0;
 	virtual unsigned long GetId() = 0;
 	virtual std::string GetCutName() { return "No Cut Name given";}

@@ -38,6 +38,7 @@ template<class TData, class TSettings>
 class EventConsumerBase
 {
 public:
+	virtual ~EventConsumerBase() {}
 	virtual void Init(EventPipeline<TData, TSettings> * pset)
 	{
 		m_pipeline = pset;

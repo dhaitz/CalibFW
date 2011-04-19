@@ -82,6 +82,7 @@ DATAPATH  }}; \
 
 #define IMPL_HIST1D_MOD2(CLASSNAME, DATAPATH, MOD1,  MOD2)	\
 class CLASSNAME: public ZJetHist1D	{ public: \
+virtual ~CLASSNAME() {}\
 virtual void Init(ZJetPipeline * pset) { \
 	m_hist->AddModifier( MOD1 ); m_hist->AddModifier( MOD2 );	\
 	ZJetHist1D::Init(pset); \
@@ -92,6 +93,7 @@ DATAPATH  }}; \
 #define IMPL_HIST1D_JET_MOD1(CLASSNAME, DATAPATH, MOD1)	\
 class CLASSNAME: public DrawJetConsumerBase	{ public: \
 CLASSNAME ( int jetNum ) : DrawJetConsumerBase( jetNum) {} \
+virtual ~CLASSNAME() {}\
 virtual void Init(ZJetPipeline * pset) { \
 	m_hist->AddModifier( MOD1 );	\
 	DrawJetConsumerBase::Init(pset); \
@@ -103,6 +105,7 @@ DATAPATH  }}; \
 #define IMPL_HIST1D_JET_MOD2(CLASSNAME, DATAPATH, MOD1, MOD2)	\
 class CLASSNAME: public DrawJetConsumerBase	{ public: \
 CLASSNAME ( int jetNum ) : DrawJetConsumerBase( jetNum) {} \
+virtual ~CLASSNAME() {}\
 virtual void Init(ZJetPipeline * pset) { \
 	m_hist->AddModifier( MOD1 ); m_hist->AddModifier( MOD2 );	\
 	DrawJetConsumerBase::Init(pset); \
@@ -824,6 +827,7 @@ class DrawEtaPhiJetMapConsumer: public DrawEtaPhiMapConsumer
 class GraphXProviderBase
 {
 public:
+	virtual ~GraphXProviderBase() {}
 	virtual double GetXValue(EventResult & event) = 0;
 
 };
