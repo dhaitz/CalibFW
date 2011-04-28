@@ -1,6 +1,7 @@
 lib/
 obj/
 bin/
+out/
 
 .*
 *.root
