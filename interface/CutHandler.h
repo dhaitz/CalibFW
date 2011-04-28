@@ -458,12 +458,17 @@ public:
 	bool IsInCut(EventResult * pEv)
 	{
 		TString hltName = "HLT_Mu9";		// use always the lowest-pt unprescaled trigger
+		TString hltName2 = "HLT_Mu9";
 
 		/* 1 trigger approach */
 		if (pEv->m_pData->cmsRun >= 147146)	// 2010B up to about 149711 (json up to 149442)
 			hltName = "HLT_Mu15_v1";
 		if (pEv->m_pData->cmsRun >= 160000)	// 2011A (ongoing, json starting with 160404)
 			hltName = "HLT_Mu15_v2";
+		if (pEv->m_pData->cmsRun >= 160000)	// 2011A (ongoing, json starting with 160404)
+			hltName2 = "HLT_Mu20_v1";
+		else
+			hltName2 = hltName;
 
 		const int nHLTriggers = pEv->m_pData->HLTriggers_accept->GetEntries();
 
@@ -480,7 +485,7 @@ public:
 			theHLTbit = (TObjString*) pEv->m_pData->HLTriggers_accept->At(i);
 			TString curName = theHLTbit->GetString();
 
-			if (hltName == curName)
+			if (hltName == curName || hltName2 == curName)
 			{
 				return true;
 			}
