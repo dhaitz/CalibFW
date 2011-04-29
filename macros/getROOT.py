@@ -22,7 +22,7 @@ def OpenFile(filename, message=False):
         assert False
     return f, filename
 
-def ConvertToArray(histo, rootfile=''):
+def ConvertToArray(histo, rootfile='', rebin=1):
     """Convert a root histogram to a numpy histogram
     
     """

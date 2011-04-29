@@ -1,10 +1,27 @@
 import socket
 import getpass
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from time import localtime, strftime
 
 #os.makedir('out/dat')
+
+class StandardSettings:
+    outputformats = ['png', 'pdf']
+    style = 'document' # web, presentation, tdr, sloppy 
+    lumi = 0
+    cme = 7
+    outputdir = 'out/'
+    outputdatadir = 'out/dat/'
+    def SetOutputdir(self, path, datapath=outputdatadir):
+        outputdir = path
+        try:
+            os.mkdir(self.outputdatadir)
+            os.mkdir(self.outputdir)
+        except(OSError):
+            pass
+    
 
 def GetPath():
     """Return datapath depending on machine and user name.
@@ -77,12 +94,12 @@ def makeplot(quantity, variation = {}, common = {}):
 ####axh/vline/span arrow, annotate line.set_label('') text(0.5, 0.5,'matplotlib', horizontalalignment='center', verticalalignment='center', transform = ax.transAxes)
     return fig, ax, name
     
-def captions(ax,lumi = 0, cme = 7.0):
-    ax.text(0.99, 0.98, r"$\sqrt{s} = " + str(cme) + " \,\mathrm{TeV}$",
+def captions(ax,stg=StandardSettings()):
+    ax.text(0.99, 0.98, r"$\sqrt{s} = " + str(stg.cme) + " \,\mathrm{TeV}$",
         verticalalignment='top', horizontalalignment='right',
         transform=ax.transAxes, fontsize=15)
-    if lumi > 0:
-        ax.text(0.01, 0.98, r"$\mathcal{L} = " + str(lumi) + " \,\mathrm{pb}^{-1}$",
+    if stg.lumi > 0:
+        ax.text(0.01, 0.98, r"$\mathcal{L} = " + str(stg.lumi) + " \,\mathrm{pb}^{-1}$",
             verticalalignment='top', horizontalalignment='left',
             transform=ax.transAxes, fontsize=15)
     return ax
@@ -128,17 +145,18 @@ def AxisLabels(ax, q='resp', obj='jet'):
     return ax
 
 
-def Save(figure, name='plot', dataformats=["png","pdf"]):
+def Save(figure, name='plot', stg=StandardSettings()):
     """Save this figure in all listed data formats.
     
     The standard data formats are png and pdf.
     Available graphics formats are: pdf, png, ps, eps and svg
     """
-    name = 'out/' + name
-    for format in dataformats:
-        print 'Saved as '+name + '.' + format
+    name = stg.outputdir + name
+    print 'Saved as',
+    for format in stg.outputformats:
         if format in ['pdf', 'png', 'ps', 'eps', 'svg']:
             figure.savefig(name + '.' + format)
+            print name+'.'+format,
         elif format in ['txt', 'npz', 'dat']:
             pass    #Ignore this here, as it is respected in the SafeConvert function
         else:

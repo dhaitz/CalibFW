@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from getROOT import *
-import sys, math #, kein pylab!
+import sys, os, math #, kein pylab!
 import numpy as np
-import matplotlib
 #matplotlib.rc('text', usetex = True) 
 import matplotlib.pyplot as plt
 from plotBase import *
 
-
 ### SETTINGS
-#fileformats = ['png', 'pdf'] auch dat und txt mit anweisung none(nie) used(nur convertete) [all(gehe ganzes Rootfile durch und converte alle)]
-lumi = 36
-cme = 7
+settings = StandardSettings()
+settings.outputformat = ['png', 'txt']
+settings.lumi = 36
+
 ###quantity R(ptZ) pt eta phi
 ###set algo, cone size, #pv, L1L2L3, 
 ###data/mc(generator,tune)
@@ -20,7 +19,6 @@ cme = 7
 #mpl.rc('text', usetex=True)#does not work on the naf! no latex there
 #matplotlib.rc('font', family='serif')
 #mpl.pylab.rcParams['legend.loc'] = 'best' rc lines.color linewidth font family weight size
-
 
 #### INPUTFILES
 file_data, filename_data = OpenFile(GetPath() + "data2011_v5.root", True)
@@ -32,15 +30,12 @@ oname = GetNameFromSelection('z_pt')
 histo_data = SafeConvert(file_data,oname[0])
 
 ###Test section
-print histo_data.x
 #histo_data.write('out/dat/textout.txt')
 #histo_data.read('out/dat/textout.txt')
 #print histo_data.x
 #histo_data.dump('out/dat/zmass_ak7PFJetsL1L2L3Res_Zplusjet_data.dat')
 #histo_data.load('out/dat/zmass_ak7PFJetsL1L2L3Res_Zplusjet_data.dat')
-print histo_data.x
 #print histo_data
-
 
 ####PLOTS ! use loops !
 ####std: ak5PFJetsL1L2L3(Res) allPV > compare data/MCs R pt eta phi 
@@ -57,11 +52,6 @@ print histo_data.x
 
 ####compare cone sizes, pvs, etabins, 
 
-
-
-
-
-
 #mcdata = numpy.load('Zmass.npz')
 
 fig = plt.figure()
@@ -76,7 +66,7 @@ ax = AxisLabels(ax,'pt', 'Z')
 #l = plt.axhline(y=91.19, color='0.5', alpha=0.5)
 
 histo_data.x.pop()
-masshisto = ax.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, color='green', label ='Z pt')
+masshisto = ax.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, color='black',fmt='o', capsize=0, label ='Z pt')
 #	numpy.ma.masked_where(histo_data.y == 0, histo_data.x),
 #	numpy.ma.masked_where(histo_data.y == 0, histo_data.y))
 #	drawstyle='steps-mid', color='green')
@@ -89,18 +79,15 @@ masshisto = ax.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, color='gre
 #y = fitfunc(x)
 #fitcurve = ax.plot(x, y, linewidth=1, color = 'black')
 
-
-#plt.text(100, 90, r"$m_Z = \,91.01\,\mathrm{GeV}$", horizontalalignment='left', fontsize=14)
-#plt.text(100, 92, r"$\Gamma_Z = \,2.89\,\mathrm{GeV}$", horizontalalignment='left', fontsize=14)
-ax = captions(ax,lumi,cme)
+ax = captions(ax,settings)
 ax = tags(ax, 'Private work', 'Joram Berger')
 
-leg=ax.legend( loc='center right')
+leg=ax.legend( loc='center right', numpoints=1)
 leg.draw_frame(False)
 #plt.minorticks_on()
 
 #fig.savefig('Zmass.pdf')
-Save(fig,'Zmass')
+Save(fig,'Zmass', settings)
 
 #ax.set_yscale('log')
 
