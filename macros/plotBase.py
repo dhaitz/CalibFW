@@ -1,6 +1,7 @@
 import socket
 import getpass
 import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from time import localtime, strftime
@@ -21,6 +22,7 @@ class StandardSettings:
             os.mkdir(self.outputdir)
         except(OSError):
             pass
+    verbosity = 1  # 0: no comments, only errors, 1: no comments only warnings, 2: , 3: comment everything
     
 
 def GetPath():
@@ -30,6 +32,7 @@ def GetPath():
     """
     host = socket.gethostname()
     username = getpass.getuser()
+    datapath = ""
     if username == 'berger':
         if host.find('naf') >= 0:
             datapath = "/scratch/hh/lustre/cms/user/berger/analysis/"
@@ -43,6 +46,11 @@ def GetPath():
             datapath = ""
     else:
         datapath = ""
+    try:
+        os.listdir(datapath)
+    except:
+        print "Input path", datapath, "does not exist."
+        sys.exit(1)
     return datapath
 
 def GetNameFromSelection(quantity='zmass', variation={}, common={}):
@@ -83,7 +91,7 @@ def GetNameFromSelection(quantity='zmass', variation={}, common={}):
 def makeplot(quantity, variation = {}, common = {}):
     # fig (mit ratio?)
     fig =  plt.figure()
-    ax = subplot()
+    ax = fig.add_subplot(111)
     name = quantity
 ####1. standard captions L (always), sqrt(s) (if data) tick_params
     
@@ -96,12 +104,10 @@ def makeplot(quantity, variation = {}, common = {}):
     
 def captions(ax,stg=StandardSettings()):
     ax.text(0.99, 0.98, r"$\sqrt{s} = " + str(stg.cme) + " \,\mathrm{TeV}$",
-        verticalalignment='top', horizontalalignment='right',
-        transform=ax.transAxes, fontsize=15)
+        va='top', ha='right', transform=ax.transAxes, fontsize=15)
     if stg.lumi > 0:
         ax.text(0.01, 0.98, r"$\mathcal{L} = " + str(stg.lumi) + " \,\mathrm{pb}^{-1}$",
-            verticalalignment='top', horizontalalignment='left',
-            transform=ax.transAxes, fontsize=15)
+            va='top', ha='left', transform=ax.transAxes, fontsize=15)
     return ax
 
 def tags(ax, status='', author='', date='now'):
@@ -126,21 +132,27 @@ def AxisLabels(ax, q='resp', obj='jet'):
     if q == 'pt':
         ax.set_xlabel(r"$p_{T}^{"+obj+"} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"events", va = "top", y = 1)
+        ax.xlim=(0,350)
     elif q.find('phi'):
         ax.set_xlabel(r"$\phi^{"+obj+"}$", ha = "right", x = 1)
         ax.set_ylabel(r"events", va = "top", y = 1)
+        ax.xlim=(-3.1415,6.2830)
     elif q.find('eta'):
         ax.set_xlabel(r"$\eta^{"+obj+"}$", ha = "right", x = 1)
         ax.set_ylabel(r"events", va = "top", y = 1)
+        ax.xlim=(-5.0,5.0)
     elif q == 'mass':
         ax.set_xlabel(r"$m_{"+obj+"} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"events", va = "top", y = 1)
+        ax.xlim=(0,350)
     elif q.find('jetresp'):
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"$p_{T}$ balance", va = "top", y = 1)
+        ax.xlim=(0,350)
     elif q.find('mpfresp'):
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"MPF", va = "top", y = 1)
+        ax.xlim=(0,350)
     # more precise
     return ax
 
@@ -152,7 +164,7 @@ def Save(figure, name='plot', stg=StandardSettings()):
     Available graphics formats are: pdf, png, ps, eps and svg
     """
     name = stg.outputdir + name
-    print 'Saved as',
+    print 'Saving as',
     for format in stg.outputformats:
         if format in ['pdf', 'png', 'ps', 'eps', 'svg']:
             figure.savefig(name + '.' + format)
@@ -160,5 +172,6 @@ def Save(figure, name='plot', stg=StandardSettings()):
         elif format in ['txt', 'npz', 'dat']:
             pass    #Ignore this here, as it is respected in the SafeConvert function
         else:
-            print format + " output is not possible."
+            print format + "failed. Output type is unknown or not supported."
+    print
 

@@ -22,7 +22,7 @@ def OpenFile(filename, message=False):
         assert False
     return f, filename
 
-def ConvertToArray(histo, rootfile='', rebin=1):
+def ConvertToArray(histo, lumi=0.0, rootfile='', rebin=1):
     """Convert a root histogram to a numpy histogram
     
     """
@@ -36,6 +36,7 @@ def ConvertToArray(histo, rootfile='', rebin=1):
         hst.title = histo.GetTitle()
         hst.xlabel = histo.GetXaxis().GetTitle()
         hst.ylabel = histo.GetYaxis().GetTitle()
+        hst.lumi = lumi
         for i in range(1,histo.GetSize()-1):
             hst.x.append(histo.GetBinLowEdge(i))
             hst.xc.append(histo.GetBinCenter(i))
@@ -58,6 +59,7 @@ def ConvertToArray(histo, rootfile='', rebin=1):
         hst.title = histo.GetTitle()
         hst.xlabel = histo.GetXaxis().GetTitle()
         hst.ylabel = histo.GetYaxis().GetTitle()
+        hst.lumi = lumi
         x = Double(0.0)
         y = Double(0.0)
         for i in range(histo.GetN()):
@@ -77,15 +79,15 @@ def ConvertToArray(histo, rootfile='', rebin=1):
     return hst
     
 
-def SafeConvert(RootDict, ObjectName):
+def SafeConvert(RootDict, ObjectName, lumi=0.0, formatslist=[]):
     """Combined import and conversion to npHisto
     
     """
     root_histo = SafeGet(RootDict, ObjectName)
-    histo = ConvertToArray(root_histo)
-    if 'txt' in ['png']:
+    histo = ConvertToArray(root_histo,lumi)
+    if 'txt' in formatslist:
         histo.write()
-    if 'dat' in ['png']:
+    if 'dat' in formatslist:
         histo.dump()
     return histo
 
@@ -101,6 +103,7 @@ class npHisto:
         self.title = ""
         self.xlabel = "x"
         self.ylabel = "y"
+        self.lumi = 0.0
         self.norm = 1.0
         self.ysum = 0.0
         self.ymax = 0.0
@@ -129,6 +132,7 @@ class npHisto:
                 if line.find('Histogram')>0: self.name = getValue(line,':')
                 elif line.find('Path')>0: self.path = getValue(line,':')
                 elif line.find('file')>0: self.source = getValue(line,':')
+                elif line.find('lumi')>0: self.lumi = getValue(line,':')
                 elif line.find('Norm')>0: self.norm = getValue(line,':')
                 elif line.find('Sum')>0: self.ysum = getValue(line,':')
                 elif line.find('Max')>0: self.ymax = getValue(line,':')
@@ -164,15 +168,13 @@ class npHisto:
         text += "\n#y label:   " + self.ylabel
         text += "\n#title:     " + self.title
         text += "\n#energy:    7"  # in TeV
-        text += "\n#lumi:      33" # in pb^{-1}
+        text += "\n#lumi:      " + str(self.lumi) # in pb^{-1}
         text += "\n#  i     x        xmid      y               ynorm"
         text += "           yerr            ynormerr\n"
         for i in range(len(self.y)):
             text += '%4d %8.2f %8.2f %15.8f %15.8f %15.8f %15.8f\n' \
                 % (i, self.x[i], self.xc[i], self.y[i], self.y[i]*self.norm, \
                 self.yerr[i], self.yerr[i]*self.norm)
-        i = len(self.x) - 1
-        text += '%4d %8.2f\n' % (i, self.x[i])
         return text
         
     def dump(self, filename='.dat'):

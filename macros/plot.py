@@ -9,8 +9,9 @@ from plotBase import *
 
 ### SETTINGS
 settings = StandardSettings()
-settings.outputformat = ['png', 'txt']
+settings.outputformat = ['png', 'txt', 'dat']
 settings.lumi = 36
+settings.verbosity = 2
 
 ###quantity R(ptZ) pt eta phi
 ###set algo, cone size, #pv, L1L2L3, 
@@ -21,13 +22,13 @@ settings.lumi = 36
 #mpl.pylab.rcParams['legend.loc'] = 'best' rc lines.color linewidth font family weight size
 
 #### INPUTFILES
-file_data, filename_data = OpenFile(GetPath() + "data2011_v5.root", True)
-file_mc,   filename_mc   = OpenFile(GetPath() + "data2011_v5.root", True)
+file_data, filename_data = OpenFile(GetPath() + "data2011_v6.root", (settings.verbosity>1))
+file_mc,   filename_mc   = OpenFile(GetPath() + "data2011_v5.root", (settings.verbosity>1))
 
 #print "and from MC file (Herwig): " + filename_mch
 
 oname = GetNameFromSelection('z_pt')
-histo_data = SafeConvert(file_data,oname[0])
+histo_data = SafeConvert(file_data,oname[0], settings.lumi,settings.outputformat)
 
 ###Test section
 #histo_data.write('out/dat/textout.txt')
@@ -52,54 +53,28 @@ histo_data = SafeConvert(file_data,oname[0])
 
 ####compare cone sizes, pvs, etabins, 
 
-#mcdata = numpy.load('Zmass.npz')
 
-fig = plt.figure()
-##fig.set_size_inches(6,4.5)
-ax = fig.add_subplot(111, xlim=(0,350))#, autoscale_on=False)
-##fig.subplots_adjust(
-##	top = 0.82,
-##	bottom = 0.20,	# the bottom of the subplots of the figure
-##	left = 0.15
-##	)
+fig, ax, plt_name = makeplot('z_pt')
 ax = AxisLabels(ax,'pt', 'Z')
 #l = plt.axhline(y=91.19, color='0.5', alpha=0.5)
 
 histo_data.x.pop()
-masshisto = ax.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, color='black',fmt='o', capsize=0, label ='Z pt')
-#	numpy.ma.masked_where(histo_data.y == 0, histo_data.x),
-#	numpy.ma.masked_where(histo_data.y == 0, histo_data.y))
-#	drawstyle='steps-mid', color='green')
+masshisto = ax.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color='black',fmt='o', capsize=0, label ='Z pt')
 
 
 #def fitfunc(x):
 #	return  a/(c*c*g*g+(x*x-c*c)*(x*x-c*c))
-
 #x = mcdata['x']#numpy.arange(60.0, 120.0, .06)
 #y = fitfunc(x)
-#fitcurve = ax.plot(x, y, linewidth=1, color = 'black')
 
 ax = captions(ax,settings)
 ax = tags(ax, 'Private work', 'Joram Berger')
+ax.legend(loc='center right', numpoints=1, frameon=False)
 
-leg=ax.legend( loc='center right', numpoints=1)
-leg.draw_frame(False)
 #plt.minorticks_on()
 
-#fig.savefig('Zmass.pdf')
-Save(fig,'Zmass', settings)
+Save(fig,'Z_pt', settings)
 
-#ax.set_yscale('log')
-
-#fig.savefig('ZmassLog.pdf')
-#fig.savefig('ZmassLog.png')
-
-#diff = ax.errorbar(
-#	numpy.ma.masked_where(mcdata['y'] == 0, mcdata['x']),
-#	numpy.ma.masked_where(mcdata['y'] == 0, mcdata['y']),
-#	drawstyle='steps-mid', color='red')
-
-
-#fig.savefig('ZmassDiff.pdf')
-#fig.savefig('ZmassDiff.png')
+ax.set_yscale('log')
+Save(fig,'Z_pt_log', settings)
 
