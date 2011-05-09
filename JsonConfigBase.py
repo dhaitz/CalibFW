@@ -77,7 +77,7 @@ def GetDefaultDataPipeline():
 def GetDataBaseConfig():
     d = GetBaseConfig()
     
-    d["JsonFile"] = "data/json/Cert_160404-163369_7TeV_PromptReco_Collisions11_JSON.txt"
+    d["JsonFile"] = "data/json/Cert_160404-163757_7TeV_PromptReco_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
