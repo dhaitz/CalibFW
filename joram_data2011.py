@@ -9,9 +9,10 @@ conf = JsonConfigBase.GetDataBaseConfig()
 
 conf["Algos"] = ["ak5PFJetsL1L2L3Res", "ak7PFJetsL1L2L3Res"]
 
-conf["InputFiles"] = "/scratch/hh/lustre/cms/user/berger/skim2011_v2/skim*.root"
-conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "analysis/data2011_v4"
+conf["InputFiles"] = "/scratch/hh/lustre/cms/user/berger/skim2011_v6/skim_414_berger_2011-04-29_DoubleMu_2011A*.root"
+conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "analysis/data2011_v6_double"
 
+#conf["Pipelines"]["default"]["CutSecondLeadingToZPt"] = 0.3
 
 conf = JsonConfigBase.ExpandDefaultDataConfig( [0,15,30,60,100,500], conf, True )
 

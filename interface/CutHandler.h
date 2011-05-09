@@ -451,8 +451,9 @@ public:
 class HltCut: public EventCutBase<EventResult *>
 {
 public:
-	HltCut()
+	HltCut(bool dbl=true)
 	{
+	    dbl_mu = dbl;
 	}
 
 	bool IsInCut(EventResult * pEv)
@@ -469,6 +470,9 @@ public:
 			hltName2 = "HLT_Mu20_v1";
 		else
 			hltName2 = hltName;
+		
+		TString hltDbl1 = "HLT_DoubleMu7_v1";
+		TString hltDbl2 = "HLT_DoubleMu7_v2";
 
 		const int nHLTriggers = pEv->m_pData->HLTriggers_accept->GetEntries();
 
@@ -485,9 +489,17 @@ public:
 			theHLTbit = (TObjString*) pEv->m_pData->HLTriggers_accept->At(i);
 			TString curName = theHLTbit->GetString();
 
-			if (hltName == curName || hltName2 == curName)
+			if (dbl_mu)
 			{
-				return true;
+				if (hltDbl1 == curName || hltDbl2 == curName)
+				{
+					return true;
+				}
+			} else {
+				if (hltName == curName)
+				{
+					return true;
+				}
 			}
 		}
 
@@ -511,6 +523,7 @@ public:
 		return "hlt";
 	}
 	static const long CudId = 512;
+	bool dbl_mu;
 };
 
 class CutHandler
