@@ -36,7 +36,7 @@ def GetPath():
     if username == 'berger':
         if host.find('naf') >= 0:
             datapath = "/scratch/hh/lustre/cms/user/berger/analysis/"
-        elif host.find('ekplx46') > 0:
+        elif host.find('ekplx46') >= 0:
             datapath = "/local/scratch/berger/data/"
     elif username == 'hauth':
         if host.find('ekplx') >= 0:
@@ -46,6 +46,9 @@ def GetPath():
             datapath = ""
     else:
         datapath = ""
+	print username
+	print host
+	print datapath
     try:
         os.listdir(datapath)
     except:
@@ -132,27 +135,37 @@ def AxisLabels(ax, q='resp', obj='jet'):
     if q == 'pt':
         ax.set_xlabel(r"$p_{T}^{"+obj+"} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"events", va = "top", y = 1)
-        ax.xlim=(0,350)
-    elif q.find('phi'):
+        ax.set_xlim(0, 350)
+        ax.set_ylim(bottom=0.0)
+    elif q == 'phi':
         ax.set_xlabel(r"$\phi^{"+obj+"}$", ha = "right", x = 1)
         ax.set_ylabel(r"events", va = "top", y = 1)
-        ax.xlim=(-3.1415,6.2830)
-    elif q.find('eta'):
+        ax.set_xlim(-3.1415, 6.2830)
+        ax.set_ylim(bottom=0.0)
+    elif q == 'eta':
         ax.set_xlabel(r"$\eta^{"+obj+"}$", ha = "right", x = 1)
         ax.set_ylabel(r"events", va = "top", y = 1)
-        ax.xlim=(-5.0,5.0)
+        ax.set_xlim(-5.0, 5.0)
+        ax.set_ylim(bottom=0.0)
     elif q == 'mass':
         ax.set_xlabel(r"$m_{"+obj+"} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"events", va = "top", y = 1)
-        ax.xlim=(0,350)
-    elif q.find('jetresp'):
+        ax.set_xlim(0, 350)
+        ax.set_ylim(bottom=0.0)
+    elif q == 'jetresp':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"$p_{T}$ balance", va = "top", y = 1)
-        ax.xlim=(0,350)
-    elif q.find('mpfresp'):
+        ax.set_xlim = (0, 350)
+    elif q == 'mpfresp':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"MPF", va = "top", y = 1)
-        ax.xlim=(0,350)
+        ax.set_xlim(0, 350)
+    else:
+        print "The quantity", q, "was not found. A default formatting of the axis labels is used."
+        ax.set_xlabel(r"$p_{T} / \mathrm{GeV}$", ha = "right", x = 1)
+        ax.set_ylabel(r"arb. units", va = "top", y = 1)
+        ax.set_xlim(0, 350)
+        ax.set_ylim(bottom=0.0)
     # more precise
     return ax
 

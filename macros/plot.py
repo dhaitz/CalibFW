@@ -3,8 +3,9 @@
 from getROOT import *
 import sys, os, math #, kein pylab!
 import numpy as np
-#matplotlib.rc('text', usetex = True) 
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.rc('text', usetex = True) 
+#import matplotlib.pyplot as plt
 from plotBase import *
 
 ### SETTINGS
@@ -23,13 +24,15 @@ settings.verbosity = 2
 
 #### INPUTFILES
 file_data, filename_data = OpenFile(GetPath() + "data2011_v6.root", (settings.verbosity>1))
-file_mc,   filename_mc   = OpenFile(GetPath() + "data2011_v5.root", (settings.verbosity>1))
+file_mc,   filename_mc   = OpenFile(GetPath() + "mc_fall10_dy.root", (settings.verbosity>1))
 
 #print "and from MC file (Herwig): " + filename_mch
 
 oname = GetNameFromSelection('z_pt')
 histo_data = SafeConvert(file_data,oname[0], settings.lumi,settings.outputformat)
-
+histname = oname[0].replace('data','mc').replace('Res','')
+histo_mc = SafeConvert(file_mc,histname, settings.lumi,settings.outputformat)
+histo_mc.scale(0.005)
 ###Test section
 #histo_data.write('out/dat/textout.txt')
 #histo_data.read('out/dat/textout.txt')
@@ -58,9 +61,9 @@ fig, ax, plt_name = makeplot('z_pt')
 ax = AxisLabels(ax,'pt', 'Z')
 #l = plt.axhline(y=91.19, color='0.5', alpha=0.5)
 
-histo_data.x.pop()
-masshisto = ax.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color='black',fmt='o', capsize=0, label ='Z pt')
-
+#histo_data.x.pop()
+histo1 = ax.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color='black',fmt='o', capsize=0, label ='Z pt (data)')
+histo2 = ax.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color='black',fmt='-', capsize=0, label ='Z pt (MC)')
 
 #def fitfunc(x):
 #	return  a/(c*c*g*g+(x*x-c*c)*(x*x-c*c))
@@ -77,4 +80,23 @@ Save(fig,'Z_pt', settings)
 
 ax.set_yscale('log')
 Save(fig,'Z_pt_log', settings)
+
+oname = GetNameFromSelection('jet1_pt')
+histo_data = SafeConvert(file_data,oname[0], settings.lumi,settings.outputformat)
+histname = oname[0].replace('data','mc').replace('Res','')
+histo_mc = SafeConvert(file_mc,histname, settings.lumi,settings.outputformat)
+histo_mc.scale(0.005)
+
+fjet, ajet, jetname = makeplot('jet1_pt')
+histo01 = ajet.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color='black',fmt='o', capsize=0, label ='data')
+histo02 = ajet.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color='red',fmt='-', capsize=0, label ='MC')
+ajet = captions(ajet,settings)
+ajet = tags(ajet, 'Private work', 'Joram Berger')
+ajet.legend(loc='center right', numpoints=1, frameon=False)
+ajet = AxisLabels(ajet, 'pt', 'jet1')
+ajet.xmax = 400
+
+#plt.minorticks_on()
+
+Save(fjet,'jet_pt', settings)
 

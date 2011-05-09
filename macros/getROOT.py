@@ -7,7 +7,7 @@ def SafeGet( RootDict, ObjectName ):
     """Import a root object"""
     oj = RootDict.Get( ObjectName )
     if not oj:
-        print "Can't load " + ObjectName + " from "  + RootDict.GetName()
+        print "Can't load", ObjectName,"from", RootDict.GetName()
         assert False
 
     return oj
@@ -16,9 +16,9 @@ def OpenFile(filename, message=False):
     """Open a root file"""
     f = ROOT.TFile(filename)
     if f:
-        if message: print "Inputfile: " + filename
+        if message: print "Inputfile:", filename
     else:
-        print "Can't open file: " + filename
+        print "Can't open file:", filename
         assert False
     return f, filename
 
@@ -118,6 +118,11 @@ class npHisto:
     
     def __len__(self):
         return len(self.y)
+        
+    def scale(self,factor):
+        for i in range(len(self.y)):
+            self.y[i] *= factor
+            self.yerr[i] *= factor
 
     def read(self, filename):
         """Read the histogram from a text file
