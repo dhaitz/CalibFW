@@ -71,6 +71,10 @@ def GetNameFromSelection(quantity='zmass', variation={}, common={}):
     for k in keys:
         hst += standardselection[k] + '_'
     hst = hst.replace('_/_', '/').replace('hist_','hist').replace('graph_','graph').replace('_Jets_','Jets')
+    if quantity.find('graph') >= 0:
+        hst = hst[hst.find('/')+1:]
+        hst = hst.replace('hist','graph')
+        quantity = quantity[:quantity.find('graph')]
     if hst.find('/')>0:
         hst = hst.replace('/','/'+quantity+'_').replace('_/','/')
     else:
@@ -79,6 +83,7 @@ def GetNameFromSelection(quantity='zmass', variation={}, common={}):
     hst = hst.replace('L3_Zplusjet_data','L3Res_Zplusjet_data')
     while hst.find('__')>=0:
         hst = hst.replace('__','_')
+    
     print hst
     # apply variation
 #    for i in key:
@@ -90,6 +95,12 @@ def GetNameFromSelection(quantity='zmass', variation={}, common={}):
 #       'PF': Particle Flow jets', 'Calo': 'Calorimeter jets',
 #        'L1': 'L1 corrected', 'L1L2': 'L2 corrected', 'L1L2L3': 'Fully corrected',
 #        'data': '2011 data','jet': 'Jets', 'correction': 'L1L2L3', 'zjet': 'Zplusjet', 'type': 'data', 'object': 'hist', 'generator':'none'}
+
+def datahisto(histoname):
+    return histoname.replace('_Zplusjet_mc','Res_Zplusjet_data')
+
+def mchisto(histoname):
+    return histoname.replace('Res_Zplusjet_data','_Zplusjet_mc')
 
 def makeplot(quantity, variation = {}, common = {}):
     # fig (mit ratio?)
@@ -113,13 +124,16 @@ def captions(ax,stg=StandardSettings()):
             va='top', ha='left', transform=ax.transAxes, fontsize=15)
     return ax
 
-def tags(ax, status='', author='', date='now'):
+def tags(ax, status='', author='', date='today'):
     if status > 0:
         ax.text(0.99, 1.01, status,
             va='bottom', ha='right', transform=ax.transAxes, fontsize=15)
     if date > 0:
         if date == 'now':
             ax.text(0.5, 1.01, strftime("%d %b %Y %H:%M", localtime()),
+            va='bottom', ha='center', transform=ax.transAxes, fontsize=15)
+        elif date == 'today':
+            ax.text(0.5, 1.01, strftime("%d %b %Y", localtime()),
             va='bottom', ha='center', transform=ax.transAxes, fontsize=15)
         else:
             ax.text(0.5, 1.01, date,

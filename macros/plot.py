@@ -23,9 +23,10 @@ settings.verbosity = 2
 #mpl.pylab.rcParams['legend.loc'] = 'best' rc lines.color linewidth font family weight size
 
 #### INPUTFILES
-file_data, filename_data = OpenFile(GetPath() + "data2011_v6.root", (settings.verbosity>1))
-file_mc,   filename_mc   = OpenFile(GetPath() + "mc_fall10_dy.root", (settings.verbosity>1))
-
+file_data, filename_data = OpenFile(GetPath() + "data2011_v7_double.root", (settings.verbosity>1))
+file_mc,   filename_mc   = OpenFile(GetPath() + "mc_spring11_dy_v1.root", (settings.verbosity>1))
+file_data10, filename_data10 = OpenFile(GetPath() + "data2011_v6.root", (settings.verbosity>1))
+file_mc10,   filename_mc10   = OpenFile(GetPath() + "mc_fall10_dy_v1.root", (settings.verbosity>1))
 #print "and from MC file (Herwig): " + filename_mch
 
 oname = GetNameFromSelection('z_pt')
@@ -99,4 +100,52 @@ ajet.xmax = 400
 #plt.minorticks_on()
 
 Save(fjet,'jet_pt', settings)
+
+
+oname = GetNameFromSelection('jetrespgraph')
+histo_data10 = SafeConvert(file_data10,oname[0], settings.lumi,settings.outputformat)
+histo_data = SafeConvert(file_data,oname[0], settings.lumi,settings.outputformat)
+histname = mchisto(oname[0])
+histo_mc10 = SafeConvert(file_mc10,histname, settings.lumi,settings.outputformat)
+histo_mc = SafeConvert(file_mc,histname, settings.lumi,settings.outputformat)
+
+fresp, aresp, respname = makeplot('jetresp')
+histo00 = aresp.errorbar(histo_data10.xc, histo_data10.y, histo_data10.yerr, color='gray',fmt='^', capsize=0, label ='data 2010')
+histo01 = aresp.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, color='black',fmt='o', capsize=0, label ='data 2011')
+histo02 = aresp.errorbar(histo_mc10.xc, histo_mc10.y, histo_mc10.yerr, color='blue',fmt='-', capsize=0, label ='MC Fall10')
+histo03 = aresp.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, color='red',fmt='-', capsize=0, label ='MC Spring11')
+
+aresp = captions(aresp,settings)
+aresp = tags(aresp, 'Private work', 'Joram Berger')
+aresp.legend(loc='center right', numpoints=1, frameon=False)
+aresp = AxisLabels(aresp, 'jetresp', 'jet')
+#aresp.xmax = 400
+
+#plt.minorticks_on()
+
+Save(fresp,'jetresp', settings)
+
+oname = GetNameFromSelection('mpfrespgraph')
+histo_data10 = SafeConvert(file_data10,oname[0], settings.lumi,settings.outputformat)
+histo_data = SafeConvert(file_data,oname[0], settings.lumi,settings.outputformat)
+histname = mchisto(oname[0])
+histo_mc10 = SafeConvert(file_mc10,histname, settings.lumi,settings.outputformat)
+histo_mc = SafeConvert(file_mc,histname, settings.lumi,settings.outputformat)
+
+fmpf, ampf, mpfname = makeplot('mpfresp')
+histo00 = ampf.errorbar(histo_data10.xc, histo_data10.y, histo_data10.yerr, color='gray',fmt='^', capsize=0, label ='data 2010')
+histo01 = ampf.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, color='black',fmt='o', capsize=0, label ='data 2011')
+histo02 = ampf.errorbar(histo_mc10.xc, histo_mc10.y, histo_mc10.yerr, color='blue',fmt='-', capsize=0, label ='MC Fall10')
+histo03 = ampf.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, color='red',fmt='-', capsize=0, label ='MC Spring11')
+
+ampf = captions(ampf,settings)
+ampf = tags(ampf, 'Private work', 'Joram Berger')
+ampf.legend(loc='center right', numpoints=1, frameon=False)
+ampf = AxisLabels(ampf, 'mpfresp', 'jet')
+#ampf.xmax = 400
+
+#plt.minorticks_on()
+
+Save(fmpf,'mpfresp', settings)
+
 
