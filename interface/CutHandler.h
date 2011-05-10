@@ -451,9 +451,13 @@ public:
 class HltCut: public EventCutBase<EventResult *>
 {
 public:
-	HltCut(bool dbl=true)
+	HltCut(bool dbl=true) :
+		m_useDoubleMu(dbl)
 	{
-	    dbl_mu = dbl;
+//		if (dbl)
+//			std::cout << "(Constructor) Trigger: DoubleMu7 is used.\n";
+//		else
+//			std::cout << "(Constructor) Trigger: SingleMu15 is used.\n";
 	}
 
 	bool IsInCut(EventResult * pEv)
@@ -489,15 +493,17 @@ public:
 			theHLTbit = (TObjString*) pEv->m_pData->HLTriggers_accept->At(i);
 			TString curName = theHLTbit->GetString();
 
-			if (dbl_mu)
+			if (m_useDoubleMu)
 			{
 				if (hltDbl1 == curName || hltDbl2 == curName)
 				{
+				//    std::cout << "(Cut) Trigger: DoubleMu7 is used.\n";
 					return true;
 				}
 			} else {
 				if (hltName == curName)
 				{
+				//    std::cout << "(Cut) Trigger: SingleMu15 is used.\n";
 					return true;
 				}
 			}
@@ -508,6 +514,11 @@ public:
 
 	void Configure( ZJetPipelineSettings * pset)
 	{
+		m_useDoubleMu = (pset->GetCutHLT() == 1);
+//		if (m_useDoubleMu)
+//			std::cout << "(Configure) Trigger: DoubleMu7 is used.\n";
+//		else
+//			std::cout << "(Configure) Trigger: SingleMu15 is used.\n";
 	}
 
 	unsigned long GetId()
@@ -523,7 +534,7 @@ public:
 		return "hlt";
 	}
 	static const long CudId = 512;
-	bool dbl_mu;
+	bool m_useDoubleMu;
 };
 
 class CutHandler

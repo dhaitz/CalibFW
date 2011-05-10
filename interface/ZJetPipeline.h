@@ -63,6 +63,7 @@ public:
 	}
 
 	// Cut settings
+	IMPL_SETTING(int, CutHLT)
 	IMPL_SETTING(double, CutMuonPt)
 	IMPL_SETTING(double, CutZMassWindow)
 	IMPL_SETTING(double, CutMuEta)

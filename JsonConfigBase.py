@@ -26,6 +26,7 @@ def GetBaseConfig():
             "Level": 1,
             "RootFileFolder": "",
             "AdditionalConsumer": [],
+            "CutHLT": 1,
             "CutMuonEta": 2.3,
             "CutMuonPt": 15,
             "CutZMassWindow": 20,
@@ -33,7 +34,8 @@ def GetBaseConfig():
             "CutSecondLeadingToZPt": 0.2,
             "CutSecondLeadingToZPtJet2Threshold" : 5.0,
             "CutBack2Back": 0.34,
-            "Cuts": ["muon_pt",
+            "Cuts": ["hlt",
+                     "muon_pt",
                      "muon_eta",
                      "leadingjet_eta",
                      "secondleading_to_zpt",
@@ -82,6 +84,7 @@ def GetDataBaseConfig():
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
     d["InputType"] = "data"
+    d["Pipelines"]["default"]["CutHLT"] = 1
     
     for key, val in d["Pipelines"].items():
         val["Cuts"].append( "hlt" ) 
