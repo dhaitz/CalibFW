@@ -1,8 +1,8 @@
+# -*- coding: utf-8 -*-
 import ZPJConfiguration
 import ZPJLocalConfig
 import ZPJBase
 
-# -*- coding: utf-8 -*-
 # Here the parameters for all the plots are stated
 
 #-----------------------------------
@@ -16,17 +16,17 @@ process = ZPJConfiguration.configuration("Plots_AN_PAS")
 p=process
 
 #data_file=ZPJLocalConfig.GetLocalRootFilePath() + "mu_data_2010a+b.root"
-data_file="/scratch/hh/lustre/cms/user/berger/data2011_scale.root"
+data_file="/scratch/hh/lustre/cms/user/berger/analysis/data2011_v6_double.root"
 #mc_file="/local/scratch/hauth/data/ZPJ2010/zplusjet_mc_fall10_weighted.root"
 #mc_file=ZPJLocalConfig.GetLocalRootFilePath() + "zplusjet_mc_fall10.root"
-mc_file="/scratch/hh/lustre/cms/user/berger/py2011_scale.root"
+mc_file="/scratch/hh/lustre/cms/user/berger/analysis/mc_spring11_dy_v1.root"
 the_eta_rebin_factor=5
 the_phi_rebin_factor=5
 the_pt_rebin_factor=5
 the_mass_rebin_factor=5
 #the_lumi=2.96;
-the_lumi=36;
-the_pt_bins=[0,15,30,60,100,500]
+the_lumi=153
+the_pt_bins = [0, 15, 30, 60, 100, 500]
 the_algos=["ak5PFJetsL1L2L3"]
 the_good_algos=["anti-kt 0.5 L3"]
 #the_algos=["kt4PF"]
@@ -34,20 +34,21 @@ the_good_algos=["anti-kt 0.5 L3"]
 
 
 # Constraints for minimum location
-the_min_jes=0.75;
-the_max_jes=1.05;
-the_min_jer=.7;
-the_max_jer=1.4;
+the_min_jes=0.75
+the_max_jes=1.05
+the_min_jer=.7
+the_max_jer=1.4
 
 the_info_string= multiline_text(ZPJBase.GetCutsText1(),
-				      ZPJBase.GetCutsText2(),
-                                "Particle flow __ALGO__ jets",
-                                 "__CORR__")
+			ZPJBase.GetCutsText2(),
+			"Particle flow __ALGO__ jets",
+			"__CORR__")
 
 the_img_formats=["png"]
 
-p.general=ZPJConfiguration.section ("general",
+p.general=ZPJConfiguration.section("general",
     correction_level = 0,
+    plot_file_postfix = "",
     data_appendix = "Res",
     mc_input_file=mc_file,
     data_input_file=data_file,
@@ -68,3 +69,5 @@ p.general=ZPJConfiguration.section ("general",
 
 p.update()
 p.dump_cfg()
+
+
