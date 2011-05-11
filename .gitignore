@@ -9,6 +9,7 @@ out/
 *.o
 *.pyc
 *.py.json
+*.py.cfg
 *.pdf
 *.png
 *.tar.gz
