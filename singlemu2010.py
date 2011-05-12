@@ -12,7 +12,7 @@ conf["InputFiles"] = "/scratch/hh/lustre/cms/user/piparo/DiplomArbeitThomas/ZPJ2
 conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "analysis/data2010_v7_single"
 
 #conf["Pipelines"]["default"]["CutSecondLeadingToZPt"] = 0.3
-conf["Pipelines"]["default"]["CutHLT"] = 0
+conf["Pipelines"]["default"]["CutHLT"] = "SingleMu"
 
 conf = JsonConfigBase.ExpandDefaultDataConfig( [0,15,30,60,100,500], conf, True )
 

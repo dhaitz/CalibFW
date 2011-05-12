@@ -26,7 +26,7 @@ def GetBaseConfig():
             "Level": 1,
             "RootFileFolder": "",
             "AdditionalConsumer": [],
-            "CutHLT": 1,
+            "CutHLT": "DoubleMu",
             "CutMuonEta": 2.3,
             "CutMuonPt": 15,
             "CutZMassWindow": 20,
@@ -84,7 +84,7 @@ def GetDataBaseConfig():
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
     d["InputType"] = "data"
-    d["Pipelines"]["default"]["CutHLT"] = 1
+    d["Pipelines"]["default"]["CutHLT"] = "DoubleMu"
     
     for key, val in d["Pipelines"].items():
         val["Cuts"].append( "hlt" ) 

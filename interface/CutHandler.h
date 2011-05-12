@@ -451,32 +451,23 @@ public:
 class HltCut: public EventCutBase<EventResult *>
 {
 public:
-	HltCut(bool dbl=true) :
-		m_useDoubleMu(dbl)
+	HltCut(std::string trigger) :
+		m_triggerType(trigger)
 	{
-//		if (dbl)
-//			std::cout << "(Constructor) Trigger: DoubleMu7 is used.\n";
-//		else
-//			std::cout << "(Constructor) Trigger: SingleMu15 is used.\n";
 	}
 
 	bool IsInCut(EventResult * pEv)
 	{
-		TString hltName = "HLT_Mu9";		// use always the lowest-pt unprescaled trigger
-		TString hltName2 = "HLT_Mu9";
+		// SingleMu trigger: use always the lowest-pt unprescaled Mu trigger
+		TString hltSingleMu = "HLT_Mu9";
+		if (pEv->m_pData->cmsRun >= 147146)	// 2010B (up to about 149711, json up to 149442)
+			hltSingleMu = "HLT_Mu15_v1";
+		if (pEv->m_pData->cmsRun >= 160000)	// 2011A (ongoing, json starting with 160404)
+			hltSingleMu = "HLT_Mu15_v2";
 
-		/* 1 trigger approach */
-		if (pEv->m_pData->cmsRun >= 147146)	// 2010B up to about 149711 (json up to 149442)
-			hltName = "HLT_Mu15_v1";
-		if (pEv->m_pData->cmsRun >= 160000)	// 2011A (ongoing, json starting with 160404)
-			hltName = "HLT_Mu15_v2";
-		if (pEv->m_pData->cmsRun >= 160000)	// 2011A (ongoing, json starting with 160404)
-			hltName2 = "HLT_Mu20_v1";
-		else
-			hltName2 = hltName;
-		
-		TString hltDbl1 = "HLT_DoubleMu7_v1";
-		TString hltDbl2 = "HLT_DoubleMu7_v2";
+		// DoubleMu trigger: use unprescaled DoubleMu7 trigger
+		TString hltDoubleMu1 = "HLT_DoubleMu7_v1";
+		TString hltDoubleMu2 = "HLT_DoubleMu7_v2";
 
 		const int nHLTriggers = pEv->m_pData->HLTriggers_accept->GetEntries();
 
@@ -489,24 +480,13 @@ public:
 
 		for (int i = 0; i < nHLTriggers; ++i)
 		{
-
 			theHLTbit = (TObjString*) pEv->m_pData->HLTriggers_accept->At(i);
 			TString curName = theHLTbit->GetString();
 
-			if (m_useDoubleMu)
-			{
-				if (hltDbl1 == curName || hltDbl2 == curName)
-				{
-				//    std::cout << "(Cut) Trigger: DoubleMu7 is used.\n";
-					return true;
-				}
-			} else {
-				if (hltName == curName)
-				{
-				//    std::cout << "(Cut) Trigger: SingleMu15 is used.\n";
-					return true;
-				}
-			}
+			if (m_triggerType == "SingleMu")
+				return (hltSingleMu == curName);
+			else
+				return (hltDoubleMu1 == curName || hltDoubleMu2 == curName);
 		}
 
 		return false;
@@ -514,11 +494,7 @@ public:
 
 	void Configure( ZJetPipelineSettings * pset)
 	{
-		m_useDoubleMu = (pset->GetCutHLT() == 1);
-//		if (m_useDoubleMu)
-//			std::cout << "(Configure) Trigger: DoubleMu7 is used.\n";
-//		else
-//			std::cout << "(Configure) Trigger: SingleMu15 is used.\n";
+		m_triggerType = pset->GetCutHLT();
 	}
 
 	unsigned long GetId()
@@ -534,7 +510,7 @@ public:
 		return "hlt";
 	}
 	static const long CudId = 512;
-	bool m_useDoubleMu;
+	std::string m_triggerType;
 };
 
 class CutHandler

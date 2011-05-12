@@ -12,7 +12,7 @@ conf["Algos"] = ["ak5PFJetsL1L2L3Res", "ak7PFJetsL1L2L3Res"]
 conf["InputFiles"] = "/scratch/hh/lustre/cms/user/berger/skim2011_v6/skim_414_berger_2011-04-29_SingleMu_2011A*.root"
 conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "analysis/data2011_v7_single"
 
-conf["Pipelines"]["default"]["CutHLT"] = 0
+conf["Pipelines"]["default"]["CutHLT"] = "SingleMu"
 
 conf = JsonConfigBase.ExpandDefaultDataConfig( [0,15,30,60,100,500], conf, True )
 

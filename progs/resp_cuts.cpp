@@ -1052,7 +1052,7 @@ int main(int argc, char** argv)
 	// init cuts
 	// values are set for each Pipeline individually
 	g_cutHandler->AddCut(new JsonCut(g_json.get()));
-	g_cutHandler->AddCut(new HltCut(true));
+	g_cutHandler->AddCut(new HltCut("DoubleMu"));
 	g_cutHandler->AddCut(new MuonPtCut(0.0));
 	g_cutHandler->AddCut(new MuonEtaCut());
 	g_cutHandler->AddCut(new LeadingJetEtaCut());
