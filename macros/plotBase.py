@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import socket
 import getpass
 import os
@@ -7,6 +9,21 @@ import matplotlib.pyplot as plt
 from time import localtime, strftime
 
 #os.makedir('out/dat')
+
+def Print(objekt):
+    print '    > dbg:', objekt, '<'
+    
+def GetReweighting(datahisto, mchisto, drop=True):
+    if drop:
+        datahisto.dropbin(0)
+        datahisto.dropbin(-1)
+        mchisto.dropbin(0)
+        mchisto.dropbin(-1)
+    reweighting = []
+    for i in range(len(mchisto)):
+        reweighting.append(datahisto.y[i]/mchisto.y[i])
+    return reweighting
+
 
 class StandardSettings:
     outputformats = ['png', 'pdf']
@@ -79,12 +96,14 @@ def GetNameFromSelection(quantity='zmass', variation={}, common={}):
         hst = hst.replace('/','/'+quantity+'_').replace('_/','/')
     else:
         hst = quantity + '_' + hst
+    if hst.find('allevents')>0:
+        hst = hst.replace('_hist','_nocut_hist')
     hst = hst.replace('_PF','PF').replace('_Calo','Calo')
     hst = hst.replace('L3_Zplusjet_data','L3Res_Zplusjet_data')
     while hst.find('__')>=0:
         hst = hst.replace('__','_')
     
-    print hst
+    print " ‣ Histogram: ", hst
     # apply variation
 #    for i in key:
 #    hst.replace(variationkey standardvalue, variation i)
@@ -125,6 +144,7 @@ def captions(ax,stg=StandardSettings()):
     return ax
 
 def tags(ax, status='', author='', date='today'):
+    status='' #for now do not show 'private work'
     if status > 0:
         ax.text(0.99, 1.01, status,
             va='bottom', ha='right', transform=ax.transAxes, fontsize=15)
@@ -169,11 +189,15 @@ def AxisLabels(ax, q='resp', obj='jet'):
     elif q == 'jetresp':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"$p_{T}$ balance", va = "top", y = 1)
-        ax.set_xlim = (0, 350)
+        ax.set_xlim = (10, 200)
     elif q == 'mpfresp':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"MPF", va = "top", y = 1)
-        ax.set_xlim(0, 350)
+        ax.set_xlim(10, 200)
+    elif q == 'recovert':
+        ax.set_xlabel(r"Number of reconstructed vertices $n$", ha = "right", x = 1)
+        ax.set_ylabel(r"events", va = "top", y = 1)
+        #ax.set_xlim(0, 350)
     else:
         print "The quantity", q, "was not found. A default formatting of the axis labels is used."
         ax.set_xlabel(r"$p_{T} / \mathrm{GeV}$", ha = "right", x = 1)
@@ -184,14 +208,14 @@ def AxisLabels(ax, q='resp', obj='jet'):
     return ax
 
 
-def Save(figure, name='plot', stg=StandardSettings()):
+def Save(figure, name, stg):
     """Save this figure in all listed data formats.
     
     The standard data formats are png and pdf.
     Available graphics formats are: pdf, png, ps, eps and svg
     """
     name = stg.outputdir + name
-    print 'Saving as',
+    print ' ‣ Saving as',
     for format in stg.outputformats:
         if format in ['pdf', 'png', 'ps', 'eps', 'svg']:
             figure.savefig(name + '.' + format)

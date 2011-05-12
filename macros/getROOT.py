@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import ROOT
 import cPickle as pickle
 from time import localtime, strftime
@@ -16,7 +18,7 @@ def OpenFile(filename, message=False):
     """Open a root file"""
     f = ROOT.TFile(filename)
     if f:
-        if message: print "Inputfile:", filename
+        if message: print " • Inputfile:", filename
     else:
         print "Can't open file:", filename
         assert False
@@ -30,6 +32,7 @@ def ConvertToArray(histo, lumi=0.0, rootfile='', rebin=1):
     # Detect if it is a TH1D or a TGraphErrors
     if hasattr(histo,'GetNbinsX'): 
         # histo is a histogram, read it
+        histo.Rebin(rebin)
         hst.source = ""#rootfile
         hst.path = ""#path in rootfile
         hst.name = histo.GetName()
@@ -81,12 +84,12 @@ def ConvertToArray(histo, lumi=0.0, rootfile='', rebin=1):
     return hst
     
 
-def SafeConvert(RootDict, ObjectName, lumi=0.0, formatslist=[]):
+def SafeConvert(RootDict, ObjectName, lumi=0.0, formatslist=[], rebin=1):
     """Combined import and conversion to npHisto
     
     """
     root_histo = SafeGet(RootDict, ObjectName)
-    histo = ConvertToArray(root_histo,lumi)
+    histo = ConvertToArray(root_histo,lumi,'',rebin)
     if 'txt' in formatslist:
         histo.write()
     if 'dat' in formatslist:
@@ -125,6 +128,14 @@ class npHisto:
         for i in range(len(self.y)):
             self.y[i] *= factor
             self.yerr[i] *= factor
+        self.ymax *= factor
+
+    def dropbin(self,number):
+        self.x.pop(number)
+        self.xc.pop(number)
+        self.y.pop(number)
+        self.xerr.pop(number)
+        self.yerr.pop(number)
 
     def read(self, filename):
         """Read the histogram from a text file
