@@ -483,12 +483,14 @@ public:
 			theHLTbit = (TObjString*) pEv->m_pData->HLTriggers_accept->At(i);
 			TString curName = theHLTbit->GetString();
 
-			if (m_triggerType == "SingleMu")
-				return (hltSingleMu == curName);
-			else
-				return (hltDoubleMu1 == curName || hltDoubleMu2 == curName);
+			if (m_triggerType == "SingleMu"){
+				if (hltSingleMu == curName)
+				    return true;
+			} else {
+				if (hltDoubleMu1 == curName || hltDoubleMu2 == curName)
+				    return true;
+			}
 		}
-
 		return false;
 	}
 
