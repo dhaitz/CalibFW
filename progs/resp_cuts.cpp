@@ -270,6 +270,9 @@ void RunPipelinesForEvent(EventResult & event)
 	{
 		if (it->GetSettings()->GetLevel() == 1)
 		{
+//		    HIER GEHTS WEITER
+//          event.PipelineSettings = it->GetSettings();
+
 			g_cutHandler->ConfigureCuts(it->GetSettings());
 			it->m_corr.CalcCorrectionForEvent( &event );
 

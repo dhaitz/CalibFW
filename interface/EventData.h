@@ -317,6 +317,7 @@ class EventResult
 public:
 	EventResult()
 	{
+		//boost::ptr_vector<ZJetPipeline > * PipelineSettings;
 		m_weight = 1.0f;
 		m_pData = NULL;
 		m_bUseL2 = false;
@@ -409,8 +410,14 @@ public:
 		else
 		{
 			double add=1.0f;
-
-			switch ( this->GetRecoVerticesCount() )
+//			doublevector wghts;
+//			wghts.push_back(0.92450474358049617);
+//			double WEIGHTS[14] = {0.19950807010143562, 0.62697349879520969, 1.1615757414076742, 1.439942320375901, 1.4585466387432582, 1.2196394958464236, 0.92450474358049617, 0.65055366398684289, 0.44545283217442172, 0.32790171783122751, 0.24407423788228744, 0.17916378173261968, 0.15212385647805615, 0.13060022676948466};
+//			int npv = this->GetRecoVerticesCount();
+//			if (npv>0 and npv<15)
+//				add = WEIGHTS[npv-1];
+//			std::cout << "add = " << add << std::endl;
+			switch (this->GetRecoVerticesCount())
 			{
 			case 1:
 				add =  1.4361101137043686;// orig  1.4961101137043686;

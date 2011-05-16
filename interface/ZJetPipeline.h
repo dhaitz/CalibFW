@@ -18,6 +18,7 @@ public:
 	ZJetPipelineSettings()
 	{
 		SetSettingsRoot("default");
+//		SetEnableReweighting(false);
 	}
 
 	enum WriteEventsEnum
@@ -30,6 +31,7 @@ public:
 	IMPL_PROPERTY(unsigned long, OverallNumberOfProcessedEvents )
 
 	IMPL_SETTING( bool, EnableCaloMatching)
+	IMPL_SETTING( bool, EnableReweighting)
 
 	// Filter Settings
 	IMPL_SETTING(double, FilterPtBinLow)
@@ -140,6 +142,13 @@ public:
 
 		return bins;
 		}
+
+	VarCache< doublevector > m_recovertWeight;
+
+	doublevector GetRecovertWeight()
+	{
+		RETURN_CACHED( m_recovertWeight, PropertyTreeSupport::GetAsDoubleList(GetPropTree(), GetSettingsRoot() + ".RecovertWeight") )
+	}
 
 	VarCache< stringvector > m_jetRespBins;
 

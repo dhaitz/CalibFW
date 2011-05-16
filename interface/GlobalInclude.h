@@ -20,6 +20,7 @@ std::ofstream * g_logFile;
 								(*g_logFile) << "FATAL:" << out << std::endl; g_logFile->close(); std::cout.flush(); throw 23; }\
 
 typedef std::vector<std::string> stringvector;
+typedef std::vector<double> doublevector;
 
 // Implements a property with Get and Set Methods
 
