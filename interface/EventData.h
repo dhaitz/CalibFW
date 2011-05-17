@@ -403,49 +403,55 @@ public:
 
 	double GetWeight( )
 	{
-		if ( ! m_bEventReweighting)
+		if (false) // ! m_bEventReweighting)
 		{
 			return m_weight;
 		}
 		else
 		{
 			double add=1.0f;
-//			doublevector wghts;
-//			wghts.push_back(0.92450474358049617);
-//			double WEIGHTS[14] = {0.19950807010143562, 0.62697349879520969, 1.1615757414076742, 1.439942320375901, 1.4585466387432582, 1.2196394958464236, 0.92450474358049617, 0.65055366398684289, 0.44545283217442172, 0.32790171783122751, 0.24407423788228744, 0.17916378173261968, 0.15212385647805615, 0.13060022676948466};
-//			int npv = this->GetRecoVerticesCount();
-//			if (npv>0 and npv<15)
-//				add = WEIGHTS[npv-1];
-//			std::cout << "add = " << add << std::endl;
-			switch (this->GetRecoVerticesCount())
-			{
-			case 1:
-				add =  1.4361101137043686;// orig  1.4961101137043686;
-				break;
-			case 2:
-				add = 0.9526167265264238;// orig1.026167265264238;
-				break;
-			case 3:
-				add = 0.80542188805346695;
-				break;
-			case 4:
-				add = 0.65220042700827331;
-				break;
-			case 5:
-				add = 0.66773504273504269;
-				break;
-			case 6:
-				add = 0.72688153284777646;
-				break;
-			case 7:
-				add = 1.0978997178397725;
-				break;
-			case 8:
-				add = 1.0f;
-				break;
+			double fct=1.0f;
+			doublevector wghts;
+			//Workaround, use cfg file values here
+			const double WEIGHTS[15] = {1.0, 0.19950807010143562, 0.62697349879520969, 1.1615757414076742, 1.439942320375901, 1.4585466387432582, 1.2196394958464236, 0.92450474358049617, 0.65055366398684289, 0.44545283217442172, 0.32790171783122751, 0.24407423788228744, 0.17916378173261968, 0.15212385647805615, 0.13060022676948466};
+			for (int n=0; n<15; ++n) {
+				wghts.push_back(WEIGHTS[n]);
 			}
+			//Workaround end
+			int npv = this->GetRecoVerticesCount();
+			if (npv>=0 and npv<(int) wghts.size()){
+				fct = wghts[npv];
+			}
+			//std::cout << std::setprecision(5) << "npv = " << npv << " fct = " << fct << std::endl;
+//			switch (this->GetRecoVerticesCount())
+//			{
+//			case 1:
+//				add =  1.4361101137043686;// orig  1.4961101137043686;
+//				break;
+//			case 2:
+//				add = 0.9526167265264238;// orig1.026167265264238;
+//				break;
+//			case 3:
+//				add = 0.80542188805346695;
+//				break;
+//			case 4:
+//				add = 0.65220042700827331;
+//				break;
+//			case 5:
+//				add = 0.66773504273504269;
+//				break;
+//			case 6:
+//				add = 0.72688153284777646;
+//				break;
+//			case 7:
+//				add = 1.0978997178397725;
+//				break;
+//			case 8:
+//				add = 1.0f;
+//				break;
+//			}
 
-			return (m_weight * add);
+			return (m_weight * fct);
 		}
 	}
 
