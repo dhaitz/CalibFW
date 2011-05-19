@@ -8,11 +8,14 @@ conf = JsonConfigBase.GetDataBaseConfig()
 
 conf["Algos"] = ["ak5PFJetsL1L2L3Res", "ak7PFJetsL1L2L3Res"]
 
-conf["InputFiles"] = "/scratch/hh/lustre/cms/user/piparo/DiplomArbeitThomas/ZPJ2011_data_nov4_newjetid/data_2010*_out.root"
+conf["InputFiles"] = "/scratch/hh/lustre/cms/user/piparo/Paper/ZPJ2011_data_nov4_corrected_matching/*_out.root"
 conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "analysis/data2010_v7_single"
 
 #conf["Pipelines"]["default"]["CutSecondLeadingToZPt"] = 0.3
 conf["Pipelines"]["default"]["CutHLT"] = "SingleMu"
+conf["useGlobalWeighting"] = 0
+conf["GlobalXSection"] = 0.0
+conf["JsonFile"] = "data/json/Cert_136033-149442_7TeV_Nov4ReReco_Collisions10_JSON.txt"
 
 conf = JsonConfigBase.ExpandDefaultDataConfig( [0,15,30,60,100,500], conf, True )
 
