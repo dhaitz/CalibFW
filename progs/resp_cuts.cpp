@@ -88,7 +88,11 @@ int g_iCurAlgoCount;
 
 bool g_useWeighting;
 bool g_useEventWeight;
+
 bool g_useGlobalWeightBin;
+double g_globalXSection;
+
+
 bool g_eventReweighting;
 
 bool g_corrWithFormula;
@@ -263,6 +267,16 @@ void calcJetEnergyCorrection(EventResult * res, CompleteJetCorrector * pJetCorr)
     
 }
 
+double GetEventXSection ( EventResult & evt )
+{
+	double xsec = 1.0f;
+	if ( g_globalXSection > 0.0f )
+		xsec = g_globalXSection;
+	else
+		xsec = evt.m_pData->xsection;
+	
+	return xsec;
+}
 void RunPipelinesForEvent(EventResult & event)
 {
 	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
@@ -637,15 +651,19 @@ void importEvents(bool bUseJson,
 						<< lProcEvents )
 				lOverallNumberOfProcessedEvents += lProcEvents;
 
+				double xsec = g_ev.xsection;
+				if ( g_globalXSection > 0.0f )
+					xsec = g_globalXSection;
+
 				if (g_useGlobalWeightBin && (!globalBinInitDone))
 				{
-					CALIB_LOG_FILE("Initializing global weighting bin with xsection " << g_ev.xsection)
+					CALIB_LOG_FILE("Initializing global weighting bin with xsection " << xsec )
 					g_mcWeighter.Reset();
-					g_mcWeighter.AddBin(PtBin(0.0, 999999.0), g_ev.xsection);
+					g_mcWeighter.AddBin(PtBin(0.0, 999999.0), xsec);
 					globalBinInitDone = true;
 				}
 
-				g_mcWeighter.IncreaseCountByXSection(g_ev.xsection,
+				g_mcWeighter.IncreaseCountByXSection( xsec,
 						TMath::Nint(pH->GetMean()));
 			}
 		}
@@ -712,7 +730,7 @@ void importEvents(bool bUseJson,
 			else
 			{
 				res->SetWeight( g_mcWeighter.GetWeightByXSection(
-						res->m_pData->xsection));
+						GetEventXSection(*res) ));
 			}
 		}
 
@@ -1037,7 +1055,12 @@ int main(int argc, char** argv)
 	// weighting settings
 	g_useEventWeight = g_propTree.get<bool> ("UseEventWeight");
 	g_useWeighting = g_propTree.get<bool> ("UseWeighting");
+	
 	g_useGlobalWeightBin = g_propTree.get<bool> ("UseGlobalWeightBin");
+	g_globalXSection = g_propTree.get<double> ("GlobalXSection");
+//	CALIB_LOG( "MYVAL" <<	g_globalXSection )
+	
+	
 	g_eventReweighting = g_propTree.get<bool> ("EventReweighting", false);
     
     if ( g_eventReweighting )
