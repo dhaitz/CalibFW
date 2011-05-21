@@ -71,33 +71,19 @@ using namespace CalibFW;
 
 std::string g_sSource("");
 
-vString g_l2CorrFiles;
-vString g_l3CorrFiles;
-
-// TODO: delete this pointer when done
-//PipelineSettings g_defaultSettings;
-
-TString g_l3Formula;
-vdouble g_l3FormulaParams;
-
 vdouble g_customBinning;
 
 std::string g_sCurAlgo;
 int g_iAlgoOverallCount;
 int g_iCurAlgoCount;
 
+// weighting related settings
 bool g_useWeighting;
 bool g_useEventWeight;
 
 bool g_useGlobalWeightBin;
 double g_globalXSection;
-
-
 bool g_eventReweighting;
-
-bool g_corrWithFormula;
-
-
 
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
 std::string g_sJsonFile("not set");
@@ -232,7 +218,6 @@ std::auto_ptr<Json_wrapper> g_json;
 
 evtData g_ev;
 TChain * g_pChain;
-TF1* g_corrFormula;
 
 EventDataVector g_trackedEvents;
 
@@ -255,7 +240,10 @@ void calcJetEnergyCorrection(EventResult * res, CompleteJetCorrector * pJetCorr)
 	{
 		pJetCorr->CalcCorrectionForEvent(res);
 	}*/
-    if ( g_corrWithFormula )
+
+  /*
+	not supported any more, use the CompleteJetCorrector
+  if ( g_corrWithFormula )
 	{
 
 		res->m_l3CorrPtJets[0] = g_corrFormula->Eval( res->GetCorrectedJetPt( 0 ));
@@ -263,7 +251,7 @@ void calcJetEnergyCorrection(EventResult * res, CompleteJetCorrector * pJetCorr)
 		res->m_l3CorrPtJets[2] = g_corrFormula->Eval( res->GetCorrectedJetPt( 2 ));
 		res->m_bUseL3 = true;
 	}
-
+ */
     
 }
 
@@ -624,6 +612,11 @@ void importEvents(bool bUseJson,
 		bool bDiscardOutOfCutEvents, CompleteJetCorrector * correction) // can be null)
 {
 	int entries = g_pChain->GetEntries();
+
+	if ( entries == 0 )
+	{
+		CALIB_LOG_FATAL( "No input events in root files. Exiting ... ")
+	}
 
 	TString sNewFile = "";
 	long lProcEvents = 0;
@@ -1029,11 +1022,6 @@ int main(int argc, char** argv)
 	g_sSource = g_propTree.get<std::string> ("InputFiles");
 	CALIB_LOG_FILE("Using InputFiles " << g_sSource)
 
-    // TODO: remove this and use the correction classes
-    g_corrWithFormula = g_propTree.get<bool> ("CorrWithFormula", false);
-
-    g_corrFormula = new TF1("corr_func", g_propTree.get<std::string> ("CorrFormula", "").c_str());
-
 	// removes the old file
 	std::string sRootOutputFilename = (g_sOutputPath + ".root");
 
@@ -1057,9 +1045,7 @@ int main(int argc, char** argv)
 	g_useWeighting = g_propTree.get<bool> ("UseWeighting");
 	
 	g_useGlobalWeightBin = g_propTree.get<bool> ("UseGlobalWeightBin");
-	g_globalXSection = g_propTree.get<double> ("GlobalXSection");
-//	CALIB_LOG( "MYVAL" <<	g_globalXSection )
-	
+	g_globalXSection = g_propTree.get<double> ("GlobalXSection", 0.0f);
 	
 	g_eventReweighting = g_propTree.get<bool> ("EventReweighting", false);
     
