@@ -133,7 +133,7 @@ double getY(TF1& func,double zval,double xval,double minYval,double maxYval);
 class pt_interval;
 class point;
 typedef std::vector<point> Points;
-void getResponses(vdouble& responses, Points& points,TFile* ifile,pt_interval interval,TString algoname);
+void getResponses(vdouble& responses, Points& points,TFile* ifile,pt_interval interval,TString algoname, TString method);
 
 
 
@@ -364,8 +364,10 @@ int main(int argc, char **argv) {
     double min_jer=p.getDouble(secname+".min_jer");
     double max_jer=p.getDouble(secname+".max_jer");
     bool bDoLikelihoodFit = !( p.getInt( secname + ".omit_likelihood" ) > 0 );
-    TString outputtype=p.getString(secname+"outputtype");
-    bool txtout=("outputtype"=="txt");
+    TString outputtype=p.getString(secname+".outputtype");
+    TString method = p.getString(secname+".method");
+    if (method == "") method = "jetresp";
+    bool txtout=(outputtype=="txt");
 
     TString baseFolder("NoBinning_incut/");
     if (! (p.getString(secname+".base_folder") == ""))
@@ -747,12 +749,12 @@ int main(int argc, char **argv) {
             vdouble responses;
             TFile data_ifile(data_input_file);
 //             getResponses(responses,responses_points_all_bins,ifile,*interval,algo);
-            getResponses(responses,responses_points_all_bins,&data_ifile,*interval,algo);
+            getResponses(responses,responses_points_all_bins,&data_ifile,*interval,algo,method);
             data_ifile.Close();
             vresponses.push_back(responses);
 
             // Jet Response Histo
-            quantity="jetresp_";
+            quantity= method + "_";
             CanvasHolder h_resp(quantity+algo+"_"+interval->id());
 
             TH1D* respo =
@@ -853,10 +855,10 @@ int main(int argc, char **argv) {
 
         // Prepare the response/MC plot for the response
         TGraph repsponse_data(responses_points_all_bins.size());
-        fileName = "Datapoints_ak5Calo.txt";
+        fileName = "Datapoints_"+ method + "_" + algo + ".txt";
         if (txtout) {
         txtfile.open(fileName, std::ios::out | std::ios::trunc);
-        txtfile << "#Response (default: anti-kt 0.5 Algorithm, CaloJets)"
+        txtfile << "#Response (" + algo + ")"
                 << "\n#  i    x           y\n" << std::fixed;
         txtfile.precision(6);
         }                                                                                                                                                
@@ -1055,6 +1057,14 @@ int main(int argc, char **argv) {
 
         h_contours.addLatex(info_x,info_y*0.85,result,true);
 
+        // Print jet energy scale and jet energy resolution to a text file:
+        fstream srfile;
+        srfile.open("scale_and_resolution.txt", std::ios::out | std::ios::trunc);
+        srfile << "#Jet energy scale, scale error-, scale error+:\n";
+        srfile << "#Jet energy resolution, resolution error-, resolution error+:\n";
+        srfile << jes << " " << jes_p1s-jes << " " << jes-jes_m1s << std::endl;
+        srfile << jer << " " << jer_p1s-jer << " " << jer-jer_m1s << std::endl;
+        srfile.close();
 
 
         // info
@@ -1137,7 +1147,8 @@ void getResponses(vdouble& responses,
                   Points& points,
                   TFile* ifile,
                   pt_interval interval,
-                  TString algoname)
+                  TString algoname,
+                  TString method)
 {
 	//ak5PFJets_events
     TString treename=algoname+g_dataAppendix + "_events";
@@ -1147,12 +1158,16 @@ void getResponses(vdouble& responses,
 
     TParticle* Z=new TParticle();
     TParticle* jet=new TParticle();
+    TParticle* met=new TParticle();
     Double_t l2corr;
 
     tree->SetBranchAddress("Z",&Z);
+    tree->SetBranchAddress("met",&met);
     tree->SetBranchAddress("jet1",&jet);
     tree->SetBranchAddress("l2corrJet",&l2corr);
 
+    double responsempf;
+    double responsebal;
     double response;
     for (int ievt=0;ievt< tree->GetEntries();++ievt) 
     {
@@ -1167,7 +1182,16 @@ void getResponses(vdouble& responses,
             // don't use correction, raw
             if ( g_correction_level == 0 )
             {
-                response = ( jet->Pt() ) /Z->Pt();                
+                responsebal = ( jet->Pt() ) /Z->Pt();
+				double scalPtEt = Z->Px()*met->Px() + Z->Py()*met->Py();
+				double scalPtSq = Z->Px()*Z->Px() + Z->Py()*Z->Py();
+				responsempf = 1.0 + (scalPtEt /scalPtSq);
+				if (fabs(response-responsebal)> 0.3) 
+					std::cout << "R_MPF = " << response << ", R_bal = " << responsebal << "\n";
+				if (method == "mpfresp")
+					response = responsempf;
+				else
+					response = responsebal;
             }
 
             responses.push_back(response);
