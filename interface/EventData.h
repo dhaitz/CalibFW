@@ -409,47 +409,26 @@ public:
 		}
 		else
 		{
-			double add=1.0f;
 			double fct=1.0f;
-			doublevector wghts;
+			doublevector weights;
 			//Workaround, use cfg file values here
-			const double WEIGHTS[15] = {1.0, 0.19950807010143562, 0.62697349879520969, 1.1615757414076742, 1.439942320375901, 1.4585466387432582, 1.2196394958464236, 0.92450474358049617, 0.65055366398684289, 0.44545283217442172, 0.32790171783122751, 0.24407423788228744, 0.17916378173261968, 0.15212385647805615, 0.13060022676948466};
-			for (int n=0; n<15; ++n) {
-				wghts.push_back(WEIGHTS[n]);
-			}
+			const double WEIGHTS[25] = { // summer11 values with json upto 165121
+				0.4703311003, 0.7417299153, 0.8377476402, 1.1877490096, 1.5186171021,
+				1.6219797452, 1.5023381382, 1.2381951133, 0.9822965338, 0.7647095136,
+				0.5890234533, 0.4532443837, 0.3500049822, 0.2726113900, 0.2148378413,
+				0.1723042113, 0.1402734630, 0.1165577580, 0.0983505176, 0.0866341673,
+				0.0766579263, 0.0693297190, 0.0646282827, 0.0632177598, 0.0618234025
+			};
+			for (int n=0; n<25; ++n)
+				weights.push_back(WEIGHTS[n]);
 			//Workaround end
-			int npv = this->GetRecoVerticesCount();
-			if (npv>=0 and npv<(int) wghts.size()){
-				fct = wghts[npv];
+			unsigned npv = this->GetRecoVerticesCount();
+			if (npv<0) CALIB_LOG_FATAL("Natural number of PV can not be inferior to 0.")
+			if (npv<weights.size()){
+				fct = weights[npv];
+			} else {
+				CALIB_LOG("Number of PV exceeds weight range. This should not happen!");
 			}
-			//std::cout << std::setprecision(5) << "npv = " << npv << " fct = " << fct << std::endl;
-//			switch (this->GetRecoVerticesCount())
-//			{
-//			case 1:
-//				add =  1.4361101137043686;// orig  1.4961101137043686;
-//				break;
-//			case 2:
-//				add = 0.9526167265264238;// orig1.026167265264238;
-//				break;
-//			case 3:
-//				add = 0.80542188805346695;
-//				break;
-//			case 4:
-//				add = 0.65220042700827331;
-//				break;
-//			case 5:
-//				add = 0.66773504273504269;
-//				break;
-//			case 6:
-//				add = 0.72688153284777646;
-//				break;
-//			case 7:
-//				add = 1.0978997178397725;
-//				break;
-//			case 8:
-//				add = 1.0f;
-//				break;
-//			}
 
 			return (m_weight * fct);
 		}
