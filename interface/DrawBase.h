@@ -1,5 +1,4 @@
-#ifndef __DRAWBASE_H__
-#define __DRAWBASE_H__
+#pragma once
 
 #include <string>
 #include <iostream>
@@ -20,6 +19,7 @@
 #include "CutHandler.h"
 
 #include "DrawModifierBase.h"
+#include "ZJetFilter.h"
 
 namespace CalibFW
 {
@@ -520,6 +520,4 @@ public:
 };
 
 }
-#endif
-
 
