@@ -1,5 +1,4 @@
-#ifndef ___PTBINWEIGHTER_H
-#define ___PTBINWEIGHTER_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -204,5 +203,4 @@ public:
     std::vector<PtBinWeight> m_weights;
 };
 
-#endif
 

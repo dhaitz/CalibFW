@@ -1,5 +1,4 @@
-#ifndef __COMPLETE_JET_CORRECTOR_H
-#define __COMPLETE_JET_CORRECTOR_H
+#pragma once
 
 #include "GlobalInclude.h"
 #include "RootIncludes.h"
@@ -186,4 +185,3 @@ public:
     boost::ptr_vector<CorrBase> m_corrs;
 };
 
-#endif

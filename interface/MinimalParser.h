@@ -1,5 +1,4 @@
-#ifndef __MinimalParser__
-#define __MinimalParser__
+#pragma once
 
 #include <vector>
 
@@ -111,4 +110,4 @@ class MinimalParser : public TNamed {
     ClassDef(MinimalParser,1)
  };
 
-#endif
+

@@ -364,6 +364,7 @@ int main(int argc, char **argv) {
     double min_jer=p.getDouble(secname+".min_jer");
     double max_jer=p.getDouble(secname+".max_jer");
     bool bDoLikelihoodFit = !( p.getInt( secname + ".omit_likelihood" ) > 0 );
+
     TString outputtype=p.getString(secname+".outputtype");
     TString method = p.getString(secname+".method");
     if (method == "") method = "jetresp";

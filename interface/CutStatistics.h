@@ -1,12 +1,10 @@
-#ifndef __CUTSTATISTICS_H__
-#define __CUTSTATISTICS_H__
+#pragma once
 
 #include <string>
 #include <iostream>
 
 #include <math.h>
 
-#include "CutHandler.h"
 #include "GlobalInclude.h"
 #include "RootIncludes.h"
 #include "EventData.h"
@@ -14,15 +12,17 @@
 #include "ZJetPipeline.h"
 #include "ZJetConsumer.h"
 
+#include "ZJetCuts.h"
+
 namespace CalibFW
 {
 
 class CutStatisticsConsumer: public ZJetConsumerBase
 {
 public:
-	CutStatisticsConsumer( CutHandler * pHandler) : m_pCutHandler ( pHandler )
+	CutStatisticsConsumer(ZJetCutHandler * pHandler) :
+		m_pCutHandler(pHandler)
 	{
-
 
 	}
 
@@ -31,13 +31,13 @@ public:
 		m_cutRejected.clear();
 		m_eventCount = 0;
 
-		BOOST_FOREACH( EventCutBase< EventResult *> * c, m_pCutHandler->GetCuts() )
+		BOOST_FOREACH( ZJetCutBase * c, m_pCutHandler->GetCuts() )
 		{
 			m_cutRejected[ c->GetCutShortName() ] = 0;
 		}
 
-		ZJetConsumerBase::Init( pset );
-	}
+	ZJetConsumerBase::Init( pset );
+}
 
 virtual std::string GetId()
 {
@@ -58,21 +58,21 @@ virtual void Finish()
 			<< std::setw(23)<< "EvtsDropRel [%]"<< std::setw(21) << "EvtsDropAbs")
 
 	CALIB_LOG_FILE( std::setw(20) << "# processed events :" << std::setw(46)
-					<< this->GetPipelineSettings()->GetOverallNumberOfProcessedEvents() )
+			<< this->GetPipelineSettings()->GetOverallNumberOfProcessedEvents() )
 
 	double precutsLetfRel = (double) ( overallCountLeft ) / (double) GetPipelineSettings()->GetOverallNumberOfProcessedEvents();
 	CALIB_LOG_FILE( std::setw(20) << "precuts :"
-			<< std::setw(23) << std::setprecision(5) <<  precutsLetfRel
+			<< std::setw(23) << std::setprecision(5) << precutsLetfRel
 			<< std::setw(23) << overallCountLeft
-			<< std::setw(23) << std::setprecision(5) <<  ( 1.0f - precutsLetfRel )
+			<< std::setw(23) << std::setprecision(5) << ( 1.0f - precutsLetfRel )
 			<< std::setw(21) << GetPipelineSettings()->GetOverallNumberOfProcessedEvents() - overallCountLeft)
 
-
-	BOOST_FOREACH( EventCutBase< EventResult *> * c, m_pCutHandler->GetCuts() )
+	BOOST_FOREACH( ZJetCutBase * c, m_pCutHandler->GetCuts() )
 	{
 		unsigned long rejAbs = m_cutRejected[c->GetCutShortName()];
 
-		if ( c->m_bCutEnabled )
+
+		if ( ZJetCutHandler::IsCutEnabled( c, this->GetPipelineSettings()  ) )
 		{
 			droppedRel = 1.0f -(double) ( overallCountLeft - rejAbs ) / (double) overallCountLeft;
 
@@ -105,11 +105,11 @@ virtual void ProcessEvent(EventResult & event, FilterResult & result)
 	// TODO: only use events, which did pass all filters except incut
 
 	m_eventCount++;
-	BOOST_FOREACH( EventCutBase< EventResult *>  * c, m_pCutHandler->GetCuts() )
+	BOOST_FOREACH( ZJetCutBase * c, m_pCutHandler->GetCuts() )
 	{
-		if ( c->m_bCutEnabled )
+		if (  ZJetCutHandler::IsCutEnabled( c, this->GetPipelineSettings() ))
 		{
-			if (  m_pCutHandler->IsCutInBitmask( c->GetId(), event.m_cutBitmask ))
+			if ( m_pCutHandler->IsCutInBitmask( c->GetId(), event.m_cutBitmask ))
 			{
 				m_cutRejected[ c->GetCutShortName() ]++;
 				// we only want to store the number of events, which were effectively kicked by one
@@ -120,11 +120,10 @@ virtual void ProcessEvent(EventResult & event, FilterResult & result)
 	}
 }
 
-CutHandler * m_pCutHandler;
+ZJetCutHandler * m_pCutHandler;
 std::map<std::string, unsigned long> m_cutRejected;
 unsigned long m_eventCount;
 };
 
 }
-#endif
 

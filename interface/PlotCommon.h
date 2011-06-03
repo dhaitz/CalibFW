@@ -1,5 +1,4 @@
-#ifndef PLOTCOMMON_H
-#define PLOTCOMMON_H
+#pragma once
 
 #include <exception>
 
@@ -68,11 +67,13 @@ void saveHolder(CanvasHolder &h,
         h.setLogY();
     }
 
+    int res = 0;
+
     for ( unsigned int i=0;i<formats.size();++i)
 	{
 //         h.draw();
-		system ( "mkdir plot_out");
-		system ( ("mkdir plot_out/" + env.m_sConfigFileName).Data() );
+		res = system ( "mkdir plot_out");
+		res = system ( ("mkdir plot_out/" + env.m_sConfigFileName).Data() );
 		h.save(formats[i].Data(), "" , ("plot_out/" + env.m_sConfigFileName + "/").Data());
 		h.save("root", "" , ("plot_out/" + env.m_sConfigFileName + "/").Data());
 	}
@@ -134,7 +135,5 @@ public:
 typedef std::vector<point> Points;
 //------------------------------------------------------------------------------
 
-
-#endif
  
  

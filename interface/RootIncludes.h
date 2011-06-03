@@ -1,5 +1,4 @@
-#ifndef ___ROOTINCLUDES_H
-#define ___ROOTINCLUDES_H
+#pragma once
 
 #include "TROOT.h"
 #include "TText.h"
@@ -24,12 +23,13 @@
 #include "TProfile.h"
 #include "Math/GenVector/VectorUtil.h"
 
+/*
 double ScalarProductTParticle( TParticle * p1, TParticle * p2 )
 {
  return p1->Px()*p2->Px() + 
         p1->Py()*p2->Py() +
         p1->Pz()*p2->Pz(); 
-}
+}*/
 
 class RootFileHelper
 {
@@ -159,7 +159,3 @@ class DeltaHelper
     return val;
   }
 };
-
-
-#endif
-
