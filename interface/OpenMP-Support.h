@@ -1,11 +1,7 @@
 #pragma once
 
-
-
 #include <omp.h>
 #include <string>
-
-#include "GlobalInclude.h"
 
 #define TIMING_INIT double __timing_start = 0.0f; std::string __timing_tag = "";
 
