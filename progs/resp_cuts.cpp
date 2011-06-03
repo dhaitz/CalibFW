@@ -269,21 +269,29 @@ double GetEventXSection(EventResult & evt)
 
 void RunPipelinesForEvent(EventResult & event)
 {
-	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
-			== g_pipelines.end()); it++)
+	// experimental: this section has been paralelized
+
+	unsigned int i = 0;
+#pragma omp parallel for
+
+/*	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
+			== g_pipelines.end()); it++)*/
+	for (i = 0; i < g_pipelines.size(); i++)
 	{
-		if (it->GetSettings()->GetLevel() == 1)
+		ZJetPipeline * pline = &g_pipelines[i];
+
+		if (pline->GetSettings()->GetLevel() == 1)
 		{
 			//		    HIER GEHTS WEITER
 			//event.PipelineSettings = it->GetSettings();
 
-			g_cutHandler->ApplyCuts(&event, it->GetSettings());
+			g_cutHandler->ApplyCuts(&event, pline->GetSettings());
 
 			// don't run event if it was not accepted by JSON file.
 			// this events can contain "unphysical" results due to measurement errors
 			// IsValidEvent checks if in JSON and in HLT selection
 			if (event.IsValidEvent())
-				it->RunEvent(event);
+				pline->RunEvent(event);
 		}
 	}
 }
@@ -331,11 +339,6 @@ ZJetPipeline * CreateLevel2Pipeline()
 	PLOT_GRAPHERRORS_COND1( pline, DrawMatchAvgCaloJetPtRatio, calo_pf_avg_ratio_vs_pf_pt, "jet1_calo_match_ptratio" )
 	PLOT_GRAPHERRORS_COND1( pline, DrawConstituents, jet1_constituents, "jet1_constituents" )
 	PLOT_GRAPHERRORS_COND2( pline, DrawMatchAvgAvgCaloJetPtRatio, calo_avg_pf_avg_ratio_vs_z_pt , "jet1_calo_match_pt", "jet1_pt" )
-	PLOT_GRAPHERRORS_COND1( pline, DrawMatchAvgCaloJetPtRatio, calo_pf_avg_ratio_vs_pf_pt, "jet1_calo_match_ptratio" )
-
-	PLOT_GRAPHERRORS_COND2( pline, DrawMatchAvgAvgCaloJetPtRatio, calo_avg_pf_avg_ratio_vs_z_pt , "jet1_calo_match_pt", "jet1_pt" )
-
-	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, zmass, "zmass" )
 
 	// Matched Z
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, matchedZ_ptratio, "matchedZ_ptratio" )
@@ -360,9 +363,10 @@ void AddConsumersToPipeline(ZJetPipeline * pline,
 		std::vector<std::string> consList)
 {
 	BOOST_FOREACH( std::string s, consList )
-{	CALIB_LOG( "Adding consumer " << s)
-	AddConsumerToPipeline( pline, s);
-}
+	{
+		CALIB_LOG( "Adding consumer " << s)
+		AddConsumerToPipeline( pline, s);
+	}
 }
 
 // Generates the default pipeline which is run on all events.
@@ -752,11 +756,12 @@ void importEvents(bool bUseJson,
 	}
 
 	double fRuntime = omp_get_wtime() - fStartTime;
+	CALIB_LOG_FILE(" ---- ")
 	CALIB_LOG_FILE("All level 1 pipelines done. Overall time: " << fRuntime << " s")
 	CALIB_LOG_FILE("Time per Event: " << std::setprecision(3) << ( (fRuntime / (double)entries) * 1000.0f ) << " ms" )
 	CALIB_LOG_FILE("Time per Event and Pipeline: " << std::setprecision(3) <<
 			( (fRuntime / (double)(entries * g_pipelines.size() )) * 1000.0f ) << " ms" )
-
+	CALIB_LOG_FILE(" ---- ")
 	CALIB_LOG_FILE("Running level 2 pipelines")
 
 	// cloning of a pipeline ?? goes here maybe
@@ -1012,14 +1017,19 @@ int main(int argc, char** argv)
 
 	TIMING_START( "config load" )
 
+
+
+
 	std::string jsonConfig = argv[1];
 	boost::property_tree::json_parser::read_json(jsonConfig, g_propTree);
 
 	g_sOutputPath = g_propTree.get<std::string> ("OutputPath");
 	std::string sLogFileName = g_sOutputPath + ".log";
-	//g_logFile = new ofstream(sLogFileName.c_str(), ios_base::trunc);
+	g_logFile = new ofstream(sLogFileName.c_str(), ios_base::trunc);
 
 	CreateWeightBins();
+
+	CALIB_LOG_FILE( "Running with " <<  omp_get_max_threads() << " thread(s)" )
 
 	// input files
 	g_sSource = g_propTree.get<std::string> ("InputFiles");
@@ -1034,7 +1044,7 @@ int main(int argc, char** argv)
 
 	// insert config into log file
 	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump:" );
-	//boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
+	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
 
 
 	/*
@@ -1055,7 +1065,8 @@ int main(int argc, char** argv)
 	if (g_eventReweighting)
 		CALIB_LOG_FILE( "\n\n --------> reweightin events for # reco !!\n\n" )
 
-	g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
+	if ( g_propTree.get("JsonFile", "") != "" )
+		g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
 
 	/*
 	 g_l2CorrFiles = p.getvString(secname + ".l2_correction_data");
@@ -1063,8 +1074,29 @@ int main(int argc, char** argv)
 	 */
 
 	g_cutHandler.reset(new ZJetCutHandler());
+
 	// init cuts
 	// values are set for each Pipeline individually
+
+	// technical cuts
+	 g_ZJetCuts.push_back(new JsonCut(g_json.get()));
+	 g_ZJetCuts.push_back(new HltCut());
+
+	 // muon cuts
+	 g_ZJetCuts.push_back(new MuonEtaCut());
+	 g_ZJetCuts.push_back(new MuonPtCut() );
+	 g_ZJetCuts.push_back(new ZMassWindowCut());
+	 g_ZJetCuts.push_back(new ZPtCut());
+
+	 // jet cuts
+	 g_ZJetCuts.push_back(new LeadingJetEtaCut());
+	 g_ZJetCuts.push_back(new JetPtCut());
+
+	 // topology cuts
+	 //g_ZJetCuts.push_back(new SecondLeadingToZPtCutDir());
+	 g_ZJetCuts.push_back(new SecondLeadingToZPtCut());
+	 g_ZJetCuts.push_back(new BackToBackCut());
+
 
 	BOOST_FOREACH( ZJetCutBase * pCut, g_ZJetCuts )
 {	g_cutHandler->AddCut( pCut );
@@ -1088,12 +1120,12 @@ std::cout << TIMING_GET_RESULT_STRING << std::endl;
 
 processAlgo();
 g_resFile->Close();
-//g_logFile->close();
+g_logFile->close();
 
 CALIB_LOG_FILE("Output file " << sRootOutputFilename << " closed.")
 
 // todo this delete produces seg fault
-//delete g_logFile;
+delete g_logFile;
 
 return 0;
 }
