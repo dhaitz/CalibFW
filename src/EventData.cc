@@ -9,3 +9,4 @@ bool EventResult::IsValidEvent()
 				! IsCutInBitmask( HltCut::CudId, this->m_cutBitmask ));
 }
 
+unsigned long g_lTempNameAppend = 0;
