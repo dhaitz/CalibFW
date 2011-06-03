@@ -365,7 +365,7 @@ int main(int argc, char **argv) {
     double max_jer=p.getDouble(secname+".max_jer");
     bool bDoLikelihoodFit = !( p.getInt( secname + ".omit_likelihood" ) > 0 );
     TString outputtype=p.getString(secname+"outputtype");
-    bool txtout=("outputtype"=="txt");
+    bool txtout= false;//("outputtype"=="txt");
 
     TString baseFolder("NoBinning_incut/");
     if (! (p.getString(secname+".base_folder") == ""))
