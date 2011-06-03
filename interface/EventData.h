@@ -16,6 +16,7 @@
 #include "RootIncludes.h"
 #include "GlobalInclude.h"
 #include "PtBinWeighter.h"
+//#include "ZJetPipeline.h"
 
 #define SAFE_DELETE( first ) {  if ( first != NULL ) { delete first; } }
 
@@ -29,45 +30,37 @@ enum InputTypeEnum
 };
 /*
  * - Charged Energy Fraction distribution: ChargedHadronEnergy
-- Neutral Energy Fraction distribution: NeutralHadronEnergy
-- Photon Energy Fraction distributin: PhotonEnergy
+ - Neutral Energy Fraction distribution: NeutralHadronEnergy
+ - Photon Energy Fraction distributin: PhotonEnergy
  *
  */
 
 // struct from Zplusjet/ZplusjetTreeMaker/interface/ZplusjetTreeMaker.h
-typedef struct {float ChargedHadronEnergy, 
-                ChargedHadronMultiplicity,
-                ChargedHadronEnergyFraction,
-                
-                NeutralHadronEnergy,                        
-                NeutralHadronMultiplicity,
-                NeutralHadronEnergyFraction,
-                
-                ChargedEmEnergy,
-                NeutralEmEnergy,
+typedef struct
+{
+	float ChargedHadronEnergy, ChargedHadronMultiplicity,
+			ChargedHadronEnergyFraction,
 
-                NeutralMultiplicity,
-                ChargedMultiplicity,
+			NeutralHadronEnergy, NeutralHadronMultiplicity,
+			NeutralHadronEnergyFraction,
 
-                ElectronEnergy,
-                ElectronMultiplicity,
-                ElectronEnergyFraction,
-                
-                MuonEnergy,
-                MuonMultiplicity,
-                MuonEnergyFraction,
-                
-                PhotonEnergy,
-                PhotonMultiplicity,
-                PhotonEnergyFraction,
+			ChargedEmEnergy, NeutralEmEnergy,
 
-                Constituents;} PFProperties;
+			NeutralMultiplicity, ChargedMultiplicity,
 
+			ElectronEnergy, ElectronMultiplicity, ElectronEnergyFraction,
+
+			MuonEnergy, MuonMultiplicity, MuonEnergyFraction,
+
+			PhotonEnergy, PhotonMultiplicity, PhotonEnergyFraction,
+
+			Constituents;
+} PFProperties;
 
 class evtData: boost::noncopyable
 {
 public:
-	TParticle *Z, *matched_Z,*mu_minus, *mu_plus;
+	TParticle *Z, *matched_Z, *mu_minus, *mu_plus;
 
 	TParticle *jets[3];
 	TParticle *matched_calo_jets[3];
@@ -90,16 +83,17 @@ public:
 	Long_t cmsEventNum;
 	Long_t cmsRun;
 	Int_t luminosityBlock;
-    Int_t partonFlavour;
+	Int_t partonFlavour;
 
 	evtData()
 	{
-		Z = matched_Z = mu_minus = mu_plus = jets[0] = jets[1] = jets[2] = met = tcmet
+		Z = matched_Z = mu_minus = mu_plus = jets[0] = jets[1] = jets[2] = met
+				= tcmet = NULL;
+
+		pfProperties[0] = pfProperties[1] = pfProperties[2] = NULL;
+
+		matched_calo_jets[0] = matched_calo_jets[1] = matched_calo_jets[2]
 				= NULL;
-
-		pfProperties[0] = pfProperties[1] =pfProperties[2] = NULL;
-
-		matched_calo_jets[0] =matched_calo_jets[1] = matched_calo_jets[2] = NULL;
 		HLTriggers_accept = recoVertices = recoVerticesInfo = recoVerticesError
 				= NULL;
 		beamSpot = NULL;
@@ -108,30 +102,30 @@ public:
 
 	~evtData()
 	{
-// 		SAFE_DELETE ( Z )
-//      SAFE_DELETE ( matched_Z )
-// 		SAFE_DELETE ( mu_minus )
-// 		SAFE_DELETE ( mu_plus )
-// 		SAFE_DELETE ( jets[0] )
-// 		SAFE_DELETE ( jets[1] )
-// 		SAFE_DELETE ( jets[2] )
-// 
-// 		SAFE_DELETE ( matched_calo_jets[0] )
-// 		SAFE_DELETE ( matched_calo_jets[1] )
-// 		SAFE_DELETE ( matched_calo_jets[2] )
-// 
-// 		SAFE_DELETE ( pfProperties[0] )
-// 		SAFE_DELETE ( pfProperties[1] )
-// 		SAFE_DELETE ( pfProperties[2] )
-// 
-// 
-// 		SAFE_DELETE ( met )
-// 		SAFE_DELETE ( tcmet )
-// 		SAFE_DELETE ( recoVertices )
-// 		SAFE_DELETE ( recoVerticesInfo )
-// 		SAFE_DELETE ( recoVerticesError )
-// 		SAFE_DELETE ( HLTriggers_accept )
-// 		SAFE_DELETE ( beamSpot )
+		// 		SAFE_DELETE ( Z )
+		//      SAFE_DELETE ( matched_Z )
+		// 		SAFE_DELETE ( mu_minus )
+		// 		SAFE_DELETE ( mu_plus )
+		// 		SAFE_DELETE ( jets[0] )
+		// 		SAFE_DELETE ( jets[1] )
+		// 		SAFE_DELETE ( jets[2] )
+		//
+		// 		SAFE_DELETE ( matched_calo_jets[0] )
+		// 		SAFE_DELETE ( matched_calo_jets[1] )
+		// 		SAFE_DELETE ( matched_calo_jets[2] )
+		//
+		// 		SAFE_DELETE ( pfProperties[0] )
+		// 		SAFE_DELETE ( pfProperties[1] )
+		// 		SAFE_DELETE ( pfProperties[2] )
+		//
+		//
+		// 		SAFE_DELETE ( met )
+		// 		SAFE_DELETE ( tcmet )
+		// 		SAFE_DELETE ( recoVertices )
+		// 		SAFE_DELETE ( recoVerticesInfo )
+		// 		SAFE_DELETE ( recoVerticesError )
+		// 		SAFE_DELETE ( HLTriggers_accept )
+		// 		SAFE_DELETE ( beamSpot )
 	}
 
 	// true if the event is within cuts
@@ -140,7 +134,7 @@ public:
 	{
 		evtData * ev = new evtData();
 		ev->Z = new TParticle(*this->Z);
-        ev->matched_Z = new TParticle(*this->matched_Z);
+		ev->matched_Z = new TParticle(*this->matched_Z);
 		ev->mu_minus = new TParticle(*this->mu_minus);
 		ev->mu_plus = new TParticle(*this->mu_plus);
 		ev->met = new TParticle(*this->met);
@@ -153,13 +147,14 @@ public:
 
 		for (int i = 0; i < 3; ++i)
 		{
-			if (this->matched_calo_jets[i] != NULL )
-				ev->matched_calo_jets[i] = new TParticle(*this->matched_calo_jets[i]);
+			if (this->matched_calo_jets[i] != NULL)
+				ev->matched_calo_jets[i] = new TParticle(
+						*this->matched_calo_jets[i]);
 		}
 
 		for (int i = 0; i < 3; ++i)
 		{
-			if (this->pfProperties[i] != NULL )
+			if (this->pfProperties[i] != NULL)
 				ev->pfProperties[i] = new PFProperties(*this->pfProperties[i]);
 		}
 
@@ -186,33 +181,35 @@ public:
 		ev->xsection = this->xsection;
 		ev->weight = this->weight;
 
-        ev->partonFlavour = this->partonFlavour;
+		ev->partonFlavour = this->partonFlavour;
 
 		return ev;
 	}
 };
 
+// increasing number for the names of temporary root histograms
+extern unsigned long g_lTempNameAppend;
+
 class RootNamer
 {
 public:
-	static unsigned long m_lTempNameAppend;
 
 	static std::string GetTempHistoName()
 	{
 		std::stringstream tempname;
-		m_lTempNameAppend++;
-		tempname << "root_temp_histo_" << m_lTempNameAppend;
+		g_lTempNameAppend++;
+		tempname << "root_temp_histo_" << g_lTempNameAppend;
 		return tempname.str();
 	}
 
-    static TString GetFolderName( PtBin * pBin )
-    {
-        if ( pBin == NULL )
-            return "NoBinning_incut/";
-        else
-            return pBin->id() + "_incut/";
+	static TString GetFolderName(PtBin * pBin)
+	{
+		if (pBin == NULL)
+			return "NoBinning_incut/";
+		else
+			return pBin->id() + "_incut/";
 
-    }
+	}
 
 	static TString GetHistoName(TString algoName, TString quantName,
 			InputTypeEnum inpType, int corr = 0, PtBin * pBin = NULL,
@@ -256,7 +253,6 @@ public:
 	}
 };
 
-unsigned long RootNamer::m_lTempNameAppend = 0;
 
 class EventId
 {
@@ -348,8 +344,8 @@ public:
 	bool m_bUseL3;
 	Double_t m_l3CorrPtJets[3];
 
+	// the bits for the correspodings cuts are set if the cut was NOT passed !
 	unsigned long m_cutBitmask;
-
 
 	// if a jet has .Pt() == 0.0f , there is no 2nd/3rd jet in this event. dont add this
 	// to distributions
@@ -386,6 +382,13 @@ public:
 		return val;
 	}
 
+	bool IsValidEvent();
+
+	bool IsCutInBitmask(unsigned long cutId, unsigned long bitmask)
+	{
+		return (cutId & bitmask) > 0;
+	}
+
 	bool IsInCut()
 	{
 		return (this->m_cutBitmask == 0);
@@ -394,14 +397,12 @@ public:
 	bool IsInCutWhenIgnoringCut(unsigned long ignoredCut)
 	{
 		// ~ is bitwise negation
-		return (((~ignoredCut ) & this->m_cutBitmask) == 0);
+		return (((~ignoredCut) & this->m_cutBitmask) == 0);
 	}
-
 
 	evtData * m_pData;
 
-
-	double GetWeight( )
+	double GetWeight()
 	{
 		if (false) // ! m_bEventReweighting)
 		{
@@ -409,54 +410,61 @@ public:
 		}
 		else
 		{
-			double add=1.0f;
-			double fct=1.0f;
+			double fct = 1.0f;
 			doublevector wghts;
 			//Workaround, use cfg file values here
-			const double WEIGHTS[15] = {1.0, 0.19950807010143562, 0.62697349879520969, 1.1615757414076742, 1.439942320375901, 1.4585466387432582, 1.2196394958464236, 0.92450474358049617, 0.65055366398684289, 0.44545283217442172, 0.32790171783122751, 0.24407423788228744, 0.17916378173261968, 0.15212385647805615, 0.13060022676948466};
-			for (int n=0; n<15; ++n) {
+			const double WEIGHTS[15] =
+			{ 1.0, 0.19950807010143562, 0.62697349879520969,
+					1.1615757414076742, 1.439942320375901, 1.4585466387432582,
+					1.2196394958464236, 0.92450474358049617,
+					0.65055366398684289, 0.44545283217442172,
+					0.32790171783122751, 0.24407423788228744,
+					0.17916378173261968, 0.15212385647805615,
+					0.13060022676948466 };
+			for (int n = 0; n < 15; ++n)
+			{
 				wghts.push_back(WEIGHTS[n]);
 			}
 			//Workaround end
 			int npv = this->GetRecoVerticesCount();
-			if (npv>=0 and npv<(int) wghts.size()){
+			if (npv >= 0 and npv < (int) wghts.size())
+			{
 				fct = wghts[npv];
 			}
 			//std::cout << std::setprecision(5) << "npv = " << npv << " fct = " << fct << std::endl;
-//			switch (this->GetRecoVerticesCount())
-//			{
-//			case 1:
-//				add =  1.4361101137043686;// orig  1.4961101137043686;
-//				break;
-//			case 2:
-//				add = 0.9526167265264238;// orig1.026167265264238;
-//				break;
-//			case 3:
-//				add = 0.80542188805346695;
-//				break;
-//			case 4:
-//				add = 0.65220042700827331;
-//				break;
-//			case 5:
-//				add = 0.66773504273504269;
-//				break;
-//			case 6:
-//				add = 0.72688153284777646;
-//				break;
-//			case 7:
-//				add = 1.0978997178397725;
-//				break;
-//			case 8:
-//				add = 1.0f;
-//				break;
-//			}
+			//			switch (this->GetRecoVerticesCount())
+			//			{
+			//			case 1:
+			//				add =  1.4361101137043686;// orig  1.4961101137043686;
+			//				break;
+			//			case 2:
+			//				add = 0.9526167265264238;// orig1.026167265264238;
+			//				break;
+			//			case 3:
+			//				add = 0.80542188805346695;
+			//				break;
+			//			case 4:
+			//				add = 0.65220042700827331;
+			//				break;
+			//			case 5:
+			//				add = 0.66773504273504269;
+			//				break;
+			//			case 6:
+			//				add = 0.72688153284777646;
+			//				break;
+			//			case 7:
+			//				add = 1.0978997178397725;
+			//				break;
+			//			case 8:
+			//				add = 1.0f;
+			//				break;
+			//			}
 
 			return (m_weight * fct);
 		}
 	}
 
-
-	void SetWeight( double v)
+	void SetWeight(double v)
 	{
 		m_weight = v;
 	}
@@ -526,5 +534,4 @@ struct CompareEventResult: std::binary_function<EventResult, EventResult, bool>
 typedef std::set<EventId> EventSet;
 typedef boost::ptr_vector<EventResult> EventVector;
 typedef boost::ptr_vector<evtData> EventDataVector;
-
 
