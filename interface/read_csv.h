@@ -1,5 +1,4 @@
-#ifndef __ReadCsv__
-#define __ReadCsv__
+#pragma once
     
 #include <string>
 #include <vector>
@@ -25,5 +24,3 @@ class ReadCsv
   string m_sFileName;
 };
   
-  #endif
-
