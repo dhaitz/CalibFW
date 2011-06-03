@@ -1,5 +1,4 @@
-#ifndef __EVENTSTORER_H__
-#define __EVENTSTORER_H__
+#pragma once
 
 #include <string>
 #include <iostream>
@@ -146,8 +145,5 @@ public:
 	EventFormater m_evtFormater;
 };
 
-
-
 }
-#endif
 
