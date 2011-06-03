@@ -63,6 +63,8 @@ def GetMcBaseConfig():
     d["UseGlobalWeightBin"] = 0
     
     d["InputType"] = "mc"
+    
+    d["ThreadCount"] = 2
 
     return d
 

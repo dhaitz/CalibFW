@@ -1029,6 +1029,8 @@ int main(int argc, char** argv)
 
 	CreateWeightBins();
 
+	// openmp setup
+	omp_set_num_threads(g_propTree.get<int> ("ThreadCount"));
 	CALIB_LOG_FILE( "Running with " <<  omp_get_max_threads() << " thread(s)" )
 
 	// input files
