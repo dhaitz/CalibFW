@@ -1,6 +1,5 @@
-#ifndef __JSON__
-#define __JSON__
-    
+#pragma once
+
 #include "jsonParser.h"
 //#include "TObject.h"
 
@@ -34,5 +33,3 @@ class Json_wrapper{
 //ClassDef(Json_wrapper,1) 
     
 };
-
-#endif
