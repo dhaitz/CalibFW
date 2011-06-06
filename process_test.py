@@ -8,7 +8,7 @@ conf = JsonConfigBase.GetMcBaseConfig()
 
 conf["Algos"] = [ "ak5PFJets" ]
 
-conf["InputFiles"] = "/home/poseidon/uni/data/ZPJ2011_mc/mc_414_berger_2011-05-09_DY_Spring11_powheg_0.root"
+conf["InputFiles"] = "data/eval/mc_cmssw38.root"
 conf["OutputPath"] = "resp_cuts_test"
 
 conf["UseWeighting"] = 0
