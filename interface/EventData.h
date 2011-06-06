@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <set>
@@ -404,12 +405,14 @@ public:
 
 	double GetWeight()
 	{
+        return m_weight;
+        /*
 		if (false) // ! m_bEventReweighting)
 		{
 			return m_weight;
 		}
 		else
-		{
+		{*//*
 			double fct=1.0f;
 			doublevector weights;
 			//Workaround, use cfg file values here
@@ -429,7 +432,7 @@ public:
 				fct = weights[npv];
 			} else {
 				CALIB_LOG("Number of PV exceeds weight range. This should not happen!");
-			}
+			}*/
 /*
 			double fct = 1.0f;
 			doublevector wghts;
@@ -481,8 +484,8 @@ public:
 			//				break;
 			//			}
 
-			return (m_weight * fct);
-		}
+			//return (m_weight * fct);
+		//}
 	}
 
 	void SetWeight(double v)
