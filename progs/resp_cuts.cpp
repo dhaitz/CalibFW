@@ -42,6 +42,8 @@ using namespace std::rel_ops;
 
 #include "MinimalParser.h"
 
+#include "OpenMP-Support.h"
+
 #include "CompleteJetCorrector.h"
 
 /*
@@ -55,12 +57,11 @@ using namespace std::rel_ops;
 #include "CutStatistics.h"
 
 #include "PtBinWeighter.h"
-#include "CutHandler.h"
-
 
 #include "ZJetPipeline.h"
 #include "ZJetEventStorer.h"
 #include "ZJetDrawConsumer.h"
+#include "ZJetCuts.h"
 
 using namespace CalibFW;
 
@@ -221,12 +222,12 @@ TChain * g_pChain;
 
 EventDataVector g_trackedEvents;
 
-std::auto_ptr< CutHandler > g_cutHandler;
+std::auto_ptr<ZJetCutHandler> g_cutHandler;
 
 PtBinWeighter g_mcWeighter;
 
 typedef std::vector<ZJetPipelineSettings *> PipelineSettingsVector;
-typedef boost::ptr_vector<ZJetPipeline > PipelineVector;
+typedef boost::ptr_vector<ZJetPipeline> PipelineVector;
 
 PipelineSettingsVector g_pipeSettings;
 PipelineVector g_pipelines;
@@ -236,72 +237,75 @@ boost::ptr_vector<PtBin> g_newPtBins;
 
 void calcJetEnergyCorrection(EventResult * res, CompleteJetCorrector * pJetCorr)
 {/*
-	for (int i = 0; i < 3; i++)
-	{
-		pJetCorr->CalcCorrectionForEvent(res);
-	}*/
+ for (int i = 0; i < 3; i++)
+ {
+ pJetCorr->CalcCorrectionForEvent(res);
+ }*/
 
-  /*
-	not supported any more, use the CompleteJetCorrector
-  if ( g_corrWithFormula )
-	{
+	/*
+	 not supported any more, use the CompleteJetCorrector
+	 if ( g_corrWithFormula )
+	 {
 
-		res->m_l3CorrPtJets[0] = g_corrFormula->Eval( res->GetCorrectedJetPt( 0 ));
-		res->m_l3CorrPtJets[1] = g_corrFormula->Eval( res->GetCorrectedJetPt( 1 ));
-		res->m_l3CorrPtJets[2] = g_corrFormula->Eval( res->GetCorrectedJetPt( 2 ));
-		res->m_bUseL3 = true;
-	}
- */
-    
+	 res->m_l3CorrPtJets[0] = g_corrFormula->Eval( res->GetCorrectedJetPt( 0 ));
+	 res->m_l3CorrPtJets[1] = g_corrFormula->Eval( res->GetCorrectedJetPt( 1 ));
+	 res->m_l3CorrPtJets[2] = g_corrFormula->Eval( res->GetCorrectedJetPt( 2 ));
+	 res->m_bUseL3 = true;
+	 }
+	 */
+
 }
 
-double GetEventXSection ( EventResult & evt )
+double GetEventXSection(EventResult & evt)
 {
 	double xsec = 1.0f;
-	if ( g_globalXSection > 0.0f )
+	if (g_globalXSection > 0.0f)
 		xsec = g_globalXSection;
 	else
 		xsec = evt.m_pData->xsection;
-	
+
 	return xsec;
 }
+
 void RunPipelinesForEvent(EventResult & event)
 {
-	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
-			== g_pipelines.end()); it++)
+	// experimental: this section has been paralelized
+
+	unsigned int i = 0;
+#pragma omp parallel for
+
+/*	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
+			== g_pipelines.end()); it++)*/
+	for (i = 0; i < g_pipelines.size(); i++)
 	{
-		if (it->GetSettings()->GetLevel() == 1)
+		ZJetPipeline * pline = &g_pipelines[i];
+
+		if (pline->GetSettings()->GetLevel() == 1)
 		{
-//		    HIER GEHTS WEITER
-//          event.PipelineSettings = it->GetSettings();
+			//		    HIER GEHTS WEITER
+			//event.PipelineSettings = it->GetSettings();
 
-			g_cutHandler->ConfigureCuts(it->GetSettings());
-			it->m_corr.CalcCorrectionForEvent( &event );
-
-            // the fitting corrections have already been loaded with the pipeline
-            
-
-			g_cutHandler->ApplyCuts(&event);
+			g_cutHandler->ApplyCuts(&event, pline->GetSettings());
 
 			// don't run event if it was not accepted by JSON file.
 			// this events can contain "unphysical" results due to measurement errors
-
 			// IsValidEvent checks if in JSON and in HLT selection
-			if (g_cutHandler->IsValidEvent(&event))
-				it->RunEvent(event);
+			if (event.IsValidEvent())
+				pline->RunEvent(event);
 		}
 	}
 }
 
 void RunPipelines(int level)
 {
+	if (level == 1)
+		CALIB_LOG_FATAL( "This method can not be used for leve1 pipelines, use RunPipelinesForEvent instead" )
+
 	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
 			== g_pipelines.end()); it++)
 	{
 		if (it->GetSettings()->GetLevel() == level)
 		{
-            
-            
 
 			it->Run();
 		}
@@ -314,7 +318,6 @@ ZJetPipeline * CreateLevel2Pipeline()
 
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, jetresp, "jetresp" )
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, mpfresp, "mpfresp" )
-
 
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetCorrGraph, balance_jetcorr, "jetresp" )
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetCorrGraph, mpf_jetcorr, "mpfresp" )
@@ -336,15 +339,9 @@ ZJetPipeline * CreateLevel2Pipeline()
 	PLOT_GRAPHERRORS_COND1( pline, DrawMatchAvgCaloJetPtRatio, calo_pf_avg_ratio_vs_pf_pt, "jet1_calo_match_ptratio" )
 	PLOT_GRAPHERRORS_COND1( pline, DrawConstituents, jet1_constituents, "jet1_constituents" )
 	PLOT_GRAPHERRORS_COND2( pline, DrawMatchAvgAvgCaloJetPtRatio, calo_avg_pf_avg_ratio_vs_z_pt , "jet1_calo_match_pt", "jet1_pt" )
-	PLOT_GRAPHERRORS_COND1( pline, DrawMatchAvgCaloJetPtRatio, calo_pf_avg_ratio_vs_pf_pt, "jet1_calo_match_ptratio" )
 
-    PLOT_GRAPHERRORS_COND2( pline, DrawMatchAvgAvgCaloJetPtRatio, calo_avg_pf_avg_ratio_vs_z_pt , "jet1_calo_match_pt", "jet1_pt" )
-
-    PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, zmass, "zmass" )  
-        
-    // Matched Z
-    PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, matchedZ_ptratio, "matchedZ_ptratio" )
-    
+	// Matched Z
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, matchedZ_ptratio, "matchedZ_ptratio" )
 
 	return pline;
 }
@@ -356,21 +353,21 @@ void AddConsumerToPipeline(ZJetPipeline * pline, std::string consumerName)
 		pline->m_consumer.push_back(new EventStorerConsumer());
 	}
 
-	if (consumerName == CutStatisticsConsumer(g_cutHandler.get()).GetId())
-	{
-		pline->m_consumer.push_back(new CutStatisticsConsumer(g_cutHandler.get()));
-	}
+	 if (consumerName == CutStatisticsConsumer(g_cutHandler.get()).GetId())
+	 {
+	 pline->m_consumer.push_back(new CutStatisticsConsumer(g_cutHandler.get()));
+	 }
 }
 
 void AddConsumersToPipeline(ZJetPipeline * pline,
 		std::vector<std::string> consList)
 {
 	BOOST_FOREACH( std::string s, consList )
-{	CALIB_LOG( "Adding consumer " << s)
-	AddConsumerToPipeline( pline, s);
+	{
+		CALIB_LOG( "Adding consumer " << s)
+		AddConsumerToPipeline( pline, s);
+	}
 }
-}
-
 
 // Generates the default pipeline which is run on all events.
 // insert new Plots here if you want a new plot
@@ -385,7 +382,7 @@ ZJetPipeline * CreateDefaultPipeline()
 	 sname << i << "jetresp";
 	 */
 
-    PLOT_HIST1D(pline, DrawPartonFlavourConsumer, partonflavour )
+	PLOT_HIST1D(pline, DrawPartonFlavourConsumer, partonflavour )
 
 	PLOT_HIST1D(pline, DrawZMassConsumer, zmass)
 	PLOT_HIST1D(pline, DrawZPtConsumer, z_pt)
@@ -448,22 +445,22 @@ ZJetPipeline * CreateDefaultPipeline()
 	PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronEnergyFractionPtConsumer, jet1_neutralhadronenergy_fraction, 0)
 	PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronEnergyFractionPtConsumer, jet2_neutralhadronenergy_fraction, 1)
 	PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronEnergyFractionPtConsumer, jet3_neutralhadronenergy_fraction, 2)
-	
+
 	// ChargedEm Energy
 	PLOT_HIST1D_CONST1(pline, DrawJetChargedEmEnergyFractionPtConsumer, jet1_chargedemenergy_fraction, 0)
 	PLOT_HIST1D_CONST1(pline, DrawJetChargedEmEnergyFractionPtConsumer, jet2_chargedemenergy_fraction, 1)
 	PLOT_HIST1D_CONST1(pline, DrawJetChargedEmEnergyFractionPtConsumer, jet3_chargedemenergy_fraction, 2)
-	
+
 	// NeutralEm Energy
 	PLOT_HIST1D_CONST1(pline, DrawJetNeutralEmEnergyFractionPtConsumer, jet1_neutralemenergy_fraction, 0)
 	PLOT_HIST1D_CONST1(pline, DrawJetNeutralEmEnergyFractionPtConsumer, jet2_neutralemenergy_fraction, 1)
 	PLOT_HIST1D_CONST1(pline, DrawJetNeutralEmEnergyFractionPtConsumer, jet3_neutralemenergy_fraction, 2)
-	
+
 	// Electron Energy
 	PLOT_HIST1D_CONST1(pline, DrawJetElectronEnergyFractionPtConsumer, jet1_electronenergy_fraction, 0)
 	PLOT_HIST1D_CONST1(pline, DrawJetElectronEnergyFractionPtConsumer, jet2_electronenergy_fraction, 1)
 	PLOT_HIST1D_CONST1(pline, DrawJetElectronEnergyFractionPtConsumer, jet3_electronenergy_fraction, 2)
-	
+
 	// Muon Energy
 	PLOT_HIST1D_CONST1(pline, DrawJetMuonEnergyFractionPtConsumer, jet1_muonenergy_fraction, 0)
 	PLOT_HIST1D_CONST1(pline, DrawJetMuonEnergyFractionPtConsumer, jet2_muonenergy_fraction, 1)
@@ -473,49 +470,49 @@ ZJetPipeline * CreateDefaultPipeline()
 	PLOT_HIST1D_CONST1(pline, DrawJetPhotonEnergyFractionPtConsumer, jet1_photonenergy_fraction, 0)
 	PLOT_HIST1D_CONST1(pline, DrawJetPhotonEnergyFractionPtConsumer, jet2_photonenergy_fraction, 1)
 	PLOT_HIST1D_CONST1(pline, DrawJetPhotonEnergyFractionPtConsumer, jet3_photonenergy_fraction, 2)
-    
-    // Matched Z
-    PLOT_HIST1D(pline, DrawZMatchConsumer, matchedZ_ptratio)
-    
+
+	// Matched Z
+	PLOT_HIST1D(pline, DrawZMatchConsumer, matchedZ_ptratio)
+
 	// ChargedHadron Multiplicity
-    PLOT_HIST1D_CONST1(pline, DrawJetChargedHadronMultiplicityConsumer, jet1_chargedhadronmultiplicity, 0)
-    PLOT_HIST1D_CONST1(pline, DrawJetChargedHadronMultiplicityConsumer, jet2_chargedhadronmultiplicity, 1)
-    PLOT_HIST1D_CONST1(pline, DrawJetChargedHadronMultiplicityConsumer, jet3_chargedhadronmultiplicity, 2)
-    
-    // NeutralHadron Multiplicity
-    PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronMultiplicityConsumer, jet1_neutralhadronmultiplicity, 0)
-    PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronMultiplicityConsumer, jet2_neutralhadronmultiplicity, 1)
-    PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronMultiplicityConsumer, jet3_neutralhadronmultiplicity, 2)
-    
-    // Charged Multiplicity
-    PLOT_HIST1D_CONST1(pline, DrawJetChargedMultiplicityConsumer, jet1_chargedmultiplicity, 0)
-    PLOT_HIST1D_CONST1(pline, DrawJetChargedMultiplicityConsumer, jet2_chargedmultiplicity, 1)
-    PLOT_HIST1D_CONST1(pline, DrawJetChargedMultiplicityConsumer, jet3_chargedmultiplicity, 2)
-    
-    // Neutral Multiplicity
-    PLOT_HIST1D_CONST1(pline, DrawJetNeutralMultiplicityConsumer, jet1_neutralmultiplicity, 0)
-    PLOT_HIST1D_CONST1(pline, DrawJetNeutralMultiplicityConsumer, jet2_neutralmultiplicity, 1)
-    PLOT_HIST1D_CONST1(pline, DrawJetNeutralMultiplicityConsumer, jet3_neutralmultiplicity, 2)
-    
-    // Electron Multiplicity
-    PLOT_HIST1D_CONST1(pline, DrawJetElectronMultiplicityConsumer, jet1_electronmultiplicity, 0)
-    PLOT_HIST1D_CONST1(pline, DrawJetElectronMultiplicityConsumer, jet2_electronmultiplicity, 1)
-    PLOT_HIST1D_CONST1(pline, DrawJetElectronMultiplicityConsumer, jet3_electronmultiplicity, 2)
-    
-    // Muon Multiplicity
-    PLOT_HIST1D_CONST1(pline, DrawJetMuonMultiplicityConsumer, jet1_muonmultiplicity, 0)
-    PLOT_HIST1D_CONST1(pline, DrawJetMuonMultiplicityConsumer, jet2_muonmultiplicity, 1)
-    PLOT_HIST1D_CONST1(pline, DrawJetMuonMultiplicityConsumer, jet3_muonmultiplicity, 2)
-    
-    // Photon Multiplicity
-    PLOT_HIST1D_CONST1(pline, DrawJetPhotonMultiplicityConsumer, jet1_photonmultiplicity, 0)
-    PLOT_HIST1D_CONST1(pline, DrawJetPhotonMultiplicityConsumer, jet2_photonmultiplicity, 1)
-    PLOT_HIST1D_CONST1(pline, DrawJetPhotonMultiplicityConsumer, jet3_photonmultiplicity, 2)
-    
-    // Constituents
-    PLOT_HIST1D_CONST1(pline, DrawJetConstituentsConsumer, jet1_constituents, 0)
-    PLOT_HIST1D_CONST1(pline, DrawJetConstituentsConsumer, jet2_constituents, 1)
-    PLOT_HIST1D_CONST1(pline, DrawJetConstituentsConsumer, jet3_constituents, 2)
+	PLOT_HIST1D_CONST1(pline, DrawJetChargedHadronMultiplicityConsumer, jet1_chargedhadronmultiplicity, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetChargedHadronMultiplicityConsumer, jet2_chargedhadronmultiplicity, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetChargedHadronMultiplicityConsumer, jet3_chargedhadronmultiplicity, 2)
+
+	// NeutralHadron Multiplicity
+	PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronMultiplicityConsumer, jet1_neutralhadronmultiplicity, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronMultiplicityConsumer, jet2_neutralhadronmultiplicity, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetNeutralHadronMultiplicityConsumer, jet3_neutralhadronmultiplicity, 2)
+
+	// Charged Multiplicity
+	PLOT_HIST1D_CONST1(pline, DrawJetChargedMultiplicityConsumer, jet1_chargedmultiplicity, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetChargedMultiplicityConsumer, jet2_chargedmultiplicity, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetChargedMultiplicityConsumer, jet3_chargedmultiplicity, 2)
+
+	// Neutral Multiplicity
+	PLOT_HIST1D_CONST1(pline, DrawJetNeutralMultiplicityConsumer, jet1_neutralmultiplicity, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetNeutralMultiplicityConsumer, jet2_neutralmultiplicity, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetNeutralMultiplicityConsumer, jet3_neutralmultiplicity, 2)
+
+	// Electron Multiplicity
+	PLOT_HIST1D_CONST1(pline, DrawJetElectronMultiplicityConsumer, jet1_electronmultiplicity, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetElectronMultiplicityConsumer, jet2_electronmultiplicity, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetElectronMultiplicityConsumer, jet3_electronmultiplicity, 2)
+
+	// Muon Multiplicity
+	PLOT_HIST1D_CONST1(pline, DrawJetMuonMultiplicityConsumer, jet1_muonmultiplicity, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetMuonMultiplicityConsumer, jet2_muonmultiplicity, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetMuonMultiplicityConsumer, jet3_muonmultiplicity, 2)
+
+	// Photon Multiplicity
+	PLOT_HIST1D_CONST1(pline, DrawJetPhotonMultiplicityConsumer, jet1_photonmultiplicity, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetPhotonMultiplicityConsumer, jet2_photonmultiplicity, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetPhotonMultiplicityConsumer, jet3_photonmultiplicity, 2)
+
+	// Constituents
+	PLOT_HIST1D_CONST1(pline, DrawJetConstituentsConsumer, jet1_constituents, 0)
+	PLOT_HIST1D_CONST1(pline, DrawJetConstituentsConsumer, jet2_constituents, 1)
+	PLOT_HIST1D_CONST1(pline, DrawJetConstituentsConsumer, jet3_constituents, 2)
 
 	// Response
 	PLOT_HIST1D(pline, DrawJetRespConsumer, jetresp)
@@ -537,7 +534,8 @@ ZJetPipeline * CreateDefaultPipeline()
 
 	PLOT_HIST1D(pline, DrawRecoVertConsumer, recovert)
 
-	for (CutHandler::CutVector::iterator it = g_cutHandler->GetCuts().begin(); !(it
+	for (ZJetCutHandler::CutVector::iterator it =
+			g_cutHandler->GetCuts().begin(); !(it
 			== g_cutHandler->GetCuts().end()); it++)
 	{
 		GraphErrors * hist_CutIneff = new GraphErrors;
@@ -575,9 +573,8 @@ ZJetPipeline * CreateDefaultPipeline()
 	PLOT_HIST2D(pline, DrawEtaJet2PtConsumer, deltaeta_jet2_to_jet1_jet2_pt)
 	PLOT_HIST2D(pline, DrawEtaJet2RatioConsumer, deltaeta_jet2_to_jet1_ratioz)
 
-    // sec / third jet activity ... 
-    PLOT_HIST2D(pline, DrawJetActivityRecoVertMapConsumer, secondary_jet_activity)
-
+	// sec / third jet activity ...
+	PLOT_HIST2D(pline, DrawJetActivityRecoVertMapConsumer, secondary_jet_activity)
 
 	PLOT_GRAPHERRORS( pline, DrawDeltaPhiRange, deltaphi_test )
 
@@ -613,7 +610,7 @@ void importEvents(bool bUseJson,
 {
 	int entries = g_pChain->GetEntries();
 
-	if ( entries == 0 )
+	if (entries == 0)
 	{
 		CALIB_LOG_FATAL( "No input events in root files. Exiting ... ")
 	}
@@ -645,7 +642,7 @@ void importEvents(bool bUseJson,
 				lOverallNumberOfProcessedEvents += lProcEvents;
 
 				double xsec = g_ev.xsection;
-				if ( g_globalXSection > 0.0f )
+				if (g_globalXSection > 0.0f)
 					xsec = g_globalXSection;
 
 				if (g_useGlobalWeightBin && (!globalBinInitDone))
@@ -656,12 +653,11 @@ void importEvents(bool bUseJson,
 					globalBinInitDone = true;
 				}
 
-				g_mcWeighter.IncreaseCountByXSection( xsec,
-						TMath::Nint(pH->GetMean()));
+				g_mcWeighter.IncreaseCountByXSection(xsec, TMath::Nint(
+						pH->GetMean()));
 			}
 		}
 	}
-
 
 	if (g_useWeighting)
 		g_mcWeighter.Print();
@@ -669,6 +665,8 @@ void importEvents(bool bUseJson,
 	// cloning of a pipeline ?? goes here maybe
 	// clone default pipeline for the number of settings we have
 	g_pipelines.clear();
+
+	ZJetPipelineInitializer plineInit;
 
 	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 			== g_pipeSettings.end()); it++)
@@ -684,17 +682,19 @@ void importEvents(bool bUseJson,
 			(*it)->SetOverallNumberOfProcessedEvents(
 					lOverallNumberOfProcessedEvents);
 
-			pLine->InitPipeline(*it);
+			pLine->InitPipeline(*it, plineInit);
 
 			// setup jetcor for this algo
-			if ( (*it)->GetL2Corr().size() > 0 )
+			if ((*it)->GetL2Corr().size() > 0)
 			{
-				pLine->m_corr.AddCorrection(new L2Corr( g_sCurAlgo, (*it)->GetL2Corr() ));
+				pLine->m_corr.AddCorrection(new L2Corr(g_sCurAlgo,
+						(*it)->GetL2Corr()));
 			}
 
-			if ( (*it)->GetL3Corr().size() > 0 )
+			if ((*it)->GetL3Corr().size() > 0)
 			{
-				pLine->m_corr.AddCorrection(new L3Corr( g_sCurAlgo, (*it)->GetL3Corr() ));
+				pLine->m_corr.AddCorrection(new L3Corr(g_sCurAlgo,
+						(*it)->GetL3Corr()));
 			}
 
 			g_pipelines.push_back(pLine);
@@ -704,6 +704,9 @@ void importEvents(bool bUseJson,
 	CALIB_LOG_FILE( "Running " << g_pipelines.size() << " Pipeline(s) on events")
 	CALIB_LOG_FILE( "Processing " << entries << " events ...")
 	CALIB_LOG_FILE( "algo " << g_sCurAlgo)
+
+	double fStartTime = omp_get_wtime();
+
 	for (Long_t ievt = 0; ievt < entries; ++ievt)
 	{
 		g_pChain->GetEntry(ievt);
@@ -718,12 +721,12 @@ void importEvents(bool bUseJson,
 		{
 			if (g_useEventWeight)
 			{
-				res->SetWeight( res->m_pData->weight);
+				res->SetWeight(res->m_pData->weight);
 			}
 			else
 			{
-				res->SetWeight( g_mcWeighter.GetWeightByXSection(
-						GetEventXSection(*res) ));
+				res->SetWeight(g_mcWeighter.GetWeightByXSection(
+						GetEventXSection(*res)));
 			}
 		}
 
@@ -752,10 +755,14 @@ void importEvents(bool bUseJson,
 		it->FinishPipeline();
 	}
 
-	CALIB_LOG_FILE("All level 1 pipelines done")
-
+	double fRuntime = omp_get_wtime() - fStartTime;
+	CALIB_LOG_FILE(" ---- ")
+	CALIB_LOG_FILE("All level 1 pipelines done. Overall time: " << fRuntime << " s")
+	CALIB_LOG_FILE("Time per Event: " << std::setprecision(3) << ( (fRuntime / (double)entries) * 1000.0f ) << " ms" )
+	CALIB_LOG_FILE("Time per Event and Pipeline: " << std::setprecision(3) <<
+			( (fRuntime / (double)(entries * g_pipelines.size() )) * 1000.0f ) << " ms" )
+	CALIB_LOG_FILE(" ---- ")
 	CALIB_LOG_FILE("Running level 2 pipelines")
-
 
 	// cloning of a pipeline ?? goes here maybe
 	// clone default pipeline for the number of settings we have
@@ -773,7 +780,7 @@ void importEvents(bool bUseJson,
 			// set the algo used for this run
 			(*it)->SetAlgoName(g_sCurAlgo);
 
-			pLine->InitPipeline(*it);
+			pLine->InitPipeline(*it, plineInit);
 			g_pipelines.push_back(pLine);
 		}
 	}
@@ -806,7 +813,6 @@ TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 	pEv->pfProperties[1] = new PFProperties();
 	pEv->pfProperties[2] = new PFProperties();
 
-
 	pEv->mu_minus = new TParticle();
 	pEv->mu_plus = new TParticle();
 
@@ -826,7 +832,7 @@ TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 	// TParticles
 
 	mychain->SetBranchAddress("Z", &pEv->Z);
-    mychain->SetBranchAddress("matched_Z", &pEv->matched_Z);
+	mychain->SetBranchAddress("matched_Z", &pEv->matched_Z);
 	mychain->SetBranchAddress("jet", &pEv->jets[0]);
 	mychain->SetBranchAddress("jet2", &pEv->jets[1]);
 	mychain->SetBranchAddress("jet3", &pEv->jets[2]);
@@ -835,8 +841,8 @@ TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 
 	mychain->SetBranchAddress("met", &pEv->met);
 	mychain->SetBranchAddress("tcmet", &pEv->tcmet);
-    
-    mychain->SetBranchAddress("matrix_element_flavour", &pEv->partonFlavour );
+
+	mychain->SetBranchAddress("matrix_element_flavour", &pEv->partonFlavour);
 
 	// Triggers
 	mychain->SetBranchAddress("HLTriggers_accept", &pEv->HLTriggers_accept);
@@ -859,31 +865,31 @@ TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 	mychain->SetBranchAddress("matched_calo_jet2", &pEv->matched_calo_jets[1]);
 	mychain->SetBranchAddress("matched_calo_jet3", &pEv->matched_calo_jets[2]);
 
-	mychain->SetBranchAddress("pfjet_part1_properties",pEv->pfProperties[0]);
-	mychain->SetBranchAddress("pfjet_part2_properties",pEv->pfProperties[1]);
-	mychain->SetBranchAddress("pfjet_part3_properties",pEv->pfProperties[2]);
+	mychain->SetBranchAddress("pfjet_part1_properties", pEv->pfProperties[0]);
+	mychain->SetBranchAddress("pfjet_part2_properties", pEv->pfProperties[1]);
+	mychain->SetBranchAddress("pfjet_part3_properties", pEv->pfProperties[2]);
 
 	return mychain;
 }
 /*
-inline void PrintEvent(EventResult & data, std::ostream & out,
-		EventFormater * p = NULL, bool bAddNewline = true)
-{
-	EventFormater * pForm = p;
+ inline void PrintEvent(EventResult & data, std::ostream & out,
+ EventFormater * p = NULL, bool bAddNewline = true)
+ {
+ EventFormater * pForm = p;
 
-	if (pForm == NULL)
-		pForm = new EventFormater();
+ if (pForm == NULL)
+ pForm = new EventFormater();
 
-	pForm->FormatEventResultCorrected(out, &data);
+ pForm->FormatEventResultCorrected(out, &data);
 
-	if (bAddNewline)
-		out << std::endl;
+ if (bAddNewline)
+ out << std::endl;
 
-	if (p == NULL)
-		// own formater created, delete it again
-		delete pForm;
-}
-*/
+ if (p == NULL)
+ // own formater created, delete it again
+ delete pForm;
+ }
+ */
 void loadTrackedEventsFromFile(std::string fileName)
 {
 	ReadCsv csv(fileName);
@@ -951,27 +957,27 @@ void processAlgo()
 	g_iCurAlgoCount = 0;
 
 	BOOST_FOREACH( std::string sAlgo, algoList)
-	{	g_pChain = getChain(sAlgo, &g_ev, g_sSource);
-		g_sCurAlgo = sAlgo;
-		/*
-		 if (g_doMc)
-		 {
-		 sPrefix = "_mc";
-		 importEvents(false, true, g_mcExcludedEvents, false, &jetCorr);
+{	g_pChain = getChain(sAlgo, &g_ev, g_sSource);
+	g_sCurAlgo = sAlgo;
+	/*
+	 if (g_doMc)
+	 {
+	 sPrefix = "_mc";
+	 importEvents(false, true, g_mcExcludedEvents, false, &jetCorr);
 
-		 g_mcWeighter.Print();
-		 }
+	 g_mcWeighter.Print();
+	 }
 
-		 if (g_doData)
-		 {*/
-		importEvents(true, std::vector<ExcludedEvent *>(), false,
-				&jetCorr);
-		//}
+	 if (g_doData)
+	 {*/
+	importEvents(true, std::vector<ExcludedEvent *>(), false,
+			&jetCorr);
+	//}
 
-		g_iCurAlgoCount++;
+	g_iCurAlgoCount++;
 
-		delete g_pChain;
-	}
+	delete g_pChain;
+}
 
 }
 
@@ -1007,6 +1013,11 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	TIMING_INIT
+
+	TIMING_START( "config load" )
+
+
 
 
 	std::string jsonConfig = argv[1];
@@ -1017,6 +1028,10 @@ int main(int argc, char** argv)
 	g_logFile = new ofstream(sLogFileName.c_str(), ios_base::trunc);
 
 	CreateWeightBins();
+
+	// openmp setup
+	omp_set_num_threads(g_propTree.get<int> ("ThreadCount"));
+	CALIB_LOG_FILE( "Running with " <<  omp_get_max_threads() << " thread(s)" )
 
 	// input files
 	g_sSource = g_propTree.get<std::string> ("InputFiles");
@@ -1041,44 +1056,58 @@ int main(int argc, char** argv)
 	 */
 
 	// weighting settings
-	g_useEventWeight = g_propTree.get<bool> ("UseEventWeight");
-	g_useWeighting = g_propTree.get<bool> ("UseWeighting");
-	
-	g_useGlobalWeightBin = g_propTree.get<bool> ("UseGlobalWeightBin");
+	g_useEventWeight = g_propTree.get<bool> ("UseEventWeight", false);
+	g_useWeighting = g_propTree.get<bool> ("UseWeighting", false);
+
+	g_useGlobalWeightBin = g_propTree.get<bool> ("UseGlobalWeightBin", false);
 	g_globalXSection = g_propTree.get<double> ("GlobalXSection", 0.0f);
-	
+
 	g_eventReweighting = g_propTree.get<bool> ("EventReweighting", false);
-    
-    if ( g_eventReweighting )
-      CALIB_LOG_FILE( "\n\n --------> reweightin events for # reco !!\n\n" )
-    
-	g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
+
+	if (g_eventReweighting)
+		CALIB_LOG_FILE( "\n\n --------> reweightin events for # reco !!\n\n" )
+
+	if ( g_propTree.get("JsonFile", "") != "" )
+		g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
 
 	/*
 	 g_l2CorrFiles = p.getvString(secname + ".l2_correction_data");
 	 g_l3CorrFiles = p.getvString(secname + ".l3_correction_data");
 	 */
 
+	g_cutHandler.reset(new ZJetCutHandler());
 
-	g_cutHandler.reset ( new CutHandler() );
 	// init cuts
 	// values are set for each Pipeline individually
-	g_cutHandler->AddCut(new JsonCut(g_json.get()));
-	g_cutHandler->AddCut(new HltCut("DoubleMu"));
-	g_cutHandler->AddCut(new MuonPtCut(0.0));
-	g_cutHandler->AddCut(new MuonEtaCut());
-	g_cutHandler->AddCut(new LeadingJetEtaCut());
-	g_cutHandler->AddCut(new SecondLeadingToZPtCut(0.0));
-	g_cutHandler->AddCut(new BackToBackCut(0.0));
-	g_cutHandler->AddCut(new ZMassWindowCut(0.0));
-	g_cutHandler->AddCut(new JetPtCut(0.0));
-	g_cutHandler->AddCut(new ZPtCut(0.0));
-    g_cutHandler->AddCut(new SecondLeadingToZPtCutDir());
 
-	ZJetPipelineSettings * pset = NULL;
+	// technical cuts
+	 g_ZJetCuts.push_back(new JsonCut(g_json.get()));
+	 g_ZJetCuts.push_back(new HltCut());
 
-	BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
-			g_propTree.get_child("Pipelines") )
+	 // muon cuts
+	 g_ZJetCuts.push_back(new MuonEtaCut());
+	 g_ZJetCuts.push_back(new MuonPtCut() );
+	 g_ZJetCuts.push_back(new ZMassWindowCut());
+	 g_ZJetCuts.push_back(new ZPtCut());
+
+	 // jet cuts
+	 g_ZJetCuts.push_back(new LeadingJetEtaCut());
+	 g_ZJetCuts.push_back(new JetPtCut());
+
+	 // topology cuts
+	 //g_ZJetCuts.push_back(new SecondLeadingToZPtCutDir());
+	 g_ZJetCuts.push_back(new SecondLeadingToZPtCut());
+	 g_ZJetCuts.push_back(new BackToBackCut());
+
+
+	BOOST_FOREACH( ZJetCutBase * pCut, g_ZJetCuts )
+{	g_cutHandler->AddCut( pCut );
+}
+
+ZJetPipelineSettings * pset = NULL;
+
+BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
+		g_propTree.get_child("Pipelines") )
 {	pset = new ZJetPipelineSettings();
 	pset->SetPropTree( &g_propTree );
 
@@ -1089,6 +1118,8 @@ int main(int argc, char** argv)
 	g_pipeSettings.push_back( pset );
 }
 
+std::cout << TIMING_GET_RESULT_STRING << std::endl;
+
 processAlgo();
 g_resFile->Close();
 g_logFile->close();
@@ -1096,7 +1127,7 @@ g_logFile->close();
 CALIB_LOG_FILE("Output file " << sRootOutputFilename << " closed.")
 
 // todo this delete produces seg fault
-//delete g_logFile;
+delete g_logFile;
 
 return 0;
 }

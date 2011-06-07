@@ -63,6 +63,8 @@ def GetMcBaseConfig():
     d["UseGlobalWeightBin"] = 0
     
     d["InputType"] = "mc"
+    
+    d["ThreadCount"] = 2
 
     return d
 
@@ -182,11 +184,7 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
     secLevelPline[FolderPrefix + "sec_default"]["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"
     secLevelPline[FolderPrefix + "sec_default"]["RootFileFolder"] = FolderPrefix
 
-
-
     conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
-
-    conf["Pipelines"]["default"]["AdditionalConsumer"] = ["cut_statistics"]
 
     #merge all
     if useFolders:
