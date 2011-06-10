@@ -26,9 +26,9 @@ if not (inptype == "data" or inptype == "mc" ):
 	PrintUsageAndExit()
 
 if inptype == "data": 
-	conf = JsonConfigBase.GetMcBaseConfig()
-if inptype == "mc":
 	conf = JsonConfigBase.GetDataBaseConfig()
+if inptype == "mc":
+	conf = JsonConfigBase.GetMcBaseConfig()
 
 conf["Algos"] = algoname
 
