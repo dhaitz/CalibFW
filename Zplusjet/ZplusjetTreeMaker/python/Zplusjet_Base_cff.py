@@ -63,6 +63,9 @@ def getBaseConfig( Zlist , is_data):
 	
 	"""
 	process = cms.Process("DATA")
+	
+	process.load('CommonTools.ParticleFlow.pfNoPileUp_cff')
+	
 	p = process # shortcut!
 
 	# Count the number of processed events
@@ -98,7 +101,7 @@ def getBaseConfig( Zlist , is_data):
 	### Geometry and Detector Conditions (needed for a few patTuple production steps)
 	process.load("Configuration.StandardSequences.Services_cff")
 	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-	process.GlobalTag.globaltag = cms.string( 'GR_R_42_V12::All' )
+
 	##----------Import the JEC services -----------------------
 	process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 	##--------- Import the Jet RECO modules -------------------
@@ -129,7 +132,13 @@ def getBaseConfig( Zlist , is_data):
 
 	#process.load("JetMETCorrections.Configuration.JetCorrectionProducers_cff")
 
-	p.correctionPathLX= cms.Path(p.kt6PFJets * p.ak5PFJets *
+	# apply PF no PU 
+	process.ak5PFJetsNoPU = p.ak5PFJets.clone()
+	process.ak5PFJetsNoPU.src = 'pfNoPileUp'
+
+	p.correctionPathLX= cms.Path(
+		process.pfNoPileUpSequence * p.kt6PFJets * p.ak5PFJets *
+		p.ak5PFJetsNoPU *
 		p.ak5PFJetsL1 * p.ak5PFJetsL1L2 * p.ak5PFJetsL1L2L3 * #p.ak5PFJetsL1L2L3Res *
 #		p.ak5CaloJetsL1 * p.ak5CaloJetsL1L2 * p.ak5CaloJetsL1L2L3 * p.ak5CaloJetsL1L2L3Res *
 #		p.ak5JPTJetsL1 * p.ak5JPTJetsL1L2 * p.ak5JPTJetsL1L2L3 * p.ak5JPTJetsL1L2L3Res *
@@ -138,13 +147,9 @@ def getBaseConfig( Zlist , is_data):
 		#p.ak7JPTJetsL1 * p.ak7JPTJetsL1L2 * p.ak7JPTJetsL1L2L3 * p.ak7JPTJetsL1L2L3Res)
 	)
 	
-	process.readAK5PF = cms.EDAnalyzer('JetCorrectorDBReader', 
-			payloadName    = cms.untracked.string('AK5PF'),
-			printScreen    = cms.untracked.bool(False),
-			createTextFile = cms.untracked.bool(True),
-			globalTag      = cms.untracked.string('Jec11_V1')
-	  )
 
+
+	
 
 	# The gen jets matching --------------------------------------------------------
 
