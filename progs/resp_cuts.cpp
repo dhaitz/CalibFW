@@ -575,6 +575,7 @@ ZJetPipeline * CreateDefaultPipeline()
 
 	// sec / third jet activity ...
 	PLOT_HIST2D(pline, DrawJetActivityRecoVertMapConsumer, secondary_jet_activity)
+//PLOT_HIST2D(pline, Draw2ndJetCutNRVMapConsumer, secondary_jet_cut_over_nrv)
 
 	PLOT_GRAPHERRORS( pline, DrawDeltaPhiRange, deltaphi_test )
 
@@ -591,6 +592,7 @@ ZJetPipeline * CreateDefaultPipeline()
 	object_DrawJet2Pt->m_sQuantityName = "jet2_pt_deltaphi";
 	object_DrawJet2Pt->m_graph = hist_DrawJetPt;
 	pline->m_consumer.push_back(object_DrawJet2Pt);
+
 
 	//PLOT_GRAPHERRORS( pline, DrawJetRespBase, jetresp )
 	/*	Hist2D * hist = new Hist2D;
@@ -1030,7 +1032,7 @@ int main(int argc, char** argv)
 	CreateWeightBins();
 
 	// openmp setup
-	omp_set_num_threads(g_propTree.get<int> ("ThreadCount"));
+	omp_set_num_threads(g_propTree.get<int> ("ThreadCount", 1));
 	CALIB_LOG_FILE( "Running with " <<  omp_get_max_threads() << " thread(s)" )
 
 	// input files
