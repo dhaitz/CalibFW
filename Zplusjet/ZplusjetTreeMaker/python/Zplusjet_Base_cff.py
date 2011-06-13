@@ -110,9 +110,11 @@ def getBaseConfig( Zlist , is_data):
 	process.kt6PFJets.doRhoFastjet = True
 	##--------- Turn-on the FastJet jet area calculation for your algorithm ----
 	process.ak5PFJets.doAreaFastjet = True
+        process.ak7PFJets.doAreaFastjet = True
+
 
 	process.ak5PFJetsL1 = cms.EDProducer("PFJetCorrectionProducer",
-		src = cms.InputTag("ak5PFJets"),
+      		src = cms.InputTag("ak5PFJets"),
 		correctors = cms.vstring('ak5PFL1')
 	)
 	
@@ -125,20 +127,43 @@ def getBaseConfig( Zlist , is_data):
 	p.ak5PFJetsL1L2 = p.ak5PFJetsL1.clone(correctors = ['ak5PFL2Relative'],src='ak5PFJetsL1')
 	p.ak5PFJetsL1L2L3 = p.ak5PFJetsL1.clone(correctors = ['ak5PFL1L2L3'])
 #	p.ak5PFJetsL1L2L3Res = p.ak5PFJetsL1.clone(correctors = ['ak5PFL1L2L3Residual'])
-	p.ak7PFJetsL1 = p.ak7PFJetsL1.clone(correctors = ['ak5PFL1Offset'])
-	p.ak7PFJetsL1L2 = p.ak7PFJetsL1.clone(correctors = ['ak5PFL2Relative'],src='ak5PFJetsL1')
-	p.ak7PFJetsL1L2L3 = p.ak7PFJetsL1.clone(correctors = ['ak5PFL1L2L3'])
+	p.ak7PFJetsL1 = p.ak7PFJetsL1.clone(correctors = ['ak7PFL1Offset'])
+	p.ak7PFJetsL1L2 = p.ak7PFJetsL1.clone(correctors = ['ak7PFL2Relative'],src='ak7PFJetsL1')
+	p.ak7PFJetsL1L2L3 = p.ak7PFJetsL1.clone(correctors = ['ak7PFL1L2L3'])
 #	p.ak7PFJetsL1L2L3Res = p.ak7PFJetsL1.clone(correctors = ['ak5PFL1L2L3Residual'])
 
 	#process.load("JetMETCorrections.Configuration.JetCorrectionProducers_cff")
 
 	# apply PF no PU 
 	process.ak5PFJetsNoPU = p.ak5PFJets.clone()
-	process.ak5PFJetsNoPU.src = 'pfNoPileUp'
+	process.ak5PFJetsNoPU.src = cms.InputTag("pfNoPileUp")
+
+        process.ak5PFJetsL1NoPU = p.ak5PFJetsL1.clone()
+        process.ak5PFJetsL1NoPU.src = cms.InputTag("ak5PFJetsNoPU")
+
+        process.ak5PFJetsL1L2NoPU = p.ak5PFJetsL1L2.clone()
+        process.ak5PFJetsL1L2NoPU.src = cms.InputTag("ak5PFJetsL1NoPU")
+
+        process.ak5PFJetsL1L2L3NoPU = p.ak5PFJetsL1L2L3.clone()
+        process.ak5PFJetsL1L2L3NoPU.src = cms.InputTag("ak5PFJetsNoPU")
+
+        process.ak7PFJetsNoPU = p.ak7PFJets.clone()
+        process.ak7PFJetsNoPU.src = 'pfNoPileUp'
+
+        process.ak7PFJetsL1NoPU = p.ak7PFJetsL1.clone()
+        process.ak7PFJetsL1NoPU.src = 'pfNoPileUp' 
+
+        process.ak7PFJetsL1L2NoPU = p.ak7PFJetsL1L2.clone()
+        process.ak7PFJetsL1L2NoPU.src = 'pfNoPileUp' 
+
+        process.ak7PFJetsL1L2L3NoPU = p.ak7PFJetsL1L2L3.clone()
+        process.ak7PFJetsL1L2L3NoPU.src = 'pfNoPileUp'
 
 	p.correctionPathLX= cms.Path(
-		process.pfNoPileUpSequence * p.kt6PFJets * p.ak5PFJets *
-		p.ak5PFJetsNoPU *
+		process.pfNoPileUpSequence * p.kt6PFJets * 
+		p.ak5PFJets * p.ak5PFJetsNoPU * 
+	        p.ak5PFJetsL1NoPU * p.ak5PFJetsL1L2NoPU * p.ak5PFJetsL1L2L3NoPU *
+		#p.ak7PFJetsNoPU * p.ak7PFJetsL1NoPU * p.ak7PFJetsL1L2NoPU * p.ak7PFJetsL1L2L3NoPU *
 		p.ak5PFJetsL1 * p.ak5PFJetsL1L2 * p.ak5PFJetsL1L2L3 * #p.ak5PFJetsL1L2L3Res *
 #		p.ak5CaloJetsL1 * p.ak5CaloJetsL1L2 * p.ak5CaloJetsL1L2L3 * p.ak5CaloJetsL1L2L3Res *
 #		p.ak5JPTJetsL1 * p.ak5JPTJetsL1L2 * p.ak5JPTJetsL1L2L3 * p.ak5JPTJetsL1L2L3Res *
