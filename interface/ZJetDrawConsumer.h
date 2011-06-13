@@ -608,6 +608,33 @@ public:
 	}
 };
 
+class Draw2ndJetCutNRVMapConsumer: public ZJetHist2D
+{
+public:
+	Draw2ndJetCutNRVMapConsumer()
+	{
+	}
+
+	virtual void Init(ZJetPipeline * pset)
+	{
+		// magic master switch
+		m_hist->m_bDoProfile = true;
+
+		m_hist->AddModifier(new ModHist2DBinRange(-0.5, 14.5, 0.0f, 3.0f));
+		m_hist->AddModifier(new ModHist2DBinCount(15, 30));
+
+		ZJetHist2D::Init(pset);
+	}
+
+	virtual void ProcessFilteredEvent(EventResult & res)
+	{
+		if (res.IsJetValid(1))
+		{
+			m_hist->Fill(res.GetRecoVerticesCount(), res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt(), res.GetWeight());
+		}
+	}
+};
+
 class DrawDeltaRJetMapConsumer: public DrawDeltaRMapConsumer
 {
 public:
@@ -957,13 +984,12 @@ public:
 
 	// this method is called for all events
 	virtual void ProcessEvent(EventResult & event, FilterResult & result)
-	{/*
-	 if ( ! CutHandler::IsValidEvent( &event))
-	 return;
+	{
+		if ( ! event.IsValidEvent())
+			return;
 
-	 if (CutHandler::IsCutInBitmask( m_iCutId, event.m_cutBitmask ))
-	 m_hist_rejected.Fill( m_xProvider.GetXValue( event ), event.GetWeight( ) );
-	 */
+		if ( event.IsCutInBitmask( m_iCutId ))
+			m_hist_rejected.Fill( m_xProvider.GetXValue( event ), event.GetWeight( ) );
 
 		m_hist_overall.Fill(m_xProvider.GetXValue(event), event.GetWeight());
 	}

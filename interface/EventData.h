@@ -384,10 +384,16 @@ public:
 	}
 
 	bool IsValidEvent();
-
+/*
 	bool IsCutInBitmask(unsigned long cutId, unsigned long bitmask)
 	{
 		return (cutId & bitmask) > 0;
+	}*/
+
+
+	bool IsCutInBitmask(unsigned long cutId)
+	{
+		return (cutId & this->m_cutBitmask) > 0;
 	}
 
 	bool IsInCut()

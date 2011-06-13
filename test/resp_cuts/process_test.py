@@ -3,13 +3,26 @@ import JsonConfigBase
 import LocalConfigBase
 import sys
 import copy
+import subprocess
+
+doCompare = False
+
+gitrev = subprocess.Popen("git log -n 1 | head -n 1" , stdout=subprocess.PIPE, shell=True).stdout.read()
+#create an output file with the current git revision
+gitrev = gitrev.split(" ")[1]
+print "HEAD git revision: " + gitrev
 
 conf = JsonConfigBase.GetMcBaseConfig()
-
 conf["Algos"] = [ "ak5PFJets" ]
-
 conf["InputFiles"] = "data/eval/mc_cmssw38.root"
-conf["OutputPath"] = "resp_cuts_test"
+
+if len(sys.argv) > 1 and sys.argv[1] == "compareToHead":
+     conf["OutputPath"] = "test/resp_cuts/mc_cmssw38_current"
+     doCompare = True
+else:
+     conf["OutputPath"] = "test/resp_cuts/mc_cmssw38_git_" + gitrev 
+
+print "writing to " + conf["OutputPath"] 
 
 conf["UseWeighting"] = 0
 #conf["UseEventWeight"] = 1
@@ -42,3 +55,4 @@ conf["Pipelines"]["default"]["AdditionalConsumer"] = ["cut_statistics"]
 
 JsonConfigBase.Run( conf, sys.argv[0] + ".json")
 
+# compare somewhere down here 

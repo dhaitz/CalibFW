@@ -30,6 +30,11 @@ public:
 	{
 		m_cutRejected.clear();
 		m_eventCount = 0;
+		m_conditional2ndJetPtCut = 0;
+		m_conditionalDeltaPhiCut = 0;
+
+		m_conditional2ndJetPtCutBase = 0;
+		m_conditionalDeltaPhiCutBase = 0;
 
 		BOOST_FOREACH( ZJetCutBase * c, m_pCutHandler->GetCuts() )
 		{
@@ -46,7 +51,7 @@ virtual std::string GetId()
 
 virtual void Finish()
 {
-	CALIB_LOG_FILE("Cut Report:")
+	CALIB_LOG_FILE("Cut Report for " << this->GetPipelineSettings()->GetRootFileFolder() )
 	CALIB_LOG_FILE("Overall Event Count: " << m_eventCount )
 
 	unsigned long overallCountLeft = m_eventCount;
@@ -90,6 +95,14 @@ virtual void Finish()
 		}
 	}
 	CALIB_LOG_FILE( "Events left after Cuts : " << overallCountLeft )
+
+	CALIB_LOG_FILE( "-- Cut correlations --" )
+	CALIB_LOG_FILE( "P( DeltaPhi | 2ndJetCut ) = "
+			<< ( (float) m_conditional2ndJetPtCut/ (float ) m_conditional2ndJetPtCutBase) <<  " [ "
+			<< m_conditional2ndJetPtCut << ", " << m_conditional2ndJetPtCutBase << " ]")
+	CALIB_LOG_FILE( "P( 2ndJetCut | DeltaPhi ) = "
+		<< ( (float) m_conditionalDeltaPhiCut/ (float ) m_conditionalDeltaPhiCutBase) <<  " [ "
+		<< m_conditionalDeltaPhiCut << ", " << m_conditionalDeltaPhiCutBase << " ]")
 }
 
 // this method is only called for events which have passed the filter imposed on the
@@ -109,7 +122,7 @@ virtual void ProcessEvent(EventResult & event, FilterResult & result)
 	{
 		if (  ZJetCutHandler::IsCutEnabled( c, this->GetPipelineSettings() ))
 		{
-			if ( m_pCutHandler->IsCutInBitmask( c->GetId(), event.m_cutBitmask ))
+			if ( event.IsCutInBitmask( c->GetId()))
 			{
 				m_cutRejected[ c->GetCutShortName() ]++;
 				// we only want to store the number of events, which were effectively kicked by one
@@ -118,10 +131,32 @@ virtual void ProcessEvent(EventResult & event, FilterResult & result)
 			}
 		}
 	}
+
+	if ( event.IsCutInBitmask( SecondLeadingToZPtCut::CudId ))
+	{
+		m_conditional2ndJetPtCutBase++;
+		if ( event.IsCutInBitmask( BackToBackCut::CudId ))
+			m_conditional2ndJetPtCut++;
+	}
+
+	if ( event.IsCutInBitmask( BackToBackCut::CudId ))
+	{
+		m_conditionalDeltaPhiCutBase++;
+		if ( event.IsCutInBitmask( SecondLeadingToZPtCut::CudId ))
+			m_conditionalDeltaPhiCut++;
+	}
+
 }
 
 ZJetCutHandler * m_pCutHandler;
 std::map<std::string, unsigned long> m_cutRejected;
+
+unsigned long m_conditional2ndJetPtCut;
+unsigned long m_conditional2ndJetPtCutBase;
+
+unsigned long m_conditionalDeltaPhiCut;
+unsigned long m_conditionalDeltaPhiCutBase;
+
 unsigned long m_eventCount;
 };
 

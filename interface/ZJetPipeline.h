@@ -48,6 +48,11 @@ IMPL_SETTING(double, FilterSecondJetRatioLow)
 IMPL_SETTING(double, FilterSecondJetRatioHigh)
 IMPL_SETTING(unsigned long, FilterInCutIgnored)
 
+
+IMPL_SETTING(bool, Filter2ndJetPtCutSet)
+IMPL_SETTING(bool, FilterDeltaPhiCutSet)
+
+
 IMPL_SETTING(std::string, AlgoName)
 IMPL_SETTING(std::string, RootFileFolder)
 IMPL_SETTING(std::string, SecondLevelFolderTemplate)
@@ -319,6 +324,35 @@ public:
 	};
 	BinWithEnum m_binWith;
 };
+
+// Allows to select only events with a specific cut signature
+class CutSelectionFilter: public ZJetFilterBase
+{
+public:
+	CutSelectionFilter() :
+		ZJetFilterBase()
+	{
+
+	}
+
+	virtual bool DoesEventPass(EventResult & event)
+	{
+		if ( GetPipelineSettings()->GetFilter2ndJetPtCutSet() !=  event.IsCutInBitmask( 16  ))
+			return false;
+
+		if ( GetPipelineSettings()->GetFilterDeltaPhiCutSet() != event.IsCutInBitmask( 32  ))
+			return false;
+
+		return true;
+	}
+
+	virtual std::string GetFilterId()
+	{
+		return "cutselection";
+	}
+
+};
+
 
 class InCutFilter: public ZJetFilterBase
 {

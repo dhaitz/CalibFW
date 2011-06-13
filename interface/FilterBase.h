@@ -47,7 +47,7 @@ public:
 
 	virtual std::string ToString(bool bVerbose = false)
 	{
-		return "FilterBase";
+		return GetFilterId();
 	}
 
 	TSettings * GetPipelineSettings()
