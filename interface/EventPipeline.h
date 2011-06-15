@@ -77,6 +77,7 @@ template <class TData, class TSettings>
 class PipelineInitilizerBase
 {
 public:
+	virtual ~PipelineInitilizerBase() {}
 	virtual void InitPipeline( EventPipeline <TData, TSettings> * pLine,
 						TSettings * pset ) = 0;
 
