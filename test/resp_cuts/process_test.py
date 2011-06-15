@@ -9,7 +9,7 @@ doCompare = False
 
 gitrev = subprocess.Popen("git log -n 1 | head -n 1" , stdout=subprocess.PIPE, shell=True).stdout.read()
 #create an output file with the current git revision
-gitrev = gitrev.split(" ")[1]
+gitrev = gitrev.split(" ")[1].strip()
 print "HEAD git revision: " + gitrev
 
 conf = JsonConfigBase.GetMcBaseConfig()
