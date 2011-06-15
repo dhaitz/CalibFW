@@ -686,19 +686,6 @@ void importEvents(bool bUseJson,
 
 			pLine->InitPipeline(*it, plineInit);
 
-			// setup jetcor for this algo
-			if ((*it)->GetL2Corr().size() > 0)
-			{
-				pLine->m_corr.AddCorrection(new L2Corr(g_sCurAlgo,
-						(*it)->GetL2Corr()));
-			}
-
-			if ((*it)->GetL3Corr().size() > 0)
-			{
-				pLine->m_corr.AddCorrection(new L3Corr(g_sCurAlgo,
-						(*it)->GetL3Corr()));
-			}
-
 			g_pipelines.push_back(pLine);
 		}
 	}

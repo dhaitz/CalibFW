@@ -1,9 +1,13 @@
 #pragma once
 
-#include "EventPipeline.h"
+#include <boost/noncopyable.hpp>
 
 namespace CalibFW
 {
+
+// forward define to be able to use the event pipeline here
+template<class TData, class TSettings>
+class EventPipeline;
 
 class FilterResult
 {
@@ -17,17 +21,13 @@ public:
 	{
 		return m_bHasPassed;
 	}
-	;
 
 private:
 	bool m_bHasPassed;
 };
 
 template<class TData, class TSettings>
-class EventPipeline;
-
-template<class TData, class TSettings>
-class FilterBase
+class FilterBase: public boost::noncopyable
 {
 public:
 	virtual ~FilterBase()

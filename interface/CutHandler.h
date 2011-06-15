@@ -28,6 +28,7 @@ public:
 	virtual std::string GetCutName() { return "No Cut Name given";}
 	virtual std::string GetCutShortName() = 0;
 
+	virtual ~EventCutBase(){}
 };
 
 

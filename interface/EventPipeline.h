@@ -1,30 +1,12 @@
 #pragma once
 
-#include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/foreach.hpp>
-
-#include <boost/property_tree/ptree.hpp>
-
-#include <memory>
 #include <vector>
 
-#include <sstream>
-#include <typeinfo>
+#include <boost/noncopyable.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
-#include "GlobalInclude.h"
-
-#include "Json_wrapper.h"
-
-#include "RootIncludes.h"
-
-#include "PtBinWeighter.h"
-//#include "EventData.h"
-#include "CompleteJetCorrector.h"
 #include "PipelineSettings.h"
 #include "FilterBase.h"
-/*
- This macro implements a Setting Propery including the property tree get\put methods
- */
 
 namespace CalibFW
 {
@@ -34,7 +16,7 @@ class EventPipeline;
 
 
 template<class TData, class TSettings>
-class EventConsumerBase
+class EventConsumerBase : public boost::noncopyable
 {
 public:
 	virtual ~EventConsumerBase() {}
@@ -83,7 +65,7 @@ public:
 };
 
 template <class TData, class TSettings>
-class EventPipeline
+class EventPipeline : public boost::noncopyable
 {
 public:
 
@@ -127,6 +109,9 @@ public:
 
 	}
 
+	/*
+	 * Run the pipeline without specific event input.
+	 */
 	void Run()
 	{
 		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
@@ -136,6 +121,9 @@ public:
 		}
 	}
 
+	/*
+	 * Run the pipeline with one specific event as input
+	 */
 	void RunEvent(TData & evt)
 	{
 
@@ -194,7 +182,6 @@ public:
 
 	ConsumerVector m_consumer;
 	FilterVector m_filter;
-	CompleteJetCorrector m_corr;
 
 	TSettings * m_pipelineSettings;
 };
