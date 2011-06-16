@@ -111,7 +111,7 @@ public:
 
 	// this method is only called for events which have passed the filter imposed on the
 	// pipeline
-	virtual void ProcessFilteredEvent(EventResult & event)
+	virtual void ProcessFilteredEvent(EventResult const& event)
 	{		
 		 m_localData.Z = new TParticle(*event.m_pData->Z);
 //          m_localData.matched_Z = new TParticle(*event.m_pData->matched_Z);

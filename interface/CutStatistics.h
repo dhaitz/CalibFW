@@ -107,13 +107,13 @@ virtual void Finish()
 
 // this method is only called for events which have passed the filter imposed on the
 // pipeline
-virtual void ProcessFilteredEvent(EventResult & event)
+virtual void ProcessFilteredEvent(EventResult const& event)
 {
 
 }
 
 // this method is called for all events
-virtual void ProcessEvent(EventResult & event, FilterResult & result)
+virtual void ProcessEvent(EventResult const& event, FilterResult & result)
 {
 	// TODO: only use events, which did pass all filters except incut
 

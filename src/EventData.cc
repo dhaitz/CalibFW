@@ -3,7 +3,7 @@
 
 using namespace CalibFW;
 
-bool EventResult::IsValidEvent()
+bool EventResult::IsValidEvent() const
 {
 		return (! IsCutInBitmask( JsonCut::CudId ) &&
 				! IsCutInBitmask( HltCut::CudId));

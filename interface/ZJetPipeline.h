@@ -193,7 +193,7 @@ public:
 
 	}
 
-	virtual bool DoesEventPass(EventResult & event)
+	virtual bool DoesEventPass(const EventResult & event)
 	{
 		//return (  event.GetRecoVerticesCount()  == m_pipelineSettings->GetFilterRecoVertLow() );
 		return (event.GetRecoVerticesCount()
@@ -217,7 +217,7 @@ public:
 
 	}
 
-	virtual bool DoesEventPass(EventResult & event)
+	virtual bool DoesEventPass(const EventResult & event)
 	{
 		//return (  event.GetRecoVerticesCount()  == m_pipelineSettings->GetFilterRecoVertLow() );
 		return (TMath::Abs(event.m_pData->jets[0]->Eta())
@@ -240,7 +240,7 @@ public:
 	{
 	}
 
-	virtual bool DoesEventPass(EventResult & event)
+	virtual bool DoesEventPass(const EventResult & event)
 	{
 		bool bPass = true;
 		double fBinVal = event.GetCorrectedJetPt(1) / event.m_pData->Z->Pt();
@@ -269,7 +269,7 @@ public:
 
 	}
 
-	virtual bool DoesEventPass(EventResult & event)
+	virtual bool DoesEventPass(const EventResult & event)
 	{
 		bool bPass = true;
 		double fBinVal;
@@ -334,8 +334,10 @@ public:
 
 	}
 
-	virtual bool DoesEventPass(EventResult & event)
+	virtual bool DoesEventPass( const  EventResult & event)
 	{
+		event.IsCutInBitmask(16);
+
 		if (GetPipelineSettings()->GetFilter2ndJetPtCutSet()
 				!= event.IsCutInBitmask(16))
 			return false;
@@ -358,7 +360,7 @@ class InCutFilter: public ZJetFilterBase
 {
 public:
 
-	virtual bool DoesEventPass(EventResult & event)
+	virtual bool DoesEventPass(const EventResult & event)
 	{
 		unsigned long ignoredCut =
 				GetPipelineSettings()->GetFilterInCutIgnored();

@@ -75,7 +75,7 @@ virtual void Init(ZJetPipeline * pset) { \
 	m_hist->AddModifier( MOD1 );	\
 	ZJetHist1D::Init(pset); \
 }	\
-virtual void ProcessFilteredEvent(EventResult & res) { \
+virtual void ProcessFilteredEvent(EventResult const& res) { \
 DATAPATH  }}; \
 
 
@@ -86,7 +86,7 @@ virtual void Init(ZJetPipeline * pset) { \
 	m_hist->AddModifier( MOD1 ); m_hist->AddModifier( MOD2 );	\
 	ZJetHist1D::Init(pset); \
 }	\
-virtual void ProcessFilteredEvent(EventResult & res) { \
+virtual void ProcessFilteredEvent(EventResult const& res) { \
 DATAPATH  }}; \
 
 #define IMPL_HIST1D_JET_MOD1(CLASSNAME, DATAPATH, MOD1)	\
@@ -97,7 +97,7 @@ virtual void Init(ZJetPipeline * pset) { \
 	m_hist->AddModifier( MOD1 );	\
 	DrawJetConsumerBase::Init(pset); \
 }	\
-virtual void ProcessFilteredEvent(EventResult & res) { \
+virtual void ProcessFilteredEvent(EventResult const& res) { \
 DATAPATH  }}; \
 
 
@@ -109,7 +109,7 @@ virtual void Init(ZJetPipeline * pset) { \
 	m_hist->AddModifier( MOD1 ); m_hist->AddModifier( MOD2 );	\
 	DrawJetConsumerBase::Init(pset); \
 }	\
-virtual void ProcessFilteredEvent(EventResult & res) { \
+virtual void ProcessFilteredEvent(EventResult const& res) { \
 DATAPATH  }}; \
 
 
@@ -137,26 +137,6 @@ public:
  from a development point of view
  enum ZMassDraw{};
 
- template <class TDrawType>
- class DrawHistTemplate: public DrawHist1dConsumerBase<EventResult>
- {
- public:
- virtual void Init(EventPipeline * pset)
- {
- //	m_hist->AddModifier( MOD1 );
- DrawHist1dConsumerBase<EventResult>::Init(pset);
- }
- virtual void ProcessFilteredEvent(EventResult & res)
- {
- // do fill here
- }
- };
-
- template<>
- void DrawHistTemplate<ZMassDraw>::ProcessFilteredEvent(EventResult & res)
- {
-
- }
 
  */
 
@@ -531,7 +511,7 @@ public:
 
 		ZJetHist1D::Init(pset);
 	}
-	virtual void ProcessFilteredEvent(EventResult & res)
+	virtual void ProcessFilteredEvent(EventResult const& res)
 	{
 		m_hist->Fill(res.m_pData->Z->Pt(), res.GetWeight());
 	}
@@ -562,7 +542,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult & res)
+	virtual void ProcessFilteredEvent(EventResult const& res)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -597,7 +577,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult & res)
+	virtual void ProcessFilteredEvent(EventResult const& res)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -625,7 +605,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult & res)
+	virtual void ProcessFilteredEvent(EventResult const& res)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -642,7 +622,7 @@ public:
 	{
 	}
 
-	virtual void ProcessFilteredEvent(EventResult & res)
+	virtual void ProcessFilteredEvent(EventResult const& res)
 	{
 		if (res.IsJetValid(m_jetNum))
 		{
@@ -672,7 +652,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult & res)
+	virtual void ProcessFilteredEvent(EventResult const& res)
 	{
 		if (res.IsJetValid(m_jetNum))
 		{
@@ -702,7 +682,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult & res)
+	virtual void ProcessFilteredEvent(EventResult const& res)
 	{
 		if (res.IsJetValid(m_jetNum))
 		{
@@ -741,7 +721,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult & res)
+	virtual void ProcessFilteredEvent(EventResult const& res)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -764,7 +744,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult & res)
+	virtual void ProcessFilteredEvent(EventResult const& res)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -788,7 +768,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult & res)
+	virtual void ProcessFilteredEvent(EventResult const& res)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -811,7 +791,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult & res)
+	virtual void ProcessFilteredEvent(EventResult const& res)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -830,7 +810,7 @@ public:
 	{
 	}
 
-	virtual void ProcessFilteredEvent(EventResult & res)
+	virtual void ProcessFilteredEvent(EventResult const& res)
 	{
 		if (res.IsJetValid(m_jetNum))
 		{
@@ -850,7 +830,7 @@ public:
 	virtual ~GraphXProviderBase()
 	{
 	}
-	virtual double GetXValue(EventResult & event) = 0;
+	virtual double GetXValue(EventResult const& event) = 0;
 
 };
 
@@ -869,7 +849,7 @@ public:
 	{
 		return 45;
 	}
-	virtual double GetXValue(EventResult & event)
+	virtual double GetXValue(EventResult const& event)
 	{
 		return event.m_pData->Z->Pt();
 	}
@@ -890,7 +870,7 @@ public:
 	{
 		return 15;
 	}
-	virtual double GetXValue(EventResult & event)
+	virtual double GetXValue(EventResult const& event)
 	{
 		return event.GetRecoVerticesCount();
 	}
@@ -900,7 +880,7 @@ template<int TJetNum>
 class GraphXProviderJetPhiDeltaZ: public GraphXProviderBase
 {
 public:
-	virtual double GetXValue(EventResult & event)
+	virtual double GetXValue(EventResult const& event)
 	{
 		return DeltaHelper::GetDeltaPhiCenterZero(event.m_pData->Z,
 				event.m_pData->jets[TJetNum]);
@@ -952,7 +932,7 @@ public:
 	}
 
 	// this method is called for all events
-	virtual void ProcessFilteredEvent(EventResult & event)
+	virtual void ProcessFilteredEvent(EventResult const& event)
 	{
 		m_graph->AddPoint(m_xProvider.GetXValue(event),
 				event.GetCorrectedJetPt(this->m_jetNum), 0.0f, 0.0f);
@@ -982,7 +962,7 @@ public:
 	}
 
 	// this method is called for all events
-	virtual void ProcessEvent(EventResult & event, FilterResult & result)
+	virtual void ProcessEvent(EventResult const& event, FilterResult & result)
 	{
 		if ( ! event.IsValidEvent())
 			return;

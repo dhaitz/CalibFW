@@ -11,15 +11,37 @@
 namespace CalibFW
 {
 
-template <class TData, class TMetaData, class TSettings>
+template<class TData, class TMetaData, class TSettings>
 class EventPipeline;
 
-
-template<class TData, class TMetaData, class TSettings>
-class EventConsumerBase : public boost::noncopyable
+class EventMetaDataBase: public boost::noncopyable
 {
 public:
-	virtual ~EventConsumerBase() {}
+	virtual ~EventMetaDataBase()
+	{
+	}
+};
+
+/*
+ * This producer creates meta-data for a pipeline and event before the filter or the consumer are run
+ * Meta data producer have to be stateless since they are used by multiple threads
+ */
+template<class TData, class TMetaData, class TSettings>
+class MetaDataProducerBase: public boost::noncopyable
+{
+public:
+	virtual void CreateMetaData(TData const& data, TMetaData const& metaData,
+			TSettings *m_pipelineSettings) = 0;
+
+};
+
+template<class TData, class TMetaData, class TSettings>
+class EventConsumerBase: public boost::noncopyable
+{
+public:
+	virtual ~EventConsumerBase()
+	{
+	}
 	virtual void Init(EventPipeline<TData, TMetaData, TSettings> * pset)
 	{
 		m_pipeline = pset;
@@ -28,16 +50,16 @@ public:
 
 	// this method is only called for events which have passed the filter imposed on the
 	// pipeline
-	virtual void ProcessFilteredEvent(TData & event)
+	virtual void ProcessFilteredEvent(TData const& event)
 	{
 	}
 
 	// this method is called for all events
-	virtual void ProcessEvent(TData & event, FilterResult & result)
+	virtual void ProcessEvent(TData const& event, FilterResult & result)
 	{
 	}
 
-	// this method is called for seconddary pipelines
+	// this method is called for secondary pipelines
 	virtual void Process()
 	{
 	}
@@ -48,50 +70,56 @@ public:
 	}
 
 	TSettings * GetPipelineSettings()
-		{
+	{
 		return this->m_pipeline->GetSettings();
-		}
+	}
 
 	EventPipeline<TData, TMetaData, TSettings> * m_pipeline;
 };
 
-class EventMetaDataBase
-{
-// stuff like filter results can go here	
-
-};
-
-template <class TData, class TMetaData, class TSettings>
+template<class TData, class TMetaData, class TSettings>
 class PipelineInitilizerBase
 {
 public:
-	virtual void InitPipeline( EventPipeline <TData, TMetaData, TSettings> * pLine,
-						TSettings * pset ) = 0;
+	virtual void InitPipeline(
+			EventPipeline<TData, TMetaData, TSettings> * pLine,
+			TSettings * pset) = 0;
 
 };
 
-template <class TData, class TMetaData, class TSettings>
-class EventPipeline : public boost::noncopyable
+template<class TData, class TMetaData, class TSettings>
+class EventPipeline: public boost::noncopyable
 {
 public:
 
-	typedef EventConsumerBase<TData, TMetaData,TSettings> ConsumerForThisPipeline;
-	typedef boost::ptr_vector<EventConsumerBase<TData,TMetaData, TSettings> > ConsumerVector;
+	typedef EventConsumerBase<TData, TMetaData, TSettings>
+			ConsumerForThisPipeline;
+	typedef boost::ptr_vector<EventConsumerBase<TData, TMetaData, TSettings> >
+			ConsumerVector;
 	typedef typename ConsumerVector::iterator ConsumerVectorIterator;
 
 	typedef FilterBase<TData, TMetaData, TSettings> FilterForThisPipeline;
-	typedef boost::ptr_vector<FilterBase<TData, TMetaData,TSettings> > FilterVector;
+	typedef boost::ptr_vector<FilterBase<TData, TMetaData, TSettings> >
+			FilterVector;
 	typedef typename FilterVector::iterator FilterVectorIterator;
 
-	void InitPipeline(TSettings * pset,
-			PipelineInitilizerBase< TData, TMetaData,TSettings> & initializer )
+	typedef MetaDataProducerBase<TData, TMetaData, TSettings>
+			MetaDataProducerForThisPipeline;
+
+	// this is NOT a ptr_vector, since one producer instance is used with many pipelines
+	typedef std::vector<MetaDataProducerBase<TData, TMetaData, TSettings> *>
+			MetaDateProducerVector;
+	typedef typename MetaDateProducerVector::iterator MetaDataVectorIterator;
+
+	void InitPipeline(TSettings * pset, PipelineInitilizerBase<TData,
+			TMetaData, TSettings> & initializer)
 	{
 		m_pipelineSettings = pset;
 
-		initializer.InitPipeline( this, pset );
+		initializer.InitPipeline(this, pset);
 
-		for (FilterVectorIterator itfilter = m_filter.begin();
-				!(itfilter== m_filter.end()); itfilter++)
+		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
+				== m_filter.end()); itfilter++)
 		{
 			itfilter->Init(this);
 		}
@@ -130,8 +158,16 @@ public:
 	/*
 	 * Run the pipeline with one specific event as input
 	 */
-	void RunEvent(TData & evt)
+	void RunEvent(const TData & evt)
 	{
+		// TODO: make this faster
+		TMetaData metaData;
+
+		for (MetaDataVectorIterator it = m_producer.begin(); !(it
+				== m_producer.end()); it++)
+		{
+			(*it)->CreateMetaData(evt, metaData, m_pipelineSettings);
+		}
 
 		bool bPassed = true;
 		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
@@ -158,40 +194,44 @@ public:
 		}
 	}
 
-	FilterBase<TData, TMetaData,TSettings> * FindFilter(std::string sFilterId)
-		{
+	FilterBase<TData, TMetaData, TSettings> * FindFilter(std::string sFilterId)
+	{
 
-		for (FilterVectorIterator it = m_filter.begin(); !(it
-				== m_filter.end()); it++)
+		for (FilterVectorIterator it = m_filter.begin(); !(it == m_filter.end()); it++)
 		{
 			if (it->GetFilterId() == sFilterId)
 				return &(*it);
 		}
 
 		return NULL;
-		}
-
-	TSettings * GetSettings()
-		{
-		return m_pipelineSettings;
-		}
-
-	void AddFilter( FilterForThisPipeline * pFilter )
-	{
-		m_filter.push_back( pFilter );
 	}
 
-	const boost::ptr_vector<FilterBase<TData, TMetaData,TSettings> >& GetFilters()
+	TSettings * GetSettings()
+	{
+		return m_pipelineSettings;
+	}
+
+	void AddFilter(FilterForThisPipeline * pFilter)
+	{
+		m_filter.push_back(pFilter);
+	}
+
+	void AddMetaDataProducer(MetaDataProducerForThisPipeline * pProd)
+	{
+		m_producer.push_back(pProd);
+	}
+
+	const boost::ptr_vector<FilterBase<TData, TMetaData, TSettings> >& GetFilters()
 	{
 		return m_filter;
 	}
 
 	ConsumerVector m_consumer;
 	FilterVector m_filter;
+	MetaDateProducerVector m_producer;
 
 	TSettings * m_pipelineSettings;
 };
 
 }
-
 

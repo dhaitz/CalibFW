@@ -9,25 +9,15 @@
 namespace CalibFW
 {
 
-class EventMetaDataBase : public boost::noncopyable
-{
-	virtual ~EventMetaDataBase()
-	{
-	}
-};
-
-template < class TPipelines >
+template < class TPipeline >
 class EventPipelineRunner : public boost::noncopyable
 {
 public:
-	typedef EventConsumerBase<TData, TMetaData,TSettings> ConsumerForThisPipeline;
-	typedef boost::ptr_vector<EventConsumerBase<TData,TMetaData, TSettings> > ConsumerVector;
-	typedef typename ConsumerVector::iterator ConsumerVectorIterator;
+	typedef boost::ptr_vector<TPipeline> Pipelines;
+	typedef typename Pipelines::iterator ConsumerVectorIterator;
 
-	typedef FilterBase<TData, TMetaData, TSettings> FilterForThisPipeline;
-	typedef boost::ptr_vector<FilterBase<TData, TMetaData,TSettings> > FilterVector;
-	typedef typename FilterVector::iterator FilterVectorIterator;
-
+	void AddPipeline( TPipeline * pline );
+	void AddPipelines( std::vector<TPipeline *> pVec );
 
 	// EventData -> const for all Pipelines
 	// EventMetadata -> different for each pipeline, generated for each event and pipeline ( filter results, cut results, etc )
@@ -37,8 +27,7 @@ public:
 
 private:
 
+	Pipelines m_pipelines;
 };
 
 }
-
-

@@ -43,7 +43,7 @@ public:
 
 	virtual std::string GetFilterId() = 0;
 
-	virtual bool DoesEventPass(TData & event) = 0;
+	virtual bool DoesEventPass( const TData & event) = 0;
 
 	virtual std::string ToString(bool bVerbose = false)
 	{

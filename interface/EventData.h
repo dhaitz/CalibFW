@@ -357,12 +357,12 @@ public:
 
 	// if a jet has .Pt() == 0.0f , there is no 2nd/3rd jet in this event. dont add this
 	// to distributions
-	bool IsJetValid(int jetNum)
+	bool IsJetValid(int jetNum) const
 	{
 		return (this->GetCorrectedJetPt(jetNum) > 0.0f);
 	}
 
-	double GetCorrectedJetPt(int jetIndex)
+	double GetCorrectedJetPt(int jetIndex) const
 	{
 		double fVal = this->m_pData->jets[jetIndex]->Pt();
 		if (m_bUseL2)
@@ -376,12 +376,12 @@ public:
 		return fVal;
 	}
 
-	double GetCorrectedJetResponse()
+	double GetCorrectedJetResponse() const
 	{
 		return this->GetCorrectedJetPt(0) / this->m_pData->Z->Pt();
 	}
 
-	int GetRecoVerticesCount()
+	int GetRecoVerticesCount() const
 	{
 		int val = 0;
 		if (this->m_pData->recoVertices != NULL)
@@ -390,7 +390,7 @@ public:
 		return val;
 	}
 
-	bool IsValidEvent();
+	bool IsValidEvent() const;
 /*
 	bool IsCutInBitmask(unsigned long cutId, unsigned long bitmask)
 	{
@@ -398,17 +398,17 @@ public:
 	}*/
 
 
-	bool IsCutInBitmask(unsigned long cutId)
+	bool IsCutInBitmask(unsigned long cutId) const
 	{
 		return (cutId & this->m_cutBitmask) > 0;
 	}
 
-	bool IsInCut()
+	bool IsInCut() const
 	{
 		return (this->m_cutBitmask == 0);
 	}
 
-	bool IsInCutWhenIgnoringCut(unsigned long ignoredCut)
+	bool IsInCutWhenIgnoringCut(unsigned long ignoredCut) const
 	{
 		// ~ is bitwise negation
 		return (((~ignoredCut) & this->m_cutBitmask) == 0);
@@ -416,7 +416,7 @@ public:
 
 	evtData * m_pData;
 
-	double GetWeight()
+	double GetWeight() const
 	{
         return m_weight;
         /*
