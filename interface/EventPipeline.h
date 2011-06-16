@@ -50,12 +50,12 @@ public:
 
 	// this method is only called for events which have passed the filter imposed on the
 	// pipeline
-	virtual void ProcessFilteredEvent(TData const& event)
+	virtual void ProcessFilteredEvent(TData const& event, TMetaData const& metaData)
 	{
 	}
 
 	// this method is called for all events
-	virtual void ProcessEvent(TData const& event, FilterResult & result)
+	virtual void ProcessEvent(TData const& event, TMetaData const& metaData, FilterResult & result)
 	{
 	}
 
@@ -64,12 +64,12 @@ public:
 	{
 	}
 
-	virtual std::string GetId()
+	virtual std::string GetId() const
 	{
 		return "default";
 	}
 
-	TSettings * GetPipelineSettings()
+	TSettings * GetPipelineSettings() const
 	{
 		return this->m_pipeline->GetSettings();
 	}
@@ -158,7 +158,7 @@ public:
 	/*
 	 * Run the pipeline with one specific event as input
 	 */
-	void RunEvent(const TData & evt)
+	void RunEvent(TData const& evt)
 	{
 		// TODO: make this faster
 		TMetaData metaData;
@@ -186,11 +186,11 @@ public:
 				== m_consumer.end()); itcons++)
 		{
 			if (bPassed)
-				itcons->ProcessFilteredEvent(evt);
+				itcons->ProcessFilteredEvent(evt, metaData);
 
 			// ensure the event is valid, ( if coming from data )
 			//if ( CutHandler::IsValidEvent( evt))
-			itcons->ProcessEvent(evt, fres);
+			itcons->ProcessEvent(evt, metaData, fres);
 		}
 	}
 

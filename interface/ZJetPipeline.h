@@ -12,9 +12,9 @@ namespace CalibFW
 {
 
 class ZJetPipelineSettings;
-typedef EventPipeline<EventResult, EventMetaData, ZJetPipelineSettings>
+typedef EventPipeline<EventResult, ZJetMetaData, ZJetPipelineSettings>
 		ZJetPipeline;
-typedef FilterBase<EventResult, EventMetaData, ZJetPipelineSettings>
+typedef FilterBase<EventResult, ZJetMetaData, ZJetPipelineSettings>
 		ZJetFilterBase;
 
 class ZJetPipelineSettings
@@ -381,7 +381,7 @@ public:
 };
 
 class ZJetPipelineInitializer: public PipelineInitilizerBase<EventResult,
-		EventMetaData, ZJetPipelineSettings>
+		ZJetMetaData, ZJetPipelineSettings>
 {
 public:
 	void InitPipeline(ZJetPipeline * pLine, ZJetPipelineSettings * pset);

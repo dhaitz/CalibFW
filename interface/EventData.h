@@ -311,7 +311,7 @@ public:
 	Int_t m_luminosityBlock;
 };
 
-class EventMetaData : public CalibFW::EventMetaDataBase
+class ZJetMetaData : public CalibFW::EventMetaDataBase
 {
 
 };
