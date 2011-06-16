@@ -6,7 +6,7 @@ namespace CalibFW
 {
 
 // forward define to be able to use the event pipeline here
-template<class TData, class TSettings>
+template<class TData, class TMetaData, class TSettings>
 class EventPipeline;
 
 class FilterResult
@@ -26,14 +26,14 @@ private:
 	bool m_bHasPassed;
 };
 
-template<class TData, class TSettings>
+template<class TData, class TMetaData, class TSettings>
 class FilterBase: public boost::noncopyable
 {
 public:
 	virtual ~FilterBase()
 	{
 	}
-	virtual void Init(EventPipeline<TData, TSettings> * pset)
+	virtual void Init(EventPipeline<TData, TMetaData, TSettings> * pset)
 	{
 		m_pipeline = pset;
 	}
@@ -55,7 +55,7 @@ public:
 		return m_pipeline->GetSettings();
 	}
 
-	EventPipeline<TData, TSettings> * m_pipeline;
+	EventPipeline<TData, TMetaData, TSettings> * m_pipeline;
 };
 
 }

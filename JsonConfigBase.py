@@ -63,8 +63,6 @@ def GetMcBaseConfig():
     d["UseGlobalWeightBin"] = 0
     
     d["InputType"] = "mc"
-    
-    d["ThreadCount"] = 2
 
     return d
 
@@ -227,7 +225,8 @@ def StoreSettings( settings, filename):
     
     try:
         import json
-        print json.dumps( settings, sort_keys=True, indent=4 )
+        # dont display config on console, it is annyoing
+        #print json.dumps( settings, sort_keys=True, indent=4 )
         json.dump( settings, f, sort_keys=True, indent=4 )
             
     except BaseException:

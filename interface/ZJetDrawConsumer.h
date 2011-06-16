@@ -65,10 +65,9 @@ namespace CalibFW
  So machen, dass der EventConsumer noch die Kontrolle drüber hat, was ihm entzogen wird.
  */
 
-typedef DrawHist2DConsumerBase<EventResult, ZJetPipelineSettings> ZJetHist2D;
-typedef DrawHist1dConsumerBase<EventResult, ZJetPipelineSettings> ZJetHist1D;
-typedef DrawGraphErrorsConsumerBase<EventResult, ZJetPipelineSettings>
-		ZJetGraphErrors;
+typedef DrawHist2DConsumerBase<EventResult, EventMetaData,ZJetPipelineSettings> ZJetHist2D;
+typedef DrawHist1dConsumerBase<EventResult, EventMetaData, ZJetPipelineSettings> ZJetHist1D;
+typedef DrawGraphErrorsConsumerBase<EventResult, EventMetaData, ZJetPipelineSettings> ZJetGraphErrors;
 
 #define IMPL_HIST1D_MOD1(CLASSNAME, DATAPATH, MOD1)	\
 class CLASSNAME: public ZJetHist1D	{ public: \
@@ -118,7 +117,7 @@ class DrawJetConsumerBase: public ZJetHist1D
 {
 public:
 	DrawJetConsumerBase(int jetNum) :
-		DrawHist1dConsumerBase<EventResult, ZJetPipelineSettings> (), m_jetNum(
+		DrawHist1dConsumerBase<EventResult, EventMetaData, ZJetPipelineSettings> (), m_jetNum(
 				jetNum)
 	{
 	}

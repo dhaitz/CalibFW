@@ -17,6 +17,8 @@
 #include "RootIncludes.h"
 #include "GlobalInclude.h"
 #include "PtBinWeighter.h"
+
+#include "EventPipeline.h"
 //#include "ZJetPipeline.h"
 
 #define SAFE_DELETE( first ) {  if ( first != NULL ) { delete first; } }
@@ -307,6 +309,11 @@ public:
 
 	// just for completeness, not part of the eventst unique id
 	Int_t m_luminosityBlock;
+};
+
+class EventMetaData : public CalibFW::EventMetaDataBase
+{
+
 };
 
 class EventResult

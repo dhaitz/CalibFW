@@ -12,7 +12,10 @@ namespace CalibFW
 {
 
 class ZJetPipelineSettings;
-typedef EventPipeline<EventResult, ZJetPipelineSettings> ZJetPipeline;
+typedef EventPipeline<EventResult, EventMetaData, ZJetPipelineSettings>
+		ZJetPipeline;
+typedef FilterBase<EventResult, EventMetaData, ZJetPipelineSettings>
+		ZJetFilterBase;
 
 class ZJetPipelineSettings
 {
@@ -48,10 +51,8 @@ IMPL_SETTING(double, FilterSecondJetRatioLow)
 IMPL_SETTING(double, FilterSecondJetRatioHigh)
 IMPL_SETTING(unsigned long, FilterInCutIgnored)
 
-
 IMPL_SETTING(bool, Filter2ndJetPtCutSet)
 IMPL_SETTING(bool, FilterDeltaPhiCutSet)
-
 
 IMPL_SETTING(std::string, AlgoName)
 IMPL_SETTING(std::string, RootFileFolder)
@@ -182,8 +183,6 @@ IMPL_PROPERTY(TFile *, RootOutFile)
 	 stringvector m_filter;*/
 
 };
-
-typedef FilterBase<EventResult, ZJetPipelineSettings> ZJetFilterBase;
 
 class RecoVertFilter: public ZJetFilterBase
 {
@@ -337,10 +336,12 @@ public:
 
 	virtual bool DoesEventPass(EventResult & event)
 	{
-		if ( GetPipelineSettings()->GetFilter2ndJetPtCutSet() !=  event.IsCutInBitmask( 16  ))
+		if (GetPipelineSettings()->GetFilter2ndJetPtCutSet()
+				!= event.IsCutInBitmask(16))
 			return false;
 
-		if ( GetPipelineSettings()->GetFilterDeltaPhiCutSet() != event.IsCutInBitmask( 32  ))
+		if (GetPipelineSettings()->GetFilterDeltaPhiCutSet()
+				!= event.IsCutInBitmask(32))
 			return false;
 
 		return true;
@@ -352,7 +353,6 @@ public:
 	}
 
 };
-
 
 class InCutFilter: public ZJetFilterBase
 {
@@ -379,7 +379,7 @@ public:
 };
 
 class ZJetPipelineInitializer: public PipelineInitilizerBase<EventResult,
-		ZJetPipelineSettings>
+		EventMetaData, ZJetPipelineSettings>
 {
 public:
 	void InitPipeline(ZJetPipeline * pLine, ZJetPipelineSettings * pset);
