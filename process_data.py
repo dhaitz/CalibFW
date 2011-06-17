@@ -7,7 +7,7 @@ import copy
 
 conf = JsonConfigBase.GetDataBaseConfig()
 
-conf["InputFiles"] = "/home/poseidon/uni/data/ZPJ2011/data/*DoubleMu*.root" 
+conf["InputFiles"] = "/home/poseidon/uni/data/Kappa/kappa_2011-05-26_AB_423_Data-SVfit_DoubleMu_2011A_May10thRR_v1_44.root" 
 conf["OutputPath"] = "data_2011"
 
 

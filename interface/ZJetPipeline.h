@@ -3,18 +3,27 @@
 #include "EventPipeline.h"
 #include "PipelineSettings.h"
 
+
+#include "DataFormats/interface/Kappa.h"
+#include "DataFormats/interface/KDebug.h"
+
 #include "EventData.h"
 #include "CutHandler.h"
-
 //#include "ZJetFilter.h"
 
 namespace CalibFW
 {
 
+class ZJetEventData
+{
+public:
+	KDataPFJets *jets;// = fi.Get<KDataPFJets>(names[0]);
+};
+
 class ZJetPipelineSettings;
-typedef EventPipeline<EventResult, ZJetMetaData, ZJetPipelineSettings>
+typedef EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
 		ZJetPipeline;
-typedef FilterBase<EventResult, ZJetMetaData, ZJetPipelineSettings>
+typedef FilterBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
 		ZJetFilterBase;
 
 class ZJetPipelineSettings
@@ -193,13 +202,15 @@ public:
 
 	}
 
-	virtual bool DoesEventPass(const EventResult & event)
+	virtual bool DoesEventPass(const ZJetEventData & event)
 	{
 		//return (  event.GetRecoVerticesCount()  == m_pipelineSettings->GetFilterRecoVertLow() );
-		return (event.GetRecoVerticesCount()
+		/*return (event.GetRecoVerticesCount()
 				>= GetPipelineSettings()->GetFilterRecoVertLow()
 				&& event.GetRecoVerticesCount()
-						<= GetPipelineSettings()->GetFilterRecoVertHigh());
+						<= GetPipelineSettings()->GetFilterRecoVertHigh());*/
+		// todo
+		return true;
 	}
 
 	virtual std::string GetFilterId()
@@ -217,13 +228,15 @@ public:
 
 	}
 
-	virtual bool DoesEventPass(const EventResult & event)
+	virtual bool DoesEventPass(const ZJetEventData & event)
 	{
 		//return (  event.GetRecoVerticesCount()  == m_pipelineSettings->GetFilterRecoVertLow() );
-		return (TMath::Abs(event.m_pData->jets[0]->Eta())
+		/*return (TMath::Abs(event.m_pData->jets[0]->Eta())
 				>= GetPipelineSettings()->GetFilterJetEtaLow() && TMath::Abs(
 				event.m_pData->jets[0]->Eta())
-				<= GetPipelineSettings()->GetFilterJetEtaHigh());
+				<= GetPipelineSettings()->GetFilterJetEtaHigh());*/
+		// todo
+		return true;
 	}
 
 	virtual std::string GetFilterId()
@@ -240,10 +253,10 @@ public:
 	{
 	}
 
-	virtual bool DoesEventPass(const EventResult & event)
+	virtual bool DoesEventPass(const ZJetEventData & event)
 	{
 		bool bPass = true;
-		double fBinVal = event.GetCorrectedJetPt(1) / event.m_pData->Z->Pt();
+		double fBinVal = 0.0f; // todo  event.GetCorrectedJetPt(1) / event.m_pData->Z->Pt();
 
 		if (!(fBinVal >= GetPipelineSettings()->GetFilterSecondJetRatioLow()))
 			bPass = false;
@@ -269,14 +282,15 @@ public:
 
 	}
 
-	virtual bool DoesEventPass(const EventResult & event)
+	virtual bool DoesEventPass(const ZJetEventData & event)
 	{
 		bool bPass = true;
 		double fBinVal;
-		if (m_binWith == ZPtBinning)
+		/*if (m_binWith == ZPtBinning)
 			fBinVal = event.m_pData->Z->Pt();
 		else
-			fBinVal = event.GetCorrectedJetPt(0);
+			fBinVal = event.GetCorrectedJetPt(0);*/
+		// todo
 
 		if (!(fBinVal >= GetPipelineSettings()->GetFilterPtBinLow()))
 			bPass = false;
@@ -334,8 +348,8 @@ public:
 
 	}
 
-	virtual bool DoesEventPass( const  EventResult & event)
-	{
+	virtual bool DoesEventPass( const  ZJetEventData & event)
+	{/*
 		event.IsCutInBitmask(16);
 
 		if (GetPipelineSettings()->GetFilter2ndJetPtCutSet()
@@ -345,7 +359,8 @@ public:
 		if (GetPipelineSettings()->GetFilterDeltaPhiCutSet()
 				!= event.IsCutInBitmask(32))
 			return false;
-
+*/
+		// todo
 		return true;
 	}
 
@@ -360,12 +375,14 @@ class InCutFilter: public ZJetFilterBase
 {
 public:
 
-	virtual bool DoesEventPass(const EventResult & event)
+	virtual bool DoesEventPass(const ZJetEventData & event)
 	{
 		unsigned long ignoredCut =
 				GetPipelineSettings()->GetFilterInCutIgnored();
 		// no section here is allowed to set to true again, just to false ! avoids coding errors
-		return event.IsInCutWhenIgnoringCut(ignoredCut);
+		//return event.IsInCutWhenIgnoringCut(ignoredCut);
+		// todo
+		return true;
 	}
 
 	virtual std::string GetFilterId()
@@ -380,7 +397,7 @@ public:
 
 };
 
-class ZJetPipelineInitializer: public PipelineInitilizerBase<EventResult,
+class ZJetPipelineInitializer: public PipelineInitilizerBase<ZJetEventData,
 		ZJetMetaData, ZJetPipelineSettings>
 {
 public:

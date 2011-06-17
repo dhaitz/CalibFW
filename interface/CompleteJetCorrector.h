@@ -15,7 +15,7 @@
 
 #include "EventData.h"
 #include "MinimalParser.h"
-
+/*
 class CorrBase
 {
   public:
@@ -24,7 +24,7 @@ class CorrBase
     }
     virtual ~CorrBase() {}
     
-    virtual void Correct( EventResult * evRes )
+    virtual void Correct( ZJetEventData * evRes )
     {
       
     }
@@ -45,7 +45,7 @@ public:
 	  }
     }
     
-    virtual void Correct( EventResult * evRes )
+    virtual void Correct( ZJetEventData * evRes )
     {
 	bool beforel2;
 	bool beforel3;
@@ -114,7 +114,7 @@ public:
       LoadCorrectionFile( algoName, algoFileMapping );
     }
     
-    virtual void Correct( EventResult * evRes )
+    virtual void Correct( ZJetEventData * evRes )
     {
         for ( int i = 0; i < 3; i++ )
 		{
@@ -134,7 +134,7 @@ public:
       LoadCorrectionFile( algoName, algoFileMapping );
     }
     
-    virtual void Correct( EventResult * evRes )
+    virtual void Correct( ZJetEventData * evRes )
     {
 	bool beforel2;
 	bool beforel3;
@@ -170,7 +170,7 @@ public:
     }
 
     // calculate correction data, but don't overwrite data
-    void CalcCorrectionForEvent( EventResult * ev )
+    void CalcCorrectionForEvent( ZJetEventData * ev )
     {
       
       for ( boost::ptr_vector< CorrBase >::iterator it = m_corrs.begin();
@@ -184,4 +184,4 @@ public:
   private:
     boost::ptr_vector<CorrBase> m_corrs;
 };
-
+*/

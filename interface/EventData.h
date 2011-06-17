@@ -316,10 +316,10 @@ class ZJetMetaData : public CalibFW::EventMetaDataBase
 
 };
 
-class EventResult
+class EventResultDeprecated
 {
 public:
-	EventResult()
+	EventResultDeprecated()
 	{
 		//boost::ptr_vector<ZJetPipeline > * PipelineSettings;
 		m_weight = 1.0f;
@@ -339,7 +339,7 @@ public:
 		m_cutBitmask = 0;
 	}
 
-	~EventResult()
+	~EventResultDeprecated()
 	{
 		// don't delete here, since this a pointer which is managed by root when calling
 		// TChain::GetEntry
@@ -539,8 +539,8 @@ public:
 				<< std::setw(10) << pEv->jets[0]->Eta() << std::setw(10)
 				<< pEv->jets[0]->Phi();
 	}
-
-	inline void FormatEventResultCorrected(ostream & os, EventResult * pEv)
+/*
+	inline void FormatEventResultCorrected(ostream & os, ZJetEventData * pEv)
 	{
 		os << std::setprecision(3) << std::fixed;
 		os << std::setw(10) << pEv->m_pData->cmsRun << std::setw(12)
@@ -553,22 +553,22 @@ public:
 				<< pEv->m_pData->jets[0]->Pt() << std::setw(10)
 				<< pEv->m_pData->jets[0]->Eta() << std::setw(10)
 				<< pEv->m_pData->jets[0]->Phi();
-	}
+	}*/
 };
-
-struct CompareEventResult: std::binary_function<EventResult, EventResult, bool>
+/*
+struct CompareEventResult: std::binary_function<ZJetEventData, ZJetEventData, bool>
 {
 	CompareEventResult()
 	{
 	}
 
-	bool operator()(const EventResult& v1, const EventResult& v2) const
+	bool operator()(const ZJetEventData& v1, const ZJetEventData& v2) const
 	{
 		return EventId(v1.m_pData) < EventId(v2.m_pData);
 	}
 };
-
+*/
 typedef std::set<EventId> EventSet;
-typedef boost::ptr_vector<EventResult> EventVector;
+//typedef boost::ptr_vector<ZJetEventData> EventVector;
 typedef boost::ptr_vector<evtData> EventDataVector;
 

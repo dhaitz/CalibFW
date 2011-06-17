@@ -39,15 +39,17 @@ public:
 
 	// this method is only called for events which have passed the filter imposed on the
 	// pipeline
-	virtual void ProcessFilteredEvent(EventResult & event, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData & event, ZJetMetaData const& metaData)
 	{
-		CALIB_LOG("Filtered EventNum " << event.m_pData->cmsEventNum)
+		// todo
+		//CALIB_LOG("Filtered EventNum " << event.m_pData->cmsEventNum)
 	}
 
 	// this method is called for all events
-	virtual void ProcessEvent(EventResult & event, ZJetMetaData const& metaData, FilterResult & result)
+	virtual void ProcessEvent(ZJetEventData & event, ZJetMetaData const& metaData, FilterResult & result)
 	{
-		CALIB_LOG("Unfiltered EventNum " << event.m_pData->cmsEventNum)
+		// todo
+		// CALIB_LOG("Unfiltered EventNum " << event.m_pData->cmsEventNum)
 	}
 };
 
@@ -111,8 +113,8 @@ public:
 
 	// this method is only called for events which have passed the filter imposed on the
 	// pipeline
-	virtual void ProcessFilteredEvent(EventResult const& event, ZJetMetaData const& metaData)
-	{		
+	virtual void ProcessFilteredEvent(ZJetEventData const& event, ZJetMetaData const& metaData)
+	{		/*
 		 m_localData.Z = new TParticle(*event.m_pData->Z);
 //          m_localData.matched_Z = new TParticle(*event.m_pData->matched_Z);
 
@@ -131,7 +133,8 @@ public:
 		 m_localData.cmsRun = event.m_pData->cmsRun;
 		 m_localData.luminosityBlock = event.m_pData->luminosityBlock;
 		 m_localData.weight = event.GetWeight();
-
+*/
+		//todo
 		 m_gentree->Fill();
 
 		 //std::stringstream sout;

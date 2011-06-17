@@ -3,7 +3,10 @@
 #BOOST_INC = /afs/naf.desy.de/group/cms/sw/slc4_ia32_gcc345/external/boost/1.38.0/include/
 
 LIB	      = ../lib
+LIB_PATH  = -L../../KappaTools/lib/ -L../../Kappa/lib/
+
 INCL      = ../interface
+INCL_PATH =  -I../../Kappa/ -I../../KappaTools/
 TESTDIR	  = ../progs
 BIN	      = ../bin
 OBJ	      = ../obj
@@ -19,16 +22,16 @@ ROOTLDFLAGS   = $(shell root-config --ldflags)
 
 BOOST_INC = /afs/naf.desy.de/group/cms/sw/slc5_ia32_gcc434/external/boost/1.42.0/include
 
-CPPFLAGS      = -I${BOOST_INC} -I${INCL}/
+CPPFLAGS      = -I${BOOST_INC} -I${INCL} ${LIB_PATH} ${INCL_PATH}
 CXX 	      = /usr/bin/g++ 
-CXXFLAGS      = -O3 -g -Wall -fopenmp -march=native -fPIC $(ROOTCFLAGS)
+CXXFLAGS      = -O3 -g -Wall -fopenmp -fPIC $(ROOTCFLAGS)
 LD	      = /usr/bin/g++
-LDFLAGS       = $(ROOTLDFLAGS) -rdynamic
+LDFLAGS       = $(ROOTLDFLAGS) ${LIB_PATH} -rdynamic
 
 OWN_LIB		= -l CalibFW
 SONAME	      = libCalibFW.so
 SOFLAGS       = -shared -Wl,-soname,$(SONAME)
-LIBS          = $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam
+LIBS          = $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox
 GLIBS         = $(ROOTGLIBS)
 
 HDRS          = $(patsubst cintdict.h,,$(wildcard ${INCL}/*.h))
@@ -78,7 +81,9 @@ cleandict:
 # 		$(CXX) $< -o $@  $(TEST) -L${LIB} -l CalibFW  $(CPPFLAGS) ${GLIBS} ${LIBS} ${CXXFLAGS}  
 ${BIN}/%.exe : ${TESTDIR}/%.cpp $(TEST) $(TEST_HDRS) $(HDRS) ${LIB}/$(SONAME)
 		$(CXX) $< -o $@  $(TEST) $(CPPFLAGS) ${CXXFLAGS} -L${LIB} $(OWN_LIB) ${LIBS} 
+		
 # Generic dependencies (add dependency on .h)
+
 ${OBJ}/%.o : %.cc ${INCL}/%.h
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $< -o $@
 

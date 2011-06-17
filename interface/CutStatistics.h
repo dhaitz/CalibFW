@@ -107,16 +107,16 @@ virtual void Finish()
 
 // this method is only called for events which have passed the filter imposed on the
 // pipeline
-virtual void ProcessFilteredEvent(EventResult const& event, ZJetMetaData const& metaData)
+virtual void ProcessFilteredEvent(ZJetEventData const& event, ZJetMetaData const& metaData)
 {
 
 }
 
 // this method is called for all events
-virtual void ProcessEvent(EventResult const& event, ZJetMetaData const& metaData, FilterResult & result)
+virtual void ProcessEvent(ZJetEventData const& event, ZJetMetaData const& metaData, FilterResult & result)
 {
 	// TODO: only use events, which did pass all filters except incut
-
+/*
 	m_eventCount++;
 	BOOST_FOREACH( ZJetCutBase * c, m_pCutHandler->GetCuts() )
 	{
@@ -145,7 +145,7 @@ virtual void ProcessEvent(EventResult const& event, ZJetMetaData const& metaData
 		if ( event.IsCutInBitmask( SecondLeadingToZPtCut::CudId ))
 			m_conditionalDeltaPhiCut++;
 	}
-
+*/
 }
 
 ZJetCutHandler * m_pCutHandler;

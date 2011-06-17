@@ -9,8 +9,8 @@ namespace CalibFW
 
 const double g_kZmass = 91.19;
 
-typedef EventCutBase<EventResult *, ZJetPipelineSettings *> ZJetCutBase;
-typedef CutHandler<EventResult *, ZJetPipelineSettings *> ZJetCutHandler;
+typedef EventCutBase<ZJetEventData *, ZJetPipelineSettings *> ZJetCutBase;
+typedef CutHandler<ZJetEventData *, ZJetPipelineSettings *> ZJetCutHandler;
 
 //typedef EventConsumerBase<EventResult, ZJetPipelineSettings> ZJetConsumerBase;
 
@@ -22,15 +22,17 @@ public:
 		m_jsonFile = jsonFile;
 	}
 
-	bool IsInCut(EventResult * pEv, ZJetPipelineSettings * pset)
+	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
 	{
 		if ((m_jsonFile == NULL) || (!m_jsonFile->isValid()))
 		{
 			CALIB_LOG_FATAL("No valid JSON file loaded.")
 		}
-
+/*
 		return m_jsonFile->has(pEv->m_pData->cmsRun,
-				pEv->m_pData->luminosityBlock);
+				pEv->m_pData->luminosityBlock);*/
+		// todo
+		return true;
 	}
 
 	unsigned long GetId()
@@ -54,10 +56,12 @@ class MuonPtCut: public ZJetCutBase
 {
 public:
 
-	bool IsInCut(EventResult * pEv, ZJetPipelineSettings * pset)
-	{
+	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
+	{/*
 		return ((pEv->m_pData->mu_plus->Pt() > pset->GetCutMuonPt())
-				&& (pEv->m_pData->mu_minus->Pt() > pset->GetCutMuonPt()));
+				&& (pEv->m_pData->mu_minus->Pt() > pset->GetCutMuonPt()));*/
+		// todo
+		return true;
 	}
 
 	unsigned long GetId()
@@ -78,12 +82,14 @@ public:
 class MuonEtaCut: public ZJetCutBase
 {
 public:
-	bool IsInCut(EventResult * pEv, ZJetPipelineSettings * pset)
-	{
+	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
+	{/*
 		return ((TMath::Abs(pEv->m_pData->mu_plus->Eta())
 				< pset->GetCutMuonEta()) && (TMath::Abs(
 				pEv->m_pData->mu_minus->Eta()) < pset->GetCutMuonEta()));
-	}
+		*/
+		// todo
+		return true;	}
 
 	unsigned long GetId()
 	{
@@ -103,10 +109,13 @@ public:
 class LeadingJetEtaCut: public ZJetCutBase
 {
 public:
-	bool IsInCut(EventResult * pEv, ZJetPipelineSettings * pset)
-	{
+	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
+	{/*
 		return (TMath::Abs(pEv->m_pData->jets[0]->Eta())
 				< pset->GetCutLeadingJetEta());
+		*/
+		// todo
+		return true;
 	}
 
 	unsigned long GetId()
@@ -128,15 +137,17 @@ class SecondLeadingToZPtCut: public ZJetCutBase
 {
 public:
 
-	bool IsInCut(EventResult * pEv, ZJetPipelineSettings * pset)
+	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
 	{
-
+/*
 		if (pEv->GetCorrectedJetPt(1)
 				< pset->GetCutSecondLeadingToZPtJet2Threshold())
 			return true;
 
 		return (pEv->GetCorrectedJetPt(1) / pEv->m_pData->Z->Pt()
-				< pset->GetCutSecondLeadingToZPt());
+				< pset->GetCutSecondLeadingToZPt());*/
+		// todo
+		return true;
 	}
 
 	unsigned long GetId()
@@ -246,11 +257,13 @@ public:
 class BackToBackCut: public ZJetCutBase
 {
 public:
-	bool IsInCut(EventResult * pEv, ZJetPipelineSettings * pset)
-	{
+	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
+	{/*
 		return (TMath::Abs(TMath::Abs(pEv->m_pData->jets[0]->Phi()
 				- pEv->m_pData->Z->Phi()) - TMath::Pi())
-				< pset->GetCutBack2Back());
+				< pset->GetCutBack2Back());*/
+		// todo
+		return true;
 	}
 
 	unsigned long GetId()
@@ -271,10 +284,13 @@ public:
 class ZMassWindowCut: public ZJetCutBase
 {
 public:
-	bool IsInCut(EventResult * pEv, ZJetPipelineSettings * pset)
+	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
 	{
+		// todo
+		return true;
+		/*
 		return (TMath::Abs(pEv->m_pData->Z->GetCalcMass() - g_kZmass)
-				< pset->GetCutZMassWindow());
+				< pset->GetCutZMassWindow());*/
 	}
 
 	unsigned long GetId()
@@ -300,9 +316,11 @@ public:
 
 	}
 
-	bool IsInCut(EventResult * pEv, ZJetPipelineSettings * pset)
-	{
-		return (pEv->m_pData->Z->Pt() > pset->GetCutZPt());
+	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
+	{/*
+		return (pEv->m_pData->Z->Pt() > pset->GetCutZPt());*/
+		// todo
+		return true;
 	}
 
 	unsigned long GetId()
@@ -327,9 +345,11 @@ public:
 	{
 	}
 
-	bool IsInCut(EventResult * pEv, ZJetPipelineSettings * pset)
-	{
-		return (pEv->GetCorrectedJetPt(0) > pset->GetCutJetPt());
+	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
+	{/*
+		return (pEv->GetCorrectedJetPt(0) > pset->GetCutJetPt());*/
+		// todo
+		return true;
 	}
 
 	unsigned long GetId()
@@ -352,8 +372,8 @@ class HltCut: public ZJetCutBase
 {
 public:
 
-	bool IsInCut(EventResult * pEv, ZJetPipelineSettings * pset)
-	{
+	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
+	{/*
 		// SingleMu trigger: use always the lowest-pt unprescaled Mu trigger
 		TString hltSingleMu = "HLT_Mu9";
 		if (pEv->m_pData->cmsRun >= 147146) // 2010B (up to about 149711, json up to 149442)
@@ -391,6 +411,9 @@ public:
 			}
 		}
 		return false;
+		*/
+		// todo
+		return true;
 	}
 
 	unsigned long GetId()

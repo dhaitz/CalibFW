@@ -28,6 +28,10 @@
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1093820683" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.compiler.base.877858319" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+<option id="gnu.c.compiler.option.include.paths.279519498" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Kappa/DataFormats/interface}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/KappaTools/RootTools}&quot;"/>
+</option>
 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1614776233" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.c.linker.base.1675386331" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>

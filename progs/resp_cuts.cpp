@@ -36,11 +36,12 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-// this include will overload comparison headers automatically
-#include <utility>
-using namespace std::rel_ops;
 
-#include "MinimalParser.h"
+#include "DataFormats/interface/Kappa.h"
+#include "DataFormats/interface/KDebug.h"
+//#include "Toolbox/libToolbox.h"
+#include "RootTools/libKRootTools.h"
+
 
 #include "OpenMP-Support.h"
 
@@ -62,6 +63,7 @@ using namespace std::rel_ops;
 #include "ZJetEventStorer.h"
 #include "ZJetDrawConsumer.h"
 #include "ZJetCuts.h"
+#include "EventPipelineRunner.h"
 
 using namespace CalibFW;
 
@@ -235,38 +237,20 @@ PipelineVector g_pipelines;
 // set via config file
 boost::ptr_vector<PtBin> g_newPtBins;
 
-void calcJetEnergyCorrection(EventResult * res, CompleteJetCorrector * pJetCorr)
-{/*
- for (int i = 0; i < 3; i++)
- {
- pJetCorr->CalcCorrectionForEvent(res);
- }*/
 
-	/*
-	 not supported any more, use the CompleteJetCorrector
-	 if ( g_corrWithFormula )
-	 {
-
-	 res->m_l3CorrPtJets[0] = g_corrFormula->Eval( res->GetCorrectedJetPt( 0 ));
-	 res->m_l3CorrPtJets[1] = g_corrFormula->Eval( res->GetCorrectedJetPt( 1 ));
-	 res->m_l3CorrPtJets[2] = g_corrFormula->Eval( res->GetCorrectedJetPt( 2 ));
-	 res->m_bUseL3 = true;
-	 }
-	 */
-
-}
-
-double GetEventXSection(EventResult & evt)
+double GetEventXSection(ZJetEventData & evt)
 {
-	double xsec = 1.0f;
+/*
+double xsec = 1.0f;
 	if (g_globalXSection > 0.0f)
 		xsec = g_globalXSection;
 	else
 		xsec = evt.m_pData->xsection;
 
-	return xsec;
+	return xsec;*/
+	return 0;
 }
-
+/*
 void RunPipelinesForEvent(EventResult & event)
 {
 	// experimental: this section has been paralelized
@@ -274,8 +258,6 @@ void RunPipelinesForEvent(EventResult & event)
 	unsigned int i = 0;
 #pragma omp parallel for
 
-/*	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
-			== g_pipelines.end()); it++)*/
 	for (i = 0; i < g_pipelines.size(); i++)
 	{
 		ZJetPipeline * pline = &g_pipelines[i];
@@ -294,7 +276,7 @@ void RunPipelinesForEvent(EventResult & event)
 				pline->RunEvent(event);
 		}
 	}
-}
+}*/
 
 void RunPipelines(int level)
 {
@@ -315,7 +297,7 @@ void RunPipelines(int level)
 ZJetPipeline * CreateLevel2Pipeline()
 {
 	ZJetPipeline * pline = new ZJetPipeline();
-
+/*
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, jetresp, "jetresp" )
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, mpfresp, "mpfresp" )
 
@@ -342,12 +324,12 @@ ZJetPipeline * CreateLevel2Pipeline()
 
 	// Matched Z
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetRespGraph, matchedZ_ptratio, "matchedZ_ptratio" )
-
+*/
 	return pline;
 }
 
 void AddConsumerToPipeline(ZJetPipeline * pline, std::string consumerName)
-{
+{/*
 	if (consumerName == EventStorerConsumer().GetId())
 	{
 		pline->m_consumer.push_back(new EventStorerConsumer());
@@ -356,7 +338,7 @@ void AddConsumerToPipeline(ZJetPipeline * pline, std::string consumerName)
 	 if (consumerName == CutStatisticsConsumer(g_cutHandler.get()).GetId())
 	 {
 	 pline->m_consumer.push_back(new CutStatisticsConsumer(g_cutHandler.get()));
-	 }
+	 }*/
 }
 
 void AddConsumersToPipeline(ZJetPipeline * pline,
@@ -381,7 +363,7 @@ ZJetPipeline * CreateDefaultPipeline()
 	 std::stringstream sname;
 	 sname << i << "jetresp";
 	 */
-
+/*
 	PLOT_HIST1D(pline, DrawPartonFlavourConsumer, partonflavour )
 
 	PLOT_HIST1D(pline, DrawZMassConsumer, zmass)
@@ -593,7 +575,7 @@ ZJetPipeline * CreateDefaultPipeline()
 	object_DrawJet2Pt->m_graph = hist_DrawJetPt;
 	pline->m_consumer.push_back(object_DrawJet2Pt);
 
-
+*/
 	//PLOT_GRAPHERRORS( pline, DrawJetRespBase, jetresp )
 	/*	Hist2D * hist = new Hist2D;
 	 DrawZMassConsumer * massc = new DrawZMassConsumer();
@@ -608,7 +590,7 @@ ZJetPipeline * CreateDefaultPipeline()
 
 void importEvents(bool bUseJson,
 		std::vector<ExcludedEvent *> exludeEventsByValue,
-		bool bDiscardOutOfCutEvents, CompleteJetCorrector * correction) // can be null)
+		bool bDiscardOutOfCutEvents)//, CompleteJetCorrector * correction) // can be null)
 {
 	int entries = g_pChain->GetEntries();
 
@@ -700,7 +682,7 @@ void importEvents(bool bUseJson,
 	{
 		g_pChain->GetEntry(ievt);
 
-		EventResult * res = new EventResult;
+/*		EventResult * res = new EventResult;
 		res->m_pData = &g_ev;
 
 		// the weight of data events can be strange when read from root file. better reset here
@@ -723,7 +705,7 @@ void importEvents(bool bUseJson,
 		RunPipelinesForEvent(*res);
 
 		delete res;
-
+*/
 		if (((ievt % 5000) == 0) || (ievt == (entries - 1)))
 		{
 			float localPercent = floor(100.0f * (float) (ievt + 1)
@@ -919,7 +901,7 @@ void ResetExcludedEvents()
 
 void processAlgo()
 {
-	CompleteJetCorrector jetCorr;
+	//CompleteJetCorrector jetCorr;
 	/*	(*g_logFile) << "Processing " << sName << std::endl;
 	 (*g_logFile) << "uncorrected jets " << std::endl;
 
@@ -959,8 +941,8 @@ void processAlgo()
 
 	 if (g_doData)
 	 {*/
-	importEvents(true, std::vector<ExcludedEvent *>(), false,
-			&jetCorr);
+	importEvents(true, std::vector<ExcludedEvent *>(), false);
+			//&jetCorr);
 	//}
 
 	g_iCurAlgoCount++;
@@ -992,6 +974,38 @@ ZJetPipelineSettings * CreateDefaultSettings(std::string sAlgoName,
 	ZJetPipelineSettings * psetting = new ZJetPipelineSettings();
 	return psetting;
 }
+
+
+
+class ZJetEventProvider : public EventProvider< ZJetEventData >
+{
+public:
+	ZJetEventProvider( FileInterface & fi )
+		: m_curEntry(0), m_fi( fi )
+	{
+	}
+
+	virtual ZJetEventData const& GetNextEvent()
+	{
+		m_fi.eventdata.GetEntry(m_curEntry);
+		return m_data;
+	}
+
+	virtual long long GetCurrentEntry() const
+	{
+		return m_curEntry;
+	}
+
+	virtual long long GetOverallEventCount() const
+	{
+		return m_fi.eventdata.GetEntries();
+	}
+
+private:
+	long long m_curEntry;
+	ZJetEventData m_data;
+	FileInterface & m_fi;
+};
 
 int main(int argc, char** argv)
 {
@@ -1025,6 +1039,55 @@ int main(int argc, char** argv)
 	// input files
 	g_sSource = g_propTree.get<std::string> ("InputFiles");
 	CALIB_LOG_FILE("Using InputFiles " << g_sSource)
+
+
+
+	FileInterface fi(vector<string>(1, g_sSource));
+
+	ZJetEventProvider evtProvider ( fi );
+	EventPipelineRunner<ZJetPipeline> pRunner;
+
+	// cloning of a pipeline ?? goes here maybe
+	// clone default pipeline for the number of settings we have
+	g_pipelines.clear();
+
+	ZJetPipelineInitializer plineInit;
+
+	ZJetPipelineSettings * pset = NULL;
+
+	BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
+			g_propTree.get_child("Pipelines") )
+	{	pset = new ZJetPipelineSettings();
+		pset->SetPropTree( &g_propTree );
+
+		std::string sKeyName = v.first.data();
+		pset->SetSettingsRoot("Pipelines." + sKeyName);
+		pset->SetRootOutFile(g_resFile);
+
+		g_pipeSettings.push_back( pset );
+	}
+
+
+	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
+			== g_pipeSettings.end()); it++)
+	{
+		if ((*it)->GetLevel() == 1)
+		{
+			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
+
+			// todo
+			//PLOT_HIST1D_CONST1(pLine, DrawJetPtConsumer, jet1_pt, 0)
+			//AddConsumersToPipeline(pLine, (*it)->GetAdditionalConsumer());
+
+			// set the algo used for this run
+			/*(*it)->SetAlgoName(g_sCurAlgo);
+			(*it)->SetOverallNumberOfProcessedEvents(
+					lOverallNumberOfProcessedEvents);
+*/
+			pLine->InitPipeline(*it, plineInit);
+			pRunner.AddPipeline( pLine );
+		}
+	}
 
 	// removes the old file
 	std::string sRootOutputFilename = (g_sOutputPath + ".root");
@@ -1093,23 +1156,13 @@ int main(int argc, char** argv)
 {	g_cutHandler->AddCut( pCut );
 }
 
-ZJetPipelineSettings * pset = NULL;
-
-BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
-		g_propTree.get_child("Pipelines") )
-{	pset = new ZJetPipelineSettings();
-	pset->SetPropTree( &g_propTree );
-
-	std::string sKeyName = v.first.data();
-	pset->SetSettingsRoot("Pipelines." + sKeyName);
-	pset->SetRootOutFile(g_resFile);
-
-	g_pipeSettings.push_back( pset );
-}
 
 std::cout << TIMING_GET_RESULT_STRING << std::endl;
 
-processAlgo();
+//processAlgo();
+
+pRunner.RunPipelines<ZJetEventData>( evtProvider );
+
 g_resFile->Close();
 g_logFile->close();
 

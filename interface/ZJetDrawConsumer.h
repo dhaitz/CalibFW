@@ -65,9 +65,9 @@ namespace CalibFW
  So machen, dass der EventConsumer noch die Kontrolle drüber hat, was ihm entzogen wird.
  */
 
-typedef DrawHist2DConsumerBase<EventResult, ZJetMetaData,ZJetPipelineSettings> ZJetHist2D;
-typedef DrawHist1dConsumerBase<EventResult, ZJetMetaData, ZJetPipelineSettings> ZJetHist1D;
-typedef DrawGraphErrorsConsumerBase<EventResult, ZJetMetaData, ZJetPipelineSettings> ZJetGraphErrors;
+typedef DrawHist2DConsumerBase<ZJetEventData, ZJetMetaData,ZJetPipelineSettings> ZJetHist2D;
+typedef DrawHist1dConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> ZJetHist1D;
+typedef DrawGraphErrorsConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> ZJetGraphErrors;
 
 #define IMPL_HIST1D_MOD1(CLASSNAME, DATAPATH, MOD1)	\
 class CLASSNAME: public ZJetHist1D	{ public: \
@@ -117,7 +117,7 @@ class DrawJetConsumerBase: public ZJetHist1D
 {
 public:
 	DrawJetConsumerBase(int jetNum) :
-		DrawHist1dConsumerBase<EventResult, ZJetMetaData, ZJetPipelineSettings> (), m_jetNum(
+		DrawHist1dConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> (), m_jetNum(
 				jetNum)
 	{
 	}
@@ -139,7 +139,7 @@ public:
 
 
  */
-
+/*
 // Z STUFF
 IMPL_HIST1D_MOD2(DrawZMassConsumer ,m_hist->Fill(res.m_pData->Z->GetCalcMass() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 200.0f),
@@ -511,7 +511,7 @@ public:
 
 		ZJetHist1D::Init(pset);
 	}
-	virtual void ProcessFilteredEvent(EventResult const& res, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
 	{
 		m_hist->Fill(res.m_pData->Z->Pt(), res.GetWeight());
 	}
@@ -542,7 +542,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult const& res, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -577,7 +577,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult const& res, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -605,7 +605,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult const& res, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -622,7 +622,7 @@ public:
 	{
 	}
 
-	virtual void ProcessFilteredEvent(EventResult const& res, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
 	{
 		if (res.IsJetValid(m_jetNum))
 		{
@@ -652,7 +652,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult const& res, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
 	{
 		if (res.IsJetValid(m_jetNum))
 		{
@@ -682,7 +682,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult const& res, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
 	{
 		if (res.IsJetValid(m_jetNum))
 		{
@@ -721,7 +721,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult const& res, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -744,7 +744,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult const& res, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -768,7 +768,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult const& res, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -791,7 +791,7 @@ public:
 		ZJetHist2D::Init(pset);
 	}
 
-	virtual void ProcessFilteredEvent(EventResult const& res, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
 	{
 		if (res.IsJetValid(1))
 		{
@@ -810,7 +810,7 @@ public:
 	{
 	}
 
-	virtual void ProcessFilteredEvent(EventResult const& res, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
 	{
 		if (res.IsJetValid(m_jetNum))
 		{
@@ -830,7 +830,7 @@ public:
 	virtual ~GraphXProviderBase()
 	{
 	}
-	virtual double GetXValue(EventResult const& event) = 0;
+	virtual double GetXValue(ZJetEventData const& event) = 0;
 
 };
 
@@ -849,7 +849,7 @@ public:
 	{
 		return 45;
 	}
-	virtual double GetXValue(EventResult const& event)
+	virtual double GetXValue(ZJetEventData const& event)
 	{
 		return event.m_pData->Z->Pt();
 	}
@@ -870,7 +870,7 @@ public:
 	{
 		return 15;
 	}
-	virtual double GetXValue(EventResult const& event)
+	virtual double GetXValue(ZJetEventData const& event)
 	{
 		return event.GetRecoVerticesCount();
 	}
@@ -880,7 +880,7 @@ template<int TJetNum>
 class GraphXProviderJetPhiDeltaZ: public GraphXProviderBase
 {
 public:
-	virtual double GetXValue(EventResult const& event)
+	virtual double GetXValue(ZJetEventData const& event)
 	{
 		return DeltaHelper::GetDeltaPhiCenterZero(event.m_pData->Z,
 				event.m_pData->jets[TJetNum]);
@@ -932,7 +932,7 @@ public:
 	}
 
 	// this method is called for all events
-	virtual void ProcessFilteredEvent(EventResult const& event, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& event, ZJetMetaData const& metaData)
 	{
 		m_graph->AddPoint(m_xProvider.GetXValue(event),
 				event.GetCorrectedJetPt(this->m_jetNum), 0.0f, 0.0f);
@@ -962,7 +962,7 @@ public:
 	}
 
 	// this method is called for all events
-	virtual void ProcessEvent(EventResult const& event, FilterResult & result)
+	virtual void ProcessEvent(ZJetEventData const& event, FilterResult & result)
 	{
 		if ( ! event.IsValidEvent())
 			return;
@@ -1080,7 +1080,11 @@ public:
 	std::string m_sInpHist;
 	std::string m_sFolder;
 
-};
+};*/
+
+
+
+
 /*
  class DrawPartonFlavourGraph: public DrawGraphErrorsConsumerBase<EventResult>
  {

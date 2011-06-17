@@ -10,5 +10,5 @@
 
 namespace CalibFW
 {
-	typedef EventConsumerBase<EventResult, ZJetMetaData, ZJetPipelineSettings> ZJetConsumerBase;
+	typedef EventConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> ZJetConsumerBase;
 }
