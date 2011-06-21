@@ -20,7 +20,7 @@ template<class TEvent, class TCutConfig>
 class EventCutBase
 {
 public:
-
+	virtual ~EventCutBase() {}
 	// returns true, if an Event passes the cuts
 	virtual bool IsInCut(TEvent evt, TCutConfig cutConf) = 0;
 

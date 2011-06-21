@@ -72,7 +72,7 @@ using namespace CalibFW;
 
 std::string g_sSource("");
 
-vdouble g_customBinning;
+//vdouble g_customBinning;
 
 std::string g_sCurAlgo;
 int g_iAlgoOverallCount;
@@ -85,6 +85,7 @@ bool g_useEventWeight;
 bool g_useGlobalWeightBin;
 double g_globalXSection;
 bool g_eventReweighting;
+doublevector g_weights;
 
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
 std::string g_sJsonFile("not set");
@@ -706,6 +707,7 @@ void importEvents(bool bUseJson,
 		// the weight of data events can be strange when read from root file. better reset here
 		res->SetWeight(1.0f);
 		res->m_bEventReweighting = g_eventReweighting;
+		res->m_weights = &g_weights;
 		if (g_useWeighting)
 		{
 			if (g_useEventWeight)
@@ -847,6 +849,9 @@ TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 	mychain->SetBranchAddress("luminosityBlock", &pEv->luminosityBlock);
 	mychain->SetBranchAddress("xsection", &pEv->xsection);
 	mychain->SetBranchAddress("weight", &pEv->weight);
+	mychain->SetBranchAddress("PU_interactions", &pEv->PU_interactions);
+	mychain->SetBranchAddress("PU_interactions_before", &pEv->PU_interactions_before);
+	mychain->SetBranchAddress("PU_interactions_after", &pEv->PU_interactions_after);
 
 	mychain->SetBranchAddress("beamSpot", &pEv->beamSpot);
 
@@ -1052,6 +1057,7 @@ int main(int argc, char** argv)
 	g_globalXSection = g_propTree.get<double> ("GlobalXSection", 0.0f);
 
 	g_eventReweighting = g_propTree.get<bool> ("EventReweighting", false);
+	g_weights = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
 
 	if (g_eventReweighting)
 		CALIB_LOG_FILE( "\n\n --------> reweightin events for # reco !!\n\n" )
