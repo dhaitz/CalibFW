@@ -19,7 +19,8 @@ public:
 	{
 	}
 
-	virtual TEvent const& GetNextEvent() = 0;
+	virtual TEvent const& GetCurrentEvent() const = 0;
+	virtual bool GotoEvent( long long lEventNumber ) = 0;
 	virtual long long GetOverallEventCount() const = 0;
 };
 
@@ -53,13 +54,20 @@ public:
 		for ( long long lCur = 0; lCur < nEvents; lCur ++)
 		{
 			if (!pm.Update()) break;
+			evtProvider.GotoEvent( lCur );
 
 			for( PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
 			{
 				if (it->GetSettings()->GetLevel() == 1)
-					it->RunEvent( evtProvider.GetNextEvent() );
+					it->RunEvent( evtProvider.GetCurrentEvent() );
 
 			}
+		}
+
+		for (PipelinesIterator it = m_pipelines.begin();
+				!(it == m_pipelines.end()); it++)
+		{
+			it->FinishPipeline();
 		}
 	}
 

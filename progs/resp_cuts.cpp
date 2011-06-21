@@ -981,19 +981,20 @@ class ZJetEventProvider : public EventProvider< ZJetEventData >
 {
 public:
 	ZJetEventProvider( FileInterface & fi )
-		: m_curEntry(0), m_fi( fi )
+		: m_fi( fi )
 	{
 	}
 
-	virtual ZJetEventData const& GetNextEvent()
+	virtual bool GotoEvent( long long lEvent)
 	{
-		m_fi.eventdata.GetEntry(m_curEntry);
+		m_fi.eventdata.GetEntry( lEvent);
+
+		return true;
+	}
+
+	virtual ZJetEventData const&  GetCurrentEvent() const
+	{
 		return m_data;
-	}
-
-	virtual long long GetCurrentEntry() const
-	{
-		return m_curEntry;
 	}
 
 	virtual long long GetOverallEventCount() const
@@ -1001,10 +1002,17 @@ public:
 		return m_fi.eventdata.GetEntries();
 	}
 
-private:
-	long long m_curEntry;
+
 	ZJetEventData m_data;
+private:
+
 	FileInterface & m_fi;
+};
+
+struct ConsumerConfig
+{
+public:
+	int EventDataID;
 };
 
 int main(int argc, char** argv)
@@ -1044,7 +1052,51 @@ int main(int argc, char** argv)
 
 	FileInterface fi(vector<string>(1, g_sSource));
 
+	std::vector<std::string> sJetNames = fi.GetNames<KDataJet>(true);
+	BOOST_FOREACH( std::string s, sJetNames)
+	{
+		std::cout << "KDataJet " << s << std::endl;
+	}
+
+	sJetNames = fi.GetNames<KDataPFJets>(true);
+	BOOST_FOREACH( std::string s, sJetNames)
+	{
+		std::cout << "KDataLV " << s << std::endl;
+	}
+
+
 	ZJetEventProvider evtProvider ( fi );
+
+	KDataPFJets * myJets = fi.Get<KDataPFJets>("AK5PFJets");
+	evtProvider.m_data.PF_jets = myJets;
+
+
+/*	typedef std::pair<std::string, ConsumerConfig > configpair;
+	typedef std::vector<std::pair<std::string, ConsumerConfig > > configpairvector;
+
+	configpairvector LVPlots(1,
+			configpair( "jet1_ak5PF",
+					ConsumerConfig()
+					));
+*/
+	/*s.second.EventDataID =
+	evtProvider.GetEventData().AddDataLV( fi.Get<KDataPFJets>( "AK5PFJets" )[0] );
+*/
+
+
+
+	// removes the old file
+	std::string sRootOutputFilename = (g_sOutputPath + ".root");
+
+	//Todo: close file to free memory of already written histos
+	g_resFile = new TFile(sRootOutputFilename.c_str(), "RECREATE");
+	CALIB_LOG_FILE("Writing to the root file " << sRootOutputFilename)
+
+	// insert config into log file
+	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump:" );
+	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
+
+
 	EventPipelineRunner<ZJetPipeline> pRunner;
 
 	// cloning of a pipeline ?? goes here maybe
@@ -1068,12 +1120,23 @@ int main(int argc, char** argv)
 	}
 
 
+
+
+
 	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 			== g_pipeSettings.end()); it++)
 	{
 		if ((*it)->GetLevel() == 1)
 		{
 			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
+
+			/*
+			 *  LVConsumer ( "ak5PF" , "muon_pt" ) -> Init ( create all histos ) -> Process ( fill histos )
+			 *
+			 *
+			 */
+
+
 
 			// todo
 			//PLOT_HIST1D_CONST1(pLine, DrawJetPtConsumer, jet1_pt, 0)
@@ -1084,21 +1147,17 @@ int main(int argc, char** argv)
 			(*it)->SetOverallNumberOfProcessedEvents(
 					lOverallNumberOfProcessedEvents);
 */
+			MetaConsumerDataJets * pfJetsConsumer = new MetaConsumerDataJets();
+
+			pfJetsConsumer->SetProductName( "AK5PF" );
+			pfJetsConsumer->SetProductID( 0 );
+
+			pLine->AddConsumer(pfJetsConsumer);
+
 			pLine->InitPipeline(*it, plineInit);
 			pRunner.AddPipeline( pLine );
 		}
 	}
-
-	// removes the old file
-	std::string sRootOutputFilename = (g_sOutputPath + ".root");
-
-	//Todo: close file to free memory of already written histos
-	g_resFile = new TFile(sRootOutputFilename.c_str(), "RECREATE");
-	CALIB_LOG_FILE("Writing to the root file " << sRootOutputFilename)
-
-	// insert config into log file
-	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump:" );
-	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
 
 
 	/*

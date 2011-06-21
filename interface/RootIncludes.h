@@ -59,6 +59,8 @@ public:
 
     static void SafeCd( TDirectory * pDir, std::string dirName )
     {
+    	assert( pDir );
+
         if ( pDir->GetDirectory( dirName.c_str() ) == 0)
 		{
 			pDir->mkdir( dirName.c_str() );

@@ -106,9 +106,16 @@ void SetNameAndCaption( std::string sName)
 {
 	m_sName = m_sCaption = sName;
 }
+
+std::string GetName() const { return m_sName; }
+std::string GetCaption() const { return m_sCaption; }
+
+
 std::string m_sName;
 std::string m_sCaption;
-std::string m_sRootFileFolder;
+
+IMPL_PROPERTY(std::string, RootFileFolder)
+
 };
 
 class PlotSettings
@@ -154,7 +161,7 @@ void Store(TFile * pRootFile)
 {
 	this->RunModifierBeforeCreation( this );
 
-	RootFileHelper::SafeCd( gROOT, this->m_sRootFileFolder );
+	RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
 	m_graph = RootFileHelper::GetStandaloneTGraphErrors( m_points.size());
 	m_graph->SetName( m_sName.c_str() );
 	//m_graph->SetCaption( m_sCaption.c_str() );
@@ -175,7 +182,7 @@ void Store(TFile * pRootFile)
 	this->RunModifierAfterDraw( this );
 
 	//CALIB_LOG( "Storing GraphErrors " + this->m_sRootFileFolder + "/" + this->m_sName + "_graph" )
-	RootFileHelper::SafeCd( pRootFile, this->m_sRootFileFolder );
+	RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
 	m_graph->Write((this->m_sName + "_graph").c_str());
 }
 
@@ -205,7 +212,7 @@ void Init()
 {
 	this->RunModifierBeforeCreation( this );
 
-	RootFileHelper::SafeCd( gROOT, this->m_sRootFileFolder );
+	RootFileHelper::SafeCd( gROOT, GetRootFileFolder());
 	m_profile = RootFileHelper::GetStandaloneTProfile(
 			this->m_sName, this->m_sCaption,
 			this->m_iBinXCount, this->m_dBinXLower, this->m_dBinXUpper);
@@ -220,7 +227,7 @@ void Store(TFile * pRootFile)
 	this->RunModifierAfterDraw( this );
 
 	//CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
-	RootFileHelper::SafeCd( pRootFile, this->m_sRootFileFolder );
+	RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
 	m_profile->Write((this->m_sName + "_profile").c_str());
 }
 
@@ -254,7 +261,7 @@ void Init()
 {
 	this->RunModifierBeforeCreation( this );
 
-	RootFileHelper::SafeCd( gROOT, this->m_sRootFileFolder );
+	RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
 	m_hist = RootFileHelper::GetStandaloneTH2D_1(
 			this->m_sName, this->m_sCaption,
 			this->m_iBinXCount, this->m_dBinXLower, this->m_dBinXUpper,
@@ -272,7 +279,7 @@ void Init()
 
 		m_profile.m_dBinXLower = this->m_dBinXLower;
 		m_profile.m_dBinXUpper = this->m_dBinXUpper,
-		m_profile.m_sRootFileFolder = this->m_sRootFileFolder;
+		m_profile.SetRootFileFolder( GetRootFileFolder() );
 		m_profile.Init();
 	}
 }
@@ -283,7 +290,7 @@ void Store(TFile * pRootFile)
 	this->RunModifierAfterDraw( this );
 
 	//CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
-	RootFileHelper::SafeCd( pRootFile, this->m_sRootFileFolder );
+	RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
 	m_hist->Write((this->m_sName + "_hist").c_str());
 
 	if ( m_bDoProfile )
@@ -329,7 +336,7 @@ void Init()
 {
 	this->RunModifierBeforeCreation( this );
 
-	RootFileHelper::SafeCd( gROOT, this->m_sRootFileFolder );
+	RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
 	if ( m_bUseCustomBin )
 	{
 		m_hist = RootFileHelper::GetStandaloneTH1D_1( this->m_sName,
@@ -355,10 +362,10 @@ void Store(TFile * pRootFile)
 	this->RunModifierAfterDataEntry(this );
 	this->RunModifierAfterDraw( this );
 
-	//CALIB_LOG( "Storing Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
+	CALIB_LOG( "Storing Histogram " + this->GetRootFileFolder() + "/" + this->GetName()  )
 
-	RootFileHelper::SafeCd( pRootFile, this->m_sRootFileFolder );
-	m_hist->Write((this->m_sName + "_hist").c_str());
+	RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
+	m_hist->Write((this->m_sName ).c_str());
 }
 
 void Fill(double val, double weight)
@@ -434,7 +441,7 @@ virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
 	//CALIB_LOG( "Initializing GraphErrors for " << this->GetProductName() )
 
 	m_graph->m_sName = m_graph->m_sCaption = this->GetProductName();
-	m_graph->m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+	m_graph->SetRootFileFolder( this->GetPipelineSettings()->GetRootFileFolder());
 	m_graph->Init();
 }
 
@@ -466,7 +473,7 @@ virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
 	/* m_hist->m_sName = "nname"; //this->GetProductName();
 	 m_hist->m_sCaption = "ccapt" ;//this->GetProductName(); */
 	m_hist->m_sName = m_hist->m_sCaption = this->GetProductName();
-	m_hist->m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+	m_hist->SetRootFileFolder (this->GetPipelineSettings()->GetRootFileFolder());
 	m_hist->Init();
 }
 
@@ -498,7 +505,7 @@ virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
 	/* m_hist->m_sName = "nname"; //this->GetProductName();
 	 m_hist->m_sCaption = "ccapt" ;//this->GetProductName(); */
 	m_hist->m_sName = m_hist->m_sCaption = this->GetProductName();
-	m_hist->m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+	m_hist->SetRootFileFolder( this->GetPipelineSettings()->GetRootFileFolder() );
 	m_hist->Init();
 }
 

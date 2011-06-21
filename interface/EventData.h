@@ -313,7 +313,8 @@ public:
 
 class ZJetMetaData : public CalibFW::EventMetaDataBase
 {
-
+public:
+	double GetWeight() const { return 1.0f; }
 };
 
 class EventResultDeprecated

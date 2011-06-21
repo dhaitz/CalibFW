@@ -17,6 +17,7 @@
 #include "PtBinWeighter.h"
 #include "EventPipeline.h"
 #include "CutHandler.h"
+#include "DrawBase.h"
 
 #include "DrawModifier.h"
 #include "ZJetPipeline.h"
@@ -65,9 +66,15 @@ namespace CalibFW
  So machen, dass der EventConsumer noch die Kontrolle drüber hat, was ihm entzogen wird.
  */
 
-typedef DrawHist2DConsumerBase<ZJetEventData, ZJetMetaData,ZJetPipelineSettings> ZJetHist2D;
-typedef DrawHist1dConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> ZJetHist1D;
-typedef DrawGraphErrorsConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> ZJetGraphErrors;
+typedef DrawHist2DConsumerBase<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> ZJetHist2D;
+typedef DrawHist1dConsumerBase<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> ZJetHist1D;
+typedef DrawGraphErrorsConsumerBase<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> ZJetGraphErrors;
+
+//typedef EventConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> MetaConsumerBase;
+
 
 #define IMPL_HIST1D_MOD1(CLASSNAME, DATAPATH, MOD1)	\
 class CLASSNAME: public ZJetHist1D	{ public: \
@@ -117,13 +124,76 @@ class DrawJetConsumerBase: public ZJetHist1D
 {
 public:
 	DrawJetConsumerBase(int jetNum) :
-		DrawHist1dConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> (), m_jetNum(
-				jetNum)
+		DrawHist1dConsumerBase<ZJetEventData, ZJetMetaData,
+				ZJetPipelineSettings> (), m_jetNum(jetNum)
 	{
 	}
 
 	int m_jetNum;
 };
+
+class MetaConsumerBase: public EventConsumerBase<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings>
+{
+
+	//IMPL_PROPERTY( std::vector< EventConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> *>, SubConsumer )
+};
+
+class MetaConsumerDataJets: public DrawConsumerBase<ZJetEventData,
+		ZJetMetaData, ZJetPipelineSettings>
+{
+public:
+	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+			ZJetPipelineSettings> * pset)
+	{
+		m_pipeline = pset;
+
+		m_histJetPt.Init();
+
+		m_histJetPt.AddModifier(new ModHistBinRange(0.0f, 1000.0f));
+		m_histJetPt.AddModifier(new ModHistBinCount(500));
+
+		//m_histJetPt.pse
+		m_histJetPt.SetNameAndCaption( GetProductName());
+		m_histJetPt.SetRootFileFolder(
+				GetPipelineSettings()->GetRootFileFolder());
+	}
+
+	// this method is only called for events which have passed the filter imposed on the
+	// pipeline
+	virtual void ProcessFilteredEvent(ZJetEventData const& event,
+			ZJetMetaData const& metaData)
+	{
+		// call sub plots
+		if (event.PF_jets->size() < (GetProductID() + 1))
+			// no valid entry for us here !
+			return;
+
+		KDataPFJet & pfJet = event.PF_jets->at(GetProductID());
+
+		// TODO: is jet valid
+		m_histJetPt.Fill(pfJet.p4.Pt(), metaData.GetWeight());
+		//CALIB_LOG(pfJet.p4.Pt() );
+
+	}
+
+	virtual void Finish()
+	{
+		m_histJetPt.Store(GetPipelineSettings()->GetRootOutFile());
+		CALIB_LOG( "store" );
+	}
+
+IMPL_PROPERTY( std::string, ProductName )
+IMPL_PROPERTY( int, ProductID )
+
+	Hist1D m_histJetPt;
+
+};
+
+// DataLV pt
+/*IMPL_HIST1D_MOD2(DrawMuMinusPtConsumer ,m_hist->Fill(res.m_pData->mu_minus->Pt() , res.GetWeight( )); ,
+ new ModHistBinRange(0.0f, 1000.0f),
+ new ModHistBinCount(500))*/
 
 // Z STUFF
 /*
@@ -140,950 +210,947 @@ public:
 
  */
 /*
-// Z STUFF
-IMPL_HIST1D_MOD2(DrawZMassConsumer ,m_hist->Fill(res.m_pData->Z->GetCalcMass() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 200.0f),
-		new ModHistBinCount(300))
-IMPL_HIST1D_MOD2(DrawZPtConsumer ,m_hist->Fill(res.m_pData->Z->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 1000.0f),
-		new ModHistBinCount(500))
-
-IMPL_HIST1D_MOD1(DrawZEtaConsumer ,m_hist->Fill(res.m_pData->Z->Eta() , res.GetWeight( )); ,
-		new ModHistBinRange(-5.0f, 5.0f))
-
-IMPL_HIST1D_MOD1(DrawZPhiConsumer ,m_hist->Fill(res.m_pData->Z->Phi() - TMath::Pi(), res.GetWeight( )); ,
-		new ModHistBinRange(-3.5f, 3.5f))
-
-// Parton Flavour
-IMPL_HIST1D_MOD2(DrawPartonFlavourConsumer ,m_hist->Fill(res.m_pData->partonFlavour, res.GetWeight( )); ,
-		new ModHistBinRange(-50.5f, 49.5f),
-		new ModHistBinCount(100))
-
-// mus pt
-IMPL_HIST1D_MOD2(DrawMuPlusPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 1000.0f),
-		new ModHistBinCount(500))
-IMPL_HIST1D_MOD2(DrawMuMinusPtConsumer ,m_hist->Fill(res.m_pData->mu_minus->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 1000.0f),
-		new ModHistBinCount(500))
-// mus Eta
-IMPL_HIST1D_MOD1(DrawMuPlusEtaConsumer ,m_hist->Fill(res.m_pData->mu_plus->Eta() , res.GetWeight( )); ,
-		new ModHistBinRange(-5.0f, 5.0f))
-IMPL_HIST1D_MOD1(DrawMuMinusEtaConsumer ,m_hist->Fill(res.m_pData->mu_minus->Eta() , res.GetWeight( )); ,
-		new ModHistBinRange(-5.0f, 5.0f))
-
-// mus phi
-IMPL_HIST1D_MOD1(DrawMuPlusPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() - TMath::Pi() , res.GetWeight( )); ,
-		new ModHistBinRange(-3.5f, 3.5f))
-IMPL_HIST1D_MOD1(DrawMuMinusPhiConsumer ,m_hist->Fill(res.m_pData->mu_minus->Phi() - TMath::Pi(), res.GetWeight( )); ,
-		new ModHistBinRange(-3.5f, 3.5f))
-
-// Both mus
-IMPL_HIST1D_MOD2(DrawMuAllPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 1000.0f),
-		new ModHistBinCount(500))
-IMPL_HIST1D_MOD1(DrawMuAllEtaConsumer ,m_hist->Fill(res.m_pData->mu_plus->Eta() , res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Eta() , res.GetWeight( )); ,
-		new ModHistBinRange(-5.0f, 5.0f))
-IMPL_HIST1D_MOD1(DrawMuAllPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() - TMath::Pi(), res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Phi() - TMath::Pi() , res.GetWeight( )); ,
-		new ModHistBinRange(-3.5f, 3.5f))
-
-// MET
-IMPL_HIST1D_MOD2(DrawMetConsumer ,m_hist->Fill(res.m_pData->met->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 1000.0f),
-		new ModHistBinCount(500))
-IMPL_HIST1D_MOD2(DrawTcMetConsumer ,m_hist->Fill(res.m_pData->tcmet->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0f, 1000.0f),
-		new ModHistBinCount(500))
-//RECO VERT
-IMPL_HIST1D_MOD2(DrawRecoVertConsumer ,m_hist->Fill( (double)res.GetRecoVerticesCount() , res.GetWeight( )); ,
-		new ModHistBinRange(-0.5, 14.5),
-		new ModHistBinCount(15))
-
-// SecondJet Pt / Z.Pt
-IMPL_HIST1D_MOD1(Draw2ndJetPtDivZPtConsumer ,
-		{	if ( res.IsJetValid( 1 ))
-			{	m_hist->Fill( res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt() , res.GetWeight( ));}},
-		new ModHistBinRange(0.0, 2.0))
-
-//JET RESP
-IMPL_HIST1D_MOD1(DrawJetRespConsumer ,m_hist->Fill( res.GetCorrectedJetPt(0) / res.m_pData->Z->Pt() , res.GetWeight( )); ,
-		new ModHistBinRange(0.0, 2.0))
-// MPF RESP
-IMPL_HIST1D_MOD1(DrawMpfJetRespConsumer ,
-		{
-			double scalPtEt = res.m_pData->Z->Px()*res.m_pData->met->Px() +
-			res.m_pData->Z->Py()*res.m_pData->met->Py();
-			double scalPtSq = res.m_pData->Z->Px()*res.m_pData->Z->Px() +
-			res.m_pData->Z->Py()*res.m_pData->Z->Py();
-
-			m_hist->Fill( 1.0 + (scalPtEt /scalPtSq), res.GetWeight( ));
-		},
-		new ModHistBinRange(0.0, 2.0))
-
-// Matched Z
-IMPL_HIST1D_MOD1(DrawZMatchConsumer ,
-		{	if (res.m_pData->matched_Z!=NULL and res.m_pData->matched_Z->Pt() >0)
-			{	m_hist->Fill( res.m_pData->Z->Pt() / res.m_pData->matched_Z->Pt(), res.GetWeight( ));}},
-		new ModHistBinRange(0.0, 6.0))
-
-// Jets
-IMPL_HIST1D_JET_MOD2(DrawJetPtConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill(res.GetCorrectedJetPt( m_jetNum ) , res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 1000.0f),
-		new ModHistBinCount(500))
-
-IMPL_HIST1D_JET_MOD1(DrawJetEtaConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill(res.m_pData->jets[m_jetNum]->Eta() , res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(-4.0f, 4.0f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetPhiConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill(res.m_pData->jets[m_jetNum]->Phi() - TMath::Pi() , res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(-3.5f, 3.5f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetDeltaPhiConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( DeltaHelper::GetDeltaPhiCenterZero( res.m_pData->Z,
-								res.m_pData->jets[m_jetNum]),
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(-3.5f, 3.5f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetDeltaPhiWrtJet1Consumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( DeltaHelper::GetDeltaPhiCenterZero( res.m_pData->jets[0],
-								res.m_pData->jets[m_jetNum]),
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(-3.5f, 3.5f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetDeltaEtaWrtJet1Consumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( TMath::Abs( res.m_pData->jets[0]->Eta() -
-								res.m_pData->jets[m_jetNum]->Eta()),
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(-3.5f, 3.5f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetDeltaRWrtJet1Consumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( DeltaHelper::GetDeltaR(res.m_pData->jets[0],res.m_pData->jets[m_jetNum]),
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 6.0f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetDeltaEtaConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( TMath::Abs( res.m_pData->Z->Eta() -
-								res.m_pData->jets[m_jetNum]->Eta()),
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 4.0f) )
-
-// matched jet pf / calo
-// Jets
-IMPL_HIST1D_JET_MOD1(DrawMatchCaloJetPtRatioConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ) && ( res.m_pData->matched_calo_jets[m_jetNum] != NULL)
-					&& (res.m_pData->matched_calo_jets[m_jetNum]->Pt() > 0))
-			{
-				m_hist->Fill( res.m_pData->matched_calo_jets[m_jetNum]->Pt() / res.GetCorrectedJetPt( m_jetNum ) ,
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 2.0f) )
-
-IMPL_HIST1D_JET_MOD2(DrawMatchCaloJetPtConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ) && ( res.m_pData->matched_calo_jets[m_jetNum] != NULL)
-					&& (res.m_pData->matched_calo_jets[m_jetNum]->Pt() > 0))
-			{
-				m_hist->Fill( res.m_pData->matched_calo_jets[m_jetNum]->Pt() ,
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 1000.0f),
-		new ModHistBinCount(500))
-
-// Energy fractions // Test if jet.Energy = sum (calenergies)
-IMPL_HIST1D_JET_MOD1(DrawJetAllEnergyFractionPtConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->jets[m_jetNum]->Energy()*0.9 / res.m_pData->jets[m_jetNum]->Energy(),
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 2.0f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetChargedHadronEnergyFractionPtConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedHadronEnergyFraction,
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 1.5f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetNeutralHadronEnergyFractionPtConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralHadronEnergyFraction,
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 1.5f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetChargedEmEnergyFractionPtConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedEmEnergy / res.m_pData->jets[m_jetNum]->Energy(),
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 1.5f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetNeutralEmEnergyFractionPtConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralEmEnergy / res.m_pData->jets[m_jetNum]->Energy(),
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 1.5f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetElectronEnergyFractionPtConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ElectronEnergy / res.m_pData->jets[m_jetNum]->Energy(),
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 1.5f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetMuonEnergyFractionPtConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->MuonEnergy / res.m_pData->jets[m_jetNum]->Energy(),
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 1.5f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetPhotonEnergyFractionPtConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->PhotonEnergy / res.m_pData->jets[m_jetNum]->Energy(),
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 1.5f) )
-
-// Multiplicities
-IMPL_HIST1D_JET_MOD2(DrawJetChargedHadronMultiplicityConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				//					CALIB_LOG( "pf multi " <<  res.m_pData->pfProperties[ m_jetNum]->ChargedHadronMultiplicity )
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedHadronMultiplicity,
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(-0.5f, 11.5f),
-		new ModHistBinCount(12)
-
-)
-
-IMPL_HIST1D_JET_MOD1(DrawJetNeutralHadronMultiplicityConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralHadronMultiplicity,
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 12.f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetChargedMultiplicityConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedMultiplicity,
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 12.f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetNeutralMultiplicityConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralMultiplicity,
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 12.f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetElectronMultiplicityConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ElectronMultiplicity,
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 400.f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetMuonMultiplicityConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->MuonMultiplicity,
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 12.f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetPhotonMultiplicityConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->PhotonMultiplicity,
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 12.f) )
-
-IMPL_HIST1D_JET_MOD1(DrawJetConstituentsConsumer ,
-		{
-			if ( res.IsJetValid( m_jetNum ))
-			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->Constituents,
-						res.GetWeight( ));
-			}
-		},
-		new ModHistBinRange(0.0f, 100.f) )
-
-class DrawEventCount: public ZJetHist1D
-{
-public:
-	virtual void Init(ZJetPipeline * pset)
-	{
-		ModHistCustomBinnig * cbMod = new ModHistCustomBinnig(
-				pset->GetSettings()->GetCustomBins());
-		m_hist->AddModifier(cbMod);
-
-		ZJetHist1D::Init(pset);
-	}
-	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
-	{
-		m_hist->Fill(res.m_pData->Z->Pt(), res.GetWeight());
-	}
-};
-
-class DrawDeltaRMapConsumer: public ZJetHist2D
-{
-public:
-	virtual void Init(ZJetPipeline * pset)
-	{
-
-		m_hist->AddModifier(new ModHist2DBinRange(0.0f, 5.0f, 0.0, 50.0));
-		m_hist->AddModifier(new ModHist2DBinCount(120, 120));
-
-		ZJetHist2D::Init(pset);
-	}
-};
-
-class DrawBalanceMpfConsumer: public ZJetHist2D
-{
-public:
-	virtual void Init(ZJetPipeline * pset)
-	{
-
-		m_hist->AddModifier(new ModHist2DBinRange(0.0f, 3.0f, 0.0f, 3.0f));
-		m_hist->AddModifier(new ModHist2DBinCount(100, 100));
-
-		ZJetHist2D::Init(pset);
-	}
-
-	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
-	{
-		if (res.IsJetValid(1))
-		{
-			double balance = res.GetCorrectedJetPt(0) / res.m_pData->Z->Pt();
-			double scalPtEt = res.m_pData->Z->Px() * res.m_pData->met->Px()
-					+ res.m_pData->Z->Py() * res.m_pData->met->Py();
-			double scalPtSq = res.m_pData->Z->Px() * res.m_pData->Z->Px()
-					+ res.m_pData->Z->Py() * res.m_pData->Z->Py();
-			double mpf = 1.0 + (scalPtEt / scalPtSq);
-
-			m_hist->Fill(balance, mpf, res.GetWeight());
-		}
-	}
-
-};
-
-class DrawJetActivityRecoVertMapConsumer: public ZJetHist2D
-{
-public:
-	DrawJetActivityRecoVertMapConsumer()
-	{
-	}
-
-	virtual void Init(ZJetPipeline * pset)
-	{
-		// magic master switch
-		m_hist->m_bDoProfile = true;
-
-		m_hist->AddModifier(new ModHist2DBinRange(-0.5, 14.5, 0.0f, 200.0f));
-		m_hist->AddModifier(new ModHist2DBinCount(15, 50));
-
-		ZJetHist2D::Init(pset);
-	}
-
-	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
-	{
-		if (res.IsJetValid(1))
-		{
-			m_hist->Fill(res.GetRecoVerticesCount(), res.GetCorrectedJetPt(1)
-					+ res.GetCorrectedJetPt(2), res.GetWeight());
-		}
-	}
-};
-
-class Draw2ndJetCutNRVMapConsumer: public ZJetHist2D
-{
-public:
-	Draw2ndJetCutNRVMapConsumer()
-	{
-	}
-
-	virtual void Init(ZJetPipeline * pset)
-	{
-		// magic master switch
-		m_hist->m_bDoProfile = true;
-
-		m_hist->AddModifier(new ModHist2DBinRange(-0.5, 14.5, 0.0f, 3.0f));
-		m_hist->AddModifier(new ModHist2DBinCount(15, 30));
-
-		ZJetHist2D::Init(pset);
-	}
-
-	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
-	{
-		if (res.IsJetValid(1))
-		{
-			m_hist->Fill(res.GetRecoVerticesCount(), res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt(), res.GetWeight());
-		}
-	}
-};
-
-class DrawDeltaRJetMapConsumer: public DrawDeltaRMapConsumer
-{
-public:
-	DrawDeltaRJetMapConsumer(int jetNum) :
-		m_jetNum(jetNum)
-	{
-	}
-
-	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
-	{
-		if (res.IsJetValid(m_jetNum))
-		{
-			m_hist->Fill(DeltaHelper::GetDeltaR(res.m_pData->jets[0],
-					res.m_pData->jets[m_jetNum]), res.GetCorrectedJetPt(
-					m_jetNum), res.GetWeight());
-		}
-	}
-
-	int m_jetNum;
-};
-
-class DrawDeltaRJetRatioJetMapConsumer: public DrawDeltaRMapConsumer
-{
-public:
-	DrawDeltaRJetRatioJetMapConsumer(int jetNum) :
-		m_jetNum(jetNum)
-	{
-	}
-
-	virtual void Init(ZJetPipeline * pset)
-	{
-
-		m_hist->AddModifier(new ModHist2DBinRange(0.0f, 5.0f, 0.0, 1.2));
-		m_hist->AddModifier(new ModHist2DBinCount(120, 120));
-
-		ZJetHist2D::Init(pset);
-	}
-
-	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
-	{
-		if (res.IsJetValid(m_jetNum))
-		{
-			m_hist->Fill(DeltaHelper::GetDeltaR(res.m_pData->jets[0],
-					res.m_pData->jets[m_jetNum]), res.GetCorrectedJetPt(
-					m_jetNum) / res.GetCorrectedJetPt(0), res.GetWeight());
-		}
-	}
-
-	int m_jetNum;
-};
-
-class DrawDeltaRJetRatioZMapConsumer: public DrawDeltaRMapConsumer
-{
-public:
-	DrawDeltaRJetRatioZMapConsumer(int jetNum) :
-		m_jetNum(jetNum)
-	{
-	}
-
-	virtual void Init(ZJetPipeline * pset)
-	{
-
-		m_hist->AddModifier(new ModHist2DBinRange(0.0f, 5.0f, 0.0, 1.2));
-		m_hist->AddModifier(new ModHist2DBinCount(120, 120));
-
-		ZJetHist2D::Init(pset);
-	}
-
-	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
-	{
-		if (res.IsJetValid(m_jetNum))
-		{
-			m_hist->Fill(DeltaHelper::GetDeltaR(res.m_pData->jets[0],
-					res.m_pData->jets[m_jetNum]), res.GetCorrectedJetPt(
-					m_jetNum) / res.m_pData->Z->Pt(), res.GetWeight());
-		}
-	}
-
-	int m_jetNum;
-};
-
-class DrawEtaPhiMapConsumer: public ZJetHist2D
-{
-public:
-	virtual void Init(ZJetPipeline * pset)
-	{
-
-		m_hist->AddModifier(new ModHist2DBinRange(0.0f, 4.0f, -3.2, 3.2));
-		m_hist->AddModifier(new ModHist2DBinCount(40, 40));
-
-		ZJetHist2D::Init(pset);
-	}
-
-};
-
-class DrawPhiJet2PtConsumer: public ZJetHist2D
-{
-public:
-	virtual void Init(ZJetPipeline * pset)
-	{
-
-		m_hist->AddModifier(new ModHist2DBinRange(-3.2, 3.2, 0.0, 50.0f));
-		m_hist->AddModifier(new ModHist2DBinCount(40, 40));
-
-		ZJetHist2D::Init(pset);
-	}
-
-	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
-	{
-		if (res.IsJetValid(1))
-		{
-			m_hist->Fill(DeltaHelper::GetDeltaPhiCenterZero(
-					res.m_pData->jets[1], res.m_pData->jets[0]),
-					res.GetCorrectedJetPt(1), res.GetWeight());
-		}
-	}
-};
-
-class DrawPhiJet2RatioConsumer: public ZJetHist2D
-{
-public:
-	virtual void Init(ZJetPipeline * pset)
-	{
-
-		m_hist->AddModifier(new ModHist2DBinRange(-3.2, 3.2, 0.0, 1.2f));
-		m_hist->AddModifier(new ModHist2DBinCount(40, 40));
-
-		ZJetHist2D::Init(pset);
-	}
-
-	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
-	{
-		if (res.IsJetValid(1))
-		{
-			m_hist->Fill(DeltaHelper::GetDeltaPhiCenterZero(
-					res.m_pData->jets[1], res.m_pData->jets[0]),
-					res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt(),
-					res.GetWeight());
-		}
-	}
-};
-
-class DrawEtaJet2PtConsumer: public ZJetHist2D
-{
-public:
-	virtual void Init(ZJetPipeline * pset)
-	{
-
-		m_hist->AddModifier(new ModHist2DBinRange(0.0f, 5.0f, 0.0, 50.0f));
-		m_hist->AddModifier(new ModHist2DBinCount(40, 40));
-
-		ZJetHist2D::Init(pset);
-	}
-
-	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
-	{
-		if (res.IsJetValid(1))
-		{
-			m_hist->Fill(TMath::Abs(res.m_pData->jets[0]->Eta()
-					- res.m_pData->jets[1]->Eta()), res.GetCorrectedJetPt(1),
-					res.GetWeight());
-		}
-	}
-};
-
-class DrawEtaJet2RatioConsumer: public ZJetHist2D
-{
-public:
-	virtual void Init(ZJetPipeline * pset)
-	{
-
-		m_hist->AddModifier(new ModHist2DBinRange(0.0, 5.0f, 0.0, 1.2f));
-		m_hist->AddModifier(new ModHist2DBinCount(40, 40));
-
-		ZJetHist2D::Init(pset);
-	}
-
-	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
-	{
-		if (res.IsJetValid(1))
-		{
-			m_hist->Fill(TMath::Abs(res.m_pData->jets[0]->Eta()
-					- res.m_pData->jets[1]->Eta()), res.GetCorrectedJetPt(1)
-					/ res.m_pData->Z->Pt(), res.GetWeight());
-		}
-	}
-};
-
-class DrawEtaPhiJetMapConsumer: public DrawEtaPhiMapConsumer
-{
-public:
-	DrawEtaPhiJetMapConsumer(int jetNum) :
-		m_jetNum(jetNum)
-	{
-	}
-
-	virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
-	{
-		if (res.IsJetValid(m_jetNum))
-		{
-			m_hist->Fill(TMath::Abs(res.m_pData->Z->Eta()
-					- res.m_pData->jets[m_jetNum]->Eta()),
-					DeltaHelper::GetDeltaPhiCenterZero(res.m_pData->Z,
-							res.m_pData->jets[m_jetNum]), res.GetWeight());
-		}
-	}
-
-	int m_jetNum;
-};
-
-class GraphXProviderBase
-{
-public:
-	virtual ~GraphXProviderBase()
-	{
-	}
-	virtual double GetXValue(ZJetEventData const& event) = 0;
-
-};
-
-class GraphXProviderZpt: public GraphXProviderBase
-{
-public:
-	virtual double GetLow()
-	{
-		return 0.0f;
-	}
-	virtual double GetHigh()
-	{
-		return 300.0f;
-	}
-	virtual int GetBinCount()
-	{
-		return 45;
-	}
-	virtual double GetXValue(ZJetEventData const& event)
-	{
-		return event.m_pData->Z->Pt();
-	}
-};
-
-class GraphXProviderRecoVert: public GraphXProviderBase
-{
-public:
-	virtual double GetLow()
-	{
-		return -0.5f;
-	}
-	virtual double GetHigh()
-	{
-		return 14.5f;
-	}
-	virtual int GetBinCount()
-	{
-		return 15;
-	}
-	virtual double GetXValue(ZJetEventData const& event)
-	{
-		return event.GetRecoVerticesCount();
-	}
-};
-
-template<int TJetNum>
-class GraphXProviderJetPhiDeltaZ: public GraphXProviderBase
-{
-public:
-	virtual double GetXValue(ZJetEventData const& event)
-	{
-		return DeltaHelper::GetDeltaPhiCenterZero(event.m_pData->Z,
-				event.m_pData->jets[TJetNum]);
-	}
-};
-
-class DrawDeltaPhiRange: public ZJetGraphErrors
-{
-public:
-	DrawDeltaPhiRange() :
-		ZJetGraphErrors()
-	{
-	}
-	virtual void Finish()
-	{
-		// plot the efficiency
-		for (double i = 0; i < 2 * TMath::Pi(); i += 0.1)
-		{
-			TVector3 v1 = TVector3(1.0, 0.0, 0.0);
-			TVector3 v2 = TVector3(TMath::Cos(i), TMath::Sin(i), 0.0);
-
-			m_graph->AddPoint(i, DeltaHelper::GetDeltaPhiCenterZero(v1, v2),
-					0.0f, 0.0f);
-		}
-
-		ZJetGraphErrors::Finish();
-	}
-};
-
-class DrawJetGraphBase: public ZJetGraphErrors
-{
-public:
-	DrawJetGraphBase(int jetNum) :
-		ZJetGraphErrors(), m_jetNum(jetNum)
-	{
-
-	}
-	int m_jetNum;
-
-};
-
-template<class TXProvider>
-class DrawJetPt: public DrawJetGraphBase
-{
-public:
-	DrawJetPt(int jetNum) :
-		DrawJetGraphBase(jetNum)
-	{
-	}
-
-	// this method is called for all events
-	virtual void ProcessFilteredEvent(ZJetEventData const& event, ZJetMetaData const& metaData)
-	{
-		m_graph->AddPoint(m_xProvider.GetXValue(event),
-				event.GetCorrectedJetPt(this->m_jetNum), 0.0f, 0.0f);
-	}
-	TXProvider m_xProvider;
-};
-
-template<class TXProvider>
-class DrawCutIneffGraph: public ZJetGraphErrors
-{
-public:
-	DrawCutIneffGraph(int cutId) :
-		ZJetGraphErrors(), m_iCutId(cutId)
-	{
-		m_hist_rejected.AddModifier(new ModHistBinRange(m_xProvider.GetLow(),
-				m_xProvider.GetHigh()));
-		m_hist_rejected.AddModifier(new ModHistBinCount(
-				m_xProvider.GetBinCount()));
-
-		m_hist_overall.AddModifier(new ModHistBinRange(m_xProvider.GetLow(),
-				m_xProvider.GetHigh()));
-		m_hist_overall.AddModifier(new ModHistBinCount(
-				m_xProvider.GetBinCount()));
-
-		m_hist_rejected.Init();
-		m_hist_overall.Init();
-	}
-
-	// this method is called for all events
-	virtual void ProcessEvent(ZJetEventData const& event, FilterResult & result)
-	{
-		if ( ! event.IsValidEvent())
-			return;
-
-		if ( event.IsCutInBitmask( m_iCutId ))
-			m_hist_rejected.Fill( m_xProvider.GetXValue( event ), event.GetWeight( ) );
-
-		m_hist_overall.Fill(m_xProvider.GetXValue(event), event.GetWeight());
-	}
-
-	virtual void Finish()
-	{
-		m_hist_rejected.GetRawHisto()->Divide(m_hist_overall.GetRawHisto());
-
-		// plot the efficiency
-		for (int i = 0; i < m_hist_rejected.GetRawHisto()->GetNbinsX(); i++)
-		{
-			m_graph->AddPoint(m_hist_rejected.GetRawHisto()->GetBinCenter(i),
-					m_hist_rejected.GetRawHisto()->GetBinContent(i), 0.0f,
-					m_hist_rejected.GetRawHisto()->GetBinError(i));
-		}
-
-		// store hist
-		// + modifiers
-		//CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
-		ZJetGraphErrors::Finish();
-	}
-
-	int m_iCutId;
-	TXProvider m_xProvider;
-
-	// only used for the internal binning and not stored to root file
-	Hist1D m_hist_rejected;
-	Hist1D m_hist_overall;
-};
-
-class DrawJetRespGraph: public ZJetGraphErrors
-{
-public:
-	DrawJetRespGraph(std::string sInpHist) :
-		ZJetGraphErrors(), m_sInpHist(sInpHist)
-	{
-
-	}
-
-	virtual void Process()
-	{
-		Hist1D m_histResp;
-
-		// move through the histos
-		stringvector sv = this->GetPipelineSettings()->GetCustomBins();
-		std::vector<PtBin> bins = this->GetPipelineSettings()->GetAsPtBins(sv);
-
-		m_histResp.m_sCaption = m_histResp.m_sName
-				= this->GetPipelineSettings()->GetRootFileFolder()
-						+ this->GetProductName();
-		//m_histResp.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
-		m_histResp.AddModifier(new ModHistCustomBinnig(
-				this->GetPipelineSettings()->GetCustomBins()));
-		m_histResp.Init();
-
-		int i = 0;
-		for (std::vector<PtBin>::iterator it = bins.begin(); it != bins.end(); it++)
-		{
-			TString sfolder =
-					this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
-
-			sfolder.ReplaceAll("XXPT_BINXX", (*it).id());
-
-			// cd to root folder
-			this->GetPipelineSettings()->GetRootOutFile()->cd(TString(
-					this->GetPipelineSettings()->GetRootOutFile()->GetName())
-					+ ":");
-
-			TString sName = RootNamer::GetHistoName(
-					this->GetPipelineSettings()->GetAlgoName(),
-					m_sInpHist.c_str(),
-					this->GetPipelineSettings()->GetInputType(), 0, &(*it),
-					false) + "_hist";
-			TH1D
-					* hresp =
-							(TH1D *) this->GetPipelineSettings()->GetRootOutFile()->Get(
-									sfolder + "/" + sName);
-
-			if (hresp == NULL)
-			{
-				CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
-			}
-
-			sName = RootNamer::GetHistoName(
-					this->GetPipelineSettings()->GetAlgoName(), "z_pt",
-					this->GetPipelineSettings()->GetInputType(), 0, &(*it),
-					false) + "_hist";
-			TH1D
-					* hpt =
-							(TH1D *) this->GetPipelineSettings()->GetRootOutFile()->Get(
-									sfolder + "/" + sName);
-
-			if (hpt == NULL)
-			{
-				CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
-			}
-
-			m_graph->AddPoint(hpt->GetMean(), hresp->GetMean(),
-					hpt->GetMeanError(), hresp->GetMeanError());
-
-			m_histResp.GetRawHisto()->SetBinContent(i + 1, hresp->GetMean());
-			m_histResp.GetRawHisto()->SetBinError(i + 1, hresp->GetMeanError());
-			i++;
-		}
-
-		m_histResp.Store(this->GetPipelineSettings()->GetRootOutFile());
-
-	}
-	std::string m_sInpHist;
-	std::string m_sFolder;
-
-};*/
-
-
-
+ // Z STUFF
+ IMPL_HIST1D_MOD2(DrawZMassConsumer ,m_hist->Fill(res.m_pData->Z->GetCalcMass() , res.GetWeight( )); ,
+ new ModHistBinRange(0.0f, 200.0f),
+ new ModHistBinCount(300))
+ IMPL_HIST1D_MOD2(DrawZPtConsumer ,m_hist->Fill(res.m_pData->Z->Pt() , res.GetWeight( )); ,
+ new ModHistBinRange(0.0f, 1000.0f),
+ new ModHistBinCount(500))
+
+ IMPL_HIST1D_MOD1(DrawZEtaConsumer ,m_hist->Fill(res.m_pData->Z->Eta() , res.GetWeight( )); ,
+ new ModHistBinRange(-5.0f, 5.0f))
+
+ IMPL_HIST1D_MOD1(DrawZPhiConsumer ,m_hist->Fill(res.m_pData->Z->Phi() - TMath::Pi(), res.GetWeight( )); ,
+ new ModHistBinRange(-3.5f, 3.5f))
+
+ // Parton Flavour
+ IMPL_HIST1D_MOD2(DrawPartonFlavourConsumer ,m_hist->Fill(res.m_pData->partonFlavour, res.GetWeight( )); ,
+ new ModHistBinRange(-50.5f, 49.5f),
+ new ModHistBinCount(100))
+
+ // mus pt
+ IMPL_HIST1D_MOD2(DrawMuPlusPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , res.GetWeight( )); ,
+ new ModHistBinRange(0.0f, 1000.0f),
+ new ModHistBinCount(500))
+ IMPL_HIST1D_MOD2(DrawMuMinusPtConsumer ,m_hist->Fill(res.m_pData->mu_minus->Pt() , res.GetWeight( )); ,
+ new ModHistBinRange(0.0f, 1000.0f),
+ new ModHistBinCount(500))
+ // mus Eta
+ IMPL_HIST1D_MOD1(DrawMuPlusEtaConsumer ,m_hist->Fill(res.m_pData->mu_plus->Eta() , res.GetWeight( )); ,
+ new ModHistBinRange(-5.0f, 5.0f))
+ IMPL_HIST1D_MOD1(DrawMuMinusEtaConsumer ,m_hist->Fill(res.m_pData->mu_minus->Eta() , res.GetWeight( )); ,
+ new ModHistBinRange(-5.0f, 5.0f))
+
+ // mus phi
+ IMPL_HIST1D_MOD1(DrawMuPlusPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() - TMath::Pi() , res.GetWeight( )); ,
+ new ModHistBinRange(-3.5f, 3.5f))
+ IMPL_HIST1D_MOD1(DrawMuMinusPhiConsumer ,m_hist->Fill(res.m_pData->mu_minus->Phi() - TMath::Pi(), res.GetWeight( )); ,
+ new ModHistBinRange(-3.5f, 3.5f))
+
+ // Both mus
+ IMPL_HIST1D_MOD2(DrawMuAllPtConsumer ,m_hist->Fill(res.m_pData->mu_plus->Pt() , res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Pt() , res.GetWeight( )); ,
+ new ModHistBinRange(0.0f, 1000.0f),
+ new ModHistBinCount(500))
+ IMPL_HIST1D_MOD1(DrawMuAllEtaConsumer ,m_hist->Fill(res.m_pData->mu_plus->Eta() , res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Eta() , res.GetWeight( )); ,
+ new ModHistBinRange(-5.0f, 5.0f))
+ IMPL_HIST1D_MOD1(DrawMuAllPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() - TMath::Pi(), res.GetWeight( )); m_hist->Fill(res.m_pData->mu_minus->Phi() - TMath::Pi() , res.GetWeight( )); ,
+ new ModHistBinRange(-3.5f, 3.5f))
+
+ // MET
+ IMPL_HIST1D_MOD2(DrawMetConsumer ,m_hist->Fill(res.m_pData->met->Pt() , res.GetWeight( )); ,
+ new ModHistBinRange(0.0f, 1000.0f),
+ new ModHistBinCount(500))
+ IMPL_HIST1D_MOD2(DrawTcMetConsumer ,m_hist->Fill(res.m_pData->tcmet->Pt() , res.GetWeight( )); ,
+ new ModHistBinRange(0.0f, 1000.0f),
+ new ModHistBinCount(500))
+ //RECO VERT
+ IMPL_HIST1D_MOD2(DrawRecoVertConsumer ,m_hist->Fill( (double)res.GetRecoVerticesCount() , res.GetWeight( )); ,
+ new ModHistBinRange(-0.5, 14.5),
+ new ModHistBinCount(15))
+
+ // SecondJet Pt / Z.Pt
+ IMPL_HIST1D_MOD1(Draw2ndJetPtDivZPtConsumer ,
+ {	if ( res.IsJetValid( 1 ))
+ {	m_hist->Fill( res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt() , res.GetWeight( ));}},
+ new ModHistBinRange(0.0, 2.0))
+
+ //JET RESP
+ IMPL_HIST1D_MOD1(DrawJetRespConsumer ,m_hist->Fill( res.GetCorrectedJetPt(0) / res.m_pData->Z->Pt() , res.GetWeight( )); ,
+ new ModHistBinRange(0.0, 2.0))
+ // MPF RESP
+ IMPL_HIST1D_MOD1(DrawMpfJetRespConsumer ,
+ {
+ double scalPtEt = res.m_pData->Z->Px()*res.m_pData->met->Px() +
+ res.m_pData->Z->Py()*res.m_pData->met->Py();
+ double scalPtSq = res.m_pData->Z->Px()*res.m_pData->Z->Px() +
+ res.m_pData->Z->Py()*res.m_pData->Z->Py();
+
+ m_hist->Fill( 1.0 + (scalPtEt /scalPtSq), res.GetWeight( ));
+ },
+ new ModHistBinRange(0.0, 2.0))
+
+ // Matched Z
+ IMPL_HIST1D_MOD1(DrawZMatchConsumer ,
+ {	if (res.m_pData->matched_Z!=NULL and res.m_pData->matched_Z->Pt() >0)
+ {	m_hist->Fill( res.m_pData->Z->Pt() / res.m_pData->matched_Z->Pt(), res.GetWeight( ));}},
+ new ModHistBinRange(0.0, 6.0))
+
+ // Jets
+ IMPL_HIST1D_JET_MOD2(DrawJetPtConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill(res.GetCorrectedJetPt( m_jetNum ) , res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 1000.0f),
+ new ModHistBinCount(500))
+
+ IMPL_HIST1D_JET_MOD1(DrawJetEtaConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill(res.m_pData->jets[m_jetNum]->Eta() , res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(-4.0f, 4.0f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetPhiConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill(res.m_pData->jets[m_jetNum]->Phi() - TMath::Pi() , res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(-3.5f, 3.5f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetDeltaPhiConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( DeltaHelper::GetDeltaPhiCenterZero( res.m_pData->Z,
+ res.m_pData->jets[m_jetNum]),
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(-3.5f, 3.5f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetDeltaPhiWrtJet1Consumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( DeltaHelper::GetDeltaPhiCenterZero( res.m_pData->jets[0],
+ res.m_pData->jets[m_jetNum]),
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(-3.5f, 3.5f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetDeltaEtaWrtJet1Consumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( TMath::Abs( res.m_pData->jets[0]->Eta() -
+ res.m_pData->jets[m_jetNum]->Eta()),
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(-3.5f, 3.5f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetDeltaRWrtJet1Consumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( DeltaHelper::GetDeltaR(res.m_pData->jets[0],res.m_pData->jets[m_jetNum]),
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 6.0f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetDeltaEtaConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( TMath::Abs( res.m_pData->Z->Eta() -
+ res.m_pData->jets[m_jetNum]->Eta()),
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 4.0f) )
+
+ // matched jet pf / calo
+ // Jets
+ IMPL_HIST1D_JET_MOD1(DrawMatchCaloJetPtRatioConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ) && ( res.m_pData->matched_calo_jets[m_jetNum] != NULL)
+ && (res.m_pData->matched_calo_jets[m_jetNum]->Pt() > 0))
+ {
+ m_hist->Fill( res.m_pData->matched_calo_jets[m_jetNum]->Pt() / res.GetCorrectedJetPt( m_jetNum ) ,
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 2.0f) )
+
+ IMPL_HIST1D_JET_MOD2(DrawMatchCaloJetPtConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ) && ( res.m_pData->matched_calo_jets[m_jetNum] != NULL)
+ && (res.m_pData->matched_calo_jets[m_jetNum]->Pt() > 0))
+ {
+ m_hist->Fill( res.m_pData->matched_calo_jets[m_jetNum]->Pt() ,
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 1000.0f),
+ new ModHistBinCount(500))
+
+ // Energy fractions // Test if jet.Energy = sum (calenergies)
+ IMPL_HIST1D_JET_MOD1(DrawJetAllEnergyFractionPtConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->jets[m_jetNum]->Energy()*0.9 / res.m_pData->jets[m_jetNum]->Energy(),
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 2.0f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetChargedHadronEnergyFractionPtConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedHadronEnergyFraction,
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 1.5f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetNeutralHadronEnergyFractionPtConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralHadronEnergyFraction,
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 1.5f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetChargedEmEnergyFractionPtConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedEmEnergy / res.m_pData->jets[m_jetNum]->Energy(),
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 1.5f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetNeutralEmEnergyFractionPtConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralEmEnergy / res.m_pData->jets[m_jetNum]->Energy(),
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 1.5f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetElectronEnergyFractionPtConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ElectronEnergy / res.m_pData->jets[m_jetNum]->Energy(),
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 1.5f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetMuonEnergyFractionPtConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->MuonEnergy / res.m_pData->jets[m_jetNum]->Energy(),
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 1.5f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetPhotonEnergyFractionPtConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->PhotonEnergy / res.m_pData->jets[m_jetNum]->Energy(),
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 1.5f) )
+
+ // Multiplicities
+ IMPL_HIST1D_JET_MOD2(DrawJetChargedHadronMultiplicityConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ //					CALIB_LOG( "pf multi " <<  res.m_pData->pfProperties[ m_jetNum]->ChargedHadronMultiplicity )
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedHadronMultiplicity,
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(-0.5f, 11.5f),
+ new ModHistBinCount(12)
+
+ )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetNeutralHadronMultiplicityConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralHadronMultiplicity,
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 12.f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetChargedMultiplicityConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ChargedMultiplicity,
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 12.f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetNeutralMultiplicityConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->NeutralMultiplicity,
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 12.f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetElectronMultiplicityConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ElectronMultiplicity,
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 400.f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetMuonMultiplicityConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->MuonMultiplicity,
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 12.f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetPhotonMultiplicityConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->PhotonMultiplicity,
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 12.f) )
+
+ IMPL_HIST1D_JET_MOD1(DrawJetConstituentsConsumer ,
+ {
+ if ( res.IsJetValid( m_jetNum ))
+ {
+ m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->Constituents,
+ res.GetWeight( ));
+ }
+ },
+ new ModHistBinRange(0.0f, 100.f) )
+
+ class DrawEventCount: public ZJetHist1D
+ {
+ public:
+ virtual void Init(ZJetPipeline * pset)
+ {
+ ModHistCustomBinnig * cbMod = new ModHistCustomBinnig(
+ pset->GetSettings()->GetCustomBins());
+ m_hist->AddModifier(cbMod);
+
+ ZJetHist1D::Init(pset);
+ }
+ virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
+ {
+ m_hist->Fill(res.m_pData->Z->Pt(), res.GetWeight());
+ }
+ };
+
+ class DrawDeltaRMapConsumer: public ZJetHist2D
+ {
+ public:
+ virtual void Init(ZJetPipeline * pset)
+ {
+
+ m_hist->AddModifier(new ModHist2DBinRange(0.0f, 5.0f, 0.0, 50.0));
+ m_hist->AddModifier(new ModHist2DBinCount(120, 120));
+
+ ZJetHist2D::Init(pset);
+ }
+ };
+
+ class DrawBalanceMpfConsumer: public ZJetHist2D
+ {
+ public:
+ virtual void Init(ZJetPipeline * pset)
+ {
+
+ m_hist->AddModifier(new ModHist2DBinRange(0.0f, 3.0f, 0.0f, 3.0f));
+ m_hist->AddModifier(new ModHist2DBinCount(100, 100));
+
+ ZJetHist2D::Init(pset);
+ }
+
+ virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
+ {
+ if (res.IsJetValid(1))
+ {
+ double balance = res.GetCorrectedJetPt(0) / res.m_pData->Z->Pt();
+ double scalPtEt = res.m_pData->Z->Px() * res.m_pData->met->Px()
+ + res.m_pData->Z->Py() * res.m_pData->met->Py();
+ double scalPtSq = res.m_pData->Z->Px() * res.m_pData->Z->Px()
+ + res.m_pData->Z->Py() * res.m_pData->Z->Py();
+ double mpf = 1.0 + (scalPtEt / scalPtSq);
+
+ m_hist->Fill(balance, mpf, res.GetWeight());
+ }
+ }
+
+ };
+
+ class DrawJetActivityRecoVertMapConsumer: public ZJetHist2D
+ {
+ public:
+ DrawJetActivityRecoVertMapConsumer()
+ {
+ }
+
+ virtual void Init(ZJetPipeline * pset)
+ {
+ // magic master switch
+ m_hist->m_bDoProfile = true;
+
+ m_hist->AddModifier(new ModHist2DBinRange(-0.5, 14.5, 0.0f, 200.0f));
+ m_hist->AddModifier(new ModHist2DBinCount(15, 50));
+
+ ZJetHist2D::Init(pset);
+ }
+
+ virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
+ {
+ if (res.IsJetValid(1))
+ {
+ m_hist->Fill(res.GetRecoVerticesCount(), res.GetCorrectedJetPt(1)
+ + res.GetCorrectedJetPt(2), res.GetWeight());
+ }
+ }
+ };
+
+ class Draw2ndJetCutNRVMapConsumer: public ZJetHist2D
+ {
+ public:
+ Draw2ndJetCutNRVMapConsumer()
+ {
+ }
+
+ virtual void Init(ZJetPipeline * pset)
+ {
+ // magic master switch
+ m_hist->m_bDoProfile = true;
+
+ m_hist->AddModifier(new ModHist2DBinRange(-0.5, 14.5, 0.0f, 3.0f));
+ m_hist->AddModifier(new ModHist2DBinCount(15, 30));
+
+ ZJetHist2D::Init(pset);
+ }
+
+ virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
+ {
+ if (res.IsJetValid(1))
+ {
+ m_hist->Fill(res.GetRecoVerticesCount(), res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt(), res.GetWeight());
+ }
+ }
+ };
+
+ class DrawDeltaRJetMapConsumer: public DrawDeltaRMapConsumer
+ {
+ public:
+ DrawDeltaRJetMapConsumer(int jetNum) :
+ m_jetNum(jetNum)
+ {
+ }
+
+ virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
+ {
+ if (res.IsJetValid(m_jetNum))
+ {
+ m_hist->Fill(DeltaHelper::GetDeltaR(res.m_pData->jets[0],
+ res.m_pData->jets[m_jetNum]), res.GetCorrectedJetPt(
+ m_jetNum), res.GetWeight());
+ }
+ }
+
+ int m_jetNum;
+ };
+
+ class DrawDeltaRJetRatioJetMapConsumer: public DrawDeltaRMapConsumer
+ {
+ public:
+ DrawDeltaRJetRatioJetMapConsumer(int jetNum) :
+ m_jetNum(jetNum)
+ {
+ }
+
+ virtual void Init(ZJetPipeline * pset)
+ {
+
+ m_hist->AddModifier(new ModHist2DBinRange(0.0f, 5.0f, 0.0, 1.2));
+ m_hist->AddModifier(new ModHist2DBinCount(120, 120));
+
+ ZJetHist2D::Init(pset);
+ }
+
+ virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
+ {
+ if (res.IsJetValid(m_jetNum))
+ {
+ m_hist->Fill(DeltaHelper::GetDeltaR(res.m_pData->jets[0],
+ res.m_pData->jets[m_jetNum]), res.GetCorrectedJetPt(
+ m_jetNum) / res.GetCorrectedJetPt(0), res.GetWeight());
+ }
+ }
+
+ int m_jetNum;
+ };
+
+ class DrawDeltaRJetRatioZMapConsumer: public DrawDeltaRMapConsumer
+ {
+ public:
+ DrawDeltaRJetRatioZMapConsumer(int jetNum) :
+ m_jetNum(jetNum)
+ {
+ }
+
+ virtual void Init(ZJetPipeline * pset)
+ {
+
+ m_hist->AddModifier(new ModHist2DBinRange(0.0f, 5.0f, 0.0, 1.2));
+ m_hist->AddModifier(new ModHist2DBinCount(120, 120));
+
+ ZJetHist2D::Init(pset);
+ }
+
+ virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
+ {
+ if (res.IsJetValid(m_jetNum))
+ {
+ m_hist->Fill(DeltaHelper::GetDeltaR(res.m_pData->jets[0],
+ res.m_pData->jets[m_jetNum]), res.GetCorrectedJetPt(
+ m_jetNum) / res.m_pData->Z->Pt(), res.GetWeight());
+ }
+ }
+
+ int m_jetNum;
+ };
+
+ class DrawEtaPhiMapConsumer: public ZJetHist2D
+ {
+ public:
+ virtual void Init(ZJetPipeline * pset)
+ {
+
+ m_hist->AddModifier(new ModHist2DBinRange(0.0f, 4.0f, -3.2, 3.2));
+ m_hist->AddModifier(new ModHist2DBinCount(40, 40));
+
+ ZJetHist2D::Init(pset);
+ }
+
+ };
+
+ class DrawPhiJet2PtConsumer: public ZJetHist2D
+ {
+ public:
+ virtual void Init(ZJetPipeline * pset)
+ {
+
+ m_hist->AddModifier(new ModHist2DBinRange(-3.2, 3.2, 0.0, 50.0f));
+ m_hist->AddModifier(new ModHist2DBinCount(40, 40));
+
+ ZJetHist2D::Init(pset);
+ }
+
+ virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
+ {
+ if (res.IsJetValid(1))
+ {
+ m_hist->Fill(DeltaHelper::GetDeltaPhiCenterZero(
+ res.m_pData->jets[1], res.m_pData->jets[0]),
+ res.GetCorrectedJetPt(1), res.GetWeight());
+ }
+ }
+ };
+
+ class DrawPhiJet2RatioConsumer: public ZJetHist2D
+ {
+ public:
+ virtual void Init(ZJetPipeline * pset)
+ {
+
+ m_hist->AddModifier(new ModHist2DBinRange(-3.2, 3.2, 0.0, 1.2f));
+ m_hist->AddModifier(new ModHist2DBinCount(40, 40));
+
+ ZJetHist2D::Init(pset);
+ }
+
+ virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
+ {
+ if (res.IsJetValid(1))
+ {
+ m_hist->Fill(DeltaHelper::GetDeltaPhiCenterZero(
+ res.m_pData->jets[1], res.m_pData->jets[0]),
+ res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt(),
+ res.GetWeight());
+ }
+ }
+ };
+
+ class DrawEtaJet2PtConsumer: public ZJetHist2D
+ {
+ public:
+ virtual void Init(ZJetPipeline * pset)
+ {
+
+ m_hist->AddModifier(new ModHist2DBinRange(0.0f, 5.0f, 0.0, 50.0f));
+ m_hist->AddModifier(new ModHist2DBinCount(40, 40));
+
+ ZJetHist2D::Init(pset);
+ }
+
+ virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
+ {
+ if (res.IsJetValid(1))
+ {
+ m_hist->Fill(TMath::Abs(res.m_pData->jets[0]->Eta()
+ - res.m_pData->jets[1]->Eta()), res.GetCorrectedJetPt(1),
+ res.GetWeight());
+ }
+ }
+ };
+
+ class DrawEtaJet2RatioConsumer: public ZJetHist2D
+ {
+ public:
+ virtual void Init(ZJetPipeline * pset)
+ {
+
+ m_hist->AddModifier(new ModHist2DBinRange(0.0, 5.0f, 0.0, 1.2f));
+ m_hist->AddModifier(new ModHist2DBinCount(40, 40));
+
+ ZJetHist2D::Init(pset);
+ }
+
+ virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
+ {
+ if (res.IsJetValid(1))
+ {
+ m_hist->Fill(TMath::Abs(res.m_pData->jets[0]->Eta()
+ - res.m_pData->jets[1]->Eta()), res.GetCorrectedJetPt(1)
+ / res.m_pData->Z->Pt(), res.GetWeight());
+ }
+ }
+ };
+
+ class DrawEtaPhiJetMapConsumer: public DrawEtaPhiMapConsumer
+ {
+ public:
+ DrawEtaPhiJetMapConsumer(int jetNum) :
+ m_jetNum(jetNum)
+ {
+ }
+
+ virtual void ProcessFilteredEvent(ZJetEventData const& res, ZJetMetaData const& metaData)
+ {
+ if (res.IsJetValid(m_jetNum))
+ {
+ m_hist->Fill(TMath::Abs(res.m_pData->Z->Eta()
+ - res.m_pData->jets[m_jetNum]->Eta()),
+ DeltaHelper::GetDeltaPhiCenterZero(res.m_pData->Z,
+ res.m_pData->jets[m_jetNum]), res.GetWeight());
+ }
+ }
+
+ int m_jetNum;
+ };
+
+ class GraphXProviderBase
+ {
+ public:
+ virtual ~GraphXProviderBase()
+ {
+ }
+ virtual double GetXValue(ZJetEventData const& event) = 0;
+
+ };
+
+ class GraphXProviderZpt: public GraphXProviderBase
+ {
+ public:
+ virtual double GetLow()
+ {
+ return 0.0f;
+ }
+ virtual double GetHigh()
+ {
+ return 300.0f;
+ }
+ virtual int GetBinCount()
+ {
+ return 45;
+ }
+ virtual double GetXValue(ZJetEventData const& event)
+ {
+ return event.m_pData->Z->Pt();
+ }
+ };
+
+ class GraphXProviderRecoVert: public GraphXProviderBase
+ {
+ public:
+ virtual double GetLow()
+ {
+ return -0.5f;
+ }
+ virtual double GetHigh()
+ {
+ return 14.5f;
+ }
+ virtual int GetBinCount()
+ {
+ return 15;
+ }
+ virtual double GetXValue(ZJetEventData const& event)
+ {
+ return event.GetRecoVerticesCount();
+ }
+ };
+
+ template<int TJetNum>
+ class GraphXProviderJetPhiDeltaZ: public GraphXProviderBase
+ {
+ public:
+ virtual double GetXValue(ZJetEventData const& event)
+ {
+ return DeltaHelper::GetDeltaPhiCenterZero(event.m_pData->Z,
+ event.m_pData->jets[TJetNum]);
+ }
+ };
+
+ class DrawDeltaPhiRange: public ZJetGraphErrors
+ {
+ public:
+ DrawDeltaPhiRange() :
+ ZJetGraphErrors()
+ {
+ }
+ virtual void Finish()
+ {
+ // plot the efficiency
+ for (double i = 0; i < 2 * TMath::Pi(); i += 0.1)
+ {
+ TVector3 v1 = TVector3(1.0, 0.0, 0.0);
+ TVector3 v2 = TVector3(TMath::Cos(i), TMath::Sin(i), 0.0);
+
+ m_graph->AddPoint(i, DeltaHelper::GetDeltaPhiCenterZero(v1, v2),
+ 0.0f, 0.0f);
+ }
+
+ ZJetGraphErrors::Finish();
+ }
+ };
+
+ class DrawJetGraphBase: public ZJetGraphErrors
+ {
+ public:
+ DrawJetGraphBase(int jetNum) :
+ ZJetGraphErrors(), m_jetNum(jetNum)
+ {
+
+ }
+ int m_jetNum;
+
+ };
+
+ template<class TXProvider>
+ class DrawJetPt: public DrawJetGraphBase
+ {
+ public:
+ DrawJetPt(int jetNum) :
+ DrawJetGraphBase(jetNum)
+ {
+ }
+
+ // this method is called for all events
+ virtual void ProcessFilteredEvent(ZJetEventData const& event, ZJetMetaData const& metaData)
+ {
+ m_graph->AddPoint(m_xProvider.GetXValue(event),
+ event.GetCorrectedJetPt(this->m_jetNum), 0.0f, 0.0f);
+ }
+ TXProvider m_xProvider;
+ };
+
+ template<class TXProvider>
+ class DrawCutIneffGraph: public ZJetGraphErrors
+ {
+ public:
+ DrawCutIneffGraph(int cutId) :
+ ZJetGraphErrors(), m_iCutId(cutId)
+ {
+ m_hist_rejected.AddModifier(new ModHistBinRange(m_xProvider.GetLow(),
+ m_xProvider.GetHigh()));
+ m_hist_rejected.AddModifier(new ModHistBinCount(
+ m_xProvider.GetBinCount()));
+
+ m_hist_overall.AddModifier(new ModHistBinRange(m_xProvider.GetLow(),
+ m_xProvider.GetHigh()));
+ m_hist_overall.AddModifier(new ModHistBinCount(
+ m_xProvider.GetBinCount()));
+
+ m_hist_rejected.Init();
+ m_hist_overall.Init();
+ }
+
+ // this method is called for all events
+ virtual void ProcessEvent(ZJetEventData const& event, FilterResult & result)
+ {
+ if ( ! event.IsValidEvent())
+ return;
+
+ if ( event.IsCutInBitmask( m_iCutId ))
+ m_hist_rejected.Fill( m_xProvider.GetXValue( event ), event.GetWeight( ) );
+
+ m_hist_overall.Fill(m_xProvider.GetXValue(event), event.GetWeight());
+ }
+
+ virtual void Finish()
+ {
+ m_hist_rejected.GetRawHisto()->Divide(m_hist_overall.GetRawHisto());
+
+ // plot the efficiency
+ for (int i = 0; i < m_hist_rejected.GetRawHisto()->GetNbinsX(); i++)
+ {
+ m_graph->AddPoint(m_hist_rejected.GetRawHisto()->GetBinCenter(i),
+ m_hist_rejected.GetRawHisto()->GetBinContent(i), 0.0f,
+ m_hist_rejected.GetRawHisto()->GetBinError(i));
+ }
+
+ // store hist
+ // + modifiers
+ //CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
+ ZJetGraphErrors::Finish();
+ }
+
+ int m_iCutId;
+ TXProvider m_xProvider;
+
+ // only used for the internal binning and not stored to root file
+ Hist1D m_hist_rejected;
+ Hist1D m_hist_overall;
+ };
+
+ class DrawJetRespGraph: public ZJetGraphErrors
+ {
+ public:
+ DrawJetRespGraph(std::string sInpHist) :
+ ZJetGraphErrors(), m_sInpHist(sInpHist)
+ {
+
+ }
+
+ virtual void Process()
+ {
+ Hist1D m_histResp;
+
+ // move through the histos
+ stringvector sv = this->GetPipelineSettings()->GetCustomBins();
+ std::vector<PtBin> bins = this->GetPipelineSettings()->GetAsPtBins(sv);
+
+ m_histResp.m_sCaption = m_histResp.m_sName
+ = this->GetPipelineSettings()->GetRootFileFolder()
+ + this->GetProductName();
+ //m_histResp.m_sRootFileFolder = this->GetPipelineSettings()->GetRootFileFolder();
+ m_histResp.AddModifier(new ModHistCustomBinnig(
+ this->GetPipelineSettings()->GetCustomBins()));
+ m_histResp.Init();
+
+ int i = 0;
+ for (std::vector<PtBin>::iterator it = bins.begin(); it != bins.end(); it++)
+ {
+ TString sfolder =
+ this->GetPipelineSettings()->GetSecondLevelFolderTemplate();
+
+ sfolder.ReplaceAll("XXPT_BINXX", (*it).id());
+
+ // cd to root folder
+ this->GetPipelineSettings()->GetRootOutFile()->cd(TString(
+ this->GetPipelineSettings()->GetRootOutFile()->GetName())
+ + ":");
+
+ TString sName = RootNamer::GetHistoName(
+ this->GetPipelineSettings()->GetAlgoName(),
+ m_sInpHist.c_str(),
+ this->GetPipelineSettings()->GetInputType(), 0, &(*it),
+ false) + "_hist";
+ TH1D
+ * hresp =
+ (TH1D *) this->GetPipelineSettings()->GetRootOutFile()->Get(
+ sfolder + "/" + sName);
+
+ if (hresp == NULL)
+ {
+ CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+ }
+
+ sName = RootNamer::GetHistoName(
+ this->GetPipelineSettings()->GetAlgoName(), "z_pt",
+ this->GetPipelineSettings()->GetInputType(), 0, &(*it),
+ false) + "_hist";
+ TH1D
+ * hpt =
+ (TH1D *) this->GetPipelineSettings()->GetRootOutFile()->Get(
+ sfolder + "/" + sName);
+
+ if (hpt == NULL)
+ {
+ CALIB_LOG_FATAL( "Can't load TH1D " + sName + " from folder " + sfolder.Data())
+ }
+
+ m_graph->AddPoint(hpt->GetMean(), hresp->GetMean(),
+ hpt->GetMeanError(), hresp->GetMeanError());
+
+ m_histResp.GetRawHisto()->SetBinContent(i + 1, hresp->GetMean());
+ m_histResp.GetRawHisto()->SetBinError(i + 1, hresp->GetMeanError());
+ i++;
+ }
+
+ m_histResp.Store(this->GetPipelineSettings()->GetRootOutFile());
+
+ }
+ std::string m_sInpHist;
+ std::string m_sFolder;
+
+ };*/
 
 /*
  class DrawPartonFlavourGraph: public DrawGraphErrorsConsumerBase<EventResult>

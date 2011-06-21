@@ -216,6 +216,11 @@ public:
 		m_filter.push_back(pFilter);
 	}
 
+	void AddConsumer(ConsumerForThisPipeline * pConsumer)
+	{
+		m_consumer.push_back(pConsumer);
+	}
+
 	void AddMetaDataProducer(MetaDataProducerForThisPipeline * pProd)
 	{
 		m_producer.push_back(pProd);

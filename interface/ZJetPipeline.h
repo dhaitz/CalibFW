@@ -16,8 +16,25 @@ namespace CalibFW
 
 class ZJetEventData
 {
+
+
 public:
-	KDataPFJets *jets;// = fi.Get<KDataPFJets>(names[0]);
+	KDataPFJets * PF_jets;// = fi.Get<KDataPFJets>(names[0]);
+	KDataMuons * Muons;
+
+	// convinience functions
+	double GetPrimaryJetPt() const { return PF_Jets->at(0).Pt(); }
+	KDataPFJet const& GetPrimaryJet() const { return PF_Jets->at(0); }
+
+	KDataLV GetZ()
+	{
+		KDataLV z;
+		return z;
+	}
+
+private:
+
+
 };
 
 class ZJetPipelineSettings;
