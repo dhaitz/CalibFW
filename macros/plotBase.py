@@ -7,6 +7,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from time import localtime, strftime
+import getROOT
 
 #os.makedir('out/dat')
 
@@ -77,7 +78,7 @@ def GetNameFromSelection(quantity='zmass', variation={}, common={}):
     #'zmass_ak7PFJetsL1L2L3Res_Zplusjet_data_hist'
     # Set standard values
     keys = ['bin','incut','var','sep','algo','jettype','jet','correction', 'zjet', 'type', 'object']
-    standardselection = {'incut': 'incut', 'bin': 'NoBinning', 'var': '', 'sep': '/', 'algo': 'ak5', 'jettype': 'PF','jet': 'Jets', 'correction': 'L1L2L3', 'zjet': 'Zplusjet', 'type': 'data', 'object': 'hist', 'generator':'none'}
+    standardselection = {'incut': 'incut', 'bin': 'NoBinning', 'var': '', 'sep': '/', 'algo': 'ak5', 'jettype': 'PF','jet': 'Jets', 'correction': 'L1L2L3NoPU', 'zjet': 'Zplusjet', 'type': 'data', 'object': 'hist', 'generator':'none'}
     hst = ''
     histolist = []
     # apply requested changes
@@ -99,7 +100,7 @@ def GetNameFromSelection(quantity='zmass', variation={}, common={}):
     if hst.find('allevents')>0:
         hst = hst.replace('_hist','_nocut_hist')
     hst = hst.replace('_PF','PF').replace('_Calo','Calo')
-    hst = hst.replace('L3_Zplusjet_data','L3Res_Zplusjet_data')
+    hst = hst.replace('L3_Zplusjet_data','L3_Zplusjet_data')
     while hst.find('__')>=0:
         hst = hst.replace('__','_')
     
@@ -116,10 +117,10 @@ def GetNameFromSelection(quantity='zmass', variation={}, common={}):
 #        'data': '2011 data','jet': 'Jets', 'correction': 'L1L2L3', 'zjet': 'Zplusjet', 'type': 'data', 'object': 'hist', 'generator':'none'}
 
 def datahisto(histoname):
-    return histoname.replace('_Zplusjet_mc','Res_Zplusjet_data')
+    return histoname.replace('_Zplusjet_mc','_Zplusjet_data')
 
 def mchisto(histoname):
-    return histoname.replace('Res_Zplusjet_data','_Zplusjet_mc')
+    return histoname.replace('_Zplusjet_data','_Zplusjet_mc')
 
 def makeplot(quantity, variation = {}, common = {}):
     # fig (mit ratio?)
@@ -135,16 +136,21 @@ def makeplot(quantity, variation = {}, common = {}):
 ####axh/vline/span arrow, annotate line.set_label('') text(0.5, 0.5,'matplotlib', horizontalalignment='center', verticalalignment='center', transform = ax.transAxes)
     return fig, ax, name
     
-def captions(ax,stg=StandardSettings()):
+def captions(ax,stg=StandardSettings(), twolumis=True):
     ax.text(0.99, 0.98, r"$\sqrt{s} = " + str(stg.cme) + " \,\mathrm{TeV}$",
         va='top', ha='right', transform=ax.transAxes, fontsize=15)
     if stg.lumi > 0:
-        ax.text(0.01, 0.98, r"$\mathcal{L} = " + str(stg.lumi) + " \,\mathrm{pb}^{-1}$",
+        ax.text(0.01, 0.98, r"$\mathcal{L}_{2011} = " + str(int(stg.lumi)) + " \,\mathrm{pb}^{-1}$",
             va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        if twolumis:
+            ax.text(0.01, 0.93, r"$\mathcal{L}_{2010} = " + str(36) + " \,\mathrm{pb}^{-1}$",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
     return ax
 
 def tags(ax, status='', author='', date='today'):
     status='' #for now do not show 'private work'
+    author=''
+    date=''
     if status > 0:
         ax.text(0.99, 1.01, status,
             va='bottom', ha='right', transform=ax.transAxes, fontsize=15)
@@ -174,7 +180,9 @@ def AxisLabels(ax, q='resp', obj='jet'):
     elif q == 'phi':
         ax.set_xlabel(r"$\phi^{"+obj+"}$", ha = "right", x = 1)
         ax.set_ylabel(r"events", va = "top", y = 1)
-        ax.set_xlim(-3.1415, 6.2830)
+        ax.set_xlim(-3.5, 3.5)
+        #ax.set_ticks(-3.141592654,-1.570796327,0,1.570796327,3.141592654)
+        #ax.set_ticklabels(r'$-\pi',r'$-\frac{\pi}{2}$','0',r'$\frac{\pi}{2}$',r'$\pi')
         ax.set_ylim(bottom=0.0)
     elif q == 'eta':
         ax.set_xlabel(r"$\eta^{"+obj+"}$", ha = "right", x = 1)
@@ -184,16 +192,18 @@ def AxisLabels(ax, q='resp', obj='jet'):
     elif q == 'mass':
         ax.set_xlabel(r"$m_{"+obj+"} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"events", va = "top", y = 1)
-        ax.set_xlim(0, 350)
+        ax.set_xlim(60, 120)
         ax.set_ylim(bottom=0.0)
     elif q == 'jetresp':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"$p_{T}$ balance", va = "top", y = 1)
-        ax.set_xlim = (10, 200)
+        ax.set_xlim(10, 200)
+        ax.set_ylim(0.75, 1.0)
     elif q == 'mpfresp':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha = "right", x = 1)
         ax.set_ylabel(r"MPF", va = "top", y = 1)
         ax.set_xlim(10, 200)
+        ax.set_ylim(0.75, 1.0)
     elif q == 'recovert':
         ax.set_xlabel(r"Number of reconstructed vertices $n$", ha = "right", x = 1)
         ax.set_ylabel(r"events", va = "top", y = 1)
@@ -206,6 +216,26 @@ def AxisLabels(ax, q='resp', obj='jet'):
         ax.set_ylim(bottom=0.0)
     # more precise
     return ax
+    
+
+def genericplot(quantity, q, obj,fdata, fmc, factor, stg, legloc='center right'):
+	print q, "of the", obj
+	oname = GetNameFromSelection(quantity)[0]
+	histo_data = getROOT.SafeConvert(fdata,oname, stg.lumi,stg.outputformats,5)
+	histname = oname.replace('data','mc').replace('Res','')
+	histo_mc = getROOT.SafeConvert(fmc,histname, stg.lumi,stg.outputformats,5)
+	histo_mc.scale(factor)
+
+	tf, ta, tname = makeplot(quantity)
+	histo02 = ta.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color='FireBrick',fmt='-', capsize=0, label ='MC')
+	histo01 = ta.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color='black',fmt='o', capsize=0, label ='data')
+	ta = captions(ta,stg,False)
+	ta.set_ylim(top=histo_mc.ymax*1.2)
+	ta = tags(ta, 'Private work', 'Joram Berger')
+	ta.legend(loc=legloc, numpoints=1, frameon=False)
+	ta = AxisLabels(ta, q, obj)
+
+	Save(tf,quantity, stg)
 
 
 def Save(figure, name, stg):
@@ -225,4 +255,30 @@ def Save(figure, name, stg):
         else:
             print format + "failed. Output type is unknown or not supported."
     print
+
+def GetScaleResolution(filename='scale_and_resolution.txt'):
+    """Read the values for the jet energy scale and the jet energy resolution from a file
+    
+    The file should look like:
+    #Jet energy scale, scale error-, scale error+:
+    #Jet energy resolution, resolution error-, resolution error+:
+    1.00 0.01 0.01
+    1.00 0.01 0.01
+    """
+    f = file(filename, 'r')
+    scale = []
+    resol = []
+    while True:
+        line = f.readline()
+        if len(line) == 0: break
+        if line.find('#') <0:
+            if len(scale)==0:
+                for v in line.split():
+                    scale.append(float(v))
+            else:
+                for v in line.split():
+                    resol.append(float(v))
+    print scale
+    print resol
+    return scale, resol
 
