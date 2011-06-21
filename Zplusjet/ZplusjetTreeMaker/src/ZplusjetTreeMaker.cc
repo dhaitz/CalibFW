@@ -71,7 +71,7 @@ As soon as a match Z-Jet is found the associated TTree is filled.
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include <DataFormats/HLTReco/interface/TriggerEvent.h>
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
-
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 // Root includes
 #include "TObjString.h"
@@ -92,6 +92,9 @@ TString struct_descr("ChargedHadronEnergy:ChargedHadronMultiplicity:ChargedHadro
 //------------------------------------------------------------------------------
 
 ZplusjetTreeMaker::ZplusjetTreeMaker(const edm::ParameterSet& iConfig) {
+
+    m_jetCorrectionService = iConfig.getParameter<std::string> ("JetCorrectionService");
+//    m_correctionLevels = iConfig.getParameter<std::vector <int> > ("correctionLevels");
 
     // Muon jets cuts
     m_zMuMinDr = iConfig.getParameter<double> ("zMuMinDr");
@@ -250,9 +253,15 @@ ZplusjetTreeMaker::~ZplusjetTreeMaker() {
 
 void ZplusjetTreeMaker::analyze(const edm::Event& iEvent,
                                 const edm::EventSetup& iSetup) {
-  
+
 //     std::cout << " **** ANALIZE\n";
-  
+
+//    const JetCorrector* corrector = JetCorrector::getJetCorrector("ak5PFL1FastL2L3",iSetup);
+//    
+//    edm::RefToBase<reco::Jet> jetRef(edm::Ref<JetCollection>(jets,index));
+//    double jec = corrector->correction(*i_jet,jetRef,iEvent,iSetup);
+
+
     using namespace edm;
 
     m_output_file->cd();
@@ -262,8 +271,7 @@ void ZplusjetTreeMaker::analyze(const edm::Event& iEvent,
     iEvent.getByLabel("processedEvents","processedEvents",events_processed);
 
     LogInfo ("processedEvents") << " --> Events Processed: "
-    << *events_processed
-    << std::endl;
+    << *events_processed << std::endl;
     m_store_nevts=*events_processed;
 
     // Event num and Id
@@ -271,7 +279,9 @@ void ZplusjetTreeMaker::analyze(const edm::Event& iEvent,
     m_store_cmsRun=iEvent.id().run();
     m_store_luminosityBlock = iEvent.luminosityBlock();
 
-    LogDebug ("EventMeta") << "Event Number:" << m_store_cmsEventNum << " run number:" << m_store_cmsRun << " lumi block:" << m_store_luminosityBlock;
+    LogDebug ("EventMeta") << "Event Number:" << m_store_cmsEventNum
+                           << " run number:" << m_store_cmsRun
+                           << " lumi block:" << m_store_luminosityBlock;
 
     // The it geninfoproduct ---------------------------------------------------
     m_store_weight=-1.23;

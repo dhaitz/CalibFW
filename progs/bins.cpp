@@ -11,16 +11,13 @@ int main(int argc, char** argv)
 {
 	/// Show usage if needed.
 	if (argc!=2 and argc!=3 and argc!=4) {
-		std::cout << "Usage: " << argv[0] << " file [events per bin = 50 [Histoname] ]\n";
+		std::cout << "Usage: " << argv[0] << " file Histoname [events per bin = 100]\n";
 		return 0;
 	}
-	int eventsPerBin = 50;
-	if (argc==3) eventsPerBin = atoi(argv[2]);
-
-	const TString histoName("NoBinning_incut/z_pt_ak5PFJets_Zplusjet_data_hist");
-//	TString histoArg;
-//	if (argc==4) histoArg(argv[3]);
-//	if (histoArg.Length()>3) histoName = histoArg;
+	int eventsPerBin = 100;
+	if (argc>3) eventsPerBin = atoi(argv[3]);
+	//const TString histoName("NoBinning_incut/z_pt_ak5PFJetsL1L2L3_Zplusjet_data_hist");
+	TString histoName(argv[2]);
 
 	/// Read file
 	TString fileName(argv[1]);

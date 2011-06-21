@@ -1,8 +1,7 @@
 //ExtHisto Class: Holds TH1* for CanvasHolder + CanvasHolder DrawOptions, etc.
 // [WARNING] Class does only hold a POINTER of a histogramm - Memory Management done by CanvasHolder
 
-#ifndef __ExtHisto__
-#define __ExtHisto__
+#pragma once
 
 #include <vector>
 #include <string>
@@ -178,5 +177,4 @@ class extLine {
   }
 };
 
-#endif
 

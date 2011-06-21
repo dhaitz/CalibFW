@@ -18,6 +18,7 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/JPTJet.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 // Root
 #include "TList.h"
@@ -159,6 +160,9 @@ class ZplusjetTreeMaker : public edm::EDAnalyzer {
 
     /// Get the properties of the pfproperties
     void m_get_pfproprerties(const reco::Candidate* recoparticle, PFProperties& propr);    
+    
+    /// Jet Correction Service
+    std::string m_jetCorrectionService;
     
     // cuts
 

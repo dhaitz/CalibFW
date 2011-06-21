@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <set>
@@ -17,6 +18,9 @@
 #include "GlobalInclude.h"
 #include "PtBinWeighter.h"
 
+#include "EventPipeline.h"
+//#include "ZJetPipeline.h"
+
 #define SAFE_DELETE( first ) {  if ( first != NULL ) { delete first; } }
 
 enum CorrectionLevelEnum
@@ -29,45 +33,37 @@ enum InputTypeEnum
 };
 /*
  * - Charged Energy Fraction distribution: ChargedHadronEnergy
-- Neutral Energy Fraction distribution: NeutralHadronEnergy
-- Photon Energy Fraction distributin: PhotonEnergy
+ - Neutral Energy Fraction distribution: NeutralHadronEnergy
+ - Photon Energy Fraction distributin: PhotonEnergy
  *
  */
 
 // struct from Zplusjet/ZplusjetTreeMaker/interface/ZplusjetTreeMaker.h
-typedef struct {float ChargedHadronEnergy, 
-                ChargedHadronMultiplicity,
-                ChargedHadronEnergyFraction,
-                
-                NeutralHadronEnergy,                        
-                NeutralHadronMultiplicity,
-                NeutralHadronEnergyFraction,
-                
-                ChargedEmEnergy,
-                NeutralEmEnergy,
+typedef struct
+{
+	float ChargedHadronEnergy, ChargedHadronMultiplicity,
+			ChargedHadronEnergyFraction,
 
-                NeutralMultiplicity,
-                ChargedMultiplicity,
+			NeutralHadronEnergy, NeutralHadronMultiplicity,
+			NeutralHadronEnergyFraction,
 
-                ElectronEnergy,
-                ElectronMultiplicity,
-                ElectronEnergyFraction,
-                
-                MuonEnergy,
-                MuonMultiplicity,
-                MuonEnergyFraction,
-                
-                PhotonEnergy,
-                PhotonMultiplicity,
-                PhotonEnergyFraction,
+			ChargedEmEnergy, NeutralEmEnergy,
 
-                Constituents;} PFProperties;
+			NeutralMultiplicity, ChargedMultiplicity,
 
+			ElectronEnergy, ElectronMultiplicity, ElectronEnergyFraction,
+
+			MuonEnergy, MuonMultiplicity, MuonEnergyFraction,
+
+			PhotonEnergy, PhotonMultiplicity, PhotonEnergyFraction,
+
+			Constituents;
+} PFProperties;
 
 class evtData: boost::noncopyable
 {
 public:
-	TParticle *Z, *matched_Z,*mu_minus, *mu_plus;
+	TParticle *Z, *matched_Z, *mu_minus, *mu_plus;
 
 	TParticle *jets[3];
 	TParticle *matched_calo_jets[3];
@@ -86,20 +82,24 @@ public:
 
 	Double_t xsection;
 	Double_t weight;
+	int PU_interactions;
+	int PU_interactions_before;
+	int PU_interactions_after;
 
 	Long_t cmsEventNum;
 	Long_t cmsRun;
 	Int_t luminosityBlock;
-    Int_t partonFlavour;
+	Int_t partonFlavour;
 
 	evtData()
 	{
-		Z = matched_Z = mu_minus = mu_plus = jets[0] = jets[1] = jets[2] = met = tcmet
+		Z = matched_Z = mu_minus = mu_plus = jets[0] = jets[1] = jets[2] = met
+				= tcmet = NULL;
+
+		pfProperties[0] = pfProperties[1] = pfProperties[2] = NULL;
+
+		matched_calo_jets[0] = matched_calo_jets[1] = matched_calo_jets[2]
 				= NULL;
-
-		pfProperties[0] = pfProperties[1] =pfProperties[2] = NULL;
-
-		matched_calo_jets[0] =matched_calo_jets[1] = matched_calo_jets[2] = NULL;
 		HLTriggers_accept = recoVertices = recoVerticesInfo = recoVerticesError
 				= NULL;
 		beamSpot = NULL;
@@ -108,30 +108,30 @@ public:
 
 	~evtData()
 	{
-// 		SAFE_DELETE ( Z )
-//      SAFE_DELETE ( matched_Z )
-// 		SAFE_DELETE ( mu_minus )
-// 		SAFE_DELETE ( mu_plus )
-// 		SAFE_DELETE ( jets[0] )
-// 		SAFE_DELETE ( jets[1] )
-// 		SAFE_DELETE ( jets[2] )
-// 
-// 		SAFE_DELETE ( matched_calo_jets[0] )
-// 		SAFE_DELETE ( matched_calo_jets[1] )
-// 		SAFE_DELETE ( matched_calo_jets[2] )
-// 
-// 		SAFE_DELETE ( pfProperties[0] )
-// 		SAFE_DELETE ( pfProperties[1] )
-// 		SAFE_DELETE ( pfProperties[2] )
-// 
-// 
-// 		SAFE_DELETE ( met )
-// 		SAFE_DELETE ( tcmet )
-// 		SAFE_DELETE ( recoVertices )
-// 		SAFE_DELETE ( recoVerticesInfo )
-// 		SAFE_DELETE ( recoVerticesError )
-// 		SAFE_DELETE ( HLTriggers_accept )
-// 		SAFE_DELETE ( beamSpot )
+		// 		SAFE_DELETE ( Z )
+		//      SAFE_DELETE ( matched_Z )
+		// 		SAFE_DELETE ( mu_minus )
+		// 		SAFE_DELETE ( mu_plus )
+		// 		SAFE_DELETE ( jets[0] )
+		// 		SAFE_DELETE ( jets[1] )
+		// 		SAFE_DELETE ( jets[2] )
+		//
+		// 		SAFE_DELETE ( matched_calo_jets[0] )
+		// 		SAFE_DELETE ( matched_calo_jets[1] )
+		// 		SAFE_DELETE ( matched_calo_jets[2] )
+		//
+		// 		SAFE_DELETE ( pfProperties[0] )
+		// 		SAFE_DELETE ( pfProperties[1] )
+		// 		SAFE_DELETE ( pfProperties[2] )
+		//
+		//
+		// 		SAFE_DELETE ( met )
+		// 		SAFE_DELETE ( tcmet )
+		// 		SAFE_DELETE ( recoVertices )
+		// 		SAFE_DELETE ( recoVerticesInfo )
+		// 		SAFE_DELETE ( recoVerticesError )
+		// 		SAFE_DELETE ( HLTriggers_accept )
+		// 		SAFE_DELETE ( beamSpot )
 	}
 
 	// true if the event is within cuts
@@ -140,7 +140,7 @@ public:
 	{
 		evtData * ev = new evtData();
 		ev->Z = new TParticle(*this->Z);
-        ev->matched_Z = new TParticle(*this->matched_Z);
+		ev->matched_Z = new TParticle(*this->matched_Z);
 		ev->mu_minus = new TParticle(*this->mu_minus);
 		ev->mu_plus = new TParticle(*this->mu_plus);
 		ev->met = new TParticle(*this->met);
@@ -153,13 +153,14 @@ public:
 
 		for (int i = 0; i < 3; ++i)
 		{
-			if (this->matched_calo_jets[i] != NULL )
-				ev->matched_calo_jets[i] = new TParticle(*this->matched_calo_jets[i]);
+			if (this->matched_calo_jets[i] != NULL)
+				ev->matched_calo_jets[i] = new TParticle(
+						*this->matched_calo_jets[i]);
 		}
 
 		for (int i = 0; i < 3; ++i)
 		{
-			if (this->pfProperties[i] != NULL )
+			if (this->pfProperties[i] != NULL)
 				ev->pfProperties[i] = new PFProperties(*this->pfProperties[i]);
 		}
 
@@ -186,33 +187,35 @@ public:
 		ev->xsection = this->xsection;
 		ev->weight = this->weight;
 
-        ev->partonFlavour = this->partonFlavour;
+		ev->partonFlavour = this->partonFlavour;
 
 		return ev;
 	}
 };
 
+// increasing number for the names of temporary root histograms
+extern unsigned long g_lTempNameAppend;
+
 class RootNamer
 {
 public:
-	static unsigned long m_lTempNameAppend;
 
 	static std::string GetTempHistoName()
 	{
 		std::stringstream tempname;
-		m_lTempNameAppend++;
-		tempname << "root_temp_histo_" << m_lTempNameAppend;
+		g_lTempNameAppend++;
+		tempname << "root_temp_histo_" << g_lTempNameAppend;
 		return tempname.str();
 	}
 
-    static TString GetFolderName( PtBin * pBin )
-    {
-        if ( pBin == NULL )
-            return "NoBinning_incut/";
-        else
-            return pBin->id() + "_incut/";
+	static TString GetFolderName(PtBin * pBin)
+	{
+		if (pBin == NULL)
+			return "NoBinning_incut/";
+		else
+			return pBin->id() + "_incut/";
 
-    }
+	}
 
 	static TString GetHistoName(TString algoName, TString quantName,
 			InputTypeEnum inpType, int corr = 0, PtBin * pBin = NULL,
@@ -256,7 +259,6 @@ public:
 	}
 };
 
-unsigned long RootNamer::m_lTempNameAppend = 0;
 
 class EventId
 {
@@ -312,6 +314,11 @@ public:
 	Int_t m_luminosityBlock;
 };
 
+class EventMetaData : public CalibFW::EventMetaDataBase
+{
+
+};
+
 class EventResult
 {
 public:
@@ -331,8 +338,9 @@ public:
 		m_l3CorrPtJets[0] = 1.0f;
 		m_l3CorrPtJets[1] = 1.0f;
 		m_l3CorrPtJets[2] = 1.0f;
-
 		m_cutBitmask = 0;
+		
+		m_weights = NULL;
 	}
 
 	~EventResult()
@@ -342,14 +350,15 @@ public:
 		//SAFE_DELETE( m_pData );
 	}
 
+	doublevector * m_weights;
 	bool m_bUseL2;
 	Double_t m_l2CorrPtJets[3];
 
 	bool m_bUseL3;
 	Double_t m_l3CorrPtJets[3];
 
+	// the bits for the correspodings cuts are set if the cut was NOT passed !
 	unsigned long m_cutBitmask;
-
 
 	// if a jet has .Pt() == 0.0f , there is no 2nd/3rd jet in this event. dont add this
 	// to distributions
@@ -386,6 +395,30 @@ public:
 		return val;
 	}
 
+	int GetPileUpInteractions()
+	{
+		int val = 1;
+		try {
+			val = this->m_pData->PU_interactions;
+		} catch (...) {
+			CALIB_LOG_FATAL("PU Info not found.")
+		}
+		return val;
+	}
+
+	bool IsValidEvent();
+/*
+	bool IsCutInBitmask(unsigned long cutId, unsigned long bitmask)
+	{
+		return (cutId & bitmask) > 0;
+	}*/
+
+
+	bool IsCutInBitmask(unsigned long cutId)
+	{
+		return (cutId & this->m_cutBitmask) > 0;
+	}
+
 	bool IsInCut()
 	{
 		return (this->m_cutBitmask == 0);
@@ -394,48 +427,29 @@ public:
 	bool IsInCutWhenIgnoringCut(unsigned long ignoredCut)
 	{
 		// ~ is bitwise negation
-		return (((~ignoredCut ) & this->m_cutBitmask) == 0);
+		return (((~ignoredCut) & this->m_cutBitmask) == 0);
 	}
-
 
 	evtData * m_pData;
 
-
-	double GetWeight( )
+	double GetWeight()
 	{
-		if (false) // ! m_bEventReweighting)
-		{
-			return m_weight;
-		}
-		else
+		if (m_bEventReweighting)
 		{
 			double fct=1.0f;
-			doublevector weights;
-			//Workaround, use cfg file values here
-			const double WEIGHTS[25] = { // summer11 values with json upto 165121
-				0.4703311003, 0.7417299153, 0.8377476402, 1.1877490096, 1.5186171021,
-				1.6219797452, 1.5023381382, 1.2381951133, 0.9822965338, 0.7647095136,
-				0.5890234533, 0.4532443837, 0.3500049822, 0.2726113900, 0.2148378413,
-				0.1723042113, 0.1402734630, 0.1165577580, 0.0983505176, 0.0866341673,
-				0.0766579263, 0.0693297190, 0.0646282827, 0.0632177598, 0.0618234025
-			};
-			for (int n=0; n<25; ++n)
-				weights.push_back(WEIGHTS[n]);
-			//Workaround end
-			unsigned npv = this->GetRecoVerticesCount();
-			if (npv<0) CALIB_LOG_FATAL("Natural number of PV can not be inferior to 0.")
-			if (npv<weights.size()){
-				fct = weights[npv];
+			unsigned npv = this->GetPileUpInteractions();
+			if (npv<0) CALIB_LOG_FATAL("Natural number of PV (" << npv << ") can not be inferior to 0.")
+			if (npv<m_weights->size()){
+				fct = m_weights->at(npv);
 			} else {
-				CALIB_LOG("Number of PV exceeds weight range. This should not happen!");
+				CALIB_LOG_FATAL("Number of PV (" << npv << ") exceeds weight range (" << m_weights->size() << "). This should not happen!");
 			}
-
 			return (m_weight * fct);
 		}
+		return m_weight;
 	}
 
-
-	void SetWeight( double v)
+	void SetWeight(double v)
 	{
 		m_weight = v;
 	}
@@ -505,5 +519,4 @@ struct CompareEventResult: std::binary_function<EventResult, EventResult, bool>
 typedef std::set<EventId> EventSet;
 typedef boost::ptr_vector<EventResult> EventVector;
 typedef boost::ptr_vector<evtData> EventDataVector;
-
 

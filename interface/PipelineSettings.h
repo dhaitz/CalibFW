@@ -1,6 +1,12 @@
 #pragma once
 
-namespace CalibFW {
+#include <boost/foreach.hpp>
+#include <boost/property_tree/ptree.hpp>
+
+#include "GlobalInclude.h"
+
+namespace CalibFW
+{
 
 #define IMPL_SETTING(TYPE, SNAME) \
 private: \
@@ -33,76 +39,80 @@ void Set##SNAME ( TYPE val) { GetPropTree()->put( FullKey##SNAME (), val);     \
 
 #define RETURN_CACHED(CACHE_MEMBER,VALUEPATH) \
 { if (! CACHE_MEMBER.IsCached() ) \
-               CACHE_MEMBER.SetCache( VALUEPATH ); \
-return CACHE_MEMBER.GetValue(); }\
+  {             CACHE_MEMBER.SetCache( VALUEPATH );} \
+return CACHE_MEMBER.GetValue(); }
 
 template<class TData>
-class VarCache {
+class VarCache
+{
 public:
 	VarCache() :
-		m_isCached(false) {
+		m_isCached(false)
+	{
 
 	}
 
-	void SetCache(TData t) {
+	void SetCache(TData t)
+	{
 		m_val = t;
 		m_isCached = true;
 	}
 
-	TData GetValue() {
-		if	(!m_isCached)
+	TData GetValue()
+	{
+		if (!m_isCached)
 			CALIB_LOG_FATAL("not Cached variable used")
 
-			return m_val;
-	}
+	return m_val;
+}
 
-	bool IsCached()
-	{
-		return m_isCached;
-	}
+bool IsCached()
+{
+	return m_isCached;
+}
 
-	bool m_isCached;
-	TData m_val;
+bool m_isCached;
+TData m_val;
 };
 
 class PropertyTreeSupport
 {
 public:
-	static stringvector GetAsStringList(boost::property_tree::ptree * propTree,
-			std::string path)
+static stringvector GetAsStringList(boost::property_tree::ptree * propTree,
+		std::string path)
+{
+	stringvector fvec;
+	try
 	{
-		stringvector fvec;
-		try
-		{
-			BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
-					propTree->get_child(path))
-					{	fvec.push_back(v.second.data());
-					}
+		BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
+				propTree->get_child(path))
+		{	fvec.push_back(v.second.data());
 		}
-		catch ( boost::property_tree::ptree_bad_path & e)
-		{
-			// no problem, node optional
-		}
-		return fvec;
 	}
-	
-	static doublevector GetAsDoubleList(boost::property_tree::ptree * propTree,
-			std::string path)
+	catch ( boost::property_tree::ptree_bad_path & e)
 	{
-		doublevector fvec;
-		try
-		{
-			BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
-					propTree->get_child(path))
-					{	fvec.push_back(atof(v.second.data().c_str()));
-					}
-		}
-		catch ( boost::property_tree::ptree_bad_path & e)
-		{
-			// no problem, node optional
-		}
-		return fvec;
+		// no problem, node optional
 	}
+	return fvec;
+}
+
+static doublevector GetAsDoubleList(boost::property_tree::ptree * propTree,
+		std::string path)
+{
+	doublevector fvec;
+	try
+	{
+		BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
+				propTree->get_child(path))
+		{	fvec.push_back(atof(v.second.data().c_str()));
+		}
+	}
+	catch ( boost::property_tree::ptree_bad_path & e)
+	{
+		// no problem, node optional
+	}
+	return fvec;
+}
 };
 
 }

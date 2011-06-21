@@ -1,45 +1,26 @@
 #pragma once
 
-#include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/foreach.hpp>
-
-#include <boost/property_tree/ptree.hpp>
-
-#include <memory>
 #include <vector>
 
-#include <sstream>
-#include <typeinfo>
-
-#include "GlobalInclude.h"
-
-#include "Json_wrapper.h"
-
-#include "RootIncludes.h"
-#include "PtBinWeighter.h"
-//#include "EventData.h"
-#include "CompleteJetCorrector.h"
+#include <boost/noncopyable.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "PipelineSettings.h"
-
-#include "ZJetFilter.h"
-/*
- This macro implements a Setting Propery including the property tree get\put methods
- */
+#include "FilterBase.h"
 
 namespace CalibFW
 {
 
-template <class TData, class TSettings>
+template <class TData, class TMetaData, class TSettings>
 class EventPipeline;
 
 
-template<class TData, class TSettings>
-class EventConsumerBase
+template<class TData, class TMetaData, class TSettings>
+class EventConsumerBase : public boost::noncopyable
 {
 public:
 	virtual ~EventConsumerBase() {}
-	virtual void Init(EventPipeline<TData, TSettings> * pset)
+	virtual void Init(EventPipeline<TData, TMetaData, TSettings> * pset)
 	{
 		m_pipeline = pset;
 	}
@@ -71,41 +52,45 @@ public:
 		return this->m_pipeline->GetSettings();
 		}
 
-	EventPipeline<TData, TSettings> * m_pipeline;
+	EventPipeline<TData, TMetaData, TSettings> * m_pipeline;
 };
 
-template <class TData, class TSettings>
-class EventPipeline
+class EventMetaDataBase
+{
+// stuff like filter results can go here	
+
+};
+
+template <class TData, class TMetaData, class TSettings>
+class PipelineInitilizerBase
 {
 public:
 
-	typedef boost::ptr_vector<EventConsumerBase<TData, TSettings> > ConsumerVector;
+	virtual ~PipelineInitilizerBase() {}
+	virtual void InitPipeline( EventPipeline <TData, TMetaData, TSettings> * pLine,
+						TSettings * pset ) = 0;
+
+};
+
+template <class TData, class TMetaData, class TSettings>
+class EventPipeline : public boost::noncopyable
+{
+public:
+
+	typedef EventConsumerBase<TData, TMetaData,TSettings> ConsumerForThisPipeline;
+	typedef boost::ptr_vector<EventConsumerBase<TData,TMetaData, TSettings> > ConsumerVector;
 	typedef typename ConsumerVector::iterator ConsumerVectorIterator;
 
-	typedef boost::ptr_vector<FilterBase<TData, TSettings> > FilterVector;
+	typedef FilterBase<TData, TMetaData, TSettings> FilterForThisPipeline;
+	typedef boost::ptr_vector<FilterBase<TData, TMetaData,TSettings> > FilterVector;
 	typedef typename FilterVector::iterator FilterVectorIterator;
 
-	void InitPipeline(TSettings * pset)
+	void InitPipeline(TSettings * pset,
+			PipelineInitilizerBase< TData, TMetaData,TSettings> & initializer )
 	{
 		m_pipelineSettings = pset;
 
-		// load filter from the Settings and add them
-		stringvector fvec = this->GetSettings()->GetFilter();
-		BOOST_FOREACH( std::string sid, fvec )
-		{ // make this more beatiful :)
-			if ( sid == PtWindowFilter().GetFilterId())
-				m_filter.push_back( new PtWindowFilter);
-			else if ( sid == InCutFilter().GetFilterId())
-				m_filter.push_back( new InCutFilter);
-			else if ( sid == RecoVertFilter().GetFilterId())
-				m_filter.push_back( new RecoVertFilter);
-			else if ( sid == JetEtaFilter().GetFilterId())
-				m_filter.push_back( new JetEtaFilter);
-			else if ( sid == SecondJetRatioFilter().GetFilterId())
-				m_filter.push_back( new SecondJetRatioFilter);
-			else
-				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
-		}
+		initializer.InitPipeline( this, pset );
 
 		for (FilterVectorIterator itfilter = m_filter.begin();
 				!(itfilter== m_filter.end()); itfilter++)
@@ -132,6 +117,9 @@ public:
 
 	}
 
+	/*
+	 * Run the pipeline without specific event input.
+	 */
 	void Run()
 	{
 		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
@@ -141,6 +129,9 @@ public:
 		}
 	}
 
+	/*
+	 * Run the pipeline with one specific event as input
+	 */
 	void RunEvent(TData & evt)
 	{
 
@@ -169,7 +160,7 @@ public:
 		}
 	}
 
-	FilterBase<TData, TSettings> * FindFilter(std::string sFilterId)
+	FilterBase<TData, TMetaData,TSettings> * FindFilter(std::string sFilterId)
 		{
 
 		for (FilterVectorIterator it = m_filter.begin(); !(it
@@ -187,14 +178,18 @@ public:
 		return m_pipelineSettings;
 		}
 
-	const boost::ptr_vector<FilterBase<TData, TSettings> >& GetFilters()
+	void AddFilter( FilterForThisPipeline * pFilter )
+	{
+		m_filter.push_back( pFilter );
+	}
+
+	const boost::ptr_vector<FilterBase<TData, TMetaData,TSettings> >& GetFilters()
 	{
 		return m_filter;
 	}
 
 	ConsumerVector m_consumer;
 	FilterVector m_filter;
-	CompleteJetCorrector m_corr;
 
 	TSettings * m_pipelineSettings;
 };

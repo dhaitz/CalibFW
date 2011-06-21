@@ -1,5 +1,4 @@
-#ifndef __EVENTSTORER_H__
-#define __EVENTSTORER_H__
+#pragma once
 
 #include <string>
 #include <iostream>
@@ -135,10 +134,10 @@ public:
 
 		 m_gentree->Fill();
 
-		 std::stringstream sout;
-		 m_evtFormater.FormatEventResultCorrected(sout, &event);
+		 //std::stringstream sout;
+		 //m_evtFormater.FormatEventResultCorrected(sout, &event);
 
-		 CALIB_LOG_FILE( sout.str() )
+		 //CALIB_LOG_FILE( sout.str() )
 	}
 
 	 evtData m_localData;
@@ -149,8 +148,5 @@ public:
 	EventFormater m_evtFormater;
 };
 
-
-
 }
-#endif
 

@@ -20,8 +20,8 @@ ROOTLDFLAGS   = $(shell root-config --ldflags)
 BOOST_INC = /afs/naf.desy.de/group/cms/sw/slc5_ia32_gcc434/external/boost/1.42.0/include
 
 CPPFLAGS      = -I${BOOST_INC} -I${INCL}/
-CXX 	      = /usr/bin/g++
-CXXFLAGS      = -O3 -g -Wall -fPIC $(ROOTCFLAGS)
+CXX 	      = /usr/bin/g++ 
+CXXFLAGS      = -O3 -g -Wall -fopenmp -fPIC $(ROOTCFLAGS)
 LD	      = /usr/bin/g++
 LDFLAGS       = $(ROOTLDFLAGS) -rdynamic
 
@@ -80,7 +80,7 @@ ${BIN}/%.exe : ${TESTDIR}/%.cpp $(TEST) $(TEST_HDRS) $(HDRS) ${LIB}/$(SONAME)
 		$(CXX) $< -o $@  $(TEST) $(CPPFLAGS) ${CXXFLAGS} -L${LIB} $(OWN_LIB) ${LIBS} 
 # Generic dependencies (add dependency on .h)
 ${OBJ}/%.o : %.cc ${INCL}/%.h
-	$(CXX) -c  $(CXXFLAGS) $(CPPFLAGS) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $< -o $@
 
 ${OBJ}/cintdict.o : cintdict.cc cintdict.h
 	$(CXX) -c  $(CXXFLAGS) $(CPPFLAGS) $< -o $@

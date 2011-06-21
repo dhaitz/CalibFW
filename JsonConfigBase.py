@@ -20,7 +20,7 @@ def getDefaultCorrectionL2( data_path ):
 
 def GetBaseConfig():
     d = dict()
-    
+    d["ThreadCount"] = 1
     d["Algos"] = ["ak5PFJets"]#"ak7PFJets", "ak5CaloJets", "ak7CaloJets", "kt4PFJets","kt6PFJets", "kt4CaloJets", "kt6CaloJets", "ic5PFJets", "ic5CaloJets"]
     d["Pipelines"] = { "default": {
             "Level": 1,
@@ -77,7 +77,7 @@ def GetDefaultDataPipeline():
 def GetDataBaseConfig():
     d = GetBaseConfig()
     
-    d["JsonFile"] = "data/json/Cert_160404-163869_7TeV_PromptReco_Collisions11_JSON.txt"
+    d["JsonFile"] = "data/json/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
@@ -182,11 +182,7 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
     secLevelPline[FolderPrefix + "sec_default"]["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"
     secLevelPline[FolderPrefix + "sec_default"]["RootFileFolder"] = FolderPrefix
 
-
-
     conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
-
-    conf["Pipelines"]["default"]["AdditionalConsumer"] = ["cut_statistics"]
 
     #merge all
     if useFolders:
@@ -229,7 +225,8 @@ def StoreSettings( settings, filename):
     
     try:
         import json
-        print json.dumps( settings, sort_keys=True, indent=4 )
+        # dont display config on console, it is annyoing
+        #print json.dumps( settings, sort_keys=True, indent=4 )
         json.dump( settings, f, sort_keys=True, indent=4 )
             
     except BaseException:

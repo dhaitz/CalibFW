@@ -1,52 +1,61 @@
 #pragma once
 
+#include <boost/noncopyable.hpp>
 
+namespace CalibFW
+{
 
-#include "EventPipeline.h"
+// forward define to be able to use the event pipeline here
+template<class TData, class TMetaData, class TSettings>
+class EventPipeline;
 
-namespace CalibFW {
-
-class FilterResult {
+class FilterResult
+{
 public:
 	FilterResult(bool bHasPassed) :
-		m_bHasPassed(bHasPassed) {
+		m_bHasPassed(bHasPassed)
+	{
 	}
 
-	bool HasPassed() {
+	bool HasPassed()
+	{
 		return m_bHasPassed;
 	}
-	;
 
+private:
 	bool m_bHasPassed;
 };
 
-template <class TData, class TSettings>
-class EventPipeline;
-
-template<class TData, class TSettings>
-class FilterBase {
+template<class TData, class TMetaData, class TSettings>
+class FilterBase: public boost::noncopyable
+{
 public:
-	virtual ~FilterBase() {}
-	virtual void Init(EventPipeline<TData, TSettings> * pset) {
+	virtual ~FilterBase()
+	{
+	}
+	virtual void Init(EventPipeline<TData, TMetaData, TSettings> * pset)
+	{
 		m_pipeline = pset;
 	}
-	virtual void Finish() {
+	virtual void Finish()
+	{
 	}
 
 	virtual std::string GetFilterId() = 0;
 
 	virtual bool DoesEventPass(TData & event) = 0;
 
-	virtual std::string ToString(bool bVerbose = false) {
-		return "FilterBase";
+	virtual std::string ToString(bool bVerbose = false)
+	{
+		return GetFilterId();
 	}
 
 	TSettings * GetPipelineSettings()
-		{
-			return m_pipeline->GetSettings();
-		}
+	{
+		return m_pipeline->GetSettings();
+	}
 
-	EventPipeline<TData, TSettings> * m_pipeline;
+	EventPipeline<TData, TMetaData, TSettings> * m_pipeline;
 };
 
 }

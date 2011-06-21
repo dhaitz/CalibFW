@@ -1,5 +1,4 @@
-#ifndef __CANVAS_HOLDER__
-#define __CANVAS_HOLDER__
+#pragma once
 
 #include <iostream>
 #include <iomanip>
@@ -478,5 +477,3 @@ class CanvasHolder:public TObject{
     ClassDef(CanvasHolder,1) 
 
 };
-
-#endif

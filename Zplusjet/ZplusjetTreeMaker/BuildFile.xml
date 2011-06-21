@@ -6,6 +6,7 @@
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/BeamSpot"/>
+<use   name="JetMETCorrections/Objects"/>
 <use   name="root"/>
 <lib   name="EG"/>
 <flags   EDM_PLUGIN="1"/>
