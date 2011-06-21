@@ -17,9 +17,15 @@ def getDefaultCorrectionL2( data_path ):
     
   return g_l2_correction_data
 
+def GetGitInformation():
+    gitlog = subprocess.Popen("git --no-pager log -n 1" , stdout=subprocess.PIPE, shell=True).stdout.read()
+    gitremote = subprocess.Popen("git remote -v" , stdout=subprocess.PIPE, shell=True).stdout.read()
+
+    return (gitlog + "\n" + gitremote)
 
 def GetBaseConfig():
     d = dict()
+    d["GitInformation"] = GetGitInformation()
     d["ThreadCount"] = 1
     d["Algos"] = ["ak5PFJets"]#"ak7PFJets", "ak5CaloJets", "ak7CaloJets", "kt4PFJets","kt6PFJets", "kt4CaloJets", "kt6CaloJets", "ic5PFJets", "ic5CaloJets"]
     d["Pipelines"] = { "default": {
