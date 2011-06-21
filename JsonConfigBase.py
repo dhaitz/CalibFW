@@ -83,7 +83,7 @@ def GetDefaultDataPipeline():
 def GetDataBaseConfig():
     d = GetBaseConfig()
     
-    d["JsonFile"] = "data/json/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt"
+    d["JsonFile"] = "data/json/Cert_160404-166861_7TeV_PromptReco_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
@@ -176,6 +176,29 @@ def ExpandPtBins( pipelineDict, ptbins, includeSource):
     else:
         return newDict
     
+def AddQualityCuts( conf ):
+
+    # cuts to obey
+    # json 1
+    # hlt 512
+    # muon eta 4
+    # zmass 64
+    # jet eta 8
+    
+    # cuts to ignore 
+    # 2nd Jet Pt          16
+    # muon pt cut         2
+    # back to back cut    32 
+    
+    # bitmask :  0011 0010 = 50
+
+   pline_qualitycuts = copy.deepcopy( conf["Pipelines"]["default"] )
+   pline_qualitycuts["FilterInCutIgnored"] = 50        
+   conf["Pipelines"]["NoBinning_qualitycuts"] = pline_qualitycuts
+   
+   return
+
+    
 def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = ""):
     conf = conf_template
 
@@ -189,6 +212,8 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
     secLevelPline[FolderPrefix + "sec_default"]["RootFileFolder"] = FolderPrefix
 
     conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
+
+    AddQualityCuts( conf )
 
     #merge all
     if useFolders:

@@ -362,7 +362,7 @@ public:
 	{
 		unsigned long ignoredCut =
 				GetPipelineSettings()->GetFilterInCutIgnored();
-		// no section here is allowed to set to true again, just to false ! avoids coding errors
+
 		return event.IsInCutWhenIgnoringCut(ignoredCut);
 	}
 
