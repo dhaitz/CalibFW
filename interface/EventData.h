@@ -397,13 +397,17 @@ public:
 
 	int GetPileUpInteractions()
 	{
-		int val = 1;
-		try {
-			val = this->m_pData->PU_interactions;
-		} catch (...) {
-			CALIB_LOG_FATAL("PU Info not found.")
-		}
-		return val;
+		return this->m_pData->PU_interactions;
+	}
+
+	int GetPileUpInteractionsBefore()
+	{
+		return this->m_pData->PU_interactions_before;
+	}
+
+	int GetPileUpInteractionsAfter()
+	{
+		return this->m_pData->PU_interactions_after;
 	}
 
 	bool IsValidEvent();
