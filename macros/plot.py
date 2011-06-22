@@ -14,9 +14,10 @@ print "%1.2f Start with settings" % time.clock()
 ### SETTINGS
 settings = StandardSettings()
 settings.outputformats = ['png', 'pdf', 'svg', 'txt', 'dat']
+settings.outputformats = ['png']
 settings.lumi = 206.26826
 settings.verbosity = 2
-factor = settings.lumi*0.000713239
+factor = settings.lumi*0.000713239*1.16105019587
 factor10 = 36*0.001*0.75
 mc11color = 'FireBrick'
 mc10color = 'MidnightBlue'
@@ -34,7 +35,7 @@ data10color = 'gray'
 #### INPUTFILES
 print "%1.2f Open files:" % time.clock()
 fdata, filename_data = OpenFile(GetPath() + "chs_May10_data.root", (settings.verbosity>1))
-fmc,   filename_mc   = OpenFile(GetPath() + "chs_Summer11_mc.root", (settings.verbosity>1))
+fmc,   filename_mc   = OpenFile(GetPath() + "chs_Summer11_mc_flat.root", (settings.verbosity>1))
 fdata10, filename_data10 = OpenFile(GetPath() + "data2010_v8_single_l3.root", (settings.verbosity>1))
 fmc10,   filename_mc10   = OpenFile(GetPath() + "mc_fall10_dy_v1.root", (settings.verbosity>1))
 #print "and from MC file (Herwig): " + filename_mch
@@ -69,7 +70,7 @@ print "%1.2f Do plots ..." % time.clock()
 ####compare cone sizes, pvs, etabins, 
 
 
-def zeta():
+def zphi():
 	print "eta of the Z boson"
 	oname = GetNameFromSelection('z_phi')
 	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
@@ -322,11 +323,11 @@ def algocomp():
 
 def npv():
 	print "Number of primary vertices"
-	oname = GetNameFromSelection('recovert',{},{'incut':'allevents'})
-	print oname[0]
+	oname = GetNameFromSelection('recovert',{},{'incut':'allevents'})[0]
+	print oname
 #	histo_data10 = SafeConvert(fdata10,oname[0], settings.lumi,settings.outputformats)
-	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats)
-	histname = mchisto(oname[0])
+	histo_data = SafeConvert(fdata,oname, settings.lumi,settings.outputformats)
+	histname = mchisto(oname)
 	print histname
 #	histo_mc10 = SafeConvert(fmc10,histname, settings.lumi,settings.outputformats)
 	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats)
@@ -340,10 +341,12 @@ def npv():
 	histo_data.dropbin(-1)
 #	histo_mc10.dropbin(-1)
 	histo_mc.dropbin(-1)
+	oname.replace('recovert','')
 
 	fmpf, ampf, mpfname = makeplot('recovert')
 #	histo02 = ampf.errorbar(histo_mc10.xc, histo_mc10.y, histo_mc10.yerr, color=mc10color,fmt='-', capsize=0, label ='MC Fall10')
 	histo03 = ampf.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, color=mc11color,fmt='-', capsize=0, label ='MC Summer11')
+#	histo03 = ampf.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, color=mc11color,fmt='-', capsize=0, label ='MC Summer11')
 #	histo00 = ampf.errorbar(histo_data10.xc, histo_data10.y, histo_data10.yerr, color=data10color,fmt='^', capsize=0, label ='data 2010')
 	histo01 = ampf.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, color=data11color,fmt='o', capsize=0, label ='data 2011')
 
@@ -351,7 +354,7 @@ def npv():
 #	Print( histo_mc.y[2]/histo_data.y[2])
 #	Print( histo_mc.y[5]/histo_data.y[5])
 
-	ampf = captions(ampf,settings)
+	ampf = captions(ampf,settings, False)
 	ampf = tags(ampf, 'Private work', 'Joram Berger')
 	ampf.legend(loc = 'upper right', bbox_to_anchor = (0.98, 0.92), numpoints=1, frameon=False)
 	ampf = AxisLabels(ampf, 'recovert')
@@ -370,6 +373,8 @@ mcpv = mchisto(dapv)
 histo_mcpv = SafeConvert(fmc,mcpv, settings.lumi,settings.outputformats)
 histo_dapv = SafeConvert(fdata,dapv, settings.lumi,settings.outputformats)
 histo_mcpv.scale(factor)
+print len(histo_mcpv)
+print len(histo_dapv)
 print "Reweighting factors 2011: "
 print GetReweighting(histo_dapv,histo_mcpv)
 

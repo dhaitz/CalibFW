@@ -22,6 +22,7 @@ def GetReweighting(datahisto, mchisto, drop=True):
         mchisto.dropbin(-1)
     reweighting = []
     for i in range(len(mchisto)):
+        if i>13: break
         reweighting.append(datahisto.y[i]/mchisto.y[i])
     return reweighting
 
