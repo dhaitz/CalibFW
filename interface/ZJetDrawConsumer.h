@@ -374,7 +374,16 @@ IMPL_HIST1D_JET_MOD1(DrawJetAllEnergyFractionPtConsumer ,
 		{
 			if ( res.IsJetValid( m_jetNum ))
 			{
-				m_hist->Fill( res.m_pData->jets[m_jetNum]->Energy()*0.9 / res.m_pData->jets[m_jetNum]->Energy(),
+				/// this is not working correctly. still not sure how to add this
+
+				m_hist->Fill( (  res.m_pData->pfProperties[ m_jetNum]->ChargedHadronEnergyFraction +
+								res.m_pData->pfProperties[ m_jetNum]->NeutralHadronEnergyFraction +
+								( res.m_pData->pfProperties[ m_jetNum]->ChargedEmEnergy / res.m_pData->jets[m_jetNum]->Energy()) +
+								( res.m_pData->pfProperties[ m_jetNum]->NeutralEmEnergy / res.m_pData->jets[m_jetNum]->Energy()) +
+								( res.m_pData->pfProperties[ m_jetNum]->ElectronEnergy / res.m_pData->jets[m_jetNum]->Energy()) +
+								( res.m_pData->pfProperties[ m_jetNum]->MuonEnergy / res.m_pData->jets[m_jetNum]->Energy()) +
+								( res.m_pData->pfProperties[ m_jetNum]->PhotonEnergy / res.m_pData->jets[m_jetNum]->Energy())
+								),
 						res.GetWeight( ));
 			}
 		},

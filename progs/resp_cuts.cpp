@@ -643,7 +643,7 @@ void importEvents(bool bUseJson,
 						"number_of_processed_events");
 
 				lProcEvents = TMath::Nint(pH->GetMean());
-				CALIB_LOG_FILE( "\xd new file: " << sNewFile.Data() << " number "
+				CALIB_LOG_FILE( "New file: " << sNewFile.Data() << " number "
 						<< lProcEvents )
 				lOverallNumberOfProcessedEvents += lProcEvents;
 
@@ -730,7 +730,7 @@ void importEvents(bool bUseJson,
 
 		delete res;
 
-		if (((ievt % 5000) == 0) || (ievt == (entries - 1)))
+		if (((ievt % 200) == 0) || (ievt == (entries - 1)))
 		{
 			float localPercent = floor(100.0f * (float) (ievt + 1)
 					/ (float) entries);
@@ -738,7 +738,7 @@ void importEvents(bool bUseJson,
 					/ (float) g_iAlgoOverallCount + (localPercent * 0.01f)
 					* (1.0f) / (float) g_iAlgoOverallCount) * 100.0f);
 
-			CALIB_LOG( '\xd' << (ievt + 1) << " of " << entries << " done [ this algo " << std::fixed << std::setprecision(0)
+			CALIB_LOG_SAME_LINE((ievt + 1) << " of " << entries << " done [ this algo " << std::fixed << std::setprecision(0)
 					<< localPercent << " % ] [ overall " << overallPercent << " % ]" )
 
 		}
@@ -1028,6 +1028,9 @@ int main(int argc, char** argv)
 	CreateWeightBins();
 
 	// openmp setup
+	if ( g_propTree.get<int> ("ThreadCount", 1) > 1)
+		CALIB_LOG_FATAL("More than 1 thread no supported, yet")
+
 	omp_set_num_threads(g_propTree.get<int> ("ThreadCount", 1));
 	CALIB_LOG_FILE( "Running with " <<  omp_get_max_threads() << " thread(s)" )
 
@@ -1043,7 +1046,7 @@ int main(int argc, char** argv)
 	CALIB_LOG_FILE("Writing to the root file " << sRootOutputFilename)
 
 	// insert config into log file
-	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump:" );
+	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump to log file" );
 	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
 
 
