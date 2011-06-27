@@ -35,7 +35,7 @@ const double npu_probs_spring11[maxNpu] = {
 };
 
 // http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimGeneral/MixingModule/python/mix_E7TeV_Summer_2011_50ns_PoissonOOT.py
-const double npu_probs_summer11[maxNpu] = {
+const double npu_probs_summer11oot[maxNpu] = {
 	0.0400676665, 0.0403580090, 0.0807116334, 0.0924154156, 0.0924154156,
 	0.0924154156, 0.0924154156, 0.0924154156, 0.0870356742, 0.0767913175,
 	0.0636400516, 0.0494955563, 0.0362238310, 0.0249767088, 0.0162633216,
@@ -43,13 +43,22 @@ const double npu_probs_summer11[maxNpu] = {
 	0.0004108859, 0.0001905137, 0.0000842383, 0.0000349390, 0.0000142801
 };
 
-std::vector<double> generate_weights(TH1D* data_npu_estimated, std::string mc="flat10");
+// real distribution in Summer11 MC dataset:
+const double npu_probs_summer11real[maxNpu] = {
+	0.0719617, 0.0722807, 0.0650920, 0.0723523, 0.0649074,
+	0.0759789, 0.0800069, 0.0722771, 0.0671723, 0.0708293,
+	0.0661459, 0.0581419, 0.0495951, 0.0363465, 0.0306755,
+	0.0180953, 0.0121036, 0.00800573, 0.00282745, 0.00283283,
+	0.0017685, 0.000198889, 0.0001, 0.000204264, 0.0001
+};
+
+std::vector<double> generate_weights(TH1D* data_npu_estimated, std::string mc="summer11real");
 
 int main(int argc, char** argv)
 {
 	/// Show usage if needed.
 	if (argc!=2 and argc!=3) {
-		std::cout << "Usage: " << argv[0] << " pudist.root [flat10|spring11|summer11oot]\n";
+		std::cout << "Usage: " << argv[0] << " pudist.root [flat10|spring11|summer11oot|summer11real]\n";
 		return 0;
 	}
 
@@ -73,7 +82,7 @@ int main(int argc, char** argv)
 		return 2;
 	}
 
-	/// Use the function generate_weights and write it to cout.
+	/// Use the function generate_weights and write them to cout.
 	std::vector<double> distribution = generate_weights(pu_histo, mc);
 	std::cout << "conf[\"PUWeights\"] = [" << std::fixed << std::setprecision(10) << distribution[0];
 	for (unsigned short npu=1; npu<maxNpu; ++npu)
@@ -98,7 +107,9 @@ std::vector<double> generate_weights(TH1D* data_npu_estimated, std::string mc)
 			else if (mc == "spring11")
 				result[npu] = npu_estimated / npu_probs_spring11[npu];
 			else if (mc == "summer11oot")
-				result[npu] = npu_estimated / npu_probs_summer11[npu];
+				result[npu] = npu_estimated / npu_probs_summer11oot[npu];
+			else if (mc == "summer11real")
+				result[npu] = npu_estimated / npu_probs_summer11real[npu];
 			else
 				throw 1;
 		}
