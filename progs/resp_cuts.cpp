@@ -640,7 +640,7 @@ void importEvents(bool bUseJson,
 						"number_of_processed_events");
 
 				lProcEvents = TMath::Nint(pH->GetMean());
-				CALIB_LOG_FILE( "new file: " << sNewFile.Data() << " number "
+				CALIB_LOG_FILE( "\xd new file: " << sNewFile.Data() << " number "
 						<< lProcEvents )
 				lOverallNumberOfProcessedEvents += lProcEvents;
 
@@ -694,6 +694,7 @@ void importEvents(bool bUseJson,
 	CALIB_LOG_FILE( "Running " << g_pipelines.size() << " Pipeline(s) on events")
 	CALIB_LOG_FILE( "Processing " << entries << " events ...")
 	CALIB_LOG_FILE( "algo " << g_sCurAlgo)
+	CALIB_LOG(" First Entry ")
 
 	double fStartTime = omp_get_wtime();
 
@@ -734,7 +735,7 @@ void importEvents(bool bUseJson,
 					/ (float) g_iAlgoOverallCount + (localPercent * 0.01f)
 					* (1.0f) / (float) g_iAlgoOverallCount) * 100.0f);
 
-			CALIB_LOG( (ievt + 1) << " of " << entries << " done [ this algo " << std::fixed << std::setprecision(0)
+			CALIB_LOG( '\xd' << (ievt + 1) << " of " << entries << " done [ this algo " << std::fixed << std::setprecision(0)
 					<< localPercent << " % ] [ overall " << overallPercent << " % ]" )
 
 		}

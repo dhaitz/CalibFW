@@ -13,7 +13,14 @@ def SafeGet( RootDict, ObjectName ):
         assert False
 
     return oj
-    
+
+def IsObjectExistent ( RootDict, ObjectName ):
+    oj = RootDict.Get( ObjectName )
+    if oj:
+        return True
+    else:
+        return False
+        
 def OpenFile(filename, message=False):
     """Open a root file"""
     f = ROOT.TFile(filename)

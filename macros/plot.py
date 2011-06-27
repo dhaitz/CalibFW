@@ -69,7 +69,7 @@ print "%1.2f Do plots ..." % time.clock()
 ####compare cone sizes, pvs, etabins, 
 
 
-def zeta():
+def zphi():
 	print "eta of the Z boson"
 	oname = GetNameFromSelection('z_phi')
 	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
@@ -83,7 +83,6 @@ def zeta():
 	#histo_data.x.pop()
 	histo1 = azeta.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color=data11color,fmt='o', capsize=0, label ='data')
 	histo2 = azeta.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fmt='-', capsize=0, label ='MC')
-
 	#def fitfunc(x):
 	#	return  a/(c*c*g*g+(x*x-c*c)*(x*x-c*c))
 	#x = mcdata['x']#numpy.arange(60.0, 120.0, .06)
