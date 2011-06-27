@@ -60,7 +60,7 @@ def GetMikkoCuts( conf ):
 
     return conf
 
-def ApplyReweightingSummer11May10ReReco():
+def ApplyReweightingSummer11May10ReReco(conf):
     conf["UseEventWeight"] = 1
     conf["UseGlobalWeightBin"] = 1
     conf["GlobalXSection"] = 1614.0
@@ -71,7 +71,7 @@ def ApplyReweightingSummer11May10ReReco():
         0.1928669420, 0.1178827060, 0.0989967695, 0.0707225141, 0.0494813344,
         0.0630199599, 0.0275894575, 0.0189547094, 0.0708500595, 0.0581618600,
         0.0115549447, 0.0094252128]
-
+    return conf
 
 def GetMcBaseConfig():
     d = GetBaseConfig()
