@@ -61,6 +61,7 @@ def GetMikkoCuts( conf ):
     return conf
 
 def ApplyReweightingSummer11May10ReReco(conf):
+    conf["UseWeighting"] = 1
     conf["UseEventWeight"] = 1
     conf["UseGlobalWeightBin"] = 1
     conf["GlobalXSection"] = 1614.0
