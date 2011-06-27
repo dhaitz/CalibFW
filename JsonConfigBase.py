@@ -182,18 +182,19 @@ def AddQualityCuts( conf ):
     # json 1
     # hlt 512
     # muon eta 4
-    # zmass 64
     # jet eta 8
     
     # cuts to ignore 
     # 2nd Jet Pt          16
     # muon pt cut         2
     # back to back cut    32 
+    # zmass 64
+
     
-    # bitmask :  0011 0010 = 50
+    # bitmask :  0011 1010 = 50
 
    pline_qualitycuts = copy.deepcopy( conf["Pipelines"]["default"] )
-   pline_qualitycuts["FilterInCutIgnored"] = 50        
+   pline_qualitycuts["FilterInCutIgnored"] = 58        
    conf["Pipelines"]["NoBinning_qualitycuts"] = pline_qualitycuts
    
    return
@@ -235,6 +236,14 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
         secLevelPline[ FolderPrefix + key ] = val
 
     conf["Pipelines"] = secLevelPline
+
+    # add quality cuts pipeline
+    pline_qualitycuts = copy.deepcopy( conf["Pipelines"]["default"] )
+    pline_qualitycuts["FilterInCutIgnored"] = 50 
+    pline_qualitycuts["RootFileFolder"] = "NoBinning_qualitycuts"
+
+    conf["Pipelines"]["NoBinning_qualitycuts"] = pline_qualitycuts
+
 
     return conf
 
