@@ -216,8 +216,23 @@ IMPL_HIST1D_MOD2(DrawTcMetConsumer ,m_hist->Fill(res.m_pData->tcmet->Pt() , res.
 		new ModHistBinCount(500))
 //RECO VERT
 IMPL_HIST1D_MOD2(DrawRecoVertConsumer ,m_hist->Fill( (double)res.GetRecoVerticesCount() , res.GetWeight( )); ,
-		new ModHistBinRange(-0.5, 14.5),
-		new ModHistBinCount(15))
+		new ModHistBinRange(-0.5, 25.5),
+		new ModHistBinCount(26))
+
+//RECO PU INTERACTIONS
+IMPL_HIST1D_MOD2(DrawPUConsumer ,m_hist->Fill( (double)res.GetPileUpInteractions() , res.GetWeight( )); ,
+		new ModHistBinRange(-0.5, 25.5),
+		new ModHistBinCount(26))
+
+//RECO PU INTERACTIONS BEFORE
+IMPL_HIST1D_MOD2(DrawPUBeforeConsumer ,m_hist->Fill( (double)res.GetPileUpInteractionsBefore() , res.GetWeight( )); ,
+		new ModHistBinRange(-0.5, 25.5),
+		new ModHistBinCount(26))
+
+//RECO PU INTERACTIONS AFTER
+IMPL_HIST1D_MOD2(DrawPUAfterConsumer ,m_hist->Fill( (double)res.GetPileUpInteractionsAfter() , res.GetWeight( )); ,
+		new ModHistBinRange(-0.5, 25.5),
+		new ModHistBinCount(26))
 
 // SecondJet Pt / Z.Pt
 IMPL_HIST1D_MOD1(Draw2ndJetPtDivZPtConsumer ,

@@ -534,6 +534,9 @@ ZJetPipeline * CreateDefaultPipeline()
 	PLOT_HIST1D(pline, DrawTcMetConsumer, tcmet)
 
 	PLOT_HIST1D(pline, DrawRecoVertConsumer, recovert)
+	PLOT_HIST1D(pline, DrawPUConsumer, pu)
+	PLOT_HIST1D(pline, DrawPUBeforeConsumer, pu_before)
+	PLOT_HIST1D(pline, DrawPUAfterConsumer, pu_after)
 
 	for (ZJetCutHandler::CutVector::iterator it =
 			g_cutHandler->GetCuts().begin(); !(it
@@ -1061,7 +1064,7 @@ int main(int argc, char** argv)
 	g_weights = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
 
 	if (g_eventReweighting)
-		CALIB_LOG_FILE( "\n\n --------> reweightin events for # reco !!\n\n" )
+		CALIB_LOG_FILE( "Reweighting events according to PU interactions.\n" )
 
 	if ( g_propTree.get("JsonFile", "") != "" )
 		g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
