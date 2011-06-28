@@ -65,10 +65,9 @@ namespace CalibFW
  So machen, dass der EventConsumer noch die Kontrolle drüber hat, was ihm entzogen wird.
  */
 
-typedef DrawHist2DConsumerBase<EventResult, ZJetPipelineSettings> ZJetHist2D;
-typedef DrawHist1dConsumerBase<EventResult, ZJetPipelineSettings> ZJetHist1D;
-typedef DrawGraphErrorsConsumerBase<EventResult, ZJetPipelineSettings>
-		ZJetGraphErrors;
+typedef DrawHist2DConsumerBase<EventResult, EventMetaData,ZJetPipelineSettings> ZJetHist2D;
+typedef DrawHist1dConsumerBase<EventResult, EventMetaData, ZJetPipelineSettings> ZJetHist1D;
+typedef DrawGraphErrorsConsumerBase<EventResult, EventMetaData, ZJetPipelineSettings> ZJetGraphErrors;
 
 #define IMPL_HIST1D_MOD1(CLASSNAME, DATAPATH, MOD1)	\
 class CLASSNAME: public ZJetHist1D	{ public: \
@@ -118,7 +117,7 @@ class DrawJetConsumerBase: public ZJetHist1D
 {
 public:
 	DrawJetConsumerBase(int jetNum) :
-		DrawHist1dConsumerBase<EventResult, ZJetPipelineSettings> (), m_jetNum(
+		DrawHist1dConsumerBase<EventResult, EventMetaData, ZJetPipelineSettings> (), m_jetNum(
 				jetNum)
 	{
 	}
@@ -217,8 +216,23 @@ IMPL_HIST1D_MOD2(DrawTcMetConsumer ,m_hist->Fill(res.m_pData->tcmet->Pt() , res.
 		new ModHistBinCount(500))
 //RECO VERT
 IMPL_HIST1D_MOD2(DrawRecoVertConsumer ,m_hist->Fill( (double)res.GetRecoVerticesCount() , res.GetWeight( )); ,
-		new ModHistBinRange(-0.5, 14.5),
-		new ModHistBinCount(15))
+		new ModHistBinRange(-0.5, 25.5),
+		new ModHistBinCount(26))
+
+//RECO PU INTERACTIONS
+IMPL_HIST1D_MOD2(DrawPUConsumer ,m_hist->Fill( (double)res.GetPileUpInteractions() , res.GetWeight( )); ,
+		new ModHistBinRange(-0.5, 25.5),
+		new ModHistBinCount(26))
+
+//RECO PU INTERACTIONS BEFORE
+IMPL_HIST1D_MOD2(DrawPUBeforeConsumer ,m_hist->Fill( (double)res.GetPileUpInteractionsBefore() , res.GetWeight( )); ,
+		new ModHistBinRange(-0.5, 25.5),
+		new ModHistBinCount(26))
+
+//RECO PU INTERACTIONS AFTER
+IMPL_HIST1D_MOD2(DrawPUAfterConsumer ,m_hist->Fill( (double)res.GetPileUpInteractionsAfter() , res.GetWeight( )); ,
+		new ModHistBinRange(-0.5, 25.5),
+		new ModHistBinCount(26))
 
 // SecondJet Pt / Z.Pt
 IMPL_HIST1D_MOD1(Draw2ndJetPtDivZPtConsumer ,
@@ -360,7 +374,16 @@ IMPL_HIST1D_JET_MOD1(DrawJetAllEnergyFractionPtConsumer ,
 		{
 			if ( res.IsJetValid( m_jetNum ))
 			{
-				m_hist->Fill( res.m_pData->jets[m_jetNum]->Energy()*0.9 / res.m_pData->jets[m_jetNum]->Energy(),
+				/// this is not working correctly. still not sure how to add this
+
+				m_hist->Fill( (  res.m_pData->pfProperties[ m_jetNum]->ChargedHadronEnergyFraction +
+								res.m_pData->pfProperties[ m_jetNum]->NeutralHadronEnergyFraction +
+								( res.m_pData->pfProperties[ m_jetNum]->ChargedEmEnergy / res.m_pData->jets[m_jetNum]->Energy()) +
+								( res.m_pData->pfProperties[ m_jetNum]->NeutralEmEnergy / res.m_pData->jets[m_jetNum]->Energy()) +
+								( res.m_pData->pfProperties[ m_jetNum]->ElectronEnergy / res.m_pData->jets[m_jetNum]->Energy()) +
+								( res.m_pData->pfProperties[ m_jetNum]->MuonEnergy / res.m_pData->jets[m_jetNum]->Energy()) +
+								( res.m_pData->pfProperties[ m_jetNum]->PhotonEnergy / res.m_pData->jets[m_jetNum]->Energy())
+								),
 						res.GetWeight( ));
 			}
 		},
@@ -604,6 +627,33 @@ public:
 		{
 			m_hist->Fill(res.GetRecoVerticesCount(), res.GetCorrectedJetPt(1)
 					+ res.GetCorrectedJetPt(2), res.GetWeight());
+		}
+	}
+};
+
+class Draw2ndJetCutNRVMapConsumer: public ZJetHist2D
+{
+public:
+	Draw2ndJetCutNRVMapConsumer()
+	{
+	}
+
+	virtual void Init(ZJetPipeline * pset)
+	{
+		// magic master switch
+		m_hist->m_bDoProfile = true;
+
+		m_hist->AddModifier(new ModHist2DBinRange(-0.5, 14.5, 0.0f, 3.0f));
+		m_hist->AddModifier(new ModHist2DBinCount(15, 30));
+
+		ZJetHist2D::Init(pset);
+	}
+
+	virtual void ProcessFilteredEvent(EventResult & res)
+	{
+		if (res.IsJetValid(1))
+		{
+			m_hist->Fill(res.GetRecoVerticesCount(), res.GetCorrectedJetPt(1) / res.m_pData->Z->Pt(), res.GetWeight());
 		}
 	}
 };
@@ -957,13 +1007,12 @@ public:
 
 	// this method is called for all events
 	virtual void ProcessEvent(EventResult & event, FilterResult & result)
-	{/*
-	 if ( ! CutHandler::IsValidEvent( &event))
-	 return;
+	{
+		if ( ! event.IsValidEvent())
+			return;
 
-	 if (CutHandler::IsCutInBitmask( m_iCutId, event.m_cutBitmask ))
-	 m_hist_rejected.Fill( m_xProvider.GetXValue( event ), event.GetWeight( ) );
-	 */
+		if ( event.IsCutInBitmask( m_iCutId ))
+			m_hist_rejected.Fill( m_xProvider.GetXValue( event ), event.GetWeight( ) );
 
 		m_hist_overall.Fill(m_xProvider.GetXValue(event), event.GetWeight());
 	}

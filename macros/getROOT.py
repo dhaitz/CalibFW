@@ -13,7 +13,14 @@ def SafeGet( RootDict, ObjectName ):
         assert False
 
     return oj
-    
+
+def IsObjectExistent ( RootDict, ObjectName ):
+    oj = RootDict.Get( ObjectName )
+    if oj:
+        return True
+    else:
+        return False
+        
 def OpenFile(filename, message=False):
     """Open a root file"""
     f = ROOT.TFile(filename)
@@ -128,6 +135,8 @@ class npHisto:
         for i in range(len(self.y)):
             self.y[i] *= factor
             self.yerr[i] *= factor
+        self.ysum *= factor
+        self.norm /= factor
         self.ymax *= factor
 
     def dropbin(self,number):
@@ -164,6 +173,10 @@ class npHisto:
                     self.xc.append(float(values[2]))
                     self.y.append(float(values[3]))
                     self.yerr.append(float(values[5]))
+                elif len(values)>2:
+                    self.xc.append(float(values[1]))
+                    self.y.append(float(values[2]))
+                    self.yerr.append(0.0)
     
     def write(self, filename='.txt'):
         """Write the histogram to a text file"""

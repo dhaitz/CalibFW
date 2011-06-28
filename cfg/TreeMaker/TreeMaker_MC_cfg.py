@@ -24,7 +24,7 @@ except NameError:
 
 
 # use Path combining RECO and GEN for processing 
-process = TreeBaseCfg.getBaseConfig(Zs.allgoodZToMuMuPath)
+process = TreeBaseCfg.getBaseConfig(Zs.allgoodZToMuMuPath, False)
 
 if ( useDefaultGlobalTag ):
     process.GlobalTag.globaltag = defaultGlobalTag

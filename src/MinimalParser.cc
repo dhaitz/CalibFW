@@ -148,10 +148,7 @@ bool MinimalParser::read (const char* section_name,
 
     RooStringVar val_rsv(par_name,par_name,CHECKSTRING.Data());
     //RooMsgService::instance().setGlobalKillBelow(RooMsgService::WARNING);
-    bool fail=RooArgSet(val_rsv).readFromFile(m_cfg_name.Data(),
-                                              0,
-                                              section_name,
-                                              0);
+    RooArgSet(val_rsv).readFromFile(m_cfg_name.Data(), 0, section_name, 0);
     //RooMsgService::instance().setGlobalKillBelow(/*RooMsgService*/::INFO);
 
     val=val_rsv.getVal();
@@ -197,10 +194,7 @@ bool MinimalParser::read (const char* section_name,
 
     RooStringVar val_rsv(par_name,par_name,"");
     //RooMsgService::instance().setGlobalKillBelow(RooMsgService::WARNING);
-    bool fail=RooArgSet(val_rsv).readFromFile(m_cfg_name.Data(),
-                                              0,
-                                              section_name,
-                                              0);
+    RooArgSet(val_rsv).readFromFile(m_cfg_name.Data(), 0, section_name, 0);
     //RooMsgService::instance().setGlobalKillBelow(RooMsgService::INFO);
 
     vector_as_string= val_rsv.getVal();

@@ -11,8 +11,14 @@
 extern std::ofstream * g_logFile;
 
 #define FLOAT_COMPARE( first, second ) (  TMath::Abs( (first - second) / second) < 0.02 )
+
 #define CALIB_LOG( out )  {std::cout << out << std::endl;}
+#define CALIB_LOG_SAME_LINE( out )  {  std::cout << "\xd" << out;}
+
 #define CALIB_LOG_FILE( out ) {std::cout << out << std::endl; (*g_logFile) << out << std::endl;}
+#define CALIB_LOG_FILE_ONLY( out ) {(*g_logFile) << out << std::endl;}
+
+
 #define CALIB_LOG_FATAL( out ) { std::cout << "FATAL: " << out << std::endl; \
 				(*g_logFile) << "FATAL:" << out << std::endl; \
 				g_logFile->close(); std::cout.flush(); throw 23; }\

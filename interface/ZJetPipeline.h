@@ -12,7 +12,10 @@ namespace CalibFW
 {
 
 class ZJetPipelineSettings;
-typedef EventPipeline<EventResult, ZJetPipelineSettings> ZJetPipeline;
+typedef EventPipeline<EventResult, EventMetaData, ZJetPipelineSettings>
+		ZJetPipeline;
+typedef FilterBase<EventResult, EventMetaData, ZJetPipelineSettings>
+		ZJetFilterBase;
 
 class ZJetPipelineSettings
 {
@@ -47,6 +50,9 @@ IMPL_SETTING(double, FilterJetEtaHigh)
 IMPL_SETTING(double, FilterSecondJetRatioLow)
 IMPL_SETTING(double, FilterSecondJetRatioHigh)
 IMPL_SETTING(unsigned long, FilterInCutIgnored)
+
+IMPL_SETTING(bool, Filter2ndJetPtCutSet)
+IMPL_SETTING(bool, FilterDeltaPhiCutSet)
 
 IMPL_SETTING(std::string, AlgoName)
 IMPL_SETTING(std::string, RootFileFolder)
@@ -177,8 +183,6 @@ IMPL_PROPERTY(TFile *, RootOutFile)
 	 stringvector m_filter;*/
 
 };
-
-typedef FilterBase<EventResult, ZJetPipelineSettings> ZJetFilterBase;
 
 class RecoVertFilter: public ZJetFilterBase
 {
@@ -320,6 +324,36 @@ public:
 	BinWithEnum m_binWith;
 };
 
+// Allows to select only events with a specific cut signature
+class CutSelectionFilter: public ZJetFilterBase
+{
+public:
+	CutSelectionFilter() :
+		ZJetFilterBase()
+	{
+
+	}
+
+	virtual bool DoesEventPass(EventResult & event)
+	{
+		if (GetPipelineSettings()->GetFilter2ndJetPtCutSet()
+				!= event.IsCutInBitmask(16))
+			return false;
+
+		if (GetPipelineSettings()->GetFilterDeltaPhiCutSet()
+				!= event.IsCutInBitmask(32))
+			return false;
+
+		return true;
+	}
+
+	virtual std::string GetFilterId()
+	{
+		return "cutselection";
+	}
+
+};
+
 class InCutFilter: public ZJetFilterBase
 {
 public:
@@ -328,7 +362,7 @@ public:
 	{
 		unsigned long ignoredCut =
 				GetPipelineSettings()->GetFilterInCutIgnored();
-		// no section here is allowed to set to true again, just to false ! avoids coding errors
+
 		return event.IsInCutWhenIgnoringCut(ignoredCut);
 	}
 
@@ -345,7 +379,7 @@ public:
 };
 
 class ZJetPipelineInitializer: public PipelineInitilizerBase<EventResult,
-		ZJetPipelineSettings>
+		EventMetaData, ZJetPipelineSettings>
 {
 public:
 	void InitPipeline(ZJetPipeline * pLine, ZJetPipelineSettings * pset);

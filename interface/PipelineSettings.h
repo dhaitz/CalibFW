@@ -1,5 +1,10 @@
 #pragma once
 
+#include <boost/foreach.hpp>
+#include <boost/property_tree/ptree.hpp>
+
+#include "GlobalInclude.h"
+
 namespace CalibFW
 {
 
