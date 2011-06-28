@@ -25,7 +25,7 @@ def OpenFile(filename, message=False):
     """Open a root file"""
     f = ROOT.TFile(filename)
     if f:
-        if message: print " • Inputfile:", filename
+        if message: print " -> Inputfile:", filename
     else:
         print "Can't open file:", filename
         assert False
