@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from getROOT import *
 import sys, os, math #, kein pylab!
 import time
@@ -463,6 +462,38 @@ def scaleres():
 #	asr = tags(asr, 'Private work', 'Joram Berger')
 
 	Save(fsr,'scaleres', settings)
+
+
+def npu():
+	print "Number of pile-up interactions"
+	fpuApr, filename_pua = OpenFile("../CMSSW_4_2_3/pudist423Apr.root", (settings.verbosity>1))
+	fpuMay, filename_pum = OpenFile("../CMSSW_4_2_3/pudist423May.root", (settings.verbosity>1))
+	fpuJune, filename_puj = OpenFile("../CMSSW_4_2_3/pudist423June24Prompt.root", (settings.verbosity>1))
+	oname = GetNameFromSelection('pu',{},{'incut':'allevents'})[0]
+	hpuApr = SafeConvert(fpuApr, 'pileup', settings.lumi,settings.outputformats)
+	hpuMay = SafeConvert(fpuMay, 'pileup', settings.lumi,settings.outputformats)
+	hpuJune = SafeConvert(fpuJune, 'pileup', settings.lumi,settings.outputformats)
+#	histo_mc10.scale(factor10)
+#	histo_data10.dropbin(0)
+
+	fnpu, anpu, npuname = makeplot('recovert')
+	histo01 = ampf.errorbar(hpuApr.xc, hpuApr.y, hpuApr.yerr, color=black, fmt='o', capsize=0, label ='2010 data (Apr21ReReco, L = 36 pb${}^{-1}$)')
+	histo02 = ampf.errorbar(hpuMay.xc, hpuMay.y, hpuMay.yerr, color=black, fmt='^', capsize=0, label ='2011 data (May10ReReco, L = 206 pb${}^{-1}$)')
+	histo03 = ampf.errorbar(hpuJune.xc, hpuJune.y, hpuJune.yerr, color=gray, fmt='x', capsize=0, label ='2011 data (PromptReco, L = 800 pb${}^{-1}$)')
+
+
+	anpu = captions(anpu,settings, False)
+	anpu = tags(anpu, 'Private work', 'Joram Berger')
+	anpu.legend(loc = 'upper right', bbox_to_anchor = (0.98, 0.92), numpoints=1, frameon=False)
+	anpu = AxisLabels(anpu, 'recovert')
+	#anpu.xmax = 400
+
+	#plt.minorticks_on()
+
+	Save(anpu,'npu', settings)
+	anpu.set_ylim(bottom=1.0)
+	anpu.set_yscale('log')
+	Save(anpu,'npu_log', settings)
 
 # The actual plotting starts here:
 #List of plots to do - leave empty for all plots

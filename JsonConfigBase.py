@@ -20,7 +20,8 @@ def getDefaultCorrectionL2( data_path ):
 def GetGitInformation():
     gitlog = subprocess.Popen("git --no-pager log -n 1 | head -n 1" , stdout=subprocess.PIPE, shell=True).stdout.read()
     gitremote = subprocess.Popen("git remote -v" , stdout=subprocess.PIPE, shell=True).stdout.read()
-
+    gitlog = gitlog.replace("'","`")
+    gitremote = gitremote.replace("'","`")
     return (gitlog + "\n" + gitremote)
 
 def GetBaseConfig():
