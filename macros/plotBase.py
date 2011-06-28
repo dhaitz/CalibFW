@@ -143,13 +143,13 @@ def makeplot(quantity, variation={}, common={}):
     return fig, ax, name
     
 def captions(ax, stg=StandardSettings(), twolumis=True):
-    ax.text(0.99, 0.98, r"$\sqrt{s} = " + str(stg.cme) + " \,\mathrm{TeV}$",
+    ax.text(0.99, 1.06, r"$\sqrt{s} = " + str(stg.cme) + " \,\mathrm{TeV}$",
         va='top', ha='right', transform=ax.transAxes, fontsize=15)
     if stg.lumi > 0:
-        ax.text(0.01, 0.98, r"$\mathcal{L}_{2011} = " + str(int(stg.lumi)) + " \,\mathrm{pb}^{-1}$",
+        ax.text(0.01, 1.06, r"$\mathcal{L} = " + str(int(stg.lumi)) + " \,\mathrm{pb}^{-1}$",
             va='top', ha='left', transform=ax.transAxes, fontsize=15)
         if twolumis:
-            ax.text(0.01, 0.93, r"$\mathcal{L}_{2010} = " + str(36) + " \,\mathrm{pb}^{-1}$",
+            ax.text(0.01, 0.93, r"$\mathcal{L} = " + str(36) + " \,\mathrm{pb}^{-1}$",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
     return ax
 
@@ -213,9 +213,9 @@ def AxisLabels(ax, q='resp', obj='jet'):
         
     elif q == 'cutineff':
         ax.set_ylabel(r"Cut Infficiency", y=1, va="top" )
-        ax.set_xlabel(r"Number of reconstructed vertices $n$",x=1)
-        ax.set_xlim(0, 18)
-        ax.set_ylim(0.4, 1.2)
+        ax.set_xlabel(r"NRV",x=1)
+        #ax.set_xlim(1, 15)
+        ax.set_ylim(0.0, 1.2)
         
     elif q == 'recovert':
         ax.set_xlabel(r"Number of reconstructed vertices $n$", ha="right", x=1)
@@ -244,6 +244,7 @@ def hist_baseplot(plot_collection, caption, settings, modifierBeforeSave, alsoIn
     ta = tags(ta, 'Private work', 'Joram Berger')
     #ta.legend(loc=legloc, numpoints=1, frameon=False)
     #sta = AxisLabels(ta, q, obj)
+    #ta.autoscale()
     
     for (quantName, inpFile, drawParameters, modifierFunc, modifierDataFunc) in plot_collection:
         rootHisto = getROOT.SafeConvert(inpFile, quantName, settings.lumi, settings.outputformats, 5)
@@ -314,6 +315,8 @@ def GetDataOrMC(quantity, inp_file, custom_keys,settings):
     
     oname = oname.replace('data','mc').replace('Res','')
     return getROOT.SafeConvert( inp_file, oname, settings.lumi, settings.outputformats,5)
+    
+    
     
 def genericplot(quantity, q, obj, fdata, custom_keys_data, fmc, custom_keys_mc, factor, stg, legloc='center right'):
     #print q, "of the", obj    

@@ -16,12 +16,16 @@ settings = plotBase.StandardSettings()
 settings.outputformats = ['png', 'pdf', 'txt', 'dat']
 settings.lumi = 206.26826
 settings.verbosity = 2
-factor = global_factor = settings.lumi*0.00065
+#factor = global_factor = 0.158781242981 # qualitycuts
+factor = global_factor = 0.141210916022 # incuts
+
 factor10 = 36*0.001*0.75
 mc11color = 'FireBrick'
 mc10color = 'MidnightBlue'
 data11color = 'black'
 data10color = 'gray'
+
+from_folder = "NoBinning_incut/"
 
 ###quantity R(ptZ) pt eta phi
 ###set algo, cone size, #pv, L1L2L3, 
@@ -42,7 +46,7 @@ fmc  = getROOT.OpenFile(plotBase.GetPath() + "DYToMuMu_Summer11-PU.root", (setti
 #		ta = plotBase.AxisLabels(ta,'pt', 'Z')
 #		return None
 #	
-#	plotBase.hist_baseplot( [('NoBinning_incut/jet1_pt_ak5PFJetsNoPU_Zplusjet_data_hist',  
+#	plotBase.hist_baseplot( [(from_folder + 'jet1_pt_ak5PFJetsNoPU_Zplusjet_data_hist',  
 #			    fdata, None)], 
 #				"j_pt_test", settings, mytest )
 
@@ -51,7 +55,6 @@ def jet2pt():
 						fdata, { 'correction': 'NoPU'}, 
 						fmc, { 'correction': 'NoPU'}, 
 						factor, settings)
-
 
 def jet_constituents( jetnum):
 	
@@ -67,19 +70,19 @@ def jet_constituents( jetnum):
 	def ScaleMc( rootinput, settings ):
 		rootinput.scale( global_factor )
 	
-	plotBase.hist_baseplot( [('NoBinning_incut/jet' + str(jetnum) + '_constituents_ak5PFJetsNoPU_Zplusjet_data_hist',  
+	plotBase.hist_baseplot( [(from_folder + 'jet' + str(jetnum) + '_constituents_ak5PFJetsNoPU_Zplusjet_data_hist',  
 			    			fdata, 
 			    			{ "label":'Data NoPU', "fmt":"o", "color":'#000000'},  
 			    			None, None),
-							('NoBinning_incut/jet' + str(jetnum) + '_constituents_ak5PFJets_Zplusjet_data_hist',  
+							(from_folder + 'jet' + str(jetnum) + '_constituents_ak5PFJets_Zplusjet_data_hist',  
 			    			fdata, 
-			    			{ "label":'Data', "fmt":"o", "color":'#999999'},  
+			    			{ "label":'Data', "fmt":'^', "color":'#999999'},  
 			    			None, None),
-						 	('NoBinning_incut/jet' + str(jetnum) + '_constituents_ak5PFJetsNoPU_Zplusjet_mc_hist',  
+						 	(from_folder + 'jet' + str(jetnum) + '_constituents_ak5PFJetsNoPU_Zplusjet_mc_hist',  
 			    			fmc, 
 			    			{"label":'MC NoPU', "color":'#580000'},  
 			    			None, ScaleMc),
-						 	('NoBinning_incut/jet' + str(jetnum) + '_constituents_ak5PFJets_Zplusjet_mc_hist',  
+						 	(from_folder + 'jet' + str(jetnum) + '_constituents_ak5PFJets_Zplusjet_mc_hist',  
 			    			fmc, 
 			    			{"label":'MC', "color":'#ff5151'},  
 			    			None, ScaleMc)],
@@ -92,26 +95,28 @@ def jet_pt( jetnum):
 		ta.legend(loc='upper right', numpoints=1, frameon=False)
 		
 		if jetnum == 2:
+			print "ieieieieie"
 			ta.set_xlim(0,80)
+			#ta.autoscale()
 	#def DataDots( histo, settings ):
 	#	histo.
 		
 	def ScaleMc( rootinput, settings ):
 		rootinput.scale( global_factor )
 	
-	plotBase.hist_baseplot( [('NoBinning_incut/jet' + str(jetnum) + '_pt_ak5PFJetsNoPU_Zplusjet_data_hist',  
+	plotBase.hist_baseplot( [(from_folder + 'jet' + str(jetnum) + '_pt_ak5PFJetsNoPU_Zplusjet_data_hist',  
 			    			fdata, 
 			    			{ "label":'Data NoPU', "fmt":"o", "color":'#000000'},  
 			    			None, None),
-							('NoBinning_incut/jet' + str(jetnum) + '_pt_ak5PFJets_Zplusjet_data_hist',  
+							(from_folder + 'jet' + str(jetnum) + '_pt_ak5PFJets_Zplusjet_data_hist',  
 			    			fdata, 
-			    			{ "label":'Data', "fmt":"o", "color":'#999999'},  
+			    			{ "label":'Data',  "fmt":'^', "color":'#999999'},  
 			    			None, None),
-						 	('NoBinning_incut/jet' + str(jetnum) + '_pt_ak5PFJetsNoPU_Zplusjet_mc_hist',  
+						 	(from_folder + 'jet' + str(jetnum) + '_pt_ak5PFJetsNoPU_Zplusjet_mc_hist',  
 			    			fmc, 
 			    			{"label":'MC NoPU', "color":'#580000'},  
 			    			None, ScaleMc),
-						 	('NoBinning_incut/jet' + str(jetnum) + '_pt_ak5PFJets_Zplusjet_mc_hist',  
+						 	(from_folder + 'jet' + str(jetnum) + '_pt_ak5PFJets_Zplusjet_mc_hist',  
 			    			fmc, 
 			    			{"label":'MC', "color":'#ff5151'},  
 			    			None, ScaleMc)],
@@ -121,7 +126,7 @@ def jet_pt( jetnum):
 def resp_mpf():
 	
 	def mytest( tf, ta, tname, plot_collection, caption, settings ):
-		ta = plotBase.AxisLabels(ta, 'jetresp', 'jet')
+		ta = plotBase.AxisLabels(ta, 'mpfresp', 'jet')
 		ta.legend(loc='lower right', numpoints=1, frameon=False)
 		
 	#def DataDots( histo, settings ):
@@ -133,7 +138,7 @@ def resp_mpf():
 			    			None, None),
 							('mpfresp_ak5PFJets_Zplusjet_data_graph',  
 			    			fdata, 
-			    			{ "label":'Data', "fmt":"o", "color":'#999999'},  
+			    			{ "label":'Data', "fmt":'^', "color":'#999999'},  
 			    			None, None),
 						 	('mpfresp_ak5PFJetsNoPU_Zplusjet_mc_graph',  
 			    			fmc, 
@@ -141,33 +146,36 @@ def resp_mpf():
 			    			None, None),
 						 	('mpfresp_ak5PFJets_Zplusjet_mc_graph',  
 			    			fmc, 
-			    			{"label":'MC', "fmt":"o", "color":'#ff5151'},  
+			    			{"label":'MC', "fmt":'^', "color":'#ff5151'},  
 			    			None, None)],
 						    "resp_mpf", settings, mytest, False )
 
 #cut_ineff_secondleading_to_zpt_nrv
 def cufineff( cut ):
 	
+	def RemoveNpvZero(rootHisto, settings):
+		rootHisto.dropbin ( 0)
+	
 	def mytest( tf, ta, tname, plot_collection, caption, settings ):
 		ta = plotBase.AxisLabels(ta, 'cutineff', 'jet')
 		ta.legend(loc='lower right', numpoints=1, frameon=False)
 	
-	plotBase.hist_baseplot( [('NoBinning_incut/' + cut + '_ak5PFJetsNoPU_Zplusjet_data_graph',  
+	plotBase.hist_baseplot( [(from_folder + '' + cut + '_ak5PFJetsNoPU_Zplusjet_data_graph',  
 			    			fdata, 
 			    			{ "label":'Data NoPU', "fmt":"o", "color":'#000000'},  
-			    			None, None),
-							('NoBinning_incut/' + cut + '_ak5PFJets_Zplusjet_data_graph',  
+			    			None, RemoveNpvZero),
+							(from_folder + '' + cut + '_ak5PFJets_Zplusjet_data_graph',  
 			    			fdata, 
-			    			{ "label":'Data', "fmt":"o", "color":'#999999'},  
-			    			None, None),
-						 	('NoBinning_incut/' + cut + '_ak5PFJetsNoPU_Zplusjet_mc_graph',  
+			    			{ "label":'Data', "fmt":'^', "color":'#999999'},  
+			    			None, RemoveNpvZero),
+						 	(from_folder + '' + cut + '_ak5PFJetsNoPU_Zplusjet_mc_graph',  
 			    			fmc, 
 			    			{"label":'MC NoPU', "fmt":"o", "color":'#580000'},  
-			    			None, None),
-						 	('NoBinning_incut/' + cut + '_ak5PFJets_Zplusjet_mc_graph',  
+			    			None, RemoveNpvZero),
+						 	(from_folder + '' + cut + '_ak5PFJets_Zplusjet_mc_graph',  
 			    			fmc, 
-			    			{"label":'MC', "fmt":"o", "color":'#ff5151'},  
-			    			None, None)],
+			    			{"label":'MC', "fmt":'^',"color":'#ff5151'},  
+			    			None, RemoveNpvZero)],
 						    cut, settings, mytest, False )
 
 def resp_balance():
@@ -185,7 +193,7 @@ def resp_balance():
 			    			None, None),
 							('jetresp_ak5PFJets_Zplusjet_data_graph',  
 			    			fdata, 
-			    			{ "label":'Data', "fmt":"o", "color":'#999999'},  
+			    			{ "label":'Data', "fmt":'^', "color":'#999999'},  
 			    			None, None),
 						 	('jetresp_ak5PFJetsNoPU_Zplusjet_mc_graph',  
 			    			fmc, 
@@ -193,7 +201,7 @@ def resp_balance():
 			    			None, None),
 						 	('jetresp_ak5PFJets_Zplusjet_mc_graph',  
 			    			fmc, 
-			    			{"label":'MC', "fmt":"o", "color":'#ff5151'},  
+			    			{"label":'MC', "fmt":'^', "color":'#ff5151'},  
 			    			None, None)],
 						    "resp_balance", settings, mytest, False )
 		
@@ -212,8 +220,8 @@ def resp_balance():
 
 def npv_incuts():
 	plotBase.genericplot('recovert', 'recovert', 'NPV', 
-						fdata, { 'correction': 'NoPU', 'incut':'allevents'}, 
-						fmc, { 'correction': 'NoPU', 'incut':'allevents'}, 
+						fdata, { 'correction': 'NoPU'}, 
+						fmc, { 'correction': 'NoPU'}, 
 						factor, settings)
 
 def zeta():
@@ -227,64 +235,25 @@ def jeteta():
 	
 def zmass():
 	plotBase.genericplot('zmass', 'mass', 'Z',
-						 fdata, { 'correction': 'NoPU'}, 
+						 fdata, { 'correction': 'NoPU',}, 
 						 fmc,{ 'correction': 'NoPU'}, factor, settings)
 
-def balance():
-	print "Response with the balance method"
-	oname = GetNameFromSelection('jetrespgraph')
-#	histo_data10 = SafeConvert(fdata10,oname[0], settings.lumi,settings.outputformats)
-	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats)
-	histname = mchisto(oname[0])
-#	histo_mc10 = SafeConvert(fmc10,histname, settings.lumi,settings.outputformats)
-	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats)
+def calcScaling():
+	oname = plotBase.GetNameFromSelection('jet1_phi', {},  {  'correction': ""})
+	histo_data = getROOT.SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
+	histname = oname[0].replace('data','mc').replace('Res','')
+	histo_mc = getROOT.SafeConvert(fmc,histname, settings.lumi,settings.outputformats,5)
 
-	fresp, aresp, respname = makeplot('jetresp')
-#	histo02 = aresp.errorbar(histo_mc10.xc, histo_mc10.y, histo_mc10.yerr, color=mc10color,fmt='-', capsize=0, label ='MC Fall10')
-	histo03 = aresp.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, color=mc11color,fmt='-', capsize=0, label ='Summer11 MC')
-#	histo00 = aresp.errorbar(histo_data10.xc, histo_data10.y, histo_data10.yerr, color=data10color,fmt='^', capsize=0, label ='data 2010')
-	histo01 = aresp.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, color=data11color,fmt='o', capsize=0, label ='data')
+	print("Scaling Factor: " + str(histo_data.ysum/histo_mc.ysum))
 
-	aresp = captions(aresp,settings, False)
-	aresp = tags(aresp, 'Private work', 'Joram Berger')
-	aresp.legend(loc='lower right', numpoints=1, frameon=False)
-	aresp = AxisLabels(aresp, 'jetresp', 'jet')
-	#aresp.xmax = 400
 
-	#plt.minorticks_on()
 
-	Save(fresp,'jetresp', settings)
-
-def mpf():
-	print "Response with the MPF method"
-	oname = GetNameFromSelection('mpfrespgraph')
-#	histo_data10 = SafeConvert(fdata10,oname[0], settings.lumi,settings.outputformats)
-	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats)
-	histname = mchisto(oname[0])
-#	histo_mc10 = SafeConvert(fmc10,histname, settings.lumi,settings.outputformats)
-	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats)
-
-	fmpf, ampf, mpfname = makeplot('mpfresp')
-#	histo02 = ampf.errorbar(histo_mc10.xc, histo_mc10.y, histo_mc10.yerr, color=mc10color,fmt='-', capsize=0, label ='MC Fall10')
-	histo03 = ampf.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, color=mc11color,fmt='-', capsize=0, label ='Summer11 MC')
-#	histo00 = ampf.errorbar(histo_data10.xc, histo_data10.y, histo_data10.yerr, color=data10color,fmt='^', capsize=0, label ='data 2010')
-	histo01 = ampf.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, color=data11color,fmt='o', capsize=0, label ='data')
-
-	ampf = captions(ampf,settings, False)
-	ampf = tags(ampf, 'Private work', 'Joram Berger')
-	ampf.legend(loc='lower right', numpoints=1, frameon=False)
-	ampf = AxisLabels(ampf, 'mpfresp', 'jet')
-	#ampf.xmax = 400
-
-	#plt.minorticks_on()
-
-	Save(fmpf,'mpfresp', settings)
-	
-
+calcScaling()
 
 # The actual plotting starts here:
 #List of plots to do - leave empty for all plots
-plots = [  zeta, jet2pt, zmass ]
+plots = [  zeta, zmass ]
+
 
 
 resp_balance()
