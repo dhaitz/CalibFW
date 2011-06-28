@@ -354,16 +354,26 @@ public:
 
 	bool IsInCut(EventResult * pEv, ZJetPipelineSettings * pset)
 	{
-		// SingleMu trigger: use always the lowest-pt unprescaled Mu trigger
+		// SingleMu trigger: use always the lowest-pt unprescaled Mu trigger (works up to early 2011 data)
 		TString hltSingleMu = "HLT_Mu9";
 		if (pEv->m_pData->cmsRun >= 147146) // 2010B (up to about 149711, json up to 149442)
 			hltSingleMu = "HLT_Mu15_v1";
 		if (pEv->m_pData->cmsRun >= 160000) // 2011A (ongoing, json starting with 160404)
 			hltSingleMu = "HLT_Mu15_v2";
 
-		// DoubleMu trigger: use unprescaled DoubleMu7 trigger
+		// DoubleMu trigger: use unprescaled DoubleMu7 and Mu13_Mu8 trigger
 		TString hltDoubleMu1 = "HLT_DoubleMu7_v1";
 		TString hltDoubleMu2 = "HLT_DoubleMu7_v2";
+		TString hltDoubleMu3 = "HLT_DoubleMu7_v3";
+		TString hltDoubleMu4 = "HLT_DoubleMu7_v4";
+		
+		// between 163869 and 165088 DoubleMu7_v2 changed to _v3 and is now prescaled and Mu13_Mu8 ist introduced
+		if (pEv->m_pData->cmsRun >= 165000) {
+			TString hltDoubleMu_1 = "HLT_Mu13_Mu8_v1";
+			TString hltDoubleMu_2 = "HLT_Mu13_Mu8_v2";
+			TString hltDoubleMu_3 = "HLT_Mu13_Mu8_v3";
+			TString hltDoubleMu_4 = "HLT_Mu13_Mu8_v4";
+		}
 
 		const int nHLTriggers = pEv->m_pData->HLTriggers_accept->GetEntries();
 
@@ -386,7 +396,8 @@ public:
 			}
 			else
 			{
-				if (hltDoubleMu1 == curName || hltDoubleMu2 == curName)
+				if (hltDoubleMu1 == curName || hltDoubleMu2 == curName ||
+					hltDoubleMu3 == curName || hltDoubleMu4 == curName)
 					return true;
 			}
 		}

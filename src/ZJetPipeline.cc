@@ -9,7 +9,10 @@ void ZJetPipelineInitializer::InitPipeline(ZJetPipeline * pLine, ZJetPipelineSet
 	stringvector fvec = pset->GetFilter();
 	BOOST_FOREACH( std::string sid, fvec )
 	{		// make this more beatiful :)
-		if ( sid == PtWindowFilter().GetFilterId())
+
+		if ( sid == CutSelectionFilter().GetFilterId())
+			pLine->AddFilter( new CutSelectionFilter);
+		else if ( sid == PtWindowFilter().GetFilterId())
 			pLine->AddFilter( new PtWindowFilter);
 		else if ( sid == InCutFilter().GetFilterId())
 			pLine->AddFilter( new InCutFilter);

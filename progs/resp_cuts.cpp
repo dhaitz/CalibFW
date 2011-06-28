@@ -72,7 +72,7 @@ using namespace CalibFW;
 
 std::string g_sSource("");
 
-vdouble g_customBinning;
+//vdouble g_customBinning;
 
 std::string g_sCurAlgo;
 int g_iAlgoOverallCount;
@@ -85,6 +85,7 @@ bool g_useEventWeight;
 bool g_useGlobalWeightBin;
 double g_globalXSection;
 bool g_eventReweighting;
+doublevector g_weights;
 
 //const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
 std::string g_sJsonFile("not set");
@@ -533,6 +534,9 @@ ZJetPipeline * CreateDefaultPipeline()
 	PLOT_HIST1D(pline, DrawTcMetConsumer, tcmet)
 
 	PLOT_HIST1D(pline, DrawRecoVertConsumer, recovert)
+	PLOT_HIST1D(pline, DrawPUConsumer, pu)
+	PLOT_HIST1D(pline, DrawPUBeforeConsumer, pu_before)
+	PLOT_HIST1D(pline, DrawPUAfterConsumer, pu_after)
 
 	for (ZJetCutHandler::CutVector::iterator it =
 			g_cutHandler->GetCuts().begin(); !(it
@@ -639,7 +643,7 @@ void importEvents(bool bUseJson,
 						"number_of_processed_events");
 
 				lProcEvents = TMath::Nint(pH->GetMean());
-				CALIB_LOG_FILE( "new file: " << sNewFile.Data() << " number "
+				CALIB_LOG_FILE( "New file: " << sNewFile.Data() << " number "
 						<< lProcEvents )
 				lOverallNumberOfProcessedEvents += lProcEvents;
 
@@ -686,19 +690,6 @@ void importEvents(bool bUseJson,
 
 			pLine->InitPipeline(*it, plineInit);
 
-			// setup jetcor for this algo
-			if ((*it)->GetL2Corr().size() > 0)
-			{
-				pLine->m_corr.AddCorrection(new L2Corr(g_sCurAlgo,
-						(*it)->GetL2Corr()));
-			}
-
-			if ((*it)->GetL3Corr().size() > 0)
-			{
-				pLine->m_corr.AddCorrection(new L3Corr(g_sCurAlgo,
-						(*it)->GetL3Corr()));
-			}
-
 			g_pipelines.push_back(pLine);
 		}
 	}
@@ -706,6 +697,7 @@ void importEvents(bool bUseJson,
 	CALIB_LOG_FILE( "Running " << g_pipelines.size() << " Pipeline(s) on events")
 	CALIB_LOG_FILE( "Processing " << entries << " events ...")
 	CALIB_LOG_FILE( "algo " << g_sCurAlgo)
+	CALIB_LOG(" First Entry ")
 
 	double fStartTime = omp_get_wtime();
 
@@ -719,6 +711,7 @@ void importEvents(bool bUseJson,
 		// the weight of data events can be strange when read from root file. better reset here
 		res->SetWeight(1.0f);
 		res->m_bEventReweighting = g_eventReweighting;
+		res->m_weights = &g_weights;
 		if (g_useWeighting)
 		{
 			if (g_useEventWeight)
@@ -737,7 +730,7 @@ void importEvents(bool bUseJson,
 
 		delete res;
 
-		if (((ievt % 5000) == 0) || (ievt == (entries - 1)))
+		if (((ievt % 200) == 0) || (ievt == (entries - 1)))
 		{
 			float localPercent = floor(100.0f * (float) (ievt + 1)
 					/ (float) entries);
@@ -745,7 +738,7 @@ void importEvents(bool bUseJson,
 					/ (float) g_iAlgoOverallCount + (localPercent * 0.01f)
 					* (1.0f) / (float) g_iAlgoOverallCount) * 100.0f);
 
-			CALIB_LOG( (ievt + 1) << " of " << entries << " done [ this algo " << std::fixed << std::setprecision(0)
+			CALIB_LOG_SAME_LINE((ievt + 1) << " of " << entries << " done [ this algo " << std::fixed << std::setprecision(0)
 					<< localPercent << " % ] [ overall " << overallPercent << " % ]" )
 
 		}
@@ -860,6 +853,9 @@ TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 	mychain->SetBranchAddress("luminosityBlock", &pEv->luminosityBlock);
 	mychain->SetBranchAddress("xsection", &pEv->xsection);
 	mychain->SetBranchAddress("weight", &pEv->weight);
+	mychain->SetBranchAddress("PU_interactions", &pEv->PU_interactions);
+	mychain->SetBranchAddress("PU_interactions_before", &pEv->PU_interactions_before);
+	mychain->SetBranchAddress("PU_interactions_after", &pEv->PU_interactions_after);
 
 	mychain->SetBranchAddress("beamSpot", &pEv->beamSpot);
 
@@ -1032,6 +1028,9 @@ int main(int argc, char** argv)
 	CreateWeightBins();
 
 	// openmp setup
+	if ( g_propTree.get<int> ("ThreadCount", 1) > 1)
+		CALIB_LOG_FATAL("More than 1 thread no supported, yet")
+
 	omp_set_num_threads(g_propTree.get<int> ("ThreadCount", 1));
 	CALIB_LOG_FILE( "Running with " <<  omp_get_max_threads() << " thread(s)" )
 
@@ -1047,7 +1046,7 @@ int main(int argc, char** argv)
 	CALIB_LOG_FILE("Writing to the root file " << sRootOutputFilename)
 
 	// insert config into log file
-	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump:" );
+	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump to log file" );
 	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
 
 
@@ -1065,9 +1064,10 @@ int main(int argc, char** argv)
 	g_globalXSection = g_propTree.get<double> ("GlobalXSection", 0.0f);
 
 	g_eventReweighting = g_propTree.get<bool> ("EventReweighting", false);
+	g_weights = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
 
 	if (g_eventReweighting)
-		CALIB_LOG_FILE( "\n\n --------> reweightin events for # reco !!\n\n" )
+		CALIB_LOG_FILE( "Reweighting events according to PU interactions.\n" )
 
 	if ( g_propTree.get("JsonFile", "") != "" )
 		g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));

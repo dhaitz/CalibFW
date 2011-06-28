@@ -134,10 +134,10 @@ public:
 
 		 m_gentree->Fill();
 
-		 std::stringstream sout;
-		 m_evtFormater.FormatEventResultCorrected(sout, &event);
+		 //std::stringstream sout;
+		 //m_evtFormater.FormatEventResultCorrected(sout, &event);
 
-		 CALIB_LOG_FILE( sout.str() )
+		 //CALIB_LOG_FILE( sout.str() )
 	}
 
 	 evtData m_localData;

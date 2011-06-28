@@ -379,8 +379,8 @@ bool m_bUseCustomBin;
 TH1D * m_hist;
 };
 
-template<class TData, class TSettings>
-class DrawConsumerBase: public EventConsumerBase<TData, TSettings>
+template<class TData, class TMetaData, class TSettings>
+class DrawConsumerBase: public EventConsumerBase<TData, TMetaData,  TSettings>
 {
 public:
 DrawConsumerBase()
@@ -419,8 +419,8 @@ std::string GetProductName()
 std::string m_sQuantityName;
 };
 
-template<class TData, class TSettings>
-class DrawGraphErrorsConsumerBase: public DrawConsumerBase<TData, TSettings>
+template<class TData, class TMetaData, class TSettings>
+class DrawGraphErrorsConsumerBase: public DrawConsumerBase<TData, TMetaData,TSettings>
 {
 public:
 DrawGraphErrorsConsumerBase() :
@@ -428,9 +428,9 @@ m_graph(NULL)
 {
 }
 
-virtual void Init(EventPipeline<TData, TSettings> * pset)
+virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
 {
-	DrawConsumerBase<TData, TSettings>::Init(pset);
+	DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
 	//CALIB_LOG( "Initializing GraphErrors for " << this->GetProductName() )
 
 	m_graph->m_sName = m_graph->m_sCaption = this->GetProductName();
@@ -449,8 +449,8 @@ virtual void Finish()
 GraphErrors * m_graph;
 };
 
-template<class TData, class TSettings>
-class DrawHist1dConsumerBase: public DrawConsumerBase<TData, TSettings>
+template<class TData, class TMetaData,class TSettings>
+class DrawHist1dConsumerBase: public DrawConsumerBase<TData, TMetaData,TSettings>
 {
 public:
 DrawHist1dConsumerBase() :
@@ -458,9 +458,9 @@ m_hist(NULL)
 {
 }
 
-virtual void Init(EventPipeline<TData, TSettings> * pset)
+virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
 {
-	DrawConsumerBase<TData, TSettings>::Init(pset);
+	DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
 	//CALIB_LOG( "Initializing Hist for " << this->GetProductName() )
 
 	/* m_hist->m_sName = "nname"; //this->GetProductName();
@@ -481,8 +481,8 @@ virtual void Finish()
 Hist1D * m_hist;
 };
 
-template<class TData, class TSettings>
-class DrawHist2DConsumerBase: public DrawConsumerBase<TData, TSettings>
+template<class TData, class TMetaData,class TSettings>
+class DrawHist2DConsumerBase: public DrawConsumerBase<TData, TMetaData,TSettings>
 {
 public:
 DrawHist2DConsumerBase() :
@@ -490,9 +490,9 @@ m_hist(NULL)
 {
 }
 
-virtual void Init(EventPipeline<TData, TSettings> * pset)
+virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
 {
-	DrawConsumerBase<TData, TSettings>::Init(pset);
+	DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
 	//CALIB_LOG( "Initializing 2d Hist for " << this->GetProductName() )
 
 	/* m_hist->m_sName = "nname"; //this->GetProductName();

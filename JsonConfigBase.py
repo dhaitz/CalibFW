@@ -17,10 +17,16 @@ def getDefaultCorrectionL2( data_path ):
     
   return g_l2_correction_data
 
+def GetGitInformation():
+    gitlog = subprocess.Popen("git --no-pager log -n 1" , stdout=subprocess.PIPE, shell=True).stdout.read()
+    gitremote = subprocess.Popen("git remote -v" , stdout=subprocess.PIPE, shell=True).stdout.read()
+
+    return (gitlog + "\n" + gitremote)
 
 def GetBaseConfig():
     d = dict()
-    
+    d["GitInformation"] = GetGitInformation()
+    d["ThreadCount"] = 1
     d["Algos"] = ["ak5PFJets"]#"ak7PFJets", "ak5CaloJets", "ak7CaloJets", "kt4PFJets","kt6PFJets", "kt4CaloJets", "kt6CaloJets", "ic5PFJets", "ic5CaloJets"]
     d["Pipelines"] = { "default": {
             "Level": 1,
@@ -54,6 +60,19 @@ def GetMikkoCuts( conf ):
 
     return conf
 
+def ApplyReweightingSummer11May10ReReco(conf):
+    conf["UseWeighting"] = 1
+    conf["UseEventWeight"] = 1
+    conf["UseGlobalWeightBin"] = 1
+    conf["GlobalXSection"] = 1614.0
+    conf["EventReweighting"] = 1
+    conf["RecovertWeight"] = [0.2634339699, 0.4068300319, 1.0258412624,
+        1.5039872842, 2.1501353803, 1.9674930073, 1.7357207863, 1.5885466557,
+        1.2814939016, 0.8379304030, 0.5751357475, 0.3933389880, 0.2618616395,
+        0.1928669420, 0.1178827060, 0.0989967695, 0.0707225141, 0.0494813344,
+        0.0630199599, 0.0275894575, 0.0189547094, 0.0708500595, 0.0581618600,
+        0.0115549447, 0.0094252128]
+    return conf
 
 def GetMcBaseConfig():
     d = GetBaseConfig()
@@ -63,8 +82,6 @@ def GetMcBaseConfig():
     d["UseGlobalWeightBin"] = 0
     
     d["InputType"] = "mc"
-    
-    d["ThreadCount"] = 2
 
     return d
 
@@ -79,7 +96,7 @@ def GetDefaultDataPipeline():
 def GetDataBaseConfig():
     d = GetBaseConfig()
     
-    d["JsonFile"] = "data/json/Cert_160404-163869_7TeV_PromptReco_Collisions11_JSON.txt"
+    d["JsonFile"] = "data/json/Cert_160404-166861_7TeV_PromptReco_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
@@ -172,6 +189,30 @@ def ExpandPtBins( pipelineDict, ptbins, includeSource):
     else:
         return newDict
     
+def AddQualityCuts( conf ):
+
+    # cuts to obey
+    # json 1
+    # hlt 512
+    # muon eta 4
+    # jet eta 8
+    
+    # cuts to ignore 
+    # 2nd Jet Pt          16
+    # muon pt cut         2
+    # back to back cut    32 
+    # zmass 64
+
+    
+    # bitmask :  0011 1010 = 50
+
+   pline_qualitycuts = copy.deepcopy( conf["Pipelines"]["default"] )
+   pline_qualitycuts["FilterInCutIgnored"] = 58        
+   conf["Pipelines"]["NoBinning_qualitycuts"] = pline_qualitycuts
+   
+   return
+
+    
 def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = ""):
     conf = conf_template
 
@@ -185,6 +226,8 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
     secLevelPline[FolderPrefix + "sec_default"]["RootFileFolder"] = FolderPrefix
 
     conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
+
+    AddQualityCuts( conf )
 
     #merge all
     if useFolders:
@@ -207,6 +250,14 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
 
     conf["Pipelines"] = secLevelPline
 
+    # add quality cuts pipeline
+    pline_qualitycuts = copy.deepcopy( conf["Pipelines"]["default"] )
+    pline_qualitycuts["FilterInCutIgnored"] = 50 
+    pline_qualitycuts["RootFileFolder"] = "NoBinning_qualitycuts"
+
+    conf["Pipelines"]["NoBinning_qualitycuts"] = pline_qualitycuts
+
+
     return conf
 
     
@@ -227,7 +278,8 @@ def StoreSettings( settings, filename):
     
     try:
         import json
-        print json.dumps( settings, sort_keys=True, indent=4 )
+        # dont display config on console, it is annyoing
+        #print json.dumps( settings, sort_keys=True, indent=4 )
         json.dump( settings, f, sort_keys=True, indent=4 )
             
     except BaseException:

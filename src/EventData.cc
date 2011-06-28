@@ -5,8 +5,8 @@ using namespace CalibFW;
 
 bool EventResult::IsValidEvent()
 {
-		return (! IsCutInBitmask( JsonCut::CudId, this->m_cutBitmask ) &&
-				! IsCutInBitmask( HltCut::CudId, this->m_cutBitmask ));
+		return (! IsCutInBitmask( JsonCut::CudId ) &&
+				! IsCutInBitmask( HltCut::CudId));
 }
 
 unsigned long g_lTempNameAppend = 0;
