@@ -7,15 +7,11 @@ import copy
 
 conf = JsonConfigBase.GetDataBaseConfig()
 
-conf["Algos"] = ["ak5PFJetsL1L2L3Res", "ak7PFJetsL1L2L3Res"]
+conf["Algos"] = ["ak5PFJets", "ak5PFJetsNoPU", "ak5PFJetsL1L2L3", "ak5PFJetsL1L2L3NoPU"]
 
-conf["InputFiles"] = "/scratch/hh/lustre/cms/user/berger/skim2011_v6/skim_414_berger_2011-04-29_DoubleMu_2011A*.root"
-conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "analysis/data2011_v7_double_rw"
-
-#conf["Pipelines"]["default"]["RecovertWeight"] = [1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+conf["InputFiles"] = "/scratch/hh/lustre/cms/user/berger/zjet/Run2011A-May10ReReco-A/*.root"
+conf["OutputPath"] = LocalConfigBase.GetLocalOutputPath() + "analysis/data2011_nopu"
 
 conf = JsonConfigBase.ExpandDefaultDataConfig( [0,15,30,60,100,500], conf, True )
-
-#muon_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutMuonPt", [10, 15, 20], True, True  ) 
 
 JsonConfigBase.Run( conf, sys.argv[0] + ".json")
