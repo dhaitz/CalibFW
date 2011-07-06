@@ -65,6 +65,38 @@ def getBaseConfig( Zlist , is_data):
 	process = cms.Process("DATA")
 	
 	process.load('CommonTools.ParticleFlow.pfNoPileUp_cff')
+
+	# WORK AROUND FOR NEW JEC, dont use if the new global tag is available
+	process.load("CondCore.DBCommon.CondDBCommon_cfi")
+	process.jec = cms.ESSource("PoolDBESSource",
+	      DBParameters = cms.PSet(
+        	messageLevel = cms.untracked.int32(0)
+	        ),
+	timetype = cms.string('runnumber'),
+      	toGet = cms.VPSet(
+      	cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_Jec11V2_AK5PF'),
+            label  = cms.untracked.string('AK5PF')
+            ),
+      	cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_Jec11V2_AK5PFchs'),
+            label  = cms.untracked.string('AK5PFchs')
+            ),
+        cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_Jec11V2_AK7PF'),
+            label  = cms.untracked.string('AK7PF')
+            )   
+        ),
+
+      	## here you add as many jet types as you need (AK5PFchs, AK5Calo, AK5JPT, AK7PF, AK7Calo, KT4PF, KT4Calo)
+      	connect = cms.string('sqlite:Jec11V2.db')
+	)
+	# Add an es_prefer statement to get your new JEC constants from the sqlite file, rather than from the global tag
+	process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+
 	
 	p = process # shortcut!
 
@@ -120,22 +152,24 @@ def getBaseConfig( Zlist , is_data):
 
 
 	# custom correction services
-	p.ak5PFL1L2 = cms.ESSource( 'JetCorrectionServiceChain',
+	p.ak5PFL1FastL2 = cms.ESSource( 'JetCorrectionServiceChain',
 				    correctors = cms.vstring('ak5PFL1Fastjet','ak5PFL2Relative')
     		)
 
-        p.ak5PFL1L2CHS = cms.ESSource( 'JetCorrectionServiceChain',
+        p.ak5PFL1FastL2CHS = cms.ESSource( 'JetCorrectionServiceChain',
                                        correctors = cms.vstring('ak5PFL1FastjetCHS','ak5PFL2Relative')
                 )
 
 
 	# custom L1L2L3 CHS corrections
-        p.ak5PFL1L2L3CHS = p.ak5PFL1L2L3.clone()
-	p.ak5PFL1L2L3CHS.correctors[0] = 'ak5PFL1FastjetCHS'
+        p.ak5PFL1FastL2L3CHS = p.ak5PFL1L2L3.clone()
+	p.ak5PFL1FastL2L3CHS.correctors[0] = 'ak5PFL1FastjetCHS'
+
+        p.ak5PFL1FastL2L3ResCHS = p.ak5PFL1FastL2L3Residual.clone()
+        p.ak5PFL1FastL2L3ResCHS.correctors[0] = 'ak5PFL1FastjetCHS'
 
 
-
-        p.ak7PFL1L2 = cms.ESSource( 'JetCorrectionServiceChain',
+        p.ak7PFL1FastL2 = cms.ESSource( 'JetCorrectionServiceChain',
                                     correctors = cms.vstring('ak7PFL1Fastjet','ak7PFL2Relative')
                 )
 
@@ -152,9 +186,9 @@ def getBaseConfig( Zlist , is_data):
             )
 
 	# custom L1L2 corrections
-	p.ak5PFJetsL1L2 = p.ak5PFJetsL1.clone( correctors = ['ak5PFL1L2'])
-	p.ak5PFJetsL1L2L3 = p.ak5PFJetsL1L2.clone( correctors = ['ak5PFL1L2L3'])
-
+	p.ak5PFJetsL1L2 = p.ak5PFJetsL1.clone( correctors = ['ak5PFL1FastL2'])
+	p.ak5PFJetsL1L2L3 = p.ak5PFJetsL1.clone( correctors = ['ak5PFL1FastL2L3'])
+	p.ak5PFJetsL1L2L3Res = p.ak5PFJetsL1.clone( correctors = ['ak5PFL1FastL2L3Residual'])	
 
         p.ak7PFJetsL1 = cms.EDProducer(
             'PFJetCorrectionProducer',
@@ -163,8 +197,10 @@ def getBaseConfig( Zlist , is_data):
             )
  
         # custom L1L2 corrections
-        p.ak7PFJetsL1L2 = p.ak7PFJetsL1.clone( correctors = ['ak7PFL1L2'])
-	p.ak7PFJetsL1L2L3 = p.ak7PFJetsL1.clone( correctors = ['ak7PFL1L2L3'])
+        p.ak7PFJetsL1L2 = p.ak7PFJetsL1.clone( correctors = ['ak7PFL1FastL2'])
+	p.ak7PFJetsL1L2L3 = p.ak7PFJetsL1.clone( correctors = ['ak7PFL1FastL2L3'])
+	p.ak7PFJetsL1L2L3Res = p.ak7PFJetsL1.clone( correctors = ['ak7PFL1FastL2L3Residual'])
+	
 	
 #	p.ak5PFJetsL1L2L3 = p.ak5PFJetsL1.clone(correctors = ['ak5PFL1FastL2L3'])
 #	p.ak5PFJetsL1L2L3Res = p.ak5PFJetsL1.clone(correctors = ['ak5PFL1FastL2L3Residual'])
@@ -190,10 +226,14 @@ def getBaseConfig( Zlist , is_data):
 	process.ak5PFJetsL1CHS.correctors = cms.vstring('ak5PFL1FastjetCHS')
 
         process.ak5PFJetsL1L2CHS = p.ak5PFJetsL1CHS.clone()
-        process.ak5PFJetsL1L2CHS.correctors = cms.vstring('ak5PFL1L2CHS')
+        process.ak5PFJetsL1L2CHS.correctors = cms.vstring('ak5PFL1FastL2CHS')
 
 	process.ak5PFJetsL1L2L3CHS = p.ak5PFJetsL1CHS.clone()
-	process.ak5PFJetsL1L2L3CHS.correctors = cms.vstring("ak5PFL1L2L3CHS")
+	process.ak5PFJetsL1L2L3CHS.correctors = cms.vstring("ak5PFL1FastL2L3CHS")
+
+        process.ak5PFJetsL1L2L3ResCHS = p.ak5PFJetsL1CHS.clone()
+        process.ak5PFJetsL1L2L3ResCHS.correctors = cms.vstring("ak5PFL1FastL2L3ResCHS")
+
 
 	process.kt6PFJetsCHS = p.kt6PFJets.clone()
 	process.kt6PFJetsCHS.src = cms.InputTag("pfNoPileUp")
@@ -239,6 +279,9 @@ def getBaseConfig( Zlist , is_data):
 	)
 	
 
+	if is_data:
+		p.correctionPathLX *= p.ak5PFJetsL1L2L3Res * p.ak5PFJetsL1L2L3ResCHS
+
 #	print p.pfNoPileUp
 	
 
@@ -271,7 +314,8 @@ def getBaseConfig( Zlist , is_data):
 				"ak7PFJetsL1L2L3")
 #				"ak7PFJetsL1L2L3Res")
 
-	calo_jets_names=map(lambda name: name.replace("PF","Calo"), pf_jets_names)
+#	calo_jets_names=map(lambda name: name.replace("PF","Calo"), pf_jets_names)
+	calo_jets_names=[]
 
 	jets_names_map=zip(pf_jets_names,calo_jets_names)
 	#print jets_names_map
@@ -281,16 +325,16 @@ def getBaseConfig( Zlist , is_data):
 
 	calojetsmatch_Paths=[]
 
-#	for pf_jets_name,calo_jets_name in jets_names_map:
-#		module_name="%scalomatch" %pf_jets_name
-#		setattr(p,module_name,
-#				cms.EDProducer('MatchRecToGen',
-#				srcRec = cms.InputTag(pf_jets_name),
-#				srcGen = cms.InputTag(calo_jets_name)))
-#		print "Module name %s" %module_name
-#
-#		exec( "p.%spath=cms.Path(p.%s)" %(module_name,module_name) )
-#		exec("calojetsmatch_Paths.append(p.%spath)" %module_name)
+	for pf_jets_name,calo_jets_name in jets_names_map:
+		module_name="%scalomatch" %pf_jets_name
+		setattr(p,module_name,
+				cms.EDProducer('MatchRecToGen',
+				srcRec = cms.InputTag(pf_jets_name),
+				srcGen = cms.InputTag(calo_jets_name)))
+		print "Module name %s" %module_name
+
+		exec( "p.%spath=cms.Path(p.%s)" %(module_name,module_name) )
+		exec("calojetsmatch_Paths.append(p.%spath)" %module_name)
 
 
 	genjetsmatch_Paths=[]
@@ -317,7 +361,8 @@ def getBaseConfig( Zlist , is_data):
 		exec("genjetsmatch_Paths.append(p.%spath)" %module_name)
 
 
-	jpt_jets_names=map(lambda name: name.replace("PF","JPT"), pf_jets_names)
+#	jpt_jets_names=map(lambda name: name.replace("PF","JPT"), pf_jets_names)
+	jpt_jets_names=[]
 
 	jets_names_map=zip(pf_jets_names,jpt_jets_names)
 	jptjetsmatch_Paths=[]
@@ -352,18 +397,18 @@ def getBaseConfig( Zlist , is_data):
 		#p.JetIDsPath,
 		#p.CHSpath
 	)
-#	process.schedule.append(p.outpath)
+	process.schedule.append(p.outpath)
 
-#	for path in calojetsmatch_Paths:
-#		process.schedule.append(path)
+	for path in calojetsmatch_Paths:
+		process.schedule.append(path)
 
-#	for path in jptjetsmatch_Paths:
-#		process.schedule.append(path)
+	for path in jptjetsmatch_Paths:
+		process.schedule.append(path)
 
-#	if not is_data:
-#		for path in genjetsmatch_Paths:
-#			p.schedule.append(path)
-#			p.schedule.append(p.matchZspath)
+	if not is_data:
+		for path in genjetsmatch_Paths:
+			p.schedule.append(path)
+			p.schedule.append(p.matchZspath)
 
 	process.schedule.append(p.flatTreeMakerPath) #	p.outpath
 
