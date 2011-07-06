@@ -770,9 +770,13 @@ m_store_pu_interactions_before = 0;
                     m_store_tcmet_part = m_fill_tparticle(& (*met)[0] );
                     
                     edm::Handle< edm::View< reco::MET > > gmet;
-                    iEvent.getByLabel("genMetTrue", gmet);
-                    m_store_genmet_part = m_fill_tparticle(& (*gmet)[0] );
-
+                    try {
+                    bool is_gen = iEvent.getByLabel("genMetTrue", gmet);
+                    if (is_gen)
+                        m_store_genmet_part = m_fill_tparticle(& (*gmet)[0] );
+                    } catch (...) {
+                        ;
+                    }
                     // Set the algoname branch
                     m_store_algoname_tree->SetString(algoname.c_str());
 
