@@ -110,7 +110,7 @@ def GetNameFromSelection(quantity='zmass', variation={}, common={}):
     while hst.find('__') >= 0:
         hst = hst.replace('__', '_')
     
-    print " ‣ Histogram: ", hst
+    print "Histogram: ", hst
     # apply variation
 #    for i in key:
 #    hst.replace(variationkey standardvalue, variation i)
@@ -143,13 +143,13 @@ def makeplot(quantity, variation={}, common={}):
     return fig, ax, name
     
 def captions(ax, stg=StandardSettings(), twolumis=True):
-    ax.text(0.99, 0.98, r"$\sqrt{s} = " + str(stg.cme) + " \,\mathrm{TeV}$",
+    ax.text(0.99, 1.06, r"$\sqrt{s} = " + str(stg.cme) + " \,\mathrm{TeV}$",
         va='top', ha='right', transform=ax.transAxes, fontsize=15)
     if stg.lumi > 0:
-        ax.text(0.01, 0.98, r"$\mathcal{L}_{2011} = " + str(int(stg.lumi)) + " \,\mathrm{pb}^{-1}$",
+        ax.text(0.01, 1.06, r"$\mathcal{L} = " + str(int(stg.lumi)) + " \,\mathrm{pb}^{-1}$",
             va='top', ha='left', transform=ax.transAxes, fontsize=15)
         if twolumis:
-            ax.text(0.01, 0.93, r"$\mathcal{L}_{2010} = " + str(36) + " \,\mathrm{pb}^{-1}$",
+            ax.text(0.01, 0.93, r"$\mathcal{L} = " + str(36) + " \,\mathrm{pb}^{-1}$",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
     return ax
 
@@ -181,7 +181,7 @@ def AxisLabels(ax, q='resp', obj='jet'):
     if q == 'pt':
         ax.set_xlabel(r"$p_{T}^{" + obj + "} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"events", va="top", y=1)
-        ax.set_xlim(0, 350)
+        ax.set_xlim(0, 200)
         ax.set_ylim(bottom=0.0)
     elif q == 'phi':
         ax.set_xlabel(r"$\phi^{" + obj + "}$", ha="right", x=1)
@@ -210,9 +210,21 @@ def AxisLabels(ax, q='resp', obj='jet'):
         ax.set_ylabel(r"MPF", va="top", y=1)
         ax.set_xlim(10, 200)
         ax.set_ylim(0.75, 1.0)
+        
+    elif q == 'cutineff':
+        ax.set_ylabel(r"Cut Infficiency", y=1, va="top" )
+        ax.set_xlabel(r"NRV",x=1)
+        #ax.set_xlim(1, 15)
+        ax.set_ylim(0.0, 1.2)
+        
     elif q == 'recovert':
         ax.set_xlabel(r"Number of reconstructed vertices $n$", ha="right", x=1)
         ax.set_ylabel(r"events", va="top", y=1)
+        
+    elif q == 'jetconstituents':
+        ax.set_xlabel(r"Jet Constituents", ha="right", x=1)
+        ax.set_ylabel(r"Events", va="top", y=1)
+        ax.set_xlim(1, 60)        
         #ax.set_xlim(0, 350)
     else:
         print "The quantity", q, "was not found. A default formatting of the axis labels is used."
@@ -224,7 +236,7 @@ def AxisLabels(ax, q='resp', obj='jet'):
     return ax
 
 
-def hist_baseplot(plot_collection, caption, settings, modifierBeforeSave):
+def hist_baseplot(plot_collection, caption, settings, modifierBeforeSave, alsoInLogScale = True):
     
     tf, ta, tname = makeplot(caption) 
     ta = captions(ta, settings, False)
@@ -232,23 +244,44 @@ def hist_baseplot(plot_collection, caption, settings, modifierBeforeSave):
     ta = tags(ta, 'Private work', 'Joram Berger')
     #ta.legend(loc=legloc, numpoints=1, frameon=False)
     #sta = AxisLabels(ta, q, obj)
+    #ta.autoscale()
     
-    histos = []
-    
-    for (quantName, inpFile, modifierFunc) in plot_collection:
+    for (quantName, inpFile, drawParameters, modifierFunc, modifierDataFunc) in plot_collection:
         rootHisto = getROOT.SafeConvert(inpFile, quantName, settings.lumi, settings.outputformats, 5)
 
-        mplHisto = ta.errorbar(rootHisto.xc, rootHisto.y, rootHisto.yerr, drawstyle='steps-mid', color='FireBrick', fmt='-', capsize=0, label='MC') 
-        histos += [ mplHisto]
+        if not (modifierDataFunc == None):
+            modifierDataFunc(rootHisto, settings)
 
+        my_fmt = "-"
+        my_color = "Red"
+        my_drawstyle = "steps-mid"
+        my_label = ""
+
+        for drawKey, drawValue in drawParameters.items():
+            if drawKey == "fmt":
+                my_fmt = drawValue
+            if drawKey == "color":
+                my_color = drawValue
+            if drawKey == "drawstyle":
+                my_drawstyle = drawValue
+            if drawKey == "label":
+                my_label = drawValue                
+            if drawKey == "log":
+                my_label = drawValue 
+
+        #print rootHisto.xc
+        #print rootHisto.y
+        mplHisto = ta.errorbar(rootHisto.xc, rootHisto.y, rootHisto.yerr, drawstyle=my_drawstyle,  
+                               color=my_color, fmt=my_fmt, capsize=0, label=my_label) 
+        
         if not (modifierFunc == None):
             modifierFunc(mplHisto, settings)
     
     if not (modifierBeforeSave == None):
         modifierBeforeSave(tf, ta, tname, plot_collection, caption, settings)        
     
-    Save(tf, caption, settings)
-    
+    Save(tf, caption, settings, alsoInLogScale)
+   
  
 def moregenericplot(quantity, q, obj, fdata, fmc, factor, stg, legloc='center right'):
     print q, "of the", obj
@@ -283,6 +316,8 @@ def GetDataOrMC(quantity, inp_file, custom_keys,settings):
     oname = oname.replace('data','mc').replace('Res','')
     return getROOT.SafeConvert( inp_file, oname, settings.lumi, settings.outputformats,5)
     
+    
+    
 def genericplot(quantity, q, obj, fdata, custom_keys_data, fmc, custom_keys_mc, factor, stg, legloc='center right'):
     #print q, "of the", obj    
     histo_data = GetDataOrMC(quantity, fdata, custom_keys_data, stg)
@@ -301,24 +336,33 @@ def genericplot(quantity, q, obj, fdata, custom_keys_data, fmc, custom_keys_mc, 
     Save(tf, quantity, stg)
 
 
-def Save(figure, name, stg):
+def Save(figure, name, stg, alsoInLogScale = True):
+    _internal_Save ( figure, name, stg)
+    
+    if alsoInLogScale:
+        figure.get_axes()[0].set_yscale( 'log' )
+        _internal_Save(figure, name + "_log_scale", stg)  
+
+def _internal_Save(figure, name, stg):
     """Save this figure in all listed data formats.
     
     The standard data formats are png and pdf.
     Available graphics formats are: pdf, png, ps, eps and svg
     """
     name = stg.outputdir + name
-    print ' ‣ Saving as',
+    print ' -> Saving as',
     for format in stg.outputformats:
         if format in ['pdf', 'png', 'ps', 'eps', 'svg']:
-            print name + '.' + format,
+            print name + '.' + format
             figure.savefig(name + '.' + format)
             
         elif format in ['txt', 'npz', 'dat']:
             pass    #Ignore this here, as it is respected in the SafeConvert function
         else:
             print format + "failed. Output type is unknown or not supported."
-    print
+
+    
+
 
 def GetScaleResolution(filename='scale_and_resolution.txt'):
     """Read the values for the jet energy scale and the jet energy resolution from a file

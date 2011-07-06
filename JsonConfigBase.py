@@ -18,9 +18,10 @@ def getDefaultCorrectionL2( data_path ):
   return g_l2_correction_data
 
 def GetGitInformation():
-    gitlog = subprocess.Popen("git --no-pager log -n 1" , stdout=subprocess.PIPE, shell=True).stdout.read()
+    gitlog = subprocess.Popen("git --no-pager log -n 1 | head -n 1" , stdout=subprocess.PIPE, shell=True).stdout.read()
     gitremote = subprocess.Popen("git remote -v" , stdout=subprocess.PIPE, shell=True).stdout.read()
-
+    gitlog = gitlog.replace("'","`")
+    gitremote = gitremote.replace("'","`")
     return (gitlog + "\n" + gitremote)
 
 def GetBaseConfig():
@@ -96,7 +97,7 @@ def GetDefaultDataPipeline():
 def GetDataBaseConfig():
     d = GetBaseConfig()
     
-    d["JsonFile"] = "data/json/Cert_160404-166861_7TeV_PromptReco_Collisions11_JSON.txt"
+    d["JsonFile"] = "data/json/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON_v2.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0

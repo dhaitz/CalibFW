@@ -280,6 +280,7 @@ TParticle * m_store_matched_gen_Z_part;
 
 TParticle * m_store_met_part;
 TParticle * m_store_tcmet_part;
+TParticle * m_store_genmet_part;
 TObjString * m_store_algoname_tree;
 
 PFProperties m_pfjet_part1_properties;
