@@ -59,43 +59,40 @@ def customise_for_gc(process):
 
 
 def getBaseConfig( Zlist , is_data):
-	"""
-	
-	"""
 	process = cms.Process("DATA")
 	
 	process.load('CommonTools.ParticleFlow.pfNoPileUp_cff')
 
 	# WORK AROUND FOR NEW JEC, dont use if the new global tag is available
-	process.load("CondCore.DBCommon.CondDBCommon_cfi")
-	process.jec = cms.ESSource("PoolDBESSource",
-	      DBParameters = cms.PSet(
-        	messageLevel = cms.untracked.int32(0)
-	        ),
-	timetype = cms.string('runnumber'),
-      	toGet = cms.VPSet(
-      	cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_Jec11V2_AK5PF'),
-            label  = cms.untracked.string('AK5PF')
-            ),
-      	cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_Jec11V2_AK5PFchs'),
-            label  = cms.untracked.string('AK5PFchs')
-            ),
-        cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_Jec11V2_AK7PF'),
-            label  = cms.untracked.string('AK7PF')
-            )   
-        ),
+#	process.load("CondCore.DBCommon.CondDBCommon_cfi")
+#	process.jec = cms.ESSource("PoolDBESSource",
+#	      DBParameters = cms.PSet(
+#       	messageLevel = cms.untracked.int32(0)
+#	        ),
+#	timetype = cms.string('runnumber'),
+#     	toGet = cms.VPSet(
+#    	cms.PSet(
+#         record = cms.string('JetCorrectionsRecord'),
+#        tag    = cms.string('JetCorrectorParametersCollection_Jec11V2_AK5PF'),
+#            label  = cms.untracked.string('AK5PF')
+#            ),
+#      	cms.PSet(
+#            record = cms.string('JetCorrectionsRecord'),
+#            tag    = cms.string('JetCorrectorParametersCollection_Jec11V2_AK5PFchs'),
+#            label  = cms.untracked.string('AK5PFchs')
+#            ),
+#        cms.PSet(
+#            record = cms.string('JetCorrectionsRecord'),
+#            tag    = cms.string('JetCorrectorParametersCollection_Jec11V2_AK7PF'),
+#            label  = cms.untracked.string('AK7PF')
+#            )   
+#        ),
 
       	## here you add as many jet types as you need (AK5PFchs, AK5Calo, AK5JPT, AK7PF, AK7Calo, KT4PF, KT4Calo)
-      	connect = cms.string('sqlite:Jec11V2.db')
-	)
+#     	connect = cms.string('sqlite:Jec11V2.db')
+#	)
 	# Add an es_prefer statement to get your new JEC constants from the sqlite file, rather than from the global tag
-	process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+#	process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
 
 	
 	p = process # shortcut!
@@ -279,8 +276,9 @@ def getBaseConfig( Zlist , is_data):
 	)
 	
 
-	if is_data:
-		p.correctionPathLX *= p.ak5PFJetsL1L2L3Res * p.ak5PFJetsL1L2L3ResCHS
+#	if is_data:
+#		p.correctionPathLX *= p.ak5PFJetsL1L2L3Res * p.ak5PFJetsL1L2L3ResCHS
+		## do ak7
 
 #	print p.pfNoPileUp
 	
