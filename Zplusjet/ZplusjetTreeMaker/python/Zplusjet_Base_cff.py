@@ -104,6 +104,7 @@ def getBaseConfig( Zlist , is_data):
 
 	##----------Import the JEC services -----------------------
 	process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+	process.load("JetMETCorrections.Configuration.JetCorrectionProducers_cff")
 	##--------- Import the Jet RECO modules -------------------
 	process.load('RecoJets.Configuration.RecoPFJets_cff')
 	##--------- Turn-on the FastJet density calculation -------
@@ -113,67 +114,132 @@ def getBaseConfig( Zlist , is_data):
         process.ak7PFJets.doAreaFastjet = True
 
 
-	process.ak5PFJetsL1 = cms.EDProducer("PFJetCorrectionProducer",
-      		src = cms.InputTag("ak5PFJets"),
-		correctors = cms.vstring('ak5PFL1')
-	)
-	
-	process.ak7PFJetsL1 = cms.EDProducer("PFJetCorrectionProducer",
-		src = cms.InputTag("ak7PFJets"),
-		correctors = cms.vstring('ak7PFL1')
-	)
+        # custom FastJet calculation for the CHS set of particles
+        p.ak5PFL1FastjetCHS = process.ak5PFL1Fastjet.clone(srcRho = cms.InputTag("kt6PFJetsCHS", "rho"), algorithm = 'AK5PFchs')
 
-	p.ak5PFJetsL1 = p.ak5PFJetsL1.clone(correctors = ['ak5PFL1Offset'])
-	p.ak5PFJetsL1L2 = p.ak5PFJetsL1.clone(correctors = ['ak5PFL2Relative'],src='ak5PFJetsL1')
-	p.ak5PFJetsL1L2L3 = p.ak5PFJetsL1.clone(correctors = ['ak5PFL1L2L3'])
-#	p.ak5PFJetsL1L2L3Res = p.ak5PFJetsL1.clone(correctors = ['ak5PFL1L2L3Residual'])
-	p.ak7PFJetsL1 = p.ak7PFJetsL1.clone(correctors = ['ak7PFL1Offset'])
-	p.ak7PFJetsL1L2 = p.ak7PFJetsL1.clone(correctors = ['ak7PFL2Relative'],src='ak7PFJetsL1')
-	p.ak7PFJetsL1L2L3 = p.ak7PFJetsL1.clone(correctors = ['ak7PFL1L2L3'])
+
+
+	# custom correction services
+	p.ak5PFL1L2 = cms.ESSource( 'JetCorrectionServiceChain',
+				    correctors = cms.vstring('ak5PFL1Fastjet','ak5PFL2Relative')
+    		)
+
+        p.ak5PFL1L2CHS = cms.ESSource( 'JetCorrectionServiceChain',
+                                       correctors = cms.vstring('ak5PFL1FastjetCHS','ak5PFL2Relative')
+                )
+
+
+	# custom L1L2L3 CHS corrections
+        p.ak5PFL1L2L3CHS = p.ak5PFL1L2L3.clone()
+	p.ak5PFL1L2L3CHS.correctors[0] = 'ak5PFL1FastjetCHS'
+
+
+
+        p.ak7PFL1L2 = cms.ESSource( 'JetCorrectionServiceChain',
+                                    correctors = cms.vstring('ak7PFL1Fastjet','ak7PFL2Relative')
+                )
+
+
+#	p.ak5PFJetsL1 = p.ak5PFJetsL1.clone(correctors = ['ak5PFL1Fastjet'])
+
+	# Jet Producer
+
+	# custom L1L2 corrections
+	p.ak5PFJetsL1 = cms.EDProducer(
+            'PFJetCorrectionProducer',
+            src        = cms.InputTag('ak5PFJets'),
+            correctors = cms.vstring('ak5PFL1Fastjet')
+            )
+
+	# custom L1L2 corrections
+	p.ak5PFJetsL1L2 = p.ak5PFJetsL1.clone( correctors = ['ak5PFL1L2'])
+	p.ak5PFJetsL1L2L3 = p.ak5PFJetsL1L2.clone( correctors = ['ak5PFL1L2L3'])
+
+
+        p.ak7PFJetsL1 = cms.EDProducer(
+            'PFJetCorrectionProducer',
+            src        = cms.InputTag('ak7PFJets'),
+            correctors = cms.vstring('ak7PFL1Fastjet')
+            )
+ 
+        # custom L1L2 corrections
+        p.ak7PFJetsL1L2 = p.ak7PFJetsL1.clone( correctors = ['ak7PFL1L2'])
+	p.ak7PFJetsL1L2L3 = p.ak7PFJetsL1.clone( correctors = ['ak7PFL1L2L3'])
+	
+#	p.ak5PFJetsL1L2L3 = p.ak5PFJetsL1.clone(correctors = ['ak5PFL1FastL2L3'])
+#	p.ak5PFJetsL1L2L3Res = p.ak5PFJetsL1.clone(correctors = ['ak5PFL1FastL2L3Residual'])
+
+#        p.ak7PFJetsL1L2L3 = p.ak7PFJetsL1.clone(correctors = ['ak7PFL1FastL2L3'])
+#        p.ak7PFJetsL1L2L3Res = p.ak7PFJetsL1.clone(correctors = ['ak7PFL1FastL2L3Residual'])
+
+
+
+#	p.ak7PFJetsL1 = p.ak7PFJetsL1.clone(correctors = ['ak7PFL1Offset'])
+#	p.ak7PFJetsL1L2 = p.ak7PFJetsL1.clone(correctors = ['ak7PFL2Relative'],src='ak7PFJetsL1')
+#	p.ak7PFJetsL1L2L3 = p.ak7PFJetsL1.clone(correctors = ['ak7PFL1L2L3'])
 #	p.ak7PFJetsL1L2L3Res = p.ak7PFJetsL1.clone(correctors = ['ak5PFL1L2L3Residual'])
 
 	#process.load("JetMETCorrections.Configuration.JetCorrectionProducers_cff")
 
 	# apply PF no PU 
-	process.ak5PFJetsNoPU = p.ak5PFJets.clone()
-	process.ak5PFJetsNoPU.src = cms.InputTag("pfNoPileUp")
+	process.ak5PFJetsCHS = p.ak5PFJets.clone()
+	process.ak5PFJetsCHS.src = cms.InputTag("pfNoPileUp")
 
-        process.ak5PFJetsL1NoPU = p.ak5PFJetsL1.clone()
-        process.ak5PFJetsL1NoPU.src = cms.InputTag("ak5PFJetsNoPU")
+        process.ak5PFJetsL1CHS = p.ak5PFJetsL1.clone()
+        process.ak5PFJetsL1CHS.src = cms.InputTag("ak5PFJetsCHS")
+	process.ak5PFJetsL1CHS.correctors = cms.vstring('ak5PFL1FastjetCHS')
 
-        process.ak5PFJetsL1L2NoPU = p.ak5PFJetsL1L2.clone()
-        process.ak5PFJetsL1L2NoPU.src = cms.InputTag("ak5PFJetsL1NoPU")
+        process.ak5PFJetsL1L2CHS = p.ak5PFJetsL1CHS.clone()
+        process.ak5PFJetsL1L2CHS.correctors = cms.vstring('ak5PFL1L2CHS')
 
-        process.ak5PFJetsL1L2L3NoPU = p.ak5PFJetsL1L2L3.clone()
-        process.ak5PFJetsL1L2L3NoPU.src = cms.InputTag("ak5PFJetsNoPU")
+	process.ak5PFJetsL1L2L3CHS = p.ak5PFJetsL1CHS.clone()
+	process.ak5PFJetsL1L2L3CHS.correctors = cms.vstring("ak5PFL1L2L3CHS")
 
-        process.ak7PFJetsNoPU = p.ak7PFJets.clone()
-        process.ak7PFJetsNoPU.src = 'pfNoPileUp'
+	process.kt6PFJetsCHS = p.kt6PFJets.clone()
+	process.kt6PFJetsCHS.src = cms.InputTag("pfNoPileUp")
 
-        process.ak7PFJetsL1NoPU = p.ak7PFJetsL1.clone()
-        process.ak7PFJetsL1NoPU.src = 'pfNoPileUp' 
+        #process.ak5PFJetsL1L2NoPU = p.ak5PFJetsL1L2.clone()
+        #process.ak5PFJetsL1L2NoPU.src = cms.InputTag("ak5PFJetsL1NoPU")
 
-        process.ak7PFJetsL1L2NoPU = p.ak7PFJetsL1L2.clone()
-        process.ak7PFJetsL1L2NoPU.src = 'pfNoPileUp' 
+        #process.ak5PFJetsL1L2L3NoPU = p.ak5PFJetsL1L2L3.clone()
+        #process.ak5PFJetsL1L2L3NoPU.src = cms.InputTag("ak5PFJetsNoPU")
 
-        process.ak7PFJetsL1L2L3NoPU = p.ak7PFJetsL1L2L3.clone()
-        process.ak7PFJetsL1L2L3NoPU.src = 'pfNoPileUp'
+        #process.ak7PFJetsNoPU = p.ak7PFJets.clone()
+        #process.ak7PFJetsNoPU.src = 'pfNoPileUp'
+
+        #process.ak7PFJetsL1NoPU = p.ak7PFJetsL1.clone()
+        #process.ak7PFJetsL1NoPU.src = 'pfNoPileUp' 
+
+        #process.ak7PFJetsL1L2NoPU = p.ak7PFJetsL1L2.clone()
+        #process.ak7PFJetsL1L2NoPU.src = 'pfNoPileUp' 
+
+        #process.ak7PFJetsL1L2L3NoPU = p.ak7PFJetsL1L2L3.clone()
+        #process.ak7PFJetsL1L2L3NoPU.src = 'pfNoPileUp'
 
 	p.correctionPathLX= cms.Path(
-		process.pfNoPileUpSequence * p.kt6PFJets * 
-		p.ak5PFJets * p.ak5PFJetsNoPU * 
-	        p.ak5PFJetsL1NoPU * p.ak5PFJetsL1L2NoPU * p.ak5PFJetsL1L2L3NoPU *
+		p.kt6PFJets     	* p.kt6PFJetsCHS *
+		p.ak5PFJets     	* p.ak5PFJetsCHS *
+		p.ak5PFJetsL1   	* p.ak5PFJetsL1CHS *
+		p.ak5PFJetsL1L2		* p.ak5PFJetsL1L2CHS *
+		p.ak5PFJetsL1L2L3 	* p.ak5PFJetsL1L2L3CHS *
+
+                p.ak7PFJets             * #p.ak7PFJetsCHS *
+                p.ak7PFJetsL1           * #p.ak7PFJetsL1CHS *
+                p.ak7PFJetsL1L2         * #p.ak7PFJetsL1L2CHS *
+                p.ak7PFJetsL1L2L3       #* p.ak7PFJetsL1L2L3CHS
+#		p.ak5PFJetsL1L2L3Res 
+#	        p.ak5PFJetsL1NoPU * p.ak5PFJetsL1L2NoPU * p.ak5PFJetsL1L2L3NoPU 
 		#p.ak7PFJetsNoPU * p.ak7PFJetsL1NoPU * p.ak7PFJetsL1L2NoPU * p.ak7PFJetsL1L2L3NoPU *
-		p.ak5PFJetsL1 * p.ak5PFJetsL1L2 * p.ak5PFJetsL1L2L3 * #p.ak5PFJetsL1L2L3Res *
+#		p.ak5PFJetsL1 * p.ak5PFJetsL1L2 * p.ak5PFJetsL1L2L3 * #p.ak5PFJetsL1L2L3Res *
 #		p.ak5CaloJetsL1 * p.ak5CaloJetsL1L2 * p.ak5CaloJetsL1L2L3 * p.ak5CaloJetsL1L2L3Res *
 #		p.ak5JPTJetsL1 * p.ak5JPTJetsL1L2 * p.ak5JPTJetsL1L2L3 * p.ak5JPTJetsL1L2L3Res *
-		p.ak7PFJetsL1 * p.ak7PFJetsL1L2 * p.ak7PFJetsL1L2L3 #* p.ak7PFJetsL1L2L3Res
+#		p.ak7PFJetsL1 * p.ak7PFJetsL1L2 * p.ak7PFJetsL1L2L3 #* p.ak7PFJetsL1L2L3Res
 #		p.ak7CaloJetsL1 * p.ak7CaloJetsL1L2 * p.ak7CaloJetsL1L2L3 * p.ak7CaloJetsL1L2L3Res)
 		#p.ak7JPTJetsL1 * p.ak7JPTJetsL1L2 * p.ak7JPTJetsL1L2L3 * p.ak7JPTJetsL1L2L3Res)
 	)
 	
 
-
+#	print p.pfNoPileUp
 	
 
 	# The gen jets matching --------------------------------------------------------
@@ -215,16 +281,16 @@ def getBaseConfig( Zlist , is_data):
 
 	calojetsmatch_Paths=[]
 
-	for pf_jets_name,calo_jets_name in jets_names_map:
-		module_name="%scalomatch" %pf_jets_name
-		setattr(p,module_name,
-				cms.EDProducer('MatchRecToGen',
-				srcRec = cms.InputTag(pf_jets_name),
-				srcGen = cms.InputTag(calo_jets_name)))
-		print "Module name %s" %module_name
-
-		exec( "p.%spath=cms.Path(p.%s)" %(module_name,module_name) )
-		exec("calojetsmatch_Paths.append(p.%spath)" %module_name)
+#	for pf_jets_name,calo_jets_name in jets_names_map:
+#		module_name="%scalomatch" %pf_jets_name
+#		setattr(p,module_name,
+#				cms.EDProducer('MatchRecToGen',
+#				srcRec = cms.InputTag(pf_jets_name),
+#				srcGen = cms.InputTag(calo_jets_name)))
+#		print "Module name %s" %module_name
+#
+#		exec( "p.%spath=cms.Path(p.%s)" %(module_name,module_name) )
+#		exec("calojetsmatch_Paths.append(p.%spath)" %module_name)
 
 
 	genjetsmatch_Paths=[]
@@ -245,7 +311,7 @@ def getBaseConfig( Zlist , is_data):
 				cms.EDProducer('MatchRecToGen',
 				srcRec = cms.InputTag(pf_jets_name),
 				srcGen = cms.InputTag(gen_jets_name)))
-		print "Module name %s" %module_name
+		#print "Module name %s" %module_name
 
 		exec( "p.%spath=cms.Path(p.%s)" %(module_name,module_name) )
 		exec("genjetsmatch_Paths.append(p.%spath)" %module_name)
@@ -264,7 +330,7 @@ def getBaseConfig( Zlist , is_data):
 				cms.EDProducer('MatchRecToGen',
 				srcRec = cms.InputTag(pf_jets_name),
 				srcGen = cms.InputTag(jpt_jets_name)))
-		print "Module name %s" %module_name
+		#print "Module name %s" %module_name
 
 		exec( "p.%spath=cms.Path(p.%s)" %(module_name,module_name) )
 		exec("jptjetsmatch_Paths.append(p.%spath)" %module_name)
@@ -275,9 +341,12 @@ def getBaseConfig( Zlist , is_data):
 							srcGen = cms.InputTag("goodZToMuMuGen"))
 	p.matchZspath=cms.Path(p.matchZs)
 
+	p.pfCHS = cms.Path( p.pfNoPileUpSequence )
+
 	# Schedule
 	process.schedule = cms.Schedule(
 		p.processedEventsPath,	# TreeMaker events
+		p.pfCHS,
 		Zlist,					# contains reco and gen events
 		p.correctionPathLX,
 		#p.JetIDsPath,
@@ -291,10 +360,10 @@ def getBaseConfig( Zlist , is_data):
 #	for path in jptjetsmatch_Paths:
 #		process.schedule.append(path)
 
-	if not is_data:
-		for path in genjetsmatch_Paths:
-			p.schedule.append(path)
-			p.schedule.append(p.matchZspath)
+#	if not is_data:
+#		for path in genjetsmatch_Paths:
+#			p.schedule.append(path)
+#			p.schedule.append(p.matchZspath)
 
 	process.schedule.append(p.flatTreeMakerPath) #	p.outpath
 
