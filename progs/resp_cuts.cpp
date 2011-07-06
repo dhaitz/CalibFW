@@ -532,6 +532,7 @@ ZJetPipeline * CreateDefaultPipeline()
 
 	PLOT_HIST1D(pline, DrawMetConsumer, met)
 	PLOT_HIST1D(pline, DrawTcMetConsumer, tcmet)
+	PLOT_HIST1D(pline, DrawMetResolutionConsumer, metres)
 
 	PLOT_HIST1D(pline, DrawRecoVertConsumer, recovert)
 	PLOT_HIST1D(pline, DrawPUConsumer, pu)
@@ -836,6 +837,7 @@ TChain * getChain(TString sName, evtData * pEv, std::string sRootfiles)
 
 	mychain->SetBranchAddress("met", &pEv->met);
 	mychain->SetBranchAddress("tcmet", &pEv->tcmet);
+	mychain->SetBranchAddress("genmet", &pEv->genmet);
 
 	mychain->SetBranchAddress("matrix_element_flavour", &pEv->partonFlavour);
 

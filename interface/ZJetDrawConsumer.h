@@ -211,6 +211,9 @@ IMPL_HIST1D_MOD1(DrawMuAllPhiConsumer ,m_hist->Fill(res.m_pData->mu_plus->Phi() 
 IMPL_HIST1D_MOD2(DrawMetConsumer ,m_hist->Fill(res.m_pData->met->Pt() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 1000.0f),
 		new ModHistBinCount(500))
+IMPL_HIST1D_MOD2(DrawMetResolutionConsumer , m_hist->Fill(res.m_pData->met->Pt()/res.m_pData->genmet->Pt() - 1.0, res.GetWeight( )); ,
+		new ModHistBinRange(-1.0f, 50.0f),
+		new ModHistBinCount(510))
 IMPL_HIST1D_MOD2(DrawTcMetConsumer ,m_hist->Fill(res.m_pData->tcmet->Pt() , res.GetWeight( )); ,
 		new ModHistBinRange(0.0f, 1000.0f),
 		new ModHistBinCount(500))
