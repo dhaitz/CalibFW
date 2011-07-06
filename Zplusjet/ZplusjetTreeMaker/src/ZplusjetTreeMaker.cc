@@ -347,6 +347,7 @@ void ZplusjetTreeMaker::analyze(const edm::Event& iEvent,
         
         m_store_met_part= 0;
         m_store_tcmet_part= 0;
+        m_store_genmet_part= 0;
         m_store_algoname_tree = 0;
 
         std::string name="";
@@ -395,6 +396,7 @@ void ZplusjetTreeMaker::analyze(const edm::Event& iEvent,
             gentree->Branch("jet3","TParticle",&m_store_jet_part3);
 
             gentree->Branch("met","TParticle",&m_store_met_part);
+            gentree->Branch("genmet","TParticle",&m_store_genmet_part);
 
             gentree->Branch("algoname","TObjString",&m_store_algoname_tree);
             gentree->Branch("eventIndex",&m_store_nevts,"eventsProcessed/D");
@@ -552,6 +554,7 @@ void ZplusjetTreeMaker::analyze(const edm::Event& iEvent,
             
             recotree->Branch("met","TParticle",&m_store_met_part);
             recotree->Branch("tcmet","TParticle",&m_store_tcmet_part);
+            recotree->Branch("genmet","TParticle",&m_store_genmet_part);
 
             // Branch for trigger info
             recotree->Branch("HLTriggers_accept", "TClonesArray", &m_HLTriggers_fired, 32000, 0);
@@ -723,6 +726,10 @@ void ZplusjetTreeMaker::analyze(const edm::Event& iEvent,
 
                     iEvent.getByLabel("tcMet", met);
                     m_store_tcmet_part = m_fill_tparticle(& (*met)[0] );
+                    
+                    edm::Handle< edm::View< reco::MET > > gmet;
+                    iEvent.getByLabel("genMetTrue", gmet);
+                    m_store_genmet_part = m_fill_tparticle(& (*gmet)[0] );
 
                     // Set the algoname branch
                     m_store_algoname_tree->SetString(algoname.c_str());
