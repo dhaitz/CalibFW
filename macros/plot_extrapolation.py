@@ -362,7 +362,7 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	#ta = plotBase.tags(ta, 'Private work', 'Joram Berger')
 	ta_ratio.legend(numpoints=1, frameon=False)
 	plotBase.AxisLabels(ta_ratio, 'datamc_ratio', 'jet')
-	ta_ratio.set_ylim( 0.7, 1.2 )
+	ta_ratio.set_ylim( 0.8, 1.15 )
 	
 	
 
@@ -376,9 +376,21 @@ extrapolate_ratio("mpfresp", "ak5PFJets", tf, ta)
 plotBase.Save(tf, "resp_ratio_ak5PFJets_data_mc_ratio_extrapol", settings, False)
 
 tf, ta, tname = plotBase.makeplot("jetresp_mc")
+extrapolate_ratio("jetresp", "ak5PFJets", tf, ta, False)
+extrapolate_ratio("mpfresp", "ak5PFJets", tf, ta, False)
+plotBase.Save(tf, "resp_ratio_ak5PFJets_data_mc_ratio_noextrapol", settings, False)
+
+tf, ta, tname = plotBase.makeplot("jetresp_mc")
 extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, False)
 extrapolate_ratio("mpfresp", "ak5PFJetsL1L2L3", tf, ta, False)
 plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3_data_mc_ratio_noextrapol", settings, False)
+
+
+tf, ta, tname = plotBase.makeplot("jetresp_mc")
+extrapolate_ratio("jetresp", "ak7PFJetsL1L2L3", tf, ta, False)
+extrapolate_ratio("mpfresp", "ak7PFJetsL1L2L3", tf, ta, False)
+plotBase.Save(tf, "jetresp_ratio_ak7PFJetsL1L2L3_data_mc_ratio_noextrapol", settings, False)
+
 
 #extrapolate_ratio("jetresp", "ak5PFets")
 #extrapolate_ratio("mpfresp", "ak5PFets")
