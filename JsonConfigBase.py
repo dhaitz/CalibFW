@@ -266,7 +266,8 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
 def ExpandDefaultDataConfig( ptBins, conf_template, useFolders, FolderPrefix = ""):
     conf = ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix)
 
-    conf["Pipelines"][FolderPrefix + "default"]["AdditionalConsumer"].append( "event_storer" )
+    # dont use the event storer for now. enable if you have concrete need for this
+    #conf["Pipelines"][FolderPrefix + "default"]["AdditionalConsumer"].append( "event_storer" )
 
     return conf
 
