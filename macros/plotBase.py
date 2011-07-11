@@ -247,11 +247,13 @@ def AxisLabels(ax, q='resp', obj='jet'):
         ax.set_ylabel(r"Cut Infficiency", y=1, va="top" )
         ax.set_xlabel(r"NRV",x=1)
         #ax.set_xlim(1, 15)
-        ax.set_ylim(0.0, 1.2)
+        ax.set_ylim(0.0, 1.0)
         
     elif q == 'recovert':
         ax.set_xlabel(r"Number of reconstructed vertices $n$", ha="right", x=1)
         ax.set_ylabel(r"events", va="top", y=1)
+        ax.set_xlim(0,25)
+        ax.set_ylim(bottom=0.0)
         
     elif q == 'jetconstituents':
         ax.set_xlabel(r"Jet Constituents", ha="right", x=1)

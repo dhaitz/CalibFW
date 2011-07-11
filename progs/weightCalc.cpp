@@ -1,11 +1,10 @@
 #include <stdlib.h>
-
 #include <iostream>
 #include <iomanip>
 #include "TFile.h"
 #include "TH1D.h"
 
-/// weightCalc calculates the weights for the 
+/// weightCalc calculates the weights for the pile-up reweighting
 /** Usage: weightCalc.exe pudist.root [MC-weights-name]
     Return a vector for copy and paste in the config file.
 */

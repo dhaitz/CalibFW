@@ -29,7 +29,7 @@ def OpenFile(filename, message=False):
     else:
         print "Can't open file:", filename
         assert False
-    return f, filename
+    return f
 
 def ConvertToArray(histo, lumi=0.0, rootfile='', rebin=1):
     """Convert a root histogram to a numpy histogram
@@ -138,6 +138,10 @@ class npHisto:
         self.ysum *= factor
         self.norm /= factor
         self.ymax *= factor
+
+    def normalize(self, factor=1.0):
+        self.scale(factor*self.norm)
+        return self
 
     def dropbin(self,number):
         self.x.pop(number)
