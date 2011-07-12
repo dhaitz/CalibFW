@@ -245,6 +245,11 @@ public:
 int m_store_cmsEventNum;
 int m_store_cmsRun;
 int m_store_luminosityBlock;
+
+int m_store_pu_interactions;
+int m_store_pu_interactions_after;
+int m_store_pu_interactions_before;
+
 int m_store_matrix_element_flavour;
 double m_store_weight;
 
