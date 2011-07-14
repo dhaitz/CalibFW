@@ -122,6 +122,7 @@ def getBaseConfig( Zlist , is_data):
 	p.flatTreeMakerPath = cms.Path(p.flatTreeMaker)
 
 	# The output module
+	# include this only for testing, NEVER use this in grid runs !
 	p.out = cms.OutputModule("PoolOutputModule",
 			fileName = cms.untracked.string("test_out.root"))
 	p.outpath=cms.EndPath(p.out)
@@ -235,6 +236,8 @@ def getBaseConfig( Zlist , is_data):
 	process.kt6PFJetsCHS = p.kt6PFJets.clone()
 	process.kt6PFJetsCHS.src = cms.InputTag("pfNoPileUp")
 
+	# no chs available for ak7 yet
+
         #process.ak5PFJetsL1L2NoPU = p.ak5PFJetsL1L2.clone()
         #process.ak5PFJetsL1L2NoPU.src = cms.InputTag("ak5PFJetsL1NoPU")
 
@@ -276,8 +279,9 @@ def getBaseConfig( Zlist , is_data):
 	)
 	
 
-#	if is_data:
-#		p.correctionPathLX *= p.ak5PFJetsL1L2L3Res * p.ak5PFJetsL1L2L3ResCHS
+	if is_data:
+		p.correctionPathLX *= p.ak5PFJetsL1L2L3Res * p.ak5PFJetsL1L2L3ResCHS
+		p.correctionPathLX *= p.ak7PFJetsL1L2L3Res
 		## do ak7
 
 #	print p.pfNoPileUp
@@ -395,7 +399,7 @@ def getBaseConfig( Zlist , is_data):
 		#p.JetIDsPath,
 		#p.CHSpath
 	)
-	process.schedule.append(p.outpath)
+	#process.schedule.append(p.outpath)
 
 	for path in calojetsmatch_Paths:
 		process.schedule.append(path)
