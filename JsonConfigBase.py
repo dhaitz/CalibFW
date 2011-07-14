@@ -96,8 +96,9 @@ def GetDefaultDataPipeline():
 
 def GetDataBaseConfig():
     d = GetBaseConfig()
-    
-    d["JsonFile"] = "data/json/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON_v2.txt"
+
+    # json merged by compareJSON.py --or Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON_v2.txt Cert_160404-167913_7TeV_PromptReco_Collisions11_JSON.txt Cert_160404-167913_7TeV_May10andPromptReco_Collisions11_JSON.txt
+    d["JsonFile"] = "data/json/Cert_160404-167913_7TeV_May10andPromptReco_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
