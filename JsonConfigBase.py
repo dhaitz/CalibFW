@@ -38,7 +38,7 @@ def GetBaseConfig():
             "CutZMassWindow": 20,
             "CutLeadingJetEta": 1.3,
             "CutSecondLeadingToZPt": 0.2,
-            "CutSecondLeadingToZPtJet2Threshold" : 5.0,
+            "CutSecondLeadingToZPtJet2Threshold" : 0.0,
             "CutBack2Back": 0.34,
             "Cuts": ["muon_pt",
                      "muon_eta",
