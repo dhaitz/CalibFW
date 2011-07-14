@@ -68,7 +68,7 @@ public:
 	TParticle *jets[3];
 	TParticle *matched_calo_jets[3];
 
-	TParticle *met, *tcmet;
+	TParticle *met, *tcmet, *genmet;
 
 	PFProperties * pfProperties[3];
 
@@ -94,7 +94,7 @@ public:
 	evtData()
 	{
 		Z = matched_Z = mu_minus = mu_plus = jets[0] = jets[1] = jets[2] = met
-				= tcmet = NULL;
+				= tcmet = genmet = NULL;
 
 		pfProperties[0] = pfProperties[1] = pfProperties[2] = NULL;
 
@@ -145,6 +145,7 @@ public:
 		ev->mu_plus = new TParticle(*this->mu_plus);
 		ev->met = new TParticle(*this->met);
 		ev->tcmet = new TParticle(*this->tcmet);
+		ev->genmet = new TParticle(*this->genmet);
 
 		for (int i = 0; i < 3; ++i)
 		{

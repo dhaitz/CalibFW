@@ -33,24 +33,11 @@ data10color = 'gray'
 
 #### INPUTFILES
 print "%1.2f Open files:" % time.clock()
-fdata, filename_data = OpenFile(GetPath() + "chs_May10_data.root", (settings.verbosity>1))
-fmc,   filename_mc   = OpenFile(GetPath() + "chs_Summer11_mc_flat.root", (settings.verbosity>1))
-fdata10, filename_data10 = OpenFile(GetPath() + "data2010_v8_single_l3.root", (settings.verbosity>1))
-fmc10,   filename_mc10   = OpenFile(GetPath() + "mc_fall10_dy_v1.root", (settings.verbosity>1))
-#print "and from MC file (Herwig): " + filename_mch
-#print "read histos:", time.clock()
-#oname = GetNameFromSelection('z_pt')
-#histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
-#histname = oname[0].replace('data','mc').replace('Res','')
-#histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats,5)
-#histo_mc.scale(factor)
-###Test section
-#histo_data.write('out/dat/textout.txt')
-#histo_data.read('out/dat/textout.txt')
-#print histo_data.x
-#histo_data.dump('out/dat/zmass_ak7PFJetsL1L2L3Res_Zplusjet_data.dat')
-#histo_data.load('out/dat/zmass_ak7PFJetsL1L2L3Res_Zplusjet_data.dat')
-#print histo_data
+fdata = OpenFile(GetPath() + "chs_May10_data.root", (settings.verbosity>1))
+fmc   = OpenFile(GetPath() + "chs_Summer11_mc_withrw.root", (settings.verbosity>1))
+fmcflat = OpenFile(GetPath() + "chs_Summer11_mc_withoutrw.root", (settings.verbosity>1))
+fdata10 = OpenFile(GetPath() + "data2010_v8_single_l3.root", (settings.verbosity>1))
+fmc10   = OpenFile(GetPath() + "mc_fall10_dy_v1.root", (settings.verbosity>1))
 print "%1.2f Do plots ..." % time.clock()
 
 ####PLOTS ! use loops !
@@ -466,9 +453,61 @@ def scaleres():
 
 def npu():
 	print "Number of pile-up interactions"
-	fpuApr, filename_pua = OpenFile("../CMSSW_4_2_3/pudist423Apr.root", (settings.verbosity>1))
-	fpuMay, filename_pum = OpenFile("../CMSSW_4_2_3/pudist423May.root", (settings.verbosity>1))
-	fpuJune, filename_puj = OpenFile("../CMSSW_4_2_3/pudist423June24Prompt.root", (settings.verbosity>1))
+	fpuApr = OpenFile("../s/data/pudist423Apr.root", (settings.verbosity>1))
+	fpuMay = OpenFile("../s/data/pudist423May.root", (settings.verbosity>1))
+	fpuJune = OpenFile("../s/data/pudist423June24Prompt.root", (settings.verbosity>1))
+	oname = GetNameFromSelection('pu',{},{'incut':'allevents'})[0]
+	hpuApr = SafeConvert(fpuApr, 'pileup', settings.lumi,settings.outputformats).normalize()
+	hpuMay = SafeConvert(fpuMay, 'pileup', settings.lumi,settings.outputformats).normalize()
+	hpuJune = SafeConvert(fpuJune, 'pileup', settings.lumi,settings.outputformats).normalize()
+
+#	histo_mc10.scale(factor10)
+#	histo_data10.dropbin(0)
+
+	fnpu, anpu, npuname = makeplot('recovert')
+	histo01 = anpu.errorbar(hpuApr.xc, hpuApr.y, hpuApr.yerr, color='brown', fmt='o', capsize=0, label ='2010 (Apr21, 36 pb${}^{-1}$)')
+	histo02 = anpu.errorbar(hpuMay.xc, hpuMay.y, hpuMay.yerr, color='black', fmt='^', capsize=0, label ='2011 (May10, 206 pb${}^{-1}$)')
+	histo03 = anpu.errorbar(hpuJune.xc, hpuJune.y, hpuJune.yerr, color='blue', fmt='x', capsize=0, label ='2011 (Prompt, 800 pb${}^{-1}$)')
+
+	anpu = captions(anpu,settings, False)
+	anpu = tags(anpu, 'Private work', 'Joram Berger')
+	anpu.legend(loc = 'upper right', bbox_to_anchor = (0.98, 0.92), numpoints=1, frameon=False)
+	anpu = AxisLabels(anpu, 'recovert')
+	#anpu.xmax = 400
+	anpu.set_xlabel('Number of pile-up events')
+	anpu.set_ylabel('fraction of events')
+	#plt.minorticks_on()
+
+	Save(fnpu,'npu', settings,False)
+	anpu.set_ylim(bottom=1.0)
+	anpu.set_yscale('log')
+	Save(fnpu,'npu_log', settings, False)
+
+def npumcflat():
+	npumc('flat')
+
+def npumcstd():
+	npumc('')
+
+def npureco():
+	npumc('reco')
+
+def npumc(typ=''):
+	print "Number of pile-up interactions"
+	oname = GetNameFromSelection('pu',{},{'incut':'allevents', 'type': 'mc'})[0]
+	if typ=='flat':
+		datei=fmcflat
+	else:
+		datei=fmc
+	rname = GetNameFromSelection('recovert',{},{'incut':'allevents'})[0]
+	hrv = SafeConvert(fdata, rname, settings.lumi,settings.outputformats)
+	hrvmc = SafeConvert(fmc, mchisto(rname), settings.lumi,settings.outputformats)
+	hpuflat = SafeConvert(datei, oname, settings.lumi,settings.outputformats)
+	hpuflatb = SafeConvert(datei, oname.replace('pu','pu_before'), settings.lumi,settings.outputformats)
+	hpuflata = SafeConvert(datei, oname.replace('pu','pu_after'), settings.lumi,settings.outputformats)
+	fpuApr = OpenFile("../s/data/pudist423Apr.root", (settings.verbosity>1))
+	fpuMay = OpenFile("../s/data/pudist423May.root", (settings.verbosity>1))
+	fpuJune = OpenFile("../s/data/pudist423June24Prompt.root", (settings.verbosity>1))
 	oname = GetNameFromSelection('pu',{},{'incut':'allevents'})[0]
 	hpuApr = SafeConvert(fpuApr, 'pileup', settings.lumi,settings.outputformats)
 	hpuMay = SafeConvert(fpuMay, 'pileup', settings.lumi,settings.outputformats)
@@ -477,30 +516,45 @@ def npu():
 #	histo_data10.dropbin(0)
 
 	fnpu, anpu, npuname = makeplot('recovert')
-	histo01 = ampf.errorbar(hpuApr.xc, hpuApr.y, hpuApr.yerr, color=black, fmt='o', capsize=0, label ='2010 data (Apr21ReReco, L = 36 pb${}^{-1}$)')
-	histo02 = ampf.errorbar(hpuMay.xc, hpuMay.y, hpuMay.yerr, color=black, fmt='^', capsize=0, label ='2011 data (May10ReReco, L = 206 pb${}^{-1}$)')
-	histo03 = ampf.errorbar(hpuJune.xc, hpuJune.y, hpuJune.yerr, color=gray, fmt='x', capsize=0, label ='2011 data (PromptReco, L = 800 pb${}^{-1}$)')
+#	histo01 = anpu.errorbar(hpurw.xc, hpurw.y, hpurw.yerr, color='brown', fmt='o', capsize=0, label ='reweighted')
+
+	histo02 = anpu.errorbar(hpuflat.xc, hpuflat.y, hpuflat.yerr, color='FireBrick', fmt='--', capsize=0, label =r'$n_\mathrm{PU}$ MC')
+#	histo06 = anpu.errorbar(hpuMay.xc, hpuMay.y, hpuMay.yerr, color='black', fmt='^', capsize=0, label =r'$n_\mathrm{PU}$ 2011 data')
+	if typ=='flat' or typ =='':
+		histo03 = anpu.errorbar(hpuflatb.xc, hpuflatb.y, hpuflatb.yerr, color='blue', fmt='.', capsize=0, label =r'$n_\mathrm{PU,\, previous\, BX}$')
+		histo04 = anpu.errorbar(hpuflata.xc, hpuflata.y, hpuflata.yerr, color='green', fmt='.', capsize=0, label =r'$n_\mathrm{PU,\, next\, BX}$')
+	else:
+		histo08 = anpu.errorbar(hrvmc.xc, hrvmc.y, hrvmc.yerr, color='orange', fmt='-', capsize=0, label =r'$n_\mathrm{reco. vertices}$ MC')
+		histo09 = anpu.errorbar(hrv.xc, hrv.y, hrv.yerr, color='green', fmt='s', capsize=0, label =r'$n_\mathrm{reco. vertices}$ 2011 data')
+	if typ=='flat':
+		histo05 = anpu.errorbar(range(25),	
+		[0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0698146584,
+		0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0698146584,0.0630151648,
+		0.0526654164,0.0402754482,0.0292988928,0.0194384503,0.0122016783,0.007207042,
+		0.004003637,0.0020278322,0.0010739954,0.0004595759,0.0002229748,0.0001028162,4.58337152809607E-05],
+		color = 'FireBrick', fmt='-', label='MC "flat10"')
+#	else:
+
+
 
 
 	anpu = captions(anpu,settings, False)
 	anpu = tags(anpu, 'Private work', 'Joram Berger')
 	anpu.legend(loc = 'upper right', bbox_to_anchor = (0.98, 0.92), numpoints=1, frameon=False)
 	anpu = AxisLabels(anpu, 'recovert')
+	anpu.set_ylim(0,0.16)
 	#anpu.xmax = 400
-
+	anpu.set_xlabel('Number of pile-up vertices')
+	anpu.set_ylabel('events')
 	#plt.minorticks_on()
-
-	Save(anpu,'npu', settings)
-	anpu.set_ylim(bottom=1.0)
-	anpu.set_yscale('log')
-	Save(anpu,'npu_log', settings)
+	Save(fnpu,'npumc'+typ, settings,False)
 
 # The actual plotting starts here:
 #List of plots to do - leave empty for all plots
 plots = []
 
 if len(plots)==0:
-	plots = [zeta, jeteta, zpt, jetpt, balance, mpf, npv, zphi,jetphi, jet2pt,zmass, scaleres, wolke,jet2ptall]
+	plots = [zeta, jeteta, zpt, jetpt, balance, mpf, npv, zphi,jetphi, jet2pt,zmass, jet2ptall]
 for plot in plots:
 	print "New plot:",
 	plot()

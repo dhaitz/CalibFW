@@ -153,6 +153,32 @@ def captions(ax, stg=StandardSettings(), twolumis=True):
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
     return ax
 
+def AddAlgoAndCorrectionCaption(ax, algo = "ak5PFJetsL1", stg=StandardSettings()):
+    posx = 0.05
+    posy = 0.93
+
+    if algo == "ak5PFJets":
+        ax.text(posx, posy, r"ak5 PF Jets uncorrected",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+    if algo == "ak5PFJetsL1":
+        ax.text(posx, posy, r"ak5 PF Jets L1 corrected",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+    if algo == "ak5PFJetsL1L2":
+        ax.text(posx, posy, r"ak5 PF Jets L1 L2 corrected",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+    if algo == "ak5PFJetsL1L2L3":
+        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 corrected",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+    if algo == "ak7PFJetsL1L2L3":
+        ax.text(posx, posy, r"ak7 PF Jets L1 L2 L3 corrected",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        
+    if algo == "ak5PFJetsL1L2L3CHS":
+        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 corrected and CHS applied",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+
+
+
 def tags(ax, status='', author='', date='today'):
     status = '' #for now do not show 'private work'
     author = ''
@@ -203,23 +229,31 @@ def AxisLabels(ax, q='resp', obj='jet'):
     elif q == 'jetresp':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"$p_{T}$ balance", va="top", y=1)
-        ax.set_xlim(10, 200)
+        ax.set_xlim(10, 240)
         ax.set_ylim(0.75, 1.0)
     elif q == 'mpfresp':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"MPF", va="top", y=1)
-        ax.set_xlim(10, 200)
+        ax.set_xlim(10, 240)
         ax.set_ylim(0.75, 1.0)
+        
+    elif q == 'datamc_ratio':
+        ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_ylabel(r"Data/MC", va="top", y=1)
+        ax.set_xlim(10, 240)
+        ax.set_ylim(0.8, 1.1)
         
     elif q == 'cutineff':
         ax.set_ylabel(r"Cut Infficiency", y=1, va="top" )
         ax.set_xlabel(r"NRV",x=1)
         #ax.set_xlim(1, 15)
-        ax.set_ylim(0.0, 1.2)
+        ax.set_ylim(0.0, 1.0)
         
     elif q == 'recovert':
         ax.set_xlabel(r"Number of reconstructed vertices $n$", ha="right", x=1)
         ax.set_ylabel(r"events", va="top", y=1)
+        ax.set_xlim(0,25)
+        ax.set_ylim(bottom=0.0)
         
     elif q == 'jetconstituents':
         ax.set_xlabel(r"Jet Constituents", ha="right", x=1)

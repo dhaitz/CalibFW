@@ -68,6 +68,7 @@ public:
 		m_localData.jets[1] = new TParticle();
 		m_localData.jets[2] = new TParticle();
 		m_localData.met = new TParticle();
+		m_localData.genmet = new TParticle();
 	 	m_localData.Z = new TParticle();
 	 	m_localData.mu_plus = new TParticle();
 	 	m_localData.mu_minus = new TParticle();
@@ -81,6 +82,7 @@ public:
 		 m_gentree->Branch("jet2", "TParticle", &m_localData.jets[1]);
 		 m_gentree->Branch("jet3", "TParticle", &m_localData.jets[2]);
 		 m_gentree->Branch("met", "TParticle", &m_localData.met);
+		 m_gentree->Branch("genmet", "TParticle", &m_localData.genmet);
 		 m_gentree->Branch("l2corrJet", &m_l2corr, "l2corrJet/D");
 		 m_gentree->Branch("l2corrPtJet2", &m_l2corrPtJet2, "l2corrPtJet2/D");
 		 m_gentree->Branch("l2corrPtJet3", &m_l2corrPtJet3, "l2corrPtJet3/D");
@@ -123,6 +125,7 @@ public:
 		 m_localData.jets[1] = new TParticle(*event.m_pData->jets[1]);
 		 m_localData.jets[2] = new TParticle(*event.m_pData->jets[2]);
 		 m_localData.met = new TParticle(*event.m_pData->met);
+		 m_localData.genmet = new TParticle(*event.m_pData->genmet);
 		 m_l2corr = event.m_l2CorrPtJets[0];
 		 m_l2corrPtJet2 = event.m_l2CorrPtJets[1];
 		 m_l2corrPtJet3 = event.m_l2CorrPtJets[2];
