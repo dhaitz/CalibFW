@@ -47,7 +47,7 @@ As soon as a match Z-Jet is found the associated TTree is filled.
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
-
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 
@@ -140,7 +140,6 @@ ZplusjetTreeMaker::ZplusjetTreeMaker(const edm::ParameterSet& iConfig) {
     m_caloJetIdMapping.insert( std::pair< std::string, std::string> ("kt4CaloJets","kt4JetID") );
     m_caloJetIdMapping.insert( std::pair< std::string, std::string> ("kt6CaloJets","kt6JetID") );
     m_caloJetIdMapping.insert( std::pair< std::string, std::string> ("iterativeCone5CaloJets","ic5JetID") );
-    
     m_caloJetIdMapping.insert( std::pair< std::string, std::string> ("ak5CaloJetsL1","ak5CaloJetsL1ID") );
     m_caloJetIdMapping.insert( std::pair< std::string, std::string> ("ak5CaloJetsL1L2","ak5CaloJetsL1L2ID") );
     m_caloJetIdMapping.insert( std::pair< std::string, std::string> ("ak5CaloJetsL1L2L3Res","ak5CaloJetsL1L2L3ResID"));
@@ -278,6 +277,45 @@ void ZplusjetTreeMaker::analyze(const edm::Event& iEvent,
     m_store_cmsEventNum=iEvent.id().event();
     m_store_cmsRun=iEvent.id().run();
     m_store_luminosityBlock = iEvent.luminosityBlock();
+
+    m_store_pu_interactions = 0;
+	m_store_pu_interactions_after = 0;
+m_store_pu_interactions_before = 0;
+    // try to get PU information if available
+    try {
+	Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+	iEvent.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
+
+	std::vector<PileupSummaryInfo>::const_iterator PVI;
+
+	int npv = -1;
+	for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+
+   	int BX = PVI->getBunchCrossing();
+	 //LogPrint("debug") << BX << ":" << PVI->getPU_NumInteractions();
+
+
+	// if bunchcrossing = 0, we get he in-time PU contribution
+   	if(BX == 0) { 
+     		m_store_pu_interactions = PVI->getPU_NumInteractions();
+   		}
+	
+
+        if(BX == 1) {
+                m_store_pu_interactions_after = PVI->getPU_NumInteractions();
+                }
+
+        if(BX == -1) {
+                m_store_pu_interactions_before = PVI->getPU_NumInteractions();
+                }
+        }
+
+	}
+	catch (...)
+	{
+		LogPrint("ZplusJetTreeMaker") << "No PU information included!";
+	}
+
 
     LogDebug ("EventMeta") << "Event Number:" << m_store_cmsEventNum
                            << " run number:" << m_store_cmsRun
@@ -572,6 +610,10 @@ void ZplusjetTreeMaker::analyze(const edm::Event& iEvent,
             recotree->Branch("cmsEventNum",&m_store_cmsEventNum,"cmsEventNum/I");
             recotree->Branch("cmsRun",&m_store_cmsRun,"cmsRun/I");
             recotree->Branch("luminosityBlock",&m_store_luminosityBlock,"luminosityBlock/I");
+
+	    recotree->Branch("PU_interactions", &m_store_pu_interactions, "PU_interactions/I");
+		recotree->Branch("PU_interactions_after", &m_store_pu_interactions_after, "PU_interactions_after/I");
+		recotree->Branch("PU_interactions_before", &m_store_pu_interactions_before, "PU_interactions_before/I");
 
             recotree->Branch("matrix_element_flavour",&m_store_matrix_element_flavour,"matrix_element_flavour/I");
             recotree->Branch("weight",&m_store_weight,"weight/D");                        
