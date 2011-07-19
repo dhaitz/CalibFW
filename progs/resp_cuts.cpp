@@ -532,7 +532,7 @@ ZJetPipeline * CreateDefaultPipeline()
 
 	PLOT_HIST1D(pline, DrawMetConsumer, met)
 	PLOT_HIST1D(pline, DrawTcMetConsumer, tcmet)
-	PLOT_HIST1D(pline, DrawMetResolutionConsumer, metres)
+	//PLOT_HIST1D(pline, DrawMetResolutionConsumer, metres)
 
 	PLOT_HIST1D(pline, DrawRecoVertConsumer, recovert)
 	PLOT_HIST1D(pline, DrawPUConsumer, pu)
@@ -644,7 +644,7 @@ void importEvents(bool bUseJson,
 						"number_of_processed_events");
 
 				lProcEvents = TMath::Nint(pH->GetMean());
-				CALIB_LOG_FILE( "New file: " << sNewFile.Data() << " number "
+				CALIB_LOG_FILE_ONLY( "New file: " << sNewFile.Data() << " number "
 						<< lProcEvents )
 				lOverallNumberOfProcessedEvents += lProcEvents;
 
@@ -731,7 +731,7 @@ void importEvents(bool bUseJson,
 
 		delete res;
 
-		if (((ievt % 200) == 0) || (ievt == (entries - 1)))
+		if (((ievt % 20) == 0) || (ievt == (entries - 1)))
 		{
 			float localPercent = floor(100.0f * (float) (ievt + 1)
 					/ (float) entries);
@@ -739,8 +739,12 @@ void importEvents(bool bUseJson,
 					/ (float) g_iAlgoOverallCount + (localPercent * 0.01f)
 					* (1.0f) / (float) g_iAlgoOverallCount) * 100.0f);
 
+			double fCurRuntime = omp_get_wtime() - fStartTime;
+			double fTimeToRun = fCurRuntime / ( overallPercent / 100.0f ) * ( 1.0f - ( overallPercent / 100.0f));
+			double fOverallTime = fTimeToRun  + fCurRuntime;
+
 			CALIB_LOG_SAME_LINE((ievt + 1) << " of " << entries << " done [ this algo " << std::fixed << std::setprecision(0)
-					<< localPercent << " % ] [ overall " << overallPercent << " % ]" )
+					<< localPercent << " % ] [ overall " << overallPercent << " % ] [ " << fCurRuntime << "s | " << fTimeToRun << "s | " << fOverallTime << "s ]" )
 
 		}
 	}
