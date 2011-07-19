@@ -220,7 +220,7 @@ public:
 
 	static TString GetHistoName(TString algoName, TString quantName,
 			InputTypeEnum inpType, int corr = 0, PtBin * pBin = NULL,
-			bool isNoCut = false, TString algoNameAppend = "Zplusjet")
+			bool isNoCut = false/*, TString algoNameAppend = "Zplusjet"*/)
 	{
 		TString sinput = "";
 		TString scorr = "";
@@ -230,8 +230,8 @@ public:
 
 		tagList.push_back(quantName.Data());
 		tagList.push_back(algoName.Data());
-		tagList.push_back(algoNameAppend.Data());
-
+//		tagList.push_back(algoNameAppend.Data());
+/*
 		if (inpType == McInput)
 			tagList.push_back("mc");
 		if (inpType == DataInput)
@@ -241,13 +241,13 @@ public:
 			tagList.push_back("l2corr");
 		if (corr == 3)
 			tagList.push_back("l3corr");
-
-		if (pBin != NULL)
-			tagList.push_back(pBin->id().Data());
-
+*/
+/*		if (pBin != NULL)
+			tagList.push_back(pBin->id().Data());*/
+/*
 		if (isNoCut)
 			tagList.push_back("nocut");
-
+*/
 		std::stringstream fullString;
 
 		for (stringvector::iterator it = tagList.begin(); it != tagList.end(); it++)
