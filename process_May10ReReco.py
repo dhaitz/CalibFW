@@ -15,26 +15,6 @@ conf = JsonConfigBase.ExpandDefaultDataConfig( [0,30,60,100,140,1000], conf, Tru
 
 conf["Algos"] = ["ak5PFJets", "ak5PFJetsL1L2L3", "ak7PFJets",  "ak7PFJetsL1L2L3"]
 
-#pline_qualitycuts = JsonConfigBase.GetDefaultDataPipeline()
-# cuts to obey
-# json 1
-# hlt 512
-# muon eta 4
-# zmass 64
-# jet eta 8
-
-# cuts to ignore 
-# 2nd Jet Pt          16
-# muon pt cut         2
-# back to back cut    32 
-
-# bitmask :  0011 0010 = 50
-
-#pline_qualitycuts["FilterInCutIgnored"] = 50 
-#pline_qualitycuts["RootFileFolder"] = "NoBinning_qualitycuts"
-
-#conf["Pipelines"]["NoBinning_qualitycuts"] = pline_qualitycuts
-#conf["Pipelines"]["NoBinning_qualitycuts"]["CustomBins"] = conf["Pipelines"]["default"]["CustomBins"]
 
 #muon_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutMuonPt", [10, 15, 20], True, True  ) 
 #zmass_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutZMassWindow", [17, 20, 23], True, True  )
@@ -78,7 +58,7 @@ secjet_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutSecondLeadingToZ
 #conf["Pipelines"]["default_bothcuts"] = pline_bothcuts
 
 conf["Pipelines"]["default"]["AdditionalConsumer"] = ["cut_statistics"]
-conf["Pipelines"] = dict( conf["Pipelines"].items() + secjet_var.items() + back2back_var.items() )
+conf["Pipelines"] = dict( conf["Pipelines"].items() + secjet_var.items() )# + back2back_var.items() )
 
 
 
