@@ -146,8 +146,15 @@ def captions(ax, stg=StandardSettings(), twolumis=True):
     ax.text(0.99, 1.06, r"$\sqrt{s} = " + str(stg.cme) + " \,\mathrm{TeV}$",
         va='top', ha='right', transform=ax.transAxes, fontsize=15)
     if stg.lumi > 0:
-        ax.text(0.01, 1.06, r"$\mathcal{L} = " + str(int(stg.lumi)) + " \,\mathrm{pb}^{-1}$",
-            va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        
+        if stg.lumi >= 1000:
+            ax.text(0.01, 1.06, r"$\mathcal{L} = " + str(int(stg.lumi / 1000.0)) + " \,\mathrm{fb}^{-1}$",
+                    va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        else: 
+            ax.text(0.01, 1.06, r"$\mathcal{L} = " + str(int(stg.lumi)) + " \,\mathrm{pb}^{-1}$",
+                    va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        
+            
         if twolumis:
             ax.text(0.01, 0.93, r"$\mathcal{L} = " + str(36) + " \,\mathrm{pb}^{-1}$",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
@@ -402,7 +409,7 @@ def _internal_Save(figure, name, stg):
     for format in stg.outputformats:
         if format in ['pdf', 'png', 'ps', 'eps', 'svg']:
             print name + '.' + format
-            figure.savefig(name + '.' + format)
+            figure.savefig(name + '.' + format, dpi = 150)
             
         elif format in ['txt', 'npz', 'dat']:
             pass    #Ignore this here, as it is respected in the SafeConvert function

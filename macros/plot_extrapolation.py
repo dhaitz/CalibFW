@@ -19,11 +19,12 @@ import plotBase
 print "%1.2f Start with settings" % time.clock()
 ### SETTINGS
 settings = plotBase.StandardSettings()
-settings.outputformats = ['png', 'pdf', 'txt', 'dat']
-settings.lumi = 206.26826
+#settings.outputformats = ['png', 'pdf', 'txt', 'dat']
+settings.outputformats = ['png', 'txt', 'dat']
+settings.lumi = 1000
 settings.verbosity = 2
 #factor = global_factor = 0.158781242981 # qualitycuts
-factor = global_factor = 0.141210916022 # incuts
+#factor = global_factor = 0.141210916022 # incuts
 
 bins = [ 30, 60, 100, 140, 1000 ]
 
@@ -45,9 +46,8 @@ from_folder = "NoBinning_incut/"
 
 #### INPUTFILES
 print "%1.2f Open files:" % time.clock()
-fdata = getROOT.OpenFile(plotBase.GetPath() + "Run2011A-May10ReReco.root", (settings.verbosity > 1))[0]
-fmc = getROOT.OpenFile(plotBase.GetPath() + "DYToMuMu_Summer11-PU.root", (settings.verbosity > 1))[0]
-
+fdata = getROOT.OpenFile(plotBase.GetPath() + "Run2011A-combined.root", (settings.verbosity > 1))
+fmc = getROOT.OpenFile(plotBase.GetPath() + "DYToMuMu_Summer11-PU.root", (settings.verbosity > 1))
 
 def CreateBinStrings (the_bins):
 	
@@ -80,11 +80,11 @@ def GetErrErr( rootHisto ):
 	return 	center_err_err
 
 def extrapolation_prototype(fdatasource,
-							folder="Pt100to140_incut_var_CutSecondLeadingToZPt_",
-							quantity="jetresp_ak5PFJetsNoPU_Zplusjet_data_hist",
-							zpt="z_pt_ak5PFJetsNoPU_Zplusjet_data_hist",
-							type="data",					 
-							varvals=[0.1, 0.15, 0.2, 0.3],
+							folder, #="Pt100to140_incut_var_CutSecondLeadingToZPt_",
+							quantity, #="jetresp_ak5PFJetsL1L2L3_Zplusjet_<bin>_data_hist",
+							zpt, #="z_pt_ak5PFJetsL1L2L3_Zplusjet_data_hist",
+							type ="data",					 
+							varvals = [0.1, 0.15, 0.2, 0.3],
 							ext_formula="[0]+[1]*(x-[2])"):
 
   	extr_func = TF1("interpolation1", ext_formula, 0, 1000.0)
@@ -127,6 +127,7 @@ def extrapolation_prototype(fdatasource,
 	for var_val in varvals: 
 		
 		escaped_varval = str(var_val).replace(".", "_")
+		quantity = quantity.replace("<bin>", folder.split("_")[0])
 	
 		hist_jetresp = getROOT.SafeGet(fdatasource, folder + escaped_varval + "/" + quantity)
 		
@@ -210,6 +211,7 @@ def extrapolation_prototype(fdatasource,
 	#getROOT.ConvertToArray( tge )
 	# draw as nice MatPlotLibPlot
 	
+	zpt = zpt.replace("<bin>", folder.split("_")[0])
 	hist_zpt = getROOT.SafeGet(fdatasource, folder + escaped_varval + "/" + zpt)
 	
 	return (tge, extr_func, fitres, exp_err, hist_jetresp, hist_zpt) #error 
@@ -240,8 +242,11 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	for s in str_bins:
 		(tge, extr_func, fitres, exp_err,
 		   hist_jetresp_orig, hist_zpt) = extrapolation_prototype(fdata, s + "_incut_var_CutSecondLeadingToZPt_",
-																	response_measure + "_" + algoname + "_Zplusjet_data_hist",
-																	"z_pt_" + algoname + "_Zplusjet_data_hist",
+																	response_measure + "_" + algoname + "Res_Zplusjet_data_<bin>_hist",
+																	"z_pt_" + algoname + "Res_Zplusjet_data_<bin>_hist",
+#																	response_measure + "_" + algoname + "_Zplusjet_data_<bin>_hist",
+#																	"z_pt_" + algoname + "_Zplusjet_data_<bin>_hist",
+
 																	"data")
 		data_y += [extr_func.Eval(0.0)]
 		data_yerr += [exp_err]
@@ -258,8 +263,8 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 		( tge, extr_func, fitres, exp_err, 
 		   hist_jetresp_orig, hist_zpt) = extrapolation_prototype( fmc,  
 								s + "_incut_var_CutSecondLeadingToZPt_",
-								response_measure + "_" + algoname + "_Zplusjet_mc_hist",
-								"z_pt_" + algoname + "_Zplusjet_mc_hist",
+								response_measure + "_" + algoname + "_Zplusjet_mc_<bin>_hist",
+								"z_pt_" + algoname + "_Zplusjet_mc_<bin>_hist",
 								"mc")
 		mc_y += [extr_func.Eval(0.0)]
 		mc_yerr += [exp_err]
@@ -320,6 +325,7 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	data_mc_ratio = []
 	data_mc_ratio_err =[]
 	
+
 	if do_extrapolation:
 		# use the extrapolated values
 		for both_x, the_mc_y, the_mc_yerr, the_data_y, the_data_yerr in zip(mc_x, mc_y, mc_yerr, data_y, data_yerr):
@@ -334,6 +340,7 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 			
 			# error propagation
 			data_mc_ratio_err += [  the_data_yerr / the_mc_y + the_data_y / ( the_mc_y * the_mc_y ) * the_mc_yerr   ]
+
 
 	ext_str = ""
 	if do_extrapolation:
@@ -351,12 +358,46 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	if response_measure == "mpfresp": 
 		the_color = 'blue'
 		the_label = 'MPF' + ext_str
+	
+	
+	c = TCanvas ("extrapolation_prototype", "extrapolation_prototype", 600, 600)
+	
+	c.SetName("fit_intermediate")
+	c.SetTitle("fit_intermediate")
+	
+	tfit = TGraphErrors(len( mc_x) )
+	
+	for i in range(0, len(mc_x)):
+		print str (  mc_x[i] ) + " : " + str( data_mc_ratio[i] )
+		print str (  0 ) + " : " + str( data_mc_ratio_err[i] )
+		tfit.SetPoint( i, mc_x[i], data_mc_ratio[i] )
+		tfit.SetPointError( i, 0, data_mc_ratio_err[i] )
+		
+	extr_func = TF1("fit12", "[0]", 0, 1000.0)
+   	extr_func.SetParameter(0, 1.0)
+	
+	fitres = tfit.Fit( extr_func, "S")
+	
 		
 	hist = ta_ratio.errorbar(np.array(mc_x), np.array(data_mc_ratio),
 						yerr=np.array(data_mc_ratio_err), drawstyle='steps-mid',
 							color=the_color, fmt='o',
 							 label=the_label)
 	
+	const_fit_res = fitres.GetParams()[0]
+	const_fit_res_err = fitres.GetErrors()[0]
+	
+	tfit.Draw ("APE")
+	c.Print("fit_intermediate.png")
+	c.Print("fit_intermediate.root")
+	
+	print "Fit result of Data/MC ratio = " + str( const_fit_res)
+	
+	ta_ratio.axhline( const_fit_res, color=the_color )
+	ta_ratio.axhspan( const_fit_res - const_fit_res_err,  const_fit_res + const_fit_res_err, color=the_color, alpha = 0.3 )
+	
+	ta_ratio.axhline( 1.0, color="black", linestyle = '--' )
+	 
 	plotBase.captions(ta_ratio, settings, False)
 	plotBase.AddAlgoAndCorrectionCaption( ta_ratio, algoname, settings )
 	#ta = plotBase.tags(ta, 'Private work', 'Joram Berger')
@@ -370,26 +411,26 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 #extrapolate_ratio("jetresp", "ak5PFJets")
 #extrapolate_ratio("mpfresp", "ak5PFJets")
 
-tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("jetresp", "ak5PFJets", tf, ta)
-extrapolate_ratio("mpfresp", "ak5PFJets", tf, ta)
-plotBase.Save(tf, "resp_ratio_ak5PFJets_data_mc_ratio_extrapol", settings, False)
+#tf, ta, tname = plotBase.makeplot("jetresp_mc")
+#extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta)
+#extrapolate_ratio("mpfresp", "ak5PFJetsL1L2L3", tf, ta)
+#plotBase.Save(tf, "resp_ratio_ak5PFJetsL1L2L3_data_mc_ratio_extrapol", settings, False)
 
-tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("jetresp", "ak5PFJets", tf, ta, False)
-extrapolate_ratio("mpfresp", "ak5PFJets", tf, ta, False)
-plotBase.Save(tf, "resp_ratio_ak5PFJets_data_mc_ratio_noextrapol", settings, False)
+#tf, ta, tname = plotBase.makeplot("jetresp_mc")
+#extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, False)
+#extrapolate_ratio("mpfresp", "ak5PFJetsL1L2L3", tf, ta, False)
+#plotBase.Save(tf, "resp_ratio_ak5PFJetsL1L2L3_data_mc_ratio_noextrapol", settings, False)
 
-tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, False)
-extrapolate_ratio("mpfresp", "ak5PFJetsL1L2L3", tf, ta, False)
-plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3_data_mc_ratio_noextrapol", settings, False)
+#tf, ta, tname = plotBase.makeplot("jetresp_mc")
+#extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, False)
+#extrapolate_ratio("mpfresp", "ak5PFJetsL1L2L3", tf, ta, False)
+#plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3_data_mc_ratio_noextrapol", settings, False)
 
 
-tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("jetresp", "ak7PFJetsL1L2L3", tf, ta, False)
-extrapolate_ratio("mpfresp", "ak7PFJetsL1L2L3", tf, ta, False)
-plotBase.Save(tf, "jetresp_ratio_ak7PFJetsL1L2L3_data_mc_ratio_noextrapol", settings, False)
+#tf, ta, tname = plotBase.makeplot("jetresp_mc")
+#extrapolate_ratio("jetresp", "ak7PFJetsL1L2L3", tf, ta, False)
+#extrapolate_ratio("mpfresp", "ak7PFJetsL1L2L3", tf, ta, False)
+#plotBase.Save(tf, "jetresp_ratio_ak7PFJetsL1L2L3_data_mc_ratio_noextrapol", settings, False)
 
 
 #extrapolate_ratio("jetresp", "ak5PFets")
