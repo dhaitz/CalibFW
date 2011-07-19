@@ -169,12 +169,26 @@ def AddAlgoAndCorrectionCaption(ax, algo = "ak5PFJetsL1", stg=StandardSettings()
     if algo == "ak5PFJetsL1L2L3":
         ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 corrected",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        
+    if algo == "ak5PFJetsL1L2L3Res":
+        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 Res corrected",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        
     if algo == "ak7PFJetsL1L2L3":
         ax.text(posx, posy, r"ak7 PF Jets L1 L2 L3 corrected",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
+
+    if algo == "ak7PFJetsL1L2L3Res":
+        ax.text(posx, posy, r"ak7 PF Jets L1 L2 L3 Res corrected",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+
         
     if algo == "ak5PFJetsL1L2L3CHS":
         ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 corrected and CHS applied",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+
+    if algo == "ak5PFJetsL1L2L3ResCHS":
+        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 Res corrected and CHS applied",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
 
 
