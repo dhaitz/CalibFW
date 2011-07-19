@@ -14,13 +14,13 @@ print "HEAD git revision: " + gitrev
 
 conf = JsonConfigBase.GetMcBaseConfig()
 conf["Algos"] = [ "ak5PFJets" ]
-conf["InputFiles"] = "data/eval/mc_cmssw38.root"
+conf["InputFiles"] = "data/eval/mc_cmssw42.root"
 
 if len(sys.argv) > 1 and sys.argv[1] == "compareToHead":
-     conf["OutputPath"] = "test/resp_cuts/mc_cmssw38_current"
+     conf["OutputPath"] = "test/resp_cuts/mc_cmssw42_current"
      doCompare = True
 else:
-     conf["OutputPath"] = "test/resp_cuts/mc_cmssw38_git_" + gitrev 
+     conf["OutputPath"] = "test/resp_cuts/mc_cmssw42_git_" + gitrev 
 
 print "writing to " + conf["OutputPath"] 
 
