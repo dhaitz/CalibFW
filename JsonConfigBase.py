@@ -112,26 +112,27 @@ def GetDataBaseConfig():
     return d
 
 # does not work right now
-def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource):
+def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, onlyOnIncut = True):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
         
-        if elem["Level"] == 1:            
-            for v in vals:
-                #print( elem )
-                newPipe = copy.deepcopy(elem)
-                #print( newPipe )
-                newPipe[ varName ] = v
+        if elem["Level"] == 1:
+	    if (not onlyOnIncut) or ( "incut" in elem["RootFileFolder"] ):  
+                for v in vals:
+                    #print( elem )
+                    newPipe = copy.deepcopy(elem)
+                    #print( newPipe )
+                    newPipe[ varName ] = v
                 
-                varadd = "_var_" + varName + "_" + str(v).replace(".", "_")
+                    varadd = "_var_" + varName + "_" + str(v).replace(".", "_")
                 
-                newName = name + varadd            
-                newRootFileFolder =  newPipe["RootFileFolder"] + varadd
+                    newName = name + varadd            
+                    newRootFileFolder =  newPipe["RootFileFolder"] + varadd
                 
-                newDict[newName] = newPipe
-                if ( setRootFolder ):
-                    newDict[newName]["RootFileFolder"] = newRootFileFolder
+                    newDict[newName] = newPipe
+                    if ( setRootFolder ):
+                        newDict[newName]["RootFileFolder"] = newRootFileFolder
 
 
     if includeSource:
