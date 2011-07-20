@@ -5,6 +5,7 @@ import sys, os, math #, kein pylab!
 import time
 import numpy as np
 import matplotlib
+import matplotlib.font_manager as font_man
 import copy as copy
 
 from ROOT import TGraphErrors, TCanvas, TF1, TFitResultPtr, TMath
@@ -129,7 +130,7 @@ def extrapolation_prototype(fdatasource,
 		escaped_varval = str(var_val).replace(".", "_")
 		quantity = quantity.replace("<bin>", folder.split("_")[0])
 	
-		hist_jetresp = getROOT.SafeGet(fdatasource, folder + escaped_varval + "/" + quantity)
+		hist_jetresp = getROOT.SafeGet(fdatasource, folder + escaped_varval + "/" + quantity )
 		
 		tge.SetPoint(n, var_val, hist_jetresp.GetMean())
 		
@@ -217,7 +218,7 @@ def extrapolation_prototype(fdatasource,
 	return (tge, extr_func, fitres, exp_err, hist_jetresp, hist_zpt) #error 
 
 
-def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrapolation = True, tag = "extrapol"  ):	
+def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrapolation = True, tag = "extrapol", add_to_data = "", folder_prefix = ""  ):	
 	
 	
 	str_bins = CreateBinStrings (bins) 
@@ -241,12 +242,9 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	
 	for s in str_bins:
 		(tge, extr_func, fitres, exp_err,
-		   hist_jetresp_orig, hist_zpt) = extrapolation_prototype(fdata, s + "_incut_var_CutSecondLeadingToZPt_",
-																	response_measure + "_" + algoname + "Res_Zplusjet_data_<bin>_hist",
-																	"z_pt_" + algoname + "Res_Zplusjet_data_<bin>_hist",
-#																	response_measure + "_" + algoname + "_Zplusjet_data_<bin>_hist",
-#																	"z_pt_" + algoname + "_Zplusjet_data_<bin>_hist",
-
+		   hist_jetresp_orig, hist_zpt) = extrapolation_prototype(fdata,  folder_prefix +  s + "_incut_var_CutSecondLeadingToZPt_",
+																	response_measure + "_" + algoname + add_to_data,
+																	"z_pt_" + algoname + add_to_data ,
 																	"data")
 		data_y += [extr_func.Eval(0.0)]
 		data_yerr += [exp_err]
@@ -262,9 +260,9 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 		
 		( tge, extr_func, fitres, exp_err, 
 		   hist_jetresp_orig, hist_zpt) = extrapolation_prototype( fmc,  
-								s + "_incut_var_CutSecondLeadingToZPt_",
-								response_measure + "_" + algoname + "_Zplusjet_mc_<bin>_hist",
-								"z_pt_" + algoname + "_Zplusjet_mc_<bin>_hist",
+								folder_prefix + s + "_incut_var_CutSecondLeadingToZPt_",
+								response_measure + "_" + algoname,
+								"z_pt_" + algoname ,
 								"mc")
 		mc_y += [extr_func.Eval(0.0)]
 		mc_yerr += [exp_err]
@@ -287,7 +285,7 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 							color='red', fmt='o',
 							capsize=0, label='data')
 	ta = plotBase.captions(ta, settings, False)
-	plotBase.AddAlgoAndCorrectionCaption( ta, algoname, settings )
+	plotBase.AddAlgoAndCorrectionCaption( ta, algoname + add_to_data, settings )
 	ta.set_ylim( 0.5, 1.1 )
 	#ta.set_ylim(top=histo_mc.ymax * 1.2)
 	#ta = plotBase.tags(ta, 'Private work', 'Joram Berger')
@@ -309,7 +307,7 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 							capsize=0, label='mc')
 	
 	ta = plotBase.captions(ta, settings, False)
-	plotBase.AddAlgoAndCorrectionCaption( ta, algoname, settings )
+	plotBase.AddAlgoAndCorrectionCaption( ta, algoname + add_to_data, settings )
 	#ta.set_ylim(top=histo_mc.ymax * 1.2)
 	#ta = plotBase.tags(ta, 'Private work', 'Joram Berger')
 	ta.legend(numpoints=1, frameon=False, )
@@ -348,10 +346,10 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 		
 	if response_measure == "jetresp":
 		if tag == "extrapol":
-			the_color = 'grey'
+			the_color = 'blue'
 			the_label = 'Balance' + ext_str
-		else:
-			the_color = 'blue' 	
+		else:			
+			the_color = 'grey' 	
 			the_label = 'Balance'
 
 			
@@ -394,18 +392,29 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	print "Fit result of Data/MC ratio = " + str( const_fit_res)
 	
 	ta_ratio.axhline( const_fit_res, color=the_color )
-	ta_ratio.axhspan( const_fit_res - const_fit_res_err,  const_fit_res + const_fit_res_err, color=the_color, alpha = 0.3 )
+	ta_ratio.axhspan( const_fit_res - const_fit_res_err,  const_fit_res + const_fit_res_err, color=the_color, alpha = 0.23 )
 	
 	ta_ratio.axhline( 1.0, color="black", linestyle = '--' )
 	 
 	plotBase.captions(ta_ratio, settings, False)
-	plotBase.AddAlgoAndCorrectionCaption( ta_ratio, algoname, settings )
+	plotBase.AddAlgoAndCorrectionCaption( ta_ratio, algoname + add_to_data, settings )
 	#ta = plotBase.tags(ta, 'Private work', 'Joram Berger')
-	ta_ratio.legend(numpoints=1, frameon=False)
+	
+	#font = font_man.Fo FontProperties( size = 10)
+	
+	ta_ratio.legend(numpoints=1, frameon=False)#, prop = font)
 	plotBase.AxisLabels(ta_ratio, 'datamc_ratio', 'jet')
-	ta_ratio.set_ylim( 0.8, 1.15 )
+	ta_ratio.set_ylim( 0.88, 1.12 )
+#	ta_ratio.text(0.9, .22, "Overall Ratio (fit) = $" + str( round(const_fit_res,3)) + " \pm " + str( round(const_fit_res_err, 3)) + "$", color = the_color,
+#				va='center', ha='right', fontsize=15, transform=ta_ratio.transAxes )
+	ta_ratio.text(0.95, .05, "Overall Ratio (fit) = $" + str( round(const_fit_res,3)) + " \pm " + str( round(const_fit_res_err, 3)) + "$", color = the_color,
+				va='bottom', ha='right', fontsize=15, transform=ta_ratio.transAxes )
+	ta_ratio.minorticks_on()
 	
 	
+def AddEtaRange( ta, eta_range):
+	ta.text(0.05, .05, eta_range, 
+			va='bottom', ha='left', fontsize=15, transform=ta.transAxes )
 
 
 #extrapolate_ratio("jetresp", "ak5PFJets")
@@ -436,9 +445,64 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 #extrapolate_ratio("jetresp", "ak5PFets")
 #extrapolate_ratio("mpfresp", "ak5PFets")
 
+# !! barrel
+
+# Balance 
+
 tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, False,"not_extrapol")
-extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, True, "extrapol")
+extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, True, "extrapol", "Res")
+AddEtaRange(ta, "$|\eta| < 1.3$")
+plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3Res_data_mc_ratio_extrapol", settings, False)
+
+tf, ta, tname = plotBase.makeplot("jetresp_mc")
+extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, True, "extrapol", "")
+AddEtaRange(ta, "$|\eta| < 1.3$")
 plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3_data_mc_ratio_extrapol", settings, False)
+
+#chs
+tf, ta, tname = plotBase.makeplot("jetresp_mc")
+extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3CHS", tf, ta, True, "extrapol", "")
+AddEtaRange(ta, "$|\eta| < 1.3$")
+plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3CHS_data_mc_ratio_extrapol", settings, False)
+
+
+# MPF 
+tf, ta, tname = plotBase.makeplot("jetresp_mc")
+extrapolate_ratio("mpfresp", "ak5PFJetsL1", tf, ta, False, "no_extrapol", "")
+AddEtaRange(ta, "$|\eta| < 1.3$")
+plotBase.Save(tf, "mpfresp_ratio_ak5PFJetsL1_data_mc_ratio", settings, False)
+
+#chs
+tf, ta, tname = plotBase.makeplot("jetresp_mc")
+extrapolate_ratio("mpfresp", "ak5PFJetsL1CHS", tf, ta, False, "no_extrapol", "")
+AddEtaRange(ta, "$|\eta| < 1.3$")
+plotBase.Save(tf, "mpfresp_ratio_ak5PFJetsL1CHS_data_mc_ratio", settings, False)
+
+
+# !! ENDCAP
+
+# Balance 
+
+tf, ta, tname = plotBase.makeplot("jetresp_mc")
+extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, True, "extrapol", "Res", "endcap_")
+ta.set_ylim( 0.78, 1.22 )
+AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
+plotBase.Save(tf, "endcap_jetresp_ratio_ak5PFJetsL1L2L3Res_data_mc_ratio_extrapol", settings, False)
+
+tf, ta, tname = plotBase.makeplot("jetresp_mc")
+extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, True, "extrapol", "", "endcap_")
+ta.set_ylim( 0.78, 1.22 )
+AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
+plotBase.Save(tf, "endcap_jetresp_ratio_ak5PFJetsL1L2L3_data_mc_ratio_extrapol", settings, False)
+
+
+# MPF 
+tf, ta, tname = plotBase.makeplot("jetresp_mc")
+extrapolate_ratio("mpfresp", "ak5PFJetsL1", tf, ta, False, "no_extrapol", "", "endcap_")
+ta.set_ylim( 0.78, 1.22 )
+AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
+
+plotBase.Save(tf, "endcap_mpfresp_ratio_ak5PFJetsL1L2L3_data_mc_ratio", settings, False)
+
 
 

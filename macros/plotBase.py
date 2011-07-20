@@ -162,7 +162,7 @@ def captions(ax, stg=StandardSettings(), twolumis=True):
 
 def AddAlgoAndCorrectionCaption(ax, algo = "ak5PFJetsL1", stg=StandardSettings()):
     posx = 0.05
-    posy = 0.93
+    posy = 0.95
 
     if algo == "ak5PFJets":
         ax.text(posx, posy, r"ak5 PF Jets uncorrected",
@@ -189,15 +189,15 @@ def AddAlgoAndCorrectionCaption(ax, algo = "ak5PFJetsL1", stg=StandardSettings()
         ax.text(posx, posy, r"ak7 PF Jets L1 L2 L3 Res corrected",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
 
-        
     if algo == "ak5PFJetsL1L2L3CHS":
-        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 corrected and CHS applied",
+        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 corrected",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        ax.text(posx, posy - 0.07, r"CHS applied",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
 
     if algo == "ak5PFJetsL1L2L3ResCHS":
         ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 Res corrected and CHS applied",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
-
 
 
 def tags(ax, status='', author='', date='today'):
@@ -409,7 +409,7 @@ def _internal_Save(figure, name, stg):
     for format in stg.outputformats:
         if format in ['pdf', 'png', 'ps', 'eps', 'svg']:
             print name + '.' + format
-            figure.savefig(name + '.' + format, dpi = 150)
+            figure.savefig(name + '.' + format, dpi = 100)
             
         elif format in ['txt', 'npz', 'dat']:
             pass    #Ignore this here, as it is respected in the SafeConvert function
