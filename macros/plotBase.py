@@ -257,30 +257,34 @@ def AxisLabels(ax, q='resp', obj='jet'):
         ax.set_ylabel(r"MPF", va="top", y=1)
         ax.set_xlim(10, 240)
         ax.set_ylim(0.75, 1.0)
-        
     elif q == 'datamc_ratio':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"Data/MC", va="top", y=1)
         ax.set_xlim(10, 240)
         ax.set_ylim(0.8, 1.1)
-        
     elif q == 'cutineff':
         ax.set_ylabel(r"Cut Infficiency", y=1, va="top" )
         ax.set_xlabel(r"NRV",x=1)
         #ax.set_xlim(1, 15)
         ax.set_ylim(0.0, 1.0)
-        
     elif q == 'recovert':
         ax.set_xlabel(r"Number of reconstructed vertices $n$", ha="right", x=1)
         ax.set_ylabel(r"events", va="top", y=1)
         ax.set_xlim(0,25)
         ax.set_ylim(bottom=0.0)
-        
     elif q == 'jetconstituents':
         ax.set_xlabel(r"Jet Constituents", ha="right", x=1)
         ax.set_ylabel(r"Events", va="top", y=1)
         ax.set_xlim(1, 60)        
         #ax.set_xlim(0, 350)
+    elif q == 'extrapol':
+        if obj == 'jet2':
+            ax.set_xlabel(r"$p_{T}^{"+obj+"}/p_{T}^{Z}$", ha="right", x=1)
+        elif obj == 'deltaphi':
+            ax.set_xlabel(r"$\Delta\phi$", ha="right", x=1)
+        ax.set_ylabel(r"Response", va="top", y=1)
+        ax.set_xlim(0,0.4)
+        ax.set_ylim(0.86,1.04)
     else:
         print "The quantity", q, "was not found. A default formatting of the axis labels is used."
         ax.set_xlabel(r"$p_{T} / \mathrm{GeV}$", ha="right", x=1)
