@@ -34,6 +34,9 @@ mc11color = 'FireBrick'
 mc10color = 'MidnightBlue'
 data11color = 'black'
 data10color = 'gray'
+use_mpl = True
+stg = plotBase.StandardSettings()
+stg.lumi = 1079
 
 from_folder = "NoBinning_incut/"
 
@@ -84,7 +87,7 @@ def extrapolation_prototype(fdatasource,
 							folder, #="Pt100to140_incut_var_CutSecondLeadingToZPt_",
 							quantity, #="jetresp_ak5PFJetsL1L2L3_Zplusjet_<bin>_data_hist",
 							zpt, #="z_pt_ak5PFJetsL1L2L3_Zplusjet_data_hist",
-							type ="data",					 
+							datatype ="data",
 							varvals = [0.1, 0.15, 0.2, 0.3],
 							ext_formula="[0]+[1]*(x-[2])"):
 
@@ -96,10 +99,10 @@ def extrapolation_prototype(fdatasource,
    	extr_func.SetParameter(1, 1)
    	extr_func.SetParameter(2, 1)
 	
-	c = TCanvas ("extrapolation_prototype", "extrapolation_prototype", 600, 600)
-	
-	c.SetName(folder + quantity + "_" + type)
-	c.SetTitle(folder + quantity + "_" + type)
+	if not use_mpl:
+		c = TCanvas ("extrapolation_prototype", "extrapolation_prototype", 600, 600)
+		c.SetName(folder + quantity + "_" + datatype)
+		c.SetTitle(folder + quantity + "_" + datatype)
 
 	varvals = copy.deepcopy( varvals )	
 	varvals.reverse()
@@ -186,6 +189,8 @@ def extrapolation_prototype(fdatasource,
 	
 	m_fit_err =  fitres.GetErrors()[1]
 	m_fit = fitres.GetParams()[1]
+	b_fit = fitres.GetParams()[0]
+	xx_fit = fitres.GetParams()[2]
 	
 	print str(m_fit) + "  " + str(m_fit_err)
 	
@@ -204,14 +209,37 @@ def extrapolation_prototype(fdatasource,
 	
 	fitres.Print()
 	print "Extrapolated response " + str(extr_func.Eval(0.0))
-	
-	tge.Draw("AP")
-	upper_exp_err.Draw("SAME")
-	c.Print(c.GetName() + ".png")
-	
-	#getROOT.ConvertToArray( tge )
-	# draw as nice MatPlotLibPlot
-	
+
+	if use_mpl:
+		# Draw the extrapolation
+		tf, ta, tname = plotBase.makeplot("extrapol")
+		# Fit function with errorband
+		func_x = [x/100.0 for x in range(34)]
+		func_y = [m_fit*(x-xx_fit) + b_fit for x in func_x]
+		func_yl = [(m_fit+m_fit_err)*(x-xx_fit) + b_fit-first_err for x in func_x]
+		func_yh = [(m_fit-m_fit_err)*(x-xx_fit) + b_fit+first_err for x in func_x]
+		ta.fill_between(func_x, func_yl, func_yh, facecolor='CornflowerBlue', edgecolor='white', interpolate=True, alpha=0.3)
+		fitfct = ta.plot(func_x, func_y, '-', label='extrapolation')
+		# Variation data points with uncorrelated and correlated errors
+		pygraph = getROOT.ConvertToArray(tge)
+		gr_extr1 = ta.errorbar(pygraph.xc, pygraph.y, pygraph.yerr, color='Black', fmt='o', capsize=2, label='uncorrelated')
+		for i in range(1, len(pygraph)):
+			pygraph.yerr[i] = TMath.Sqrt(  pygraph.yerr[i]*pygraph.yerr[i] + first_err * first_err)
+		gr_extr = ta.errorbar(pygraph.xc, pygraph.y, pygraph.yerr, color='FireBrick', fmt='o', capsize=2, label='correlated')
+		# Labels and the rest
+		ta = plotBase.captions(ta, stg, False)
+		ta.legend(loc="upper right", numpoints=1, frameon=False)
+		ta = plotBase.AxisLabels(ta, "extrapol", "jet2")
+		ta.text(0.04, 0.10, r"$\chi^2 / n_\mathrm{dof} = %1.3f / %d $" % (fitres.Chi2(), fitres.Ndf()),
+				va='bottom', ha='left', transform=ta.transAxes, fontsize=16)
+		ta.text(0.04, 0.05, r"$R_\mathrm{corr} = %1.3f \pm %1.3f $" % (func_y[0], (func_y[0]-func_yl[0])),
+				va='bottom', ha='left', transform=ta.transAxes, fontsize=16)
+		plotBase.Save(tf, folder + quantity + "_" + datatype, stg, False)
+	else:
+		tge.Draw("AP")
+		upper_exp_err.Draw("SAME")
+		c.Print(c.GetName() + ".png")
+
 	zpt = zpt.replace("<bin>", folder.split("_")[0])
 	hist_zpt = getROOT.SafeGet(fdatasource, folder + escaped_varval + "/" + zpt)
 	
@@ -378,7 +406,7 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 		tfit.SetPointError( i, 0, data_mc_ratio_err[i] )
 		
 	extr_func = TF1("fit12", "[0]", 0, 1000.0)
-   	extr_func.SetParameter(0, 1.0)
+	extr_func.SetParameter(0, 1.0)
 	
 	fitres = tfit.Fit( extr_func, "S")
 	

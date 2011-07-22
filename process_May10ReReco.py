@@ -7,19 +7,24 @@ import copy
 
 conf = JsonConfigBase.GetDataBaseConfig()
 
-conf["InputFiles"] = "/home/poseidon/uni/data/ZPJ2011/Run2011A-May10ReReco/*DoubleMu*.root" 
-conf["OutputPath"] = "Run2011A-May10ReReco"
-
+conf["InputFiles"] = "/scratch/hh/lustre/cms/user/berger/zjet/combined-Run2011A-May10ReReco-DoubleMu-PromptReco-A/*.root" 
+conf["OutputPath"] = "/scratch/hh/lustre/cms/user/hauth/ZPJ2011/hist/Run2011A-combined"
 
 conf = JsonConfigBase.ExpandDefaultDataConfig( [0,30,60,100,140,1000], conf, True )
 
-conf["Algos"] = ["ak5PFJets", "ak5PFJetsL1L2L3", "ak7PFJets",  "ak7PFJetsL1L2L3"]
+conf["Algos"] = ["ak5PFJetsL1", "ak5PFJetsL1CHS", "ak5PFJetsL1L2L3", "ak5PFJetsL1L2L3CHS", "ak5PFJetsL1L2L3Res", "ak5PFJetsL1L2L3ResCHS" ]#, "ak7PFJetsL1", 
+#"ak7PFJetsL1L2L3","ak7PFJetsL1L2L3Res"]
 
 
 #muon_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutMuonPt", [10, 15, 20], True, True  ) 
 #zmass_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutZMassWindow", [17, 20, 23], True, True  )
 back2back_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutBack2Back", [0.24, 0.34,0.44], True, True  ) 
 secjet_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutSecondLeadingToZPt", [0.1, 0.15, 0.2, 0.3], True, True  )
+
+conf["Pipelines"] = dict( conf["Pipelines"].items() + secjet_var.items())
+
+conf["Pipelines"] = dict( conf["Pipelines"].items() + JsonConfigBase.CreateEndcapPipelines( conf["Pipelines"] ).items())
+
 
 #
 #pline_only2ndJet = copy.deepcopy( conf["Pipelines"]["default"] ) 
@@ -58,7 +63,7 @@ secjet_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutSecondLeadingToZ
 #conf["Pipelines"]["default_bothcuts"] = pline_bothcuts
 
 conf["Pipelines"]["default"]["AdditionalConsumer"] = ["cut_statistics"]
-conf["Pipelines"] = dict( conf["Pipelines"].items() + secjet_var.items() )# + back2back_var.items() )
+#conf["Pipelines"] = dict( conf["Pipelines"].items() + secjet_var.items() + endcap.items() )# + back2back_var.items() )
 
 
 

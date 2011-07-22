@@ -74,7 +74,7 @@ def ConvertToArray(histo, lumi=0.0, rootfile='', rebin=1):
         hst.lumi = lumi
         a = ROOT.Double(0.0)
         b = ROOT.Double(0.0)
-        for i in range(1,histo.GetN()):
+        for i in range(0,histo.GetN()):
             histo.GetPoint(i,a,b)
             x=float(a)
             y=float(b)

@@ -111,27 +111,43 @@ def GetDataBaseConfig():
 
     return d
 
-# does not work right now
-def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource):
+
+def CreateEndcapPipelines ( curPipelines ):
+    endcap = {}
+    for (k,v) in curPipelines.items():
+        if ( "incut" in v["RootFileFolder"] ) and ( v["Level"] == 1 ):
+            newp = copy.deepcopy( v )
+            newp["CutLeadingJetEta"] = 2.4
+            newp["Filter"].append("jeteta")
+            newp["FilterJetEtaLow"] = 1.5
+            newp["FilterJetEtaHigh"] = 2.4
+            newp["RootFileFolder"] = "endcap_" + newp["RootFileFolder"]
+            endcap[ "endcap" + k ] = newp
+    
+    return endcap
+
+
+def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, onlyOnIncut = True):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
         
-        if elem["Level"] == 1:            
-            for v in vals:
-                #print( elem )
-                newPipe = copy.deepcopy(elem)
-                #print( newPipe )
-                newPipe[ varName ] = v
+        if elem["Level"] == 1:
+	    if (not onlyOnIncut) or ( "incut" in elem["RootFileFolder"] ):  
+                for v in vals:
+                    #print( elem )
+                    newPipe = copy.deepcopy(elem)
+                    #print( newPipe )
+                    newPipe[ varName ] = v
                 
-                varadd = "_var_" + varName + "_" + str(v).replace(".", "_")
+                    varadd = "_var_" + varName + "_" + str(v).replace(".", "_")
                 
-                newName = name + varadd            
-                newRootFileFolder =  newPipe["RootFileFolder"] + varadd
+                    newName = name + varadd            
+                    newRootFileFolder =  newPipe["RootFileFolder"] + varadd
                 
-                newDict[newName] = newPipe
-                if ( setRootFolder ):
-                    newDict[newName]["RootFileFolder"] = newRootFileFolder
+                    newDict[newName] = newPipe
+                    if ( setRootFolder ):
+                        newDict[newName]["RootFileFolder"] = newRootFileFolder
 
 
     if includeSource:
