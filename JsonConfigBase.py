@@ -111,7 +111,22 @@ def GetDataBaseConfig():
 
     return d
 
-# does not work right now
+
+def CreateEndcapPipelines ( curPipelines ):
+    endcap = {}
+    for (k,v) in curPipelines.items():
+        if ( "incut" in v["RootFileFolder"] ) and ( v["Level"] == 1 ):
+            newp = copy.deepcopy( v )
+            newp["CutLeadingJetEta"] = 2.4
+            newp["Filter"].append("jeteta")
+            newp["FilterJetEtaLow"] = 1.5
+            newp["FilterJetEtaHigh"] = 2.4
+            newp["RootFileFolder"] = "endcap_" + newp["RootFileFolder"]
+            endcap[ "endcap" + k ] = newp
+    
+    return endcap
+
+
 def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, onlyOnIncut = True):
     newDict = dict()
 
