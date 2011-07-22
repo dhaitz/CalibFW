@@ -1,10 +1,11 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-f
 
 import getROOT
 import sys, os, math #, kein pylab!
 import time
 import numpy as np
 import matplotlib
+
 matplotlib.rc('text', usetex = True) 
 matplotlib.rc('font', size = 16)
 #import matplotlib.pyplot as plt
@@ -17,13 +18,16 @@ settings.outputformats = ['png', 'pdf', 'txt', 'dat']
 settings.lumi = 206.26826
 settings.verbosity = 2
 #factor = global_factor = 0.158781242981 # qualitycuts
-factor = global_factor = 0.141210916022 # incuts
+factor = global_factor = 0.234025747928 # incuts
 
 factor10 = 36*0.001*0.75
 mc11color = 'FireBrick'
 mc10color = 'MidnightBlue'
 data11color = 'black'
 data10color = 'gray'
+
+data_corr = 'L1L2L3Res'
+mc_corr = 'L1L2L3'
 
 from_folder = "NoBinning_incut/"
 
@@ -37,8 +41,8 @@ from_folder = "NoBinning_incut/"
 
 #### INPUTFILES
 print "%1.2f Open files:" % time.clock()
-fdata = getROOT.OpenFile(plotBase.GetPath() + "Run2011A-May10ReReco.root", (settings.verbosity>1))[0]
-fmc  = getROOT.OpenFile(plotBase.GetPath() + "DYToMuMu_Summer11-PU.root", (settings.verbosity>1))[0]
+fdata = getROOT.OpenFile(plotBase.GetPath() + "Run2011A-combined.root", True)
+fmc  = getROOT.OpenFile(plotBase.GetPath() + "DYToMuMu_Summer11-PU.root", True)
 
 #def mostgenerictest():
 #	
@@ -46,14 +50,14 @@ fmc  = getROOT.OpenFile(plotBase.GetPath() + "DYToMuMu_Summer11-PU.root", (setti
 #		ta = plotBase.AxisLabels(ta,'pt', 'Z')
 #		return None
 #	
-#	plotBase.hist_baseplot( [(from_folder + 'jet1_pt_ak5PFJetsNoPU_Zplusjet_data_hist',  
+#	plotBase.hist_baseplot( [(from_folder + 'jet1_pt_ak5PFJetsCHS_Zplusjet_data_hist',  
 #			    fdata, None)], 
 #				"j_pt_test", settings, mytest )
 
 def jet2pt():
 	plotBase.genericplot('jet2_pt', 'pt', 'jet2', 
-						fdata, { 'correction': 'NoPU'}, 
-						fmc, { 'correction': 'NoPU'}, 
+						fdata, { 'correction': 'CHS'}, 
+						fmc, { 'correction': 'CHS'}, 
 						factor, settings)
 
 def jet_constituents( jetnum):
@@ -70,19 +74,19 @@ def jet_constituents( jetnum):
 	def ScaleMc( rootinput, settings ):
 		rootinput.scale( global_factor )
 	
-	plotBase.hist_baseplot( [(from_folder + 'jet' + str(jetnum) + '_constituents_ak5PFJetsNoPU_Zplusjet_data_hist',  
+	plotBase.hist_baseplot( [(from_folder + 'jet' + str(jetnum) + '_constituents_ak5PFJetsL1L2L3ResCHS_Zplusjet_data_hist',  
 			    			fdata, 
-			    			{ "label":'Data NoPU', "fmt":"o", "color":'#000000'},  
+			    			{ "label":'Data CHS', "fmt":"o", "color":'#000000'},  
 			    			None, None),
-							(from_folder + 'jet' + str(jetnum) + '_constituents_ak5PFJets_Zplusjet_data_hist',  
+							(from_folder + 'jet' + str(jetnum) + '_constituents_ak5PFJetsL1L2L3Res_Zplusjet_data_hist',  
 			    			fdata, 
 			    			{ "label":'Data', "fmt":'^', "color":'#999999'},  
 			    			None, None),
-						 	(from_folder + 'jet' + str(jetnum) + '_constituents_ak5PFJetsNoPU_Zplusjet_mc_hist',  
+						 	(from_folder + 'jet' + str(jetnum) + '_constituents_ak5PFJetsL1L2L3CHS_Zplusjet_mc_hist',  
 			    			fmc, 
-			    			{"label":'MC NoPU', "color":'#580000'},  
+			    			{"label":'MC CHS', "color":'#580000'},  
 			    			None, ScaleMc),
-						 	(from_folder + 'jet' + str(jetnum) + '_constituents_ak5PFJets_Zplusjet_mc_hist',  
+						 	(from_folder + 'jet' + str(jetnum) + '_constituents_ak5PFJetsL1L2L3_Zplusjet_mc_hist',  
 			    			fmc, 
 			    			{"label":'MC', "color":'#ff5151'},  
 			    			None, ScaleMc)],
@@ -104,19 +108,19 @@ def jet_pt( jetnum):
 	def ScaleMc( rootinput, settings ):
 		rootinput.scale( global_factor )
 	
-	plotBase.hist_baseplot( [(from_folder + 'jet' + str(jetnum) + '_pt_ak5PFJetsNoPU_Zplusjet_data_hist',  
+	plotBase.hist_baseplot( [(from_folder + 'jet' + str(jetnum) + '_pt_ak5PFJetsL1L2L3ResCHS_Zplusjet_data_hist',  
 			    			fdata, 
-			    			{ "label":'Data NoPU', "fmt":"o", "color":'#000000'},  
+			    			{ "label":'Data CHS', "fmt":"o", "color":'#000000'},  
 			    			None, None),
-							(from_folder + 'jet' + str(jetnum) + '_pt_ak5PFJets_Zplusjet_data_hist',  
+							(from_folder + 'jet' + str(jetnum) + '_pt_ak5PFJetsL1L2L3Res_Zplusjet_data_hist',  
 			    			fdata, 
 			    			{ "label":'Data',  "fmt":'^', "color":'#999999'},  
 			    			None, None),
-						 	(from_folder + 'jet' + str(jetnum) + '_pt_ak5PFJetsNoPU_Zplusjet_mc_hist',  
+						 	(from_folder + 'jet' + str(jetnum) + '_pt_ak5PFJetsL1L2L3CHS_Zplusjet_mc_hist',  
 			    			fmc, 
-			    			{"label":'MC NoPU', "color":'#580000'},  
+			    			{"label":'MC CHS', "color":'#580000'},  
 			    			None, ScaleMc),
-						 	(from_folder + 'jet' + str(jetnum) + '_pt_ak5PFJets_Zplusjet_mc_hist',  
+						 	(from_folder + 'jet' + str(jetnum) + '_pt_ak5PFJetsL1L2L3_Zplusjet_mc_hist',  
 			    			fmc, 
 			    			{"label":'MC', "color":'#ff5151'},  
 			    			None, ScaleMc)],
@@ -132,19 +136,19 @@ def resp_mpf():
 	#def DataDots( histo, settings ):
 	#	histo.
 	
-	plotBase.hist_baseplot( [('mpfresp_ak5PFJetsNoPU_Zplusjet_data_graph',  
+	plotBase.hist_baseplot( [('mpfresp_ak5PFJetsL1L2L3ResCHS_Zplusjet_data_graph',  
 			    			fdata, 
-			    			{ "label":'Data NoPU', "fmt":"o", "color":'#000000'},  
+			    			{ "label":'Data CHS', "fmt":"o", "color":'#000000'},  
 			    			None, None),
-							('mpfresp_ak5PFJets_Zplusjet_data_graph',  
+							('mpfresp_ak5PFJetsL1L2L3Res_Zplusjet_data_graph',  
 			    			fdata, 
 			    			{ "label":'Data', "fmt":'^', "color":'#999999'},  
 			    			None, None),
-						 	('mpfresp_ak5PFJetsNoPU_Zplusjet_mc_graph',  
+						 	('mpfresp_ak5PFJetsL1L2L3CHS_Zplusjet_mc_graph',  
 			    			fmc, 
-			    			{"label":'MC NoPU', "fmt":"o","color":'#580000'},  
+			    			{"label":'MC CHS', "fmt":"o","color":'#580000'},  
 			    			None, None),
-						 	('mpfresp_ak5PFJets_Zplusjet_mc_graph',  
+						 	('mpfresp_ak5PFJetsL1L2L3_Zplusjet_mc_graph',  
 			    			fmc, 
 			    			{"label":'MC', "fmt":'^', "color":'#ff5151'},  
 			    			None, None)],
@@ -160,19 +164,21 @@ def cufineff( cut ):
 		ta = plotBase.AxisLabels(ta, 'cutineff', 'jet')
 		ta.legend(loc='lower right', numpoints=1, frameon=False)
 	
-	plotBase.hist_baseplot( [(from_folder + '' + cut + '_ak5PFJetsNoPU_Zplusjet_data_graph',  
+	
+	
+	plotBase.hist_baseplot( [(from_folder + '' + cut + '_ak5PFJetsL1L2L3ResCHS_Zplusjet_data_graph',  
 			    			fdata, 
-			    			{ "label":'Data NoPU', "fmt":"o", "color":'#000000'},  
+			    			{ "label":'Data CHS', "fmt":"o", "color":'#000000'},  
 			    			None, RemoveNpvZero),
-							(from_folder + '' + cut + '_ak5PFJets_Zplusjet_data_graph',  
+							(from_folder + '' + cut + '_ak5PFJetsL1L2L3Res_Zplusjet_data_graph',  
 			    			fdata, 
 			    			{ "label":'Data', "fmt":'^', "color":'#999999'},  
 			    			None, RemoveNpvZero),
-						 	(from_folder + '' + cut + '_ak5PFJetsNoPU_Zplusjet_mc_graph',  
+						 	(from_folder + '' + cut + '_ak5PFJetsL1L2L3CHS_Zplusjet_mc_graph',  
 			    			fmc, 
-			    			{"label":'MC NoPU', "fmt":"o", "color":'#580000'},  
+			    			{"label":'MC CHS', "fmt":"o", "color":'#580000'},  
 			    			None, RemoveNpvZero),
-						 	(from_folder + '' + cut + '_ak5PFJets_Zplusjet_mc_graph',  
+						 	(from_folder + '' + cut + '_ak5PFJetsL1L2L3_Zplusjet_mc_graph',  
 			    			fmc, 
 			    			{"label":'MC', "fmt":'^',"color":'#ff5151'},  
 			    			None, RemoveNpvZero)],
@@ -187,19 +193,19 @@ def resp_balance():
 	#def DataDots( histo, settings ):
 	#	histo.
 	
-	plotBase.hist_baseplot( [('jetresp_ak5PFJetsNoPU_Zplusjet_data_graph',  
+	plotBase.hist_baseplot( [('jetresp_ak5PFJetsL1L2L3ResCHS_Zplusjet_data_graph',  
 			    			fdata, 
-			    			{ "label":'Data NoPU', "fmt":"o", "color":'#000000'},  
+			    			{ "label":'Data CHS', "fmt":"o", "color":'#000000'},  
 			    			None, None),
-							('jetresp_ak5PFJets_Zplusjet_data_graph',  
+							('jetresp_ak5PFJetsL1L2L3Res_Zplusjet_data_graph',  
 			    			fdata, 
 			    			{ "label":'Data', "fmt":'^', "color":'#999999'},  
 			    			None, None),
-						 	('jetresp_ak5PFJetsNoPU_Zplusjet_mc_graph',  
+						 	('jetresp_ak5PFJetsL1L2L3CHS_Zplusjet_mc_graph',  
 			    			fmc, 
-			    			{"label":'MC NoPU', "fmt":"o", "color":'#580000'},  
+			    			{"label":'MC CHS', "fmt":"o", "color":'#580000'},  
 			    			None, None),
-						 	('jetresp_ak5PFJets_Zplusjet_mc_graph',  
+						 	('jetresp_ak5PFJetsL1L2L3_Zplusjet_mc_graph',  
 			    			fmc, 
 			    			{"label":'MC', "fmt":'^', "color":'#ff5151'},  
 			    			None, None)],
@@ -207,27 +213,27 @@ def resp_balance():
 		
 #def npv_qualitycuts():
 #	plotBase.genericplot('recovert', 'recovert', 'NPV', 
-#						fdata, { 'correction': 'NoPU', 'incut':'qualitycuts'}, 
-#						fmc, { 'correction': 'NoPU', 'incut':'qualitycuts'}, 
+#						fdata, { 'correction': 'CHS', 'incut':'qualitycuts'}, 
+#						fmc, { 'correction': 'CHS', 'incut':'qualitycuts'}, 
 #						factor, settings)
 
 
 #def npv_qualitycuts():
 #	plotBase.genericplot('recovert', 'recovert', 'NPV', 
-#						fdata, { 'correction': 'NoPU', 'incut':'qualitycuts'}, 
-#						fmc, { 'correction': 'NoPU', 'incut':'qualitycuts'}, 
+#						fdata, { 'correction': 'CHS', 'incut':'qualitycuts'}, 
+#						fmc, { 'correction': 'CHS', 'incut':'qualitycuts'}, 
 #						factor, settings)
 
 def npv_incuts():
 	plotBase.genericplot('recovert', 'recovert', 'NPV', 
-						fdata, { 'correction': 'NoPU'}, 
-						fmc, { 'correction': 'NoPU'}, 
+						fdata, { 'correction': 'CHS'}, 
+						fmc, { 'correction': 'CHS'}, 
 						factor, settings)
 
 def zeta():
 	plotBase.genericplot('z_eta', 'eta', 'eta', 
-						fdata, { 'correction': 'NoPU'}, 
-						fmc, { 'correction': 'NoPU'}, 
+						fdata, { 'correction': data_corr  + "CHS"}, 
+						fmc, { 'correction': mc_corr  + "CHS"}, 
 						factor, settings)
 def jeteta():
 	genericplot('jet1_eta', 'eta', 'jet1',
@@ -235,11 +241,11 @@ def jeteta():
 	
 def zmass():
 	plotBase.genericplot('zmass', 'mass', 'Z',
-						 fdata, { 'correction': 'NoPU',}, 
-						 fmc,{ 'correction': 'NoPU'}, factor, settings)
+						 fdata, { 'correction': data_corr  + "CHS"}, 
+						 fmc,{ 'correction': mc_corr + "CHS"}, factor, settings)
 
 def calcScaling():
-	oname = plotBase.GetNameFromSelection('jet1_phi', {},  {  'correction': ""})
+	oname = plotBase.GetNameFromSelection('jet1_phi', {},  {  'correction': "L1"})
 	histo_data = getROOT.SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
 	histname = oname[0].replace('data','mc').replace('Res','')
 	histo_mc = getROOT.SafeConvert(fmc,histname, settings.lumi,settings.outputformats,5)

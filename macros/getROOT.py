@@ -5,11 +5,13 @@ import cPickle as pickle
 from time import localtime, strftime
 
 
-def SafeGet( RootDict, ObjectName ):
+def SafeGet( RootDict, ObjectName, AppendString = "_hist" ):
     """Import a root object"""
-    oj = RootDict.Get( ObjectName )
+    oname = ObjectName + AppendString
+    
+    oj = RootDict.Get( oname )
     if not oj:
-        print "Can't load", ObjectName,"from", RootDict.GetName()
+        print "Can't load", oname,"from", RootDict.GetName()
         assert False
 
     return oj
@@ -72,7 +74,7 @@ def ConvertToArray(histo, lumi=0.0, rootfile='', rebin=1):
         hst.lumi = lumi
         a = ROOT.Double(0.0)
         b = ROOT.Double(0.0)
-        for i in range(1,histo.GetN()):
+        for i in range(0,histo.GetN()):
             histo.GetPoint(i,a,b)
             x=float(a)
             y=float(b)

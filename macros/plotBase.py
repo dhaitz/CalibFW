@@ -146,8 +146,15 @@ def captions(ax, stg=StandardSettings(), twolumis=True):
     ax.text(0.99, 1.06, r"$\sqrt{s} = " + str(stg.cme) + " \,\mathrm{TeV}$",
         va='top', ha='right', transform=ax.transAxes, fontsize=15)
     if stg.lumi > 0:
-        ax.text(0.01, 1.06, r"$\mathcal{L} = " + str(int(stg.lumi)) + " \,\mathrm{pb}^{-1}$",
-            va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        
+        if stg.lumi >= 1000:
+            ax.text(0.01, 1.06, r"$\mathcal{L} = " + str(int(stg.lumi / 1000.0)) + " \,\mathrm{fb}^{-1}$",
+                    va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        else: 
+            ax.text(0.01, 1.06, r"$\mathcal{L} = " + str(int(stg.lumi)) + " \,\mathrm{pb}^{-1}$",
+                    va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        
+            
         if twolumis:
             ax.text(0.01, 0.93, r"$\mathcal{L} = " + str(36) + " \,\mathrm{pb}^{-1}$",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
@@ -155,7 +162,7 @@ def captions(ax, stg=StandardSettings(), twolumis=True):
 
 def AddAlgoAndCorrectionCaption(ax, algo = "ak5PFJetsL1", stg=StandardSettings()):
     posx = 0.05
-    posy = 0.93
+    posy = 0.95
 
     if algo == "ak5PFJets":
         ax.text(posx, posy, r"ak5 PF Jets uncorrected",
@@ -182,15 +189,15 @@ def AddAlgoAndCorrectionCaption(ax, algo = "ak5PFJetsL1", stg=StandardSettings()
         ax.text(posx, posy, r"ak7 PF Jets L1 L2 L3 Res corrected",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
 
-        
     if algo == "ak5PFJetsL1L2L3CHS":
-        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 corrected and CHS applied",
+        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 corrected",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        ax.text(posx, posy - 0.07, r"CHS applied",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
 
     if algo == "ak5PFJetsL1L2L3ResCHS":
         ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 Res corrected and CHS applied",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
-
 
 
 def tags(ax, status='', author='', date='today'):
@@ -250,30 +257,34 @@ def AxisLabels(ax, q='resp', obj='jet'):
         ax.set_ylabel(r"MPF", va="top", y=1)
         ax.set_xlim(10, 240)
         ax.set_ylim(0.75, 1.0)
-        
     elif q == 'datamc_ratio':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"Data/MC", va="top", y=1)
         ax.set_xlim(10, 240)
         ax.set_ylim(0.8, 1.1)
-        
     elif q == 'cutineff':
         ax.set_ylabel(r"Cut Infficiency", y=1, va="top" )
         ax.set_xlabel(r"NRV",x=1)
         #ax.set_xlim(1, 15)
         ax.set_ylim(0.0, 1.0)
-        
     elif q == 'recovert':
         ax.set_xlabel(r"Number of reconstructed vertices $n$", ha="right", x=1)
         ax.set_ylabel(r"events", va="top", y=1)
         ax.set_xlim(0,25)
         ax.set_ylim(bottom=0.0)
-        
     elif q == 'jetconstituents':
         ax.set_xlabel(r"Jet Constituents", ha="right", x=1)
         ax.set_ylabel(r"Events", va="top", y=1)
         ax.set_xlim(1, 60)        
         #ax.set_xlim(0, 350)
+    elif q == 'extrapol':
+        if obj == 'jet2':
+            ax.set_xlabel(r"$p_{T}^{"+obj+"}/p_{T}^{Z}$", ha="right", x=1)
+        elif obj == 'deltaphi':
+            ax.set_xlabel(r"$\Delta\phi$", ha="right", x=1)
+        ax.set_ylabel(r"Response", va="top", y=1)
+        ax.set_xlim(0,0.4)
+        ax.set_ylim(0.86,1.04)
     else:
         print "The quantity", q, "was not found. A default formatting of the axis labels is used."
         ax.set_xlabel(r"$p_{T} / \mathrm{GeV}$", ha="right", x=1)
@@ -402,7 +413,7 @@ def _internal_Save(figure, name, stg):
     for format in stg.outputformats:
         if format in ['pdf', 'png', 'ps', 'eps', 'svg']:
             print name + '.' + format
-            figure.savefig(name + '.' + format)
+            figure.savefig(name + '.' + format, dpi = 100)
             
         elif format in ['txt', 'npz', 'dat']:
             pass    #Ignore this here, as it is respected in the SafeConvert function
