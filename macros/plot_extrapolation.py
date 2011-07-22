@@ -240,11 +240,17 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	mc_y_orig_err = []
 	
 	
+	algoname_data = algoname
+	if "CHS" in algoname_data:
+		 algoname_data = algoname_data[: len (algoname_data) - 3]
+		 algoname_data = algoname_data + add_to_data + "CHS"
+		 
+	
 	for s in str_bins:
 		(tge, extr_func, fitres, exp_err,
 		   hist_jetresp_orig, hist_zpt) = extrapolation_prototype(fdata,  folder_prefix +  s + "_incut_var_CutSecondLeadingToZPt_",
-																	response_measure + "_" + algoname + add_to_data,
-																	"z_pt_" + algoname + add_to_data ,
+																	response_measure + "_" + algoname_data,
+																	"z_pt_" + algoname_data ,
 																	"data")
 		data_y += [extr_func.Eval(0.0)]
 		data_yerr += [exp_err]
@@ -285,7 +291,7 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 							color='red', fmt='o',
 							capsize=0, label='data')
 	ta = plotBase.captions(ta, settings, False)
-	plotBase.AddAlgoAndCorrectionCaption( ta, algoname + add_to_data, settings )
+	plotBase.AddAlgoAndCorrectionCaption( ta, algoname_data, settings )
 	ta.set_ylim( 0.5, 1.1 )
 	#ta.set_ylim(top=histo_mc.ymax * 1.2)
 	#ta = plotBase.tags(ta, 'Private work', 'Joram Berger')
@@ -307,7 +313,7 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 							capsize=0, label='mc')
 	
 	ta = plotBase.captions(ta, settings, False)
-	plotBase.AddAlgoAndCorrectionCaption( ta, algoname + add_to_data, settings )
+	plotBase.AddAlgoAndCorrectionCaption( ta, algoname_data, settings )
 	#ta.set_ylim(top=histo_mc.ymax * 1.2)
 	#ta = plotBase.tags(ta, 'Private work', 'Joram Berger')
 	ta.legend(numpoints=1, frameon=False, )
@@ -397,7 +403,7 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	ta_ratio.axhline( 1.0, color="black", linestyle = '--' )
 	 
 	plotBase.captions(ta_ratio, settings, False)
-	plotBase.AddAlgoAndCorrectionCaption( ta_ratio, algoname + add_to_data, settings )
+	plotBase.AddAlgoAndCorrectionCaption( ta_ratio, algoname_data, settings )
 	#ta = plotBase.tags(ta, 'Private work', 'Joram Berger')
 	
 	#font = font_man.Fo FontProperties( size = 10)
@@ -464,6 +470,14 @@ tf, ta, tname = plotBase.makeplot("jetresp_mc")
 extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3CHS", tf, ta, True, "extrapol", "")
 AddEtaRange(ta, "$|\eta| < 1.3$")
 plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3CHS_data_mc_ratio_extrapol", settings, False)
+
+
+#chs
+tf, ta, tname = plotBase.makeplot("jetresp_mc")
+extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3CHS", tf, ta, True, "extrapol", "Res")
+AddEtaRange(ta, "$|\eta| < 1.3$")
+plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3ResCHS_data_mc_ratio_extrapol", settings, False)
+
 
 
 # MPF 

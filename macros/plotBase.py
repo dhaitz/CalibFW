@@ -196,7 +196,9 @@ def AddAlgoAndCorrectionCaption(ax, algo = "ak5PFJetsL1", stg=StandardSettings()
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
 
     if algo == "ak5PFJetsL1L2L3ResCHS":
-        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 Res corrected and CHS applied",
+        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 Res corrected",
+                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+        ax.text(posx, posy - 0.07, r"CHS applied",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
 
 
