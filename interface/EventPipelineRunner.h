@@ -48,6 +48,7 @@ public:
 	void RunPipelines( EventProvider< TEvent > & evtProvider )
 	{
 		long long nEvents = evtProvider.GetOverallEventCount();
+		CALIB_LOG_FILE("Running over " << nEvents << " Events")
 
 		ProgressMonitor pm(nEvents);
 

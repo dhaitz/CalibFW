@@ -7,6 +7,9 @@
 #include "DataFormats/interface/Kappa.h"
 #include "DataFormats/interface/KDebug.h"
 
+//#include "RootTools/libKRootTools.h"
+#include "RootTools/FileInterface.h"
+
 #include "EventData.h"
 #include "CutHandler.h"
 //#include "ZJetFilter.h"
@@ -21,10 +24,11 @@ class ZJetEventData
 public:
 	KDataPFJets * PF_jets;// = fi.Get<KDataPFJets>(names[0]);
 	KDataMuons * Muons;
+	FileInterface * m_fi;
 
 	// convinience functions
-	double GetPrimaryJetPt() const { return PF_Jets->at(0).Pt(); }
-	KDataPFJet const& GetPrimaryJet() const { return PF_Jets->at(0); }
+	//double GetPrimaryJetPt() const { return PF_Jets->at(0).Pt(); }
+	//KDataPFJet const& GetPrimaryJet() const { return PF_Jets->at(0); }
 
 	KDataLV GetZ()
 	{
@@ -32,6 +36,17 @@ public:
 		return z;
 	}
 
+	template <class TJetType>
+	std::vector<TJetType> * GetJets(std::string jetAlgo) const
+	{
+		return m_fi->Get< std::vector<TJetType> >( jetAlgo );
+	}
+/*
+	KDataLV GetPrimaryJet( std::string sJetAlgo)
+	{
+		return m_fi->Get<KDataLVs>(sJetAlgo)->at(0);
+	}
+*/
 private:
 
 
@@ -80,7 +95,7 @@ IMPL_SETTING(unsigned long, FilterInCutIgnored)
 IMPL_SETTING(bool, Filter2ndJetPtCutSet)
 IMPL_SETTING(bool, FilterDeltaPhiCutSet)
 
-IMPL_SETTING(std::string, AlgoName)
+IMPL_SETTING(std::string, JetAlgorithm)
 IMPL_SETTING(std::string, RootFileFolder)
 IMPL_SETTING(std::string, SecondLevelFolderTemplate)
 

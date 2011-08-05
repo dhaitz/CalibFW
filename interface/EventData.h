@@ -205,7 +205,7 @@ public:
 		return tempname.str();
 	}
 
-	static TString GetFolderName(PtBin * pBin)
+	static std::string GetFolderName(PtBin * pBin)
 	{
 		if (pBin == NULL)
 			return "NoBinning_incut/";
@@ -214,35 +214,14 @@ public:
 
 	}
 
-	static TString GetHistoName(TString algoName, TString quantName,
+	static std::string GetHistoName(std::string algoName, std::string quantName,
 			InputTypeEnum inpType, int corr = 0, PtBin * pBin = NULL,
 			bool isNoCut = false, TString algoNameAppend = "Zplusjet")
 	{
-		TString sinput = "";
-		TString scorr = "";
-		TString binning = "";
-
 		stringvector tagList;
 
-		tagList.push_back(quantName.Data());
-		tagList.push_back(algoName.Data());
-		tagList.push_back(algoNameAppend.Data());
-
-		if (inpType == McInput)
-			tagList.push_back("mc");
-		if (inpType == DataInput)
-			tagList.push_back("data");
-
-		if (corr == 2)
-			tagList.push_back("l2corr");
-		if (corr == 3)
-			tagList.push_back("l3corr");
-
-		if (pBin != NULL)
-			tagList.push_back(pBin->id().Data());
-
-		if (isNoCut)
-			tagList.push_back("nocut");
+		tagList.push_back(quantName);
+		tagList.push_back(algoName);
 
 		std::stringstream fullString;
 

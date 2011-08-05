@@ -1,3 +1,4 @@
+/*
 #pragma once
 
 #include <string>
@@ -114,26 +115,8 @@ public:
 	// this method is only called for events which have passed the filter imposed on the
 	// pipeline
 	virtual void ProcessFilteredEvent(ZJetEventData const& event, ZJetMetaData const& metaData)
-	{		/*
-		 m_localData.Z = new TParticle(*event.m_pData->Z);
-//          m_localData.matched_Z = new TParticle(*event.m_pData->matched_Z);
+	{
 
-		 m_localData.mu_plus = new TParticle(*event.m_pData->mu_plus);
-		 m_localData.mu_minus = new TParticle(*event.m_pData->mu_minus);
-
-		 m_localData.jets[0] = new TParticle(*event.m_pData->jets[0]);
-		 m_localData.jets[1] = new TParticle(*event.m_pData->jets[1]);
-		 m_localData.jets[2] = new TParticle(*event.m_pData->jets[2]);
-		 m_localData.met = new TParticle(*event.m_pData->met);
-		 m_l2corr = event.m_l2CorrPtJets[0];
-		 m_l2corrPtJet2 = event.m_l2CorrPtJets[1];
-		 m_l2corrPtJet3 = event.m_l2CorrPtJets[2];
-
-		 m_localData.cmsEventNum = event.m_pData->cmsEventNum;
-		 m_localData.cmsRun = event.m_pData->cmsRun;
-		 m_localData.luminosityBlock = event.m_pData->luminosityBlock;
-		 m_localData.weight = event.GetWeight();
-*/
 		//todo
 		 m_gentree->Fill();
 
@@ -152,4 +135,4 @@ public:
 };
 
 }
-
+*/

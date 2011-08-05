@@ -36,10 +36,10 @@ namespace CalibFW
  can add multiple data providers here
  DrawHisto 
  needs: value, weight
- 
+
  DrawGraph
  needs: x, y
- 
+
  DrawPolar (3d)
  needs: r, phi, rho
 
@@ -52,12 +52,12 @@ namespace CalibFW
  * selects which events are included into the draw set
 
  DrawZMassConsumer
- 
+
  to solve:
  fukin hell: what about plots which first have to aggregate data of all events. especially cut-efficiency plots
  which have to know the percentage of all cuts passed ?
  So eine Art Value aggregator? das wird in den meisten fällen ein TH1d sein, kann aber auch eine Custom klasse sein.
- 
+
  Major design change:
  DrawProvider ist ein EventConsumer, der wiederum ein DrawHisto verwendet um Plots rauszuschreiben. The other way around.
  Der Event Selektor wird nicht im DrawHisto, sondern direkt im EventConsumer angwendet.
@@ -82,45 +82,46 @@ public:
 	void RunModifierBeforeCreation(TPlotType * pElem)
 	{
 		BOOST_FOREACH( ModifierBase<TPlotType> * p, m_modifiers )
-{		p->BeforeCreation(pElem);}
-}
-void RunModifierBeforeDataEntry( TPlotType * pElem )
-{
-	BOOST_FOREACH( ModifierBase<TPlotType> * p, m_modifiers )
-	{	p->BeforeDataEntry(pElem);}
-}
-void RunModifierAfterDataEntry( TPlotType * pElem )
-{
-	BOOST_FOREACH( ModifierBase<TPlotType> * p, m_modifiers )
-	{	p->AfterDataEntry(pElem);}
-}
-void RunModifierAfterDraw( TPlotType * pElem )
-{
-	BOOST_FOREACH( ModifierBase<TPlotType> * p, m_modifiers )
-	{	p->AfterDraw(pElem);}
-}
+		{		p->BeforeCreation(pElem);}
+	}
+	void RunModifierBeforeDataEntry( TPlotType * pElem )
+	{
+		BOOST_FOREACH( ModifierBase<TPlotType> * p, m_modifiers )
+			{	p->BeforeDataEntry(pElem);}
+	}
+	void RunModifierAfterDataEntry( TPlotType * pElem )
+	{
+		BOOST_FOREACH( ModifierBase<TPlotType> * p, m_modifiers )
+			{	p->AfterDataEntry(pElem);}
+	}
+	void RunModifierAfterDraw( TPlotType * pElem )
+	{
+		BOOST_FOREACH( ModifierBase<TPlotType> * p, m_modifiers )
+			{	p->AfterDraw(pElem);}
+	}
 
-std::vector<ModifierBase<TPlotType> *> m_modifiers;
+	std::vector<ModifierBase<TPlotType> *> m_modifiers;
 
-void SetNameAndCaption( std::string sName)
-{
-	m_sName = m_sCaption = sName;
-}
+	void SetNameAndCaption( std::string sName)
+	{
+		m_sName = m_sCaption = sName;
+	}
 
-std::string GetName() const { return m_sName; }
-std::string GetCaption() const { return m_sCaption; }
+	std::string GetName() const { return m_sName; }
+	std::string GetCaption() const { return m_sCaption; }
 
+private:
 
-std::string m_sName;
-std::string m_sCaption;
+	std::string m_sName;
+	std::string m_sCaption;
 
-IMPL_PROPERTY(std::string, RootFileFolder)
+	IMPL_PROPERTY(std::string, RootFileFolder)
 
 };
 
 class PlotSettings
 {
-boost::shared_ptr<TFile> m_pOutputFile;
+	boost::shared_ptr<TFile> m_pOutputFile;
 };
 
 template < class THistType >
@@ -137,387 +138,391 @@ class GraphErrors: public PlotBase< GraphErrors>
 {
 public:
 
-class DataPoint
-{
-public:
-	DataPoint ( double x, double y, double xe, double ye)
-	: m_fx( x), m_fy(y), m_fxe(xe), m_fye( ye)
+	class DataPoint
 	{
+	public:
+		DataPoint ( double x, double y, double xe, double ye)
+		: m_fx( x), m_fy(y), m_fxe(xe), m_fye( ye)
+		  {
 
+		  }
+
+		double m_fx, m_fy, m_fxe, m_fye;
+	};
+
+	GraphErrors() : PlotBase< GraphErrors>()
+		{
+		}
+
+	void Init()
+	{
 	}
 
-	double m_fx, m_fy, m_fxe, m_fye;
-};
-
-GraphErrors() : PlotBase< GraphErrors>()
-{
-}
-
-void Init()
-{
-}
-
-void Store(TFile * pRootFile)
-{
-	this->RunModifierBeforeCreation( this );
-
-	RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
-	m_graph = RootFileHelper::GetStandaloneTGraphErrors( m_points.size());
-	m_graph->SetName( m_sName.c_str() );
-	//m_graph->SetCaption( m_sCaption.c_str() );
-
-	this->RunModifierBeforeDataEntry( this );
-
-	unsigned long l = 0;
-	for ( std::vector<DataPoint>::iterator it = m_points.begin();
-			!( it == m_points.end()); it++)
+	void Store(TFile * pRootFile)
 	{
-		m_graph->SetPoint(l, it->m_fx, it->m_fy);
-		m_graph->SetPointError(l, it->m_fxe, it->m_fye);
+		this->RunModifierBeforeCreation( this );
 
-		l++;
+		RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
+		m_graph = RootFileHelper::GetStandaloneTGraphErrors( m_points.size());
+		m_graph->SetName( GetName().c_str() );
+		//m_graph->SetCaption( m_sCaption.c_str() );
+
+		this->RunModifierBeforeDataEntry( this );
+
+		unsigned long l = 0;
+		for ( std::vector<DataPoint>::iterator it = m_points.begin();
+				!( it == m_points.end()); it++)
+		{
+			m_graph->SetPoint(l, it->m_fx, it->m_fy);
+			m_graph->SetPointError(l, it->m_fxe, it->m_fye);
+
+			l++;
+		}
+
+		this->RunModifierAfterDataEntry(this );
+		this->RunModifierAfterDraw( this );
+
+		//CALIB_LOG( "Storing GraphErrors " + this->m_sRootFileFolder + "/" + this->m_sName + "_graph" )
+		RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
+		m_graph->Write(( GetName() + "_graph").c_str());
 	}
 
-	this->RunModifierAfterDataEntry(this );
-	this->RunModifierAfterDraw( this );
+	void AddPoint( double x, double y, double xe, double ye )
+	{
+		m_points.push_back( DataPoint( x, y, xe, ye ) );
+	}
 
-	//CALIB_LOG( "Storing GraphErrors " + this->m_sRootFileFolder + "/" + this->m_sName + "_graph" )
-	RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
-	m_graph->Write((this->m_sName + "_graph").c_str());
-}
+	int m_iBinCount;
+	double m_dBinLower;
+	double m_dBinUpper;
 
-void AddPoint( double x, double y, double xe, double ye )
-{
-	m_points.push_back( DataPoint( x, y, xe, ye ) );
-}
+	std::vector<DataPoint> m_points;
 
-int m_iBinCount;
-double m_dBinLower;
-double m_dBinUpper;
-
-std::vector<DataPoint> m_points;
-
-TGraphErrors * m_graph;
+	TGraphErrors * m_graph;
 };
 
 class Profile2D: public PlotBase< Profile2D>
 {
 public:
-Profile2D() : PlotBase< Profile2D>(),
-m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(200.0f)
-{
-}
+	Profile2D() : PlotBase< Profile2D>(),
+	m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(200.0f)
+	{
+	}
 
-void Init()
-{
-	this->RunModifierBeforeCreation( this );
+	void Init()
+	{
+		this->RunModifierBeforeCreation( this );
 
-	RootFileHelper::SafeCd( gROOT, GetRootFileFolder());
-	m_profile = RootFileHelper::GetStandaloneTProfile(
-			this->m_sName, this->m_sCaption,
-			this->m_iBinXCount, this->m_dBinXLower, this->m_dBinXUpper);
-	m_profile->Sumw2();
+		RootFileHelper::SafeCd( gROOT, GetRootFileFolder());
+		m_profile = RootFileHelper::GetStandaloneTProfile(
+				GetName(), GetCaption(),
+				this->m_iBinXCount, this->m_dBinXLower, this->m_dBinXUpper);
+		m_profile->Sumw2();
 
-	this->RunModifierBeforeDataEntry( this );
-}
+		this->RunModifierBeforeDataEntry( this );
+	}
 
-void Store(TFile * pRootFile)
-{
-	this->RunModifierAfterDataEntry(this );
-	this->RunModifierAfterDraw( this );
+	void Store(TFile * pRootFile)
+	{
+		this->RunModifierAfterDataEntry(this );
+		this->RunModifierAfterDraw( this );
 
-	//CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
-	RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
-	m_profile->Write((this->m_sName + "_profile").c_str());
-}
+		//CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
+		RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
+		m_profile->Write((GetName() + "_profile").c_str());
+	}
 
-void Fill(double x, double y, double weight)
-{
-	m_profile->Fill(x, y, weight);
-}
+	void Fill(double x, double y, double weight)
+	{
+		m_profile->Fill(x, y, weight);
+	}
 
-TProfile * GetRawProfile()
-{	return m_profile;}
+	TProfile * GetRawProfile()
+		{	return m_profile;}
 
-int m_iBinXCount;
-double m_dBinXLower;
-double m_dBinXUpper;
+	int m_iBinXCount;
+	double m_dBinXLower;
+	double m_dBinXUpper;
 
-TProfile* m_profile;
+	TProfile* m_profile;
 };
 
 class Hist2D: public HistBase< Hist2D>
 {
 public:
 
-Hist2D() : HistBase< Hist2D>(),
-m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(200.0f),
-m_iBinYCount(100), m_dBinYLower(0.0f), m_dBinYUpper(200.0f),
-m_bDoProfile( false )
-{
-}
-
-void Init()
-{
-	this->RunModifierBeforeCreation( this );
-
-	RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
-	m_hist = RootFileHelper::GetStandaloneTH2D_1(
-			this->m_sName, this->m_sCaption,
-			this->m_iBinXCount, this->m_dBinXLower, this->m_dBinXUpper,
-			this->m_iBinYCount, this->m_dBinYLower, this->m_dBinYUpper);
-	m_hist->Sumw2();
-
-	this->RunModifierBeforeDataEntry( this );
-
-	if ( m_bDoProfile )
+	Hist2D() : HistBase< Hist2D>(),
+	m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(200.0f),
+	m_iBinYCount(100), m_dBinYLower(0.0f), m_dBinYUpper(200.0f),
+	m_bDoProfile( false )
 	{
-		m_profile.m_sName = this->m_sName + "_profiley";
-		m_profile.m_sCaption = this->m_sCaption + "_profiley";
-
-		m_profile.m_iBinXCount = this->m_iBinXCount;
-
-		m_profile.m_dBinXLower = this->m_dBinXLower;
-		m_profile.m_dBinXUpper = this->m_dBinXUpper,
-		m_profile.SetRootFileFolder( GetRootFileFolder() );
-		m_profile.Init();
 	}
-}
 
-void Store(TFile * pRootFile)
-{
-	this->RunModifierAfterDataEntry(this );
-	this->RunModifierAfterDraw( this );
+	void Init()
+	{
+		this->RunModifierBeforeCreation( this );
 
-	//CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
-	RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
-	m_hist->Write((this->m_sName + "_hist").c_str());
+		RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
+		m_hist = RootFileHelper::GetStandaloneTH2D_1(
+				GetName(), GetCaption(),
+				this->m_iBinXCount, this->m_dBinXLower, this->m_dBinXUpper,
+				this->m_iBinYCount, this->m_dBinYLower, this->m_dBinYUpper);
+		m_hist->Sumw2();
 
-	if ( m_bDoProfile )
-	m_profile.Store( pRootFile );
-}
+		this->RunModifierBeforeDataEntry( this );
 
-void Fill(double x, double y, double weight)
-{
-	m_hist->Fill(x, y, weight);
+		if ( m_bDoProfile )
+		{
+			m_profile.SetNameAndCaption( this->GetName() + "_profiley");
 
-	if (m_bDoProfile)
-	m_profile.Fill(x, y, weight);
-}
+			m_profile.m_iBinXCount = this->m_iBinXCount;
 
-TH2D * GetRawHisto()
-{	return m_hist;}
+			m_profile.m_dBinXLower = this->m_dBinXLower;
+			m_profile.m_dBinXUpper = this->m_dBinXUpper,
+					m_profile.SetRootFileFolder( GetRootFileFolder() );
+			m_profile.Init();
+		}
+	}
 
-int m_iBinXCount;
-double m_dBinXLower;
-double m_dBinXUpper;
-int m_iBinYCount;
-double m_dBinYLower;
-double m_dBinYUpper;
+	void Store(TFile * pRootFile)
+	{
+		this->RunModifierAfterDataEntry(this );
+		this->RunModifierAfterDraw( this );
 
-bool m_bDoProfile;
+		//CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
+		RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
+		m_hist->Write((GetName() + "_hist").c_str());
 
-Profile2D m_profile;
+		if ( m_bDoProfile )
+			m_profile.Store( pRootFile );
+	}
 
-TH2D * m_hist;
+	void Fill(double x, double y, double weight)
+	{
+		m_hist->Fill(x, y, weight);
+
+		if (m_bDoProfile)
+			m_profile.Fill(x, y, weight);
+	}
+
+	TH2D * GetRawHisto()
+		{	return m_hist;}
+
+	int m_iBinXCount;
+	double m_dBinXLower;
+	double m_dBinXUpper;
+	int m_iBinYCount;
+	double m_dBinYLower;
+	double m_dBinYUpper;
+
+	bool m_bDoProfile;
+
+	Profile2D m_profile;
+
+	TH2D * m_hist;
 };
 
 class Hist1D: public HistBase< Hist1D>
 {
 public:
 
-Hist1D() : HistBase< Hist1D>(),
-m_iBinCount(100), m_dBinLower(0.0f), m_dBinUpper(200.0f), m_bUseCustomBin(false)
-{
-
-}
-
-void Init()
-{
-	this->RunModifierBeforeCreation( this );
-
-	RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
-	if ( m_bUseCustomBin )
+	Hist1D() : HistBase< Hist1D>(),
+	m_iBinCount(100), m_dBinLower(0.0f), m_dBinUpper(200.0f), m_bUseCustomBin(false)
 	{
-		m_hist = RootFileHelper::GetStandaloneTH1D_1( this->m_sName,
-				this->m_sCaption,
-				m_iBinCount, &m_dCustomBins[0]);
-		/*new TH1D(    this->m_sName.c_str(),
+
+	}
+
+	void Init()
+	{
+		this->RunModifierBeforeCreation( this );
+
+		RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
+		if ( m_bUseCustomBin )
+		{
+			m_hist = RootFileHelper::GetStandaloneTH1D_1( GetName(),
+					GetCaption(),
+					m_iBinCount, &m_dCustomBins[0]);
+			/*new TH1D(    this->m_sName.c_str(),
 		 this->m_sCaption.c_str(),
 		 m_iBinCount, &m_dCustomBins[0] );*/
+		}
+		else
+		{
+			m_hist = RootFileHelper::GetStandaloneTH1D_2( GetName(),
+					GetCaption(), this->m_iBinCount, this->m_dBinLower, this->m_dBinUpper);
+
+		}
+		m_hist->Sumw2();
+
+		this->RunModifierBeforeDataEntry( this );
 	}
-	else
+
+	void Store(TFile * pRootFile)
 	{
-		m_hist = RootFileHelper::GetStandaloneTH1D_2( this->m_sName,
-				this->m_sCaption, this->m_iBinCount, this->m_dBinLower, this->m_dBinUpper);
+		this->RunModifierAfterDataEntry(this );
+		this->RunModifierAfterDraw( this );
 
+		CALIB_LOG( "Storing Histogram " + this->GetRootFileFolder() + "/" + this->GetName()  )
+
+		RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
+		m_hist->Write((this->GetName() ).c_str());
 	}
-	m_hist->Sumw2();
 
-	this->RunModifierBeforeDataEntry( this );
-}
+	void Fill(double val, double weight)
+	{
+		m_hist->Fill(val, weight);
+	}
 
-void Store(TFile * pRootFile)
-{
-	this->RunModifierAfterDataEntry(this );
-	this->RunModifierAfterDraw( this );
+	TH1D * GetRawHisto()
+		{	return m_hist;}
 
-	CALIB_LOG( "Storing Histogram " + this->GetRootFileFolder() + "/" + this->GetName()  )
+	int m_iBinCount;
+	double m_dBinLower;
+	double m_dBinUpper;
+	double m_dCustomBins[255];
 
-	RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
-	m_hist->Write((this->m_sName ).c_str());
-}
+	bool m_bUseCustomBin;
 
-void Fill(double val, double weight)
-{
-	m_hist->Fill(val, weight);
-}
-
-TH1D * GetRawHisto()
-{	return m_hist;}
-
-int m_iBinCount;
-double m_dBinLower;
-double m_dBinUpper;
-double m_dCustomBins[255];
-
-bool m_bUseCustomBin;
-
-TH1D * m_hist;
+	TH1D * m_hist;
 };
 
 template<class TData, class TMetaData, class TSettings>
 class DrawConsumerBase: public EventConsumerBase<TData, TMetaData,  TSettings>
 {
 public:
-DrawConsumerBase()
-{
-}
-virtual ~DrawConsumerBase()
-{}
-
-// generates a name for the created product
-std::string GetProductName()
-{
-	// check if there is a PtBin Filter which will affect our Product Name
-	PtWindowFilter * pwin =
-	dynamic_cast<PtWindowFilter *> (this->m_pipeline->FindFilter(
-					PtWindowFilter().GetFilterId()));
-	PtBin * ptBin = NULL;
-
-	InCutFilter * pcut =
-	dynamic_cast<InCutFilter *> (this->m_pipeline->FindFilter(
-					InCutFilter().GetFilterId()));
-	bool isNoCut = (pcut == NULL);
-
-	if (pwin != NULL)
+	DrawConsumerBase()
 	{
-		ptBin = new PtBin(this->GetPipelineSettings()->GetFilterPtBinLow(),
-				this->GetPipelineSettings()->GetFilterPtBinHigh());
-
 	}
+	virtual ~DrawConsumerBase()
+	{}
 
-	TString sName = RootNamer::GetHistoName(
-			this->GetPipelineSettings()->GetAlgoName(), m_sQuantityName,
-			this->GetPipelineSettings()->GetInputType(), 0, ptBin, isNoCut);
-	return sName.Data();
-}
+	// generates a name for the created product
+	std::string GetProductName(std::string sQuant)
+	{
+		// check if there is a PtBin Filter which will affect our Product Name
+		PtWindowFilter * pwin =
+				dynamic_cast<PtWindowFilter *> (this->m_pipeline->FindFilter(
+						PtWindowFilter().GetFilterId()));
+		PtBin * ptBin = NULL;
 
-std::string m_sQuantityName;
+		InCutFilter * pcut =
+				dynamic_cast<InCutFilter *> (this->m_pipeline->FindFilter(
+						InCutFilter().GetFilterId()));
+		bool isNoCut = (pcut == NULL);
+
+		if (pwin != NULL)
+		{
+			ptBin = new PtBin(this->GetPipelineSettings()->GetFilterPtBinLow(),
+					this->GetPipelineSettings()->GetFilterPtBinHigh());
+
+		}
+
+		TString sName = RootNamer::GetHistoName(
+				this->GetPipelineSettings()->GetJetAlgorithm(), sQuant,
+				this->GetPipelineSettings()->GetInputType(), 0, ptBin, isNoCut);
+		return sName.Data();
+	}
+/*
+	// generates a name for the created product
+	std::string GetProductName()
+	{
+		return GetProductName();
+	}*/
+
 };
 
 template<class TData, class TMetaData, class TSettings>
 class DrawGraphErrorsConsumerBase: public DrawConsumerBase<TData, TMetaData,TSettings>
 {
 public:
-DrawGraphErrorsConsumerBase() :
-m_graph(NULL)
-{
-}
+	DrawGraphErrorsConsumerBase() :
+		m_graph(NULL)
+		{
+		}
 
-virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
-{
-	DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
-	//CALIB_LOG( "Initializing GraphErrors for " << this->GetProductName() )
+	virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
+	{
+		DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
+		//CALIB_LOG( "Initializing GraphErrors for " << this->GetProductName() )
 
-	m_graph->m_sName = m_graph->m_sCaption = this->GetProductName();
-	m_graph->SetRootFileFolder( this->GetPipelineSettings()->GetRootFileFolder());
-	m_graph->Init();
-}
+		m_graph->m_sName = m_graph->m_sCaption = this->GetProductName();
+		m_graph->SetRootFileFolder( this->GetPipelineSettings()->GetRootFileFolder());
+		m_graph->Init();
+	}
 
-virtual void Finish()
-{
-	// store hist
-	// + modifiers
-	//CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
-	m_graph->Store(this->GetPipelineSettings()->GetRootOutFile());
-}
-// already configured histogramm
-GraphErrors * m_graph;
+	virtual void Finish()
+	{
+		// store hist
+		// + modifiers
+		//CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
+		m_graph->Store(this->GetPipelineSettings()->GetRootOutFile());
+	}
+	// already configured histogramm
+	GraphErrors * m_graph;
 };
 
 template<class TData, class TMetaData,class TSettings>
 class DrawHist1dConsumerBase: public DrawConsumerBase<TData, TMetaData,TSettings>
 {
 public:
-DrawHist1dConsumerBase() :
-m_hist(NULL)
-{
-}
+	DrawHist1dConsumerBase() :
+		m_hist(NULL)
+		{
+		}
 
-virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
-{
-	DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
-	//CALIB_LOG( "Initializing Hist for " << this->GetProductName() )
+	virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
+	{
+		DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
+		//CALIB_LOG( "Initializing Hist for " << this->GetProductName() )
 
-	/* m_hist->m_sName = "nname"; //this->GetProductName();
+		/* m_hist->m_sName = "nname"; //this->GetProductName();
 	 m_hist->m_sCaption = "ccapt" ;//this->GetProductName(); */
-	m_hist->m_sName = m_hist->m_sCaption = this->GetProductName();
-	m_hist->SetRootFileFolder (this->GetPipelineSettings()->GetRootFileFolder());
-	m_hist->Init();
-}
+		//m_hist->SetNameAndCaption( this->GetProductName());
+		m_hist->SetRootFileFolder (this->GetPipelineSettings()->GetRootFileFolder());
+		m_hist->Init();
+	}
 
-virtual void Finish()
-{
-	// store hist
-	// + modifiers
-	//CALIB_LOG( "Storing Hist for " << this->GetProductName() )
-	m_hist->Store(this->GetPipelineSettings()->GetRootOutFile());
-}
-// already configured histogramm
-Hist1D * m_hist;
+	virtual void Finish()
+	{
+		// store hist
+		// + modifiers
+		//CALIB_LOG( "Storing Hist for " << this->GetProductName() )
+		m_hist->Store(this->GetPipelineSettings()->GetRootOutFile());
+	}
+	// already configured histogramm
+	Hist1D * m_hist;
 };
 
 template<class TData, class TMetaData,class TSettings>
 class DrawHist2DConsumerBase: public DrawConsumerBase<TData, TMetaData,TSettings>
 {
 public:
-DrawHist2DConsumerBase() :
-m_hist(NULL)
-{
-}
+	DrawHist2DConsumerBase() :
+		m_hist(NULL)
+		{
+		}
 
-virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
-{
-	DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
-	//CALIB_LOG( "Initializing 2d Hist for " << this->GetProductName() )
+	virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
+	{
+		DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
+		//CALIB_LOG( "Initializing 2d Hist for " << this->GetProductName() )
 
-	/* m_hist->m_sName = "nname"; //this->GetProductName();
+		/* m_hist->m_sName = "nname"; //this->GetProductName();
 	 m_hist->m_sCaption = "ccapt" ;//this->GetProductName(); */
-	m_hist->m_sName = m_hist->m_sCaption = this->GetProductName();
-	m_hist->SetRootFileFolder( this->GetPipelineSettings()->GetRootFileFolder() );
-	m_hist->Init();
-}
+		m_hist->m_sName = m_hist->m_sCaption = this->GetProductName();
+		m_hist->SetRootFileFolder( this->GetPipelineSettings()->GetRootFileFolder() );
+		m_hist->Init();
+	}
 
-virtual void Finish()
-{
-	// store hist
-	// + modifiers
-	//CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
-	m_hist->Store(this->GetPipelineSettings()->GetRootOutFile());
-}
-// already configured histogramm
-Hist2D * m_hist;
+	virtual void Finish()
+	{
+		// store hist
+		// + modifiers
+		//CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
+		m_hist->Store(this->GetPipelineSettings()->GetRootOutFile());
+	}
+	// already configured histogramm
+	Hist2D * m_hist;
 };
 
 }

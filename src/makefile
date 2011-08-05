@@ -6,7 +6,7 @@ LIB	      = ../lib
 LIB_PATH  = -L../../KappaTools/lib/ -L../../Kappa/lib/
 
 INCL      = ../interface
-INCL_PATH =  -I../../Kappa/ -I../../KappaTools/
+INCL_PATH =  -I../../Kappa/ -I../../ -I../../KappaTools/
 TESTDIR	  = ../progs
 BIN	      = ../bin
 OBJ	      = ../obj
@@ -24,7 +24,7 @@ BOOST_INC = /afs/naf.desy.de/group/cms/sw/slc5_ia32_gcc434/external/boost/1.42.0
 
 CPPFLAGS      = -I${BOOST_INC} -I${INCL} ${LIB_PATH} ${INCL_PATH}
 CXX 	      = /usr/bin/g++ 
-CXXFLAGS      = -O3 -g -Wall -fopenmp -fPIC $(ROOTCFLAGS)
+CXXFLAGS      = -O0 -g -Wall -fopenmp -fPIC $(ROOTCFLAGS) -pedantic
 LD	      = /usr/bin/g++
 LDFLAGS       = $(ROOTLDFLAGS) ${LIB_PATH} -rdynamic
 

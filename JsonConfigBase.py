@@ -24,6 +24,7 @@ def GetBaseConfig():
     d["Algos"] = ["ak5PFJets"]#"ak7PFJets", "ak5CaloJets", "ak7CaloJets", "kt4PFJets","kt6PFJets", "kt4CaloJets", "kt6CaloJets", "ic5PFJets", "ic5CaloJets"]
     d["Pipelines"] = { "default": {
             "Level": 1,
+            "JetAlgorithm" : "AK5PFJets",
             "RootFileFolder": "",
             "AdditionalConsumer": [],
             "CutMuonEta": 2.3,
