@@ -911,11 +911,11 @@ public:
 	}
 	virtual double GetHigh()
 	{
-		return 14.5f;
+		return 24.5f;
 	}
 	virtual int GetBinCount()
 	{
-		return 15;
+		return 25;
 	}
 	virtual double GetXValue(EventResult & event)
 	{

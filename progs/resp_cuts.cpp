@@ -601,6 +601,14 @@ ZJetPipeline * CreateDefaultPipeline()
 	pline->m_consumer.push_back(object_DrawJet2Pt);
 
 
+	GraphErrors * hist_DrawJetPtRecoNRV = new GraphErrors;
+	DrawJetPt<GraphXProviderRecoVert > * object_DrawJetPtRecoNRV =
+			new DrawJetPt<GraphXProviderRecoVert > (0);
+	object_DrawJetPtRecoNRV->m_sQuantityName = "jet1_pt_nrv";
+	object_DrawJetPtRecoNRV->m_graph = hist_DrawJetPt;
+	pline->m_consumer.push_back(object_DrawJetPtRecoNRV);
+
+
 	//PLOT_GRAPHERRORS( pline, DrawJetRespBase, jetresp )
 	/*	Hist2D * hist = new Hist2D;
 	 DrawZMassConsumer * massc = new DrawZMassConsumer();
