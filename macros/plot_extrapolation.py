@@ -20,8 +20,8 @@ import plotBase
 print "%1.2f Start with settings" % time.clock()
 ### SETTINGS
 settings = plotBase.StandardSettings()
-#settings.outputformats = ['png', 'pdf', 'txt', 'dat']
-settings.outputformats = ['png', 'txt', 'dat']
+settings.outputformats = ['png', 'pdf', 'txt', 'dat']
+#settings.outputformats = ['png', 'txt', 'dat']
 settings.lumi = 1000
 settings.verbosity = 2
 #factor = global_factor = 0.158781242981 # qualitycuts
@@ -268,7 +268,7 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	mc_y_orig_err = []
 	
 	
-	algoname_data = algoname
+	algoname_data = algoname + add_to_data
 	if "CHS" in algoname_data:
 		 algoname_data = algoname_data[: len (algoname_data) - 3]
 		 algoname_data = algoname_data + add_to_data + "CHS"
@@ -494,17 +494,17 @@ AddEtaRange(ta, "$|\eta| < 1.3$")
 plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3_data_mc_ratio_extrapol", settings, False)
 
 #chs
-tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3CHS", tf, ta, True, "extrapol", "")
-AddEtaRange(ta, "$|\eta| < 1.3$")
-plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3CHS_data_mc_ratio_extrapol", settings, False)
+#tf, ta, tname = plotBase.makeplot("jetresp_mc")
+#extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3CHS", tf, ta, True, "extrapol", "")
+#AddEtaRange(ta, "$|\eta| < 1.3$")
+#plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3CHS_data_mc_ratio_extrapol", settings, False)
 
 
 #chs
-tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3CHS", tf, ta, True, "extrapol", "Res")
-AddEtaRange(ta, "$|\eta| < 1.3$")
-plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3ResCHS_data_mc_ratio_extrapol", settings, False)
+#tf, ta, tname = plotBase.makeplot("jetresp_mc")
+#extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3CHS", tf, ta, True, "extrapol", "Res")
+#AddEtaRange(ta, "$|\eta| < 1.3$")
+#plotBase.Save(tf, "jetresp_ratio_ak5PFJetsL1L2L3ResCHS_data_mc_ratio_extrapol", settings, False)
 
 
 
@@ -514,50 +514,61 @@ extrapolate_ratio("mpfresp", "ak5PFJetsL1", tf, ta, False, "no_extrapol", "")
 AddEtaRange(ta, "$|\eta| < 1.3$")
 plotBase.Save(tf, "mpfresp_ratio_ak5PFJetsL1_data_mc_ratio", settings, False)
 
-#chs
 tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("mpfresp", "ak5PFJetsL1CHS", tf, ta, False, "no_extrapol", "")
+extrapolate_ratio("mpfresp", "ak5PFJetsL1L2L3", tf, ta, False, "no_extrapol", "")
 AddEtaRange(ta, "$|\eta| < 1.3$")
-plotBase.Save(tf, "mpfresp_ratio_ak5PFJetsL1CHS_data_mc_ratio", settings, False)
+plotBase.Save(tf, "mpfresp_ratio_ak5PFJetsL1L2L3_data_mc_ratio", settings, False)
+
+tf, ta, tname = plotBase.makeplot("jetresp_mc")
+extrapolate_ratio("mpfresp", "ak5PFJetsL1L2L3", tf, ta, False, "no_extrapol", "Res")
+AddEtaRange(ta, "$|\eta| < 1.3$")
+plotBase.Save(tf, "mpfresp_ratio_ak5PFJetsL1L2L3Res_data_mc_ratio", settings, False)
+
+
+#chs
+#tf, ta, tname = plotBase.makeplot("jetresp_mc")
+#extrapolate_ratio("mpfresp", "ak5PFJetsL1CHS", tf, ta, False, "no_extrapol", "")
+#AddEtaRange(ta, "$|\eta| < 1.3$")
+#plotBase.Save(tf, "mpfresp_ratio_ak5PFJetsL1CHS_data_mc_ratio", settings, False)
 
 
 # !! ENDCAP
 
 # Balance 
 
-tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, True, "extrapol", "Res", "endcap_")
-ta.set_ylim( 0.78, 1.22 )
-AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
-plotBase.Save(tf, "endcap_jetresp_ratio_ak5PFJetsL1L2L3Res_data_mc_ratio_extrapol", settings, False)
-
-tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, True, "extrapol", "", "endcap_")
-ta.set_ylim( 0.78, 1.22 )
-AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
-plotBase.Save(tf, "endcap_jetresp_ratio_ak5PFJetsL1L2L3_data_mc_ratio_extrapol", settings, False)
-
-#CHS
-tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3CHS", tf, ta, True, "extrapol", "", "endcap_")
-ta.set_ylim( 0.78, 1.22 )
-AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
-plotBase.Save(tf, "endcap_jetresp_ratio_ak5PFJetsL1L2L3CHS_data_mc_ratio_extrapol", settings, False)
-
-tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3CHS", tf, ta, True, "extrapol", "Res", "endcap_")
-ta.set_ylim( 0.78, 1.22 )
-AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
-plotBase.Save(tf, "endcap_jetresp_ratio_ak5PFJetsL1L2L3ResCHS_data_mc_ratio_extrapol", settings, False)
-
-
-# MPF 
-tf, ta, tname = plotBase.makeplot("jetresp_mc")
-extrapolate_ratio("mpfresp", "ak5PFJetsL1", tf, ta, False, "no_extrapol", "", "endcap_")
-ta.set_ylim( 0.78, 1.22 )
-AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
-
-plotBase.Save(tf, "endcap_mpfresp_ratio_ak5PFJetsL1L2L3_data_mc_ratio", settings, False)
+#tf, ta, tname = plotBase.makeplot("jetresp_mc")
+#extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, True, "extrapol", "Res", "endcap_")
+#ta.set_ylim( 0.78, 1.22 )
+#AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
+#plotBase.Save(tf, "endcap_jetresp_ratio_ak5PFJetsL1L2L3Res_data_mc_ratio_extrapol", settings, False)
+#
+#tf, ta, tname = plotBase.makeplot("jetresp_mc")
+#extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3", tf, ta, True, "extrapol", "", "endcap_")
+#ta.set_ylim( 0.78, 1.22 )
+#AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
+#plotBase.Save(tf, "endcap_jetresp_ratio_ak5PFJetsL1L2L3_data_mc_ratio_extrapol", settings, False)
+#
+##CHS
+##tf, ta, tname = plotBase.makeplot("jetresp_mc")
+##extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3CHS", tf, ta, True, "extrapol", "", "endcap_")
+##ta.set_ylim( 0.78, 1.22 )
+##AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
+##plotBase.Save(tf, "endcap_jetresp_ratio_ak5PFJetsL1L2L3CHS_data_mc_ratio_extrapol", settings, False)
+#
+##tf, ta, tname = plotBase.makeplot("jetresp_mc")
+##extrapolate_ratio("jetresp", "ak5PFJetsL1L2L3CHS", tf, ta, True, "extrapol", "Res", "endcap_")
+##ta.set_ylim( 0.78, 1.22 )
+##AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
+##plotBase.Save(tf, "endcap_jetresp_ratio_ak5PFJetsL1L2L3ResCHS_data_mc_ratio_extrapol", settings, False)
+#
+#
+## MPF 
+#tf, ta, tname = plotBase.makeplot("jetresp_mc")
+#extrapolate_ratio("mpfresp", "ak5PFJetsL1", tf, ta, False, "no_extrapol", "", "endcap_")
+#ta.set_ylim( 0.78, 1.22 )
+#AddEtaRange(ta, "$1.5 < |\eta| < 2.4$")
+#
+#plotBase.Save(tf, "endcap_mpfresp_ratio_ak5PFJetsL1L2L3_data_mc_ratio", settings, False)
 
 
 
