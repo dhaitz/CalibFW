@@ -173,9 +173,9 @@ void AddConsumersToPipeline(ZJetPipeline * pline,
 		std::vector<std::string> consList)
 {
 	BOOST_FOREACH( std::string s, consList )
-		{	CALIB_LOG( "Adding consumer " << s)
+				{	CALIB_LOG( "Adding consumer " << s)
 		AddConsumerToPipeline( pline, s);
-		}
+				}
 }
 
 void CreateWeightBins()
@@ -206,15 +206,18 @@ class ZJetEventProvider: public EventProvider<ZJetEventData>
 public:
 	ZJetEventProvider(FileInterface & fi) :
 		m_fi(fi)
-		{
+	{
+		// setup pointer to collections
+		m_event.m_eventmetadata = fi.Get<KEventMetadata> ();
 
-		m_eventmetadata = fi.Get<KEventMetadata> ();
-		//m_kPF = fi.Get<KDataPFJets> ("AK5PFJets");
-		}
+		InitPFJets( m_event, "AK5PFJets" );
+		InitPFJets( m_event, "AK7PFJets" );
+		InitPFJets( m_event, "KT4PFJets" );
+		InitPFJets( m_event, "KT6PFJets" );
+	}
 
 	virtual bool GotoEvent(long long lEvent)
 	{
-		m_data.m_fi = &m_fi;
 		m_fi.eventdata.GetEntry(lEvent);
 
 		//CALIB_LOG( "Event " << m_eventmetadata->nEvent << " Lumi " << m_eventmetadata->nLumi << " Run " << m_eventmetadata->nRun )
@@ -226,19 +229,23 @@ public:
 	}
 
 	virtual ZJetEventData const& GetCurrentEvent() const
-			{
-		return m_data;
-			}
+	{
+		return m_event;
+	}
 
 	virtual long long GetOverallEventCount() const
-			{
+	{
 		return m_fi.eventdata.GetEntries();
-			}
+	}
 
-	KEventMetadata * m_eventmetadata;
-	KDataPFJets * m_kPF;
+private:
+	void InitPFJets( ZJetEventData & event, std::string algoName )
+	{
+		event.m_pfJets[algoName] = m_fi.Get<KDataPFJets>(algoName);
+	}
 
-	ZJetEventData m_data;
+
+	ZJetEventData m_event;
 private:
 
 	FileInterface & m_fi;
@@ -349,8 +356,7 @@ int main(int argc, char** argv)
 	typedef std::map<std::string, KDataPFJets * > PfMap;
 	PfMap pfJets;
 
-	pfJets["AK5PFJets"] = ( fi.Get<KDataPFJets>("AK5PFJets") );
-/*	pfJets["AK7PFJets"]= ( fi.Get<KDataPFJets>("AK7PFJets") );
+	/*	pfJets["AK7PFJets"]= ( fi.Get<KDataPFJets>("AK7PFJets") );
 	pfJets["KT4PFJets"]= ( fi.Get<KDataPFJets>("KT4PFJets") );
 	pfJets["KT6PFJets"] =( fi.Get<KDataPFJets>("KT6PFJets") );*/
 
@@ -361,28 +367,11 @@ int main(int argc, char** argv)
 		{
 			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
 
-			/*
-			 *  LVConsumer ( "ak5PF" , "muon_pt" ) -> Init ( create all histos ) -> Process ( fill histos )
-			 *
-			 *
-			 */
-
-			// todo
-			//PLOT_HIST1D_CONST1(pLine, DrawJetPtConsumer, jet1_pt, 0)
-			//AddConsumersToPipeline(pLine, (*it)->GetAdditionalConsumer());
-
-			// set the algo used for this run
-			/*(*it)->SetAlgoName(g_sCurAlgo);
-		 (*it)->SetOverallNumberOfProcessedEvents(
-		 lOverallNumberOfProcessedEvents);
-			 */
-			BOOST_FOREACH( PfMap::value_type val, pfJets )
-
-			{
-				DataPFJetsConsumer * k = new DataPFJetsConsumer(val.second, val.first, 0);
-				//k->Init(0);
-				pLine->AddConsumer(	k );
-			}
+			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 0));
+			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 1));
+			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 2));
+			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 3));
+			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 4));
 
 			pLine->InitPipeline(*it, plineInit);
 			pRunner.AddPipeline( pLine );
@@ -439,10 +428,10 @@ int main(int argc, char** argv)
 	g_ZJetCuts.push_back(new SecondLeadingToZPtCut());
 	g_ZJetCuts.push_back(new BackToBackCut());
 
-	BOOST_FOREACH( ZJetCutBase * pCut, g_ZJetCuts )
+/*	BOOST_FOREACH( ZJetCutBase * pCut, g_ZJetCuts )
 	{
 		g_cutHandler->AddCut( pCut );
-	}
+	}*/
 
 	std::cout << TIMING_GET_RESULT_STRING << std::endl;
 

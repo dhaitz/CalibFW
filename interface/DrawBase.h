@@ -344,6 +344,7 @@ class Hist1D: public HistBase< Hist1D>
 public:
 
 	static ModifierList GetPtModifier();
+	static ModifierList GetPtModifier(double max);
 	static ModifierList GetPhiModifier();
 	static ModifierList GetEtaModifier();
 	static ModifierList GetFractionModifier();
@@ -382,7 +383,7 @@ public:
 		}
 		else
 		{
-			m_hist = RootFileHelper::GetStandaloneTH1D_2( GetName(),
+			m_hist = RootFileHelper::GetStandaloneTH1D_2( GetRootFileFolder() + "_" + GetName(),
 					GetCaption(), this->m_iBinCount, this->m_dBinLower, this->m_dBinUpper);
 
 		}

@@ -7,8 +7,18 @@ Hist1D::ModifierList Hist1D::GetPtModifier()
 {
 	Hist1D::ModifierList modList;
 
-	modList.push_back(new ModHistBinRange(0.0f, 1.2f));
-	modList.push_back(new ModHistBinCount(240));
+	modList.push_back(new ModHistBinRange(0.0f, 1000.0f));
+	modList.push_back(new ModHistBinCount(500));
+
+	return modList;
+}
+
+Hist1D::ModifierList Hist1D::GetPtModifier(double max)
+{
+	Hist1D::ModifierList modList;
+
+	modList.push_back(new ModHistBinRange(0.0f, max));
+	modList.push_back(new ModHistBinCount(500));
 
 	return modList;
 }

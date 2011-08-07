@@ -26,7 +26,7 @@ typedef std::vector<double> doublevector;
 private: 											\
 TYPE m_##SNAME; 									\
 public: 											\
-TYPE Get##SNAME ( ) { return m_##SNAME; }			\
+TYPE Get##SNAME ( ) const { return m_##SNAME; }			\
 void Set##SNAME ( TYPE val) { m_##SNAME = val; }
 
 
@@ -34,7 +34,7 @@ void Set##SNAME ( TYPE val) { m_##SNAME = val; }
 private: 											\
 TYPE m_##SNAME; 									\
 public: 											\
-TYPE Get##SNAME ( ) { return m_##SNAME; }			\
+TYPE Get##SNAME ( ) const { return m_##SNAME; }			\
 private:											\
 void Set##SNAME ( TYPE val) { m_##SNAME = val; }
 

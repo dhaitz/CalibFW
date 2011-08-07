@@ -3,6 +3,8 @@
 #include "EventPipeline.h"
 #include "PipelineSettings.h"
 
+#include <boost/algorithm/string/predicate.hpp>
+
 
 #include "DataFormats/interface/Kappa.h"
 #include "DataFormats/interface/KDebug.h"
@@ -17,50 +19,9 @@
 namespace CalibFW
 {
 
-class ZJetEventData
-{
 
 
-public:
-	KDataPFJets * PF_jets;// = fi.Get<KDataPFJets>(names[0]);
 
-	// contains
-	KDataLVs * m_primaryJetCollection;
-
-	KDataMuons * Muons;
-	FileInterface * m_fi;
-
-	// convinience functions
-	//double GetPrimaryJetPt() const { return PF_Jets->at(0).Pt(); }
-	//KDataPFJet const& GetPrimaryJet() const { return PF_Jets->at(0); }
-
-	KDataLV GetZ()
-	{
-		KDataLV z;
-		return z;
-	}
-/*
-	template <class TJetType>
-	std::vector<TJetType> * GetJets(std::string jetAlgo) const
-	{
-		return m_fi->Get< std::vector<TJetType> >( jetAlgo );
-	}*/
-/*
-	KDataLV GetPrimaryJet( std::string sJetAlgo)
-	{
-		return m_fi->Get<KDataLVs>(sJetAlgo)->at(0);
-	}
-*/
-private:
-
-
-};
-
-class ZJetPipelineSettings;
-typedef EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
-		ZJetPipeline;
-typedef FilterBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
-		ZJetFilterBase;
 
 class ZJetPipelineSettings
 {
@@ -228,6 +189,88 @@ IMPL_PROPERTY(TFile *, RootOutFile)
 	 stringvector m_filter;*/
 
 };
+
+
+
+class ZJetEventData
+{
+
+
+public:
+	KDataPFJets * PF_jets;// = fi.Get<KDataPFJets>(names[0]);
+
+	// contains
+	KDataPFJets * m_primaryJetCollection;
+
+	typedef std::map<std::string, KDataPFJets * > PfMap;
+	typedef std::map<std::string, KDataJets * > JetMap;
+//typedef std::map<std::string, K * > GenMap;
+	PfMap m_pfJets;
+	JetMap m_jets;
+
+
+	// May return null, if the jet is not available
+	KDataLV * GetJet(ZJetPipelineSettings * psettings,
+			unsigned int index ) const
+	{
+		if ( boost::algorithm::starts_with( psettings->GetJetAlgorithm(), "AK5PF" ) ||
+			boost::algorithm::starts_with( psettings->GetJetAlgorithm(), "AK7PF" ) ||
+			boost::algorithm::starts_with( psettings->GetJetAlgorithm(), "KT4PF" ) ||
+			boost::algorithm::starts_with( psettings->GetJetAlgorithm(), "KT6PF" ))
+		{
+			KDataPFJets * pfJets = m_pfJets.at(psettings->GetJetAlgorithm());
+
+			if (pfJets->size() <= index  )
+				return NULL;
+
+			return &pfJets->at(index);
+
+		}
+		else
+		{
+			KDataJets * jets = m_jets.at(psettings->GetJetAlgorithm());
+
+			if (jets->size() >= index )
+				return NULL;
+
+			return &jets->at(index);
+		}
+	}
+
+	KDataMuons * Muons;
+	KEventMetadata * m_eventmetadata;
+
+	// convinience functions
+	//double GetPrimaryJetPt() const { return PF_Jets->at(0).Pt(); }
+	//KDataPFJet const& GetPrimaryJet() const { return PF_Jets->at(0); }
+
+	KDataLV GetZ()
+	{
+		KDataLV z;
+		return z;
+	}
+/*
+	template <class TJetType>
+	std::vector<TJetType> * GetJets(std::string jetAlgo) const
+	{
+		return m_fi->Get< std::vector<TJetType> >( jetAlgo );
+	}*/
+/*
+	KDataLV GetPrimaryJet( std::string sJetAlgo)
+	{
+		return m_fi->Get<KDataLVs>(sJetAlgo)->at(0);
+	}
+*/
+private:
+
+
+};
+
+typedef EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
+		ZJetPipeline;
+typedef FilterBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
+		ZJetFilterBase;
+
 
 class RecoVertFilter: public ZJetFilterBase
 {

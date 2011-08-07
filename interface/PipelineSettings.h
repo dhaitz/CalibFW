@@ -12,10 +12,10 @@ namespace CalibFW
 private: \
 TYPE m_##SNAME;                                                                                                                        \
 public: \
-std::string Key##SNAME () { return "##SNAME"; }                                                        \
-std::string FullKey##SNAME () { return GetSettingsRoot() + "." + #SNAME; }                                                     \
-VarCache<TYPE> Cache##SNAME; \
-TYPE Get##SNAME ( ) { if (Cache##SNAME.IsCached()) { return Cache##SNAME.GetValue(); }         \
+std::string Key##SNAME () const { return "##SNAME"; }                                                        \
+std::string FullKey##SNAME () const { return GetSettingsRoot() + "." + #SNAME; }                                                     \
+mutable VarCache<TYPE> Cache##SNAME; \
+TYPE Get##SNAME ( ) const { if (Cache##SNAME.IsCached()) { return Cache##SNAME.GetValue(); }         \
        TYPE  val = GetPropTree()->get< TYPE >( FullKey##SNAME ());     \
        Cache##SNAME.SetCache( val ); \
        return val;}            \
@@ -27,10 +27,10 @@ void Set##SNAME ( TYPE val) { GetPropTree()->put( FullKey##SNAME (), val);     \
 private: \
 TYPE m_##SNAME;                                                                                                                        \
 public: \
-std::string Key##SNAME () { return "##SNAME"; }                                                        \
-std::string FullKey##SNAME () { return GetSettingsRoot() + "." + #SNAME; }                                                     \
-VarCache<TYPE> Cache##SNAME; \
-TYPE Get##SNAME ( ) { if (Cache##SNAME.IsCached()) { return Cache##SNAME.GetValue(); }         \
+std::string Key##SNAME () const { return "##SNAME"; }                                                        \
+std::string FullKey##SNAME () const  { return GetSettingsRoot() + "." + #SNAME; }                                                     \
+mutable VarCache<TYPE> Cache##SNAME; \
+TYPE Get##SNAME ( ) const { if (Cache##SNAME.IsCached()) { return Cache##SNAME.GetValue(); }         \
        TYPE  val = GetPropTree()->get< TYPE >( FullKey##SNAME (), DEFAULT_VAL );       \
        Cache##SNAME.SetCache( val ); \
        return val;}            \

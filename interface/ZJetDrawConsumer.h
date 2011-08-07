@@ -116,41 +116,41 @@ public:
 	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
 			ZJetPipelineSettings> * pset)
 	{
+		MetaConsumerBase<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings>::Init( pset );
+
 		m_histPt = new Hist1D();
 		m_histEta = new Hist1D();
 		m_histPhi = new Hist1D();
 
 		m_hist1d.push_back(m_histPt);
-		m_hist1d.push_back(m_histEta);
-		m_hist1d.push_back(m_histPhi);
+//		m_hist1d.push_back(m_histEta);
+//		m_hist1d.push_back(m_histPhi);
 
 		m_histPt->SetNameAndCaption(GenName(GetPhysicsObjectName(), "_pt_"));
-		m_histPhi->SetNameAndCaption(GenName(GetPhysicsObjectName(), "_phi_"));
+/*		m_histPhi->SetNameAndCaption(GenName(GetPhysicsObjectName(), "_phi_"));
 		m_histEta->SetNameAndCaption(GenName(GetPhysicsObjectName(), "_eta_"));
-
-		m_pipeline = pset;
-
-		m_histPt->Init( Hist1D::GetPtModifier());
+*/
 		m_histPt->SetRootFileFolder(GetPipelineSettings()->GetRootFileFolder());
+		m_histPt->Init( Hist1D::GetPtModifier());
 
+/*
 		m_histEta->Init(Hist1D::GetEtaModifier());
 		m_histEta->SetRootFileFolder(GetPipelineSettings()->GetRootFileFolder());
 
 		m_histPhi->Init(Hist1D::GetPhiModifier());
-		m_histPhi->SetRootFileFolder(GetPipelineSettings()->GetRootFileFolder());
+		m_histPhi->SetRootFileFolder(GetPipelineSettings()->GetRootFileFolder());*/
 	}
 
 	// this method is only called for events which have passed the filter imposed on the
 	// pipeline
 
-	virtual void PlotDataLVQuantities(KDataLV const& dataLV,
+	virtual void PlotDataLVQuantities(KDataLV * dataLV,
 			ZJetMetaData const& metaData)
 	{
-		m_histPt->Fill(dataLV.p4.Pt(), metaData.GetWeight());
-		m_histEta->Fill(dataLV.p4.Eta(), metaData.GetWeight());
-
-		// Kappa->Phi is centered around zero
-		m_histPhi->Fill(dataLV.p4.Phi(), metaData.GetWeight());
+		m_histPt->Fill(dataLV->p4.Pt(), metaData.GetWeight());/*
+		m_histEta->Fill(dataLV->p4.Eta(), metaData.GetWeight());
+		m_histPhi->Fill(dataLV->p4.Phi(), metaData.GetWeight());*/
 	}
 
 	virtual void Finish()
@@ -186,19 +186,17 @@ public:
 };
 
 /// maybe also used for other stuff, like muons
-template<class TJetType>
 class DataLVsConsumer: public MetaConsumerDataLV
 {
 public:
 
-	DataLVsConsumer( vector<TJetType> * jetSource,
+	DataLVsConsumer(
 			std::string productName,
 			unsigned int productIndex) :
 				MetaConsumerDataLV()
 				{
 		SetProductIndex( productIndex );
 		SetProductName( productName );
-		SetSource( jetSource);
 
 		std::stringstream jetName;
 		jetName << "jet" << (GetProductIndex() + 1) << "%quant%"
@@ -227,28 +225,27 @@ public:
 	{
 		//CALIB_LOG( m_source->size() )
 		// call sub plots
-		if (GetProductIndex() >= GetSource()->size())
+		KDataLV * lv = event.GetJet( GetPipelineSettings(), GetProductIndex());
+
+		if (lv == NULL)
 			// no valid entry for us here !
 
 		{
-			//CALIB_LOG_FATAL( "No entry for the Product " << GetProductName() << " with index " << GetProductID() )
 			return;
 		}
 
-		TJetType const& jet = GetSource()->at(GetProductIndex());
-
-		PlotDataLVQuantities(jet, metaData);
+		PlotDataLVQuantities(lv, metaData);
 
 		// TODO: is jet valid
 		//		m_histJetPt.Fill(jet.p4.Pt(), metaData.GetWeight());
 		//		m_histJetPt.Fill(jet.p4.Pt(), metaData.GetWeight());
 		//CALIB_LOG(pfJet.p4.Pt() );
-		ProcessFilteredEvent_specific( event, metaData, jet);
+		ProcessFilteredEvent_specific( event, metaData, lv);
 	}
 
 	virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
 			ZJetMetaData const& metaData,
-			TJetType const& jet)
+			KDataLV * jet)
 	{
 
 	}
@@ -258,19 +255,19 @@ public:
 		MetaConsumerDataLV::Finish();
 	}
 
-	IMPL_PROPERTY_READONLY( vector<TJetType> *, Source)
 	IMPL_PROPERTY_READONLY( std::string, ProductName )
 	IMPL_PROPERTY_READONLY( unsigned int, ProductIndex )
 
 };
 
 class DataPFJetsConsumer:
-public DataLVsConsumer<KDataPFJet>
+public DataLVsConsumer
 {
 public:
 
-	DataPFJetsConsumer( vector<KDataPFJet> * jetSource, std::string productName, unsigned int productIndex) :
-		DataLVsConsumer<KDataPFJet>( jetSource, productName, productIndex)
+	DataPFJetsConsumer( std::string productName,
+			unsigned int productIndex) :
+		DataLVsConsumer(  productName, productIndex)
 		{
 
 		}
@@ -278,8 +275,8 @@ public:
 	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
 			ZJetPipelineSettings> * pset)
 	{
-		DataLVsConsumer<KDataPFJet>::Init(pset);
-
+		DataLVsConsumer::Init(pset);
+/*
 		m_neutralEmFraction = new Hist1D();
 		m_neutralEmFraction->SetNameAndCaption(GenName(GetPhysicsObjectName(), "_emfraction_"));
 
@@ -287,15 +284,17 @@ public:
 		m_neutralEmFraction->SetRootFileFolder(GetPipelineSettings()->GetRootFileFolder());
 
 		m_hist1d.push_back( m_neutralEmFraction );
-
+*/
 
 	}
 
 	virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
 			ZJetMetaData const& metaData,
-			KDataPFJet const& jet)
+			KDataLV * jet)
 	{
-		m_neutralEmFraction->Fill( jet.chargedEMFraction, metaData.GetWeight() );
+		KDataPFJet * pfJet = static_cast<KDataPFJet*>( jet );
+
+		//m_neutralEmFraction->Fill( pfJet->chargedEMFraction, metaData.GetWeight() );
 	}
 
 	Hist1D * m_neutralEmFraction;
