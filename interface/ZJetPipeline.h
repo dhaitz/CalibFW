@@ -23,6 +23,10 @@ class ZJetEventData
 
 public:
 	KDataPFJets * PF_jets;// = fi.Get<KDataPFJets>(names[0]);
+
+	// contains
+	KDataLVs * m_primaryJetCollection;
+
 	KDataMuons * Muons;
 	FileInterface * m_fi;
 
@@ -35,12 +39,12 @@ public:
 		KDataLV z;
 		return z;
 	}
-
+/*
 	template <class TJetType>
 	std::vector<TJetType> * GetJets(std::string jetAlgo) const
 	{
 		return m_fi->Get< std::vector<TJetType> >( jetAlgo );
-	}
+	}*/
 /*
 	KDataLV GetPrimaryJet( std::string sJetAlgo)
 	{

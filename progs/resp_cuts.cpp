@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <set>
+#include <map>
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -144,15 +145,15 @@ void RunPipelines(int level)
 	if (level == 1)
 		CALIB_LOG_FATAL( "This method can not be used for leve1 pipelines, use RunPipelinesForEvent instead" )
 
-	for (PipelineVector::iterator it = g_pipelines.begin(); !(it
-			== g_pipelines.end()); it++)
-	{
-		if (it->GetSettings()->GetLevel() == level)
+		for (PipelineVector::iterator it = g_pipelines.begin(); !(it
+				== g_pipelines.end()); it++)
 		{
+			if (it->GetSettings()->GetLevel() == level)
+			{
 
-			it->Run();
+				it->Run();
+			}
 		}
-	}
 }
 
 void AddConsumerToPipeline(ZJetPipeline * pline, std::string consumerName)
@@ -172,9 +173,9 @@ void AddConsumersToPipeline(ZJetPipeline * pline,
 		std::vector<std::string> consList)
 {
 	BOOST_FOREACH( std::string s, consList )
-{	CALIB_LOG( "Adding consumer " << s)
-	AddConsumerToPipeline( pline, s);
-}
+		{	CALIB_LOG( "Adding consumer " << s)
+		AddConsumerToPipeline( pline, s);
+		}
 }
 
 void CreateWeightBins()
@@ -195,21 +196,21 @@ void CreateWeightBins()
 
 ZJetPipelineSettings * CreateDefaultSettings(std::string sAlgoName,
 		InputTypeEnum inpType)
-{
+		{
 	ZJetPipelineSettings * psetting = new ZJetPipelineSettings();
 	return psetting;
-}
+		}
 
 class ZJetEventProvider: public EventProvider<ZJetEventData>
 {
 public:
 	ZJetEventProvider(FileInterface & fi) :
 		m_fi(fi)
-	{
+		{
 
 		m_eventmetadata = fi.Get<KEventMetadata> ();
-		m_kPF = fi.Get<KDataPFJets> ("AK5PFJets");
-	}
+		//m_kPF = fi.Get<KDataPFJets> ("AK5PFJets");
+		}
 
 	virtual bool GotoEvent(long long lEvent)
 	{
@@ -218,21 +219,21 @@ public:
 
 		//CALIB_LOG( "Event " << m_eventmetadata->nEvent << " Lumi " << m_eventmetadata->nLumi << " Run " << m_eventmetadata->nRun )
 
-		CALIB_LOG( "Event " << m_eventmetadata->nEvent << " Lumi " << m_eventmetadata->nLumi
-				<< " Run " << m_eventmetadata->nRun << "PF " << m_kPF->size())
-
+		/*CALIB_LOG( "Event " << m_eventmetadata->nEvent << " Lumi " << m_eventmetadata->nLumi
+		 << " Run " << m_eventmetadata->nRun << "PF " << m_kPF->size())
+		 */
 		return true;
 	}
 
 	virtual ZJetEventData const& GetCurrentEvent() const
-	{
+			{
 		return m_data;
-	}
+			}
 
 	virtual long long GetOverallEventCount() const
-	{
+			{
 		return m_fi.eventdata.GetEntries();
-	}
+			}
 
 	KEventMetadata * m_eventmetadata;
 	KDataPFJets * m_kPF;
@@ -254,7 +255,7 @@ int main(int argc, char** argv)
 	if (argc < 2)
 	{
 		std::cerr << "Usage: " << argv[0]
-				<< " json_config_file.json [VerboseLevel]\n";
+		                               << " json_config_file.json [VerboseLevel]\n";
 		return 1;
 	}
 
@@ -283,170 +284,178 @@ int main(int argc, char** argv)
 
 	std::vector<std::string> sJetNames = fi.GetNames<KDataJet> (true);
 	BOOST_FOREACH( std::string s, sJetNames)
-{	std::cout << "KDataJet " << s << std::endl;
-}
+	{	std::cout << "KDataJet " << s << std::endl;
+	}
 
-sJetNames = fi.GetNames<KDataPFJets>(true);
+	sJetNames = fi.GetNames<KDataPFJets>(true);
 
-BOOST_FOREACH( std::string s, sJetNames)
-{
-	std::cout << "KDataLV " << s << std::endl;
-}
+	BOOST_FOREACH( std::string s, sJetNames)
+	{
+		std::cout << "KDataLV " << s << std::endl;
+	}
 
-ZJetEventProvider evtProvider( fi );
+	ZJetEventProvider evtProvider( fi );
 
-/*KDataPFJets * myJets = fi.Get<KDataPFJets>("AK5PFJets");
+	/*KDataPFJets * myJets = fi.Get<KDataPFJets>("AK5PFJets");
  evtProvider.m_data.PF_jets = myJets;*/
 
-/*	typedef std::pair<std::string, ConsumerConfig > configpair;
+	/*	typedef std::pair<std::string, ConsumerConfig > configpair;
  typedef std::vector<std::pair<std::string, ConsumerConfig > > configpairvector;
 
  configpairvector LVPlots(1,
  configpair( "jet1_ak5PF",
  ConsumerConfig()
  ));
- */
-/*s.second.EventDataID =
+	 */
+	/*s.second.EventDataID =
  evtProvider.GetEventData().AddDataLV( fi.Get<KDataPFJets>( "AK5PFJets" )[0] );
- */
+	 */
 
-// removes the old file
-std::string sRootOutputFilename = (g_sOutputPath + ".root");
+	// removes the old file
+	std::string sRootOutputFilename = (g_sOutputPath + ".root");
 
-//Todo: close file to free memory of already written histos
-g_resFile = new TFile(sRootOutputFilename.c_str(), "RECREATE");
-CALIB_LOG_FILE("Writing to the root file " << sRootOutputFilename)
+	//Todo: close file to free memory of already written histos
+	g_resFile = new TFile(sRootOutputFilename.c_str(), "RECREATE");
+	CALIB_LOG_FILE("Writing to the root file " << sRootOutputFilename)
 
-// insert config into log file
-CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump:" );
-boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
+	// insert config into log file
+	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump:" );
+	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
 
-EventPipelineRunner<ZJetPipeline> pRunner;
+	EventPipelineRunner<ZJetPipeline> pRunner;
 
-// cloning of a pipeline ?? goes here maybe
-// clone default pipeline for the number of settings we have
-g_pipelines.clear();
+	// cloning of a pipeline ?? goes here maybe
+	// clone default pipeline for the number of settings we have
+	g_pipelines.clear();
 
-ZJetPipelineInitializer plineInit;
+	ZJetPipelineInitializer plineInit;
 
-ZJetPipelineSettings * pset = NULL;
+	ZJetPipelineSettings * pset = NULL;
 
-BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
-		g_propTree.get_child("Pipelines") )
-{
-	pset = new ZJetPipelineSettings();
-	pset->SetPropTree( &g_propTree );
-
-	std::string sKeyName = v.first.data();
-	pset->SetSettingsRoot("Pipelines." + sKeyName);
-	pset->SetRootOutFile(g_resFile);
-
-	g_pipeSettings.push_back( pset );
-}
-
-for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
-				== g_pipeSettings.end()); it++)
-{
-	if ((*it)->GetLevel() == 1)
+	BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
+			g_propTree.get_child("Pipelines") )
 	{
-		ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
+		pset = new ZJetPipelineSettings();
+		pset->SetPropTree( &g_propTree );
 
-		/*
-		 *  LVConsumer ( "ak5PF" , "muon_pt" ) -> Init ( create all histos ) -> Process ( fill histos )
-		 *
-		 *
-		 */
+		std::string sKeyName = v.first.data();
+		pset->SetSettingsRoot("Pipelines." + sKeyName);
+		pset->SetRootOutFile(g_resFile);
 
-		// todo
-		//PLOT_HIST1D_CONST1(pLine, DrawJetPtConsumer, jet1_pt, 0)
-		//AddConsumersToPipeline(pLine, (*it)->GetAdditionalConsumer());
+		g_pipeSettings.push_back( pset );
+	}
 
-		// set the algo used for this run
-		/*(*it)->SetAlgoName(g_sCurAlgo);
+	// get pointers to the interesting collections
+	typedef std::map<std::string, KDataPFJets * > PfMap;
+	PfMap pfJets;
+
+	pfJets["AK5PFJets"] = ( fi.Get<KDataPFJets>("AK5PFJets") );
+/*	pfJets["AK7PFJets"]= ( fi.Get<KDataPFJets>("AK7PFJets") );
+	pfJets["KT4PFJets"]= ( fi.Get<KDataPFJets>("KT4PFJets") );
+	pfJets["KT6PFJets"] =( fi.Get<KDataPFJets>("KT6PFJets") );*/
+
+	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
+			== g_pipeSettings.end()); it++)
+	{
+		if ((*it)->GetLevel() == 1)
+		{
+			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
+
+			/*
+			 *  LVConsumer ( "ak5PF" , "muon_pt" ) -> Init ( create all histos ) -> Process ( fill histos )
+			 *
+			 *
+			 */
+
+			// todo
+			//PLOT_HIST1D_CONST1(pLine, DrawJetPtConsumer, jet1_pt, 0)
+			//AddConsumersToPipeline(pLine, (*it)->GetAdditionalConsumer());
+
+			// set the algo used for this run
+			/*(*it)->SetAlgoName(g_sCurAlgo);
 		 (*it)->SetOverallNumberOfProcessedEvents(
 		 lOverallNumberOfProcessedEvents);
-		 */
-		MetaConsumerDataLV_Vector<KDataPFJet> * pfJetsConsumer = new MetaConsumerDataLV_Vector<KDataPFJet>();
+			 */
+			BOOST_FOREACH( PfMap::value_type val, pfJets )
 
-		pfJetsConsumer->SetSource( fi.Get<KDataPFJets>("AK5PFJets") );
-		pfJetsConsumer->SetProductName( "AK5PFJets" );
-		pfJetsConsumer->SetProductID( 0 );
-		//pfJetsConsumer->Se
+			{
+				DataPFJetsConsumer * k = new DataPFJetsConsumer(val.second, val.first, 0);
+				//k->Init(0);
+				pLine->AddConsumer(	k );
+			}
 
-		pLine->AddConsumer(pfJetsConsumer);
-
-		pLine->InitPipeline(*it, plineInit);
-		pRunner.AddPipeline( pLine );
+			pLine->InitPipeline(*it, plineInit);
+			pRunner.AddPipeline( pLine );
+		}
 	}
-}
 
-/*
+	/*
  g_sTrackedEventsFile = p.getString(secname + ".tracked_events");
  if (g_sTrackedEventsFile.length() > 0)
  loadTrackedEventsFromFile(g_sTrackedEventsFile);
- */
+	 */
 
-// weighting settings
-g_useEventWeight = g_propTree.get<bool> ("UseEventWeight", false);
-g_useWeighting = g_propTree.get<bool> ("UseWeighting", false);
+	// weighting settings
+	g_useEventWeight = g_propTree.get<bool> ("UseEventWeight", false);
+	g_useWeighting = g_propTree.get<bool> ("UseWeighting", false);
 
-g_useGlobalWeightBin = g_propTree.get<bool> ("UseGlobalWeightBin", false);
-g_globalXSection = g_propTree.get<double> ("GlobalXSection", 0.0f);
+	g_useGlobalWeightBin = g_propTree.get<bool> ("UseGlobalWeightBin", false);
+	g_globalXSection = g_propTree.get<double> ("GlobalXSection", 0.0f);
 
-g_eventReweighting = g_propTree.get<bool> ("EventReweighting", false);
+	g_eventReweighting = g_propTree.get<bool> ("EventReweighting", false);
 
-if (g_eventReweighting)
-CALIB_LOG_FILE( "\n\n --------> reweightin events for # reco !!\n\n" )
+	if (g_eventReweighting)
+		CALIB_LOG_FILE( "\n\n --------> reweightin events for # reco !!\n\n" )
 
-if ( g_propTree.get("JsonFile", "") != "" )
-g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
+		if ( g_propTree.get("JsonFile", "") != "" )
+			g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
 
-/*
+	/*
  g_l2CorrFiles = p.getvString(secname + ".l2_correction_data");
  g_l3CorrFiles = p.getvString(secname + ".l3_correction_data");
- */
+	 */
 
-g_cutHandler.reset(new ZJetCutHandler());
+	g_cutHandler.reset(new ZJetCutHandler());
 
-// init cuts
-// values are set for each Pipeline individually
+	// init cuts
+	// values are set for each Pipeline individually
 
-// technical cuts
-g_ZJetCuts.push_back(new JsonCut(g_json.get()));
-g_ZJetCuts.push_back(new HltCut());
+	// technical cuts
+	g_ZJetCuts.push_back(new JsonCut(g_json.get()));
+	g_ZJetCuts.push_back(new HltCut());
 
-// muon cuts
-g_ZJetCuts.push_back(new MuonEtaCut());
-g_ZJetCuts.push_back(new MuonPtCut() );
-g_ZJetCuts.push_back(new ZMassWindowCut());
-g_ZJetCuts.push_back(new ZPtCut());
+	// muon cuts
+	g_ZJetCuts.push_back(new MuonEtaCut());
+	g_ZJetCuts.push_back(new MuonPtCut() );
+	g_ZJetCuts.push_back(new ZMassWindowCut());
+	g_ZJetCuts.push_back(new ZPtCut());
 
-// jet cuts
-g_ZJetCuts.push_back(new LeadingJetEtaCut());
-g_ZJetCuts.push_back(new JetPtCut());
+	// jet cuts
+	g_ZJetCuts.push_back(new LeadingJetEtaCut());
+	g_ZJetCuts.push_back(new JetPtCut());
 
-// topology cuts
-//g_ZJetCuts.push_back(new SecondLeadingToZPtCutDir());
-g_ZJetCuts.push_back(new SecondLeadingToZPtCut());
-g_ZJetCuts.push_back(new BackToBackCut());
+	// topology cuts
+	//g_ZJetCuts.push_back(new SecondLeadingToZPtCutDir());
+	g_ZJetCuts.push_back(new SecondLeadingToZPtCut());
+	g_ZJetCuts.push_back(new BackToBackCut());
 
-BOOST_FOREACH( ZJetCutBase * pCut, g_ZJetCuts )
-{
-//debug	g_cutHandler->AddCut( pCut );
-}
+	BOOST_FOREACH( ZJetCutBase * pCut, g_ZJetCuts )
+	{
+		g_cutHandler->AddCut( pCut );
+	}
 
-std::cout << TIMING_GET_RESULT_STRING << std::endl;
+	std::cout << TIMING_GET_RESULT_STRING << std::endl;
 
-pRunner.RunPipelines<ZJetEventData>( evtProvider );
+	pRunner.RunPipelines<ZJetEventData>( evtProvider );
 
-g_resFile->Close();
-g_logFile->close();
+	g_resFile->Close();
+	g_logFile->close();
 
-CALIB_LOG_FILE("Output file " << sRootOutputFilename << " closed.")
+	CALIB_LOG_FILE("Output file " << sRootOutputFilename << " closed.")
 
-// todo this delete produces seg fault
-delete g_logFile;
+	// todo this delete produces seg fault
+	delete g_logFile;
 
-return 0;
+	return 0;
 }
 

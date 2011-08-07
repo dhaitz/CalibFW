@@ -438,4 +438,4 @@ void getMinMax(double& minx, double& maxx,
 
 //------------------------------------------------------------------------------
 
-}; // END OF NAMESPACE
+} // END OF NAMESPACE
