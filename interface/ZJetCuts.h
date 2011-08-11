@@ -9,8 +9,8 @@ namespace CalibFW
 
 const double g_kZmass = 91.19;
 
-typedef EventCutBase<ZJetEventData *, ZJetPipelineSettings *> ZJetCutBase;
-typedef CutHandler<ZJetEventData *, ZJetPipelineSettings *> ZJetCutHandler;
+typedef EventCutBase<ZJetEventData , ZJetPipelineSettings > ZJetCutBase;
+typedef CutHandler<ZJetEventData , ZJetPipelineSettings > ZJetCutHandler;
 
 //typedef EventConsumerBase<EventResult, ZJetPipelineSettings> ZJetConsumerBase;
 
@@ -109,13 +109,10 @@ public:
 class LeadingJetEtaCut: public ZJetCutBase
 {
 public:
-	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
-	{/*
-		return (TMath::Abs(pEv->m_pData->jets[0]->Eta())
-				< pset->GetCutLeadingJetEta());
-		*/
-		// todo
-		return true;
+	bool IsInCut(ZJetEventData const& pEv, ZJetPipelineSettings const& pset)
+	{
+		return (TMath::Abs(pEv.GetPrimaryJet( pset )->p4.Eta())
+				< pset.GetCutLeadingJetEta());
 	}
 
 	unsigned long GetId()

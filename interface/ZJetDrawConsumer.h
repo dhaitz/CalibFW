@@ -225,7 +225,7 @@ public:
 	{
 		//CALIB_LOG( m_source->size() )
 		// call sub plots
-		KDataLV * lv = event.GetJet( GetPipelineSettings(), GetProductIndex());
+		KDataLV * lv = event.GetJet( *GetPipelineSettings(), GetProductIndex());
 
 		if (lv == NULL)
 			// no valid entry for us here !
@@ -240,6 +240,8 @@ public:
 		//		m_histJetPt.Fill(jet.p4.Pt(), metaData.GetWeight());
 		//		m_histJetPt.Fill(jet.p4.Pt(), metaData.GetWeight());
 		//CALIB_LOG(pfJet.p4.Pt() );
+		CALIB_LOG( GetPipelineSettings()->GetRootFileFolder() );
+
 		ProcessFilteredEvent_specific( event, metaData, lv);
 	}
 
@@ -293,6 +295,8 @@ public:
 			KDataLV * jet)
 	{
 		KDataPFJet * pfJet = static_cast<KDataPFJet*>( jet );
+
+		CALIB_LOG( GetPipelineSettings()->GetRootFileFolder() );
 
 		//m_neutralEmFraction->Fill( pfJet->chargedEMFraction, metaData.GetWeight() );
 	}

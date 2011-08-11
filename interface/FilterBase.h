@@ -33,9 +33,11 @@ public:
 	virtual ~FilterBase()
 	{
 	}
+
+	// todo: do we event need this init this ?
 	virtual void Init(EventPipeline<TData, TMetaData, TSettings> * pset)
 	{
-		m_pipeline = pset;
+		//m_pipeline = pset;
 	}
 	virtual void Finish()
 	{
@@ -43,19 +45,19 @@ public:
 
 	virtual std::string GetFilterId() = 0;
 
-	virtual bool DoesEventPass( const TData & event) = 0;
+	virtual bool DoesEventPass( TData const& event, TMetaData const& metaData, TSettings const& settings) = 0;
 
 	virtual std::string ToString(bool bVerbose = false)
 	{
 		return GetFilterId();
 	}
-
+/*
 	TSettings * GetPipelineSettings()
 	{
 		return m_pipeline->GetSettings();
 	}
-
-	EventPipeline<TData, TMetaData, TSettings> * m_pipeline;
+*/
+	//EventPipeline<TData, TMetaData, TSettings> * m_pipeline;
 };
 
 }

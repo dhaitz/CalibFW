@@ -75,7 +75,7 @@ virtual void Finish()
 	BOOST_FOREACH( ZJetCutBase * c, m_pCutHandler->GetCuts() )
 	{
 		unsigned long rejAbs = m_cutRejected[c->GetCutShortName()];
-
+/*
 
 		if ( ZJetCutHandler::IsCutEnabled( c, this->GetPipelineSettings()  ) )
 		{
@@ -92,7 +92,7 @@ virtual void Finish()
 		else
 		{
 			CALIB_LOG_FILE(std::setw(20) << c->GetCutShortName() << " : disabled")
-		}
+		}*/
 	}
 	CALIB_LOG_FILE( "Events left after Cuts : " << overallCountLeft )
 

@@ -70,7 +70,7 @@ def GetMcBaseConfig():
 def GetDefaultDataPipeline():
     pline = GetDataBaseConfig()["Pipelines"]["default"]
 
-    pline["FilterInCutIgnored"] = 0
+    pline["FilterInCutIgnored"] = 0    
     pline["Filter"].append ("incut")
     
     return pline

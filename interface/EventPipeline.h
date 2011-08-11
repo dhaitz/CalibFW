@@ -30,7 +30,7 @@ template<class TData, class TMetaData, class TSettings>
 class MetaDataProducerBase: public boost::noncopyable
 {
 public:
-	virtual void CreateMetaData(TData const& data, TMetaData const& metaData,
+	virtual void PopulateMetaData(TData const& data, TMetaData & metaData,
 			TSettings *m_pipelineSettings) = 0;
 
 };
@@ -83,7 +83,7 @@ class PipelineInitilizerBase
 public:
 	virtual void InitPipeline(
 			EventPipeline<TData, TMetaData, TSettings> * pLine,
-			TSettings * pset) = 0;
+			TSettings * pset) const = 0;
 
 };
 
@@ -111,8 +111,8 @@ public:
 			MetaDateProducerVector;
 	typedef typename MetaDateProducerVector::iterator MetaDataVectorIterator;
 
-	void InitPipeline(TSettings * pset, PipelineInitilizerBase<TData,
-			TMetaData, TSettings> & initializer)
+	virtual void InitPipeline(TSettings * pset, PipelineInitilizerBase<TData,
+			TMetaData, TSettings> const& initializer)
 	{
 		m_pipelineSettings = pset;
 
@@ -132,7 +132,7 @@ public:
 
 	}
 
-	void FinishPipeline()
+	virtual void FinishPipeline()
 	{
 		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
 				== m_consumer.end()); itcons++)
@@ -146,7 +146,7 @@ public:
 	/*
 	 * Run the pipeline without specific event input.
 	 */
-	void Run()
+	virtual void Run()
 	{
 		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
 				== m_consumer.end()); itcons++)
@@ -158,7 +158,7 @@ public:
 	/*
 	 * Run the pipeline with one specific event as input
 	 */
-	void RunEvent(TData const& evt)
+	virtual void RunEvent(TData const& evt)
 	{
 		// TODO: make this faster
 		TMetaData metaData;
@@ -166,20 +166,21 @@ public:
 		for (MetaDataVectorIterator it = m_producer.begin(); !(it
 				== m_producer.end()); it++)
 		{
-			(*it)->CreateMetaData(evt, metaData, m_pipelineSettings);
+			(*it)->PopulateMetaData(evt, metaData, m_pipelineSettings);
 		}
 
 		bool bPassed = true;
 		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
 				== m_filter.end()); itfilter++)
 		{
-			if (!itfilter->DoesEventPass(evt))
+			if (!itfilter->DoesEventPass(evt, metaData, *m_pipelineSettings ))
 			{
 				bPassed = false;
 				break;
 			}
 		}
 
+		// todo : we dont need to create this object here, i guess
 		FilterResult fres(bPassed);
 
 		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
@@ -194,7 +195,7 @@ public:
 		}
 	}
 
-	FilterBase<TData, TMetaData, TSettings> * FindFilter(std::string sFilterId)
+	virtual FilterBase<TData, TMetaData, TSettings> * FindFilter(std::string sFilterId)
 	{
 
 		for (FilterVectorIterator it = m_filter.begin(); !(it == m_filter.end()); it++)
@@ -206,22 +207,25 @@ public:
 		return NULL;
 	}
 
-	TSettings * GetSettings()
+	virtual TSettings * GetSettings()
 	{
 		return m_pipelineSettings;
 	}
 
-	void AddFilter(FilterForThisPipeline * pFilter)
+	virtual void AddFilter(FilterForThisPipeline * pFilter)
 	{
+		if ( FindFilter(pFilter->GetFilterId()) != NULL )
+			throw std::exception();
+
 		m_filter.push_back(pFilter);
 	}
 
-	void AddConsumer(ConsumerForThisPipeline * pConsumer)
+	virtual void AddConsumer(ConsumerForThisPipeline * pConsumer)
 	{
 		m_consumer.push_back(pConsumer);
 	}
 
-	void AddMetaDataProducer(MetaDataProducerForThisPipeline * pProd)
+	virtual void AddMetaDataProducer(MetaDataProducerForThisPipeline * pProd)
 	{
 		m_producer.push_back(pProd);
 	}

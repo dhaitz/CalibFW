@@ -48,13 +48,13 @@ public:
 	void RunPipelines( EventProvider< TEvent > & evtProvider )
 	{
 		long long nEvents = evtProvider.GetOverallEventCount();
-		CALIB_LOG_FILE("Running over " << nEvents << " Events")
+		CALIB_LOG("Running over " << nEvents << " Events")
 
-		ProgressMonitor pm(nEvents);
+		//ProgressMonitor pm(nEvents);
 
 		for ( long long lCur = 0; lCur < nEvents; lCur ++)
 		{
-			if (!pm.Update()) break;
+			//if (!pm.Update()) break;
 			evtProvider.GotoEvent( lCur );
 
 			for( PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)

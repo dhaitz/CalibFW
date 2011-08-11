@@ -208,17 +208,21 @@ public:
 	PfMap m_pfJets;
 	JetMap m_jets;
 
+	virtual KDataLV * GetPrimaryJet ( ZJetPipelineSettings const& psettings ) const
+		{
+			return GetJet( psettings, 0);
+		}
 
 	// May return null, if the jet is not available
-	KDataLV * GetJet(ZJetPipelineSettings * psettings,
+	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
 			unsigned int index ) const
 	{
-		if ( boost::algorithm::starts_with( psettings->GetJetAlgorithm(), "AK5PF" ) ||
-			boost::algorithm::starts_with( psettings->GetJetAlgorithm(), "AK7PF" ) ||
-			boost::algorithm::starts_with( psettings->GetJetAlgorithm(), "KT4PF" ) ||
-			boost::algorithm::starts_with( psettings->GetJetAlgorithm(), "KT6PF" ))
+		if ( boost::algorithm::starts_with( psettings.GetJetAlgorithm(), "AK5PF" ) ||
+			boost::algorithm::starts_with( psettings.GetJetAlgorithm(), "AK7PF" ) ||
+			boost::algorithm::starts_with( psettings.GetJetAlgorithm(), "KT4PF" ) ||
+			boost::algorithm::starts_with( psettings.GetJetAlgorithm(), "KT6PF" ))
 		{
-			KDataPFJets * pfJets = m_pfJets.at(psettings->GetJetAlgorithm());
+			KDataPFJets * pfJets = m_pfJets.at(psettings.GetJetAlgorithm());
 
 			if (pfJets->size() <= index  )
 				return NULL;
@@ -228,7 +232,7 @@ public:
 		}
 		else
 		{
-			KDataJets * jets = m_jets.at(psettings->GetJetAlgorithm());
+			KDataJets * jets = m_jets.at(psettings.GetJetAlgorithm());
 
 			if (jets->size() >= index )
 				return NULL;
@@ -271,7 +275,7 @@ typedef EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
 typedef FilterBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
 		ZJetFilterBase;
 
-
+/*
 class RecoVertFilter: public ZJetFilterBase
 {
 public:
@@ -284,10 +288,10 @@ public:
 	virtual bool DoesEventPass(const ZJetEventData & event)
 	{
 		//return (  event.GetRecoVerticesCount()  == m_pipelineSettings->GetFilterRecoVertLow() );
-		/*return (event.GetRecoVerticesCount()
+		return (event.GetRecoVerticesCount()
 				>= GetPipelineSettings()->GetFilterRecoVertLow()
 				&& event.GetRecoVerticesCount()
-						<= GetPipelineSettings()->GetFilterRecoVertHigh());*/
+						<= GetPipelineSettings()->GetFilterRecoVertHigh());
 		// todo
 		return true;
 	}
@@ -296,8 +300,8 @@ public:
 	{
 		return "recovert";
 	}
-};
-
+};*/
+/*
 class JetEtaFilter: public ZJetFilterBase
 {
 public:
@@ -310,10 +314,10 @@ public:
 	virtual bool DoesEventPass(const ZJetEventData & event)
 	{
 		//return (  event.GetRecoVerticesCount()  == m_pipelineSettings->GetFilterRecoVertLow() );
-		/*return (TMath::Abs(event.m_pData->jets[0]->Eta())
+		return (TMath::Abs(event.m_pData->jets[0]->Eta())
 				>= GetPipelineSettings()->GetFilterJetEtaLow() && TMath::Abs(
 				event.m_pData->jets[0]->Eta())
-				<= GetPipelineSettings()->GetFilterJetEtaHigh());*/
+				<= GetPipelineSettings()->GetFilterJetEtaHigh());
 		// todo
 		return true;
 	}
@@ -323,7 +327,8 @@ public:
 		return "jeteta";
 	}
 };
-
+*/
+/*
 class SecondJetRatioFilter: public ZJetFilterBase
 {
 public:
@@ -337,7 +342,7 @@ public:
 		bool bPass = true;
 		double fBinVal = 0.0f; // todo  event.GetCorrectedJetPt(1) / event.m_pData->Z->Pt();
 
-		if (!(fBinVal >= GetPipelineSettings()->GetFilterSecondJetRatioLow()))
+/*		if (!(fBinVal >= GetPipelineSettings()->GetFilterSecondJetRatioLow()))
 			bPass = false;
 
 		if (!(fBinVal < GetPipelineSettings()->GetFilterSecondJetRatioHigh()))
@@ -351,30 +356,38 @@ public:
 		return "secondjetratio";
 	}
 };
-
+*/
 class PtWindowFilter: public ZJetFilterBase
 {
 public:
 	PtWindowFilter() :
-		ZJetFilterBase(), m_binWith(ZPtBinning)
+		ZJetFilterBase(), m_binWith(Jet1PtBinning)
 	{
-
 	}
 
-	virtual bool DoesEventPass(const ZJetEventData & event)
+	virtual bool DoesEventPass(ZJetEventData const& event,
+			ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings)
 	{
 		bool bPass = true;
 		double fBinVal;
-		/*if (m_binWith == ZPtBinning)
-			fBinVal = event.m_pData->Z->Pt();
-		else
-			fBinVal = event.GetCorrectedJetPt(0);*/
-		// todo
 
-		if (!(fBinVal >= GetPipelineSettings()->GetFilterPtBinLow()))
+		if (m_binWith == ZPtBinning)
+			{ CALIB_LOG_FATAL("not supported")  }//fBinVal = event.m_pData->Z->Pt();
+		else
+		{
+			KDataLV * pJet = event.GetPrimaryJet( settings );
+			if ( pJet == NULL)
+				return false;
+
+			fBinVal = pJet->p4.Pt();
+		}
+
+
+		if (!(fBinVal >= settings.GetFilterPtBinLow()))
 			bPass = false;
 
-		if (!(fBinVal < GetPipelineSettings()->GetFilterPtBinHigh()))
+		if (!(fBinVal < settings.GetFilterPtBinHigh()))
 			bPass = false;
 
 		return bPass;
@@ -396,16 +409,16 @@ public:
 				s << " ZPt ";
 			else
 				s << " Jet1Pt ";
-
+/*
 			s << " from " << GetPipelineSettings()->GetFilterPtBinHigh()
-					<< " to " << GetPipelineSettings()->GetFilterPtBinLow();
+					<< " to " << GetPipelineSettings()->GetFilterPtBinLow();*/
 		}
 		else
-		{
+		{/*
 			s << "Pt" << std::setprecision(0)
 					<< GetPipelineSettings()->GetFilterPtBinLow() << "to"
 					<< std::setprecision(0)
-					<< GetPipelineSettings()->GetFilterPtBinHigh();
+					<< GetPipelineSettings()->GetFilterPtBinHigh();*/
 		}
 		return s.str();
 	}
@@ -416,7 +429,7 @@ public:
 	};
 	BinWithEnum m_binWith;
 };
-
+/*
 // Allows to select only events with a specific cut signature
 class CutSelectionFilter: public ZJetFilterBase
 {
@@ -438,7 +451,7 @@ public:
 		if (GetPipelineSettings()->GetFilterDeltaPhiCutSet()
 				!= event.IsCutInBitmask(32))
 			return false;
-*/
+
 		// todo
 		return true;
 	}
@@ -448,16 +461,17 @@ public:
 		return "cutselection";
 	}
 
-};
+};*/
 
 class InCutFilter: public ZJetFilterBase
 {
 public:
 
-	virtual bool DoesEventPass(const ZJetEventData & event)
+	virtual bool DoesEventPass(ZJetEventData const& event,
+			ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings)
 	{
-		unsigned long ignoredCut =
-				GetPipelineSettings()->GetFilterInCutIgnored();
+		unsigned long ignoredCut = settings.GetFilterInCutIgnored();
 		// no section here is allowed to set to true again, just to false ! avoids coding errors
 		//return event.IsInCutWhenIgnoringCut(ignoredCut);
 		// todo
@@ -480,7 +494,7 @@ class ZJetPipelineInitializer: public PipelineInitilizerBase<ZJetEventData,
 		ZJetMetaData, ZJetPipelineSettings>
 {
 public:
-	void InitPipeline(ZJetPipeline * pLine, ZJetPipelineSettings * pset);
+	virtual void InitPipeline(ZJetPipeline * pLine, ZJetPipelineSettings * pset) const;
 };
 
 }

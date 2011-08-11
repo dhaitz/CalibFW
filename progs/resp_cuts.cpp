@@ -127,7 +127,7 @@ TChain * g_pChain;
 
 EventDataVector g_trackedEvents;
 
-std::auto_ptr<ZJetCutHandler> g_cutHandler;
+//std::auto_ptr<ZJetCutHandler> g_cutHandler;
 
 PtBinWeighter g_mcWeighter;
 
@@ -368,10 +368,10 @@ int main(int argc, char** argv)
 			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
 
 			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 0));
-			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 1));
+/*			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 1));
 			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 2));
 			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 3));
-			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 4));
+			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 4));*/
 
 			pLine->InitPipeline(*it, plineInit);
 			pRunner.AddPipeline( pLine );
@@ -404,11 +404,11 @@ int main(int argc, char** argv)
  g_l3CorrFiles = p.getvString(secname + ".l3_correction_data");
 	 */
 
-	g_cutHandler.reset(new ZJetCutHandler());
+	//g_cutHandler.reset(new ZJetCutHandler());
 
 	// init cuts
 	// values are set for each Pipeline individually
-
+/*
 	// technical cuts
 	g_ZJetCuts.push_back(new JsonCut(g_json.get()));
 	g_ZJetCuts.push_back(new HltCut());
@@ -427,11 +427,7 @@ int main(int argc, char** argv)
 	//g_ZJetCuts.push_back(new SecondLeadingToZPtCutDir());
 	g_ZJetCuts.push_back(new SecondLeadingToZPtCut());
 	g_ZJetCuts.push_back(new BackToBackCut());
-
-/*	BOOST_FOREACH( ZJetCutBase * pCut, g_ZJetCuts )
-	{
-		g_cutHandler->AddCut( pCut );
-	}*/
+*/
 
 	std::cout << TIMING_GET_RESULT_STRING << std::endl;
 

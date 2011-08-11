@@ -22,7 +22,7 @@ class EventCutBase
 public:
 
 	// returns true, if an Event passes the cuts
-	virtual bool IsInCut(TEvent evt, TCutConfig cutConf) = 0;
+	virtual bool IsInCut(TEvent const& evt, TCutConfig const& cutConf) = 0;
 
 	virtual unsigned long GetId() = 0;
 	virtual std::string GetCutName() { return "No Cut Name given";}
@@ -97,11 +97,11 @@ public:
 	{
 		return ( cutId & bitmask ) > 0;
 	}
-
-	static bool IsCutEnabled( CutClass * pCut, TCutConfig cfg  )
+/*
+	static bool IsCutEnabled( CutClass * pCut, TCutConfig const& cfg  )
 	{
 		return (cfg->GetCutEnabledBitmask() & pCut->GetId() ) > 0;
-	}
+	}*/
 
 private:
 	CutVector m_cuts;

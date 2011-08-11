@@ -439,7 +439,7 @@ public:
 				dynamic_cast<PtWindowFilter *> (this->m_pipeline->FindFilter(
 						PtWindowFilter().GetFilterId()));
 		PtBin * ptBin = NULL;
-
+/*
 		InCutFilter * pcut =
 				dynamic_cast<InCutFilter *> (this->m_pipeline->FindFilter(
 						InCutFilter().GetFilterId()));
@@ -455,7 +455,7 @@ public:
 		TString sName = RootNamer::GetHistoName(
 				this->GetPipelineSettings()->GetJetAlgorithm(), sQuant,
 				this->GetPipelineSettings()->GetInputType(), 0, ptBin, isNoCut);
-		return sName.Data();
+		return sName.Data();*/
 	}
 /*
 	// generates a name for the created product
