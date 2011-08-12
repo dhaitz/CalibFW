@@ -71,8 +71,8 @@ BOOST_AUTO_TEST_CASE( test_event_prunner )
 	TestPipeline * tline5 = new TestPipeline;
 
 
-	TestSettings * tset = new TestSettings;
-	tset->SetLevel(1);
+	TestSettings tset;
+	tset.SetLevel(1);
 	tline1->InitPipeline( tset, TestPipelineInitilizer() );
 	tline2->InitPipeline( tset, TestPipelineInitilizer() );
 	tline3->InitPipeline( tset, TestPipelineInitilizer() );

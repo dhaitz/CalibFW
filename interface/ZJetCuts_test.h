@@ -25,22 +25,27 @@ BOOST_AUTO_TEST_CASE( test_cut_jet_eta )
 	TestZJetEventData evtData;
 	evtData.m_jets[0].p4.SetEta( 1.0f);
 
+	ZJetMetaData metData;
 
 	ZJetPipelineSettings pSettings;
 	pSettings.CacheCutLeadingJetEta.SetCache( 1.13 );
 	pSettings.CacheJetAlgorithm.SetCache("AK5PFJets");
 
 	evtData.m_jets[0].p4.SetEta( 0.3f);
-	BOOST_CHECK_EQUAL(ecut.IsInCut( evtData, pSettings ), true);
+	ecut.PopulateMetaData( evtData, metData, pSettings );
+	BOOST_CHECK( metData.IsCutPassed( LeadingJetEtaCut::CudId ) );
 
 	evtData.m_jets[0].p4.SetEta( 1.3f);
-	BOOST_CHECK_EQUAL(ecut.IsInCut( evtData, pSettings ), false);
+    ecut.PopulateMetaData( evtData, metData, pSettings );
+    BOOST_CHECK(! metData.IsCutPassed( LeadingJetEtaCut::CudId ) );
 
 	evtData.m_jets[0].p4.SetEta( -0.3f);
-	BOOST_CHECK_EQUAL(ecut.IsInCut( evtData, pSettings ), true);
+    ecut.PopulateMetaData( evtData, metData, pSettings );
+	BOOST_CHECK( metData.IsCutPassed( LeadingJetEtaCut::CudId ) );
 
 	evtData.m_jets[0].p4.SetEta( -1.3f);
-	BOOST_CHECK_EQUAL(ecut.IsInCut( evtData, pSettings ), false);
+	ecut.PopulateMetaData( evtData, metData, pSettings );
+	BOOST_CHECK(! metData.IsCutPassed( LeadingJetEtaCut::CudId ) );
 
 }
 

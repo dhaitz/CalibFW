@@ -59,7 +59,7 @@ public:
 
 			for( PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
 			{
-				if (it->GetSettings()->GetLevel() == 1)
+				if (it->GetSettings().GetLevel() == 1)
 					it->RunEvent( evtProvider.GetCurrentEvent() );
 
 			}

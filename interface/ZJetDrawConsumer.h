@@ -124,22 +124,22 @@ public:
 		m_histPhi = new Hist1D();
 
 		m_hist1d.push_back(m_histPt);
-//		m_hist1d.push_back(m_histEta);
-//		m_hist1d.push_back(m_histPhi);
+		m_hist1d.push_back(m_histEta);
+		m_hist1d.push_back(m_histPhi);
 
 		m_histPt->SetNameAndCaption(GenName(GetPhysicsObjectName(), "_pt_"));
-/*		m_histPhi->SetNameAndCaption(GenName(GetPhysicsObjectName(), "_phi_"));
+		m_histPhi->SetNameAndCaption(GenName(GetPhysicsObjectName(), "_phi_"));
 		m_histEta->SetNameAndCaption(GenName(GetPhysicsObjectName(), "_eta_"));
-*/
-		m_histPt->SetRootFileFolder(GetPipelineSettings()->GetRootFileFolder());
+
+		m_histPt->SetRootFileFolder(GetPipelineSettings().GetRootFileFolder());
 		m_histPt->Init( Hist1D::GetPtModifier());
 
-/*
+
 		m_histEta->Init(Hist1D::GetEtaModifier());
-		m_histEta->SetRootFileFolder(GetPipelineSettings()->GetRootFileFolder());
+		m_histEta->SetRootFileFolder(GetPipelineSettings().GetRootFileFolder());
 
 		m_histPhi->Init(Hist1D::GetPhiModifier());
-		m_histPhi->SetRootFileFolder(GetPipelineSettings()->GetRootFileFolder());*/
+		m_histPhi->SetRootFileFolder(GetPipelineSettings().GetRootFileFolder());
 	}
 
 	// this method is only called for events which have passed the filter imposed on the
@@ -148,15 +148,15 @@ public:
 	virtual void PlotDataLVQuantities(KDataLV * dataLV,
 			ZJetMetaData const& metaData)
 	{
-		m_histPt->Fill(dataLV->p4.Pt(), metaData.GetWeight());/*
+		m_histPt->Fill(dataLV->p4.Pt(), metaData.GetWeight());
 		m_histEta->Fill(dataLV->p4.Eta(), metaData.GetWeight());
-		m_histPhi->Fill(dataLV->p4.Phi(), metaData.GetWeight());*/
+		m_histPhi->Fill(dataLV->p4.Phi(), metaData.GetWeight());
 	}
 
 	virtual void Finish()
 	{
 		BOOST_FOREACH( Hist1D & p, m_hist1d)
-		{		p.Store(GetPipelineSettings()->GetRootOutFile());
+		{		p.Store(GetPipelineSettings().GetRootOutFile());
 		}
 	}
 	/*
@@ -225,7 +225,7 @@ public:
 	{
 		//CALIB_LOG( m_source->size() )
 		// call sub plots
-		KDataLV * lv = event.GetJet( *GetPipelineSettings(), GetProductIndex());
+		KDataLV * lv = event.GetJet( GetPipelineSettings(), GetProductIndex());
 
 		if (lv == NULL)
 			// no valid entry for us here !
@@ -235,13 +235,6 @@ public:
 		}
 
 		PlotDataLVQuantities(lv, metaData);
-
-		// TODO: is jet valid
-		//		m_histJetPt.Fill(jet.p4.Pt(), metaData.GetWeight());
-		//		m_histJetPt.Fill(jet.p4.Pt(), metaData.GetWeight());
-		//CALIB_LOG(pfJet.p4.Pt() );
-		CALIB_LOG( GetPipelineSettings()->GetRootFileFolder() );
-
 		ProcessFilteredEvent_specific( event, metaData, lv);
 	}
 
@@ -278,16 +271,14 @@ public:
 			ZJetPipelineSettings> * pset)
 	{
 		DataLVsConsumer::Init(pset);
-/*
+
 		m_neutralEmFraction = new Hist1D();
 		m_neutralEmFraction->SetNameAndCaption(GenName(GetPhysicsObjectName(), "_emfraction_"));
 
 		m_neutralEmFraction->Init(Hist1D::GetFractionModifier());
-		m_neutralEmFraction->SetRootFileFolder(GetPipelineSettings()->GetRootFileFolder());
+		m_neutralEmFraction->SetRootFileFolder(GetPipelineSettings().GetRootFileFolder());
 
 		m_hist1d.push_back( m_neutralEmFraction );
-*/
-
 	}
 
 	virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
@@ -296,9 +287,8 @@ public:
 	{
 		KDataPFJet * pfJet = static_cast<KDataPFJet*>( jet );
 
-		CALIB_LOG( GetPipelineSettings()->GetRootFileFolder() );
-
-		//m_neutralEmFraction->Fill( pfJet->chargedEMFraction, metaData.GetWeight() );
+		CALIB_LOG( GetPipelineSettings().GetRootFileFolder() );
+		m_neutralEmFraction->Fill( pfJet->chargedEMFraction, metaData.GetWeight() );
 	}
 
 	Hist1D * m_neutralEmFraction;

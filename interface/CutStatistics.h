@@ -16,7 +16,7 @@
 
 namespace CalibFW
 {
-
+/*
 class CutStatisticsConsumer: public ZJetConsumerBase
 {
 public:
@@ -92,7 +92,7 @@ virtual void Finish()
 		else
 		{
 			CALIB_LOG_FILE(std::setw(20) << c->GetCutShortName() << " : disabled")
-		}*/
+		}
 	}
 	CALIB_LOG_FILE( "Events left after Cuts : " << overallCountLeft )
 
@@ -104,7 +104,8 @@ virtual void Finish()
 		<< ( (float) m_conditionalDeltaPhiCut/ (float ) m_conditionalDeltaPhiCutBase) <<  " [ "
 		<< m_conditionalDeltaPhiCut << ", " << m_conditionalDeltaPhiCutBase << " ]")
 }
-
+*/
+/*
 // this method is only called for events which have passed the filter imposed on the
 // pipeline
 virtual void ProcessFilteredEvent(ZJetEventData const& event, ZJetMetaData const& metaData)
@@ -145,7 +146,7 @@ virtual void ProcessEvent(ZJetEventData const& event, ZJetMetaData const& metaDa
 		if ( event.IsCutInBitmask( SecondLeadingToZPtCut::CudId ))
 			m_conditionalDeltaPhiCut++;
 	}
-*/
+
 }
 
 ZJetCutHandler * m_pCutHandler;
@@ -159,6 +160,6 @@ unsigned long m_conditionalDeltaPhiCutBase;
 
 unsigned long m_eventCount;
 };
-
+*/
 }
 

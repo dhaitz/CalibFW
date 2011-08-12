@@ -397,7 +397,7 @@ public:
 		this->RunModifierAfterDataEntry(this );
 		this->RunModifierAfterDraw( this );
 
-		CALIB_LOG( "Storing Histogram " + this->GetRootFileFolder() + "/" + this->GetName()  )
+		//CALIB_LOG( "Storing Histogram " + this->GetRootFileFolder() + "/" + this->GetName()  )
 
 		RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
 		m_hist->Write((this->GetName() ).c_str());
@@ -432,14 +432,14 @@ public:
 	{}
 
 	// generates a name for the created product
-	std::string GetProductName(std::string sQuant)
+	/*std::string GetProductName(std::string sQuant)
 	{
 		// check if there is a PtBin Filter which will affect our Product Name
 		PtWindowFilter * pwin =
 				dynamic_cast<PtWindowFilter *> (this->m_pipeline->FindFilter(
 						PtWindowFilter().GetFilterId()));
 		PtBin * ptBin = NULL;
-/*
+
 		InCutFilter * pcut =
 				dynamic_cast<InCutFilter *> (this->m_pipeline->FindFilter(
 						InCutFilter().GetFilterId()));
@@ -455,8 +455,8 @@ public:
 		TString sName = RootNamer::GetHistoName(
 				this->GetPipelineSettings()->GetJetAlgorithm(), sQuant,
 				this->GetPipelineSettings()->GetInputType(), 0, ptBin, isNoCut);
-		return sName.Data();*/
-	}
+		return sName.Data();
+	}*/
 /*
 	// generates a name for the created product
 	std::string GetProductName()
@@ -513,7 +513,7 @@ public:
 		/* m_hist->m_sName = "nname"; //this->GetProductName();
 	 m_hist->m_sCaption = "ccapt" ;//this->GetProductName(); */
 		//m_hist->SetNameAndCaption( this->GetProductName());
-		m_hist->SetRootFileFolder (this->GetPipelineSettings()->GetRootFileFolder());
+		m_hist->SetRootFileFolder (this->GetPipelineSettings().GetRootFileFolder());
 		m_hist->Init( Hist1D::ModifierList()  );
 	}
 
@@ -522,7 +522,7 @@ public:
 		// store hist
 		// + modifiers
 		//CALIB_LOG( "Storing Hist for " << this->GetProductName() )
-		m_hist->Store(this->GetPipelineSettings()->GetRootOutFile());
+		m_hist->Store(this->GetPipelineSettings().GetRootOutFile());
 	}
 	// already configured histogramm
 	Hist1D * m_hist;

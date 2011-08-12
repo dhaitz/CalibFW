@@ -293,7 +293,30 @@ public:
 class ZJetMetaData : public CalibFW::EventMetaDataBase
 {
 public:
+	ZJetMetaData()
+	{
+		SetCutBitmask(0);
+	}
+
 	double GetWeight() const { return 1.0f; }
+
+	void SetCutResult( long cutId, bool cutPassed )
+	{
+		// ensure the bit is removed if it was set before
+		this->SetCutBitmask (  (  (! cutPassed) * cutId ) | (  GetCutBitmask() & ( ~ cutId ) ));
+	}
+
+	bool IsAllCutsPassed() const
+	{
+		return ( this->GetCutBitmask() == 0 );
+	}
+
+	bool IsCutPassed( long cutId ) const
+	{
+		return ( this->GetCutBitmask() & cutId ) == 0;
+	}
+
+	IMPL_PROPERTY_READONLY(long, CutBitmask);
 };
 
 class EventResultDeprecated

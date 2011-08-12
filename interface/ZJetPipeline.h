@@ -116,7 +116,7 @@ IMPL_PROPERTY(TFile *, RootOutFile)
 
 	VarCache<stringvector> m_filter;
 
-	stringvector GetFilter()
+	stringvector GetFilter() const
 	{
 		RETURN_CACHED( m_filter, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".Filter") )
 	}
@@ -176,7 +176,7 @@ IMPL_PROPERTY(TFile *, RootOutFile)
 
 	VarCache<stringvector> m_cuts;
 
-	stringvector GetCuts()
+	stringvector GetCuts() const
 	{
 		RETURN_CACHED( m_cuts,PropertyTreeSupport::GetAsStringList( GetPropTree(),GetSettingsRoot() + ".Cuts" ) )
 	}
@@ -208,6 +208,8 @@ public:
 	PfMap m_pfJets;
 	JetMap m_jets;
 
+
+	// May return null, if no primary jet is available
 	virtual KDataLV * GetPrimaryJet ( ZJetPipelineSettings const& psettings ) const
 		{
 			return GetJet( psettings, 0);
@@ -475,7 +477,7 @@ public:
 		// no section here is allowed to set to true again, just to false ! avoids coding errors
 		//return event.IsInCutWhenIgnoringCut(ignoredCut);
 		// todo
-		return true;
+		return metaData.IsAllCutsPassed();
 	}
 
 	virtual std::string GetFilterId()
@@ -494,7 +496,7 @@ class ZJetPipelineInitializer: public PipelineInitilizerBase<ZJetEventData,
 		ZJetMetaData, ZJetPipelineSettings>
 {
 public:
-	virtual void InitPipeline(ZJetPipeline * pLine, ZJetPipelineSettings * pset) const;
+	virtual void InitPipeline(ZJetPipeline * pLine, ZJetPipelineSettings const& pset) const;
 };
 
 }

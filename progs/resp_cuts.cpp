@@ -140,21 +140,6 @@ PipelineVector g_pipelines;
 // set via config file
 boost::ptr_vector<PtBin> g_newPtBins;
 
-void RunPipelines(int level)
-{
-	if (level == 1)
-		CALIB_LOG_FATAL( "This method can not be used for leve1 pipelines, use RunPipelinesForEvent instead" )
-
-		for (PipelineVector::iterator it = g_pipelines.begin(); !(it
-				== g_pipelines.end()); it++)
-		{
-			if (it->GetSettings()->GetLevel() == level)
-			{
-
-				it->Run();
-			}
-		}
-}
 
 void AddConsumerToPipeline(ZJetPipeline * pline, std::string consumerName)
 {/*
@@ -368,12 +353,12 @@ int main(int argc, char** argv)
 			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
 
 			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 0));
-/*			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 1));
+			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 1));
 			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 2));
 			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 3));
-			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 4));*/
+			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 4));
 
-			pLine->InitPipeline(*it, plineInit);
+			pLine->InitPipeline( *(*it), plineInit);
 			pRunner.AddPipeline( pLine );
 		}
 	}

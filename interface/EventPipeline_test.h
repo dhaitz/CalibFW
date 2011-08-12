@@ -55,7 +55,7 @@ class TestMetaDataProducer : public MetaDataProducerBase<TestData, TestMetaData,
 public:
 
 	virtual void PopulateMetaData(TestData const& data, TestMetaData & metaData,
-			TestSettings *m_pipelineSettings)
+			TestSettings const& m_pipelineSettings)
 	{
 		metaData.iMetaData = data.iVal + 1;
 	}
@@ -120,7 +120,7 @@ class TestPipelineInitilizer: public PipelineInitilizerBase< TestData, TestMetaD
 public:
 	virtual void InitPipeline(
 			EventPipeline<TestData, TestMetaData,TestSettings> * pLine,
-			TestSettings * pset) const {}
+			TestSettings const& pset) const {}
 
 };
 
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( test_event_pipeline )
 
 	TestPipelineInitilizer init;
 
-	pline.InitPipeline( new TestSettings(), init  );
+	pline.InitPipeline( TestSettings(), init  );
 
 	TestData td;
 
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( test_event_filter )
 
 	TestPipelineInitilizer init;
 
-	pline.InitPipeline( new TestSettings(), init  );
+	pline.InitPipeline( TestSettings(), init  );
 
 	TestData td;
 

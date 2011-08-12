@@ -31,7 +31,7 @@ class MetaDataProducerBase: public boost::noncopyable
 {
 public:
 	virtual void PopulateMetaData(TData const& data, TMetaData & metaData,
-			TSettings *m_pipelineSettings) = 0;
+			TSettings const& m_pipelineSettings) = 0;
 
 };
 
@@ -50,12 +50,14 @@ public:
 
 	// this method is only called for events which have passed the filter imposed on the
 	// pipeline
-	virtual void ProcessFilteredEvent(TData const& event, TMetaData const& metaData)
+	virtual void ProcessFilteredEvent(TData const& event,
+			TMetaData const& metaData)
 	{
 	}
 
 	// this method is called for all events
-	virtual void ProcessEvent(TData const& event, TMetaData const& metaData, FilterResult & result)
+	virtual void ProcessEvent(TData const& event, TMetaData const& metaData,
+			FilterResult & result)
 	{
 	}
 
@@ -69,7 +71,7 @@ public:
 		return "default";
 	}
 
-	TSettings * GetPipelineSettings() const
+	TSettings const& GetPipelineSettings() const
 	{
 		return this->m_pipeline->GetSettings();
 	}
@@ -83,7 +85,7 @@ class PipelineInitilizerBase
 public:
 	virtual void InitPipeline(
 			EventPipeline<TData, TMetaData, TSettings> * pLine,
-			TSettings * pset) const = 0;
+			TSettings const& pset) const = 0;
 
 };
 
@@ -111,7 +113,7 @@ public:
 			MetaDateProducerVector;
 	typedef typename MetaDateProducerVector::iterator MetaDataVectorIterator;
 
-	virtual void InitPipeline(TSettings * pset, PipelineInitilizerBase<TData,
+	virtual void InitPipeline(TSettings pset, PipelineInitilizerBase<TData,
 			TMetaData, TSettings> const& initializer)
 	{
 		m_pipelineSettings = pset;
@@ -173,7 +175,7 @@ public:
 		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
 				== m_filter.end()); itfilter++)
 		{
-			if (!itfilter->DoesEventPass(evt, metaData, *m_pipelineSettings ))
+			if (!itfilter->DoesEventPass(evt, metaData, m_pipelineSettings))
 			{
 				bPassed = false;
 				break;
@@ -195,7 +197,8 @@ public:
 		}
 	}
 
-	virtual FilterBase<TData, TMetaData, TSettings> * FindFilter(std::string sFilterId)
+	virtual FilterBase<TData, TMetaData, TSettings> * FindFilter(
+			std::string sFilterId)
 	{
 
 		for (FilterVectorIterator it = m_filter.begin(); !(it == m_filter.end()); it++)
@@ -207,14 +210,14 @@ public:
 		return NULL;
 	}
 
-	virtual TSettings * GetSettings()
+	virtual TSettings const& GetSettings()
 	{
 		return m_pipelineSettings;
 	}
 
 	virtual void AddFilter(FilterForThisPipeline * pFilter)
 	{
-		if ( FindFilter(pFilter->GetFilterId()) != NULL )
+		if (FindFilter(pFilter->GetFilterId()) != NULL)
 			throw std::exception();
 
 		m_filter.push_back(pFilter);
@@ -239,7 +242,7 @@ public:
 	FilterVector m_filter;
 	MetaDateProducerVector m_producer;
 
-	TSettings * m_pipelineSettings;
+	TSettings m_pipelineSettings;
 };
 
 }

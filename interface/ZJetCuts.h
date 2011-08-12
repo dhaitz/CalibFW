@@ -9,8 +9,8 @@ namespace CalibFW
 
 const double g_kZmass = 91.19;
 
-typedef EventCutBase<ZJetEventData , ZJetPipelineSettings > ZJetCutBase;
-typedef CutHandler<ZJetEventData , ZJetPipelineSettings > ZJetCutHandler;
+typedef MetaDataProducerBase<ZJetEventData , ZJetMetaData,  ZJetPipelineSettings > ZJetCutBase;
+//typedef CutHandler<ZJetEventData , ZJetPipelineSettings > ZJetCutHandler;
 
 //typedef EventConsumerBase<EventResult, ZJetPipelineSettings> ZJetConsumerBase;
 
@@ -56,6 +56,12 @@ class MuonPtCut: public ZJetCutBase
 {
 public:
 
+	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
+			ZJetPipelineSettings const& m_pipelineSettings)
+	{
+		// todo
+	}
+
 	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
 	{/*
 		return ((pEv->m_pData->mu_plus->Pt() > pset->GetCutMuonPt())
@@ -82,6 +88,7 @@ public:
 class MuonEtaCut: public ZJetCutBase
 {
 public:
+
 	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
 	{/*
 		return ((TMath::Abs(pEv->m_pData->mu_plus->Eta())
@@ -90,6 +97,12 @@ public:
 		*/
 		// todo
 		return true;	}
+
+	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
+			ZJetPipelineSettings const& m_pipelineSettings)
+	{
+		// todo
+	}
 
 	unsigned long GetId()
 	{
@@ -109,10 +122,17 @@ public:
 class LeadingJetEtaCut: public ZJetCutBase
 {
 public:
-	bool IsInCut(ZJetEventData const& pEv, ZJetPipelineSettings const& pset)
+	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
+			ZJetPipelineSettings const& m_pipelineSettings)
 	{
-		return (TMath::Abs(pEv.GetPrimaryJet( pset )->p4.Eta())
-				< pset.GetCutLeadingJetEta());
+		KDataLV * jet = data.GetPrimaryJet( m_pipelineSettings );
+
+		if ( jet != NULL)
+		{
+			metaData.SetCutResult ( this->GetId(),
+					(TMath::Abs(jet->p4.Eta())
+							< m_pipelineSettings.GetCutLeadingJetEta() ));
+		}
 	}
 
 	unsigned long GetId()
@@ -133,6 +153,12 @@ public:
 class SecondLeadingToZPtCut: public ZJetCutBase
 {
 public:
+
+	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
+			ZJetPipelineSettings const& m_pipelineSettings)
+	{
+		// todo
+	}
 
 	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
 	{
@@ -254,6 +280,13 @@ public:
 class BackToBackCut: public ZJetCutBase
 {
 public:
+	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
+			ZJetPipelineSettings const& m_pipelineSettings)
+	{
+		// todo
+	}
+
+
 	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
 	{/*
 		return (TMath::Abs(TMath::Abs(pEv->m_pData->jets[0]->Phi()
@@ -281,6 +314,13 @@ public:
 class ZMassWindowCut: public ZJetCutBase
 {
 public:
+	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
+			ZJetPipelineSettings const& m_pipelineSettings)
+	{
+		// todo
+	}
+
+
 	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
 	{
 		// todo

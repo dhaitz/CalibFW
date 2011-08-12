@@ -14,7 +14,9 @@
 
 namespace CalibFW
 {
+/*
 
+handled by meta consumer now
 
 template<class TEvent, class TCutConfig>
 class EventCutBase
@@ -101,11 +103,11 @@ public:
 	static bool IsCutEnabled( CutClass * pCut, TCutConfig const& cfg  )
 	{
 		return (cfg->GetCutEnabledBitmask() & pCut->GetId() ) > 0;
-	}*/
+	}
 
 private:
 	CutVector m_cuts;
 };
-
+*/
 }
 

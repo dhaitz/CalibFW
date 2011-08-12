@@ -52,13 +52,13 @@ public:
 
 	}
 
-	void SetCache(TData t)
+	void SetCache(TData t) const
 	{
 		m_val = t;
 		m_isCached = true;
 	}
 
-	TData GetValue()
+	TData GetValue() const
 	{
 		if (!m_isCached)
 			CALIB_LOG_FATAL("not Cached variable used")
@@ -66,13 +66,13 @@ public:
 	return m_val;
 }
 
-bool IsCached()
+bool IsCached() const
 {
 	return m_isCached;
 }
 
-bool m_isCached;
-TData m_val;
+mutable bool m_isCached;
+mutable TData m_val;
 };
 
 class PropertyTreeSupport

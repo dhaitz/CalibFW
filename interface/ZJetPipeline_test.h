@@ -51,11 +51,19 @@ BOOST_AUTO_TEST_CASE( test_filter_incut )
 	ZJetMetaData mData;
 	ZJetPipelineSettings set;
 
-	InCutFilter ptfilter;
+	InCutFilter filter;
 
 	set.CacheFilterInCutIgnored.SetCache(0);
 
-	BOOST_CHECK_EQUAL(ptfilter.DoesEventPass( evt, mData, set ), true );
+
+	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), true );
+
+	mData.SetCutResult(8, false);
+	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), false );
+
+	mData.SetCutResult(8, true);
+	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), true );
+
 }
 
 

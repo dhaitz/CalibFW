@@ -5,13 +5,13 @@ import LocalConfigBase
 import subprocess
 import copy
 
-conf = JsonConfigBase.GetDataBaseConfig()
+conf = JsonConfigBase.GetMcBaseConfig()
 
 conf["InputFiles"] = "/home/poseidon/uni/data/Kappa/example_KappaSkim.root" 
 conf["OutputPath"] = "kappa_data_2011"
 
 
-conf = JsonConfigBase.ExpandDefaultDataConfig( [0,30,60,100,140,300], conf, True )
+conf = JsonConfigBase.ExpandDefaultMcConfig( [0,30,60,100,140,300], conf, True )
 
 conf["Algos"] = ["ak5PFJetsL1L2"]
 
