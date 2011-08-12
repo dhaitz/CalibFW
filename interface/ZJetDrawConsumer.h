@@ -109,7 +109,6 @@ public:
 	MetaConsumerDataLV(std::string physicsObjectName)
 	{
 		SetPhysicsObjectName(physicsObjectName);
-
 		MetaConsumerDataLV();
 	}
 
@@ -134,7 +133,6 @@ public:
 		m_histPt->SetRootFileFolder(GetPipelineSettings().GetRootFileFolder());
 		m_histPt->Init( Hist1D::GetPtModifier());
 
-
 		m_histEta->Init(Hist1D::GetEtaModifier());
 		m_histEta->SetRootFileFolder(GetPipelineSettings().GetRootFileFolder());
 
@@ -145,7 +143,7 @@ public:
 	// this method is only called for events which have passed the filter imposed on the
 	// pipeline
 
-	virtual void PlotDataLVQuantities(KDataLV * dataLV,
+	virtual void PlotDataLVQuantities(KDataLV const* dataLV,
 			ZJetMetaData const& metaData)
 	{
 		m_histPt->Fill(dataLV->p4.Pt(), metaData.GetWeight());
@@ -184,6 +182,53 @@ public:
 	IMPL_PROPERTY(std::string, PhysicsObjectName )
 
 };
+
+class DataZConsumer: public MetaConsumerDataLV
+{
+public:
+	DataZConsumer()
+	{
+		SetPhysicsObjectName("Z");
+	}
+
+	virtual void ProcessFilteredEvent(ZJetEventData const& event,
+			ZJetMetaData const& metaData)
+	{
+		PlotDataLVQuantities( metaData.GetPtZ(), metaData );
+	}
+};
+
+class DataMuonConsumer: public MetaConsumerDataLV
+{
+public:
+	DataMuonConsumer( char charge ) : m_charge( charge )
+	{
+		if ( m_charge > 0)
+			SetPhysicsObjectName("mu_plus");
+
+		if ( m_charge < 0)
+			SetPhysicsObjectName("mu_minus");
+	}
+
+	virtual void ProcessFilteredEvent(ZJetEventData const& event,
+			ZJetMetaData const& metaData)
+	{
+		//todo: somehow filter the good muons
+		for ( KDataMuons::iterator it = event.m_muons->begin();
+				it != event.m_muons->end(); it ++ )
+		{
+			if ( it->charge == m_charge)
+			{
+				PlotDataLVQuantities( &(*it), metaData );
+				return;
+			}
+		}
+
+	}
+
+	char m_charge;
+};
+
 
 /// maybe also used for other stuff, like muons
 class DataLVsConsumer: public MetaConsumerDataLV
@@ -286,8 +331,6 @@ public:
 			KDataLV * jet)
 	{
 		KDataPFJet * pfJet = static_cast<KDataPFJet*>( jet );
-
-		CALIB_LOG( GetPipelineSettings().GetRootFileFolder() );
 		m_neutralEmFraction->Fill( pfJet->chargedEMFraction, metaData.GetWeight() );
 	}
 

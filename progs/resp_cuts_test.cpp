@@ -4,6 +4,7 @@
 #include "EventPipelineRunner_test.h"
 #include "ZJetCuts_test.h"
 #include "ZJetPipeline_test.h"
+#include "ZJetMetaProducer_test.h"
 
 
 

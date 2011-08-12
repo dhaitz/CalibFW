@@ -67,6 +67,27 @@ BOOST_AUTO_TEST_CASE( test_filter_incut )
 }
 
 
+BOOST_AUTO_TEST_CASE( test_filter_valid_muon )
+{
+	TestZJetEventData evt;
+	ZJetMetaData mData;
+	ZJetPipelineSettings set;
+
+	InCutFilter filter;
+
+	set.CacheFilterInCutIgnored.SetCache(0);
+
+
+	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), true );
+
+	mData.SetCutResult(8, false);
+	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), false );
+
+	mData.SetCutResult(8, true);
+	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), true );
+
+}
+
 }
 
 

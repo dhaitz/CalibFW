@@ -15,6 +15,9 @@ void ZJetPipelineInitializer::InitPipeline(ZJetPipeline * pLine, ZJetPipelineSet
 			pLine->AddFilter( new PtWindowFilter);
 		else if ( sid == InCutFilter().GetFilterId())
 			pLine->AddFilter( new InCutFilter);
+		else if ( sid == ValidMuonsFilter().GetFilterId())
+			pLine->AddFilter( new ValidMuonsFilter);
+
 		else
 			CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 

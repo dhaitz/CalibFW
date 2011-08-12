@@ -192,6 +192,46 @@ IMPL_PROPERTY(TFile *, RootOutFile)
 
 
 
+
+class ZJetMetaData : public CalibFW::EventMetaDataBase
+{
+public:
+	ZJetMetaData()
+	{
+		SetCutBitmask(0);
+		SetValidMuons( false);
+	}
+
+	double GetWeight() const { return 1.0f; }
+
+	void SetCutResult( long cutId, bool cutPassed )
+	{
+		// ensure the bit is removed if it was set before
+		this->SetCutBitmask (  (  (! cutPassed) * cutId ) | (  GetCutBitmask() & ( ~ cutId ) ));
+	}
+
+	bool HasValidMuons() const
+	{
+		return this->GetValidMuons();
+	}
+
+	bool IsAllCutsPassed() const
+	{
+		return ( this->GetCutBitmask() == 0 );
+	}
+
+	bool IsCutPassed( long cutId ) const
+	{
+		return ( this->GetCutBitmask() & cutId ) == 0;
+	}
+
+	IMPL_PROPERTY_READONLY(long, CutBitmask);
+	IMPL_PROPERTY(bool, ValidMuons);
+	IMPL_PROPERTY(KDataLV, Z);
+};
+
+
+
 class ZJetEventData
 {
 
@@ -201,6 +241,7 @@ public:
 
 	// contains
 	KDataPFJets * m_primaryJetCollection;
+	KDataMuons * m_muons;
 
 	typedef std::map<std::string, KDataPFJets * > PfMap;
 	typedef std::map<std::string, KDataJets * > JetMap;
@@ -250,11 +291,6 @@ public:
 	//double GetPrimaryJetPt() const { return PF_Jets->at(0).Pt(); }
 	//KDataPFJet const& GetPrimaryJet() const { return PF_Jets->at(0); }
 
-	KDataLV GetZ()
-	{
-		KDataLV z;
-		return z;
-	}
 /*
 	template <class TJetType>
 	std::vector<TJetType> * GetJets(std::string jetAlgo) const
@@ -473,7 +509,7 @@ public:
 			ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings)
 	{
-		unsigned long ignoredCut = settings.GetFilterInCutIgnored();
+		//unsigned long ignoredCut = settings.GetFilterInCutIgnored();
 		// no section here is allowed to set to true again, just to false ! avoids coding errors
 		//return event.IsInCutWhenIgnoringCut(ignoredCut);
 		// todo
@@ -488,6 +524,27 @@ public:
 	virtual std::string ToString(bool bVerbose = false)
 	{
 		return "InCut";
+	}
+};
+
+class ValidMuonsFilter: public ZJetFilterBase
+{
+public:
+	virtual bool DoesEventPass(ZJetEventData const& event,
+			ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings)
+	{
+		return metaData.HasValidMuons();
+	}
+
+	virtual std::string GetFilterId()
+	{
+		return "valid_muons";
+	}
+
+	virtual std::string ToString(bool bVerbose = false)
+	{
+		return "Valid Muons Filter";
 	}
 
 };

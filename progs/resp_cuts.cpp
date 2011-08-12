@@ -122,10 +122,6 @@ TFile * g_resFile;
 TString g_sOutFolder("out/");
 std::auto_ptr<Json_wrapper> g_json;
 
-evtData g_ev;
-TChain * g_pChain;
-
-EventDataVector g_trackedEvents;
 
 //std::auto_ptr<ZJetCutHandler> g_cutHandler;
 
@@ -199,6 +195,8 @@ public:
 		InitPFJets( m_event, "AK7PFJets" );
 		InitPFJets( m_event, "KT4PFJets" );
 		InitPFJets( m_event, "KT6PFJets" );
+
+		m_event.m_muons = fi.Get<KDataMuons>("muons");
 	}
 
 	virtual bool GotoEvent(long long lEvent)
@@ -351,6 +349,12 @@ int main(int argc, char** argv)
 		if ((*it)->GetLevel() == 1)
 		{
 			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
+
+
+			pLine->AddConsumer(	new DataZConsumer());
+
+			pLine->AddConsumer(	new DataMuonConsumer(+1));
+			pLine->AddConsumer(	new DataMuonConsumer(-1));
 
 			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 0));
 			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 1));

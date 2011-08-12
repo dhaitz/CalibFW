@@ -7,7 +7,7 @@ import copy
 
 conf = JsonConfigBase.GetMcBaseConfig()
 
-conf["InputFiles"] = "/home/poseidon/uni/data/Kappa/example_KappaSkim.root" 
+conf["InputFiles"] = "/home/poseidon/uni/data/Kappa/dy_kappa_skim.root" 
 conf["OutputPath"] = "kappa_data_2011"
 
 

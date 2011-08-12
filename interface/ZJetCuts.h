@@ -468,6 +468,4 @@ public:
 	static const long CudId = 512;
 };
 
-extern std::vector<ZJetCutBase *> g_ZJetCuts;
-
 }
