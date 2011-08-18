@@ -28,7 +28,7 @@ public:
 
 		if (data.m_muons->size() > 2)
 		{
-			CALIB_LOG_FATAL( " -- more than 2 muons in an event, spookey ? how to combine this --")
+//			CALIB_LOG_FATAL( " -- more than 2 muons in an event, spookey ? how to combine this --")
 		}
 
 		KDataMuon & m1 = data.m_muons->at(0);
@@ -46,6 +46,25 @@ public:
 
 	}
 };
+/*
+class ValidNPVProducer: public ZJetMetaDataProducerBase
+{
+public:
+	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
+			ZJetPipelineSettings const& m_pipelineSettings)
+	{
+		unsigned int n = 0;
+
+		for( KDataVertices::iterator it = data.m_primaryVertex->begin();
+			it != data.m_primaryVertex->end();
+			it ++)
+		{
+			if ( !it->fake )
+				n++;
+		}
+		metaData.SetValidNPV(n);
+	}
+};*/
 
 
 }

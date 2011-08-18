@@ -267,7 +267,7 @@ public:
 		{
 			KDataPFJets * pfJets = m_pfJets.at(psettings.GetJetAlgorithm());
 
-			if (pfJets->size() <= index  )
+			if (pfJets->size() <= index )
 				return NULL;
 
 			return &pfJets->at(index);
@@ -286,6 +286,9 @@ public:
 
 	KDataMuons * Muons;
 	KEventMetadata * m_eventmetadata;
+	KGenEventMetadata * m_geneventmetadata;
+
+	KVertexSummary * m_primaryVertex;
 
 	// convinience functions
 	//double GetPrimaryJetPt() const { return PF_Jets->at(0).Pt(); }

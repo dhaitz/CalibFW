@@ -77,9 +77,12 @@ public:
 	typedef ModifierBase< TPlotType > Modifier;
 	typedef std::list< Modifier * > ModifierList;
 
-	PlotBase()
+	PlotBase( std::string sName, std::string sFolder)
+		: m_sName ( sName)
 	{
-		SetNameAndCaption(RootNamer::GetTempHistoName());
+		SetRootFileFolder ( sFolder );
+		//SetNameAndCaption(RootNamer::GetTempHistoName());
+		SetNameAndCaption(sName);
 	}
 
 	void AddModifier(ModifierBase<TPlotType> * mod)
@@ -94,7 +97,6 @@ public:
 			m_modifiers.push_back(m);
 		}
 	}
-
 
 	void RunModifierBeforeCreation(TPlotType * pElem)
 	{
@@ -144,6 +146,11 @@ class PlotSettings
 template < class THistType >
 class HistBase: public PlotBase<THistType>
 {
+public:
+	HistBase( std::string sName, std::string sFolder) :
+		PlotBase<THistType>( sName, sFolder)
+	{
+	}
 };
 
 template < class THistType >
@@ -167,7 +174,8 @@ public:
 		double m_fx, m_fy, m_fxe, m_fye;
 	};
 
-	GraphErrors() : PlotBase< GraphErrors>()
+	GraphErrors( std::string sName, std::string sFolder ) :
+		PlotBase< GraphErrors>(  sName, sFolder)
 		{
 		}
 
@@ -217,7 +225,7 @@ public:
 
 	TGraphErrors * m_graph;
 };
-
+/*
 class Profile2D: public PlotBase< Profile2D>
 {
 public:
@@ -338,7 +346,7 @@ public:
 
 	TH2D * m_hist;
 };
-
+*/
 class Hist1D: public HistBase< Hist1D>
 {
 public:
@@ -348,27 +356,19 @@ public:
 	static ModifierList GetPhiModifier();
 	static ModifierList GetEtaModifier();
 	static ModifierList GetFractionModifier();
+	static ModifierList GetNoModifier();
+	static ModifierList GetNRVModifier();
+	static ModifierList GetResponseModifier();
+	static ModifierList GetMassModifier();
 
-
-	Hist1D() : HistBase< Hist1D>(),
-	m_iBinCount(100), m_dBinLower(0.0f), m_dBinUpper(200.0f), m_bUseCustomBin(false)
-	{
-
-	}
-
-	void Init( double lLowestBin, double lHighestBin, unsigned int binCount )
-	{
-		Hist1D::ModifierList modList;
-
-		CALIB_LOG_FATAL("not implemented")
-
-		this->Init(modList);
-	}
-
-	void Init( ModifierList l )
+	Hist1D( std::string sName, std::string sFolder, Hist1D::ModifierList l ) :
+		HistBase< Hist1D>(sName, sFolder),
+		m_iBinCount(100),
+		m_dBinLower(0.0f),
+		m_dBinUpper(200.0f),
+		m_bUseCustomBin(false)
 	{
 		this->AddModifiers( l);
-
 		this->RunModifierBeforeCreation( this );
 
 		RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
@@ -390,6 +390,20 @@ public:
 		m_hist->Sumw2();
 
 		this->RunModifierBeforeDataEntry( this );
+	}
+
+	void Init( )
+	{
+		Hist1D::ModifierList modList;
+
+		CALIB_LOG_FATAL("not implemented")
+
+		this->Init(modList);
+	}
+
+	void Init( ModifierList l )
+	{
+
 	}
 
 	void Store(TFile * pRootFile)
@@ -527,7 +541,7 @@ public:
 	// already configured histogramm
 	Hist1D * m_hist;
 };
-
+/*
 template<class TData, class TMetaData,class TSettings>
 class DrawHist2DConsumerBase: public DrawConsumerBase<TData, TMetaData,TSettings>
 {
@@ -543,7 +557,7 @@ public:
 		//CALIB_LOG( "Initializing 2d Hist for " << this->GetProductName() )
 
 		/* m_hist->m_sName = "nname"; //this->GetProductName();
-	 m_hist->m_sCaption = "ccapt" ;//this->GetProductName(); */
+	 m_hist->m_sCaption = "ccapt" ;//this->GetProductName();
 		m_hist->m_sName = m_hist->m_sCaption = this->GetProductName();
 		m_hist->SetRootFileFolder( this->GetPipelineSettings()->GetRootFileFolder() );
 		m_hist->Init();
@@ -558,7 +572,7 @@ public:
 	}
 	// already configured histogramm
 	Hist2D * m_hist;
-};
+};*/
 
 
 class ModHistBinRange : public ModifierBase<Hist1D>
@@ -578,7 +592,7 @@ private:
 	double m_dBinLower;
 	double m_dBinUpper;
 };
-
+/*
 class ModHist2DBinRange : public ModifierBase<Hist2D>
 {
 public:
@@ -602,7 +616,7 @@ private:
 	double m_dBinYLower;
 	double m_dBinYUpper;
 };
-
+*/
 class ModHistCustomBinning : public ModifierBase<Hist1D>
 {
 public:
@@ -661,7 +675,7 @@ private:
 	unsigned int m_iBinCount;
 
 };
-
+/*
 class ModHist2DBinCount : public ModifierBase<Hist2D>
 {
 public:
@@ -681,6 +695,6 @@ private:
 	unsigned int m_iBinYCount;
 };
 
-
+*/
 }
 

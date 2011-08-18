@@ -71,7 +71,7 @@ using namespace CalibFW;
 // DP made the variables not const to set them by command line args
 
 
-std::string g_sSource("");
+stringvector g_sourcefiles;
 
 vdouble g_customBinning;
 
@@ -93,7 +93,7 @@ std::string g_sOutputPath = "default_zjetres";
 std::string g_sTrackedEventsFile;
 
 boost::property_tree::ptree g_propTree;
-
+InputTypeEnum g_inputType;
 long g_lOverallNumberOfProcessedEvents = 0;
 
 std::map<std::string, std::string> g_l2CorrData;
@@ -185,11 +185,18 @@ ZJetPipelineSettings * CreateDefaultSettings(std::string sAlgoName,
 class ZJetEventProvider: public EventProvider<ZJetEventData>
 {
 public:
-	ZJetEventProvider(FileInterface & fi) :
+	ZJetEventProvider(FileInterface & fi, InputTypeEnum inpType) :
 		m_fi(fi)
 	{
 		// setup pointer to collections
 		m_event.m_eventmetadata = fi.Get<KEventMetadata> ();
+		//m_event.m_primaryVertex = fi.Get<KVertexSummary>("offlinePrimaryVerticesSummary");
+
+		if ( inpType == McInput)
+		{
+			m_event.m_geneventmetadata = fi.Get<KGenEventMetadata> ();
+		}
+
 
 		InitPFJets( m_event, "AK5PFJets" );
 		InitPFJets( m_event, "AK7PFJets" );
@@ -197,11 +204,15 @@ public:
 		InitPFJets( m_event, "KT6PFJets" );
 
 		m_event.m_muons = fi.Get<KDataMuons>("muons");
+
+		m_mon = auto_ptr<ProgressMonitor>(  new ProgressMonitor( GetOverallEventCount()) );
 	}
 
 	virtual bool GotoEvent(long long lEvent)
 	{
+		m_mon->Update();
 		m_fi.eventdata.GetEntry(lEvent);
+
 
 		//CALIB_LOG( "Event " << m_eventmetadata->nEvent << " Lumi " << m_eventmetadata->nLumi << " Run " << m_eventmetadata->nRun )
 
@@ -229,6 +240,7 @@ private:
 
 
 	ZJetEventData m_event;
+	auto_ptr<ProgressMonitor> m_mon;
 private:
 
 	FileInterface & m_fi;
@@ -267,14 +279,27 @@ int main(int argc, char** argv)
 	CALIB_LOG_FILE( "Running with " << omp_get_max_threads() << " thread(s)" )
 
 	// input files
-	g_sSource = g_propTree.get<std::string> ("InputFiles");
-	CALIB_LOG_FILE("Using InputFiles " << g_sSource)
+	g_sourcefiles = PropertyTreeSupport::GetAsStringList( &g_propTree,"InputFiles");
 
-	FileInterface fi(vector<string> (1, g_sSource));
+	BOOST_FOREACH( std::string s, g_sourcefiles)
+	{
+		CALIB_LOG_FILE("Input File " << s)
+	}
+
+	FileInterface fi(g_sourcefiles);
 
 	std::vector<std::string> sJetNames = fi.GetNames<KDataJet> (true);
 	BOOST_FOREACH( std::string s, sJetNames)
 	{	std::cout << "KDataJet " << s << std::endl;
+	}
+
+	if ( g_propTree.get<std::string> ("InputType", "mc") == "data")
+	{
+		g_inputType = DataInput;
+	}
+	else
+	{
+		g_inputType = McInput;
 	}
 
 	sJetNames = fi.GetNames<KDataPFJets>(true);
@@ -284,7 +309,7 @@ int main(int argc, char** argv)
 		std::cout << "KDataLV " << s << std::endl;
 	}
 
-	ZJetEventProvider evtProvider( fi );
+	ZJetEventProvider evtProvider( fi, g_inputType );
 
 	/*KDataPFJets * myJets = fi.Get<KDataPFJets>("AK5PFJets");
  evtProvider.m_data.PF_jets = myJets;*/
@@ -312,7 +337,7 @@ int main(int argc, char** argv)
 	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump:" );
 	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
 
-	EventPipelineRunner<ZJetPipeline> pRunner;
+
 
 	// cloning of a pipeline ?? goes here maybe
 	// clone default pipeline for the number of settings we have
@@ -321,6 +346,12 @@ int main(int argc, char** argv)
 	ZJetPipelineInitializer plineInit;
 
 	ZJetPipelineSettings * pset = NULL;
+
+
+
+	EventPipelineRunner<ZJetPipeline> pRunner;
+
+
 
 	BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
 			g_propTree.get_child("Pipelines") )
@@ -346,9 +377,14 @@ int main(int argc, char** argv)
 	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 			== g_pipeSettings.end()); it++)
 	{
+		std::cout << (*it)->GetSettingsRoot() << std::endl;
+
 		if ((*it)->GetLevel() == 1)
 		{
 			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
+
+			// does not work at the moment due to an error about wrong root dictionaries
+			//pLine->AddConsumer(	new PrimaryVertexConsumer());
 
 
 			pLine->AddConsumer(	new DataZConsumer());
@@ -361,6 +397,25 @@ int main(int argc, char** argv)
 			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 2));
 			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 3));
 			pLine->AddConsumer(	new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 4));
+
+			//pLine->AddConsumer(	new ResponseConsumerBase() );
+
+			if ( g_inputType == McInput )
+			{
+				pLine->AddConsumer(	new GenMetadataConsumer() );
+			}
+			else
+			{
+				pLine->AddConsumer(	new MetadataConsumer() );
+			}
+
+			pLine->InitPipeline( *(*it), plineInit);
+			pRunner.AddPipeline( pLine );
+		}
+
+		if ((*it)->GetLevel() == 2)
+		{
+			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
 
 			pLine->InitPipeline( *(*it), plineInit);
 			pRunner.AddPipeline( pLine );

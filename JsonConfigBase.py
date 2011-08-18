@@ -1,5 +1,15 @@
 import copy
 import subprocess
+import glob
+
+def CreateFileList( wildcardExpression):
+    flist = []
+    
+    for name in glob.glob(wildcardExpression):
+        flist.append(name)
+        
+    return flist
+    
 
 def getDefaultCorrectionL2( data_path ):
   globalTag = "GR_R_311_V2_"
@@ -40,7 +50,8 @@ def GetBaseConfig():
                      "secondleading_to_zpt",
                      "back_to_back",
                      "zmass_window"],
-            "Filter":[]
+            "Filter":[],
+            "Consumer": []
                       }
             }
     
@@ -129,6 +140,7 @@ def ExpandCutNoCut( pipelineDict):
         cutPipe["FilterInCutIgnored"] = 0
         
         cutPipe["Filter"].append ("incut")
+        cutPipe["Filter"].append ("valid_muons")
 
         newDict[name + "nocuts" ] = nocutPipe
         newDict[name] = cutPipe
@@ -174,12 +186,12 @@ def ExpandPtBins( pipelineDict, ptbins, includeSource):
 def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = ""):
     conf = conf_template
 
-    conf["Pipelines"]["default"]["CustomBins"] = ptBins
+    #conf["Pipelines"]["default"]["CustomBins"] = ptBins
     conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )
 
     secLevelPline = { FolderPrefix + "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
     secLevelPline[FolderPrefix + "sec_default"]["Level"] = 2
-    secLevelPline[FolderPrefix + "sec_default"]["CustomBins"] = ptBins
+    #secLevelPline[FolderPrefix + "sec_default"]["CustomBins"] = ptBins
     secLevelPline[FolderPrefix + "sec_default"]["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"
     secLevelPline[FolderPrefix + "sec_default"]["RootFileFolder"] = FolderPrefix
 

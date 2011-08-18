@@ -57,7 +57,7 @@ public:
 			return pBin->id() + "_incut/";
 
 	}
-
+/*
 	static std::string GetHistoName(std::string algoName, std::string quantName,
 			InputTypeEnum inpType, int corr = 0, PtBin * pBin = NULL,
 			bool isNoCut = false, TString algoNameAppend = "Zplusjet")
@@ -76,7 +76,7 @@ public:
 				fullString << "_";
 		}
 		return fullString.str();
-	}
+	}*/
 };
 
 

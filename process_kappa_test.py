@@ -7,7 +7,7 @@ import copy
 
 conf = JsonConfigBase.GetMcBaseConfig()
 
-conf["InputFiles"] = "/home/poseidon/uni/data/Kappa/dy_kappa_skim.root" 
+conf["InputFiles"] = JsonConfigBase.CreateFileList( "/home/poseidon/uni/data/ZPJ2011/Kappa_DYToMuMu_Summer11-PU/*.root") 
 conf["OutputPath"] = "kappa_data_2011"
 
 
