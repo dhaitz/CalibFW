@@ -2,6 +2,8 @@
 
 #include <boost/noncopyable.hpp>
 
+#include <map>
+
 namespace CalibFW
 {
 
@@ -12,7 +14,15 @@ class EventPipeline;
 class FilterResult
 {
 public:
-	FilterResult(bool bHasPassed) :
+
+	typedef std::map<std::string, bool> FilterDecisions;
+
+	FilterResult():
+		m_bHasPassed(false)
+	{
+	}
+
+	FilterResult(bool bHasPassed):
 		m_bHasPassed(bHasPassed)
 	{
 	}
@@ -22,8 +32,33 @@ public:
 		return m_bHasPassed;
 	}
 
-private:
+	bool PassedIfExcludingFilter(std::string excludedFilter )
+	{
+		for ( std::map<std::string, bool>::iterator it = m_filterDecision.begin();
+			it != m_filterDecision.end();
+			it ++ )
+		{
+			if ( it->second == false)
+			{
+				if( it->first != excludedFilter )
+					return false;
+			}
+		}
+
+		return true;
+	}
+
+	FilterDecisions const&  GetFilterDecisions() const
+	{
+		return m_filterDecision;
+	}
+
+	// optimize this, without strings
+	FilterDecisions m_filterDecision;
 	bool m_bHasPassed;
+
+private:
+
 };
 
 template<class TData, class TMetaData, class TSettings>
@@ -39,6 +74,7 @@ public:
 	{
 		//m_pipeline = pset;
 	}
+
 	virtual void Finish()
 	{
 	}

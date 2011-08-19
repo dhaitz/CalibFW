@@ -16,7 +16,6 @@
 #include "EventData.h"
 #include "PtBinWeighter.h"
 #include "EventPipeline.h"
-#include "CutHandler.h"
 
 #include "DrawModifierBase.h"
 #include "ZJetFilter.h"
@@ -556,7 +555,7 @@ public:
 		DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
 		//CALIB_LOG( "Initializing 2d Hist for " << this->GetProductName() )
 
-		/* m_hist->m_sName = "nname"; //this->GetProductName();
+		 m_hist->m_sName = "nname"; //this->GetProductName();
 	 m_hist->m_sCaption = "ccapt" ;//this->GetProductName();
 		m_hist->m_sName = m_hist->m_sCaption = this->GetProductName();
 		m_hist->SetRootFileFolder( this->GetPipelineSettings()->GetRootFileFolder() );

@@ -50,7 +50,7 @@ def GetBaseConfig():
                      "secondleading_to_zpt",
                      "back_to_back",
                      "zmass_window"],
-            "Filter":["valid_muons"],
+            "Filter":["valid_z"],
             "Consumer": {}
                       }
             }
@@ -181,6 +181,7 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
 
     #conf["Pipelines"]["default"]["CustomBins"] = ptBins
     conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )
+    conf["Pipelines"]["defaultnocuts"]["Consumer"]["cut_statistics"] =  { "Name": "cut_statistics" }
 
     secLevelPline = { FolderPrefix + "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
     secLevelPline[FolderPrefix + "sec_default"]["Level"] = 2

@@ -4,11 +4,13 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/test/included/unit_test.hpp>
+
+
 
 #include "EventPipeline_test.h"
 #include "EventPipelineRunner.h"
 
-#include <boost/test/included/unit_test.hpp>
 
 #include "ZJetCuts.h"
 #include "ZJetTestSupport.h"
@@ -53,17 +55,31 @@ BOOST_AUTO_TEST_CASE( test_cut_muon_eta )
 	MuonEtaCut ecut;
 
 	TestZJetEventData evtData;
-	evtData.m_muons
-
 	ZJetMetaData metData;
 
-	ZJetPipelineSettings pSettings;
-	pSettings.CacheCutLeadingJetEta.SetCache( 1.13 );
-	pSettings.CacheJetAlgorithm.SetCache("AK5PFJets");
+	KDataMuon km1,km2;
+	km1.p4.SetEta(1.23f);
+	metData.m_listValidMuons.push_back(km1);
+	km2.p4.SetEta(4.23f);
+	metData.m_listValidMuons.push_back(km2);
 
-	evtData.m_jets[0].p4.SetEta( 0.3f);
+
+	ZJetPipelineSettings pSettings;
+	pSettings.CacheCutMuonEta.SetCache( 1.3f );
+
 	ecut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( metData.IsCutPassed( LeadingJetEtaCut::CudId ) );
+	BOOST_CHECK(! metData.IsCutPassed( MuonEtaCut::CutId ) );
+
+
+	metData.m_listValidMuons.clear();
+	km1.p4.SetEta(1.23f);
+	metData.m_listValidMuons.push_back(km1);
+	km2.p4.SetEta(-1.23f);
+	metData.m_listValidMuons.push_back(km2);
+
+	metData.SetCutResult( MuonEtaCut::CutId, false );
+	ecut.PopulateMetaData( evtData, metData, pSettings );
+	BOOST_CHECK( metData.IsCutPassed( MuonEtaCut::CutId ) );
 
 }
 
@@ -81,7 +97,7 @@ BOOST_AUTO_TEST_CASE( test_cut_back2back )
 	ZJetMetaData metData;
 
 	KDataLV v = metData.GetZ();
-	metData.SetValidMuons(true);
+	metData.SetValidZ(true);
 	v.p4.SetPhi(0.0f);
 	metData.SetZ( v );
 
@@ -124,7 +140,7 @@ BOOST_AUTO_TEST_CASE( test_cut_zmass )
 	ZJetMetaData metData;
 
 	KDataLV v = metData.GetZ();
-	metData.SetValidMuons(true);
+	metData.SetValidZ(true);
 	v.p4.SetM(90.0f);
 	metData.SetZ( v );
 
@@ -154,7 +170,7 @@ BOOST_AUTO_TEST_CASE( test_cut_zpt )
 	ZJetMetaData metData;
 
 	KDataLV v = metData.GetZ();
-	metData.SetValidMuons(true);
+	metData.SetValidZ(true);
 	v.p4.SetPt(20.0f);
 	metData.SetZ( v );
 
@@ -184,7 +200,7 @@ BOOST_AUTO_TEST_CASE( test_cut_second_jet )
 	ZJetMetaData metData;
 
 	KDataLV v = metData.GetZ();
-	metData.SetValidMuons(true);
+	metData.SetValidZ(true);
 	v.p4.SetPt(100.0f);
 	metData.SetZ( v );
 

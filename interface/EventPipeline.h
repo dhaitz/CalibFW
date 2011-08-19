@@ -112,8 +112,8 @@ public:
 
 	// this is NOT a ptr_vector, since one producer instance is used with many pipelines
 	typedef std::vector<MetaDataProducerBase<TData, TMetaData, TSettings> *>
-			MetaDateProducerVector;
-	typedef typename MetaDateProducerVector::iterator MetaDataVectorIterator;
+			MetaDataProducerVector;
+	typedef typename MetaDataProducerVector::iterator MetaDataVectorIterator;
 
 	virtual void InitPipeline(TSettings pset, PipelineInitilizerBase<TData,
 			TMetaData, TSettings> const& initializer)
@@ -174,18 +174,20 @@ public:
 		}
 
 		bool bPassed = true;
+		bool bPassedAll = true;
+		FilterResult fres(bPassed);
+
+
 		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
 				== m_filter.end()); itfilter++)
 		{
-			if (!itfilter->DoesEventPass(evt, metaData, m_pipelineSettings))
-			{
-				bPassed = false;
-				break;
-			}
+			bPassed = itfilter->DoesEventPass(evt, metaData, m_pipelineSettings);
+			fres.m_filterDecision[ itfilter->GetFilterId() ] = bPassed;
+			bPassedAll = bPassedAll && bPassed;
 		}
 
+		fres.m_bHasPassed = bPassedAll;
 		// todo : we dont need to create this object here, i guess
-		FilterResult fres(bPassed);
 
 		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
 				== m_consumer.end()); itcons++)
@@ -242,7 +244,7 @@ public:
 
 	ConsumerVector m_consumer;
 	FilterVector m_filter;
-	MetaDateProducerVector m_producer;
+	MetaDataProducerVector m_producer;
 
 	TSettings m_pipelineSettings;
 };

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "EventData.h"
-#include "CutHandler.h"
 #include "ZJetPipeline.h"
 
 namespace CalibFW
@@ -9,11 +8,16 @@ namespace CalibFW
 
 const double g_kZmass = 91.19;
 
-typedef MetaDataProducerBase<ZJetEventData , ZJetMetaData,  ZJetPipelineSettings > ZJetCutBase;
+class ZJetCutBase : public MetaDataProducerBase<ZJetEventData , ZJetMetaData,  ZJetPipelineSettings >
+{
+public:
+	virtual std::string GetCutShortName() const = 0;
+	virtual unsigned long GetId() const = 0;
+};
 //typedef CutHandler<ZJetEventData , ZJetPipelineSettings > ZJetCutHandler;
 
 //typedef EventConsumerBase<EventResult, ZJetPipelineSettings> ZJetConsumerBase;
-
+/*
 class JsonCut: public ZJetCutBase
 {
 public:
@@ -28,9 +32,9 @@ public:
 		{
 			CALIB_LOG_FATAL("No valid JSON file loaded.")
 		}
-/*
+
 		return m_jsonFile->has(pEv->m_pData->cmsRun,
-				pEv->m_pData->luminosityBlock);*/
+				pEv->m_pData->luminosityBlock);
 		// todo
 		return true;
 	}
@@ -50,7 +54,7 @@ public:
 	static const long CudId = 1;
 
 	Json_wrapper * m_jsonFile;
-};
+};*/
 
 class MuonPtCut: public ZJetCutBase
 {
@@ -70,7 +74,7 @@ public:
 		return true;
 	}
 
-	unsigned long GetId()
+	unsigned long GetId() const
 	{
 		return MuonPtCut::CudId;
 	}
@@ -78,7 +82,7 @@ public:
 	{
 		return "2) muon pt cut";
 	}
-	std::string GetCutShortName()
+	std::string GetCutShortName() const
 	{
 		return "muon_pt";
 	}
@@ -101,22 +105,31 @@ public:
 	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings)
 	{
-		//todo
+		bool oneFailed = false;
+
+		for ( KDataMuons::iterator it = metaData.m_listValidMuons.begin();
+				it != metaData.m_listValidMuons.end(); it ++)
+		{
+			oneFailed = !(TMath::Abs(it->p4.Eta())
+							< m_pipelineSettings.GetCutMuonEta()) || oneFailed;
+		}
+
+		metaData.SetCutResult( this->GetId(), !oneFailed );
 	}
 
-	unsigned long GetId()
+	unsigned long GetId() const
 	{
-		return MuonEtaCut::CudId;
+		return MuonEtaCut::CutId;
 	}
 	std::string GetCutName()
 	{
 		return "3) muon eta cut";
 	}
-	std::string GetCutShortName()
+	std::string GetCutShortName() const
 	{
 		return "muon_eta";
 	}
-	static const long CudId = 4;
+	static const long CutId = 4;
 };
 
 class LeadingJetEtaCut: public ZJetCutBase
@@ -135,7 +148,7 @@ public:
 		}
 	}
 
-	unsigned long GetId()
+	unsigned long GetId() const
 	{
 		return LeadingJetEtaCut::CudId;
 	}
@@ -143,7 +156,7 @@ public:
 	{
 		return "4) leading jet eta cut";
 	}
-	std::string GetCutShortName()
+	std::string GetCutShortName() const
 	{
 		return "leadingjet_eta";
 	}
@@ -177,7 +190,7 @@ public:
   				 < m_pipelineSettings.GetCutSecondLeadingToZPt());
 	}
 
-	unsigned long GetId()
+	unsigned long GetId() const
 	{
 		return SecondLeadingToZPtCut::CudId;
 	}
@@ -185,7 +198,7 @@ public:
 	{
 		return "5) 2nd leading jet to Z pt";
 	}
-	std::string GetCutShortName()
+	std::string GetCutShortName() const
 	{
 		return "secondleading_to_zpt";
 	}
@@ -302,7 +315,7 @@ public:
 	}
 
 
-	unsigned long GetId()
+	unsigned long GetId() const
 	{
 		return BackToBackCut::CudId;
 	}
@@ -310,7 +323,7 @@ public:
 	{
 		return "6) back to back/jet to z";
 	}
-	std::string GetCutShortName()
+	std::string GetCutShortName() const
 	{
 		return "back_to_back";
 	}
@@ -334,7 +347,7 @@ public:
 				< m_pipelineSettings.GetCutZMassWindow() );
 	}
 
-	unsigned long GetId()
+	unsigned long GetId() const
 	{
 		return ZMassWindowCut::CudId;
 	}
@@ -342,7 +355,7 @@ public:
 	{
 		return "7) z mass window";
 	}
-	std::string GetCutShortName()
+	std::string GetCutShortName() const
 	{
 		return "zmass_window";
 	}
@@ -370,7 +383,7 @@ public:
 				metaData.GetRefZ().p4.Pt() > m_pipelineSettings.GetCutZPt() );
 	}
 
-	unsigned long GetId()
+	unsigned long GetId() const
 	{
 		return ZPtCut::CudId;
 	}
@@ -378,7 +391,7 @@ public:
 	{
 		return "7.5) z pt";
 	}
-	std::string GetCutShortName()
+	std::string GetCutShortName() const
 	{
 		return "zpt";
 	}
@@ -434,7 +447,7 @@ public:
 		return true;
 	}
 
-	unsigned long GetId()
+	unsigned long GetId() const
 	{
 		return HltCut::CudId;
 	}
@@ -442,7 +455,7 @@ public:
 	{
 		return "Hlt Cut";
 	}
-	std::string GetCutShortName()
+	std::string GetCutShortName() const
 	{
 		return "hlt";
 	}

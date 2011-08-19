@@ -50,6 +50,21 @@ public:
 	}
 };
 
+class TestFilter2: public FilterBase<TestData, TestMetaData,TestSettings>
+{
+public:
+
+	virtual std::string GetFilterId()
+	{
+		return "testfilter2";
+	}
+
+	virtual bool DoesEventPass( const TestData & event,  TestMetaData const& metaData, TestSettings const& settings)
+	{
+		return false;
+	}
+};
+
 class TestMetaDataProducer : public MetaDataProducerBase<TestData, TestMetaData,TestSettings>
 {
 public:
@@ -98,6 +113,7 @@ public:
 		BOOST_CHECK_EQUAL(event.iVal + 1, metaData.iMetaData);
 
 		iProcessEvent++;
+		fres = result;
 	}
 
 	void CheckCalls( int ProcessFilteredEvent, int ProcessEvent)
@@ -113,6 +129,7 @@ public:
 	int iInit;
 	int iProcessFilteredEvent;
 	int iProcessEvent;
+	FilterResult fres;
 };
 
 class TestPipelineInitilizer: public PipelineInitilizerBase< TestData, TestMetaData,TestSettings>
@@ -193,6 +210,48 @@ BOOST_AUTO_TEST_CASE( test_event_filter )
 
 	pCons1->CheckCalls(2, 3);
 	pCons2->CheckCalls(2, 3);
+}
+
+
+BOOST_AUTO_TEST_CASE( test_event_multiplefilter )
+{
+	TestEventConsumer * pCons1 = new TestEventConsumer();
+	TestEventConsumer * pCons2 = new TestEventConsumer();
+
+	EventPipeline<TestData, TestMetaData, TestSettings> pline;
+
+	pline.AddConsumer( pCons1 );
+	pline.AddConsumer( pCons2 );
+
+	pline.AddFilter( new TestFilter() );
+	pline.AddFilter( new TestFilter2() );
+	pline.AddMetaDataProducer( new TestMetaDataProducer() );
+
+	TestPipelineInitilizer init;
+	pline.InitPipeline( TestSettings(), init  );
+
+	TestData td;
+
+	pline.RunEvent( td );
+	pline.RunEvent( td );
+	pline.RunEvent( td );
+
+	pline.FinishPipeline();
+
+	BOOST_CHECK( pCons1->fres.GetFilterDecisions().at("testfilter") == true );
+	BOOST_CHECK( pCons1->fres.GetFilterDecisions().at("testfilter2") == false );
+/*
+	for ( FilterResult::FilterDecisions::const_iterator it = pCons1->fres.GetFilterDecisions().begin();
+			it != pCons1->fres.GetFilterDecisions().end();
+			it ++ )
+	{
+		if ( it->first == "testfilter" )
+			BOOST_CHECK( it->second == true )
+
+			if ( it->first == "testfilter" )
+	BOOST_CHECK( it->second == true )
+		std::cout << it->first << " : " << it->second << std::endl;
+	}*/
 }
 
 

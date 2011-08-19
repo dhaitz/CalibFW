@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( test_filter_ptwin )
 	set.CacheFilterPtBinHigh.SetCache(100.0f);
 	set.CacheFilterPtBinLow.SetCache(10.0f);
 
-	mData.SetValidMuons(true);
+	mData.SetValidZ(true);
 	KDataLV v =mData.GetZ();
 	v.p4.SetPt(123.0f);
 	mData.SetZ( v );
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE( test_filter_ptwin )
 	mData.SetZ( v );
 	BOOST_CHECK_EQUAL(zfilter.DoesEventPass( evt, mData, set ), false );
 
-	mData.SetValidMuons(false);
+	mData.SetValidZ(false);
 	BOOST_CHECK_EQUAL(zfilter.DoesEventPass( evt, mData, set ), false );
 
 }
@@ -91,24 +91,22 @@ BOOST_AUTO_TEST_CASE( test_filter_incut )
 }
 
 
-BOOST_AUTO_TEST_CASE( test_filter_valid_muon )
+BOOST_AUTO_TEST_CASE( test_filter_valid_z )
 {
 	TestZJetEventData evt;
 	ZJetMetaData mData;
 	ZJetPipelineSettings set;
 
-	InCutFilter filter;
+	ValidZFilter filter;
 
 	set.CacheFilterInCutIgnored.SetCache(0);
 
 
+	mData.SetValidZ(true);
 	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), true );
 
-	mData.SetCutResult(8, false);
+	mData.SetValidZ(false);
 	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), false );
-
-	mData.SetCutResult(8, true);
-	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), true );
 
 }
 

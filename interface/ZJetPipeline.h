@@ -13,7 +13,6 @@
 #include "RootTools/FileInterface.h"
 
 #include "EventData.h"
-#include "CutHandler.h"
 //#include "ZJetFilter.h"
 
 namespace CalibFW
@@ -319,8 +318,14 @@ private:
 
 };
 
-typedef EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
-		ZJetPipeline;
+class ZJetPipeline :
+	public EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
+{
+public:
+	// returns a list of metaproducer which are cuts and modify the cut list
+	static MetaDataProducerVector GetSupportedCuts();
+};
+
 typedef FilterBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
 		ZJetFilterBase;
 
@@ -391,7 +396,7 @@ public:
 		bool bPass = true;
 		double fBinVal = 0.0f; // todo  event.GetCorrectedJetPt(1) / event.m_pData->Z->Pt();
 
-/*		if (!(fBinVal >= GetPipelineSettings()->GetFilterSecondJetRatioLow()))
+		if (!(fBinVal >= GetPipelineSettings()->GetFilterSecondJetRatioLow()))
 			bPass = false;
 
 		if (!(fBinVal < GetPipelineSettings()->GetFilterSecondJetRatioHigh()))
@@ -503,7 +508,7 @@ public:
 	}
 
 	virtual bool DoesEventPass( const  ZJetEventData & event)
-	{/*
+	{
 		event.IsCutInBitmask(16);
 
 		if (GetPipelineSettings()->GetFilter2ndJetPtCutSet()
@@ -551,7 +556,7 @@ public:
 	}
 };
 
-class ValidMuonsFilter: public ZJetFilterBase
+class ValidZFilter: public ZJetFilterBase
 {
 public:
 	virtual bool DoesEventPass(ZJetEventData const& event,
@@ -563,12 +568,12 @@ public:
 
 	virtual std::string GetFilterId()
 	{
-		return "valid_muons";
+		return "valid_z";
 	}
 
 	virtual std::string ToString(bool bVerbose = false)
 	{
-		return "Valid Muons Filter";
+		return "Valid Z Filter";
 	}
 
 };
@@ -577,7 +582,8 @@ class ZJetPipelineInitializer: public PipelineInitilizerBase<ZJetEventData,
 		ZJetMetaData, ZJetPipelineSettings>
 {
 public:
-	virtual void InitPipeline(ZJetPipeline * pLine, ZJetPipelineSettings const& pset) const;
+	virtual void InitPipeline(EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> * pLine ,
+			ZJetPipelineSettings const& pset) const;
 };
 
 }

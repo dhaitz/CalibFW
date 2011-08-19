@@ -10,8 +10,8 @@ conf = JsonConfigBase.GetMcBaseConfig()
 conf["InputFiles"] = JsonConfigBase.CreateFileList( "/home/poseidon/uni/data/ZPJ2011/Kappa_DYToMuMu_Summer11-PU/*1.root") 
 conf["OutputPath"] = "kappa_data_2011"
 
-
-conf = JsonConfigBase.ExpandDefaultMcConfig( [15,30,60,100,140,300], conf, True )
+#[15,30,60,100,140,300]
+conf = JsonConfigBase.ExpandDefaultMcConfig( [15,30,60,100], conf, True )
 
 conf["Algos"] = ["ak5PFJetsL1L2"]
 

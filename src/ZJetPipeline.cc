@@ -3,10 +3,29 @@
 
 #include "ZJetMetaDataProducer.h"
 #include "ZJetDrawConsumer.h"
+#include "CutStatistics.h"
 
 using namespace CalibFW;
 
-void ZJetPipelineInitializer::InitPipeline(ZJetPipeline * pLine, ZJetPipelineSettings const& pset) const
+ZJetPipeline::MetaDataProducerVector ZJetPipeline::GetSupportedCuts()
+{
+	/// TODO: this pointer must be released at some point !! -> memleak cries !
+
+	ZJetPipeline::MetaDataProducerVector cuts;
+
+	cuts.push_back( new LeadingJetEtaCut() );
+	cuts.push_back( new SecondLeadingToZPtCut() );
+	cuts.push_back( new MuonPtCut() );
+	cuts.push_back( new MuonEtaCut() );
+	cuts.push_back( new ZMassWindowCut() );
+	cuts.push_back( new BackToBackCut() );
+	cuts.push_back( new ZPtCut() );
+
+	return cuts;
+}
+
+void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> * pLine,
+		ZJetPipelineSettings const& pset) const
 {
 
 	if ( pset.GetLevel() == 1 )
@@ -20,8 +39,8 @@ void ZJetPipelineInitializer::InitPipeline(ZJetPipeline * pLine, ZJetPipelineSet
 				pLine->AddFilter( new PtWindowFilter);
 			else if ( sid == InCutFilter().GetFilterId())
 				pLine->AddFilter( new InCutFilter);
-			else if ( sid == ValidMuonsFilter().GetFilterId())
-				pLine->AddFilter( new ValidMuonsFilter);
+			else if ( sid == ValidZFilter().GetFilterId())
+				pLine->AddFilter( new ValidZFilter);
 
 			else
 				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
@@ -43,9 +62,12 @@ void ZJetPipelineInitializer::InitPipeline(ZJetPipeline * pLine, ZJetPipelineSet
 			CALIB_LOG_FATAL( "Filter " << sid << " not found." )*/
 		}
 
+		pLine->AddMetaDataProducer( new	ValidMuonProducer());
+		pLine->AddMetaDataProducer( new	ZProducer());
+
 		fvec = pset.GetCuts();
 		BOOST_FOREACH( std::string sid, fvec )
-		{		// make this more beatiful :)
+		{		// make this more beautiful :)
 			if ( sid ==  LeadingJetEtaCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new LeadingJetEtaCut() );
 
@@ -70,13 +92,7 @@ void ZJetPipelineInitializer::InitPipeline(ZJetPipeline * pLine, ZJetPipelineSet
 			else
 				CALIB_LOG_FATAL( "MetaDataProducer " << sid << " not found." )
 		}
-
-		//	pLine->AddMetaDataProducer( new	ValidNPVProducer());
-		pLine->AddMetaDataProducer( new	ValidMuonProducer());
-		pLine->AddMetaDataProducer( new	ZProducer());
-
 	}
-
 
 	// add consumer
 	std::cout << pset.GetSettingsRoot() << std::endl;
@@ -90,7 +106,8 @@ void ZJetPipelineInitializer::InitPipeline(ZJetPipeline * pLine, ZJetPipelineSet
 		// 1st Leve
 		if (sName == BinResponseConsumer::GetName())
 			pLine->AddConsumer( new BinResponseConsumer() );
-
+		else if (sName == CutStatisticsConsumer::GetName())
+			pLine->AddConsumer( new CutStatisticsConsumer());
 		// 2nd Level
 		else if( sName == JetRespConsumer::GetName() )
 			pLine->AddConsumer( new JetRespConsumer( pset.GetPropTree(), consPath ) );

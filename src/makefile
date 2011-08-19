@@ -24,7 +24,7 @@ BOOST_INC = /afs/naf.desy.de/group/cms/sw/slc5_ia32_gcc434/external/boost/1.42.0
 
 CPPFLAGS      = -I${BOOST_INC} -I${INCL} ${LIB_PATH} ${INCL_PATH}
 CXX 	      = /usr/bin/g++ 
-CXXFLAGS      = -O0 -g -Wall -fopenmp -fPIC $(ROOTCFLAGS)
+CXXFLAGS      = -O2 -g -Wall -fopenmp -pedantic -Werror -std=c++0x -fPIC $(ROOTCFLAGS)
 LD	      = /usr/bin/g++
 LDFLAGS       = $(ROOTLDFLAGS) ${LIB_PATH} -rdynamic
 
@@ -34,13 +34,13 @@ SOFLAGS       = -shared -Wl,-soname,$(SONAME)
 LIBS          = $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox
 GLIBS         = $(ROOTGLIBS)
 
-HDRS          = $(patsubst cintdict.h,,$(wildcard ${INCL}/*.h))
+HDRS          = $(patsubst ,,$(wildcard ${INCL}/*.h))
 
-SRCS          = $(patsubst cintdict.cc,,$(wildcard *.cc) $(wildcard *.C))
+SRCS          = $(patsubst ,,$(wildcard *.cc) $(wildcard *.C))
 TEST          = $(wildcard ../progs/*.cc) 
 TEST_HDRS     = $(wildcard ../progs/*.h)
 
-OBJ_TMP       = $(patsubst main.o,,$(SRCS:.cc=.o)  cintdict.o)
+OBJ_TMP       = $(patsubst main.o,,$(SRCS:.cc=.o) )
 #OBJS     = $(OBJ_TMP:.C=.o)
 OBJS_TMP2     = $(OBJ_TMP:.C=.o)
 OBJS          = $(addprefix ${OBJ}/,${OBJS_TMP2})
@@ -87,18 +87,15 @@ ${BIN}/%.exe : ${TESTDIR}/%.cpp $(TEST) $(TEST_HDRS) $(HDRS) ${LIB}/$(SONAME)
 ${OBJ}/%.o : %.cc ${INCL}/%.h
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $< -o $@
 
-${OBJ}/cintdict.o : cintdict.cc cintdict.h
-	$(CXX) -c  $(CXXFLAGS) $(CPPFLAGS) $< -o $@
-
 ${OBJ}/%.o : %.C %.h
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $< -o $@
 
 
 LINKDEF		= $(wildcard ${INCL}/*LinkDef.h)
 #Put the LinkDef.h at the end of the list.
-DICTHDRS        = CanvasHolder.h MinimalParser.h $(LINKDEF)
+#DICTHDRS        = CanvasHolder.h MinimalParser.h $(LINKDEF)
 #DICTHDRS        = $(patsubst $(LINKDEF),,$(HDRS)) $(LINKDEF)
 # $(DICTHDRS)
-cintdict.cc:
-	    @echo "Generating dictionary for  ..."
-	    rootcint -f cintdict.cc -c -p -I${ROOTSYS}/interface ${CPPFLAGS} $(DICTHDRS)
+#cintdict.cc:
+#	    @echo "Generating dictionary for  ..."
+#	    #rootcint -f cintdict.cc -c -p -I${ROOTSYS}/interface ${CPPFLAGS} $(DICTHDRS)

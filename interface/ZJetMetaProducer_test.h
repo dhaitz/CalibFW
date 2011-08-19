@@ -4,11 +4,14 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/test/included/unit_test.hpp>
+
+
+#include "DataFormats/interface/Kappa.h"
 
 #include "EventPipeline_test.h"
 #include "EventPipelineRunner.h"
 
-#include <boost/test/included/unit_test.hpp>
 
 #include "ZJetCuts.h"
 
@@ -60,16 +63,12 @@ BOOST_AUTO_TEST_CASE( test_producer_z )
 	ZJetMetaData mdata;
 	ZJetPipelineSettings set;
 
-	evtData.m_muons = new std::vector<KDataMuon>;
-
 	z.PopulateMetaData( evtData, mdata, set );
-	BOOST_CHECK( !mdata.HasValidMuons() );
+	BOOST_CHECK( !mdata.HasValidZ() );
 
-	evtData.m_muons = new std::vector<KDataMuon>;
-	evtData.m_muons->push_back( KDataMuon() );
+	mdata.m_listValidMuons.push_back( KDataMuon() );
 	z.PopulateMetaData( evtData, mdata, set );
-	BOOST_CHECK( !mdata.HasValidMuons() );
-
+	BOOST_CHECK( !mdata.HasValidZ() );
 
 	KDataMuon m1;
 	m1.p4.SetPt(45.0);
@@ -83,11 +82,11 @@ BOOST_AUTO_TEST_CASE( test_producer_z )
 	m2.p4.SetEta(0.1f);
 	m2.charge = -1;
 
-	evtData.m_muons = new std::vector<KDataMuon>;
-	evtData.m_muons->push_back( m1 );
-	evtData.m_muons->push_back( m2 );
+	mdata.m_listValidMuons.clear();
+	mdata.m_listValidMuons.push_back( m1 );
+	mdata.m_listValidMuons.push_back( m2 );
 	z.PopulateMetaData( evtData, mdata, set );
-	BOOST_CHECK( mdata.HasValidMuons() );
+	BOOST_CHECK( mdata.HasValidZ() );
 	BOOST_CHECK( mdata.GetZ().p4.Pt() > 88.0f );
 	BOOST_CHECK( mdata.GetZ().p4.Phi() < .1f );
 	BOOST_CHECK( mdata.GetZ().p4.Eta() < .1f );

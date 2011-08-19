@@ -33,6 +33,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/smart_ptr/scoped_ptr.hpp>
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -44,14 +45,11 @@
 
 #include "OpenMP-Support.h"
 
-#include "CompleteJetCorrector.h"
-
 /*
  #include <iostream>
  #include <hash_map>
  */
 #include "Json_wrapper.h"
-#include "read_csv.h"
 #include "EventData.h"
 
 #include "CutStatistics.h"
@@ -72,8 +70,6 @@ using namespace CalibFW;
 
 
 stringvector g_sourcefiles;
-
-vdouble g_customBinning;
 
 std::string g_sCurAlgo;
 int g_iAlgoOverallCount;
@@ -115,7 +111,7 @@ std::map<std::string, std::string> g_l2CorrData;
  };
  */
 
-vString g_lCorrFiles;
+
 
 TFile * g_resFile;
 
@@ -202,8 +198,7 @@ public:
 
 		m_event.m_muons = fi.Get<KDataMuons> ("muons");
 
-		m_mon = auto_ptr<ProgressMonitor> (new ProgressMonitor(
-				GetOverallEventCount()));
+		m_mon.reset( new ProgressMonitor(GetOverallEventCount() ));
 	}
 
 	virtual bool GotoEvent(long long lEvent)
@@ -236,7 +231,7 @@ private:
 	}
 
 	ZJetEventData m_event;
-	auto_ptr<ProgressMonitor> m_mon;
+	boost::scoped_ptr<ProgressMonitor> m_mon;
 private:
 
 	FileInterface & m_fi;

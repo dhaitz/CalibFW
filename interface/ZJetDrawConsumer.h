@@ -24,7 +24,6 @@
 #include "EventData.h"
 #include "PtBinWeighter.h"
 #include "EventPipeline.h"
-#include "CutHandler.h"
 #include "DrawBase.h"
 
 #include "DrawModifier.h"
@@ -169,8 +168,8 @@ public:
 		ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
 
 		KDataLV * jet0 = event.GetPrimaryJet(this->GetPipelineSettings());
-		assert( jet0 );
-		assert( metaData.HasValidMuons());
+		assert( jet0 != NULL );
+		assert( metaData.HasValidZ());
 
 		// fill with the Pt Balance Response
 		m_resp->Fill( jet0->p4.Pt() / metaData.GetRefZ().p4.Pt(),
@@ -188,7 +187,6 @@ public:
 class MetadataConsumer: public ZJetMetaConsumer
 {
 public:
-
 	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
 			ZJetPipelineSettings> * pset)
 	{
