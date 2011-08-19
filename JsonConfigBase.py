@@ -50,21 +50,12 @@ def GetBaseConfig():
                      "secondleading_to_zpt",
                      "back_to_back",
                      "zmass_window"],
-            "Filter":[],
-            "Consumer": []
+            "Filter":["valid_muons"],
+            "Consumer": {}
                       }
             }
     
     return d
-
-def GetMikkoCuts( conf ):
-    conf["Pipelines"]["default"]["Cuts"].append("jet_pt")
-    conf["Pipelines"]["default"]["CutJetPt"] = 10.0
-    conf["Pipelines"]["default"]["CutSecondLeadingToZPt"] = 0.3
-    conf["Pipelines"]["default"]["CutSecondLeadingToZPtJet2Threshold"] = 5.0
-    conf["Pipelines"]["default"]["CutBack2Back"] = 1.047
-
-    return conf
 
 
 def GetMcBaseConfig():
@@ -139,8 +130,10 @@ def ExpandCutNoCut( pipelineDict):
         cutPipe = copy.deepcopy(elem)
         cutPipe["FilterInCutIgnored"] = 0
         
-        cutPipe["Filter"].append ("incut")
-        cutPipe["Filter"].append ("valid_muons")
+        cutPipe["Filter"].append ("incut")        
+        
+        cutPipe["Consumer"]["bin_balance_response"] = { "Name" : "bin_response" }
+        
 
         newDict[name + "nocuts" ] = nocutPipe
         newDict[name] = cutPipe

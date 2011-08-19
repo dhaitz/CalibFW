@@ -32,14 +32,21 @@ public:
 
 	virtual KDataLV * GetPrimaryJet ( ZJetPipelineSettings const& psettings ) const
 		{
-			if ( returnNullJet )
-				return NULL;
-			else
-				return &m_jets[0];
-
-
+			return GetJet( psettings, 0);
 		}
 
+	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
+			unsigned int index ) const
+			{
+				if ( returnNullJet )
+					return NULL;
+
+				if ( index >= m_jets.size())
+					return NULL;
+
+				return &m_jets[index];
+
+			}
 
 	mutable KDataLVs m_jets;
 	bool returnNullJet;

@@ -101,7 +101,7 @@ public:
 	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings)
 	{
-		// todo
+		//todo
 	}
 
 	unsigned long GetId()
@@ -157,20 +157,24 @@ public:
 	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings)
 	{
-		// todo
-	}
+		KDataLV * Jet2 = data.GetJet( m_pipelineSettings, 1 );
 
-	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
-	{
-/*
-		if (pEv->GetCorrectedJetPt(1)
-				< pset->GetCutSecondLeadingToZPtJet2Threshold())
-			return true;
+		if ( ! metaData.HasValidZ())
+		{
+			// no decision possible for this event
+			return;
+		}
 
-		return (pEv->GetCorrectedJetPt(1) / pEv->m_pData->Z->Pt()
-				< pset->GetCutSecondLeadingToZPt());*/
-		// todo
-		return true;
+		if ( Jet2 == NULL )
+		{
+			// is ok, there seems to be no 2nd Jet in the event
+			metaData.SetCutResult ( this->GetId(), true );
+			return;
+		}
+
+		metaData.SetCutResult ( this->GetId(),
+				 Jet2->p4.Pt() / metaData.GetRefZ().p4.Pt()
+  				 < m_pipelineSettings.GetCutSecondLeadingToZPt());
 	}
 
 	unsigned long GetId()
@@ -283,18 +287,20 @@ public:
 	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings)
 	{
-		// todo
+		KDataLV * Jet1 = data.GetPrimaryJet( m_pipelineSettings);
+
+		if ( (!metaData.HasValidZ()) && (Jet1 == NULL))
+		{
+			//No valid objects found to apply this cut
+			return;
+		}
+
+		metaData.SetCutResult ( this->GetId(),
+				(TMath::Abs(TMath::Abs(Jet1->p4.Phi() - metaData.GetRefZ().p4.Phi()) - TMath::Pi() ) )
+				< m_pipelineSettings.GetCutBack2Back()
+				);
 	}
 
-
-	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
-	{/*
-		return (TMath::Abs(TMath::Abs(pEv->m_pData->jets[0]->Phi()
-				- pEv->m_pData->Z->Phi()) - TMath::Pi())
-				< pset->GetCutBack2Back());*/
-		// todo
-		return true;
-	}
 
 	unsigned long GetId()
 	{
@@ -317,17 +323,15 @@ public:
 	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings)
 	{
-		// todo
-	}
+		if ( !metaData.HasValidZ())
+		{
+			//No valid objects found to apply this cut
+			return;
+		}
 
-
-	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
-	{
-		// todo
-		return true;
-		/*
-		return (TMath::Abs(pEv->m_pData->Z->GetCalcMass() - g_kZmass)
-				< pset->GetCutZMassWindow());*/
+		metaData.SetCutResult ( this->GetId(),
+				TMath::Abs(metaData.GetRefZ().p4.mass() - g_kZmass)
+				< m_pipelineSettings.GetCutZMassWindow() );
 	}
 
 	unsigned long GetId()
@@ -353,11 +357,17 @@ public:
 
 	}
 
-	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
-	{/*
-		return (pEv->m_pData->Z->Pt() > pset->GetCutZPt());*/
-		// todo
-		return true;
+	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
+			ZJetPipelineSettings const& m_pipelineSettings)
+	{
+		if ( !metaData.HasValidZ())
+		{
+			//No valid objects found to apply this cut
+			return;
+		}
+
+		metaData.SetCutResult ( this->GetId(),
+				metaData.GetRefZ().p4.Pt() > m_pipelineSettings.GetCutZPt() );
 	}
 
 	unsigned long GetId()
@@ -375,35 +385,6 @@ public:
 	static const long CudId = 128;
 };
 
-class JetPtCut: public ZJetCutBase
-{
-public:
-	JetPtCut()
-	{
-	}
-
-	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
-	{/*
-		return (pEv->GetCorrectedJetPt(0) > pset->GetCutJetPt());*/
-		// todo
-		return true;
-	}
-
-	unsigned long GetId()
-	{
-		return JetPtCut::CudId;
-	}
-	std::string GetCutName()
-	{
-		return "10) jet pt cut";
-	}
-	std::string GetCutShortName()
-	{
-		return "jet_pt";
-	}
-
-	static const long CudId = 256;
-};
 
 class HltCut: public ZJetCutBase
 {

@@ -64,36 +64,38 @@ void ZJetPipelineInitializer::InitPipeline(ZJetPipeline * pLine, ZJetPipelineSet
 			else if ( sid == BackToBackCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new BackToBackCut() );
 
+			else if ( sid == ZPtCut().GetCutShortName())
+				pLine->AddMetaDataProducer( new ZPtCut() );
+
 			else
 				CALIB_LOG_FATAL( "MetaDataProducer " << sid << " not found." )
 		}
 
 		//	pLine->AddMetaDataProducer( new	ValidNPVProducer());
+		pLine->AddMetaDataProducer( new	ValidMuonProducer());
 		pLine->AddMetaDataProducer( new	ZProducer());
+
 	}
 
-	if ( pset.GetLevel() == 2 )
+
+	// add consumer
+	std::cout << pset.GetSettingsRoot() << std::endl;
+
+	BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
+			pset.GetPropTree()->get_child( pset.GetSettingsRoot() + ".Consumer") )
 	{
-		std::cout << "SETcallme" << std::endl;
-		std::cout << pset.GetSettingsRoot() << std::endl;
+		std::string sName = v.second.get<std::string>("Name");
+		std::string consPath = pset.GetSettingsRoot() + ".Consumer." + v.first.data();
 
-		BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
-				pset.GetPropTree()->get_child( pset.GetSettingsRoot() + ".Consumer") )
-		{
-			std::cout << "SET" << std::endl;
-			std::cout << "NAME " << v.first.data() << std::endl;
-			std::cout << "MOD NAME " << v.second.get<std::string>("Name") << std::endl;
-			std::string sName = v.second.get<std::string>("Name");
-			std::string consPath = pset.GetSettingsRoot() + ".Consumer." + v.first.data();
+		// 1st Leve
+		if (sName == BinResponseConsumer::GetName())
+			pLine->AddConsumer( new BinResponseConsumer() );
 
-			if( sName == JetRespConsumer::GetName() )
-				pLine->AddConsumer( new JetRespConsumer( pset.GetPropTree(), consPath ) );
-			else
-				CALIB_LOG_FATAL( "2nd Level Consumer " << sName << " not found." )
-
-			std::cout << pset.GetSettingsRoot() << std::endl;
-			std::cout << "SET" << std::endl;
-		}
-
+		// 2nd Level
+		else if( sName == JetRespConsumer::GetName() )
+			pLine->AddConsumer( new JetRespConsumer( pset.GetPropTree(), consPath ) );
+		else
+			CALIB_LOG_FATAL( "Consumer " << sName << " not found." )
 	}
+
 }

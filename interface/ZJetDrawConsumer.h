@@ -146,7 +146,10 @@ private:
 };
 
 
-class ResponseConsumerBase: public ZJetMetaConsumer
+/*
+ * Calculates the Response distribution with a Histogram
+ */
+class BinResponseConsumer: public ZJetMetaConsumer
 {
 public:
 	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
@@ -172,6 +175,11 @@ public:
 		// fill with the Pt Balance Response
 		m_resp->Fill( jet0->p4.Pt() / metaData.GetRefZ().p4.Pt(),
 				metaData.GetWeight());
+	}
+
+	static std::string GetName()
+	{
+		return "bin_response";
 	}
 
 	Hist1D * m_resp;

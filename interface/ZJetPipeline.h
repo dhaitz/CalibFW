@@ -199,20 +199,21 @@ public:
 	ZJetMetaData()
 	{
 		SetCutBitmask(0);
-		SetValidMuons( false);
+		SetValidZ( false);
 	}
 
 	double GetWeight() const { return 1.0f; }
 
+	// cutPassed is true, if the event was not dropped by the cut
 	void SetCutResult( long cutId, bool cutPassed )
 	{
 		// ensure the bit is removed if it was set before
 		this->SetCutBitmask (  (  (! cutPassed) * cutId ) | (  GetCutBitmask() & ( ~ cutId ) ));
 	}
 
-	bool HasValidMuons() const
+	bool HasValidZ() const
 	{
-		return this->GetValidMuons();
+		return this->GetValidZ();
 	}
 
 	bool IsAllCutsPassed() const
@@ -226,8 +227,16 @@ public:
 	}
 
 	IMPL_PROPERTY_READONLY(long, CutBitmask);
-	IMPL_PROPERTY(bool, ValidMuons);
+	IMPL_PROPERTY(bool, ValidZ);
 	IMPL_PROPERTY(KDataLV, Z);
+
+	KDataMuons const& GetValidMuons() const
+	{
+		return m_listValidMuons;
+	}
+
+	KDataMuons m_listValidMuons;
+	KDataMuons m_listInvalidMuons;
 };
 
 
@@ -271,7 +280,6 @@ public:
 				return NULL;
 
 			return &pfJets->at(index);
-
 		}
 		else
 		{
@@ -401,10 +409,23 @@ public:
 class PtWindowFilter: public ZJetFilterBase
 {
 public:
+
+	enum BinWithEnum
+	{
+		ZPtBinning, Jet1PtBinning
+	};
+	BinWithEnum m_binWith;
+
 	PtWindowFilter() :
-		ZJetFilterBase(), m_binWith(Jet1PtBinning)
+		ZJetFilterBase(), m_binWith(ZPtBinning)
 	{
 	}
+
+	PtWindowFilter( BinWithEnum binValue  ) :
+		ZJetFilterBase(), m_binWith( binValue)
+	{
+	}
+
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
 			ZJetMetaData const& metaData,
@@ -414,7 +435,11 @@ public:
 		double fBinVal;
 
 		if (m_binWith == ZPtBinning)
-			{ CALIB_LOG_FATAL("not supported")  }//fBinVal = event.m_pData->Z->Pt();
+		{
+			if ( !metaData.HasValidZ() )
+				return false;
+			fBinVal = metaData.GetRefZ().p4.Pt();
+		}
 		else
 		{
 			KDataLV * pJet = event.GetPrimaryJet( settings );
@@ -464,11 +489,7 @@ public:
 		return s.str();
 	}
 
-	enum BinWithEnum
-	{
-		ZPtBinning, Jet1PtBinning
-	};
-	BinWithEnum m_binWith;
+
 };
 /*
 // Allows to select only events with a specific cut signature
@@ -537,7 +558,7 @@ public:
 			ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings)
 	{
-		return metaData.HasValidMuons();
+		return metaData.HasValidZ();
 	}
 
 	virtual std::string GetFilterId()

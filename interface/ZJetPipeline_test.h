@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE( test_filter_ptwin )
 	ZJetMetaData mData;
 	ZJetPipelineSettings set;
 
-	PtWindowFilter ptfilter;
+	PtWindowFilter ptfilter( PtWindowFilter::Jet1PtBinning );
 
 	set.CacheFilterPtBinHigh.SetCache(100.0f);
 	set.CacheFilterPtBinLow.SetCache(10.0f);
@@ -42,6 +42,30 @@ BOOST_AUTO_TEST_CASE( test_filter_ptwin )
 
 	evt.returnNullJet = true;
 	BOOST_CHECK_EQUAL(ptfilter.DoesEventPass( evt, mData, set ), false );
+
+	// default is PtWindowFilter::ZPtBinning
+	PtWindowFilter zfilter;
+
+	set.CacheFilterPtBinHigh.SetCache(100.0f);
+	set.CacheFilterPtBinLow.SetCache(10.0f);
+
+	mData.SetValidMuons(true);
+	KDataLV v =mData.GetZ();
+	v.p4.SetPt(123.0f);
+	mData.SetZ( v );
+	BOOST_CHECK_EQUAL(zfilter.DoesEventPass( evt, mData, set ), false );
+
+	v.p4.SetPt(23.0f);
+	mData.SetZ( v );
+	BOOST_CHECK_EQUAL(zfilter.DoesEventPass( evt, mData, set ), true );
+
+	v.p4.SetPt(3.2f);
+	mData.SetZ( v );
+	BOOST_CHECK_EQUAL(zfilter.DoesEventPass( evt, mData, set ), false );
+
+	mData.SetValidMuons(false);
+	BOOST_CHECK_EQUAL(zfilter.DoesEventPass( evt, mData, set ), false );
+
 }
 
 
