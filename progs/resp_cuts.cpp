@@ -377,10 +377,10 @@ for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 		//pLine->AddConsumer(	new PrimaryVertexConsumer());
 
 
-		pLine->AddConsumer( new DataZConsumer());
+		pLine->AddConsumer( new DataZConsumer( (*it)->GetJetAlgorithm() ));
 
-		pLine->AddConsumer( new DataMuonConsumer(+1));
-		pLine->AddConsumer( new DataMuonConsumer(-1));
+		pLine->AddConsumer( new DataMuonConsumer(+1, (*it)->GetJetAlgorithm()));
+		pLine->AddConsumer( new DataMuonConsumer(-1, (*it)->GetJetAlgorithm()));
 
 		pLine->AddConsumer( new ValidMuonsConsumer());
 
@@ -394,11 +394,11 @@ for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 
 		if ( g_inputType == McInput )
 		{
-			pLine->AddConsumer( new GenMetadataConsumer() );
+			pLine->AddConsumer( new GenMetadataConsumer(  ) );
 		}
 		else
 		{
-			pLine->AddConsumer( new MetadataConsumer() );
+			pLine->AddConsumer( new MetadataConsumer(  ) );
 		}
 
 		pLine->InitPipeline( *(*it), plineInit);

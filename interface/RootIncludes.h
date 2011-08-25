@@ -45,7 +45,7 @@ public:
 	  }
 */
 	template < class T>
-	static T SafeGet( TDirectory * pDir, std::string objName  )
+	static T SafeGet( TDirectory * pDir, std::string const& objName  )
 	{
 		T ob = (T)pDir->Get( objName.c_str() );
 
@@ -57,7 +57,7 @@ public:
 		return ob;
 	}
 
-    static void SafeCd( TDirectory * pDir, std::string dirName )
+    static void SafeCd( TDirectory * pDir, std::string const& dirName )
     {
     	assert( pDir );
 

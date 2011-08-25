@@ -134,10 +134,10 @@ def ExpandCutNoCut( pipelineDict):
         cutPipe["Filter"].append ("incut")        
         
         cutPipe["Consumer"]["bin_balance_response"] = { "Name" : "bin_response",
-                                                        "ProductName" : "balresp",
+                                                        "ProductName" : "balresp_AK5PFJetsL1FastL2L3",
                                                         "JetNumber" : 1 }
         cutPipe["Consumer"]["bin_balance_response_2ndJet"] = { "Name" : "bin_response",
-                                                        "ProductName" : "bal_jet2_z",
+                                                        "ProductName" : "bal_jet2_z_AK5PFJetsL1FastL2L3",
                                                         "JetNumber" : 2 }
 
         newDict[name + "nocuts" ] = nocutPipe
@@ -188,10 +188,27 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
     conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )    
 
     secLevelPline = { FolderPrefix + "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
-    secLevelPline[FolderPrefix + "sec_default"]["Level"] = 2
+    
+    secpline = secLevelPline[FolderPrefix + "sec_default"]    
+    
+    srcFolder = []
+    for i in range( len(ptBins) - 1):
+        srcFolder += ["Pt" + str(ptBins[i]) + "to" + str(ptBins[i+1]) + "_incut"]
+    
+    # code this in a more generic way
+    secpline["Consumer"] = {}
+    secpline["Consumer"]["bal_response"] = { "Name" : "response_balance",
+                                         "SourceFolder" : srcFolder,
+                                         "SourceResponse" : "balresp_AK5PFJetsL1FastL2L3",
+                                         # this product will be in the upmost folder
+                                         "ProductName"    : "balresp_AK5PFJetsL1FastL2L3",
+                                         "SourceBinning"  : "z_pt_AK5PFJetsL1FastL2L3"}
+    secpline["Level"] = 2
     #secLevelPline[FolderPrefix + "sec_default"]["CustomBins"] = ptBins
-    secLevelPline[FolderPrefix + "sec_default"]["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"
-    secLevelPline[FolderPrefix + "sec_default"]["RootFileFolder"] = FolderPrefix
+    secpline["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"
+    secpline["RootFileFolder"] = FolderPrefix
+    
+    
 
     conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
 

@@ -69,11 +69,34 @@ public:
 			}
 		}
 
+		// first safe the results ( > plots ) from all level one pipelines
 		for (PipelinesIterator it = m_pipelines.begin();
 				!(it == m_pipelines.end()); it++)
 		{
-			it->FinishPipeline();
+			if (it->GetSettings().GetLevel() == 1)
+			{
+				it->FinishPipeline();
+			}
 		}
+
+		// run the pipelines greater level one
+		for( unsigned int i = 2; i < 10; i++)
+		{
+
+			for( PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
+			{
+				if (it->GetSettings().GetLevel() == i)
+				{
+					//CALIB_LOG( it->GetContent() )
+
+					it->Run( );
+					it->FinishPipeline();
+				}
+
+			}
+		}
+
+
 	}
 
 private:

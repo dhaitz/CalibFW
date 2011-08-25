@@ -5,6 +5,8 @@
 #include "ZJetDrawConsumer.h"
 #include "CutStatistics.h"
 
+#include "ZJet/Consumer/JetRespConsumer.h"
+
 using namespace CalibFW;
 
 ZJetPipeline::MetaDataProducerVector ZJetPipeline::GetSupportedCuts()
@@ -15,7 +17,7 @@ ZJetPipeline::MetaDataProducerVector ZJetPipeline::GetSupportedCuts()
 
 	cuts.push_back( new LeadingJetEtaCut() );
 	cuts.push_back( new SecondLeadingToZPtCut() );
-//	cuts.push_back( new MuonPtCut() );
+	cuts.push_back( new MuonPtCut() );
 	cuts.push_back( new MuonEtaCut() );
 	cuts.push_back( new ZMassWindowCut() );
 	cuts.push_back( new BackToBackCut() );

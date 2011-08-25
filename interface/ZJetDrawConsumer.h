@@ -41,9 +41,9 @@ namespace CalibFW
 
 
  DrawBase ( sets up histos, graphs ), implements Pipeline,
- taken 
+ taken
  can add multiple data providers here
- DrawHisto 
+ DrawHisto
  needs: value, weight
 
  DrawGraph
@@ -53,8 +53,8 @@ namespace CalibFW
  needs: r, phi, rho
 
  DataProvider ( extracts all needed values from data classes )
- * linked to tho output the Draw classes 
- * can also cache the values and insert them in a FINAL STEP into the 
+ * linked to tho output the Draw classes
+ * can also cache the values and insert them in a FINAL STEP into the
  graph
 
  DataSelection
@@ -152,11 +152,11 @@ virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
 {
 	ZJetMetaConsumer::Init( pset );
 
-	m_valid = new Hist1D( "muons_valid_",
+	m_valid = new Hist1D( "muons_valid_" + this->GetPipelineSettings().GetJetAlgorithm(),
 			GetPipelineSettings().GetRootFileFolder(),
 			Hist1D::GetNRVModifier() );
 	AddPlot ( m_valid );
-	m_invalid = new Hist1D( "muons_invalid_",
+	m_invalid = new Hist1D( "muons_invalid_" + this->GetPipelineSettings().GetJetAlgorithm(),
 			GetPipelineSettings().GetRootFileFolder(),
 			Hist1D::GetNRVModifier() );
 	AddPlot ( m_invalid );
@@ -182,7 +182,7 @@ Hist1D * m_invalid;
 class BinResponseConsumer: public ZJetMetaConsumer
 {
 public:
-BinResponseConsumer( boost::property_tree::ptree * ptree , std::string configPath ) :
+BinResponseConsumer( boost::property_tree::ptree * ptree , std::string configPath) :
 ZJetMetaConsumer()
 {
 	{
@@ -201,7 +201,7 @@ virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
 {
 	ZJetMetaConsumer::Init( pset );
 
-	m_resp = new Hist1D( m_name ,
+	m_resp = new Hist1D( m_name,
 			GetPipelineSettings().GetRootFileFolder(),
 			Hist1D::GetResponseModifier() );
 	AddPlot ( m_resp );
@@ -248,7 +248,7 @@ virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
 {
 	ZJetMetaConsumer::Init( pset );
 
-	m_run = new Hist1D( "run_",
+	m_run = new Hist1D( "run_" + this->GetPipelineSettings().GetJetAlgorithm(),
 			GetPipelineSettings().GetRootFileFolder(),
 			Hist1D::GetNoModifier() );
 	AddPlot ( m_run );
@@ -275,7 +275,7 @@ virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
 {
 	MetadataConsumer::Init( pset );
 
-	m_numPU = new Hist1D( "numpu_",
+	m_numPU = new Hist1D( "numpu_" + this->GetPipelineSettings().GetJetAlgorithm(),
 			GetPipelineSettings().GetRootFileFolder(),
 			Hist1D::GetNRVModifier() );
 	AddPlot ( m_numPU );
@@ -296,17 +296,17 @@ Hist1D * m_numPU;
 class MetaConsumerDataLV: public ZJetMetaConsumer
 {
 public:
-MetaConsumerDataLV()
+MetaConsumerDataLV(  )
 : m_plotMass( false )
 {
 
 }
 
-MetaConsumerDataLV(std::string physicsObjectName)
+MetaConsumerDataLV(std::string physicsObjectName,  std::string algoName)
 : m_plotMass( false )
 {
-	SetPhysicsObjectName(physicsObjectName);
-	MetaConsumerDataLV();
+	SetPhysicsObjectName(physicsObjectName + "_" + algoName);
+	//MetaConsumerDataLV( algoName );
 }
 
 virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
@@ -376,9 +376,9 @@ IMPL_PROPERTY(std::string, PhysicsObjectName )
 class DataZConsumer: public MetaConsumerDataLV
 {
 public:
-DataZConsumer()
+DataZConsumer( std::string algoName)
 {
-	SetPhysicsObjectName("Z%quant%");
+	SetPhysicsObjectName("z%quant%" + algoName);
 	m_plotMass = true;
 }
 
@@ -392,13 +392,13 @@ virtual void ProcessFilteredEvent(ZJetEventData const& event,
 class DataMuonConsumer: public MetaConsumerDataLV
 {
 public:
-DataMuonConsumer( char charge ) : m_charge( charge )
+DataMuonConsumer( char charge, std::string algoName ) : m_charge( charge )
 {
 	if ( m_charge > 0)
-	SetPhysicsObjectName("mu_plus%quant%");
+	SetPhysicsObjectName("mu_plus%quant%" + algoName);
 
 	if ( m_charge < 0)
-	SetPhysicsObjectName("mu_minus%quant%");
+	SetPhysicsObjectName("mu_minus%quant%" + algoName);
 }
 
 virtual void ProcessFilteredEvent(ZJetEventData const& event,
@@ -535,6 +535,13 @@ virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
 			Hist1D::GetConstituentsModifier());
 
 	AddPlot( m_const );
+
+	m_summedFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_summed_fractions_"),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetFractionModifier());
+
+	AddPlot( m_summedFraction );
+
 }
 
 virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
@@ -547,9 +554,13 @@ virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
 	m_chargedHadFraction->Fill( pfJet->chargedHadFraction, metaData.GetWeight() );
 	m_neutralHadFraction->Fill( pfJet->neutralHadFraction, metaData.GetWeight() );
 	m_const->Fill( pfJet->nConst, metaData.GetWeight() );
+	m_summedFraction->Fill( 	pfJet->neutralEMFraction + pfJet->chargedEMFraction +
+								pfJet->chargedHadFraction + pfJet->neutralHadFraction ,
+								metaData.GetWeight() );
 
 }
 
+Hist1D * m_summedFraction;
 Hist1D * m_neutralEmFraction;
 Hist1D * m_chargedEMFraction;
 Hist1D * m_chargedHadFraction;
@@ -557,54 +568,6 @@ Hist1D * m_neutralHadFraction;
 Hist1D * m_const;
 };
 
-class JetRespConsumer: public ZJetConsumer
-{
-public:
-
-JetRespConsumer( boost::property_tree::ptree * ptree , std::string configPath )
-{
-	/*
-	 "Name" : "response_balance",
-	 "SourceFolder" : [ "Pt30to60_incut", "Pt60to100_incut" ],
-	 "SourceResponse" : "balresp_AK5PFJets"
-	 */
-	m_sourceFolder = PropertyTreeSupport::GetAsStringList( ptree, configPath + ".SourceFolder" );
-	m_sourceResponse = ptree->get<std::string>( configPath + ".SourceResponse");
-}
-
-virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
-		ZJetPipelineSettings> * pset)
-{
-	ZJetConsumer::Init( pset );
-
-	m_run = new Hist1D( "run_",
-			GetPipelineSettings().GetRootFileFolder(),
-			Hist1D::GetNoModifier() );
-	//AddPlot ( m_run );
-}
-
-virtual void ProcessFilteredEvent(ZJetEventData const& event,
-		ZJetMetaData const& metaData)
-{
-	ZJetConsumer::ProcessFilteredEvent( event, metaData);
-	m_run->Fill( event.m_eventmetadata->nRun, metaData.GetWeight());
-}
-
-virtual void Finish()
-{
-
-}
-
-static std::string GetName()
-{
-	return "response_balance";
-}
-
-private:
-Hist1D * m_run;
-stringvector m_sourceFolder;
-std::string m_sourceResponse;
-};
 
 /*
  template<>

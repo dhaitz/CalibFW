@@ -64,7 +64,7 @@ IMPL_SETTING(std::string, RootFileFolder)
 IMPL_SETTING(std::string, SecondLevelFolderTemplate)
 
 	// only level 1 runs directly on data
-IMPL_SETTING(int, Level)
+IMPL_SETTING(unsigned int, Level)
 
 IMPL_SETTING(std::string, WriteEvents)
 
@@ -296,12 +296,8 @@ public:
 	ZJetMetaData()
 	{
 		SetCutBitmask(0);
+		SetWeight(1.0f);
 		SetValidZ(false);
-	}
-
-	double GetWeight() const
-	{
-		return 1.0f;
 	}
 
 	// cutPassed is true, if the event was not dropped by the cut
@@ -361,11 +357,12 @@ public:
 	}
 
 IMPL_PROPERTY_READONLY(long, CutBitmask)
-	;
+
 IMPL_PROPERTY(bool, ValidZ)
-	;
+
 IMPL_PROPERTY(KDataLV, Z)
-	;
+
+IMPL_PROPERTY(double, Weight)
 
 	KDataMuons const& GetValidMuons() const
 	{
