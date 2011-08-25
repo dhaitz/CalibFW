@@ -63,15 +63,17 @@ public:
 	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings)
 	{
-		// todo
-	}
+		for ( KDataMuons::const_iterator it = metaData.GetValidMuons().begin();
+				it != metaData.GetValidMuons().end(); it ++)
+		{
+			if( it->p4.Pt() < m_pipelineSettings.GetCutMuonPt() )
+			{
+				metaData.SetCutResult( this->GetId(), false );
+				return;
+			}
+		}
 
-	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
-	{/*
-		return ((pEv->m_pData->mu_plus->Pt() > pset->GetCutMuonPt())
-				&& (pEv->m_pData->mu_minus->Pt() > pset->GetCutMuonPt()));*/
-		// todo
-		return true;
+		metaData.SetCutResult( this->GetId(), true );
 	}
 
 	unsigned long GetId() const
@@ -93,21 +95,12 @@ class MuonEtaCut: public ZJetCutBase
 {
 public:
 
-	bool IsInCut(ZJetEventData * pEv, ZJetPipelineSettings * pset)
-	{/*
-		return ((TMath::Abs(pEv->m_pData->mu_plus->Eta())
-				< pset->GetCutMuonEta()) && (TMath::Abs(
-				pEv->m_pData->mu_minus->Eta()) < pset->GetCutMuonEta()));
-		*/
-		// todo
-		return true;	}
-
 	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings)
 	{
 		bool oneFailed = false;
 
-		for ( KDataMuons::iterator it = metaData.m_listValidMuons.begin();
+		for ( KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
 				it != metaData.m_listValidMuons.end(); it ++)
 		{
 			oneFailed = !(TMath::Abs(it->p4.Eta())
@@ -135,17 +128,18 @@ public:
 class LeadingJetEtaCut: public ZJetCutBase
 {
 public:
-	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
+	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings)
 	{
-		KDataLV * jet = data.GetPrimaryJet( m_pipelineSettings );
+		if (! metaData.HasValidJet() )
+			return ;
 
-		if ( jet != NULL)
-		{
+		KDataLV * jet = metaData.GetValidPrimaryJet( m_pipelineSettings, event );
+
 			metaData.SetCutResult ( this->GetId(),
 					(TMath::Abs(jet->p4.Eta())
 							< m_pipelineSettings.GetCutLeadingJetEta() ));
-		}
+
 	}
 
 	unsigned long GetId() const
@@ -167,26 +161,26 @@ class SecondLeadingToZPtCut: public ZJetCutBase
 {
 public:
 
-	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
+	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings)
 	{
-		KDataLV * Jet2 = data.GetJet( m_pipelineSettings, 1 );
-
-		if ( ! metaData.HasValidZ())
+		if ( !metaData.HasValidZ() )
 		{
 			// no decision possible for this event
 			return;
 		}
 
-		if ( Jet2 == NULL )
+		if (metaData.GetValidJetCount() < 2)
 		{
 			// is ok, there seems to be no 2nd Jet in the event
 			metaData.SetCutResult ( this->GetId(), true );
 			return;
 		}
 
+		KDataLV * Jet2 = metaData.GetValidJet( m_pipelineSettings, event, 1 );
+
 		metaData.SetCutResult ( this->GetId(),
-				 Jet2->p4.Pt() / metaData.GetRefZ().p4.Pt()
+				 metaData.GetBalance(Jet2)
   				 < m_pipelineSettings.GetCutSecondLeadingToZPt());
 	}
 
@@ -297,16 +291,14 @@ public:
 class BackToBackCut: public ZJetCutBase
 {
 public:
-	virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
+	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings)
 	{
-		KDataLV * Jet1 = data.GetPrimaryJet( m_pipelineSettings);
-
-		if ( (!metaData.HasValidZ()) && (Jet1 == NULL))
-		{
+		if (! metaData.HasValidJet() || !metaData.HasValidZ() )
 			//No valid objects found to apply this cut
-			return;
-		}
+			return ;
+
+		KDataLV * Jet1 = metaData.GetValidPrimaryJet( m_pipelineSettings, event);
 
 		metaData.SetCutResult ( this->GetId(),
 				(TMath::Abs(TMath::Abs(Jet1->p4.Phi() - metaData.GetRefZ().p4.Phi()) - TMath::Pi() ) )

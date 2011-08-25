@@ -7,7 +7,7 @@ import copy
 
 conf = JsonConfigBase.GetMcBaseConfig()
 
-conf["InputFiles"] = JsonConfigBase.CreateFileList( "/home/poseidon/uni/data/ZPJ2011/Kappa_DYToMuMu_Summer11-PU/*1.root") 
+conf["InputFiles"] = JsonConfigBase.CreateFileList( "/home/poseidon/uni/data/ZPJ2011/Kappa_DYToMuMu_Summer11-PU/*.root") 
 conf["OutputPath"] = "kappa_data_2011"
 
 #[15,30,60,100,140,300]
@@ -57,5 +57,12 @@ conf["Algos"] = ["ak5PFJetsL1L2"]
 
 #conf["Pipelines"]["default"]["AdditionalConsumer"] = ["cut_statistics"]
 #conf["Pipelines"] = dict( conf["Pipelines"].items() + muon_var.items() )
+
 #conf["Pipelines"] = dict( conf["Pipelines"].items() + zmass_var.items() )
+
+default = conf["Pipelines"]["default"]
+conf["Pipelines"] = { "default" : default}
+
+conf["Pipelines"]["default"]["Consumer"]["cut_statistics"] =  { "Name": "cut_statistics" }
+
 JsonConfigBase.Run( conf, sys.argv[0] + ".json")

@@ -191,10 +191,12 @@ public:
 			m_event.m_geneventmetadata = fi.Get<KGenEventMetadata> ();
 		}
 
-		InitPFJets(m_event, "AK5PFJets");
-		InitPFJets(m_event, "AK7PFJets");
+		//InitPFJets(m_event, "AK5PFJets");
+		InitPFJets(m_event, "AK5PFJetsL1FastL2L3");
+
+/*		InitPFJets(m_event, "AK7PFJets");
 		InitPFJets(m_event, "KT4PFJets");
-		InitPFJets(m_event, "KT6PFJets");
+		InitPFJets(m_event, "KT6PFJets");*/
 
 		m_event.m_muons = fi.Get<KDataMuons> ("muons");
 
@@ -205,6 +207,9 @@ public:
 	{
 		m_mon->Update();
 		m_fi.eventdata.GetEntry(lEvent);
+
+	/*	if ( lEvent > 5 )
+			exit(0);*/
 
 		//CALIB_LOG( "Event " << m_eventmetadata->nEvent << " Lumi " << m_eventmetadata->nLumi << " Run " << m_eventmetadata->nRun )
 
@@ -376,6 +381,8 @@ for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 
 		pLine->AddConsumer( new DataMuonConsumer(+1));
 		pLine->AddConsumer( new DataMuonConsumer(-1));
+
+		pLine->AddConsumer( new ValidMuonsConsumer());
 
 		pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 0));
 		pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 1));

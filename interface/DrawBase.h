@@ -355,6 +355,7 @@ public:
 	static ModifierList GetPhiModifier();
 	static ModifierList GetEtaModifier();
 	static ModifierList GetFractionModifier();
+	static ModifierList GetConstituentsModifier();
 	static ModifierList GetNoModifier();
 	static ModifierList GetNRVModifier();
 	static ModifierList GetResponseModifier();

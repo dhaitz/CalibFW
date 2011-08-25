@@ -28,6 +28,8 @@ BOOST_AUTO_TEST_CASE( test_cut_jet_eta )
 	evtData.m_jets[0].p4.SetEta( 1.0f);
 
 	ZJetMetaData metData;
+	metData.m_listValidJets.push_back( 0);
+	metData.m_listValidJets.push_back( 1);
 
 	ZJetPipelineSettings pSettings;
 	pSettings.CacheCutLeadingJetEta.SetCache( 1.13 );
@@ -95,6 +97,9 @@ BOOST_AUTO_TEST_CASE( test_cut_back2back )
 	evtData.m_jets[0].p4.SetPhi( 3.0f);
 
 	ZJetMetaData metData;
+	metData.m_listValidJets.push_back( 0);
+	metData.m_listValidJets.push_back( 1);
+
 
 	KDataLV v = metData.GetZ();
 	metData.SetValidZ(true);
@@ -198,6 +203,9 @@ BOOST_AUTO_TEST_CASE( test_cut_second_jet )
 	evtData.m_jets[1].p4.SetPt( 10.f);
 
 	ZJetMetaData metData;
+	metData.m_listValidJets.push_back( 0);
+	metData.m_listValidJets.push_back( 1);
+
 
 	KDataLV v = metData.GetZ();
 	metData.SetValidZ(true);

@@ -3,6 +3,7 @@
 #include <boost/noncopyable.hpp>
 
 #include <map>
+#include <sstream>
 
 namespace CalibFW
 {
@@ -51,6 +52,22 @@ public:
 	FilterDecisions const&  GetFilterDecisions() const
 	{
 		return m_filterDecision;
+	}
+
+	std::string ToString() const
+	{
+		std::stringstream s;
+
+		s << "== Filter Decision == " << std::endl;
+		s << "Overall: " << this->m_bHasPassed << std::endl;
+		for ( FilterDecisions::const_iterator it = m_filterDecision.begin();
+				it != m_filterDecision.end();
+				it ++)
+		{
+			s << it->first << " : " << it->second << std::endl;
+		}
+
+		return s.str();
 	}
 
 	// optimize this, without strings

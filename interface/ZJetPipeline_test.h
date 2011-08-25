@@ -24,6 +24,9 @@ BOOST_AUTO_TEST_CASE( test_filter_ptwin )
 
 	TestZJetEventData evt;
 	ZJetMetaData mData;
+
+	mData.m_listValidJets.push_back( 0);
+	mData.m_listValidJets.push_back( 1);
 	ZJetPipelineSettings set;
 
 	PtWindowFilter ptfilter( PtWindowFilter::Jet1PtBinning );

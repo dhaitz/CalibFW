@@ -15,11 +15,11 @@ ZJetPipeline::MetaDataProducerVector ZJetPipeline::GetSupportedCuts()
 
 	cuts.push_back( new LeadingJetEtaCut() );
 	cuts.push_back( new SecondLeadingToZPtCut() );
-	cuts.push_back( new MuonPtCut() );
+//	cuts.push_back( new MuonPtCut() );
 	cuts.push_back( new MuonEtaCut() );
 	cuts.push_back( new ZMassWindowCut() );
 	cuts.push_back( new BackToBackCut() );
-	cuts.push_back( new ZPtCut() );
+	//cuts.push_back( new ZPtCut() );
 
 	return cuts;
 }
@@ -41,7 +41,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddFilter( new InCutFilter);
 			else if ( sid == ValidZFilter().GetFilterId())
 				pLine->AddFilter( new ValidZFilter);
-
+			else if ( sid == ValidJetFilter().GetFilterId())
+				pLine->AddFilter( new ValidJetFilter);
 			else
 				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 
@@ -64,6 +65,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 		pLine->AddMetaDataProducer( new	ValidMuonProducer());
 		pLine->AddMetaDataProducer( new	ZProducer());
+		pLine->AddMetaDataProducer( new	ValidJetProducer());
+
 
 		fvec = pset.GetCuts();
 		BOOST_FOREACH( std::string sid, fvec )
@@ -75,7 +78,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddMetaDataProducer( new SecondLeadingToZPtCut() );
 
 			else if ( sid == MuonPtCut().GetCutShortName())
-				pLine->AddMetaDataProducer( new MuonPtCut() );
+			{}
+				//pLine->AddMetaDataProducer( new MuonPtCut() );
 
 			else if ( sid == MuonEtaCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new MuonEtaCut() );
@@ -105,9 +109,10 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 		// 1st Leve
 		if (sName == BinResponseConsumer::GetName())
-			pLine->AddConsumer( new BinResponseConsumer() );
+			pLine->AddConsumer( new BinResponseConsumer( pset.GetPropTree(), consPath ) );
 		else if (sName == CutStatisticsConsumer::GetName())
 			pLine->AddConsumer( new CutStatisticsConsumer());
+
 		// 2nd Level
 		else if( sName == JetRespConsumer::GetName() )
 			pLine->AddConsumer( new JetRespConsumer( pset.GetPropTree(), consPath ) );

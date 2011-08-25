@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <sstream>
 
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -136,6 +137,22 @@ public:
 
 	}
 
+	virtual std::string GetContent()
+	{
+		std::stringstream s;
+
+		s << "== Pipeline Settings: " << std::endl << m_pipelineSettings.ToString() << std::endl;
+		s << "== Pipeline Filter: ";
+
+		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
+				== m_filter.end()); itfilter++)
+		{
+			s << std::endl << itfilter->GetFilterId();
+		}
+
+		return s.str();
+	}
+
 	virtual void FinishPipeline()
 	{
 		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
@@ -173,27 +190,32 @@ public:
 			(*it)->PopulateMetaData(evt, metaData, m_pipelineSettings);
 		}
 
-		bool bPassed = true;
+		bool bPassedOne = true;
 		bool bPassedAll = true;
-		FilterResult fres(bPassed);
+		FilterResult fres(bPassedOne);
 
 
 		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
 				== m_filter.end()); itfilter++)
 		{
-			bPassed = itfilter->DoesEventPass(evt, metaData, m_pipelineSettings);
-			fres.m_filterDecision[ itfilter->GetFilterId() ] = bPassed;
-			bPassedAll = bPassedAll && bPassed;
+			bPassedOne = itfilter->DoesEventPass(evt, metaData, m_pipelineSettings);
+			fres.m_filterDecision[ itfilter->GetFilterId() ] = bPassedOne;
+			bPassedAll = bPassedAll && bPassedOne;
 		}
 
 		fres.m_bHasPassed = bPassedAll;
+
+		//std::cout << fres.ToString() << std::endl;
+
 		// todo : we dont need to create this object here, i guess
 
 		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
 				== m_consumer.end()); itcons++)
 		{
-			if (bPassed)
+			if (bPassedAll)
+			{
 				itcons->ProcessFilteredEvent(evt, metaData);
+			}
 
 			// ensure the event is valid, ( if coming from data )
 			//if ( CutHandler::IsValidEvent( evt))

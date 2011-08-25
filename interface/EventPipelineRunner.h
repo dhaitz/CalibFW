@@ -60,7 +60,11 @@ public:
 			for( PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
 			{
 				if (it->GetSettings().GetLevel() == 1)
+				{
+					//CALIB_LOG( it->GetContent() )
+
 					it->RunEvent( evtProvider.GetCurrentEvent() );
+				}
 
 			}
 		}

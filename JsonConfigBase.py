@@ -34,7 +34,7 @@ def GetBaseConfig():
     d["Algos"] = ["ak5PFJets"]#"ak7PFJets", "ak5CaloJets", "ak7CaloJets", "kt4PFJets","kt6PFJets", "kt4CaloJets", "kt6CaloJets", "ic5PFJets", "ic5CaloJets"]
     d["Pipelines"] = { "default": {
             "Level": 1,
-            "JetAlgorithm" : "AK5PFJets",
+            "JetAlgorithm" : "AK5PFJetsL1FastL2L3",
             "RootFileFolder": "",
             "AdditionalConsumer": [],
             "CutMuonEta": 2.3,
@@ -42,15 +42,16 @@ def GetBaseConfig():
             "CutZMassWindow": 20,
             "CutLeadingJetEta": 1.3,
             "CutSecondLeadingToZPt": 0.2,
-            "CutSecondLeadingToZPtJet2Threshold" : 5.0,
             "CutBack2Back": 0.34,
+
+            
             "Cuts": ["muon_pt",
                      "muon_eta",
                      "leadingjet_eta",
                      "secondleading_to_zpt",
                      "back_to_back",
                      "zmass_window"],
-            "Filter":["valid_z"],
+            "Filter":["valid_z", "valid_jet"],
             "Consumer": {}
                       }
             }
@@ -132,8 +133,12 @@ def ExpandCutNoCut( pipelineDict):
         
         cutPipe["Filter"].append ("incut")        
         
-        cutPipe["Consumer"]["bin_balance_response"] = { "Name" : "bin_response" }
-        
+        cutPipe["Consumer"]["bin_balance_response"] = { "Name" : "bin_response",
+                                                        "ProductName" : "balresp",
+                                                        "JetNumber" : 1 }
+        cutPipe["Consumer"]["bin_balance_response_2ndJet"] = { "Name" : "bin_response",
+                                                        "ProductName" : "bal_jet2_z",
+                                                        "JetNumber" : 2 }
 
         newDict[name + "nocuts" ] = nocutPipe
         newDict[name] = cutPipe
@@ -180,8 +185,7 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
     conf = conf_template
 
     #conf["Pipelines"]["default"]["CustomBins"] = ptBins
-    conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )
-    conf["Pipelines"]["defaultnocuts"]["Consumer"]["cut_statistics"] =  { "Name": "cut_statistics" }
+    conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )    
 
     secLevelPline = { FolderPrefix + "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
     secLevelPline[FolderPrefix + "sec_default"]["Level"] = 2

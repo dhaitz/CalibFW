@@ -73,26 +73,24 @@ namespace CalibFW
  So machen, dass der EventConsumer noch die Kontrolle drüber hat, was ihm entzogen wird.
  */
 /*
-typedef DrawHist2DConsumerBase<ZJetEventData, ZJetMetaData,
-ZJetPipelineSettings> ZJetHist2D;*/
+ typedef DrawHist2DConsumerBase<ZJetEventData, ZJetMetaData,
+ ZJetPipelineSettings> ZJetHist2D;*/
 typedef DrawHist1dConsumerBase<ZJetEventData, ZJetMetaData,
-ZJetPipelineSettings> ZJetHist1D;
+		ZJetPipelineSettings> ZJetHist1D;
 /*
-typedef DrawGraphErrorsConsumerBase<ZJetEventData, ZJetMetaData,
-ZJetPipelineSettings> ZJetGraphErrors;
-*/
-
+ typedef DrawGraphErrorsConsumerBase<ZJetEventData, ZJetMetaData,
+ ZJetPipelineSettings> ZJetGraphErrors;
+ */
 
 template<class TData, class TMetaData, class TSettings>
 class MetaConsumerBase: public DrawConsumerBase<TData, TMetaData, TSettings>
 {
 public:
 
-	virtual void AddPlot( Hist1D * hist )
+	virtual void AddPlot(Hist1D * hist)
 	{
-		m_hist1d.push_back( hist );
+		m_hist1d.push_back(hist);
 	}
-
 
 	// store all histograms
 	virtual void Finish()
@@ -100,13 +98,12 @@ public:
 		TSettings s = this->GetPipelineSettings();
 
 		BOOST_FOREACH( Hist1D & p, m_hist1d)
-		{
-			p.Store(s.GetRootOutFile());
-		}
+{		p.Store(s.GetRootOutFile());
 	}
+}
 
 private:
-	boost::ptr_list<Hist1D> m_hist1d;
+boost::ptr_list<Hist1D> m_hist1d;
 
 };
 
@@ -117,33 +114,67 @@ typedef DrawConsumerBase<ZJetEventData, ZJetMetaData,
 ZJetPipelineSettings> ZJetConsumer;
 
 
+
 class PrimaryVertexConsumer: public ZJetMetaConsumer
 {
 public:
 
-	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
-			ZJetPipelineSettings> * pset)
-	{
-		ZJetMetaConsumer::Init( pset );
+virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> * pset)
+{
+	ZJetMetaConsumer::Init( pset );
 
-		m_npv = new Hist1D( "npv_",
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetNRVModifier() );
-		AddPlot ( m_npv );
-	}
+	m_npv = new Hist1D( "npv_",
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetNRVModifier() );
+	AddPlot ( m_npv );
+}
 
-	virtual void ProcessFilteredEvent(ZJetEventData const& event,
-			ZJetMetaData const& metaData)
-	{
-		ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
-		m_npv->Fill( event.m_primaryVertex->nVertices, metaData.GetWeight());
-	}
+virtual void ProcessFilteredEvent(ZJetEventData const& event,
+		ZJetMetaData const& metaData)
+{
+	ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
+	m_npv->Fill( event.m_primaryVertex->nVertices, metaData.GetWeight());
+}
 
 private:
-	Hist1D * m_npv;
+Hist1D * m_npv;
 
 };
 
+
+class ValidMuonsConsumer: public ZJetMetaConsumer
+{
+public:
+
+virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> * pset)
+{
+	ZJetMetaConsumer::Init( pset );
+
+	m_valid = new Hist1D( "muons_valid_",
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetNRVModifier() );
+	AddPlot ( m_valid );
+	m_invalid = new Hist1D( "muons_invalid_",
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetNRVModifier() );
+	AddPlot ( m_invalid );
+}
+
+virtual void ProcessFilteredEvent(ZJetEventData const& event,
+		ZJetMetaData const& metaData)
+{
+	ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
+	m_valid->Fill( metaData.GetValidMuons().size(), metaData.GetWeight());
+	m_invalid->Fill( metaData.GetInvalidMuons().size(), metaData.GetWeight());
+}
+
+private:
+Hist1D * m_valid;
+Hist1D * m_invalid;
+
+};
 
 /*
  * Calculates the Response distribution with a Histogram
@@ -151,62 +182,87 @@ private:
 class BinResponseConsumer: public ZJetMetaConsumer
 {
 public:
-	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
-			ZJetPipelineSettings> * pset)
+BinResponseConsumer( boost::property_tree::ptree * ptree , std::string configPath ) :
+ZJetMetaConsumer()
+{
 	{
-		ZJetMetaConsumer::Init( pset );
-
-		m_resp = new Hist1D( "balanceresp_",
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetResponseModifier() );
-		AddPlot ( m_resp );
+		/*
+		 "Name" : "response_balance",
+		 "ProductName" : "binresp",
+		 "JetNumber" : 1 to n
+		 */
+		m_jetnum = ptree->get<unsigned int>( configPath + ".JetNumber" ) -1;
+		m_name = ptree->get<std::string>( configPath + ".ProductName");
 	}
+}
 
-	virtual void ProcessFilteredEvent(ZJetEventData const& event,
-			ZJetMetaData const& metaData)
-	{
-		ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
+virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> * pset)
+{
+	ZJetMetaConsumer::Init( pset );
 
-		KDataLV * jet0 = event.GetPrimaryJet(this->GetPipelineSettings());
-		assert( jet0 != NULL );
-		assert( metaData.HasValidZ());
+	m_resp = new Hist1D( m_name ,
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetResponseModifier() );
+	AddPlot ( m_resp );
+}
 
-		// fill with the Pt Balance Response
-		m_resp->Fill( jet0->p4.Pt() / metaData.GetRefZ().p4.Pt(),
-				metaData.GetWeight());
-	}
+virtual void ProcessFilteredEvent(ZJetEventData const& event,
+		ZJetMetaData const& metaData)
+{
+	ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
 
-	static std::string GetName()
-	{
-		return "bin_response";
-	}
 
-	Hist1D * m_resp;
+	 if ( m_jetnum >= metaData.GetValidJetCount())
+		 // on jet for us here
+		 return;
+
+	KDataLV * jet0 = metaData.GetValidJet(this->GetPipelineSettings(),
+			event,
+			m_jetnum);
+	assert( jet0 != NULL );
+	//std::cout << "Folder: " <<  this->GetPipelineSettings().GetRootFileFolder() << std::endl;
+	assert( metaData.HasValidZ());
+
+	// fill with the Pt Balance Response
+	m_resp->Fill( metaData.GetBalance( jet0 ),
+			metaData.GetWeight());
+}
+
+static std::string GetName()
+{
+	return "bin_response";
+}
+
+private:
+Hist1D * m_resp;
+unsigned int m_jetnum;
+std::string m_name;
 };
 
 class MetadataConsumer: public ZJetMetaConsumer
 {
 public:
-	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
-			ZJetPipelineSettings> * pset)
-	{
-		ZJetMetaConsumer::Init( pset );
+virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> * pset)
+{
+	ZJetMetaConsumer::Init( pset );
 
-		m_run = new Hist1D( "run_",
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetNoModifier() );
-		AddPlot ( m_run );
-	}
+	m_run = new Hist1D( "run_",
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetNoModifier() );
+	AddPlot ( m_run );
+}
 
-	virtual void ProcessFilteredEvent(ZJetEventData const& event,
-			ZJetMetaData const& metaData)
-	{
-		ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
-		m_run->Fill( event.m_eventmetadata->nRun, metaData.GetWeight());
-	}
+virtual void ProcessFilteredEvent(ZJetEventData const& event,
+		ZJetMetaData const& metaData)
+{
+	ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
+	m_run->Fill( event.m_eventmetadata->nRun, metaData.GetWeight());
+}
 
 private:
-	Hist1D * m_run;
+Hist1D * m_run;
 
 };
 
@@ -214,227 +270,222 @@ class GenMetadataConsumer: public MetadataConsumer
 {
 public:
 
-	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
-			ZJetPipelineSettings> * pset)
-	{
-		MetadataConsumer::Init( pset );
+virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> * pset)
+{
+	MetadataConsumer::Init( pset );
 
-		m_numPU = new Hist1D( "numpu_",
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetNRVModifier() );
-		AddPlot ( m_numPU );
-	}
+	m_numPU = new Hist1D( "numpu_",
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetNRVModifier() );
+	AddPlot ( m_numPU );
+}
 
-	virtual void ProcessFilteredEvent(ZJetEventData const& event,
-			ZJetMetaData const& metaData)
-	{
-		MetadataConsumer::ProcessFilteredEvent( event, metaData);
-		m_numPU->Fill( event.m_geneventmetadata->numPUInteractions, metaData.GetWeight());
-	}
+virtual void ProcessFilteredEvent(ZJetEventData const& event,
+		ZJetMetaData const& metaData)
+{
+	MetadataConsumer::ProcessFilteredEvent( event, metaData);
+	m_numPU->Fill( event.m_geneventmetadata->numPUInteractions, metaData.GetWeight());
+}
 
 private:
-	Hist1D * m_numPU;
+Hist1D * m_numPU;
 
 };
-
 
 class MetaConsumerDataLV: public ZJetMetaConsumer
 {
 public:
-	MetaConsumerDataLV()
-	 : m_plotMass( false )
+MetaConsumerDataLV()
+: m_plotMass( false )
+{
+
+}
+
+MetaConsumerDataLV(std::string physicsObjectName)
+: m_plotMass( false )
+{
+	SetPhysicsObjectName(physicsObjectName);
+	MetaConsumerDataLV();
+}
+
+virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> * pset)
+{
+	ZJetMetaConsumer::Init( pset );
+
+	m_histPt = new Hist1D(GenName(GetPhysicsObjectName(), "_pt_"),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetPtModifier());
+
+	m_histEta = new Hist1D(GenName(GetPhysicsObjectName(), "_eta_"),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetEtaModifier());
+
+	m_histPhi = new Hist1D(GenName(GetPhysicsObjectName(), "_phi_"),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetPhiModifier());
+
+	if ( m_plotMass )
 	{
-
-	}
-
-	MetaConsumerDataLV(std::string physicsObjectName)
-	 : m_plotMass( false )
-	{
-		SetPhysicsObjectName(physicsObjectName);
-		MetaConsumerDataLV();
-	}
-
-	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
-			ZJetPipelineSettings> * pset)
-	{
-		ZJetMetaConsumer::Init( pset );
-
-
-
-		m_histPt = new Hist1D(GenName(GetPhysicsObjectName(), "_pt_"),
+		m_histMass = new Hist1D(GenName(GetPhysicsObjectName(), "_mass_"),
 				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetPtModifier());
-
-		m_histEta = new Hist1D(GenName(GetPhysicsObjectName(), "_eta_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetEtaModifier());
-
-		m_histPhi = new Hist1D(GenName(GetPhysicsObjectName(), "_phi_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetPhiModifier());
-
-		if ( m_plotMass )
-		{
-			m_histMass = new Hist1D(GenName(GetPhysicsObjectName(), "_mass_"),
-					GetPipelineSettings().GetRootFileFolder(),
-					Hist1D::GetMassModifier());
-			AddPlot( m_histMass );
-		}
-
-		AddPlot(m_histPt);
-		AddPlot(m_histEta);
-		AddPlot(m_histPhi);
+				Hist1D::GetMassModifier());
+		AddPlot( m_histMass );
 	}
 
-	// this method is only called for events which have passed the filter imposed on the
-	// pipeline
+	AddPlot(m_histPt);
+	AddPlot(m_histEta);
+	AddPlot(m_histPhi);
+}
 
-	virtual void PlotDataLVQuantities(KDataLV const* dataLV,
-			ZJetMetaData const& metaData)
-	{
-		m_histPt->Fill(dataLV->p4.Pt(), metaData.GetWeight());
-		m_histEta->Fill(dataLV->p4.Eta(), metaData.GetWeight());
-		m_histPhi->Fill(dataLV->p4.Phi(), metaData.GetWeight());
+// this method is only called for events which have passed the filter imposed on the
+// pipeline
 
-		if ( m_plotMass )
-			m_histMass->Fill(dataLV->p4.mass(), metaData.GetWeight());
-	}
+virtual void PlotDataLVQuantities(KDataLV const* dataLV,
+		ZJetMetaData const& metaData)
+{
+	m_histPt->Fill(dataLV->p4.Pt(), metaData.GetWeight());
+	m_histEta->Fill(dataLV->p4.Eta(), metaData.GetWeight());
+	m_histPhi->Fill(dataLV->p4.Phi(), metaData.GetWeight());
 
-	std::string GenName(std::string const& sInp, std::string const& sQuant)
-	{
-		std::string modString(sInp);
-		boost::replace_all(modString, "%quant%", sQuant);
-		return modString;
-	}
+	if ( m_plotMass )
+	m_histMass->Fill(dataLV->p4.mass(), metaData.GetWeight());
+}
 
-	Hist1D * m_histPt;
-	Hist1D * m_histEta;
-	Hist1D * m_histPhi;
-	Hist1D * m_histMass;
+std::string GenName(std::string const& sInp, std::string const& sQuant)
+{
+	std::string modString(sInp);
+	boost::replace_all(modString, "%quant%", sQuant);
+	return modString;
+}
 
-	bool m_plotMass;
+Hist1D * m_histPt;
+Hist1D * m_histEta;
+Hist1D * m_histPhi;
+Hist1D * m_histMass;
 
-	std::string m_sObjectName;
+bool m_plotMass;
 
-	IMPL_PROPERTY(std::string, PhysicsObjectName )
+std::string m_sObjectName;
+
+IMPL_PROPERTY(std::string, PhysicsObjectName )
 
 };
 
 class DataZConsumer: public MetaConsumerDataLV
 {
 public:
-	DataZConsumer()
-	{
-		SetPhysicsObjectName("Z%quant%");
-		m_plotMass = true;
-	}
+DataZConsumer()
+{
+	SetPhysicsObjectName("Z%quant%");
+	m_plotMass = true;
+}
 
-	virtual void ProcessFilteredEvent(ZJetEventData const& event,
-			ZJetMetaData const& metaData)
-	{
-		PlotDataLVQuantities( metaData.GetPtZ(), metaData );
-	}
+virtual void ProcessFilteredEvent(ZJetEventData const& event,
+		ZJetMetaData const& metaData)
+{
+	PlotDataLVQuantities( metaData.GetPtZ(), metaData );
+}
 };
 
 class DataMuonConsumer: public MetaConsumerDataLV
 {
 public:
-	DataMuonConsumer( char charge ) : m_charge( charge )
-	{
-		if ( m_charge > 0)
-			SetPhysicsObjectName("mu_plus%quant%");
+DataMuonConsumer( char charge ) : m_charge( charge )
+{
+	if ( m_charge > 0)
+	SetPhysicsObjectName("mu_plus%quant%");
 
-		if ( m_charge < 0)
-			SetPhysicsObjectName("mu_minus%quant%");
-	}
+	if ( m_charge < 0)
+	SetPhysicsObjectName("mu_minus%quant%");
+}
 
-	virtual void ProcessFilteredEvent(ZJetEventData const& event,
-			ZJetMetaData const& metaData)
+virtual void ProcessFilteredEvent(ZJetEventData const& event,
+		ZJetMetaData const& metaData)
+{
+	//todo: somehow filter the good muons
+	for ( KDataMuons::iterator it = event.m_muons->begin();
+			it != event.m_muons->end(); it ++ )
 	{
-		//todo: somehow filter the good muons
-		for ( KDataMuons::iterator it = event.m_muons->begin();
-				it != event.m_muons->end(); it ++ )
+		if ( it->charge == m_charge)
 		{
-			if ( it->charge == m_charge)
-			{
-				PlotDataLVQuantities( &(*it), metaData );
-				return;
-			}
+			PlotDataLVQuantities( &(*it), metaData );
+			return;
 		}
-
 	}
 
-	char m_charge;
-};
+}
 
+char m_charge;
+};
 
 /// maybe also used for other stuff, like muons
 class DataLVsConsumer: public MetaConsumerDataLV
 {
 public:
 
-	DataLVsConsumer(
-			std::string productName,
-			unsigned int productIndex) :
-				MetaConsumerDataLV()
-				{
-		SetProductIndex( productIndex );
-		SetProductName( productName );
+DataLVsConsumer(
+		std::string productName,
+		unsigned int productIndex) :
+MetaConsumerDataLV()
+{
+	SetProductIndex( productIndex );
+	SetProductName( productName );
 
-		std::stringstream jetName;
-		jetName << "jet" << (GetProductIndex() + 1) << "%quant%"
-				<< GetProductName();
+	std::stringstream jetName;
+	jetName << "jet" << (GetProductIndex() + 1) << "%quant%"
+	<< GetProductName();
 
-		SetPhysicsObjectName( jetName.str() );
-				}
+	SetPhysicsObjectName( jetName.str() );
+}
 
-	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
-			ZJetPipelineSettings> * pset)
-	{
-		MetaConsumerDataLV::Init(pset);
-		Init_specific( pset );
-	}
+virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> * pset)
+{
+	MetaConsumerDataLV::Init(pset);
+	Init_specific( pset );
+}
 
-	virtual void Init_specific(EventPipeline<ZJetEventData, ZJetMetaData,
-			ZJetPipelineSettings> * pset)
-	{
+virtual void Init_specific(EventPipeline<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> * pset)
+{
 
-	}
+}
 
-	// this method is only called for events which have passed the filter imposed on the
-	// pipeline
-	virtual void ProcessFilteredEvent(ZJetEventData const& event,
-			ZJetMetaData const& metaData)
-	{
-		//CALIB_LOG( m_source->size() )
-		// call sub plots
-		KDataLV * lv = event.GetJet( GetPipelineSettings(), GetProductIndex());
+// this method is only called for events which have passed the filter imposed on the
+// pipeline
+virtual void ProcessFilteredEvent(ZJetEventData const& event,
+		ZJetMetaData const& metaData)
+{
+	//CALIB_LOG( m_source->size() )
+	// call sub plots
 
-		if (lv == NULL)
-			// no valid entry for us here !
+	if ( GetProductIndex() >= ( metaData.GetValidJetCount()) )
+		// no valid entry for us here !
+		return;
 
-		{
-			return;
-		}
+	KDataLV * lv = metaData.GetValidJet( GetPipelineSettings(), event, GetProductIndex());
+	assert (lv != NULL);
 
-		PlotDataLVQuantities(lv, metaData);
-		ProcessFilteredEvent_specific( event, metaData, lv);
-	}
+	PlotDataLVQuantities(lv, metaData);
+	ProcessFilteredEvent_specific( event, metaData, lv);
+}
 
-	virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
-			ZJetMetaData const& metaData,
-			KDataLV * jet)
-	{
+virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
+		ZJetMetaData const& metaData,
+		KDataLV * jet)
+{
 
-	}
+}
 
-	virtual void Finish()
-	{
-		MetaConsumerDataLV::Finish();
-	}
+virtual void Finish()
+{
+	MetaConsumerDataLV::Finish();
+}
 
-	IMPL_PROPERTY_READONLY( std::string, ProductName )
-	IMPL_PROPERTY_READONLY( unsigned int, ProductIndex )
+IMPL_PROPERTY_READONLY( std::string, ProductName )
+IMPL_PROPERTY_READONLY( unsigned int, ProductIndex )
 
 };
 
@@ -443,83 +494,116 @@ public DataLVsConsumer
 {
 public:
 
-	DataPFJetsConsumer( std::string productName,
-			unsigned int productIndex) :
-		DataLVsConsumer(  productName, productIndex)
-		{
+DataPFJetsConsumer( std::string productName,
+		unsigned int productIndex) :
+DataLVsConsumer( productName, productIndex)
+{
 
-		}
+}
 
-	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
-			ZJetPipelineSettings> * pset)
-	{
-		DataLVsConsumer::Init(pset);
+virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> * pset)
+{
+	DataLVsConsumer::Init(pset);
 
-		m_neutralEmFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_emfraction_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetFractionModifier());
+	m_neutralEmFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_neutral_em_fraction_"),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetFractionModifier());
 
-		AddPlot( m_neutralEmFraction );
-	}
+	AddPlot( m_neutralEmFraction );
 
-	virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
-			ZJetMetaData const& metaData,
-			KDataLV * jet)
-	{
-		KDataPFJet * pfJet = static_cast<KDataPFJet*>( jet );
-		m_neutralEmFraction->Fill( pfJet->chargedEMFraction, metaData.GetWeight() );
-	}
+	m_chargedEMFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_charged_em_fraction_"),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetFractionModifier());
 
-	Hist1D * m_neutralEmFraction;
+	AddPlot( m_chargedEMFraction );
+
+	m_chargedHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_charged_had_fraction_"),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetFractionModifier());
+
+	AddPlot( m_chargedHadFraction );
+
+	m_neutralHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_neutral_had_fraction_"),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetFractionModifier());
+
+	AddPlot( m_neutralHadFraction );
+
+	m_const = new Hist1D( GenName(GetPhysicsObjectName(), "_const_"),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetConstituentsModifier());
+
+	AddPlot( m_const );
+}
+
+virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
+		ZJetMetaData const& metaData,
+		KDataLV * jet)
+{
+	KDataPFJet * pfJet = static_cast<KDataPFJet*>( jet );
+	m_neutralEmFraction->Fill( pfJet->neutralEMFraction, metaData.GetWeight() );
+	m_chargedEMFraction->Fill( pfJet->chargedEMFraction, metaData.GetWeight() );
+	m_chargedHadFraction->Fill( pfJet->chargedHadFraction, metaData.GetWeight() );
+	m_neutralHadFraction->Fill( pfJet->neutralHadFraction, metaData.GetWeight() );
+	m_const->Fill( pfJet->nConst, metaData.GetWeight() );
+
+}
+
+Hist1D * m_neutralEmFraction;
+Hist1D * m_chargedEMFraction;
+Hist1D * m_chargedHadFraction;
+Hist1D * m_neutralHadFraction;
+Hist1D * m_const;
 };
 
 class JetRespConsumer: public ZJetConsumer
 {
 public:
 
-	JetRespConsumer( boost::property_tree::ptree * ptree , std::string configPath )
-	{
-		/*
-		"Name" : "response_balance",
-        "SourceFolder" : [ "Pt30to60_incut", "Pt60to100_incut" ],
-        "SourceResponse" : "balresp_AK5PFJets"
-		 */
-		m_sourceFolder = PropertyTreeSupport::GetAsStringList( ptree, configPath + ".SourceFolder" );
-		m_sourceResponse = ptree->get<std::string>( configPath + ".SourceResponse");
-	}
+JetRespConsumer( boost::property_tree::ptree * ptree , std::string configPath )
+{
+	/*
+	 "Name" : "response_balance",
+	 "SourceFolder" : [ "Pt30to60_incut", "Pt60to100_incut" ],
+	 "SourceResponse" : "balresp_AK5PFJets"
+	 */
+	m_sourceFolder = PropertyTreeSupport::GetAsStringList( ptree, configPath + ".SourceFolder" );
+	m_sourceResponse = ptree->get<std::string>( configPath + ".SourceResponse");
+}
 
-	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
-			ZJetPipelineSettings> * pset)
-	{
-		ZJetConsumer::Init( pset );
+virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> * pset)
+{
+	ZJetConsumer::Init( pset );
 
-		m_run = new Hist1D( "run_",
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetNoModifier() );
-		//AddPlot ( m_run );
-	}
+	m_run = new Hist1D( "run_",
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetNoModifier() );
+	//AddPlot ( m_run );
+}
 
-	virtual void ProcessFilteredEvent(ZJetEventData const& event,
-			ZJetMetaData const& metaData)
-	{
-		ZJetConsumer::ProcessFilteredEvent( event, metaData);
-		m_run->Fill( event.m_eventmetadata->nRun, metaData.GetWeight());
-	}
+virtual void ProcessFilteredEvent(ZJetEventData const& event,
+		ZJetMetaData const& metaData)
+{
+	ZJetConsumer::ProcessFilteredEvent( event, metaData);
+	m_run->Fill( event.m_eventmetadata->nRun, metaData.GetWeight());
+}
 
-	virtual void Finish()
-	{
+virtual void Finish()
+{
 
-	}
+}
 
-	static std::string GetName()
-	{
-		return "response_balance";
-	}
+static std::string GetName()
+{
+	return "response_balance";
+}
 
 private:
-	Hist1D * m_run;
-	stringvector m_sourceFolder;
-	std::string m_sourceResponse;
+Hist1D * m_run;
+stringvector m_sourceFolder;
+std::string m_sourceResponse;
 };
 
 /*

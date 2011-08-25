@@ -32,7 +32,16 @@ public:
 
 class TestSettings
 {
+public:
+
+	std::string ToString() const
+	{
+		return "Test setting";
+	}
+
 	IMPL_PROPERTY(unsigned int, Level)
+
+
 };
 
 class TestFilter: public FilterBase<TestData, TestMetaData,TestSettings>
@@ -216,15 +225,14 @@ BOOST_AUTO_TEST_CASE( test_event_filter )
 BOOST_AUTO_TEST_CASE( test_event_multiplefilter )
 {
 	TestEventConsumer * pCons1 = new TestEventConsumer();
-	TestEventConsumer * pCons2 = new TestEventConsumer();
 
 	EventPipeline<TestData, TestMetaData, TestSettings> pline;
 
 	pline.AddConsumer( pCons1 );
-	pline.AddConsumer( pCons2 );
 
-	pline.AddFilter( new TestFilter() );
 	pline.AddFilter( new TestFilter2() );
+	pline.AddFilter( new TestFilter() );
+
 	pline.AddMetaDataProducer( new TestMetaDataProducer() );
 
 	TestPipelineInitilizer init;
@@ -233,14 +241,13 @@ BOOST_AUTO_TEST_CASE( test_event_multiplefilter )
 	TestData td;
 
 	pline.RunEvent( td );
-	pline.RunEvent( td );
-	pline.RunEvent( td );
 
 	pline.FinishPipeline();
 
 	BOOST_CHECK( pCons1->fres.GetFilterDecisions().at("testfilter") == true );
 	BOOST_CHECK( pCons1->fres.GetFilterDecisions().at("testfilter2") == false );
-/*
+	BOOST_CHECK( pCons1->fres.HasPassed() == false);
+	/*
 	for ( FilterResult::FilterDecisions::const_iterator it = pCons1->fres.GetFilterDecisions().begin();
 			it != pCons1->fres.GetFilterDecisions().end();
 			it ++ )
