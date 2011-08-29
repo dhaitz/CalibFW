@@ -8,11 +8,12 @@
 #include "GlobalInclude.h"
 #include "RootIncludes.h"
 #include "EventData.h"
-#include "PtBinWeighter.h"
-#include "ZJetPipeline.h"
+
+#include "../ZJetPipeline.h"
 #include "ZJetConsumer.h"
 
-#include "ZJetCuts.h"
+#include "../MetaDataProducer/ZJetCuts.h"
+#include "../Filter/InCutFilter.h"
 
 namespace CalibFW
 {
@@ -124,15 +125,16 @@ public:
 	{
 		// only look at the event if it passed all filters, except the incut filter
 		// this thing has to be run on a pipeline which does not have an incut filter !!
-		//do PassedIfExcludingFilter
 
-		// TODO: only use events, which did pass all filters except incut
+		if ( ! result.HasPassedIfExcludingFilter( InCutFilter::Id() ) )
+			return;
+
 		m_eventCount++;
 		BOOST_FOREACH( ZJetPipeline::MetaDataProducerForThisPipeline * m, m_cuts)
 		{
 			ZJetCutBase * c = static_cast<ZJetCutBase *>( m );
 
-			if ( metaData.IsCutPassed( c->GetId() ) )
+			if ( ! metaData.IsCutPassed( c->GetId() ) )
 			{
 				m_cutRejected[ c->GetCutShortName() ]++;
 				// we only want to store the number of events, which were effectively kicked by one
@@ -140,7 +142,7 @@ public:
 				break;
 			}
 		}
-
+/*
 		if (metaData.IsCutPassed( SecondLeadingToZPtCut::CudId ))
 		{
 			m_conditional2ndJetPtCutBase++;
@@ -153,7 +155,7 @@ public:
 			m_conditionalDeltaPhiCutBase++;
 			if ( metaData.IsCutPassed(SecondLeadingToZPtCut::CudId ))
 				m_conditionalDeltaPhiCut++;
-		}
+		}*/
 
 	}
 

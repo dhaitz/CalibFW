@@ -190,20 +190,16 @@ public:
 			(*it)->PopulateMetaData(evt, metaData, m_pipelineSettings);
 		}
 
-		bool bPassedOne = true;
-		bool bPassedAll = true;
-		FilterResult fres(bPassedOne);
 
+		FilterResult fres;
 
 		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
 				== m_filter.end()); itfilter++)
 		{
-			bPassedOne = itfilter->DoesEventPass(evt, metaData, m_pipelineSettings);
-			fres.m_filterDecision[ itfilter->GetFilterId() ] = bPassedOne;
-			bPassedAll = bPassedAll && bPassedOne;
+			fres.SetFilterDecisions( itfilter->GetFilterId() ,
+					itfilter->DoesEventPass(evt, metaData, m_pipelineSettings));
 		}
 
-		fres.m_bHasPassed = bPassedAll;
 
 		//std::cout << fres.ToString() << std::endl;
 
@@ -212,7 +208,7 @@ public:
 		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
 				== m_consumer.end()); itcons++)
 		{
-			if (bPassedAll)
+			if (fres.HasPassed())
 			{
 				itcons->ProcessFilteredEvent(evt, metaData);
 			}

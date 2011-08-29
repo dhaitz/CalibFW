@@ -59,6 +59,18 @@ def GetBaseConfig():
     return d
 
 
+def ApplyReweightingSummer11May10ReReco(conf):
+
+    conf["GlobalXSection"] = 1614.0
+    conf["EnablePuReweighting"] = 1
+    conf["RecovertWeight"] = [0.2634339699, 0.4068300319, 1.0258412624,
+        1.5039872842, 2.1501353803, 1.9674930073, 1.7357207863, 1.5885466557,
+        1.2814939016, 0.8379304030, 0.5751357475, 0.3933389880, 0.2618616395,
+        0.1928669420, 0.1178827060, 0.0989967695, 0.0707225141, 0.0494813344,
+        0.0630199599, 0.0275894575, 0.0189547094, 0.0708500595, 0.0581618600,
+        0.0115549447, 0.0094252128]
+    return conf
+
 def GetMcBaseConfig():
     d = GetBaseConfig()
     
@@ -133,14 +145,26 @@ def ExpandCutNoCut( pipelineDict):
         
         cutPipe["Filter"].append ("incut")        
         
+        cutPipe["Consumer"]["bin_mpf_response"] = { "Name" : "bin_response",
+                                                        "ProductName" : "mpfresp_AK5PFJetsL1FastL2L3",
+                                                        "ResponseType" : "mpf", 
+                                                         "JetNumber" : 0}
+        
         cutPipe["Consumer"]["bin_balance_response"] = { "Name" : "bin_response",
+                                                        "ResponseType" : "bal",
                                                         "ProductName" : "balresp_AK5PFJetsL1FastL2L3",
                                                         "JetNumber" : 1 }
         cutPipe["Consumer"]["bin_balance_response_2ndJet"] = { "Name" : "bin_response",
+                                                              "ResponseType" : "bal",
                                                         "ProductName" : "bal_jet2_z_AK5PFJetsL1FastL2L3",
                                                         "JetNumber" : 2 }
 
-        newDict[name + "nocuts" ] = nocutPipe
+
+        # only add the nocut pipeline for the default ( no binning )
+        print name
+        if name == "default":
+            newDict[name + "nocuts" ] = nocutPipe
+
         newDict[name] = cutPipe
 
     return newDict
@@ -162,19 +186,21 @@ def ExpandPtBins( pipelineDict, ptbins, includeSource):
     newDict = dict()
         
     for name, elem in pipelineDict.items():
-        i = 0
-        for upper in ptbins[1:]:
-            ptbinsname =  str(ptbins[i]) + "to" + str(upper)
 
-            newPipe = copy.deepcopy(elem)
-            
-            newPipe["Filter"].append( "ptbin")
-            
-            newPipe["FilterPtBinLow"] = ptbins[i]
-            newPipe["FilterPtBinHigh"] = upper
-
-            newDict[name + ptbinsname ] = newPipe
-            i = i + 1
+        if not name == "defaultnocuts":
+            i = 0
+            for upper in ptbins[1:]:
+                ptbinsname =  str(ptbins[i]) + "to" + str(upper)
+    
+                newPipe = copy.deepcopy(elem)
+                
+                newPipe["Filter"].append( "ptbin")
+                
+                newPipe["FilterPtBinLow"] = ptbins[i]
+                newPipe["FilterPtBinHigh"] = upper
+    
+                newDict[name + ptbinsname ] = newPipe
+                i = i + 1
 
     if includeSource:
         return dict( pipelineDict.items() +  newDict.items() )
@@ -202,6 +228,13 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
                                          "SourceResponse" : "balresp_AK5PFJetsL1FastL2L3",
                                          # this product will be in the upmost folder
                                          "ProductName"    : "balresp_AK5PFJetsL1FastL2L3",
+                                         "SourceBinning"  : "z_pt_AK5PFJetsL1FastL2L3"}
+    
+    secpline["Consumer"]["mpf_response"] = { "Name" : "response_balance",
+                                         "SourceFolder" : srcFolder,
+                                         "SourceResponse" : "mpfresp_AK5PFJetsL1FastL2L3",
+                                         # this product will be in the upmost folder
+                                         "ProductName"    : "mpfresp_AK5PFJetsL1FastL2L3",
                                          "SourceBinning"  : "z_pt_AK5PFJetsL1FastL2L3"}
     secpline["Level"] = 2
     #secLevelPline[FolderPrefix + "sec_default"]["CustomBins"] = ptBins

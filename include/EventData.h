@@ -16,23 +16,17 @@
 
 #include "RootIncludes.h"
 #include "GlobalInclude.h"
-#include "PtBinWeighter.h"
-
+//#include "PtBinWeighter.h"
+#include "PtBin.h"
 #include "EventPipeline.h"
 //#include "ZJetPipeline.h"
 
 
 
-#define SAFE_DELETE( first ) {  if ( first != NULL ) { delete first; } }
+//#define SAFE_DELETE( first ) {  if ( first != NULL ) { delete first; } }
 
-enum CorrectionLevelEnum
+namespace CalibFW
 {
-	Uncorrected, L2Corrected, L3Corrected
-};
-enum InputTypeEnum
-{
-	McInput, DataInput, UnknownInput
-};
 
 // increasing number for the names of temporary root histograms
 extern unsigned long g_lTempNameAppend;
@@ -79,5 +73,5 @@ public:
 	}*/
 };
 
-
+}
 

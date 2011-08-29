@@ -8,6 +8,11 @@
 namespace CalibFW
 {
 
+enum InputTypeEnum
+{
+	McInput, DataInput, UnknownInput
+};
+
 #define IMPL_SETTING(TYPE, SNAME) \
 private: \
 TYPE m_##SNAME;                                                                                                                        \

@@ -14,11 +14,10 @@
 #include "GlobalInclude.h"
 #include "RootIncludes.h"
 #include "EventData.h"
-#include "PtBinWeighter.h"
+//#include "PtBinWeighter.h"
 #include "EventPipeline.h"
 
 #include "DrawModifierBase.h"
-#include "ZJetFilter.h"
 
 namespace CalibFW
 {
@@ -626,7 +625,7 @@ public:
 	}
 
 	ModHistCustomBinning ( stringvector customBins )
-	{
+	{/*
 		std::vector<PtBin> custBins = ZJetPipelineSettings::GetAsPtBins(  customBins );
 
 		if ( custBins.size() == 0 )
@@ -640,7 +639,8 @@ public:
 		  {
 			this->m_dBins[i] = bin.GetMax();
 			i++;
-		  }
+		  }*/
+		CALIB_LOG_FATAL("not implmented")
 	}
 
    virtual void BeforeCreation(Hist1D * pElem)

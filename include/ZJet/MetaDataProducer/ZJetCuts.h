@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EventData.h"
-#include "ZJetPipeline.h"
+#include "../ZJetPipeline.h"
 
 namespace CalibFW
 {
@@ -66,7 +66,7 @@ public:
 		for ( KDataMuons::const_iterator it = metaData.GetValidMuons().begin();
 				it != metaData.GetValidMuons().end(); it ++)
 		{
-			if( it->p4.Pt() < m_pipelineSettings.GetCutMuonPt() )
+			if( it->p4.Pt() < m_pipelineSettings.GetCutMuonPt())
 			{
 				metaData.SetCutResult( this->GetId(), false );
 				return;
@@ -131,14 +131,15 @@ public:
 	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings)
 	{
-		if (! metaData.HasValidJet() )
-			return ;
+		if( !metaData.HasValidJet() )
+			// no decision possible for this event
+			return;
 
 		KDataLV * jet = metaData.GetValidPrimaryJet( m_pipelineSettings, event );
 
-			metaData.SetCutResult ( this->GetId(),
-					(TMath::Abs(jet->p4.Eta())
-							< m_pipelineSettings.GetCutLeadingJetEta() ));
+		metaData.SetCutResult ( this->GetId(),
+				(TMath::Abs(jet->p4.Eta())
+						< m_pipelineSettings.GetCutLeadingJetEta() ));
 
 	}
 

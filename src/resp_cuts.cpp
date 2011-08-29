@@ -49,17 +49,16 @@
  #include <iostream>
  #include <hash_map>
  */
-#include "Json_wrapper.h"
+//#include "Json_wrapper.h"
 #include "EventData.h"
 
-#include "CutStatistics.h"
 
-#include "PtBinWeighter.h"
+#include "ZJet/ZJetPipeline.h"
 
-#include "ZJetPipeline.h"
-#include "ZJetEventStorer.h"
-#include "ZJetDrawConsumer.h"
-#include "ZJetCuts.h"
+#include "ZJet/Consumer/ZJetDrawConsumer.h"
+#include "ZJet/MetaDataProducer/ZJetCuts.h"
+
+#include "ZJet/ZJetPipelineInitializer.h"
 #include "EventPipelineRunner.h"
 
 using namespace CalibFW;
@@ -89,7 +88,10 @@ std::string g_sOutputPath = "default_zjetres";
 std::string g_sTrackedEventsFile;
 
 boost::property_tree::ptree g_propTree;
+
 InputTypeEnum g_inputType;
+
+
 long g_lOverallNumberOfProcessedEvents = 0;
 
 std::map<std::string, std::string> g_l2CorrData;
@@ -116,11 +118,11 @@ std::map<std::string, std::string> g_l2CorrData;
 TFile * g_resFile;
 
 TString g_sOutFolder("out/");
-std::auto_ptr<Json_wrapper> g_json;
+//std::auto_ptr<Json_wrapper> g_json;
 
 //std::auto_ptr<ZJetCutHandler> g_cutHandler;
 
-PtBinWeighter g_mcWeighter;
+//PtBinWeighter g_mcWeighter;
 
 typedef std::vector<ZJetPipelineSettings *> PipelineSettingsVector;
 typedef boost::ptr_vector<ZJetPipeline> PipelineVector;
@@ -152,11 +154,9 @@ void AddConsumersToPipeline(ZJetPipeline * pline,
 	AddConsumerToPipeline( pline, s);
 }
 }
-
+/*
 void CreateWeightBins()
 {
-	/*
-	 * Fall10 MC  */
 	g_mcWeighter.AddBin(PtBin(0.0, 15.0), 4.281e+03);
 	g_mcWeighter.AddBin(PtBin(15.0, 20.0), 1.451e+02);
 	g_mcWeighter.AddBin(PtBin(20.0, 30.0), 1.305e+02);
@@ -168,7 +168,7 @@ void CreateWeightBins()
 	g_mcWeighter.AddBin(PtBin(230.0, 300.0), 1.939e-01);
 	g_mcWeighter.AddBin(PtBin(300.0, 999999.0), 7.586e-02);
 }
-
+*/
 ZJetPipelineSettings * CreateDefaultSettings(std::string sAlgoName,
 		InputTypeEnum inpType)
 {
@@ -199,6 +199,7 @@ public:
 		InitPFJets(m_event, "KT6PFJets");*/
 
 		m_event.m_muons = fi.Get<KDataMuons> ("muons");
+		m_event.m_pfMet = fi.Get<KDataPFMET>( "PFMET");
 
 		m_mon.reset( new ProgressMonitor(GetOverallEventCount() ));
 	}
@@ -267,8 +268,6 @@ int main(int argc, char** argv)
 	g_sOutputPath = g_propTree.get<std::string> ("OutputPath");
 	std::string sLogFileName = g_sOutputPath + ".log";
 	g_logFile = new ofstream(sLogFileName.c_str(), ios_base::trunc);
-
-	CreateWeightBins();
 
 	// openmp setup
 	omp_set_num_threads(g_propTree.get<int> ("ThreadCount", 1));
@@ -364,10 +363,19 @@ PfMap pfJets;
  pfJets["KT4PFJets"]= ( fi.Get<KDataPFJets>("KT4PFJets") );
  pfJets["KT6PFJets"] =( fi.Get<KDataPFJets>("KT6PFJets") );*/
 
+// setup Global Settings
+ZJetGlobalSettings gset;
+
+gset.SetEnablePuReweighting( g_propTree.get<bool> ("EnablePuReweighting", false) );
+gset.m_recovertWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
+
+
 for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 				== g_pipeSettings.end()); it++)
 {
 	std::cout << (*it)->GetSettingsRoot() << std::endl;
+
+	(*it)->m_globalSettings = & gset;
 
 	if ((*it)->GetLevel() == 1)
 	{
@@ -432,9 +440,9 @@ g_eventReweighting = g_propTree.get<bool> ("EventReweighting", false);
 if (g_eventReweighting)
 CALIB_LOG_FILE( "\n\n --------> reweightin events for # reco !!\n\n" )
 
-if ( g_propTree.get("JsonFile", "") != "" )
+/*if ( g_propTree.get("JsonFile", "") != "" )
 g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
-
+*/
 /*
  g_l2CorrFiles = p.getvString(secname + ".l2_correction_data");
  g_l3CorrFiles = p.getvString(secname + ".l3_correction_data");

@@ -224,7 +224,10 @@ BOOST_AUTO_TEST_CASE( test_cut_second_jet )
 	BOOST_CHECK( ! metData.IsCutPassed( SecondLeadingToZPtCut::CudId ) );
 
 	// no second jet will also let the event pass
-	evtData.returnNullJet = true;
+	while ( metData.m_listValidJets.size() > 1)
+	{
+		metData.m_listValidJets.pop_back();
+	}
 
 	cut.PopulateMetaData( evtData, metData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( SecondLeadingToZPtCut::CudId ) );

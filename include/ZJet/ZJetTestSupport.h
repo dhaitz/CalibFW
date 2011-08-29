@@ -20,7 +20,7 @@ class TestZJetEventData : public ZJetEventData
 public:
 
 	// create some default jets
-	TestZJetEventData() : returnNullJet( false )
+	TestZJetEventData()
 	{
 		m_jets.push_back( KDataLV() );
 		m_jets.push_back( KDataLV() );
@@ -28,6 +28,10 @@ public:
 		m_jets.push_back( KDataLV() );
 		m_jets.push_back( KDataLV() );
 		m_jets.push_back( KDataLV() );
+
+		m_muons = new KDataMuons();
+		m_muons->push_back(KDataMuon() );
+		m_muons->push_back(KDataMuon() );
 	}
 
 	virtual KDataLV * GetPrimaryJet ( ZJetPipelineSettings const& psettings ) const
@@ -38,18 +42,13 @@ public:
 	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
 			unsigned int index ) const
 			{
-				if ( returnNullJet )
-					return NULL;
-
-				if ( index >= m_jets.size())
-					return NULL;
+				assert ( index >= m_jets.size());
 
 				return &m_jets[index];
 
 			}
 
 	mutable KDataLVs m_jets;
-	bool returnNullJet;
 };
 
 

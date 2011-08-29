@@ -43,8 +43,6 @@ BOOST_AUTO_TEST_CASE( test_filter_ptwin )
 	evt.m_jets[0].p4.SetPt(3.2f);
 	BOOST_CHECK_EQUAL(ptfilter.DoesEventPass( evt, mData, set ), false );
 
-	evt.returnNullJet = true;
-	BOOST_CHECK_EQUAL(ptfilter.DoesEventPass( evt, mData, set ), false );
 
 	// default is PtWindowFilter::ZPtBinning
 	PtWindowFilter zfilter;
@@ -65,10 +63,6 @@ BOOST_AUTO_TEST_CASE( test_filter_ptwin )
 	v.p4.SetPt(3.2f);
 	mData.SetZ( v );
 	BOOST_CHECK_EQUAL(zfilter.DoesEventPass( evt, mData, set ), false );
-
-	mData.SetValidZ(false);
-	BOOST_CHECK_EQUAL(zfilter.DoesEventPass( evt, mData, set ), false );
-
 }
 
 

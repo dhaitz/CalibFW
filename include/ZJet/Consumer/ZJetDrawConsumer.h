@@ -22,12 +22,9 @@
 #include "GlobalInclude.h"
 #include "RootIncludes.h"
 #include "EventData.h"
-#include "PtBinWeighter.h"
-#include "EventPipeline.h"
 #include "DrawBase.h"
 
-#include "DrawModifier.h"
-#include "ZJetPipeline.h"
+#include "../ZJetPipeline.h"
 #include "ZJetConsumer.h"
 
 namespace CalibFW
@@ -182,6 +179,8 @@ Hist1D * m_invalid;
 class BinResponseConsumer: public ZJetMetaConsumer
 {
 public:
+	enum { MpfResponse, BalResponse }  m_respType;
+
 BinResponseConsumer( boost::property_tree::ptree * ptree , std::string configPath) :
 ZJetMetaConsumer()
 {
@@ -189,10 +188,20 @@ ZJetMetaConsumer()
 		/*
 		 "Name" : "response_balance",
 		 "ProductName" : "binresp",
+		 "ResponseType": "bal"|"mpf",
 		 "JetNumber" : 1 to n
 		 */
-		m_jetnum = ptree->get<unsigned int>( configPath + ".JetNumber" ) -1;
+		m_jetnum = ptree->get<unsigned int>( configPath + ".JetNumber", 1 ) -1;
 		m_name = ptree->get<std::string>( configPath + ".ProductName");
+
+		if ( ptree->get<std::string>( configPath + ".ResponseType") == "bal" )
+			m_respType = BalResponse;
+		else if ( ptree->get<std::string>( configPath + ".ResponseType") == "mpf" )
+			m_respType = MpfResponse;
+		else
+		{
+			CALIB_LOG_FATAL("Unknown Response type " + ptree->get<std::string>( configPath + ".ResponseType") );
+		}
 	}
 }
 
@@ -212,21 +221,33 @@ virtual void ProcessFilteredEvent(ZJetEventData const& event,
 {
 	ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
 
-
-	 if ( m_jetnum >= metaData.GetValidJetCount())
-		 // on jet for us here
-		 return;
-
-	KDataLV * jet0 = metaData.GetValidJet(this->GetPipelineSettings(),
-			event,
-			m_jetnum);
-	assert( jet0 != NULL );
-	//std::cout << "Folder: " <<  this->GetPipelineSettings().GetRootFileFolder() << std::endl;
 	assert( metaData.HasValidZ());
 
-	// fill with the Pt Balance Response
-	m_resp->Fill( metaData.GetBalance( jet0 ),
-			metaData.GetWeight());
+	if ( m_respType == BalResponse )
+	{
+
+		 if ( m_jetnum >= metaData.GetValidJetCount())
+			 // on jet for us here
+			 return;
+
+		KDataLV * jet0 = metaData.GetValidJet(this->GetPipelineSettings(),
+				event,
+				m_jetnum);
+		assert( jet0 != NULL );
+		//std::cout << "Folder: " <<  this->GetPipelineSettings().GetRootFileFolder() << std::endl;
+
+
+		// fill with the Pt Balance Response
+		m_resp->Fill( metaData.GetBalance( jet0 ),
+				metaData.GetWeight());
+	}
+
+	if ( m_respType == MpfResponse )
+	{
+		m_resp->Fill( metaData.GetMPF( event.GetMet( this->GetPipelineSettings()) ),
+				metaData.GetWeight());
+
+	}
 }
 
 static std::string GetName()
@@ -237,6 +258,7 @@ static std::string GetName()
 private:
 Hist1D * m_resp;
 unsigned int m_jetnum;
+
 std::string m_name;
 };
 

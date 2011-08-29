@@ -19,24 +19,36 @@ public:
 	typedef std::map<std::string, bool> FilterDecisions;
 
 	FilterResult():
-		m_bHasPassed(false)
+			m_cacheHasPassed(false), m_IsCachedHasPassed( false)
 	{
 	}
 
-	FilterResult(bool bHasPassed):
-		m_bHasPassed(bHasPassed)
+	// Note: only call this, when all FilterDecisions have been added, as this result is cached
+	bool HasPassed() const
 	{
+		if ( m_IsCachedHasPassed)
+			return m_cacheHasPassed;
+
+		m_cacheHasPassed = true;
+
+		for ( std::map<std::string, bool>::const_iterator it = GetFilterDecisions().begin();
+			it != GetFilterDecisions().end();
+			it ++ )
+		{
+			if ( it->second == false)
+			{
+				m_cacheHasPassed = false;
+			}
+		}
+
+		m_IsCachedHasPassed = true;
+		return m_cacheHasPassed;
 	}
 
-	bool HasPassed()
+	bool HasPassedIfExcludingFilter(std::string const& excludedFilter ) const
 	{
-		return m_bHasPassed;
-	}
-
-	bool PassedIfExcludingFilter(std::string excludedFilter )
-	{
-		for ( std::map<std::string, bool>::iterator it = m_filterDecision.begin();
-			it != m_filterDecision.end();
+		for ( std::map<std::string, bool>::const_iterator it = GetFilterDecisions().begin();
+			it != GetFilterDecisions().end();
 			it ++ )
 		{
 			if ( it->second == false)
@@ -49,17 +61,28 @@ public:
 		return true;
 	}
 
+	bool GetFilterDecision( std::string filterName) const
+	{
+		return GetFilterDecisions().at(filterName);
+	}
+
 	FilterDecisions const&  GetFilterDecisions() const
 	{
 		return m_filterDecision;
 	}
+
+	void  SetFilterDecisions( std::string filterName, bool passed)
+	{
+		m_filterDecision[filterName] = passed;
+	}
+
 
 	std::string ToString() const
 	{
 		std::stringstream s;
 
 		s << "== Filter Decision == " << std::endl;
-		s << "Overall: " << this->m_bHasPassed << std::endl;
+		//s << "Overall: " << this->m_bHasPassed << std::endl;
 		for ( FilterDecisions::const_iterator it = m_filterDecision.begin();
 				it != m_filterDecision.end();
 				it ++)
@@ -70,12 +93,13 @@ public:
 		return s.str();
 	}
 
-	// optimize this, without strings
-	FilterDecisions m_filterDecision;
-	bool m_bHasPassed;
-
 private:
 
+	// optimize this, without strings
+	FilterDecisions m_filterDecision;
+
+	mutable bool m_cacheHasPassed;
+	mutable bool m_IsCachedHasPassed;
 };
 
 template<class TData, class TMetaData, class TSettings>

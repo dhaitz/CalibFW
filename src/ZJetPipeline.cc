@@ -1,11 +1,18 @@
-#include "ZJetPipeline.h"
-#include "ZJetCuts.h"
+#include "ZJet/ZJetPipeline.h"
 
-#include "ZJetMetaDataProducer.h"
-#include "ZJetDrawConsumer.h"
-#include "CutStatistics.h"
+#include "ZJet/MetaDataProducer/ZJetCuts.h"
+#include "ZJet/MetaDataProducer/PuReweightingProducer.h"
+#include "ZJet/MetaDataProducer/ZJetMetaDataProducer.h"
+
+#include "ZJet/Consumer/ZJetDrawConsumer.h"
+#include "ZJet/Consumer/CutStatistics.h"
 
 #include "ZJet/Consumer/JetRespConsumer.h"
+
+#include "ZJet/Filter/ValidZFilter.h"
+#include "ZJet/Filter/InCutFilter.h"
+#include "ZJet/Filter/PtWindowFilter.h"
+
 
 using namespace CalibFW;
 
@@ -15,11 +22,16 @@ ZJetPipeline::MetaDataProducerVector ZJetPipeline::GetSupportedCuts()
 
 	ZJetPipeline::MetaDataProducerVector cuts;
 
-	cuts.push_back( new LeadingJetEtaCut() );
-	cuts.push_back( new SecondLeadingToZPtCut() );
-	cuts.push_back( new MuonPtCut() );
+
+
 	cuts.push_back( new MuonEtaCut() );
+	cuts.push_back( new MuonPtCut() );
+
 	cuts.push_back( new ZMassWindowCut() );
+
+	cuts.push_back( new LeadingJetEtaCut() );
+
+	cuts.push_back( new SecondLeadingToZPtCut() );
 	cuts.push_back( new BackToBackCut() );
 	//cuts.push_back( new ZPtCut() );
 
@@ -65,6 +77,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			CALIB_LOG_FATAL( "Filter " << sid << " not found." )*/
 		}
 
+		pLine->AddMetaDataProducer( new	PuReweightingProducer());
 		pLine->AddMetaDataProducer( new	ValidMuonProducer());
 		pLine->AddMetaDataProducer( new	ZProducer());
 		pLine->AddMetaDataProducer( new	ValidJetProducer());
@@ -80,8 +93,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddMetaDataProducer( new SecondLeadingToZPtCut() );
 
 			else if ( sid == MuonPtCut().GetCutShortName())
-			{}
-				//pLine->AddMetaDataProducer( new MuonPtCut() );
+				pLine->AddMetaDataProducer( new MuonPtCut() );
 
 			else if ( sid == MuonEtaCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new MuonEtaCut() );
