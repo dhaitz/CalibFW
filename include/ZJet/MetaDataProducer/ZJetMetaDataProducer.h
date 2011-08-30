@@ -96,7 +96,22 @@ public:
 					metaData.m_listInvalidJets.push_back(i);
 				}
 				else
-				{
+				{/*
+
+				implement this for the endcap !
+			        // Add criteria for PF jets with eta > 2.4 according to https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
+			        if (TMath::Abs(pfJet->eta()) > 2.4 ){
+
+			            if ( !( (pfJet->chargedHadronEnergy() /  pfJet->energy() ) > 0.0 ))
+			                is_good_jet = false;
+
+			            if ( !( pfJet->chargedHadronMultiplicity()  > 0 ))
+			                is_good_jet = false;
+
+			            if ( !( (pfJet->chargedEmEnergy() /  pfJet->energy() ) < .99 ))
+			                is_good_jet = false;
+			            }*/
+
 					if ((pfJet->neutralHadFraction < 0.99)
 							&& (pfJet->neutralEMFraction < 0.99)
 							&& (pfJet->nConst > 1)

@@ -304,7 +304,7 @@ def StoreSettings( settings, filename):
 def Run( settings, filename):    
     StoreSettings( settings, filename)
     print "Running config from file " + filename
-    subprocess.call(["bin/resp_cuts.exe",filename])
+    subprocess.call(["./resp_cuts",filename])
     try:
         import pynotify
         if pynotify.init("CalibFW resp_cuts"):

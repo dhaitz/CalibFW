@@ -57,13 +57,13 @@ public:
 
 	}
 
-	void SetCache(TData t) const
+	inline void SetCache(TData t) const
 	{
 		m_val = t;
 		m_isCached = true;
 	}
 
-	TData GetValue() const
+	inline TData GetValue() const
 	{
 		if (!m_isCached)
 			CALIB_LOG_FATAL("not Cached variable used")
@@ -71,7 +71,7 @@ public:
 	return m_val;
 }
 
-bool IsCached() const
+inline bool IsCached() const
 {
 	return m_isCached;
 }

@@ -16,7 +16,6 @@
 
 
 
-
 pkgdatadir = $(datadir)/calib_fw
 pkgincludedir = $(includedir)/calib_fw
 pkglibdir = $(libdir)/calib_fw
@@ -35,10 +34,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = resp_cuts$(EXEEXT)
 subdir = .
-DIST_COMMON = README $(am__configure_deps) $(dist_noinst_SCRIPTS) \
-	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
-	depcomp install-sh missing
+DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in $(top_srcdir)/configure AUTHORS COPYING \
+	ChangeLog INSTALL NEWS depcomp install-sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -56,7 +54,6 @@ am_resp_cuts_OBJECTS = src/resp_cuts.$(OBJEXT) src/DrawBase.$(OBJEXT) \
 	src/GlobalInclude.$(OBJEXT) src/ZJetPipeline.$(OBJEXT)
 resp_cuts_OBJECTS = $(am_resp_cuts_OBJECTS)
 resp_cuts_LDADD = $(LDADD)
-SCRIPTS = $(dist_noinst_SCRIPTS)
 DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -94,7 +91,7 @@ CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2
+CXXFLAGS = -O3
 CYGPATH_W = echo
 DEFS = -DPACKAGE_NAME=\"CALIB_FW\" -DPACKAGE_TARNAME=\"calib_fw\" -DPACKAGE_VERSION=\"VERSION\" -DPACKAGE_STRING=\"CALIB_FW\ VERSION\" -DPACKAGE_BUGREPORT=\"BUG-REPORT-ADDRESS\" -DPACKAGE_URL=\"\" -DPACKAGE=\"calib_fw\" -DVERSION=\"VERSION\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_STDLIB_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1
 DEPDIR = .deps
@@ -181,9 +178,11 @@ LIB_PATH = -L../KappaTools/lib/ -L../Kappa/lib/
 KAPPA_PATH = $(top_srcdir)/../Kappa
 KAPPATOOLS_PATH = $(top_srcdir)/../KappaTools
 KAPPA_ROOT_PATH = $(top_srcdir)/..
+
+#CXXFLAGS = -O3
 AM_CXXFLAGS = -fopenmp -pedantic -Werror -std=c++0x \
 				-I$(top_srcdir)/include $(ROOTCFLAGS) -I$(KAPPA_PATH) \
-				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)# $(AM_CXXFLAGS)
+				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)# $(AM_CXXFLAGS) -O3
 
 AM_LDFLAGS = $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox \
 			  $(LIB_PATH)
@@ -191,7 +190,6 @@ AM_LDFLAGS = $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l
 resp_cuts_SOURCES = src/resp_cuts.cpp src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
 					src/GlobalInclude.cc src/ZJetPipeline.cc
 
-dist_noinst_SCRIPTS = autogen.sh
 all: all-am
 
 .SUFFIXES:
@@ -541,7 +539,7 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS) $(SCRIPTS)
+all-am: Makefile $(PROGRAMS)
 installdirs:
 	for dir in "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
@@ -662,6 +660,8 @@ uninstall-am: uninstall-binPROGRAMS
 	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-binPROGRAMS
 
+
+#dist_noinst_SCRIPTS = autogen.sh
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -195,17 +195,24 @@ IMPL_PROPERTY(TFile *, RootOutFile)
 
 	bool IsPF() const
 	{
-		return boost::algorithm::starts_with(this->GetJetAlgorithm(), "AK5PF")
+		if ( ! m_isPF.IsCached())
+		{
+			m_isPF.SetCache( boost::algorithm::starts_with(this->GetJetAlgorithm(), "AK5PF")
 				|| boost::algorithm::starts_with(this->GetJetAlgorithm(),
 						"AK7PF") || boost::algorithm::starts_with(
 				this->GetJetAlgorithm(), "KT4PF")
 				|| boost::algorithm::starts_with(this->GetJetAlgorithm(),
-						"KT6PF");
+						"KT6PF"));
+		}
+
+		return m_isPF.GetValue();
 	}
 	bool IsCalo() const
 	{
 		return false;
 	}
+
+	VarCache<bool> m_isPF;
 };
 
 }
