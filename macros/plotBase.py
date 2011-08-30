@@ -224,7 +224,7 @@ def tags(ax, status='', author='', date='today'):
         va='bottom', ha='left', transform=ax.transAxes, fontsize=15)
     return ax
 
-def AxisLabels(ax, q='resp', obj='jet'):
+def AxisLabels(ax, q='resp', obj='jet', rezise = True):
     """label the axes according to the plotted quantity"""
     # according to quantity q
     if q == 'pt':
@@ -259,6 +259,9 @@ def AxisLabels(ax, q='resp', obj='jet'):
         ax.set_ylabel(r"MPF", va="top", y=1)
         ax.set_xlim(10, 240)
         ax.set_ylim(0.75, 1.0)
+    elif q == 'datamc_diff':
+        ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_ylabel(r"Data - MC", va="top", y=1)
     elif q == 'datamc_ratio':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"Data/MC", va="top", y=1)
