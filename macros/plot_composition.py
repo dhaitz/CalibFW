@@ -461,7 +461,7 @@ def DrawComposition(algoname, bins):
 	
 	str_bins = CreateBinStrings (bins) 
 	name_f = ["jet1_neutralhadronenergy_fraction_", "jet1_chargedhadronenergy_fraction_", 
-			  "jet1_neutralemenergy_fraction_", "jet1_electronenergy_fraction_"]
+			  "jet1_neutralemenergy_fraction_", "jet1_electronenergy_fraction_", "jet1_photonenergy_fraction_", "jet1_photonenergy_fraction_"]
 	
 	all_x = []
 	bin_center_x = []
