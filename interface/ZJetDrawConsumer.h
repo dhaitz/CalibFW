@@ -436,7 +436,9 @@ IMPL_HIST1D_JET_MOD1(DrawJetElectronEnergyFractionPtConsumer ,
 		{
 			if ( res.IsJetValid( m_jetNum ))
 			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ElectronEnergy / res.m_pData->jets[m_jetNum]->Energy(),
+				//{/m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ElectronEnergy / res.m_pData->jets[m_jetNum]->Energy(),
+				//*		res.GetWeight( ));
+				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->ElectronEnergyFraction,
 						res.GetWeight( ));
 			}
 		},
@@ -446,7 +448,7 @@ IMPL_HIST1D_JET_MOD1(DrawJetMuonEnergyFractionPtConsumer ,
 		{
 			if ( res.IsJetValid( m_jetNum ))
 			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->MuonEnergy / res.m_pData->jets[m_jetNum]->Energy(),
+				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->MuonEnergyFraction,
 						res.GetWeight( ));
 			}
 		},
@@ -456,7 +458,7 @@ IMPL_HIST1D_JET_MOD1(DrawJetPhotonEnergyFractionPtConsumer ,
 		{
 			if ( res.IsJetValid( m_jetNum ))
 			{
-				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->PhotonEnergy / res.m_pData->jets[m_jetNum]->Energy(),
+				m_hist->Fill( res.m_pData->pfProperties[ m_jetNum]->PhotonEnergyFraction,
 						res.GetWeight( ));
 			}
 		},

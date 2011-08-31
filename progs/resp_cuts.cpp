@@ -323,13 +323,13 @@ ZJetPipeline * CreateLevel2Pipeline()
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetCorrGraph, balance_jetcorr, "jetresp" )
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetCorrGraph, mpf_jetcorr, "mpfresp" )
 
-	PLOT_GRAPHERRORS_COND1( pline, DrawJetChargedHadronEnergy, jet1_chargedhadronenergy_fraction, "jet1_chargedhadronenergy_fraction" )
-	PLOT_GRAPHERRORS_COND1( pline, DrawJetNeutralHadronEnergy, jet1_neutralhadronenergy_fraction, "jet1_neutralhadronenergy_fraction" )
-	PLOT_GRAPHERRORS_COND1( pline, DrawJetChargedEmEnergy, jet1_chargedemenergy_fraction, "jet1_chargedemenergy_fraction" )
-	PLOT_GRAPHERRORS_COND1( pline, DrawJetNeutralEmEnergy, jet1_neutralemenergy_fraction, "jet1_neutralemenergy_fraction" )
-	PLOT_GRAPHERRORS_COND1( pline, DrawJetElectronEnergy, jet1_electronenergy_fraction, "jet1_electronenergy_fraction" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetChargedHadronEnergy, jet1_chargedhadronenergy_fraction, "jet1_chargedhadronenergy_fraction" ) // CHF
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetNeutralHadronEnergy, jet1_neutralhadronenergy_fraction, "jet1_neutralhadronenergy_fraction" ) // NHF
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetChargedEmEnergy, jet1_chargedemenergy_fraction, "jet1_chargedemenergy_fraction" ) // CEF
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetNeutralEmEnergy, jet1_neutralemenergy_fraction, "jet1_neutralemenergy_fraction" ) // NEF
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetElectronEnergy, jet1_electronenergy_fraction, "jet1_electronenergy_fraction" ) // EF
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetMuonEnergy, jet1_muonenergy_fraction, "jet1_muonenergy_fraction" )
-	PLOT_GRAPHERRORS_COND1( pline, DrawJetPhotonEnergy, jet1_photonenergy_fraction, "jet1_photonenergy_fraction" )
+	PLOT_GRAPHERRORS_COND1( pline, DrawJetPhotonEnergy, jet1_photonenergy_fraction, "jet1_photonenergy_fraction" ) // PhotonF
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetChargedHadronMultiplicity, jet1_chargedhadronmultiplicity, "jet1_chargedhadronmultiplicity" )
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetNeutralHadronMultiplicity, jet1_neutralhadronmultiplicity, "jet1_neutralhadronmultiplicity" )
 	PLOT_GRAPHERRORS_COND1( pline, DrawJetChargedMultiplicity, jet1_chargedmultiplicity, "jet1_chargedmultiplicity" )
