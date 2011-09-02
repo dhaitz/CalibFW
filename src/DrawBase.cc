@@ -97,5 +97,15 @@ Hist1D::ModifierList Hist1D::GetFractionModifier()
 	return modList;
 }
 
+Hist1D::ModifierList Hist1D::GetAreaModifier()
+{
+	Hist1D::ModifierList modList;
+
+	modList.push_back(new ModHistBinRange(.0f, 100.0f));
+	modList.push_back(new ModHistBinCount(200));
+	return modList;
+}
+
+
 }
 

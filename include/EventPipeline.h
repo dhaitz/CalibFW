@@ -17,7 +17,7 @@ namespace CalibFW
 template<class TData, class TMetaData, class TSettings>
 class EventPipeline;
 
-class EventMetaDataBase: public boost::noncopyable
+class EventMetaDataBase
 {
 public:
 	virtual ~EventMetaDataBase()
@@ -34,7 +34,13 @@ class MetaDataProducerBase: public boost::noncopyable
 {
 public:
 	virtual void PopulateMetaData(TData const& data, TMetaData & metaData,
-			TSettings const& m_pipelineSettings) = 0;
+			TSettings const& m_pipelineSettings) const = 0;
+
+	virtual void PopulateGlobalMetaData(TData const& data, TMetaData & metaData,
+			TSettings const& globalSettings) const
+	{
+		// optional
+	}
 
 };
 
@@ -179,10 +185,11 @@ public:
 	/*
 	 * Run the pipeline with one specific event as input
 	 */
-	virtual void RunEvent(TData const& evt)
+	virtual void RunEvent(TData const& evt, TMetaData const& globalMetaData)
 	{
-		// TODO: make this faster
-		TMetaData metaData;
+
+		// copy global meta data and use as input for the local meta producers
+		TMetaData metaData = globalMetaData;
 
 		for (MetaDataVectorIterator it = m_producer.begin(); !(it
 				== m_producer.end()); it++)

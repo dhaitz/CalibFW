@@ -37,17 +37,22 @@ public:
 			ZJetEventData const& evtData,
 			unsigned int index) const
 	{
-		assert( m_listValidJets.size() > index );
+		assert( GetValidJetCount(psettings) > index );
 
-		KDataLV * j = evtData.GetJet( psettings, m_listValidJets[index] );
+		KDataLV * j = evtData.GetJet( psettings, m_listValidJets [ psettings.GetJetAlgorithm() ].at(index) );
 		assert( j != NULL);
 
 		return j;
 	}
 
-	unsigned int GetValidJetCount() const
+	unsigned int GetValidJetCount(ZJetPipelineSettings const& psettings ) const
 	{
-		return this->m_listValidJets.size();
+		return this->m_listValidJets[ psettings.GetJetAlgorithm() ].size();
+	}
+
+	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings) const
+	{
+		return this->m_listInvalidJets[ psettings.GetJetAlgorithm() ].size();
 	}
 
 	bool HasValidZ() const
@@ -55,9 +60,9 @@ public:
 		return this->GetValidZ();
 	}
 
-	bool HasValidJet() const
+	bool HasValidJet(ZJetPipelineSettings const& psettings) const
 	{
-		return (this->m_listValidJets.size() > 0);
+		return (this->m_listValidJets[ psettings.GetJetAlgorithm() ].size() > 0);
 	}
 
 	bool IsAllCutsPassed() const
@@ -111,8 +116,13 @@ IMPL_PROPERTY(double, Weight)
 */
 	KDataMuons m_listValidMuons;
 	KDataMuons m_listInvalidMuons;
-	std::vector<unsigned int> m_listValidJets;
-	std::vector<unsigned int> m_listInvalidJets;
+
+
+	typedef  std::map< std::string , std::vector<unsigned int> >  JetMapping ;
+	typedef typename JetMapping::iterator  JetMappingIterator ;
+
+	mutable JetMapping m_listValidJets;
+	mutable JetMapping m_listInvalidJets;
 };
 
 

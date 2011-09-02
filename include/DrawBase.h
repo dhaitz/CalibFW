@@ -193,7 +193,7 @@ public:
 		this->RunModifierBeforeDataEntry( this );
 
 		unsigned long l = 0;
-		for ( std::vector<DataPoint>::iterator it = m_points.begin();
+		for ( std::list<DataPoint>::const_iterator it = m_points.begin();
 				!( it == m_points.end()); it++)
 		{
 			m_graph->SetPoint(l, it->m_fx, it->m_fy);
@@ -219,7 +219,7 @@ public:
 	double m_dBinLower;
 	double m_dBinUpper;
 
-	std::vector<DataPoint> m_points;
+	std::list<DataPoint> m_points;
 
 	TGraphErrors * m_graph;
 };
@@ -359,6 +359,7 @@ public:
 	static ModifierList GetNRVModifier();
 	static ModifierList GetResponseModifier();
 	static ModifierList GetMassModifier();
+	static ModifierList GetAreaModifier();
 
 	Hist1D( std::string sName, std::string sFolder, Hist1D::ModifierList l ) :
 		HistBase< Hist1D>(sName, sFolder),

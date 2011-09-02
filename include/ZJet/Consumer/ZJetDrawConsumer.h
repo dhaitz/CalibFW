@@ -173,6 +173,42 @@ Hist1D * m_invalid;
 
 };
 
+
+
+class ValidJetsConsumer: public ZJetMetaConsumer
+{
+public:
+
+virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+		ZJetPipelineSettings> * pset)
+{
+	ZJetMetaConsumer::Init( pset );
+
+	m_valid = new Hist1D( "jets_valid_" + this->GetPipelineSettings().GetJetAlgorithm(),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetNRVModifier() );
+	AddPlot ( m_valid );
+
+	m_invalid = new Hist1D( "jets_invalid_" + this->GetPipelineSettings().GetJetAlgorithm(),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetNRVModifier() );
+	AddPlot ( m_invalid );
+}
+
+virtual void ProcessFilteredEvent(ZJetEventData const& event,
+		ZJetMetaData const& metaData)
+{
+	ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
+	m_valid->Fill( metaData.GetValidJetCount( this->GetPipelineSettings() ), metaData.GetWeight());
+	m_invalid->Fill( metaData.GetInvalidJetCount( this->GetPipelineSettings()), metaData.GetWeight());
+}
+
+private:
+Hist1D * m_valid;
+Hist1D * m_invalid;
+
+};
+
 /*
  * Calculates the Response distribution with a Histogram
  */
@@ -226,7 +262,7 @@ virtual void ProcessFilteredEvent(ZJetEventData const& event,
 	if ( m_respType == BalResponse )
 	{
 
-		 if ( m_jetnum >= metaData.GetValidJetCount())
+		 if ( m_jetnum >= metaData.GetValidJetCount( this->GetPipelineSettings()))
 			 // on jet for us here
 			 return;
 
@@ -483,7 +519,7 @@ virtual void ProcessFilteredEvent(ZJetEventData const& event,
 	//CALIB_LOG( m_source->size() )
 	// call sub plots
 
-	if ( GetProductIndex() >= ( metaData.GetValidJetCount()) )
+	if ( GetProductIndex() >= ( metaData.GetValidJetCount( this->GetPipelineSettings())) )
 		// no valid entry for us here !
 		return;
 
@@ -558,12 +594,23 @@ virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
 
 	AddPlot( m_const );
 
+	m_charged = new Hist1D( GenName(GetPhysicsObjectName(), "_charged_"),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetConstituentsModifier());
+
+	AddPlot( m_charged );
+
 	m_summedFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_summed_fractions_"),
 			GetPipelineSettings().GetRootFileFolder(),
 			Hist1D::GetFractionModifier());
 
 	AddPlot( m_summedFraction );
 
+	m_area = new Hist1D( GenName(GetPhysicsObjectName(), "_area_"),
+			GetPipelineSettings().GetRootFileFolder(),
+			Hist1D::GetAreaModifier());
+
+	AddPlot( m_area );
 }
 
 virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
@@ -571,11 +618,17 @@ virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
 		KDataLV * jet)
 {
 	KDataPFJet * pfJet = static_cast<KDataPFJet*>( jet );
+
+
 	m_neutralEmFraction->Fill( pfJet->neutralEMFraction, metaData.GetWeight() );
 	m_chargedEMFraction->Fill( pfJet->chargedEMFraction, metaData.GetWeight() );
 	m_chargedHadFraction->Fill( pfJet->chargedHadFraction, metaData.GetWeight() );
 	m_neutralHadFraction->Fill( pfJet->neutralHadFraction, metaData.GetWeight() );
+
 	m_const->Fill( pfJet->nConst, metaData.GetWeight() );
+	m_charged->Fill( pfJet->nCharged, metaData.GetWeight() );
+	m_area->Fill( pfJet->area, metaData.GetWeight() );
+
 	m_summedFraction->Fill( 	pfJet->neutralEMFraction + pfJet->chargedEMFraction +
 								pfJet->chargedHadFraction + pfJet->neutralHadFraction ,
 								metaData.GetWeight() );
@@ -588,6 +641,8 @@ Hist1D * m_chargedEMFraction;
 Hist1D * m_chargedHadFraction;
 Hist1D * m_neutralHadFraction;
 Hist1D * m_const;
+Hist1D * m_charged;
+Hist1D * m_area;
 };
 
 

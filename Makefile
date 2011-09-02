@@ -32,7 +32,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = resp_cuts$(EXEEXT)
+bin_PROGRAMS = resp_cuts$(EXEEXT) resp_cuts_test$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(top_srcdir)/configure AUTHORS COPYING \
@@ -54,6 +54,12 @@ am_resp_cuts_OBJECTS = src/resp_cuts.$(OBJEXT) src/DrawBase.$(OBJEXT) \
 	src/GlobalInclude.$(OBJEXT) src/ZJetPipeline.$(OBJEXT)
 resp_cuts_OBJECTS = $(am_resp_cuts_OBJECTS)
 resp_cuts_LDADD = $(LDADD)
+am_resp_cuts_test_OBJECTS = src/resp_cuts_test.$(OBJEXT) \
+	src/DrawBase.$(OBJEXT) src/EventData.$(OBJEXT) \
+	src/EventPipelineRunner.$(OBJEXT) src/GlobalInclude.$(OBJEXT) \
+	src/ZJetPipeline.$(OBJEXT)
+resp_cuts_test_OBJECTS = $(am_resp_cuts_test_OBJECTS)
+resp_cuts_test_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -63,8 +69,8 @@ CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
-SOURCES = $(resp_cuts_SOURCES)
-DIST_SOURCES = $(resp_cuts_SOURCES)
+SOURCES = $(resp_cuts_SOURCES) $(resp_cuts_test_SOURCES)
+DIST_SOURCES = $(resp_cuts_SOURCES) $(resp_cuts_test_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -91,7 +97,7 @@ CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -O3
+CXXFLAGS = -O0
 CYGPATH_W = echo
 DEFS = -DPACKAGE_NAME=\"CALIB_FW\" -DPACKAGE_TARNAME=\"calib_fw\" -DPACKAGE_VERSION=\"VERSION\" -DPACKAGE_STRING=\"CALIB_FW\ VERSION\" -DPACKAGE_BUGREPORT=\"BUG-REPORT-ADDRESS\" -DPACKAGE_URL=\"\" -DPACKAGE=\"calib_fw\" -DVERSION=\"VERSION\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_STDLIB_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1
 DEPDIR = .deps
@@ -180,7 +186,9 @@ KAPPATOOLS_PATH = $(top_srcdir)/../KappaTools
 KAPPA_ROOT_PATH = $(top_srcdir)/..
 
 #CXXFLAGS = -O3
-AM_CXXFLAGS = -fopenmp -pedantic -Werror -std=c++0x \
+AM_CXXFLAGS = -fopenmp -pedantic -Werror -Wall -Wfatal-errors -std=c++0x -g \
+		          -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \
+		          -Wsign-compare -Wtype-limits  -Wuninitialized \
 				-I$(top_srcdir)/include $(ROOTCFLAGS) -I$(KAPPA_PATH) \
 				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)# $(AM_CXXFLAGS) -O3
 
@@ -188,6 +196,9 @@ AM_LDFLAGS = $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l
 			  $(LIB_PATH)
 
 resp_cuts_SOURCES = src/resp_cuts.cpp src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
+					src/GlobalInclude.cc src/ZJetPipeline.cc
+
+resp_cuts_test_SOURCES = src/resp_cuts_test.cpp src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
 					src/GlobalInclude.cc src/ZJetPipeline.cc
 
 all: all-am
@@ -286,6 +297,11 @@ src/ZJetPipeline.$(OBJEXT): src/$(am__dirstamp) \
 resp_cuts$(EXEEXT): $(resp_cuts_OBJECTS) $(resp_cuts_DEPENDENCIES) 
 	@rm -f resp_cuts$(EXEEXT)
 	$(CXXLINK) $(resp_cuts_OBJECTS) $(resp_cuts_LDADD) $(LIBS)
+src/resp_cuts_test.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+resp_cuts_test$(EXEEXT): $(resp_cuts_test_OBJECTS) $(resp_cuts_test_DEPENDENCIES) 
+	@rm -f resp_cuts_test$(EXEEXT)
+	$(CXXLINK) $(resp_cuts_test_OBJECTS) $(resp_cuts_test_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -295,6 +311,7 @@ mostlyclean-compile:
 	-rm -f src/GlobalInclude.$(OBJEXT)
 	-rm -f src/ZJetPipeline.$(OBJEXT)
 	-rm -f src/resp_cuts.$(OBJEXT)
+	-rm -f src/resp_cuts_test.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -305,6 +322,7 @@ include src/$(DEPDIR)/EventPipelineRunner.Po
 include src/$(DEPDIR)/GlobalInclude.Po
 include src/$(DEPDIR)/ZJetPipeline.Po
 include src/$(DEPDIR)/resp_cuts.Po
+include src/$(DEPDIR)/resp_cuts_test.Po
 
 .cc.o:
 	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\

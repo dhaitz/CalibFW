@@ -55,8 +55,12 @@
 
 #include "ZJet/ZJetPipeline.h"
 
+#include "ZJet/Consumer/CorrectionFactorConsumer.h"
 #include "ZJet/Consumer/ZJetDrawConsumer.h"
+#include "ZJet/MetaDataProducer/ZJetMetaDataProducer.h"
 #include "ZJet/MetaDataProducer/ZJetCuts.h"
+#include "ZJet/MetaDataProducer/PuReweightingProducer.h"
+#include "ZJet/MetaDataProducer/CorrJetProducer.h"
 
 #include "ZJet/ZJetPipelineInitializer.h"
 #include "EventPipelineRunner.h"
@@ -340,7 +344,7 @@ ZJetPipelineInitializer plineInit;
 
 ZJetPipelineSettings * pset = NULL;
 
-EventPipelineRunner<ZJetPipeline> pRunner;
+EventPipelineRunner<ZJetPipeline, ZJetMetaDataProducerBase> pRunner;
 
 BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
 		g_propTree.get_child("Pipelines") )
@@ -370,9 +374,17 @@ gset.SetEnablePuReweighting( g_propTree.get<bool> ("EnablePuReweighting", false)
 gset.m_recovertWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
 
 
+ProfileConsumerBase< SourceRecoVert, SourceL1Correction<1> > pfc;
+
+pRunner.AddGlobalMetaProducer( new PuReweightingProducer());
+pRunner.AddGlobalMetaProducer( new ValidMuonProducer());
+pRunner.AddGlobalMetaProducer( new ZProducer());
+
+
 for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 				== g_pipeSettings.end()); it++)
 {
+
 	std::cout << (*it)->GetSettingsRoot() << std::endl;
 
 	(*it)->m_globalSettings = & gset;
@@ -391,6 +403,7 @@ for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 		pLine->AddConsumer( new DataMuonConsumer(-1, (*it)->GetJetAlgorithm()));
 
 		pLine->AddConsumer( new ValidMuonsConsumer());
+		pLine->AddConsumer( new ValidJetsConsumer());
 
 		pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 0));
 		pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 1));
@@ -475,7 +488,10 @@ g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
 
 std::cout << TIMING_GET_RESULT_STRING << std::endl;
 
-pRunner.RunPipelines<ZJetEventData>( evtProvider );
+ZJetPipelineSettings settings ;
+settings.m_globalSettings = &gset;
+
+pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings >( evtProvider, settings );
 
 g_resFile->Close();
 g_logFile->close();

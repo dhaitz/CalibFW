@@ -5,12 +5,12 @@
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "EventPipeline_test.h"
-#include "EventPipelineRunner.h"
+#include "../../Test/EventPipeline_test.h"
+#include "../../EventPipelineRunner.h"
 
 #include <boost/test/included/unit_test.hpp>
 
-#include "ZJetCuts.h"
+#include "../MetaDataProducer/ZJetCuts.h"
 
 namespace CalibFW
 {
@@ -42,7 +42,7 @@ public:
 	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
 			unsigned int index ) const
 			{
-				assert ( index >= m_jets.size());
+				assert ( index < m_jets.size());
 
 				return &m_jets[index];
 

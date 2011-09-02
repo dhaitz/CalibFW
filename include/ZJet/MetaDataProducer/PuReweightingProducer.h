@@ -15,9 +15,17 @@ namespace CalibFW
 class PuReweightingProducer: public ZJetMetaDataProducerBase
 {
 public:
+
 	virtual void PopulateMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData,
-			ZJetPipelineSettings const& m_pipelineSettings)
+			ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		// noting todo here
+	}
+
+	virtual void PopulateGlobalMetaData(ZJetEventData const& data,
+			ZJetMetaData & metaData,
+			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		if ( !m_pipelineSettings.Global()->GetEnablePuReweighting())
 			return;

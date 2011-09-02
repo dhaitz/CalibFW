@@ -7,7 +7,7 @@ import copy
 
 conf = JsonConfigBase.GetMcBaseConfig()
 
-conf["InputFiles"] = JsonConfigBase.CreateFileList( "/home/poseidon/uni/data/ZPJ2011/Kappa_DYToMuMu_Summer11-PU/*.root") 
+conf["InputFiles"] = JsonConfigBase.CreateFileList( "/home/poseidon/uni/data/ZPJ2011/Kappa_DYToMuMu_Summer11-PU/*12.root") 
 conf["OutputPath"] = "kappa_data_2011"
 
 #[15,30,60,100,140,300]

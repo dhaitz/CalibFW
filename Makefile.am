@@ -15,7 +15,9 @@ KAPPA_ROOT_PATH = $(top_srcdir)/..
 
 #CXXFLAGS = -O3
 
-AM_CXXFLAGS = 	-fopenmp -pedantic -Werror -std=c++0x \
+AM_CXXFLAGS = 	-fopenmp -pedantic -Werror -Wall -Wfatal-errors -std=c++0x -g \
+		          -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \  
+		          -Wsign-compare -Wtype-limits  -Wuninitialized \
 				-I$(top_srcdir)/include $(ROOTCFLAGS) -I$(KAPPA_PATH) \
 				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)# $(AM_CXXFLAGS) -O3
 AM_LDFLAGS 	= $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox \
@@ -23,8 +25,12 @@ AM_LDFLAGS 	= $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -
 			
 #CXX_CFLAGS = -Iinclude/ 
 
-bin_PROGRAMS = resp_cuts
+bin_PROGRAMS = resp_cuts resp_cuts_test
 resp_cuts_SOURCES = src/resp_cuts.cpp src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
+					src/GlobalInclude.cc src/ZJetPipeline.cc
+
+
+resp_cuts_test_SOURCES = src/resp_cuts_test.cpp src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
 					src/GlobalInclude.cc src/ZJetPipeline.cc
 
 

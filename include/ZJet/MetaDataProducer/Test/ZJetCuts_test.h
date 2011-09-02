@@ -8,12 +8,12 @@
 
 
 
-#include "EventPipeline_test.h"
-#include "EventPipelineRunner.h"
+#include "../../../Test/EventPipeline_test.h"
+#include "../../../EventPipelineRunner.h"
 
 
-#include "ZJetCuts.h"
-#include "ZJetTestSupport.h"
+#include "../ZJetCuts.h"
+#include "../../Test/ZJetTestSupport.h"
 
 
 namespace CalibFW
@@ -27,13 +27,13 @@ BOOST_AUTO_TEST_CASE( test_cut_jet_eta )
 	TestZJetEventData evtData;
 	evtData.m_jets[0].p4.SetEta( 1.0f);
 
-	ZJetMetaData metData;
-	metData.m_listValidJets.push_back( 0);
-	metData.m_listValidJets.push_back( 1);
-
 	ZJetPipelineSettings pSettings;
 	pSettings.CacheCutLeadingJetEta.SetCache( 1.13 );
 	pSettings.CacheJetAlgorithm.SetCache("AK5PFJets");
+
+	ZJetMetaData metData;
+	metData.m_listValidJets[pSettings.GetJetAlgorithm()].push_back( 0);
+	metData.m_listValidJets[pSettings.GetJetAlgorithm()].push_back( 1);
 
 	evtData.m_jets[0].p4.SetEta( 0.3f);
 	ecut.PopulateMetaData( evtData, metData, pSettings );
@@ -85,6 +85,34 @@ BOOST_AUTO_TEST_CASE( test_cut_muon_eta )
 
 }
 
+BOOST_AUTO_TEST_CASE( test_cut_muon_pt )
+{
+	MuonPtCut ecut;
+
+	TestZJetEventData evtData;
+	ZJetMetaData metData;
+
+	KDataMuon km1,km2;
+	km1.p4.SetPt(10.0f);
+	metData.m_listValidMuons.push_back(km1);
+	km2.p4.SetPt(30.0f);
+	metData.m_listValidMuons.push_back(km2);
+
+
+	ZJetPipelineSettings pSettings;
+	pSettings.CacheCutMuonPt.SetCache( 15.0f );
+
+	ecut.PopulateMetaData( evtData, metData, pSettings );
+	BOOST_CHECK(! metData.IsCutPassed( MuonPtCut::CutId ) );
+
+	metData.m_listValidMuons[0].p4.SetPt( 50.0 );
+
+	metData.SetCutResult( MuonPtCut::CutId, false );
+	ecut.PopulateMetaData( evtData, metData, pSettings );
+	BOOST_CHECK( metData.IsCutPassed( MuonPtCut::CutId ) );
+
+}
+
 
 
 BOOST_AUTO_TEST_CASE( test_cut_back2back )
@@ -96,19 +124,19 @@ BOOST_AUTO_TEST_CASE( test_cut_back2back )
 	// phi goes from -Pi to + Pi
 	evtData.m_jets[0].p4.SetPhi( 3.0f);
 
-	ZJetMetaData metData;
-	metData.m_listValidJets.push_back( 0);
-	metData.m_listValidJets.push_back( 1);
+	ZJetPipelineSettings pSettings;
+	pSettings.CacheCutBack2Back.SetCache(0.34);
+	pSettings.CacheJetAlgorithm.SetCache("AK5PFJets");
 
+
+	ZJetMetaData metData;
+	metData.m_listValidJets[pSettings.GetJetAlgorithm()].push_back( 0);
+	metData.m_listValidJets[pSettings.GetJetAlgorithm()].push_back( 1);
 
 	KDataLV v = metData.GetZ();
 	metData.SetValidZ(true);
 	v.p4.SetPhi(0.0f);
 	metData.SetZ( v );
-
-	ZJetPipelineSettings pSettings;
-	pSettings.CacheCutBack2Back.SetCache(0.34);
-	pSettings.CacheJetAlgorithm.SetCache("AK5PFJets");
 
 	cut.PopulateMetaData( evtData, metData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( BackToBackCut::CudId ) );
@@ -202,9 +230,13 @@ BOOST_AUTO_TEST_CASE( test_cut_second_jet )
 	evtData.m_jets[0].p4.SetPt( 100.f);
 	evtData.m_jets[1].p4.SetPt( 10.f);
 
+	ZJetPipelineSettings pSettings;
+	pSettings.CacheCutSecondLeadingToZPt.SetCache(0.2);
+	pSettings.CacheJetAlgorithm.SetCache("AK5PFJets");
+
 	ZJetMetaData metData;
-	metData.m_listValidJets.push_back( 0);
-	metData.m_listValidJets.push_back( 1);
+	metData.m_listValidJets[pSettings.GetJetAlgorithm()].push_back( 0);
+	metData.m_listValidJets[pSettings.GetJetAlgorithm()].push_back( 1);
 
 
 	KDataLV v = metData.GetZ();
@@ -212,9 +244,7 @@ BOOST_AUTO_TEST_CASE( test_cut_second_jet )
 	v.p4.SetPt(100.0f);
 	metData.SetZ( v );
 
-	ZJetPipelineSettings pSettings;
-	pSettings.CacheCutSecondLeadingToZPt.SetCache(0.2);
-	pSettings.CacheJetAlgorithm.SetCache("AK5PFJets");
+
 
 	cut.PopulateMetaData( evtData, metData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( SecondLeadingToZPtCut::CudId ) );
@@ -224,9 +254,9 @@ BOOST_AUTO_TEST_CASE( test_cut_second_jet )
 	BOOST_CHECK( ! metData.IsCutPassed( SecondLeadingToZPtCut::CudId ) );
 
 	// no second jet will also let the event pass
-	while ( metData.m_listValidJets.size() > 1)
+	while ( metData.m_listValidJets[pSettings.GetJetAlgorithm()].size() > 1)
 	{
-		metData.m_listValidJets.pop_back();
+		metData.m_listValidJets[pSettings.GetJetAlgorithm()].pop_back();
 	}
 
 	cut.PopulateMetaData( evtData, metData, pSettings );

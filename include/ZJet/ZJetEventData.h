@@ -21,7 +21,11 @@ public:
 	KDataPFMET * m_pfMet;
 
 	typedef std::map<std::string, KDataPFJets *> PfMap;
+	typedef typename PfMap::const_iterator PfMapIterator;
+
 	typedef std::map<std::string, KDataJets *> JetMap;
+	typedef typename PfMap::const_iterator JetMapIterator;
+
 	//typedef std::map<std::string, K * > GenMap;
 	PfMap m_pfJets;
 	JetMap m_jets;

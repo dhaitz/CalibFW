@@ -16,6 +16,7 @@ public:
 		// metaData.HasValidZ();
 
 		// just for debugging !!!
+		// remove everything down here !
 
 		for ( KDataMuons::const_iterator it = metaData.GetValidMuons().begin();
 				it != metaData.GetValidMuons().end(); it ++)
@@ -31,7 +32,12 @@ public:
 		if (metaData.HasValidZ())
 		{
 			 //"60.0 < mass < 120.0"
-			return ( 60.0 < metaData.GetZ().p4.M() < 120.0);
+			if (60.0 > metaData.GetZ().p4.M())
+				return false;
+			if ( metaData.GetZ().p4.M() > 120)
+				return false;
+
+			return true;
 		}
 		else
 			return false;

@@ -15,9 +15,9 @@ namespace CalibFW
 class TestMetaData
 {
 public:
-	TestMetaData() : iMetaData(0) {}
+	TestMetaData() : iMetaData(0), iGlobalMetaData(0) {}
 
-	int iMetaData;
+	int iMetaData, iGlobalMetaData;
 };
 
 
@@ -74,16 +74,25 @@ public:
 	}
 };
 
-class TestMetaDataProducer : public MetaDataProducerBase<TestData, TestMetaData,TestSettings>
+typedef MetaDataProducerBase<TestData, TestMetaData,TestSettings> TestMetaDataProducerBase;
+
+class TestMetaDataProducer : public TestMetaDataProducerBase
 {
 public:
 
+	// for each pipeline
 	virtual void PopulateMetaData(TestData const& data, TestMetaData & metaData,
-			TestSettings const& m_pipelineSettings)
+			TestSettings const& m_pipelineSettings) const
 	{
 		metaData.iMetaData = data.iVal + 1;
 	}
 
+	// for the global metadata producer
+	virtual void  PopulateGlobalMetaData(TestData const& data, TestMetaData & metaData,
+			TestSettings const& m_pipelineSettings) const
+	{
+		metaData.iGlobalMetaData += 1;
+	}
 
 };
 
@@ -166,11 +175,12 @@ BOOST_AUTO_TEST_CASE( test_event_pipeline )
 
 	pline.InitPipeline( TestSettings(), init  );
 
+	TestMetaData global;
 	TestData td;
 
-	pline.RunEvent( td );
-	pline.RunEvent( td );
-	pline.RunEvent( td );
+	pline.RunEvent( td, global );
+	pline.RunEvent( td, global );
+	pline.RunEvent( td, global );
 
 	pline.FinishPipeline();
 
@@ -208,12 +218,13 @@ BOOST_AUTO_TEST_CASE( test_event_filter )
 	pline.InitPipeline( TestSettings(), init  );
 
 	TestData td;
+	TestMetaData global;
 
-	pline.RunEvent( td );
+	pline.RunEvent( td, global );
 	td.iVal++;
-	pline.RunEvent( td );
+	pline.RunEvent( td, global );
 	td.iVal++;
-	pline.RunEvent( td );
+	pline.RunEvent( td, global );
 
 	pline.FinishPipeline();
 
@@ -239,8 +250,9 @@ BOOST_AUTO_TEST_CASE( test_event_multiplefilter )
 	pline.InitPipeline( TestSettings(), init  );
 
 	TestData td;
+	TestMetaData tm;
 
-	pline.RunEvent( td );
+	pline.RunEvent( td,tm );
 
 	pline.FinishPipeline();
 

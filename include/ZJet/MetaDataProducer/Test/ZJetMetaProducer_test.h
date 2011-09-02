@@ -9,15 +9,15 @@
 
 #include "DataFormats/interface/Kappa.h"
 
-#include "EventPipeline_test.h"
-#include "EventPipelineRunner.h"
+#include "../../../Test/EventPipeline_test.h"
+#include "../../../EventPipelineRunner.h"
 
 
-#include "ZJetCuts.h"
+#include "../ZJetCuts.h"
 
-#include "ZJetTestSupport.h"
-#include "EventData.h"
-#include "ZJetMetaDataProducer.h"
+#include "../../Test/ZJetTestSupport.h"
+#include "../../../EventData.h"
+#include "../ZJetMetaDataProducer.h"
 
 namespace CalibFW
 {
@@ -63,11 +63,11 @@ BOOST_AUTO_TEST_CASE( test_producer_z )
 	ZJetMetaData mdata;
 	ZJetPipelineSettings set;
 
-	z.PopulateMetaData( evtData, mdata, set );
+	z.PopulateGlobalMetaData( evtData, mdata, set );
 	BOOST_CHECK( !mdata.HasValidZ() );
 
 	mdata.m_listValidMuons.push_back( KDataMuon() );
-	z.PopulateMetaData( evtData, mdata, set );
+	z.PopulateGlobalMetaData( evtData, mdata, set );
 	BOOST_CHECK( !mdata.HasValidZ() );
 
 	KDataMuon m1;
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( test_producer_z )
 	mdata.m_listValidMuons.clear();
 	mdata.m_listValidMuons.push_back( m1 );
 	mdata.m_listValidMuons.push_back( m2 );
-	z.PopulateMetaData( evtData, mdata, set );
+	z.PopulateGlobalMetaData( evtData, mdata, set );
 	BOOST_CHECK( mdata.HasValidZ() );
 	BOOST_CHECK( mdata.GetZ().p4.Pt() > 88.0f );
 	BOOST_CHECK( mdata.GetZ().p4.Phi() < .1f );

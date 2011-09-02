@@ -77,9 +77,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			CALIB_LOG_FATAL( "Filter " << sid << " not found." )*/
 		}
 
-		pLine->AddMetaDataProducer( new	PuReweightingProducer());
-		pLine->AddMetaDataProducer( new	ValidMuonProducer());
-		pLine->AddMetaDataProducer( new	ZProducer());
+
+		//pLine->AddMetaDataProducer( new	ValidMuonProducer());
 		pLine->AddMetaDataProducer( new	ValidJetProducer());
 
 

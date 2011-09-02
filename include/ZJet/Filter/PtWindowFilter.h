@@ -35,14 +35,14 @@ public:
 
 		if (m_binWith == ZPtBinning)
 		{
-			if (!metaData.HasValidZ());
+			if (metaData.HasValidZ() == false)
 				return false;
 
 			fBinVal = metaData.GetRefZ().p4.Pt();
 		}
 		else
 		{
-			if (!metaData.HasValidJet())
+			if (!metaData.HasValidJet(settings))
 				return false;
 
 			KDataLV * pJet = metaData.GetValidPrimaryJet(settings,event);
