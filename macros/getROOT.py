@@ -5,15 +5,12 @@ import cPickle as pickle
 from time import localtime, strftime
 
 
-def SafeGet( RootDict, ObjectName, AppendString = "_hist" ):
+def SafeGet(RootDict, ObjectName):
     """Import a root object"""
-    oname = ObjectName + AppendString
-    
-    oj = RootDict.Get( oname )
+    oj = RootDict.Get(ObjectName)
     if not oj:
-        print "Can't load", oname,"from", RootDict.GetName()
+        print "Can't load", ObjectName, "from", RootDict.GetName()
         assert False
-
     return oj
 
 def IsObjectExistent ( RootDict, ObjectName ):
