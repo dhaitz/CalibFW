@@ -4,21 +4,35 @@ import sys, os, math #, kein pylab!
 import time
 import numpy as np
 import matplotlib
-matplotlib.rc('text', usetex = True) 
+matplotlib.rc('text', usetex = False) 
 matplotlib.rc('font', size = 16)
+#matplotlib.rc('axes', linewidth = 20)
+matplotlib.rcParams.update({
+	'axes.linewidth': 0.8 # thickness of main box lines 
+#	'patch.linewidth': 1.5, # thickness of legend pictures and border
+#	'grid.linewidth': 1.3, # thickness of grid lines
+#	'lines.linewidth': 2.5, # thickness of error bars
+#	'lines.markersize': 2.5, # size of markers
+#	'legend.fontsize': 20,
+#	'xtick.labelsize': 18,
+#	'ytick.labelsize': 18,
+#	'text.fontsize': 16,
+#	'font.size': 18
+})
 #import matplotlib.pyplot as plt
-from plotBase import *
+import plotBase
 
 print "%1.2f Start with settings" % time.clock()
 ### SETTINGS
-settings = StandardSettings()
+settings = plotBase.StandardSettings()
 settings.outputformats = ['png', 'pdf', 'svg', 'txt', 'dat']
-settings.outputformats = ['png']
-settings.lumi = 1.079
+settings.outputformats = ['png','pdf']
+settings.lumi = 1079.0
 settings.verbosity = 2
-factor = 1000*settings.lumi # is being overwritten
+factor = settings.lumi # is being overwritten
 factor10 = 36*0.001*0.75
-mc11color = 'FireBrick'
+mc11color = '#CBDBF9'#FireBrick'
+edgeColor = '#0033CC'
 mc10color = 'MidnightBlue'
 data11color = 'black'
 data10color = 'gray'
@@ -33,18 +47,18 @@ data10color = 'gray'
 
 #### INPUTFILES
 print "%1.2f Open files:" % time.clock()
-fdata = OpenFile(GetPath() + "data_July19.root", (settings.verbosity>1))
-fmc   = OpenFile(GetPath() + "MC_July19.root", (settings.verbosity>1))
-fmcflat = OpenFile(GetPath() + "chs_Summer11_mc_withoutrw.root", (settings.verbosity>1))
-fdata10 = OpenFile(GetPath() + "data2010_v8_single_l3.root", (settings.verbosity>1))
-fmc10   = OpenFile(GetPath() + "mc_fall10_dy_v1.root", (settings.verbosity>1))
+fdata = OpenFile(plotBase.GetPath() + "data_July22.root", (settings.verbosity>1))
+fmc   = OpenFile(plotBase.GetPath() + "MC_July22.root", (settings.verbosity>1))
+#fmcflat = OpenFile(plotBase.GetPath() + "chs_Summer11_mc_withoutrw.root", (settings.verbosity>1))
+#fdata10 = OpenFile(plotBase.GetPath() + "data2010_v8_single_l3.root", (settings.verbosity>1))
+#fmc10   = OpenFile(plotBase.GetPath() + "mc_fall10_dy_v1.root", (settings.verbosity>1))
 print "%1.2f Do plots ..." % time.clock()
 
 ####PLOTS ! use loops !
 ####std: ak5PFJetsL1L2L3(Res) allPV > compare data/MCs R pt eta phi 
 ####0. fig (mit ratio?)
-####1. standard captions L (always), sqrt(s) (if data) tick_params
-####2. captions (quantity) x,y label (kein titel)
+####1. standard plotBase.captions L (always), sqrt(s) (if data) tick_params
+####2. plotBase.captions (quantity) x,y label (kein titel)
 ####3. add plots (plot and legend) (different) errorbar contour (colormap) fill (histo) fill_between label='text' line. legend: numpoints ncol title
 ####   scatter subplots(2,1,True)
 ####4. draw extra lines and texts (common)
@@ -54,12 +68,12 @@ print "%1.2f Do plots ..." % time.clock()
 
 # function to be moved to plotBase:
 def get_factor(quantity='z_phi'):
-	hdata = GetNameFromSelection(quantity)[0]
-	hmc = hdata.replace('data','mc').replace('Res','')
+	hdata = plotBase.GetNameFromSelection(quantity)[0]
+	hmc = hdata.replace('Res','')
 	histo_data = SafeConvert(fdata,hdata, settings.lumi,settings.outputformats,5)
 	histo_mc = SafeConvert(fmc,hmc, settings.lumi,settings.outputformats,5)
 	histo_mc.scale(factor)
-	Print(histo_data.ysum/histo_mc.ysum)
+	print "    >>> The additional scaling factor is:", histo_data.ysum/histo_mc.ysum
 	return histo_data.ysum/histo_mc.ysum
 
 factor *= get_factor()
@@ -67,44 +81,46 @@ factor *= get_factor()
 ####compare cone sizes, pvs, etabins, 
 
 
-def zphi():
+def zphia():
 	print "eta of the Z boson"
-	oname = GetNameFromSelection('z_phi')
+	oname = plotBase.GetNameFromSelection('z_phi')
 	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
 	histname = oname[0].replace('data','mc').replace('Res','')
 	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats,5)
 	histo_mc.scale(factor)
-	fzeta, azeta, plt_name = makeplot('z_phi')
-	azeta = AxisLabels(azeta,'phi', 'Z')
+	fzeta, azeta, plt_name = plotBase.makeplot('z_phi')
+	azeta = plotBase.AxisLabels(azeta,'phi', 'Z')
 	#l = plt.axhline(y=91.19, color='0.5', alpha=0.5)
 
 	#histo_data.x.pop()
+#	histo0 = azeta.fill_between(histo_mc.x,histo_mc.y, facecolor=settings.mcColor, label ='')
+	histo0 = azeta.bar(histo_mc.x, histo_mc.y,(histo_mc.x[2]-histo_mc.x[1]),fill=True, facecolor=settings.mcColor, edgecolor=settings.mcColor)
+	histo2 = azeta.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=edgeColor, fmt='-', capsize=0, label ='MC')
 	histo1 = azeta.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color=data11color,fmt='o', capsize=0, label ='data')
-	histo2 = azeta.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fmt='-', capsize=0, label ='MC')
 	#def fitfunc(x):
 	#	return  a/(c*c*g*g+(x*x-c*c)*(x*x-c*c))
 	#x = mcdata['x']#numpy.arange(60.0, 120.0, .06)
 	#y = fitfunc(x)
 
-	azeta = captions(azeta,settings)
+	azeta = plotBase.captions(azeta,settings)
 	azeta.set_ylim(top=histo_data.ymax*1.2)
-	azeta = tags(azeta, 'Private work', 'Joram Berger')
+	azeta = plotBase.tags(azeta, 'Private work', 'Joram Berger')
 	azeta.legend(loc='center right', numpoints=1, frameon=False)
 
 	#plt.minorticks_on()
 
-	Save(fzeta,'z_phi', settings)
+	plotBase.Save(fzeta,'z_phi1', settings, False)
 
 	########################PT######################
 def zpt():
 	print "pT of the Z boson"
-	oname = GetNameFromSelection('z_pt')
+	oname = plotBase.GetNameFromSelection('z_pt')
 	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
 	histname = oname[0].replace('data','mc').replace('Res','')
 	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats,5)
 	histo_mc.scale(factor)
-	fig, ax, plt_name = makeplot('z_pt')
-	ax = AxisLabels(ax,'pt', 'Z')
+	fig, ax, plt_name = plotBase.makeplot('z_pt')
+	ax = plotBase.AxisLabels(ax,'pt', 'Z')
 	#l = plt.axhline(y=91.19, color='0.5', alpha=0.5)
 
 	#histo_data.x.pop()
@@ -116,214 +132,214 @@ def zpt():
 	#x = mcdata['x']#numpy.arange(60.0, 120.0, .06)
 	#y = fitfunc(x)
 
-	ax = captions(ax,settings,False)
+	ax = plotBase.captions(ax,settings,False)
 	ax.set_ylim(top=histo_mc.ymax*1.2)
-	ax = tags(ax, 'Private work', 'Joram Berger')
+	ax = plotBase.tags(ax, 'Private work', 'Joram Berger')
 	ax.legend(loc='center right', numpoints=1, frameon=False)
 
 	#plt.minorticks_on()
 
-	Save(fig,'Z_pt', settings)
+	plotBase.Save(fig,'Z_pt', settings)
 	ax.set_ylim(bottom=1.0)
 	ax.set_yscale('log')
-	Save(fig,'Z_pt_log', settings)
+	plotBase.Save(fig,'Z_pt_log', settings)
 
 def jetpt():
 	print "pT of the leading jet"
-	oname = GetNameFromSelection('jet1_pt')
+	oname = plotBase.GetNameFromSelection('jet1_pt')
 	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
 	histname = oname[0].replace('data','mc').replace('Res','')
 	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats,5)
 	histo_mc.scale(factor)
 
-	fjet, ajet, jetname = makeplot('jet1_pt')
+	fjet, ajet, jetname = plotBase.makeplot('jet1_pt')
 	histo01 = ajet.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color=data11color,fmt='o', capsize=0, label ='data')
 	histo02 = ajet.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fmt='-', capsize=0, label ='MC')
-	ajet = captions(ajet,settings,False)
+	ajet = plotBase.captions(ajet,settings,False)
 	ajet.set_ylim(top=histo_mc.ymax*1.2)
-	ajet = tags(ajet, 'Private work', 'Joram Berger')
+	ajet = plotBase.tags(ajet, 'Private work', 'Joram Berger')
 	ajet.legend(loc='center right', numpoints=1, frameon=False)
-	ajet = AxisLabels(ajet, 'pt', 'jet1')
+	ajet = plotBase.AxisLabels(ajet, 'pt', 'jet1')
 	ajet.xmax = 400
 
 	#plt.minorticks_on()
 
-	Save(fjet,'jet_pt', settings)
+	plotBase.Save(fjet,'jet_pt', settings)
 
 def jet2ptall():
 	print "pT of the 2nd jet in all events"
-	oname = GetNameFromSelection('jet2_pt',{},{'incut':'qualitycuts'})
+	oname = plotBase.GetNameFromSelection('jet2_pt',{},{'incut':'qualitycuts'})
 	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
 	histname = oname[0].replace('data','mc').replace('Res','')
 	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats,5)
 	histo_mc.scale(factor)
 
-	fjet, ajet, jetname = makeplot('jet2_pt')
+	fjet, ajet, jetname = plotBase.makeplot('jet2_pt')
 	histo01 = ajet.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color=data11color,fmt='o', capsize=0, label ='data')
 	histo02 = ajet.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fmt='-', capsize=0, label ='MC')
-	ajet = captions(ajet,settings,False)
+	ajet = plotBase.captions(ajet,settings,False)
 	ajet.set_ylim(top=histo_mc.ymax*1.2)
-	ajet = tags(ajet, 'Private work', 'Joram Berger')
+	ajet = plotBase.tags(ajet, 'Private work', 'Joram Berger')
 	ajet.legend(loc='center right', numpoints=1, frameon=False)
-	ajet = AxisLabels(ajet, 'pt', 'jet2')
+	ajet = plotBase.AxisLabels(ajet, 'pt', 'jet2')
 	ajet.xmax = 400
 
 	#plt.minorticks_on()
 #	ajet.set_ylim(bottom=1.0)
 #	ajet.set_yscale('log')
-	Save(fjet,'jet2_pt_quality', settings)
+	plotBase.Save(fjet,'jet2_pt_quality', settings)
 
 
 def zphi():
 	print "phi of the Z boson"
-	oname = GetNameFromSelection('z_phi')
+	oname = plotBase.GetNameFromSelection('z_phi')
 	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
 	histname = oname[0].replace('data','mc').replace('Res','')
 	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats,5)
 	histo_mc.scale(factor)
 
-	fjet, ajet, jetname = makeplot('z_phi')
+	fjet, ajet, jetname = plotBase.makeplot('z_phi')
 	histo02 = ajet.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fmt='-', capsize=0, label ='MC')
 	histo01 = ajet.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color=data11color,fmt='o', capsize=0, label ='data')
-	ajet = captions(ajet,settings,False)
+	ajet = plotBase.captions(ajet,settings,False)
 	ajet.set_ylim(top=histo_mc.ymax*1.4)
-	ajet = tags(ajet, 'Private work', 'Joram Berger')
+	ajet = plotBase.tags(ajet, 'Private work', 'Joram Berger')
 	ajet.legend(loc='lower center', numpoints=1, frameon=False)
-	ajet = AxisLabels(ajet, 'phi', 'Z')
+	ajet = plotBase.AxisLabels(ajet, 'phi', 'Z')
 
-	Save(fjet,'z_phi', settings)
+	plotBase.Save(fjet,'z_phi', settings)
 
 def jetphi():
 	print "phi of the leading jet"
-	oname = GetNameFromSelection('jet1_phi')
+	oname = plotBase.GetNameFromSelection('jet1_phi')
 	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
 	histname = oname[0].replace('data','mc').replace('Res','')
 	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats,5)
 	histo_mc.scale(factor)
 
-	fjet, ajet, jetname = makeplot('jet1_phi')
+	fjet, ajet, jetname = plotBase.makeplot('jet1_phi')
 	histo02 = ajet.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fillstyle='full',fmt='-', capsize=0, label ='MC')
 	histo01 = ajet.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color=data11color,fmt='o', capsize=0, label ='data')
-	ajet = captions(ajet,settings,False)
+	ajet = plotBase.captions(ajet,settings,False)
 	ajet.set_ylim(top=histo_mc.ymax*1.4)
-	ajet = tags(ajet, 'Private work', 'Joram Berger')
+	ajet = plotBase.tags(ajet, 'Private work', 'Joram Berger')
 	ajet.legend(loc='lower center', numpoints=1, frameon=False)
-	ajet = AxisLabels(ajet, 'phi', 'jet1')
-	Print(histo_data.ysum/histo_mc.ysum)
-	Save(fjet,'jet_phi', settings)
+	ajet = plotBase.AxisLabels(ajet, 'phi', 'jet1')
+	print "    >>> ", histo_data.ysum/histo_mc.ysum
+	plotBase.Save(fjet,'jet_phi', settings)
 	
 #def zphi():
 #	print "phi of the Z boson"
-#	oname = GetNameFromSelection('z_phi')
+#	oname = plotBase.GetNameFromSelection('z_phi')
 #	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
 #	histname = oname[0].replace('data','mc').replace('Res','')
 #	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats,5)
 #	histo_mc.scale(factor)
 
-#	fjet, ajet, jetname = makeplot('z_phi')
+#	fjet, ajet, jetname = plotBase.makeplot('z_phi')
 #	histo02 = ajet.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fmt='-', capsize=0, label ='MC')
 #	histo01 = ajet.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color=data11color,fmt='o', capsize=0, label ='data')
-#	ajet = captions(ajet,settings)
+#	ajet = plotBase.captions(ajet,settings)
 #	ajet.set_ylim(top=histo_mc.ymax*1.4)
-#	ajet = tags(ajet, 'Private work', 'Joram Berger')
+#	ajet = plotBase.tags(ajet, 'Private work', 'Joram Berger')
 #	ajet.legend(loc='lower center', numpoints=1, frameon=False)
-#	ajet = AxisLabels(ajet, 'phi', 'Z')
+#	ajet = plotBase.AxisLabels(ajet, 'phi', 'Z')
 #	Print(histo_data.ysum/histo_mc.ysum)
 
-#	Save(fjet,'z_phi', settings)
+#	plotBase.Save(fjet,'z_phi', settings)
 	
 
 
 def jet2pt():
-	genericplot('jet2_pt', 'pt', 'jet2', fdata, {}, fmc, {}, factor, settings)
+	plotBase.genericplot('jet2_pt', 'pt', 'jet2', fdata, {}, fmc, {}, factor, settings)
 	
 def zeta():
-	genericplot('z_eta', 'eta', 'Z', fdata, {}, fmc, {}, factor, settings, 'lower center')
+	plotBase.genericplot('z_eta', 'eta', 'Z', fdata, {}, fmc, {}, factor, settings, 'lower center')
 
 def jeteta():
-	genericplot('jet1_eta', 'eta', 'jet1',fdata, {}, fmc, {}, factor, settings, 'lower center')
+	plotBase.genericplot('jet1_eta', 'eta', 'jet1',fdata, {}, fmc, {}, factor, settings, 'lower center')
 	
 def zmass():
-	genericplot('zmass', 'mass', 'Z',fdata, {}, fmc, {}, factor, settings)
+	plotBase.genericplot('zmass', 'mass', 'Z',fdata, {}, fmc, {}, factor, settings)
 
 def balance():
 	print "Response with the balance method"
-	oname = GetNameFromSelection('jetrespgraph')
+	oname = plotBase.GetNameFromSelection('jetrespgraph')
 #	histo_data10 = SafeConvert(fdata10,oname[0], settings.lumi,settings.outputformats)
 	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats)
-	histname = mchisto(oname[0])
+	histname = oname[0]
 #	histo_mc10 = SafeConvert(fmc10,histname, settings.lumi,settings.outputformats)
 	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats)
 
-	fresp, aresp, respname = makeplot('jetresp')
+	fresp, aresp, respname = plotBase.makeplot('jetresp')
 #	histo02 = aresp.errorbar(histo_mc10.xc, histo_mc10.y, histo_mc10.yerr, color=mc10color,fmt='-', capsize=0, label ='MC Fall10')
 	histo03 = aresp.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, color=mc11color,fmt='-', capsize=0, label ='Summer11 MC')
 #	histo00 = aresp.errorbar(histo_data10.xc, histo_data10.y, histo_data10.yerr, color=data10color,fmt='^', capsize=0, label ='data 2010')
 	histo01 = aresp.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, color=data11color,fmt='o', capsize=0, label ='data')
 
-	aresp = captions(aresp,settings, False)
-	aresp = tags(aresp, 'Private work', 'Joram Berger')
+	aresp = plotBase.captions(aresp,settings, False)
+	aresp = plotBase.tags(aresp, 'Private work', 'Joram Berger')
 	aresp.legend(loc='lower right', numpoints=1, frameon=False)
-	aresp = AxisLabels(aresp, 'jetresp', 'jet')
+	aresp = plotBase.AxisLabels(aresp, 'jetresp', 'jet')
 	#aresp.xmax = 400
 
 	#plt.minorticks_on()
 
-	Save(fresp,'jetresp', settings)
+	plotBase.Save(fresp,'jetresp', settings)
 
 def mpf():
 	print "Response with the MPF method"
-	oname = GetNameFromSelection('mpfrespgraph')
+	oname = plotBase.GetNameFromSelection('mpfrespgraph')
 #	histo_data10 = SafeConvert(fdata10,oname[0], settings.lumi,settings.outputformats)
 	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats)
-	histname = mchisto(oname[0])
+	histname = oname[0]
 #	histo_mc10 = SafeConvert(fmc10,histname, settings.lumi,settings.outputformats)
 	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats)
 
-	fmpf, ampf, mpfname = makeplot('mpfresp')
+	fmpf, ampf, mpfname = plotBase.makeplot('mpfresp')
 #	histo02 = ampf.errorbar(histo_mc10.xc, histo_mc10.y, histo_mc10.yerr, color=mc10color,fmt='-', capsize=0, label ='MC Fall10')
 	histo03 = ampf.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, color=mc11color,fmt='-', capsize=0, label ='Summer11 MC')
 #	histo00 = ampf.errorbar(histo_data10.xc, histo_data10.y, histo_data10.yerr, color=data10color,fmt='^', capsize=0, label ='data 2010')
 	histo01 = ampf.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, color=data11color,fmt='o', capsize=0, label ='data')
 
-	ampf = captions(ampf,settings, False)
-	ampf = tags(ampf, 'Private work', 'Joram Berger')
+	ampf = plotBase.captions(ampf,settings, False)
+	ampf = plotBase.tags(ampf, 'Private work', 'Joram Berger')
 	ampf.legend(loc='lower right', numpoints=1, frameon=False)
-	ampf = AxisLabels(ampf, 'mpfresp', 'jet')
+	ampf = plotBase.AxisLabels(ampf, 'mpfresp', 'jet')
 	#ampf.xmax = 400
 
 	#plt.minorticks_on()
 
-	Save(fmpf,'mpfresp', settings)
+	plotBase.Save(fmpf,'mpfresp', settings)
 	
 def algocomp():
 	print "Comparison of jet algorithms"
-	oname = GetNameFromSelection('jetrespgraph',{},{'algo':'ak5'})[0]
+	oname = plotBase.GetNameFromSelection('jetrespgraph',{},{'algo':'ak5'})[0]
 	histo_10ak5 = SafeConvert(fdata10,oname, settings.lumi,settings.outputformats)
 	histo_11ak5 = SafeConvert(fdata,oname, settings.lumi,settings.outputformats)
-	histname = GetNameFromSelection('jetrespgraph',{},{'algo':'ak7'})[0]
+	histname = plotBase.GetNameFromSelection('jetrespgraph',{},{'algo':'ak7'})[0]
 	histo_10ak7 = SafeConvert(fdata10,histname, settings.lumi,settings.outputformats)
 	histo_11ak7 = SafeConvert(fdata,histname, settings.lumi,settings.outputformats)
 
-	fmpf, ampf, mpfname = makeplot('jetresp')
+	fmpf, ampf, mpfname = plotBase.makeplot('jetresp')
 	histo00 = ampf.errorbar(histo_10ak5.xc, histo_10ak5.y, histo_10ak5.yerr,histo_10ak5.xerr, color=data10color,fmt='^', capsize=0, label ='anti-kt 0.5 (2010)')
 	histo01 = ampf.errorbar(histo_11ak5.xc, histo_11ak5.y, histo_11ak5.yerr, histo_11ak5.xerr, color=data11color,fmt='o', capsize=0, label ='anti-kt 0.5 (2011)')
 	histo02 = ampf.errorbar(histo_10ak7.xc, histo_10ak7.y, histo_10ak7.yerr, histo_10ak7.xerr, color='red',fmt='v', capsize=0, label ='anti-kt 0.7 (2010)')
 	histo03 = ampf.errorbar(histo_11ak7.xc, histo_11ak7.y, histo_11ak7.yerr, histo_11ak7.xerr, color='orange',fmt='o', capsize=0, label ='anti-kt 0.7 (2011)')
 
-	ampf = captions(ampf,settings)
-	ampf = tags(ampf, 'Private work', 'Joram Berger')
+	ampf = plotBase.captions(ampf,settings)
+	ampf = plotBase.tags(ampf, 'Private work', 'Joram Berger')
 	ampf.legend(loc='lower right', numpoints=1, frameon=False)
-	ampf = AxisLabels(ampf, 'jetresp', 'jet')
-	Save(fmpf,'algocomp', settings)
+	ampf = plotBase.AxisLabels(ampf, 'jetresp', 'jet')
+	plotBase.Save(fmpf,'algocomp', settings)
 
 def npv():
 	print "Number of primary vertices"
-	oname = GetNameFromSelection('recovert',{},{'incut':'allevents'})[0]
+	oname = plotBase.GetNameFromSelection('recovert',{},{'incut':'allevents'})[0]
 	print oname
 #	histo_data10 = SafeConvert(fdata10,oname[0], settings.lumi,settings.outputformats)
 	histo_data = SafeConvert(fdata,oname, settings.lumi,settings.outputformats)
-	histname = mchisto(oname)
+	histname = oname
 	print histname
 #	histo_mc10 = SafeConvert(fmc10,histname, settings.lumi,settings.outputformats)
 	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats)
@@ -339,7 +355,7 @@ def npv():
 	histo_mc.dropbin(-1)
 	oname.replace('recovert','')
 
-	fmpf, ampf, mpfname = makeplot('recovert')
+	fmpf, ampf, mpfname = plotBase.makeplot('recovert')
 #	histo02 = ampf.errorbar(histo_mc10.xc, histo_mc10.y, histo_mc10.yerr, color=mc10color,fmt='-', capsize=0, label ='MC Fall10')
 	histo03 = ampf.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, color=mc11color,fmt='-', capsize=0, label ='MC Summer11')
 #	histo03 = ampf.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, color=mc11color,fmt='-', capsize=0, label ='MC Summer11')
@@ -350,31 +366,29 @@ def npv():
 #	Print( histo_mc.y[2]/histo_data.y[2])
 #	Print( histo_mc.y[5]/histo_data.y[5])
 
-	ampf = captions(ampf,settings, False)
-	ampf = tags(ampf, 'Private work', 'Joram Berger')
+	ampf = plotBase.captions(ampf,settings, False)
+	ampf = plotBase.tags(ampf, 'Private work', 'Joram Berger')
 	ampf.legend(loc = 'upper right', bbox_to_anchor = (0.98, 0.92), numpoints=1, frameon=False)
-	ampf = AxisLabels(ampf, 'recovert')
+	ampf = plotBase.AxisLabels(ampf, 'recovert')
 	#ampf.xmax = 400
 
 	#plt.minorticks_on()
 
-	Save(fmpf,'recovert', settings)
+	plotBase.Save(fmpf,'recovert', settings)
 	ampf.set_ylim(bottom=1.0)
 	ampf.set_yscale('log')
-	Save(fmpf,'recovert_log', settings)
+	plotBase.Save(fmpf,'recovert_log', settings)
 
 
-dapv = GetNameFromSelection('recovert',{},{'incut':'allevents'})[0]
-mcpv = mchisto(dapv)
+dapv = plotBase.GetNameFromSelection('recovert',{},{'incut':'allevents'})[0]
+mcpv = dapv
 histo_mcpv = SafeConvert(fmc,mcpv, settings.lumi,settings.outputformats)
 histo_dapv = SafeConvert(fdata,dapv, settings.lumi,settings.outputformats)
 histo_mcpv.scale(factor)
-print len(histo_mcpv)
-print len(histo_dapv)
 print "Reweighting factors 2011: "
-print GetReweighting(histo_dapv,histo_mcpv)
+print plotBase.GetReweighting(histo_dapv,histo_mcpv)
 
-#dapv = GetNameFromSelection('recovert',{},{'incut':'allevents'})[0]
+#dapv = plotBase.GetNameFromSelection('recovert',{},{'incut':'allevents'})[0]
 #mcpv = mchisto(dapv)
 #histo_mcpv = SafeConvert(fmc10,mcpv, settings.lumi,settings.outputformats)
 #histo_dapv = SafeConvert(fdata10,dapv, settings.lumi,settings.outputformats)
@@ -386,42 +400,42 @@ def wolke():
 	print "Single data points"
 	dpoints = npHisto()
 	dpoints.read('Datapoints_jetresp_ak5PFJetsL1L2L3.txt')
-	oname = GetNameFromSelection('jetrespgraph')
-	histname = mchisto(oname[0])
+	oname = plotBase.GetNameFromSelection('jetrespgraph')
+	histname = oname[0]
 	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats)
 
-	fmpf, ampf, mpfname = makeplot('jetresp')
+	fmpf, ampf, mpfname = plotBase.makeplot('jetresp')
 	histo02 = ampf.errorbar(dpoints.xc, dpoints.y, color='black',fmt='o', ms = 1.0, capsize=0, label ='single events')
 	histo03 = ampf.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, color=mc11color,fmt='-', capsize=0, label ='MC Summer11')
 #	histo00 = ampf.errorbar(histo_data10.xc, histo_data10.y, histo_data10.yerr, color=data10color,fmt='^', capsize=0, label ='data 2010')
 #	histo01 = ampf.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, color=data11color,fmt='o', capsize=0, label ='data 2011')
 
 
-	ampf = captions(ampf,settings,False)
-	ampf = tags(ampf, 'Private work', 'Joram Berger')
+	ampf = plotBase.captions(ampf,settings,False)
+	ampf = plotBase.tags(ampf, 'Private work', 'Joram Berger')
 	ampf.legend(loc='lower right', numpoints=1, frameon=False)
-	ampf = AxisLabels(ampf, 'jetresp')
+	ampf = plotBase.AxisLabels(ampf, 'jetresp')
 	#ampf.xmax = 400
 	ampf.set_xlim(20.0,300.0)
 	ampf.set_ylim(0.0,2.0)
 	#plt.minorticks_on()
 
-	Save(fmpf,'cloud', settings)
+	plotBase.Save(fmpf,'cloud', settings)
 
 def scaleres():
 	print "Data/MC comparison plot for scale and resolution"
 	para1s, para1r = GetScaleResolution('sr_d2011_423_l3_bal.txt')
 	para2s, para2r = GetScaleResolution('sr_d2011_423_l3_mpf.txt')
-	Print(para1s)
-	Print(para2s)
-	fsr, asr, nsr = makeplot('scaleres')
+	print para1s
+	print para2s
+	fsr, asr, nsr = plotBase.makeplot('scaleres')
 	asr.set_xlabel(r"jet energy scale $s_\mathrm{data/MC}$", ha = "right", x = 1)
 	asr.set_xlim(0.95,1.03)
 	asr.set_ylabel(r"jet energy resolution $r_\mathrm{data/MC}$", va = "top", y = 1)
 	asr.set_ylim(0.95,1.15)
 
 	def ellipsePlot(s=[1,0,0],r=[1,0,0], colour='gray', Label='', shift=0):
-		Print(Label)
+		print Label
 		# Zeilenabstand in relativen Achsenkoordinaten
 		z=0.05
 		# jet energy scale (x)
@@ -456,10 +470,10 @@ def scaleres():
 #	asr.plot(1.0, 1.0, 'o', color ='black')
 #	asr.text(0.02,0.98,'$p_{T}$ balance, L1L2L3, 423',
 #				va='top', ha='left', transform=asr.transAxes, fontsize=15)
-	asr = captions(asr,settings, False)
-#	asr = tags(asr, 'Private work', 'Joram Berger')
+	asr = plotBase.captions(asr,settings, False)
+#	asr = plotBase.tags(asr, 'Private work', 'Joram Berger')
 
-	Save(fsr,'scaleres', settings)
+	plotBase.Save(fsr,'scaleres', settings)
 
 
 def npu():
@@ -467,7 +481,7 @@ def npu():
 	fpuApr = OpenFile("../s/data/pudist423Apr.root", (settings.verbosity>1))
 	fpuMay = OpenFile("../s/data/pudist423May.root", (settings.verbosity>1))
 	fpuJune = OpenFile("../s/data/pudist423June24Prompt.root", (settings.verbosity>1))
-	oname = GetNameFromSelection('pu',{},{'incut':'allevents'})[0]
+	oname = plotBase.GetNameFromSelection('pu',{},{'incut':'allevents'})[0]
 	hpuApr = SafeConvert(fpuApr, 'pileup', settings.lumi,settings.outputformats).normalize()
 	hpuMay = SafeConvert(fpuMay, 'pileup', settings.lumi,settings.outputformats).normalize()
 	hpuJune = SafeConvert(fpuJune, 'pileup', settings.lumi,settings.outputformats).normalize()
@@ -475,24 +489,24 @@ def npu():
 #	histo_mc10.scale(factor10)
 #	histo_data10.dropbin(0)
 
-	fnpu, anpu, npuname = makeplot('recovert')
+	fnpu, anpu, npuname = plotBase.makeplot('recovert')
 	histo01 = anpu.errorbar(hpuApr.xc, hpuApr.y, hpuApr.yerr, color='brown', fmt='o', capsize=0, label ='2010 (Apr21, 36 pb${}^{-1}$)')
 	histo02 = anpu.errorbar(hpuMay.xc, hpuMay.y, hpuMay.yerr, color='black', fmt='^', capsize=0, label ='2011 (May10, 206 pb${}^{-1}$)')
 	histo03 = anpu.errorbar(hpuJune.xc, hpuJune.y, hpuJune.yerr, color='blue', fmt='x', capsize=0, label ='2011 (Prompt, 800 pb${}^{-1}$)')
 
-	anpu = captions(anpu,settings, False)
-	anpu = tags(anpu, 'Private work', 'Joram Berger')
+	anpu = plotBase.captions(anpu,settings, False)
+	anpu = plotBase.tags(anpu, 'Private work', 'Joram Berger')
 	anpu.legend(loc = 'upper right', bbox_to_anchor = (0.98, 0.92), numpoints=1, frameon=False)
-	anpu = AxisLabels(anpu, 'recovert')
+	anpu = plotBase.AxisLabels(anpu, 'recovert')
 	#anpu.xmax = 400
 	anpu.set_xlabel('Number of pile-up events')
 	anpu.set_ylabel('fraction of events')
 	#plt.minorticks_on()
 
-	Save(fnpu,'npu', settings,False)
+	plotBase.Save(fnpu,'npu', settings,False)
 	anpu.set_ylim(bottom=1.0)
 	anpu.set_yscale('log')
-	Save(fnpu,'npu_log', settings, False)
+	plotBase.Save(fnpu,'npu_log', settings, False)
 
 def npumcflat():
 	npumc('flat')
@@ -505,28 +519,28 @@ def npureco():
 
 def npumc(typ=''):
 	print "Number of pile-up interactions"
-	oname = GetNameFromSelection('pu',{},{'incut':'allevents', 'type': 'mc'})[0]
+	oname = plotBase.GetNameFromSelection('pu',{},{'incut':'allevents', 'type': 'mc'})[0]
 	if typ=='flat':
 		datei=fmcflat
 	else:
 		datei=fmc
-	rname = GetNameFromSelection('recovert',{},{'incut':'allevents'})[0]
+	rname = plotBase.GetNameFromSelection('recovert',{},{'incut':'allevents'})[0]
 	hrv = SafeConvert(fdata, rname, settings.lumi,settings.outputformats).normalize()
-	hrvmc = SafeConvert(fmc, mchisto(rname), settings.lumi,settings.outputformats).normalize()
+	hrvmc = SafeConvert(fmc, rname, settings.lumi,settings.outputformats).normalize()
 	hpuflat = SafeConvert(datei, oname, settings.lumi,settings.outputformats).normalize()
 	hpuflatb = SafeConvert(datei, oname.replace('pu','pu_before'), settings.lumi,settings.outputformats).normalize()
 	hpuflata = SafeConvert(datei, oname.replace('pu','pu_after'), settings.lumi,settings.outputformats).normalize()
 	fpuApr = OpenFile("../s/data/pudist423Apr.root", (settings.verbosity>1))
 	fpuMay = OpenFile("../s/data/pudist423May.root", (settings.verbosity>1))
 	fpuJune = OpenFile("../s/data/pudist423June24Prompt.root", (settings.verbosity>1))
-	oname = GetNameFromSelection('pu',{},{'incut':'allevents'})[0]
+	oname = plotBase.GetNameFromSelection('pu',{},{'incut':'allevents'})[0]
 	hpuApr = SafeConvert(fpuApr, 'pileup', settings.lumi,settings.outputformats).normalize()
 	hpuMay = SafeConvert(fpuMay, 'pileup', settings.lumi,settings.outputformats).normalize()
 	hpuJune = SafeConvert(fpuJune, 'pileup', settings.lumi,settings.outputformats).normalize()
 #	histo_mc10.scale(factor10)
 #	histo_data10.dropbin(0)
 
-	fnpu, anpu, npuname = makeplot('recovert')
+	fnpu, anpu, npuname = plotBase.makeplot('recovert')
 #	histo01 = anpu.errorbar(hpurw.xc, hpurw.y, hpurw.yerr, color='brown', fmt='o', capsize=0, label ='reweighted')
 
 	histo02 = anpu.errorbar(hpuflat.xc, hpuflat.y, hpuflat.yerr, color='FireBrick', fmt='--', capsize=0, label =r'$n_\mathrm{PU}$ MC (mixed)')
@@ -549,16 +563,16 @@ def npumc(typ=''):
 
 
 
-	anpu = captions(anpu,settings, False)
-	anpu = tags(anpu, 'Private work', 'Joram Berger')
+	anpu = plotBase.captions(anpu,settings, False)
+	anpu = plotBase.tags(anpu, 'Private work', 'Joram Berger')
 	anpu.legend(loc = 'upper right', bbox_to_anchor = (0.98, 0.92), numpoints=1, frameon=False)
-	anpu = AxisLabels(anpu, 'recovert')
+	anpu = plotBase.AxisLabels(anpu, 'recovert')
 	anpu.set_ylim(0,0.2)
 	#anpu.xmax = 400
 	anpu.set_xlabel('Number of pile-up vertices')
 	anpu.set_ylabel('Fraction of events')
 	#plt.minorticks_on()
-	Save(fnpu,'npumc'+typ, settings,False)
+	plotBase.Save(fnpu,'npumc'+typ, settings,False)
 
 # The actual plotting starts here:
 #List of plots to do - leave empty for all plots
