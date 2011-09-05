@@ -1,4 +1,3 @@
-
 import sys
 import JsonConfigBase
 import LocalConfigBase
@@ -7,8 +6,8 @@ import copy
 
 conf = JsonConfigBase.GetDataBaseConfig()
 
-conf["InputFiles"] = "/scratch/hh/lustre/cms/user/berger/zjet/Run2011A-May10andPromptReco-A/*.root"
-conf["OutputPath"] = "/scratch/hh/lustre/cms/user/berger/analysis/data_July22"
+conf["InputFiles"] = "/scratch/hh/lustre/cms/user/berger/zjet/Run2011A-All-A/*.root"
+conf["OutputPath"] = "/scratch/hh/lustre/cms/user/berger/analysis/data_Aug17"
 
 conf = JsonConfigBase.ExpandDefaultDataConfig( [0,30,60,100,140,1000], conf, True )
 

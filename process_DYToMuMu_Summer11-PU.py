@@ -8,7 +8,7 @@ conf = JsonConfigBase.GetMcBaseConfig()
 conf["Algos"] = ["ak5PFJetsL1", "ak5PFJetsL1CHS", "ak5PFJetsL1L2L3", "ak5PFJetsL1L2L3CHS"] #, "ak7PFJetsL1", "ak7PFJetsL1L2L3"  ]
 
 conf["InputFiles"] = "/scratch/hh/lustre/cms/user/berger/zjet/DYToMuMu_Summer11-PU-B/*.root"
-conf["OutputPath"] = "/scratch/hh/lustre/cms/user/hauth/ZPJ2011/hist/DYToMuMu_Summer11-PU"
+conf["OutputPath"] = "/scratch/hh/lustre/cms/user/berger/analysis/MC_July22"
 
 conf["UseWeighting"] = 0
 #conf["UseEventWeight"] = 1
