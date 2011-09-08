@@ -1,23 +1,21 @@
-
+import sys
 import JsonConfigBase
 import LocalConfigBase
-import sys
+import subprocess
 import copy
+
 conf = JsonConfigBase.GetMcBaseConfig()
 
-conf["Algos"] = ["ak5PFJetsL1", "ak5PFJetsL1CHS", "ak5PFJetsL1L2L3", "ak5PFJetsL1L2L3CHS"] #, "ak7PFJetsL1", "ak7PFJetsL1L2L3"  ]
-
-conf["InputFiles"] = "/scratch/hh/lustre/cms/user/berger/zjet/DYToMuMu_Summer11-PU-B/*.root"
-conf["OutputPath"] = "/scratch/hh/lustre/cms/user/berger/analysis/MC_July22"
+conf["Algos"] = ["ak5PFJets", "ak5PFJetsL1", "ak5PFJetsL1CHS", "ak5PFJetsL1L2L3", "ak5PFJetsL1L2L3CHS"] #, "ak7PFJetsL1", "ak7PFJetsL1L2L3"  ]
+conf["InputFiles"] = "/data/berger/data/DYToMuMu-Summer11/*.root"
+conf["OutputPath"] = "/data/berger/data/MC_Sept08"
 
 conf["UseWeighting"] = 0
-#conf["UseEventWeight"] = 1
-
-conf = JsonConfigBase.ExpandDefaultMcConfig( [0,30,60,100,140,1000], conf, True )
+conf = JsonConfigBase.ExpandDefaultMcConfig( [0, 30, 45, 60, 80, 105, 140, 1000], conf, True )
 
 JsonConfigBase.ApplyReweightingSummer11May10ReReco( conf )
 
-#back2back_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutBack2Back", [0.24, 0.34,0.44], True, True  ) 
+back2back_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutBack2Back", [0.24, 0.34,0.44], True, True  ) 
 secjet_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutSecondLeadingToZPt", [0.1, 0.15, 0.2, 0.3], True, True  )
 
 conf["Pipelines"] = dict( conf["Pipelines"].items() + secjet_var.items())
