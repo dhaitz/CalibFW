@@ -247,9 +247,6 @@ def AxisLabels(ax, q='resp', obj='jet', rezise = True):
         ax.set_ylabel(r"MPF", va="top", y=1)
         ax.set_xlim(10, 240)
         ax.set_ylim(0.75, 1.0)
-    elif q == 'datamc_diff':
-        ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
-        ax.set_ylabel(r"Data - MC", va="top", y=1)
     elif q == 'datamc_ratio':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"Data/MC", va="top", y=1)
@@ -258,7 +255,7 @@ def AxisLabels(ax, q='resp', obj='jet', rezise = True):
     elif q == 'cutineff':
         ax.set_ylabel(r"Cut Infficiency", y=1, va="top" )
         ax.set_xlabel(r"NRV",x=1)
-        #ax.set_xlim(1, 15)
+        ax.set_xlim(0, 25)
         ax.set_ylim(0.0, 1.0)
     elif q == 'recovert':
         ax.set_xlabel(r"Number of reconstructed vertices $n$", ha="right", x=1)
@@ -268,8 +265,20 @@ def AxisLabels(ax, q='resp', obj='jet', rezise = True):
     elif q == 'jetconstituents':
         ax.set_xlabel(r"Jet Constituents", ha="right", x=1)
         ax.set_ylabel(r"Events", va="top", y=1)
-        ax.set_xlim(1, 60)        
+        ax.set_xlim(1, 60)
         #ax.set_xlim(0, 350)
+    elif q == 'components':
+        ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_ylabel(r"Leading Jet Component Fraction", va="top", y=1)
+        ax.set_xlim(25,500)
+        ax.set_ylim(0.0,1.0)
+        ax.semilogx()
+    elif q == 'components_diff':
+        ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_ylabel(r"Data$-$MC of Leading Jet Components", va="top", y=1)
+        ax.set_xlim(25,500)
+        ax.set_ylim(-0.05,0.05)
+        ax.semilogx()
     elif q == 'extrapol':
         if obj == 'jet2':
             ax.set_xlabel(r"$p_{T}^{"+obj+"}/p_{T}^{Z}$", ha="right", x=1)

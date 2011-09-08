@@ -91,9 +91,7 @@ def ConvertToArray(histo, lumi=0.0, rootfile='', rebin=1):
     
 
 def SafeConvert(RootDict, ObjectName, lumi=0.0, formatslist=[], rebin=1):
-    """Combined import and conversion to npHisto
-    
-    """
+    """Combined import and conversion to npHisto"""
     root_histo = SafeGet(RootDict, ObjectName)
     histo = ConvertToArray(root_histo,lumi,'',rebin)
     if 'txt' in formatslist:

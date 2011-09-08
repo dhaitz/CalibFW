@@ -3,6 +3,7 @@ obj/
 bin/
 out/
 
+*~
 .*
 *.root
 *.exe
