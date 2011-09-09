@@ -133,19 +133,16 @@ def makeplot(quantity, variation={}, common={}):
     return fig, ax, name
     
 def captions(ax, stg=StandardSettings(), twolumis=False):
-    ax.text(0.99, 1.06, r"$\sqrt{s} = " + str(stg.cme) + " \,\mathrm{TeV}$",
+    # Energy
+    ax.text(0.99, 1.06, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (stg.cme),
         va='top', ha='right', transform=ax.transAxes, fontsize=15)
-    if stg.lumi > 0:
-        
-        if stg.lumi >= 1000:
-            ax.text(0.01, 1.06, r"$\mathcal{L} = " + str(int(stg.lumi / 1000.0)) + " \,\mathrm{fb}^{-1}$",
-                    va='top', ha='left', transform=ax.transAxes, fontsize=15)
-        else: 
-            ax.text(0.01, 1.06, r"$\mathcal{L} = " + str(int(stg.lumi)) + " \,\mathrm{pb}^{-1}$",
-                    va='top', ha='left', transform=ax.transAxes, fontsize=15)
-#        if twolumis:
-#            ax.text(0.01, 0.93, r"$\mathcal{L} = " + str(36) + " \,\mathrm{pb}^{-1}$",
-#                va='top', ha='left', transform=ax.transAxes, fontsize=15)
+    # Luminosity
+    if stg.lumi >= 1000:
+        ax.text(0.01, 1.06, r"$\mathcal{L} = %1.1f\,\mathrm{fb}^{-1}$" % (stg.lumi / 1000.0),
+            va='top', ha='left', transform=ax.transAxes, fontsize=15)
+    elif stg.lumi > 0:
+        ax.text(0.01, 1.06, r"$\mathcal{L} = %1.1f\,\mathrm{pb}^{-1}$" % (stg.lumi),
+            va='top', ha='left', transform=ax.transAxes, fontsize=15)
     return ax
 
 def AddAlgoAndCorrectionCaption(ax, algo = "ak5PFJetsL1", stg=StandardSettings()):
@@ -164,25 +161,20 @@ def AddAlgoAndCorrectionCaption(ax, algo = "ak5PFJetsL1", stg=StandardSettings()
     if algo == "ak5PFJetsL1L2L3":
         ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 corrected",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
-        
     if algo == "ak5PFJetsL1L2L3Res":
         ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 Res corrected",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
-        
     if algo == "ak7PFJetsL1L2L3":
         ax.text(posx, posy, r"ak7 PF Jets L1 L2 L3 corrected",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
-
     if algo == "ak7PFJetsL1L2L3Res":
         ax.text(posx, posy, r"ak7 PF Jets L1 L2 L3 Res corrected",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
-
     if algo == "ak5PFJetsL1L2L3CHS":
         ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 corrected",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
         ax.text(posx, posy - 0.07, r"CHS applied",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
-
     if algo == "ak5PFJetsL1L2L3ResCHS":
         ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 Res corrected",
                 va='top', ha='left', transform=ax.transAxes, fontsize=15)
@@ -273,12 +265,16 @@ def AxisLabels(ax, q='resp', obj='jet', rezise = True):
         ax.set_xlim(25,500)
         ax.set_ylim(0.0,1.0)
         ax.semilogx()
+        ax.set_xticklabels([r"$10$",r"$100$",r"$1000$"])
+        ax.set_xticklabels([r"$20$",r"$30$",r"$40$",r"$50$",r"$60$",r"",r"$80$",r"",r"$200$",r"$300$",r"$400$"],minor=True)
     elif q == 'components_diff':
         ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"Data$-$MC of Leading Jet Components", va="top", y=1)
         ax.set_xlim(25,500)
         ax.set_ylim(-0.05,0.05)
         ax.semilogx()
+        ax.set_xticklabels([r"$10$",r"$100$",r"$1000$"])
+        ax.set_xticklabels([r"$20$",r"$30$",r"$40$",r"$50$",r"$60$",r"",r"$80$",r"",r"$200$",r"$300$",r"$400$"],minor=True)
     elif q == 'extrapol':
         if obj == 'jet2':
             ax.set_xlabel(r"$p_{T}^{"+obj+"}/p_{T}^{Z}$", ha="right", x=1)
