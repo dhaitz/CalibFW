@@ -22,12 +22,11 @@ matplotlib.rcParams.update({
 #import matplotlib.pyplot as plt
 import plotBase
 
-print "%1.2f Start with settings" % time.clock()
 ### SETTINGS
 settings = plotBase.StandardSettings()
 settings.outputformats = ['png', 'pdf', 'svg', 'txt', 'dat']
 settings.outputformats = ['png','pdf']
-settings.lumi = 1079.0
+settings.lumi = 2179.0
 settings.verbosity = 2
 factor = settings.lumi # is being overwritten
 factor10 = 36*0.001*0.75
@@ -47,8 +46,8 @@ data10color = 'gray'
 
 #### INPUTFILES
 print "%1.2f Open files:" % time.clock()
-fdata = OpenFile(plotBase.GetPath() + "data_July22.root", (settings.verbosity>1))
-fmc   = OpenFile(plotBase.GetPath() + "MC_July22.root", (settings.verbosity>1))
+fdata = OpenFile(plotBase.GetPath() + "data_Sept08.root", (settings.verbosity>1))
+fmc   = OpenFile(plotBase.GetPath() + "MC_Sept08.root", (settings.verbosity>1))
 #fmcflat = OpenFile(plotBase.GetPath() + "chs_Summer11_mc_withoutrw.root", (settings.verbosity>1))
 #fdata10 = OpenFile(plotBase.GetPath() + "data2010_v8_single_l3.root", (settings.verbosity>1))
 #fmc10   = OpenFile(plotBase.GetPath() + "mc_fall10_dy_v1.root", (settings.verbosity>1))
@@ -478,21 +477,22 @@ def scaleres():
 
 def npu():
 	print "Number of pile-up interactions"
-	fpuApr = OpenFile("../s/data/pudist423Apr.root", (settings.verbosity>1))
-	fpuMay = OpenFile("../s/data/pudist423May.root", (settings.verbosity>1))
-	fpuJune = OpenFile("../s/data/pudist423June24Prompt.root", (settings.verbosity>1))
+#	fpuApr = OpenFile("../s/data/pudist423Apr.root", (settings.verbosity>1))
+#	fpuMay = OpenFile("../s/data/pudist423May.root", (settings.verbosity>1))
+	fpuAug = OpenFile("data/pudist/Pileup_2011_to_173692_LPLumiScale_68mb.root", (settings.verbosity>1))
+
 	oname = plotBase.GetNameFromSelection('pu',{},{'incut':'allevents'})[0]
-	hpuApr = SafeConvert(fpuApr, 'pileup', settings.lumi,settings.outputformats).normalize()
-	hpuMay = SafeConvert(fpuMay, 'pileup', settings.lumi,settings.outputformats).normalize()
-	hpuJune = SafeConvert(fpuJune, 'pileup', settings.lumi,settings.outputformats).normalize()
+#	hpuApr = SafeConvert(fpuApr, 'pileup', settings.lumi,settings.outputformats).normalize()
+#	hpuMay = SafeConvert(fpuMay, 'pileup', settings.lumi,settings.outputformats).normalize()
+	hpuAug = SafeConvert(fpuAug, 'pileup', settings.lumi,settings.outputformats).normalize()
 
 #	histo_mc10.scale(factor10)
 #	histo_data10.dropbin(0)
 
 	fnpu, anpu, npuname = plotBase.makeplot('recovert')
-	histo01 = anpu.errorbar(hpuApr.xc, hpuApr.y, hpuApr.yerr, color='brown', fmt='o', capsize=0, label ='2010 (Apr21, 36 pb${}^{-1}$)')
-	histo02 = anpu.errorbar(hpuMay.xc, hpuMay.y, hpuMay.yerr, color='black', fmt='^', capsize=0, label ='2011 (May10, 206 pb${}^{-1}$)')
-	histo03 = anpu.errorbar(hpuJune.xc, hpuJune.y, hpuJune.yerr, color='blue', fmt='x', capsize=0, label ='2011 (Prompt, 800 pb${}^{-1}$)')
+#	histo01 = anpu.errorbar(hpuApr.xc, hpuApr.y, hpuApr.yerr, color='brown', fmt='o', capsize=0, label ='2010 (Apr21, 36 pb${}^{-1}$)')
+#	histo02 = anpu.errorbar(hpuMay.xc, hpuMay.y, hpuMay.yerr, color='black', fmt='^', capsize=0, label ='2011 (May10, 206 pb${}^{-1}$)')
+	histo03 = anpu.errorbar(hpuAug.xc, hpuAug.y, hpuAug.yerr, color='blue', fmt='x', capsize=0, label ='2011A (2.2 fb${}^{-1}$)')
 
 	anpu = plotBase.captions(anpu,settings, False)
 	anpu = plotBase.tags(anpu, 'Private work', 'Joram Berger')
@@ -530,13 +530,13 @@ def npumc(typ=''):
 	hpuflat = SafeConvert(datei, oname, settings.lumi,settings.outputformats).normalize()
 	hpuflatb = SafeConvert(datei, oname.replace('pu','pu_before'), settings.lumi,settings.outputformats).normalize()
 	hpuflata = SafeConvert(datei, oname.replace('pu','pu_after'), settings.lumi,settings.outputformats).normalize()
-	fpuApr = OpenFile("../s/data/pudist423Apr.root", (settings.verbosity>1))
-	fpuMay = OpenFile("../s/data/pudist423May.root", (settings.verbosity>1))
-	fpuJune = OpenFile("../s/data/pudist423June24Prompt.root", (settings.verbosity>1))
+#	fpuApr = OpenFile("../s/data/pudist423Apr.root", (settings.verbosity>1))
+#	fpuMay = OpenFile("../s/data/pudist423May.root", (settings.verbosity>1))
+	fpuAug = OpenFile("data/pudist/Pileup_2011_to_173692_LPLumiScale_68mb.root", (settings.verbosity>1))
 	oname = plotBase.GetNameFromSelection('pu',{},{'incut':'allevents'})[0]
-	hpuApr = SafeConvert(fpuApr, 'pileup', settings.lumi,settings.outputformats).normalize()
-	hpuMay = SafeConvert(fpuMay, 'pileup', settings.lumi,settings.outputformats).normalize()
-	hpuJune = SafeConvert(fpuJune, 'pileup', settings.lumi,settings.outputformats).normalize()
+#	hpuApr = SafeConvert(fpuApr, 'pileup', settings.lumi,settings.outputformats).normalize()
+#	hpuMay = SafeConvert(fpuMay, 'pileup', settings.lumi,settings.outputformats).normalize()
+	hpuAug = SafeConvert(fpuAug, 'pileup', settings.lumi,settings.outputformats).normalize()
 #	histo_mc10.scale(factor10)
 #	histo_data10.dropbin(0)
 
@@ -544,7 +544,7 @@ def npumc(typ=''):
 #	histo01 = anpu.errorbar(hpurw.xc, hpurw.y, hpurw.yerr, color='brown', fmt='o', capsize=0, label ='reweighted')
 
 	histo02 = anpu.errorbar(hpuflat.xc, hpuflat.y, hpuflat.yerr, color='FireBrick', fmt='--', capsize=0, label =r'$n_\mathrm{PU}$ MC (mixed)')
-	histo06 = anpu.errorbar(hpuMay.xc, hpuMay.y, hpuMay.yerr, color='black', fmt='^', capsize=0, label =r'$n_\mathrm{PU}$ 2011 data (estimated)')
+	histo06 = anpu.errorbar(hpuAug.xc, hpuAug.y, hpuAug.yerr, color='black', fmt='^', capsize=0, label =r'$n_\mathrm{PU}$ 2011A data (estimated)')
 	if typ=='flat' or typ =='':
 		histo03 = anpu.errorbar(hpuflatb.xc, hpuflatb.y, hpuflatb.yerr, color='blue', fmt='.', capsize=0, label =r'$n_\mathrm{PU,\, previous\, BX}$')
 		histo04 = anpu.errorbar(hpuflata.xc, hpuflata.y, hpuflata.yerr, color='green', fmt='.', capsize=0, label =r'$n_\mathrm{PU,\, next\, BX}$')
@@ -579,7 +579,7 @@ def npumc(typ=''):
 plots = []
 
 if len(plots)==0:
-	plots = [zeta, jeteta, zpt, jetpt, balance, mpf, npv, zphi,jetphi, jet2pt,zmass, jet2ptall]
+	plots = [zeta, jeteta, zpt, jetpt, balance, mpf, npv, zphi,jetphi, jet2pt,zmass, jet2ptall, npureco, npu]
 for plot in plots:
 	print "New plot:",
 	plot()

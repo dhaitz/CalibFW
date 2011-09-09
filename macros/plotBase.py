@@ -29,7 +29,7 @@ def GetReweighting(datahisto, mchisto, drop=True):
 class StandardSettings:
     outputformats = ['png', 'pdf'] #['png', 'pdf', 'svg', 'txt', 'dat']
     style = 'document' # web, presentation, tdr, sloppy 
-    lumi = 0
+    lumi = 0.0
     additionalFactor = 1.0
     cme = 7
     mcColor = '#CBDBF9'
