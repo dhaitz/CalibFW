@@ -238,12 +238,10 @@ BOOST_AUTO_TEST_CASE( test_cut_second_jet )
 	metData.m_listValidJets[pSettings.GetJetAlgorithm()].push_back( 0);
 	metData.m_listValidJets[pSettings.GetJetAlgorithm()].push_back( 1);
 
-
 	KDataLV v = metData.GetZ();
 	metData.SetValidZ(true);
 	v.p4.SetPt(100.0f);
 	metData.SetZ( v );
-
 
 
 	cut.PopulateMetaData( evtData, metData, pSettings );

@@ -13,7 +13,7 @@ conf["OutputPath"] = "kappa_data_2011"
 #[15,30,60,100,140,300]
 conf = JsonConfigBase.ExpandDefaultMcConfig( [15,30,60,100, 140,300], conf, True )
 
-conf["Algos"] = ["ak5PFJetsL1L2"]
+conf["Algos"] = ["ak5PFJets"]
 
 
 #muon_var = JsonConfigBase.ExpandRange( conf["Pipelines"], "CutMuonPt", [10, 15, 20], True, True  ) 

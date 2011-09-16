@@ -196,7 +196,7 @@ public:
 		}
 
 		//InitPFJets(m_event, "AK5PFJets");
-		InitPFJets(m_event, "AK5PFJetsL1FastL2L3");
+		InitPFJets(m_event, "AK5PFJets");
 
 /*		InitPFJets(m_event, "AK7PFJets");
 		InitPFJets(m_event, "KT4PFJets");
@@ -379,6 +379,8 @@ ProfileConsumerBase< SourceRecoVert, SourceL1Correction<1> > pfc;
 pRunner.AddGlobalMetaProducer( new PuReweightingProducer());
 pRunner.AddGlobalMetaProducer( new ValidMuonProducer());
 pRunner.AddGlobalMetaProducer( new ZProducer());
+pRunner.AddGlobalMetaProducer( new ValidJetProducer());
+pRunner.AddGlobalMetaProducer( new CorrJetProducer());
 
 
 for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it

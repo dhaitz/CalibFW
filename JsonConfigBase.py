@@ -34,7 +34,7 @@ def GetBaseConfig():
     d["Algos"] = ["ak5PFJets"]#"ak7PFJets", "ak5CaloJets", "ak7CaloJets", "kt4PFJets","kt6PFJets", "kt4CaloJets", "kt6CaloJets", "ic5PFJets", "ic5CaloJets"]
     d["Pipelines"] = { "default": {
             "Level": 1,
-            "JetAlgorithm" : "AK5PFJetsL1FastL2L3",
+            "JetAlgorithm" : "AK5PFJets",
             "RootFileFolder": "",
             "AdditionalConsumer": [],
             "CutMuonEta": 2.3,
@@ -146,17 +146,17 @@ def ExpandCutNoCut( pipelineDict):
         cutPipe["Filter"].append ("incut")        
         
         cutPipe["Consumer"]["bin_mpf_response"] = { "Name" : "bin_response",
-                                                        "ProductName" : "mpfresp_AK5PFJetsL1FastL2L3",
+                                                        "ProductName" : "mpfresp_AK5PFJets",
                                                         "ResponseType" : "mpf", 
                                                          "JetNumber" : 0}
         
         cutPipe["Consumer"]["bin_balance_response"] = { "Name" : "bin_response",
                                                         "ResponseType" : "bal",
-                                                        "ProductName" : "balresp_AK5PFJetsL1FastL2L3",
+                                                        "ProductName" : "balresp_AK5PFJets",
                                                         "JetNumber" : 1 }
         cutPipe["Consumer"]["bin_balance_response_2ndJet"] = { "Name" : "bin_response",
                                                               "ResponseType" : "bal",
-                                                        "ProductName" : "bal_jet2_z_AK5PFJetsL1FastL2L3",
+                                                        "ProductName" : "bal_jet2_z_AK5PFJets",
                                                         "JetNumber" : 2 }
 
 
@@ -225,17 +225,17 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
     secpline["Consumer"] = {}
     secpline["Consumer"]["bal_response"] = { "Name" : "response_balance",
                                          "SourceFolder" : srcFolder,
-                                         "SourceResponse" : "balresp_AK5PFJetsL1FastL2L3",
+                                         "SourceResponse" : "balresp_AK5PFJets",
                                          # this product will be in the upmost folder
-                                         "ProductName"    : "balresp_AK5PFJetsL1FastL2L3",
-                                         "SourceBinning"  : "z_pt_AK5PFJetsL1FastL2L3"}
+                                         "ProductName"    : "balresp_AK5PFJets",
+                                         "SourceBinning"  : "z_pt_AK5PFJets"}
     
     secpline["Consumer"]["mpf_response"] = { "Name" : "response_balance",
                                          "SourceFolder" : srcFolder,
-                                         "SourceResponse" : "mpfresp_AK5PFJetsL1FastL2L3",
+                                         "SourceResponse" : "mpfresp_AK5PFJets",
                                          # this product will be in the upmost folder
-                                         "ProductName"    : "mpfresp_AK5PFJetsL1FastL2L3",
-                                         "SourceBinning"  : "z_pt_AK5PFJetsL1FastL2L3"}
+                                         "ProductName"    : "mpfresp_AK5PFJets",
+                                         "SourceBinning"  : "z_pt_AK5PFJets"}
     secpline["Level"] = 2
     #secLevelPline[FolderPrefix + "sec_default"]["CustomBins"] = ptBins
     secpline["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"

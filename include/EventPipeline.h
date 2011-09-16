@@ -33,6 +33,11 @@ template<class TData, class TMetaData, class TSettings>
 class MetaDataProducerBase: public boost::noncopyable
 {
 public:
+	virtual ~MetaDataProducerBase()
+	{
+
+	}
+
 	virtual void PopulateMetaData(TData const& data, TMetaData & metaData,
 			TSettings const& m_pipelineSettings) const = 0;
 

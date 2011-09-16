@@ -1,9 +1,13 @@
 
 #pragma once
 
+#include <boost/ptr_container/ptr_map.hpp>
+
 #include "../EventPipeline.h"
 #include "ZJetPipelineSettings.h"
 #include "ZJetEventData.h"
+
+
 
 namespace CalibFW
 {
@@ -37,17 +41,73 @@ public:
 			ZJetEventData const& evtData,
 			unsigned int index) const
 	{
-		assert( GetValidJetCount(psettings) > index );
+		return GetValidJet( psettings,
+				evtData,
+				index,
+				psettings.GetJetAlgorithm()) ;
+	}
 
-		KDataLV * j = evtData.GetJet( psettings, m_listValidJets [ psettings.GetJetAlgorithm() ].at(index) );
-		assert( j != NULL);
 
-		return j;
+	bool IsMetaJetAlgo ( std::string const& algoName ) const
+	{
+		return ( m_validPFJets.find( algoName ) != m_validPFJets.end() );
+	}
+
+	KDataLV * GetValidJet( ZJetPipelineSettings const& psettings,
+			ZJetEventData const& evtData,
+			unsigned int index,
+			std::string algoName) const
+	{
+		assert( GetValidJetCount(psettings, algoName) > index );
+
+		if ( IsMetaJetAlgo( algoName ) )
+		{
+			return &( m_validPFJets.at( algoName ).at( index ));
+		}
+		else
+		{
+			KDataLV * j = evtData.GetJet( psettings, m_listValidJets [ algoName ].at(index) );
+			assert( j != NULL);
+
+			return j;
+		}
+	}
+
+	void AddValidJet( KDataPFJet const& jet, std::string algoName)
+	{
+		m_validPFJets[algoName].push_back( jet );
+	/*
+		// implement
+		if ( m_validJets.find ( algoName ) != m_validJets.end())
+		{
+		}
+		else
+		{
+
+		}
+
+		if ( hasToBeDeleted )
+		{
+
+		}*/
 	}
 
 	unsigned int GetValidJetCount(ZJetPipelineSettings const& psettings ) const
 	{
-		return this->m_listValidJets[ psettings.GetJetAlgorithm() ].size();
+		return GetValidJetCount( psettings, psettings.GetJetAlgorithm());
+	}
+
+	unsigned int GetValidJetCount(ZJetPipelineSettings const& psettings,
+			std::string algoName) const
+	{
+		if ( IsMetaJetAlgo( algoName ) )
+		{
+			return m_validPFJets[ algoName ].size();
+		}
+		else
+		{
+			return this->m_listValidJets[ algoName ].size();
+		}
 	}
 
 	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings) const
@@ -123,6 +183,16 @@ IMPL_PROPERTY(double, Weight)
 
 	mutable JetMapping m_listValidJets;
 	mutable JetMapping m_listInvalidJets;
+
+
+
+	// create a complete copy of the jet collections ??
+	typedef boost::ptr_map < std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
+
+	mutable MetaPFJetContainer m_validPFJets;
+
+
+	std::vector< KDataLV *> m_primaryJets;
 };
 
 

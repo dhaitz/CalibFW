@@ -7,6 +7,7 @@
 
 #include "ZJet/MetaDataProducer/Test/ZJetCuts_test.h"
 #include "ZJet/Test/ZJetPipeline_test.h"
+#include "ZJet/Test/ZJetMetaData_test.h"
 #include "ZJet/MetaDataProducer/Test/ZJetMetaProducer_test.h"
 
 

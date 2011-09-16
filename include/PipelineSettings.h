@@ -23,9 +23,11 @@ mutable VarCache<TYPE> Cache##SNAME; \
 TYPE Get##SNAME ( ) const { if (Cache##SNAME.IsCached()) { return Cache##SNAME.GetValue(); }         \
        TYPE  val = GetPropTree()->get< TYPE >( FullKey##SNAME ());     \
        Cache##SNAME.SetCache( val ); \
-       return val;}            \
-void Set##SNAME ( TYPE val) { GetPropTree()->put( FullKey##SNAME (), val);     \
-                                                               Cache##SNAME.SetCache( val );}  \
+       return val;}
+
+// not supported for readonly settings
+//void Set##SNAME ( TYPE val) { GetPropTree()->put( FullKey##SNAME (), val);
+//                                                               Cache##SNAME.SetCache( val );}
 
 
 #define IMPL_SETTING_DEFAULT(TYPE, SNAME, DEFAULT_VAL) \

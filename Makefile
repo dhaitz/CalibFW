@@ -49,15 +49,19 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am_resp_cuts_OBJECTS = src/resp_cuts.$(OBJEXT) src/DrawBase.$(OBJEXT) \
-	src/EventData.$(OBJEXT) src/EventPipelineRunner.$(OBJEXT) \
-	src/GlobalInclude.$(OBJEXT) src/ZJetPipeline.$(OBJEXT)
+am__objects_1 = src/DrawBase.$(OBJEXT) src/EventData.$(OBJEXT) \
+	src/EventPipelineRunner.$(OBJEXT) src/GlobalInclude.$(OBJEXT) \
+	src/ZJetPipeline.$(OBJEXT) \
+	external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.$(OBJEXT) \
+	external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.$(OBJEXT) \
+	external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrector.$(OBJEXT) \
+	external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectorParameters.$(OBJEXT) \
+	external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.$(OBJEXT)
+am_resp_cuts_OBJECTS = src/resp_cuts.$(OBJEXT) $(am__objects_1)
 resp_cuts_OBJECTS = $(am_resp_cuts_OBJECTS)
 resp_cuts_LDADD = $(LDADD)
 am_resp_cuts_test_OBJECTS = src/resp_cuts_test.$(OBJEXT) \
-	src/DrawBase.$(OBJEXT) src/EventData.$(OBJEXT) \
-	src/EventPipelineRunner.$(OBJEXT) src/GlobalInclude.$(OBJEXT) \
-	src/ZJetPipeline.$(OBJEXT)
+	$(am__objects_1)
 resp_cuts_test_OBJECTS = $(am_resp_cuts_test_OBJECTS)
 resp_cuts_test_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.
@@ -97,7 +101,7 @@ CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -O0
+CXXFLAGS = -g -O2
 CYGPATH_W = echo
 DEFS = -DPACKAGE_NAME=\"CALIB_FW\" -DPACKAGE_TARNAME=\"calib_fw\" -DPACKAGE_VERSION=\"VERSION\" -DPACKAGE_STRING=\"CALIB_FW\ VERSION\" -DPACKAGE_BUGREPORT=\"BUG-REPORT-ADDRESS\" -DPACKAGE_URL=\"\" -DPACKAGE=\"calib_fw\" -DVERSION=\"VERSION\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_STDLIB_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1
 DEPDIR = .deps
@@ -184,23 +188,32 @@ LIB_PATH = -L../KappaTools/lib/ -L../Kappa/lib/
 KAPPA_PATH = $(top_srcdir)/../Kappa
 KAPPATOOLS_PATH = $(top_srcdir)/../KappaTools
 KAPPA_ROOT_PATH = $(top_srcdir)/..
-
-#CXXFLAGS = -O3
-AM_CXXFLAGS = -fopenmp -pedantic -Werror -Wall -Wfatal-errors -std=c++0x -g \
+CMSSW_PATH = external/OfflineCorrection
+AM_CXXFLAGS = -fopenmp -pedantic -Werror -Wall -Wfatal-errors -std=c++0x -g -DSTANDALONE \
 		          -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \
-		          -Wsign-compare -Wtype-limits  -Wuninitialized \
-				-I$(top_srcdir)/include $(ROOTCFLAGS) -I$(KAPPA_PATH) \
+		          		          -Wsign-compare -Wtype-limits  -Wuninitialized \
+				-I$(top_srcdir)/include $(ROOTCFLAGS) -I$(KAPPA_PATH) -I$(CMSSW_PATH) \
 				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)# $(AM_CXXFLAGS) -O3
 
 AM_LDFLAGS = $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox \
 			  $(LIB_PATH)
 
-resp_cuts_SOURCES = src/resp_cuts.cpp src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
-					src/GlobalInclude.cc src/ZJetPipeline.cc
+OFFLINE_CORR = $(CMSSW_PATH)/CondFormats/JetMETObjects/src
+OFFLINE_CORR_SRC = $(OFFLINE_CORR)/FactorizedJetCorrector.cc $(OFFLINE_CORR)/JetCorrectionUncertainty.cc \
+				   $(OFFLINE_CORR)/JetCorrectionUncertainty.cc 
 
-resp_cuts_test_SOURCES = src/resp_cuts_test.cpp src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
-					src/GlobalInclude.cc src/ZJetPipeline.cc
 
+# seems we cant use m4 vars here ??  
+CALIB_SRC = src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
+			src/GlobalInclude.cc src/ZJetPipeline.cc  \
+			external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc \
+			external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc \
+			external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrector.cc \
+			external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectorParameters.cc \
+			external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc
+
+resp_cuts_SOURCES = src/resp_cuts.cpp $(CALIB_SRC)
+resp_cuts_test_SOURCES = src/resp_cuts_test.cpp $(CALIB_SRC)
 all: all-am
 
 .SUFFIXES:
@@ -294,6 +307,22 @@ src/GlobalInclude.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/ZJetPipeline.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+external/OfflineCorrection/CondFormats/JetMETObjects/src/$(am__dirstamp):
+	@$(MKDIR_P) external/OfflineCorrection/CondFormats/JetMETObjects/src
+	@: > external/OfflineCorrection/CondFormats/JetMETObjects/src/$(am__dirstamp)
+external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)
+	@: > external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/$(am__dirstamp)
+external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.$(OBJEXT): external/OfflineCorrection/CondFormats/JetMETObjects/src/$(am__dirstamp) \
+	external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/$(am__dirstamp)
+external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.$(OBJEXT): external/OfflineCorrection/CondFormats/JetMETObjects/src/$(am__dirstamp) \
+	external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/$(am__dirstamp)
+external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrector.$(OBJEXT): external/OfflineCorrection/CondFormats/JetMETObjects/src/$(am__dirstamp) \
+	external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/$(am__dirstamp)
+external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectorParameters.$(OBJEXT): external/OfflineCorrection/CondFormats/JetMETObjects/src/$(am__dirstamp) \
+	external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/$(am__dirstamp)
+external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.$(OBJEXT): external/OfflineCorrection/CondFormats/JetMETObjects/src/$(am__dirstamp) \
+	external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/$(am__dirstamp)
 resp_cuts$(EXEEXT): $(resp_cuts_OBJECTS) $(resp_cuts_DEPENDENCIES) 
 	@rm -f resp_cuts$(EXEEXT)
 	$(CXXLINK) $(resp_cuts_OBJECTS) $(resp_cuts_LDADD) $(LIBS)
@@ -305,6 +334,11 @@ resp_cuts_test$(EXEEXT): $(resp_cuts_test_OBJECTS) $(resp_cuts_test_DEPENDENCIES
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.$(OBJEXT)
+	-rm -f external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.$(OBJEXT)
+	-rm -f external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectorParameters.$(OBJEXT)
+	-rm -f external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.$(OBJEXT)
+	-rm -f external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrector.$(OBJEXT)
 	-rm -f src/DrawBase.$(OBJEXT)
 	-rm -f src/EventData.$(OBJEXT)
 	-rm -f src/EventPipelineRunner.$(OBJEXT)
@@ -316,6 +350,11 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+include external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/FactorizedJetCorrector.Po
+include external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/JetCorrectionUncertainty.Po
+include external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/JetCorrectorParameters.Po
+include external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/SimpleJetCorrectionUncertainty.Po
+include external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/SimpleJetCorrector.Po
 include src/$(DEPDIR)/DrawBase.Po
 include src/$(DEPDIR)/EventData.Po
 include src/$(DEPDIR)/EventPipelineRunner.Po
@@ -583,6 +622,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/$(am__dirstamp)
+	-rm -f external/OfflineCorrection/CondFormats/JetMETObjects/src/$(am__dirstamp)
 	-rm -f src/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/$(am__dirstamp)
 
@@ -595,7 +636,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf src/$(DEPDIR)
+	-rm -rf external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR) src/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -643,7 +684,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf src/$(DEPDIR)
+	-rm -rf external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR) src/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

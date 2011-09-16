@@ -51,9 +51,17 @@ public:
 class ValidJetProducer: public ZJetMetaDataProducerBase
 {
 public:
-	virtual void PopulateMetaData(ZJetEventData const& event,
+
+	virtual void PopulateMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		// nothing to do here
+	}
+
+	virtual void PopulateGlobalMetaData(ZJetEventData const& event,
+			ZJetMetaData & metaData,
+			ZJetPipelineSettings const& globalSettings) const
 	{
 
 		for (ZJetEventData::PfMapIterator italgo = event.m_pfJets.begin(); italgo

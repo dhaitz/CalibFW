@@ -10,28 +10,40 @@ ROOTLDFLAGS   = $(shell root-config --ldflags)
 LIB_PATH  = -L../KappaTools/lib/ -L../Kappa/lib/
 
 KAPPA_PATH 	  = $(top_srcdir)/../Kappa
-KAPPATOOLS_PATH 	  = $(top_srcdir)/../KappaTools
+KAPPATOOLS_PATH = $(top_srcdir)/../KappaTools
 KAPPA_ROOT_PATH = $(top_srcdir)/..
 
-#CXXFLAGS = -O3
+CMSSW_PATH 	  = external/OfflineCorrection
 
-AM_CXXFLAGS = 	-fopenmp -pedantic -Werror -Wall -Wfatal-errors -std=c++0x -g \
-		          -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \  
-		          -Wsign-compare -Wtype-limits  -Wuninitialized \
-				-I$(top_srcdir)/include $(ROOTCFLAGS) -I$(KAPPA_PATH) \
+
+AM_CXXFLAGS = 	-fopenmp -pedantic -Werror -Wall -Wfatal-errors -std=c++0x -g -DSTANDALONE \
+		          -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \
+		          		          -Wsign-compare -Wtype-limits  -Wuninitialized \
+				-I$(top_srcdir)/include $(ROOTCFLAGS) -I$(KAPPA_PATH) -I$(CMSSW_PATH) \
 				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)# $(AM_CXXFLAGS) -O3
+				
 AM_LDFLAGS 	= $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox \
 			  $(LIB_PATH)
-			
-#CXX_CFLAGS = -Iinclude/ 
+
+					
+OFFLINE_CORR = $(CMSSW_PATH)/CondFormats/JetMETObjects/src
+OFFLINE_CORR_SRC = $(OFFLINE_CORR)/FactorizedJetCorrector.cc $(OFFLINE_CORR)/JetCorrectionUncertainty.cc \
+				   $(OFFLINE_CORR)/JetCorrectionUncertainty.cc 
+
+# seems we cant use m4 vars here ??  
+CALIB_SRC = src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
+			src/GlobalInclude.cc src/ZJetPipeline.cc  \
+			external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc \ 
+			external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc \ 
+			external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrector.cc \
+			external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectorParameters.cc \
+			external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc
+					
 
 bin_PROGRAMS = resp_cuts resp_cuts_test
-resp_cuts_SOURCES = src/resp_cuts.cpp src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
-					src/GlobalInclude.cc src/ZJetPipeline.cc
+resp_cuts_SOURCES = src/resp_cuts.cpp $(CALIB_SRC)
 
-
-resp_cuts_test_SOURCES = src/resp_cuts_test.cpp src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
-					src/GlobalInclude.cc src/ZJetPipeline.cc
+resp_cuts_test_SOURCES = src/resp_cuts_test.cpp $(CALIB_SRC)
 
 
 

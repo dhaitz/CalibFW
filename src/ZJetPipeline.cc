@@ -79,7 +79,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 
 		//pLine->AddMetaDataProducer( new	ValidMuonProducer());
-		pLine->AddMetaDataProducer( new	ValidJetProducer());
+
 
 
 		fvec = pset.GetCuts();
