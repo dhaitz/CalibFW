@@ -31,10 +31,9 @@ def getDefaultCorrectionL2( data_path ):
 def GetBaseConfig():
     d = dict()
     d["ThreadCount"] = 1
-    d["Algos"] = ["ak5PFJets"]#"ak7PFJets", "ak5CaloJets", "ak7CaloJets", "kt4PFJets","kt6PFJets", "kt4CaloJets", "kt6CaloJets", "ic5PFJets", "ic5CaloJets"]
     d["Pipelines"] = { "default": {
             "Level": 1,
-            "JetAlgorithm" : "AK5PFJets",
+            "JetAlgorithm" : "to_set",
             "RootFileFolder": "",
             "AdditionalConsumer": [],
             "CutMuonEta": 2.3,
@@ -134,6 +133,10 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource):
     else:
         return newDict
 
+def AddConsumer( pline, name, config):
+    pline["Consumer"][name] = config
+  
+
 def ExpandCutNoCut( pipelineDict):
     newDict = dict()
 
@@ -141,29 +144,31 @@ def ExpandCutNoCut( pipelineDict):
         
         nocutPipe = copy.deepcopy(elem)
         cutPipe = copy.deepcopy(elem)
-        cutPipe["FilterInCutIgnored"] = 0
         
+        algoName = cutPipe["JetAlgorithm"]
+        
+        cutPipe["FilterInCutIgnored"] = 0
         cutPipe["Filter"].append ("incut")        
         
         cutPipe["Consumer"]["bin_mpf_response"] = { "Name" : "bin_response",
-                                                        "ProductName" : "mpfresp_AK5PFJets",
+                                                        "ProductName" : "mpfresp_" +  algoName,
                                                         "ResponseType" : "mpf", 
                                                          "JetNumber" : 0}
         
         cutPipe["Consumer"]["bin_balance_response"] = { "Name" : "bin_response",
                                                         "ResponseType" : "bal",
-                                                        "ProductName" : "balresp_AK5PFJets",
+                                                        "ProductName" : "balresp_" +  algoName,
                                                         "JetNumber" : 1 }
         cutPipe["Consumer"]["bin_balance_response_2ndJet"] = { "Name" : "bin_response",
                                                               "ResponseType" : "bal",
-                                                        "ProductName" : "bal_jet2_z_AK5PFJets",
+                                                        "ProductName" : "bal_jet2_z_" +  algoName,
                                                         "JetNumber" : 2 }
 
 
         # only add the nocut pipeline for the default ( no binning )
         print name
-        if name == "default":
-            newDict[name + "nocuts" ] = nocutPipe
+        #if name == "default":
+        newDict[name + "nocuts" ] = nocutPipe
 
         newDict[name] = cutPipe
 
@@ -182,15 +187,25 @@ def Expand( pipelineDict, expandCount, includeSource):
     else:
         return newDict
 
+def AddCutConsumer( pipelineDict, algos):
+    for algo in algos:
+        for p, pval in pipelineDict["Pipelines"].items():
+            if p == "default_" + algo:
+                AddConsumer(pval, "cut_statistics",
+                            { "Name": "cut_statistics" })
+                AddConsumer(pval, "filter_statistics",
+                            { "Name": "filter_statistics" })
+      
+
 def ExpandPtBins( pipelineDict, ptbins, includeSource):
     newDict = dict()
         
     for name, elem in pipelineDict.items():
-
-        if not name == "defaultnocuts":
+        # dont do this for uncut events
+        if not "nocuts" in name:
             i = 0
             for upper in ptbins[1:]:
-                ptbinsname =  str(ptbins[i]) + "to" + str(upper)
+                ptbinsname =  "Bin" + str(ptbins[i]) + "To" + str(upper)
     
                 newPipe = copy.deepcopy(elem)
                 
@@ -199,72 +214,119 @@ def ExpandPtBins( pipelineDict, ptbins, includeSource):
                 newPipe["FilterPtBinLow"] = ptbins[i]
                 newPipe["FilterPtBinHigh"] = upper
     
-                newDict[name + ptbinsname ] = newPipe
+                newDict[name + "_" + ptbinsname ] = newPipe
                 i = i + 1
 
     if includeSource:
         return dict( pipelineDict.items() +  newDict.items() )
     else:
         return newDict
-    
-def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = ""):
+
+def AddCorrectionPlots( conf, algoNames, level = 3 ):
+    for algo in algoNames:
+        for p, pval in conf["Pipelines"].items():
+            if p == "default_" + algo:
+                AddConsumer(pval, "L1_" + algo + "_npv", 
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptratio",
+                              "Jet1Ratio" : algo,
+                              "Jet2Ratio" : algo + "L1",
+                              "XSource" : "reco",
+                              "ProductName" : "L1_" + algo + "_npv"})
+                if level > 1:
+                    AddConsumer(pval, "L2_" + algo + "_npv", 
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptratio",
+                              "Jet1Ratio" : algo + "L1",
+                              "Jet2Ratio" : algo + "L1L2",
+                              "XSource" : "jeteta",
+                              "ProductName" : "L2_" + algo + "_jeteta"})
+                if level > 2:
+                    AddConsumer(pval, "L3_" + algo + "_npv", 
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptratio",
+                              "Jet1Ratio" : algo + "L1L2",
+                              "Jet2Ratio" : algo + "L1L2L3",
+                              "XSource" : "jetpt",
+                              "ProductName" : "L3_" + algo + "_jetpt"})
+            
+            
+                
+def ExpandDefaultMcConfig( ptBins, algoNames, conf_template, useFolders, FolderPrefix = ""):
     conf = conf_template
+
+    # generate folder names
+    srcFolder = []
+    for i in range( len(ptBins) - 1):
+        srcFolder += ["Pt" + str(ptBins[i]) + "to" + str(ptBins[i+1]) + "_incut"]
+
+    algoPipelines = {}
+
+    # generate pipelines for all algorithms
+    for algo in algoNames:
+        for p, pval in conf["Pipelines"].items():
+
+            pline = copy.deepcopy( pval )
+            pline["JetAlgorithm"] = algo
+            algoPipelines[ p + "_" +  algo  ] = pline
+            
+    conf["Pipelines"] = algoPipelines
 
     #conf["Pipelines"]["default"]["CustomBins"] = ptBins
     conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )    
 
-    secLevelPline = { FolderPrefix + "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
-    
-    secpline = secLevelPline[FolderPrefix + "sec_default"]    
-    
-    srcFolder = []
-    for i in range( len(ptBins) - 1):
-        srcFolder += ["Pt" + str(ptBins[i]) + "to" + str(ptBins[i+1]) + "_incut"]
-    
-    # code this in a more generic way
-    secpline["Consumer"] = {}
-    secpline["Consumer"]["bal_response"] = { "Name" : "response_balance",
-                                         "SourceFolder" : srcFolder,
-                                         "SourceResponse" : "balresp_AK5PFJets",
-                                         # this product will be in the upmost folder
-                                         "ProductName"    : "balresp_AK5PFJets",
-                                         "SourceBinning"  : "z_pt_AK5PFJets"}
-    
-    secpline["Consumer"]["mpf_response"] = { "Name" : "response_balance",
-                                         "SourceFolder" : srcFolder,
-                                         "SourceResponse" : "mpfresp_AK5PFJets",
-                                         # this product will be in the upmost folder
-                                         "ProductName"    : "mpfresp_AK5PFJets",
-                                         "SourceBinning"  : "z_pt_AK5PFJets"}
-    secpline["Level"] = 2
-    #secLevelPline[FolderPrefix + "sec_default"]["CustomBins"] = ptBins
-    secpline["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"
-    secpline["RootFileFolder"] = FolderPrefix
-    
-    
-
+    # create pipelines for all bins
     conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
 
-    #merge all
-    if useFolders:
-        for p, pval in conf["Pipelines"].items():
+    #set the folder name
+    for p, pval in conf["Pipelines"].items():
+        ptVal = "NoBinning"
 
-            ptVal = "NoBinning"
+        if "ptbin" in pval["Filter"]:
+            ptVal = "Pt" + str(pval["FilterPtBinLow"]) + "to" + str(pval["FilterPtBinHigh"])
 
-            if "ptbin" in pval["Filter"]:
-                ptVal = "Pt" + str(pval["FilterPtBinLow"]) + "to" + str(pval["FilterPtBinHigh"])
+        if "incut" in pval["Filter"]:
+            ptVal = ptVal + "_incut"
+        else:
+            ptVal = ptVal + "_allevents"
 
-            if "incut" in pval["Filter"]:
-                ptVal = ptVal + "_incut"
-            else:
-                ptVal = ptVal + "_allevents"
+        pval["RootFileFolder"] = FolderPrefix + ptVal
 
-            pval["RootFileFolder"] = FolderPrefix + ptVal
 
-    for (key, val) in conf["Pipelines"].items():
-        secLevelPline[ FolderPrefix + key ] = val
 
-    conf["Pipelines"] = secLevelPline
+
+    # create second level pipeline
+#    secLevelPline = { FolderPrefix + "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
+#    secpline = secLevelPline[FolderPrefix + "sec_default"]    
+#    
+#    
+#
+#    
+#    # code this in a more generic way
+#    secpline["Consumer"] = {}
+#    secpline["Consumer"]["bal_response"] = { "Name" : "response_balance",
+#                                         "SourceFolder" : srcFolder,
+#                                         "SourceResponse" : "balresp_AK5PFJets",
+#                                         # this product will be in the upmost folder
+#                                         "ProductName"    : "balresp_AK5PFJets",
+#                                         "SourceBinning"  : "z_pt_AK5PFJets"}
+#    
+#    secpline["Consumer"]["mpf_response"] = { "Name" : "response_balance",
+#                                         "SourceFolder" : srcFolder,
+#                                         "SourceResponse" : "mpfresp_AK5PFJets",
+#                                         # this product will be in the upmost folder
+#                                         "ProductName"    : "mpfresp_AK5PFJets",
+#                                         "SourceBinning"  : "z_pt_AK5PFJets"}
+#    secpline["Level"] = 2
+#    #secLevelPline[FolderPrefix + "sec_default"]["CustomBins"] = ptBins
+#    secpline["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"
+#    secpline["RootFileFolder"] = FolderPrefix
+#    
+#    
+#    #for (key, val) in conf["Pipelines"].items():
+#    #    secLevelPline[ FolderPrefix + key ] = val
+#
+#    conf["Pipelines"] = secLevelPline
 
     return conf
 

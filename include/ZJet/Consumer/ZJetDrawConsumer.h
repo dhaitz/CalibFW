@@ -131,7 +131,7 @@ virtual void ProcessFilteredEvent(ZJetEventData const& event,
 		ZJetMetaData const& metaData)
 {
 	ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
-	m_npv->Fill( event.m_primaryVertex->nVertices, metaData.GetWeight());
+	m_npv->Fill( event.m_vertexSummary->nVertices, metaData.GetWeight());
 }
 
 private:

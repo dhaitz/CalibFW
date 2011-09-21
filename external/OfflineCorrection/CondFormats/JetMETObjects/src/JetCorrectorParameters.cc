@@ -109,6 +109,7 @@ JetCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
 //------------------------------------------------------------------------
 JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const std::string& fSection) 
 {
+  std::cout << "Loading from file " << fFile << std::endl;
   std::ifstream input(fFile.c_str());
   std::string currentSection = "";
   std::string line;

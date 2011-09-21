@@ -68,7 +68,7 @@ public:
 		{
 			//if (!pm.Update()) break;
 			evtProvider.GotoEvent( lCur );
-			TMetaData metaDataGlobal;
+			TMetaData  metaDataGlobal;
 
 			for( GlobalMetaProducerIterator it = m_globalMetaProducer.begin();
 					it != m_globalMetaProducer.end(); it++)
@@ -84,8 +84,9 @@ public:
 
 					it->RunEvent( evtProvider.GetCurrentEvent(), metaDataGlobal );
 				}
-
 			}
+
+			metaDataGlobal.ClearContent();
 		}
 
 		// first safe the results ( > plots ) from all level one pipelines

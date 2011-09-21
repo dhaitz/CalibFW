@@ -9,6 +9,7 @@
 
 
 
+
 namespace CalibFW
 {
 
@@ -16,12 +17,17 @@ namespace CalibFW
 class ZJetMetaData: public CalibFW::EventMetaDataBase
 {
 public:
-	ZJetMetaData()
-	{
-		SetCutBitmask(0);
-		SetWeight(1.0f);
-		SetValidZ(false);
+	ZJetMetaData();
+
+	~ZJetMetaData(){
+
+		ClearContent();
+
 	}
+
+	void ClearContent();
+
+	virtual std::string GetContent();
 
 	// cutPassed is true, if the event was not dropped by the cut
 	void SetCutResult(long cutId, bool cutPassed)
@@ -56,40 +62,16 @@ public:
 	KDataLV * GetValidJet( ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData,
 			unsigned int index,
-			std::string algoName) const
-	{
-		assert( GetValidJetCount(psettings, algoName) > index );
-
-		if ( IsMetaJetAlgo( algoName ) )
-		{
-			return &( m_validPFJets.at( algoName ).at( index ));
-		}
-		else
-		{
-			KDataLV * j = evtData.GetJet( psettings, m_listValidJets [ algoName ].at(index) );
-			assert( j != NULL);
-
-			return j;
-		}
-	}
+			std::string algoName) const;
 
 	void AddValidJet( KDataPFJet const& jet, std::string algoName)
-	{
-		m_validPFJets[algoName].push_back( jet );
-	/*
-		// implement
-		if ( m_validJets.find ( algoName ) != m_validJets.end())
+	{/*
+		if (m_validPFJets.find(algoName ) == m_validPFJets.end())
 		{
-		}
-		else
-		{
-
-		}
-
-		if ( hasToBeDeleted )
-		{
-
+			m_validPFJets[algoName] = new std::vector<KDataPFJet>();
 		}*/
+
+		m_validPFJets[algoName].push_back( jet );
 	}
 
 	unsigned int GetValidJetCount(ZJetPipelineSettings const& psettings ) const
@@ -98,17 +80,7 @@ public:
 	}
 
 	unsigned int GetValidJetCount(ZJetPipelineSettings const& psettings,
-			std::string algoName) const
-	{
-		if ( IsMetaJetAlgo( algoName ) )
-		{
-			return m_validPFJets[ algoName ].size();
-		}
-		else
-		{
-			return this->m_listValidJets[ algoName ].size();
-		}
-	}
+			std::string algoName) const;
 
 	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings) const
 	{
@@ -122,7 +94,7 @@ public:
 
 	bool HasValidJet(ZJetPipelineSettings const& psettings) const
 	{
-		return (this->m_listValidJets[ psettings.GetJetAlgorithm() ].size() > 0);
+		return GetValidJetCount(psettings) > 0;
 	}
 
 	bool IsAllCutsPassed() const
@@ -140,16 +112,7 @@ public:
 		return jet->p4.Pt() / this->GetRefZ().p4.Pt();
 	}
 
-	double GetMPF(KDataLV * met) const
-	{
-		double scalPtEt = 	GetRefZ().p4.Px() 	* met->p4.Px() +
-							GetRefZ().p4.Py() 	* met->p4.Py();
-
-		double scalPtSq = 	GetRefZ().p4.Px() 	* 	GetRefZ().p4.Px() +
-							GetRefZ().p4.Py()	*	GetRefZ().p4.Py();
-
-		return 1.0f + (scalPtEt /scalPtSq);
-	}
+	double GetMPF(KDataLV * met) const;
 
 IMPL_PROPERTY_READONLY(long, CutBitmask)
 
@@ -187,8 +150,7 @@ IMPL_PROPERTY(double, Weight)
 
 
 	// create a complete copy of the jet collections ??
-	typedef boost::ptr_map < std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
-
+	typedef typename std::map < std::string, std::vector<KDataPFJet>> MetaPFJetContainer;
 	mutable MetaPFJetContainer m_validPFJets;
 
 

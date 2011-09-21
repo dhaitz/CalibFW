@@ -23,6 +23,11 @@ public:
 	virtual ~EventMetaDataBase()
 	{
 	}
+
+	virtual std::string GetContent()
+	{
+		return "";
+	}
 };
 
 /*
@@ -211,9 +216,6 @@ public:
 			fres.SetFilterDecisions( itfilter->GetFilterId() ,
 					itfilter->DoesEventPass(evt, metaData, m_pipelineSettings));
 		}
-
-
-		//std::cout << fres.ToString() << std::endl;
 
 		// todo : we dont need to create this object here, i guess
 

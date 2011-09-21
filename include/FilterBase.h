@@ -17,6 +17,7 @@ class FilterResult
 public:
 
 	typedef std::map<std::string, bool> FilterDecisions;
+	typedef std::map<std::string, bool>::const_iterator FilterDecisionsIterator_const;
 
 	FilterResult():
 			m_cacheHasPassed(false), m_IsCachedHasPassed( false)

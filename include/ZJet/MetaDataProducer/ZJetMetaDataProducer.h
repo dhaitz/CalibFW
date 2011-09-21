@@ -67,6 +67,10 @@ public:
 		for (ZJetEventData::PfMapIterator italgo = event.m_pfJets.begin(); italgo
 				!= event.m_pfJets.end(); ++italgo)
 		{
+			//init collections for this algorithm
+			metaData.m_listValidJets[italgo->first];
+			metaData.m_listInvalidJets[italgo->first];
+
 			int i = 0;
 			float lastpt = -1.0f;
 			for (KDataPFJets::iterator itjet = italgo->second->begin(); itjet

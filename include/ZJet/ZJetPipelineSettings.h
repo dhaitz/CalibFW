@@ -26,6 +26,8 @@ public:
 
 	IMPL_PROPERTY(bool, EnablePuReweighting)
 
+	IMPL_PROPERTY( InputTypeEnum, InputType )
+
 	doublevector m_recovertWeight;
 };
 
@@ -195,18 +197,24 @@ IMPL_PROPERTY(TFile *, RootOutFile)
 
 	bool IsPF() const
 	{
+		return IsPF(this->GetJetAlgorithm());
+	}
+
+	bool IsPF(std::string algoname) const
+	{
 		if ( ! m_isPF.IsCached())
 		{
-			m_isPF.SetCache( boost::algorithm::starts_with(this->GetJetAlgorithm(), "AK5PF")
-				|| boost::algorithm::starts_with(this->GetJetAlgorithm(),
+			m_isPF.SetCache( boost::algorithm::starts_with( algoname, "AK5PF")
+				|| boost::algorithm::starts_with( algoname,
 						"AK7PF") || boost::algorithm::starts_with(
-				this->GetJetAlgorithm(), "KT4PF")
-				|| boost::algorithm::starts_with(this->GetJetAlgorithm(),
+								algoname, "KT4PF")
+				|| boost::algorithm::starts_with( algoname,
 						"KT6PF"));
 		}
 
 		return m_isPF.GetValue();
 	}
+
 	bool IsCalo() const
 	{
 		return false;

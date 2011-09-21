@@ -57,6 +57,7 @@ public:
 	virtual void Finish()
 	{
 		CALIB_LOG_FILE("Cut Report for " << this->GetPipelineSettings().GetRootFileFolder() )
+		CALIB_LOG_FILE("Cuts evaluated with Algorithm " << this->GetPipelineSettings().GetJetAlgorithm() )
 		CALIB_LOG_FILE("Overall Event Count: " << m_eventCount)
 
 		unsigned long overallCountLeft = m_eventCount;
@@ -168,6 +169,81 @@ public:
 
 	unsigned long m_conditionalDeltaPhiCut;
 	unsigned long m_conditionalDeltaPhiCutBase;
+
+	unsigned long m_eventCount;
+};
+
+
+
+class FilterStatisticsConsumer: public ZJetConsumerBase
+{
+public:
+	FilterStatisticsConsumer() :
+		ZJetConsumerBase()
+		{
+
+		}
+
+	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+			ZJetPipelineSettings> * pset)
+	{
+		ZJetConsumerBase::Init(pset);
+
+		m_cutRejected.clear();
+		m_eventCount = 0;
+	}
+
+	static std::string GetName()
+	{
+		return "filter_statistics";
+	}
+
+	virtual void Finish()
+	{
+		CALIB_LOG_FILE("Filter Report for " << this->GetPipelineSettings().GetRootFileFolder() )
+		CALIB_LOG_FILE("Filter evaluated with Algorithm " << this->GetPipelineSettings().GetJetAlgorithm() )
+		CALIB_LOG_FILE("Overall Event Count: " << m_eventCount)
+
+
+		for ( RejIterator_const it = m_cutRejected.begin();
+				it != m_cutRejected.end();
+				++ it)
+		{
+			CALIB_LOG_FILE("Filter " << it->first << " Rejection Ratio " << ( (double)it->second / (double)m_eventCount ))
+		}
+	}
+
+	// this method is only called for events which have passed the filter imposed on the
+	// pipeline
+	virtual void ProcessFilteredEvent(ZJetEventData const& event, ZJetMetaData const& metaData)
+	{
+
+	}
+
+	// this method is called for all events
+	virtual void ProcessEvent(ZJetEventData const& event,
+			ZJetMetaData const& metaData,
+			FilterResult & result)
+	{
+		// only look at the event if it passed all filters, except the incut filter
+		m_eventCount++;
+		for ( FilterResult::FilterDecisionsIterator_const it = result.GetFilterDecisions().begin();
+				it != result.GetFilterDecisions().end();
+				++ it)
+		{
+			if ( m_cutRejected.find( it->first) == m_cutRejected.end())
+				m_cutRejected[it->first] = 0;
+
+			if ( ! it->second )
+			{
+				m_cutRejected[it->first] ++;
+			}
+		}
+	}
+
+	typedef std::map<std::string, unsigned long>::const_iterator RejIterator_const;
+	std::map<std::string, unsigned long> m_cutRejected;
+
 
 	unsigned long m_eventCount;
 };

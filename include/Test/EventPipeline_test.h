@@ -17,6 +17,8 @@ class TestMetaData
 public:
 	TestMetaData() : iMetaData(0), iGlobalMetaData(0) {}
 
+	void ClearContent(){}
+
 	int iMetaData, iGlobalMetaData;
 };
 

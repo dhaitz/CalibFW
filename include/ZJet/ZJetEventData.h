@@ -1,7 +1,6 @@
-
 #pragma once
 
-
+#include <sstream>
 #include "DataFormats/interface/Kappa.h"
 
 #include "ZJetPipelineSettings.h"
@@ -36,31 +35,43 @@ public:
 		return GetJet(psettings, 0);
 	}
 
-	// May return null, if the jet is not available
 	virtual unsigned int GetJetCount(ZJetPipelineSettings const& psettings) const
 	{
-		if (psettings.IsPF())
+		return GetJetCount(psettings, psettings.GetJetAlgorithm());
+	}
+
+	// May return null, if the jet is not available
+	virtual unsigned int GetJetCount(ZJetPipelineSettings const& psettings, std::string algoName) const
+	{
+		if (psettings.IsPF(algoName))
 		{
-			return m_pfJets.at(psettings.GetJetAlgorithm())->size();
+			return m_pfJets.at(algoName)->size();
 		}
 		else
 		{
-			return m_jets.at(psettings.GetJetAlgorithm())->size();
+			return m_jets.at(algoName)->size();
 		}
 	}
 
 	// return Calo or PF , depending on which jets we are looking at right now
-	virtual KDataMET * GetMet( ZJetPipelineSettings const& psettings ) const
-		{
-			return m_pfMet;
-		}
+	virtual KDataMET * GetMet(ZJetPipelineSettings const& psettings) const
+	{
+		return m_pfMet;
+	}
+
 
 	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
 			unsigned int index) const
 	{
-		if (psettings.IsPF())
+		return GetJet( psettings, index, psettings.GetJetAlgorithm());
+	}
+
+	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
+			unsigned int index, std::string algoName) const
+	{
+		if (psettings.IsPF(algoName))
 		{
-			KDataPFJets * pfJets = m_pfJets.at(psettings.GetJetAlgorithm());
+			KDataPFJets * pfJets = m_pfJets.at(algoName);
 
 			if (pfJets->size() <= index)
 				return NULL;
@@ -70,7 +81,7 @@ public:
 		else
 		{
 			assert ("we dont use this");
-			KDataJets * jets = m_jets.at(psettings.GetJetAlgorithm());
+			KDataJets * jets = m_jets.at(algoName);
 
 			if (jets->size() >= index)
 				return NULL;
@@ -79,11 +90,26 @@ public:
 		}
 	}
 
+	virtual std::string GetContent() const
+	{
+
+		std::stringstream s;
+
+		s << "PF Jets collection:" << std::endl;
+		for (PfMapIterator it = m_pfJets.begin(); it != m_pfJets.end(); ++it)
+		{
+			s << it->first << " count " << it->second->size() <<  std::endl;
+		}
+
+		return s.str();
+	}
+
 	KDataMuons * Muons;
 	KEventMetadata * m_eventmetadata;
 	KGenEventMetadata * m_geneventmetadata;
 
-	KVertexSummary * m_primaryVertex;
+	KVertexSummary * m_vertexSummary;
+	KJetArea * m_jetArea;
 
 	// convinience functions
 	//double GetPrimaryJetPt() const { return PF_Jets->at(0).Pt(); }

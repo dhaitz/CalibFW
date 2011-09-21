@@ -6,7 +6,7 @@
 
 #include "ZJet/Consumer/ZJetDrawConsumer.h"
 #include "ZJet/Consumer/CutStatistics.h"
-
+#include "ZJet/Consumer/GenericProfileConsumer.h"
 #include "ZJet/Consumer/JetRespConsumer.h"
 
 #include "ZJet/Filter/ValidZFilter.h"
@@ -120,11 +120,19 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		std::string sName = v.second.get<std::string>("Name");
 		std::string consPath = pset.GetSettingsRoot() + ".Consumer." + v.first.data();
 
-		// 1st Leve
+		// 1st Level
 		if (sName == BinResponseConsumer::GetName())
 			pLine->AddConsumer( new BinResponseConsumer( pset.GetPropTree(), consPath ) );
+
+		else if (sName == GenericProfileConsumer::GetName())
+			pLine->AddConsumer( new GenericProfileConsumer( pset.GetPropTree(), consPath ) );
+
 		else if (sName == CutStatisticsConsumer::GetName())
 			pLine->AddConsumer( new CutStatisticsConsumer());
+
+		else if (sName == FilterStatisticsConsumer::GetName())
+			pLine->AddConsumer( new FilterStatisticsConsumer());
+
 
 		// 2nd Level
 		else if( sName == JetRespConsumer::GetName() )
