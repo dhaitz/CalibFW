@@ -17,6 +17,15 @@ void ZJetMetaData::ClearContent()
 	m_validPFJets.clear();
 }
 
+KEventMetadata *  ZJetMetaData::GetKappaMetaData( ZJetEventData const& evtData,
+		ZJetPipelineSettings const& psettings ) const
+		{
+			if ( psettings.Global()->GetInputType() == McInput)
+				return evtData.m_geneventmetadata;
+			else
+				return evtData.m_eventmetadata;
+		}
+
 std::string ZJetMetaData::GetContent()
 {
 	std::stringstream s;

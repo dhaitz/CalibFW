@@ -53,6 +53,8 @@ public:
 				psettings.GetJetAlgorithm()) ;
 	}
 
+	KEventMetadata * GetKappaMetaData( ZJetEventData const& evtData, ZJetPipelineSettings const& psettings )
+			const;
 
 	bool IsMetaJetAlgo ( std::string const& algoName ) const
 	{

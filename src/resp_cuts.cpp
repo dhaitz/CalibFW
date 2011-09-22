@@ -293,6 +293,7 @@ ZJetGlobalSettings gset;
 
 gset.SetEnablePuReweighting( g_propTree.get<bool> ("EnablePuReweighting", false) );
 gset.m_recovertWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
+gset.SetJsonFile( g_propTree.get< std::string > ("JsonFile") );
 
 
 std::vector<std::string> sJetNames = fi.GetNames<KDataJet> (true);
@@ -303,7 +304,6 @@ BOOST_FOREACH( std::string s, sJetNames)
 if ( g_propTree.get<std::string> ("InputType", "mc") == "data")
 {
 	g_inputType = DataInput;
-
 }
 else
 {

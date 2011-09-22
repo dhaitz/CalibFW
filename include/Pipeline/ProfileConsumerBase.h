@@ -42,7 +42,6 @@ public:
 		EventConsumerBase< TEvent, TMetaData, TSettings>::Init( pset );
 
 		// init the profile plot
-
 		Profile2d::ModifierList modlist;
 		modlist.push_back( new ModProfileXBinCount( m_xsource->GetDefaultBinCount()) );
 		modlist.push_back( new ModProfileXBinRange( m_xsource->GetDefaultLowBin(),

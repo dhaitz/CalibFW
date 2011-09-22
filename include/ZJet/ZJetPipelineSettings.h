@@ -25,6 +25,8 @@ public:
 	}
 
 	IMPL_PROPERTY(bool, EnablePuReweighting)
+	IMPL_PROPERTY(std::string, JsonFile)
+
 
 	IMPL_PROPERTY( InputTypeEnum, InputType )
 

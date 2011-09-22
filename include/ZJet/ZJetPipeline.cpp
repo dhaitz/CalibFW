@@ -12,7 +12,7 @@
 #include "ZJet/Filter/ValidZFilter.h"
 #include "ZJet/Filter/InCutFilter.h"
 #include "ZJet/Filter/PtWindowFilter.h"
-
+#include "ZJet/Filter/JsonFilter.h"
 
 using namespace CalibFW;
 
@@ -51,6 +51,11 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 			if ( sid == PtWindowFilter().GetFilterId())
 				pLine->AddFilter( new PtWindowFilter);
+
+			else if ( sid == JsonFilter().GetFilterId())
+
+				pLine->AddFilter( new JsonFilter( pset.Global()->GetJsonFile()));
+
 			else if ( sid == InCutFilter().GetFilterId())
 				pLine->AddFilter( new InCutFilter);
 			else if ( sid == ValidZFilter().GetFilterId())

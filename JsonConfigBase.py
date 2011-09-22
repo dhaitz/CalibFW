@@ -98,10 +98,11 @@ def GetDataBaseConfig():
     d["UseGlobalWeightBin"] = 0
     d["InputType"] = "data"
     d["Pipelines"]["default"]["CutHLT"] = "DoubleMu"
-    
-    for key, val in d["Pipelines"].items():
-        val["Cuts"].append( "hlt" ) 
-        val["Cuts"].append( "json" )
+    d["Pipelines"]["default"]["Filter"].append ("json")
+    #for key, val in d["Pipelines"].items():
+      #  "Filter":["valid_z", "valid_jet"]
+       # val["Cuts"].append( "hlt" ) 
+       # val["Cuts"].append( "json" )
 
     return d
 
@@ -244,7 +245,7 @@ def ExpandPtBins( pipelineDict, ptbins, includeSource):
     else:
         return newDict
 
-def AddCorrectionPlots( conf, algoNames, level = 3 ):
+def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
     for algo in algoNames:
         for p, pval in conf["Pipelines"].items():
             if p == "default_" + algo:
@@ -256,7 +257,7 @@ def AddCorrectionPlots( conf, algoNames, level = 3 ):
                               "XSource" : "reco",
                               "ProductName" : "L1_" + algo + "_npv"})
                 if level > 1:
-                    AddConsumer(pval, "L2_" + algo + "_npv", 
+                    AddConsumer(pval, "L2_" + algo + "_jeteta", 
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
                               "Jet1Ratio" : algo + "L1",
@@ -264,13 +265,29 @@ def AddCorrectionPlots( conf, algoNames, level = 3 ):
                               "XSource" : "jeteta",
                               "ProductName" : "L2_" + algo + "_jeteta"})
                 if level > 2:
-                    AddConsumer(pval, "L3_" + algo + "_npv", 
+                    AddConsumer(pval, "L3_" + algo + "_jetpt", 
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
                               "Jet1Ratio" : algo + "L1L2",
                               "Jet2Ratio" : algo + "L1L2L3",
                               "XSource" : "jetpt",
                               "ProductName" : "L3_" + algo + "_jetpt"})
+                    
+                if l3residual:
+                    AddConsumer(pval, "L3Res_" + algo + "_jetpt", 
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptratio",
+                              "Jet1Ratio" : algo + "L1L2L3",
+                              "Jet2Ratio" : algo + "L1L2L3Res",
+                              "XSource" : "jetpt",
+                              "ProductName" : "L3Res_" + algo + "_jetpt"})
+                    AddConsumer(pval, "L3Res_" + algo + "_jeteta", 
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptratio",
+                              "Jet1Ratio" : algo + "L1L2L3",
+                              "Jet2Ratio" : algo + "L1L2L3Res",
+                              "XSource" : "jeteta",
+                              "ProductName" : "L3Res_" + algo + "_jeteta"})
             
             
                 

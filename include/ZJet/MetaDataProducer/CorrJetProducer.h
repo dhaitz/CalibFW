@@ -37,6 +37,9 @@ private:
 	std::shared_ptr<JECService> m_l1;
 	std::shared_ptr<JECService> m_l2;
 	std::shared_ptr<JECService> m_l3;
+
+	// for data
+	std::shared_ptr<JECService> m_l2l3res;
 };
 
 }

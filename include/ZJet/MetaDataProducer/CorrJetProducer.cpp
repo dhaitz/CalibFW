@@ -8,7 +8,8 @@ CorrJetProducer::CorrJetProducer() :
 {
 	std::vector<std::string> corLevel;
 
-	std::string prefix = "data/jec_data/MC_42_V13_AK5PF_";
+	//std::string prefix = "data/jec_data/MC_42_V13_AK5PF_";
+	std::string prefix = "data/jec_data/GR_R_42_V19_AK5PF_";
 
 	//corLevel.push_back("L1FastJet");
 	corLevel.push_back("L1Offset");
@@ -32,8 +33,18 @@ CorrJetProducer::CorrJetProducer() :
 
 	m_l3 = std::shared_ptr<JECService>(new JECService(
 			prefix, corLevel, -1.0) // -1.0 takes the area of the jet from FastJet, right ?
+		);
+/*
+	if (settings.Global()->GetInputType() == DataInput )
+	{*/
+	corLevel.clear();
+	corLevel.push_back("L2L3Residual");
+
+	m_l2l3res = std::shared_ptr<JECService>(new JECService(
+			prefix, corLevel,-1.0) // -1.0 takes the area of the jet from FastJet, right ?
 			);
 
+	//}
 }
 
 void CorrJetProducer::PopulateMetaData(ZJetEventData const& data,
@@ -59,20 +70,6 @@ void CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
 				settings );
 
 
-	// residual for data
-	if (settings.Global()->GetInputType() == DataInput )
-	{
-		CALIB_LOG_FATAL("Implment this ")
-		// do l2l3res here
-		CorrectJetCollection( algoName_l1, algoName_l3res,
-					this->m_l1,
-					event,
-					metaData,
-					settings );
-	}
-
-	if (settings.Global()->GetInputType() == McInput )
-	{
 		CorrectJetCollection( algoName_l1, algoName_l2,
 					this->m_l2,
 					event,
@@ -80,6 +77,18 @@ void CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
 					settings );
 		CorrectJetCollection( algoName_l2, algoName_l3,
 					this->m_l3,
+					event,
+					metaData,
+					settings );
+
+
+	// residual for data
+	if (settings.Global()->GetInputType() == DataInput )
+	{
+		//CALIB_LOG_FATAL("Implement this ")
+		// do l2l3res here
+		CorrectJetCollection( algoName_l3, algoName_l3res,
+					this->m_l2l3res,
 					event,
 					metaData,
 					settings );
