@@ -21,13 +21,22 @@ class GenericProfileConsumer : public ProfileConsumerBase< ZJetEventData, ZJetMe
 {
 public:
 	GenericProfileConsumer( boost::property_tree::ptree * ptree , std::string configPath)
+	 : ProfileConsumerBase()
 	{
 		// make this more generic
 		this->SetPlotName( ptree->get<std::string>( configPath + ".ProductName") );
+		this->SetRunUnfiltered( ptree->get<bool>( configPath + ".RunUnfiltered", false) );
 
 		std::string ref = ptree->get<std::string>( configPath + ".YSource");
 
-		if ( ref == "jetptratio" )
+		if ( ref == "cutvalue" )
+		{
+			long l = ptree->get<long>( configPath + ".CutId");
+
+			this->SetYSource ( new SourceCutValue( l) );
+		}
+
+		else if ( ref == "jetptratio" )
 		{
 
 			std::string jet1Name = ptree->get<std::string>( configPath + ".Jet1Ratio");

@@ -53,6 +53,7 @@ am__objects_1 = src/DrawBase.$(OBJEXT) src/EventData.$(OBJEXT) \
 	src/EventPipelineRunner.$(OBJEXT) src/GlobalInclude.$(OBJEXT) \
 	include/ZJet/ZJetPipeline.$(OBJEXT) \
 	include/ZJet/MetaDataProducer/CorrJetProducer.$(OBJEXT) \
+	include/Pipeline/ProfileConsumerBase.$(OBJEXT) \
 	include/ZJet/ZJetMetaData.$(OBJEXT) \
 	external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.$(OBJEXT) \
 	external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.$(OBJEXT) \
@@ -191,11 +192,12 @@ KAPPA_PATH = $(top_srcdir)/../Kappa
 KAPPATOOLS_PATH = $(top_srcdir)/../KappaTools
 KAPPA_ROOT_PATH = $(top_srcdir)/..
 CMSSW_PATH = external/OfflineCorrection
-AM_CXXFLAGS = -fopenmp -pedantic -Werror -Wall -Wfatal-errors -std=c++0x -g -DSTANDALONE \
+AM_CXXFLAGS = -fopenmp -pedantic -Werror -Wall -Wfatal-errors -std=c++0x \
+				 -O3 -march=native -g -DSTANDALONE \
 		          -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \
 		          		          -Wsign-compare -Wtype-limits  -Wuninitialized \
 				-I$(top_srcdir)/include $(ROOTCFLAGS) -I$(KAPPA_PATH) -I$(CMSSW_PATH) \
-				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)# $(AM_CXXFLAGS) -O3
+				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)
 
 AM_LDFLAGS = $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox \
 			  $(LIB_PATH)
@@ -209,6 +211,7 @@ OFFLINE_CORR_SRC = $(OFFLINE_CORR)/FactorizedJetCorrector.cc $(OFFLINE_CORR)/Jet
 CALIB_SRC = src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
 			src/GlobalInclude.cc include/ZJet/ZJetPipeline.cpp  \
 			include/ZJet/MetaDataProducer/CorrJetProducer.cpp  \
+			include/Pipeline/ProfileConsumerBase.cpp \
 			include/ZJet/ZJetMetaData.cpp \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc \
@@ -326,6 +329,15 @@ include/ZJet/MetaDataProducer/$(DEPDIR)/$(am__dirstamp):
 include/ZJet/MetaDataProducer/CorrJetProducer.$(OBJEXT):  \
 	include/ZJet/MetaDataProducer/$(am__dirstamp) \
 	include/ZJet/MetaDataProducer/$(DEPDIR)/$(am__dirstamp)
+include/Pipeline/$(am__dirstamp):
+	@$(MKDIR_P) include/Pipeline
+	@: > include/Pipeline/$(am__dirstamp)
+include/Pipeline/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) include/Pipeline/$(DEPDIR)
+	@: > include/Pipeline/$(DEPDIR)/$(am__dirstamp)
+include/Pipeline/ProfileConsumerBase.$(OBJEXT):  \
+	include/Pipeline/$(am__dirstamp) \
+	include/Pipeline/$(DEPDIR)/$(am__dirstamp)
 include/ZJet/ZJetMetaData.$(OBJEXT): include/ZJet/$(am__dirstamp) \
 	include/ZJet/$(DEPDIR)/$(am__dirstamp)
 external/OfflineCorrection/CondFormats/JetMETObjects/src/$(am__dirstamp):
@@ -360,6 +372,7 @@ mostlyclean-compile:
 	-rm -f external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectorParameters.$(OBJEXT)
 	-rm -f external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.$(OBJEXT)
 	-rm -f external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrector.$(OBJEXT)
+	-rm -f include/Pipeline/ProfileConsumerBase.$(OBJEXT)
 	-rm -f include/ZJet/MetaDataProducer/CorrJetProducer.$(OBJEXT)
 	-rm -f include/ZJet/ZJetMetaData.$(OBJEXT)
 	-rm -f include/ZJet/ZJetPipeline.$(OBJEXT)
@@ -378,6 +391,7 @@ include external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/JetCo
 include external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/JetCorrectorParameters.Po
 include external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/SimpleJetCorrectionUncertainty.Po
 include external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/SimpleJetCorrector.Po
+include include/Pipeline/$(DEPDIR)/ProfileConsumerBase.Po
 include include/ZJet/$(DEPDIR)/ZJetMetaData.Po
 include include/ZJet/$(DEPDIR)/ZJetPipeline.Po
 include include/ZJet/MetaDataProducer/$(DEPDIR)/CorrJetProducer.Po
@@ -649,6 +663,8 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR)/$(am__dirstamp)
 	-rm -f external/OfflineCorrection/CondFormats/JetMETObjects/src/$(am__dirstamp)
+	-rm -f include/Pipeline/$(DEPDIR)/$(am__dirstamp)
+	-rm -f include/Pipeline/$(am__dirstamp)
 	-rm -f include/ZJet/$(DEPDIR)/$(am__dirstamp)
 	-rm -f include/ZJet/$(am__dirstamp)
 	-rm -f include/ZJet/MetaDataProducer/$(DEPDIR)/$(am__dirstamp)
@@ -665,7 +681,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR) include/ZJet/$(DEPDIR) include/ZJet/MetaDataProducer/$(DEPDIR) src/$(DEPDIR)
+	-rm -rf external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR) include/Pipeline/$(DEPDIR) include/ZJet/$(DEPDIR) include/ZJet/MetaDataProducer/$(DEPDIR) src/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -713,7 +729,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR) include/ZJet/$(DEPDIR) include/ZJet/MetaDataProducer/$(DEPDIR) src/$(DEPDIR)
+	-rm -rf external/OfflineCorrection/CondFormats/JetMETObjects/src/$(DEPDIR) include/Pipeline/$(DEPDIR) include/ZJet/$(DEPDIR) include/ZJet/MetaDataProducer/$(DEPDIR) src/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

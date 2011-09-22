@@ -79,10 +79,47 @@ public:
 	virtual unsigned int GetDefaultBinCount() const	{ return 200; }
 	virtual double GetDefaultLowBin() const { return 0.0f; }
 	virtual double GetDefaultHighBin() const {	return 1000.0; }
-
-
 };
 
+
+class SourceCutValue : public ZJetSourceBase
+{
+public:
+	SourceCutValue( long cutToScore) : m_cutToScore ( cutToScore )
+	{
+
+	}
+
+	// returns 	1 = cut not passed
+	// or 		0 = cut passed
+	// The Profile plot, for example, can calculate a mean then
+	bool GetValue(ZJetEventData const& event,
+			ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings,
+			double & val) const
+	{
+		bool bPassed;
+		if ( m_cutToScore > -1 )
+			bPassed = metaData.IsCutPassed( m_cutToScore );
+		else
+			bPassed = metaData.IsAllCutsPassed();
+
+		if ( bPassed)
+			val =  0.0f;
+		else
+			val = 1.0f;
+
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const	{ return 200; }
+	virtual double GetDefaultLowBin() const { return 0.0f; }
+	virtual double GetDefaultHighBin() const {	return 1000.0; }
+
+private:
+	// if -1 => check for all cuts
+	long m_cutToScore;
+};
 
 class SourceJetPtRatio : public ZJetSourceBase
 {

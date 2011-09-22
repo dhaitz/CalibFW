@@ -195,6 +195,28 @@ def AddCutConsumer( pipelineDict, algos):
                             { "Name": "cut_statistics" })
                 AddConsumer(pval, "filter_statistics",
                             { "Name": "filter_statistics" })
+                # for every intersting cut
+                AddConsumer(pval, "cut_" + algo + "_all", 
+                            { "Name" : "generic_profile_consumer",
+                              "RunUnfiltered" : 1,
+                              "YSource" : "cutvalue",
+                              "CutId" : -1,
+                              "XSource" : "reco",
+                              "ProductName" : "cut_" + algo + "_all"})
+                AddConsumer(pval, "cut_" + algo + "_jet2pt_over_zpt", 
+                            { "Name" : "generic_profile_consumer",
+                              "RunUnfiltered" : 1,
+                              "YSource" : "cutvalue",
+                              "CutId" : 16,
+                              "XSource" : "reco",
+                              "ProductName" : "cut_" + algo + "_jet2pt_over_zpt"})
+                AddConsumer(pval, "cut_" + algo + "_back_to_back", 
+                            { "Name" : "generic_profile_consumer",
+                              "RunUnfiltered" : 1,
+                              "YSource" : "cutvalue",
+                              "CutId" : 32,
+                              "XSource" : "reco",
+                              "ProductName" : "cut_" + algo + "_back_to_back"})
       
 
 def ExpandPtBins( pipelineDict, ptbins, includeSource):

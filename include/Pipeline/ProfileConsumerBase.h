@@ -9,6 +9,7 @@
 #define PROFILECONSUMERBASE_H_
 
 #include "../EventPipeline.h"
+#include "../Draw/Profile.h"
 #include "SourceBase.h"
 
 namespace CalibFW
@@ -22,7 +23,7 @@ public:
 	typedef EventPipeline<TEvent, TMetaData, TSettings> PipelineTypeForThis;
 
 
-	ProfileConsumerBase()
+	ProfileConsumerBase() : m_runUnfiltered( false )
 	{
 
 	}
@@ -54,10 +55,40 @@ public:
 		m_profile->AddModifiers( modlist );
 	}
 
+	virtual void ProcessEvent(TEvent const& event, TMetaData const& metaData,
+			FilterResult & result)
+	{
+		EventConsumerBase< TEvent, TMetaData, TSettings>::ProcessEvent( event, metaData, result);
+
+		if ( !m_runUnfiltered)
+			return;
+
+		if ( ! result.HasPassedIfExcludingFilter( "incut" ) )
+			return;
+
+
+		double xval;
+		double yval;
+
+		m_xsource->GetValue( event, metaData, this->GetPipelineSettings(), xval );
+		m_ysource->GetValue( event, metaData, this->GetPipelineSettings(), yval );
+
+		m_profile->AddPoint(	xval,
+								yval,
+								metaData.GetWeight() );
+
+		m_ysource->EndOnEvent( event, metaData, this->GetPipelineSettings() );
+	}
+
 	virtual void ProcessFilteredEvent(TEvent const& event,
 			TMetaData const& metaData)
 	{
 		EventConsumerBase< TEvent, TMetaData, TSettings>::ProcessFilteredEvent( event, metaData);
+
+		if ( m_runUnfiltered)
+			return;
+
+
 
 		m_ysource->StartOnEvent( event, metaData, this->GetPipelineSettings() );
 
@@ -100,6 +131,11 @@ public:
 		m_plotName = plotName;
 	}
 
+	void SetRunUnfiltered( bool val)
+	{
+		m_runUnfiltered = val;
+	}
+
 private:
 	std::unique_ptr<SourceTypeForThis> m_xsource;
 	std::unique_ptr<SourceTypeForThis> m_ysource;
@@ -107,7 +143,7 @@ private:
 	std::unique_ptr<Profile2d> m_profile;
 
 	std::string m_plotName;
-
+	bool m_runUnfiltered;
 };
 
 }
