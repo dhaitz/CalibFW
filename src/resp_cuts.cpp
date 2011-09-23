@@ -292,9 +292,6 @@ FileInterface fi(g_sourcefiles);
 ZJetGlobalSettings gset;
 
 gset.SetEnablePuReweighting( g_propTree.get<bool> ("EnablePuReweighting", false) );
-gset.m_recovertWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
-gset.SetJsonFile( g_propTree.get< std::string > ("JsonFile") );
-
 
 std::vector<std::string> sJetNames = fi.GetNames<KDataJet> (true);
 BOOST_FOREACH( std::string s, sJetNames)
@@ -303,10 +300,14 @@ BOOST_FOREACH( std::string s, sJetNames)
 
 if ( g_propTree.get<std::string> ("InputType", "mc") == "data")
 {
+	gset.SetJsonFile( g_propTree.get< std::string > ("JsonFile") );
+
 	g_inputType = DataInput;
 }
 else
 {
+	gset.m_recovertWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
+
 	g_inputType = McInput;
 }
 
@@ -378,7 +379,6 @@ PfMap pfJets;
  pfJets["KT4PFJets"]= ( fi.Get<KDataPFJets>("KT4PFJets") );
  pfJets["KT6PFJets"] =( fi.Get<KDataPFJets>("KT6PFJets") );*/
 
-
 pRunner.AddGlobalMetaProducer( new PuReweightingProducer());
 pRunner.AddGlobalMetaProducer( new ValidMuonProducer());
 pRunner.AddGlobalMetaProducer( new ZProducer());
@@ -417,38 +417,38 @@ for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 
 		// plot l1 correction
 		/*
-		pLine->AddConsumer( new ProfileConsumerBase( new SourceRecoVert(),
-						new SourceJetPtRatio( "AK5PFJets", "AK5PFJetsL1", 0, 0),
-						"L1FastJet_AK5PF_npv"));
-		pLine->AddConsumer( new ProfileConsumerBase( new SourceJetEta(),
-						new SourceJetPtRatio( "AK5PFJets", "AK5PFJetsL1", 0, 0),
-						"L1FastJet_AK5PF_jet1_eta"));
-		pLine->AddConsumer( new ProfileConsumerBase( new SourceJetPt(),
-						new SourceJetPtRatio( "AK5PFJets", "AK5PFJetsL1", 0, 0),
-						"L1FastJet_AK5PF_jet1_pt"));
+		 pLine->AddConsumer( new ProfileConsumerBase( new SourceRecoVert(),
+		 new SourceJetPtRatio( "AK5PFJets", "AK5PFJetsL1", 0, 0),
+		 "L1FastJet_AK5PF_npv"));
+		 pLine->AddConsumer( new ProfileConsumerBase( new SourceJetEta(),
+		 new SourceJetPtRatio( "AK5PFJets", "AK5PFJetsL1", 0, 0),
+		 "L1FastJet_AK5PF_jet1_eta"));
+		 pLine->AddConsumer( new ProfileConsumerBase( new SourceJetPt(),
+		 new SourceJetPtRatio( "AK5PFJets", "AK5PFJetsL1", 0, 0),
+		 "L1FastJet_AK5PF_jet1_pt"));
 
-		// plot l2 correction
-		pLine->AddConsumer( new ProfileConsumerBase( new SourceRecoVert(),
-						new SourceJetPtRatio( "AK5PFJetsL1", "AK5PFJetsL1L2", 0, 0),
-						"L2_AK5PF_npv"));
-		pLine->AddConsumer( new ProfileConsumerBase( new SourceJetEta(),
-						new SourceJetPtRatio( "AK5PFJetsL1", "AK5PFJetsL1L2", 0, 0),
-						"L2_AK5PF_jet1_eta"));
-		pLine->AddConsumer( new ProfileConsumerBase( new SourceJetPt(),
-						new SourceJetPtRatio( "AK5PFJetsL1", "AK5PFJetsL1L2", 0, 0),
-						"L2_AK5PF_jet1_pt"));
+		 // plot l2 correction
+		 pLine->AddConsumer( new ProfileConsumerBase( new SourceRecoVert(),
+		 new SourceJetPtRatio( "AK5PFJetsL1", "AK5PFJetsL1L2", 0, 0),
+		 "L2_AK5PF_npv"));
+		 pLine->AddConsumer( new ProfileConsumerBase( new SourceJetEta(),
+		 new SourceJetPtRatio( "AK5PFJetsL1", "AK5PFJetsL1L2", 0, 0),
+		 "L2_AK5PF_jet1_eta"));
+		 pLine->AddConsumer( new ProfileConsumerBase( new SourceJetPt(),
+		 new SourceJetPtRatio( "AK5PFJetsL1", "AK5PFJetsL1L2", 0, 0),
+		 "L2_AK5PF_jet1_pt"));
 
-		// plot l3 correction
-		pLine->AddConsumer( new ProfileConsumerBase( new SourceRecoVert(),
-						new SourceJetPtRatio( "AK5PFJetsL1L2", "AK5PFJetsL1L2L3", 0, 0),
-						"L3_AK5PF_npv"));
-		pLine->AddConsumer( new ProfileConsumerBase( new SourceJetEta(),
-						new SourceJetPtRatio( "AK5PFJetsL1L2", "AK5PFJetsL1L2L3", 0, 0),
-						"L3_AK5PF_jet1_eta"));
-		pLine->AddConsumer( new ProfileConsumerBase( new SourceJetPt(),
-						new SourceJetPtRatio( "AK5PFJetsL1L2", "AK5PFJetsL1L2L3", 0, 0),
-						"L3_AK5PF_jet1_pt"));
-*/
+		 // plot l3 correction
+		 pLine->AddConsumer( new ProfileConsumerBase( new SourceRecoVert(),
+		 new SourceJetPtRatio( "AK5PFJetsL1L2", "AK5PFJetsL1L2L3", 0, 0),
+		 "L3_AK5PF_npv"));
+		 pLine->AddConsumer( new ProfileConsumerBase( new SourceJetEta(),
+		 new SourceJetPtRatio( "AK5PFJetsL1L2", "AK5PFJetsL1L2L3", 0, 0),
+		 "L3_AK5PF_jet1_eta"));
+		 pLine->AddConsumer( new ProfileConsumerBase( new SourceJetPt(),
+		 new SourceJetPtRatio( "AK5PFJetsL1L2", "AK5PFJetsL1L2L3", 0, 0),
+		 "L3_AK5PF_jet1_pt"));
+		 */
 		//pLine->AddConsumer(	new ResponseConsumerBase() );
 
 		if ( g_inputType == McInput )

@@ -292,7 +292,7 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
             
                 
 def ExpandDefaultMcConfig( ptBins, algoNames, conf_template, useFolders, FolderPrefix = ""):
-    conf = conf_template
+    conf = copy.deepcopy(conf_template)
 
     # generate folder names
     srcFolder = []
@@ -332,40 +332,37 @@ def ExpandDefaultMcConfig( ptBins, algoNames, conf_template, useFolders, FolderP
         pval["RootFileFolder"] = FolderPrefix + ptVal
 
 
+    for algo in algoNames:
+        # create second level pipelines
+        pipename = FolderPrefix + "sec_default_" + algo
+        
+        secpline = {} 
 
-
-    # create second level pipeline
-#    secLevelPline = { FolderPrefix + "sec_default": copy.deepcopy( conf["Pipelines"]["default"] )}
-#    secpline = secLevelPline[FolderPrefix + "sec_default"]    
-#    
-#    
-#
-#    
-#    # code this in a more generic way
-#    secpline["Consumer"] = {}
-#    secpline["Consumer"]["bal_response"] = { "Name" : "response_balance",
-#                                         "SourceFolder" : srcFolder,
-#                                         "SourceResponse" : "balresp_AK5PFJets",
-#                                         # this product will be in the upmost folder
-#                                         "ProductName"    : "balresp_AK5PFJets",
-#                                         "SourceBinning"  : "z_pt_AK5PFJets"}
-#    
-#    secpline["Consumer"]["mpf_response"] = { "Name" : "response_balance",
-#                                         "SourceFolder" : srcFolder,
-#                                         "SourceResponse" : "mpfresp_AK5PFJets",
-#                                         # this product will be in the upmost folder
-#                                         "ProductName"    : "mpfresp_AK5PFJets",
-#                                         "SourceBinning"  : "z_pt_AK5PFJets"}
-#    secpline["Level"] = 2
-#    #secLevelPline[FolderPrefix + "sec_default"]["CustomBins"] = ptBins
-#    secpline["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"
-#    secpline["RootFileFolder"] = FolderPrefix
-#    
-#    
-#    #for (key, val) in conf["Pipelines"].items():
-#    #    secLevelPline[ FolderPrefix + key ] = val
-#
-#    conf["Pipelines"] = secLevelPline
+        # code this in a more generic way
+        secpline["Consumer"] = {}
+        secpline["Consumer"]["bal_response"] = { "Name" : "response_balance",
+                                             "SourceFolder" : srcFolder,
+                                             "SourceResponse" : "balresp_" + algo,
+                                             # this product will be in the upmost folder
+                                             "ProductName"    : "balresp_" + algo,
+                                             "SourceBinning"  : "z_pt_" + algo}
+        
+        secpline["Consumer"]["mpf_response"] = { "Name" : "response_balance",
+                                             "SourceFolder" : srcFolder,
+                                             "SourceResponse" : "mpfresp_" + algo,
+                                             # this product will be in the upmost folder
+                                            "ProductName"    : "mpfresp_" + algo,
+                                             "SourceBinning"  : "z_pt_" + algo}
+        secpline["Level"] = 2
+        #secLevelPline[FolderPrefix + "sec_default"]["CustomBins"] = ptBins
+        secpline["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"
+        secpline["RootFileFolder"] = FolderPrefix
+        
+        
+        #for (key, val) in conf["Pipelines"].items():
+        #    secLevelPline[ FolderPrefix + key ] = val
+    
+        conf["Pipelines"][pipename] =  secpline
 
     return conf
 
