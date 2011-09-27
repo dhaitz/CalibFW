@@ -563,6 +563,8 @@ ZJetPipeline * CreateDefaultPipeline()
 	// event count
 	PLOT_HIST1D(pline, DrawEventCount, eventcount)
 
+	PLOT_HIST1D(pline, DrawEventsPerRunConsumer, events_per_run)
+
 	// Jet 1 Eta Phi map
 	PLOT_HIST2D_CONST1(pline, DrawEtaPhiJetMapConsumer, etaphi_jet1_to_z, 0)
 	// Jet 2 Eta Phi map

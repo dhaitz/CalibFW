@@ -549,6 +549,10 @@ IMPL_HIST1D_JET_MOD1(DrawJetConstituentsConsumer ,
 		},
 		new ModHistBinRange(0.0f, 100.f) )
 
+IMPL_HIST1D_MOD2(DrawEventsPerRunConsumer ,m_hist->Fill( (Long_t)res.m_pData->cmsRun , res.GetWeight( )); ,
+		new ModHistBinRange(160404, 173692),
+		new ModHistBinCount(13288))
+
 class DrawEventCount: public ZJetHist1D
 {
 public:
