@@ -43,11 +43,16 @@ data10color = 'gray'
 #mpl.rc('text', usetex=True)#does not work on the naf! no latex there
 #matplotlib.rc('font', family='serif')
 #mpl.pylab.rcParams['legend.loc'] = 'best' rc lines.color linewidth font family weight size
+# most settings should go in plotBase
+# different plots: data/mc (p4, response); extrapolation; special: Z-scale, npu, zeitabhaengig, flavour,
+#   pf_fractions; cuts, cuteff; crosschecks: 1-2/more pu, eta (endcap, HF), jet algo, jet size, Calo/PF,
+#   Pythia/Herwig
+# run_it( True, "Text", False, "Set of plots")
 
 #### INPUTFILES
 print "%1.2f Open files:" % time.clock()
-fdata = OpenFile(plotBase.GetPath() + "data_Sept08.root", (settings.verbosity>1))
-fmc   = OpenFile(plotBase.GetPath() + "MC_Sept08.root", (settings.verbosity>1))
+fdata = OpenFile(plotBase.GetPath() + "data_Sept22.root", (settings.verbosity>1))
+fmc   = OpenFile(plotBase.GetPath() + "MC_Sept22.root", (settings.verbosity>1))
 #fmcflat = OpenFile(plotBase.GetPath() + "chs_Summer11_mc_withoutrw.root", (settings.verbosity>1))
 #fdata10 = OpenFile(plotBase.GetPath() + "data2010_v8_single_l3.root", (settings.verbosity>1))
 #fmc10   = OpenFile(plotBase.GetPath() + "mc_fall10_dy_v1.root", (settings.verbosity>1))
@@ -65,19 +70,18 @@ print "%1.2f Do plots ..." % time.clock()
 
 ####5. save
 
-# function to be moved to plotBase:
-def get_factor(quantity='z_phi'):
-	hdata = plotBase.GetNameFromSelection(quantity)[0]
-	hmc = hdata.replace('Res','')
-	histo_data = SafeConvert(fdata,hdata, settings.lumi,settings.outputformats,5)
-	histo_mc = SafeConvert(fmc,hmc, settings.lumi,settings.outputformats,5)
-	histo_mc.scale(factor)
-	print "    >>> The additional scaling factor is:", histo_data.ysum/histo_mc.ysum
-	return histo_data.ysum/histo_mc.ysum
-
-factor *= get_factor()
+factor *= plotBase.getFactor(settings, fdata, fmc)
 
 ####compare cone sizes, pvs, etabins, 
+#fdataZ = OpenFile(plotBase.GetPath() + "data_Zmumu.root",
+#(settings.verbosity>1))
+#fmcZ   = OpenFile(plotBase.GetPath() + "MC_Zmumu.root",
+#(settings.verbosity>1))
+#factorZ = settings.lumi * plotBase.getFactor(settings, fdataZ, fmcZ)
+
+#def zmassZ():
+#	plotBase.genericplot('zmass', 'mass', 'Z', fdataZ, {}, fmcZ, {},
+#factorZ, settings)
 
 
 def zphia():
@@ -123,8 +127,9 @@ def zpt():
 	#l = plt.axhline(y=91.19, color='0.5', alpha=0.5)
 
 	#histo_data.x.pop()
-	histo1 = ax.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color=data11color,fmt='o', capsize=0, label ='Z pt (data)')
-	histo2 = ax.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fmt='-', capsize=0, label ='Z pt (MC)')
+	histo1 = ax.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color=data11color,fmt='o', capsize=0, label ='data')
+	histo0 = ax.bar(histo_mc.x, histo_mc.y,(histo_mc.x[2]-histo_mc.x[1]),bottom =np.ones(len(histo_mc.x))*1e-6, fill=True, facecolor=mc11color, edgecolor=mc11color, label ='MC')
+	histo2 = ax.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fmt='-', capsize=0)
 
 	#def fitfunc(x):
 	#	return  a/(c*c*g*g+(x*x-c*c)*(x*x-c*c))
@@ -152,8 +157,9 @@ def jetpt():
 	histo_mc.scale(factor)
 
 	fjet, ajet, jetname = plotBase.makeplot('jet1_pt')
+	histo0 = ajet.bar(histo_mc.x, histo_mc.y,(histo_mc.x[2]-histo_mc.x[1]),bottom =np.ones(len(histo_mc.x))*1e-6, fill=True, facecolor=mc11color, edgecolor=mc11color, label ='MC')
+	histo02 = ajet.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fmt='-', capsize=0)
 	histo01 = ajet.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color=data11color,fmt='o', capsize=0, label ='data')
-	histo02 = ajet.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fmt='-', capsize=0, label ='MC')
 	ajet = plotBase.captions(ajet,settings,False)
 	ajet.set_ylim(top=histo_mc.ymax*1.2)
 	ajet = plotBase.tags(ajet, 'Private work', 'Joram Berger')
@@ -167,9 +173,9 @@ def jetpt():
 
 def jet2ptall():
 	print "pT of the 2nd jet in all events"
-	oname = plotBase.GetNameFromSelection('jet2_pt',{},{'incut':'qualitycuts'})
-	histo_data = SafeConvert(fdata,oname[0], settings.lumi,settings.outputformats,5)
-	histname = oname[0].replace('data','mc').replace('Res','')
+	oname = plotBase.GetNameFromSelection('jet2_pt',{},{'incut':'qualitycuts'})[0]
+	histo_data = SafeConvert(fdata,oname, settings.lumi,settings.outputformats,5)
+	histname = oname.replace('Res','')
 	histo_mc = SafeConvert(fmc,histname, settings.lumi,settings.outputformats,5)
 	histo_mc.scale(factor)
 
@@ -198,7 +204,8 @@ def zphi():
 	histo_mc.scale(factor)
 
 	fjet, ajet, jetname = plotBase.makeplot('z_phi')
-	histo02 = ajet.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fmt='-', capsize=0, label ='MC')
+	histo00 = ajet.bar(histo_mc.x, histo_mc.y,(histo_mc.x[2]-histo_mc.x[1]),fill=True, facecolor=settings.mcColor, edgecolor=settings.mcColor, label ='MC')
+	histo02 = ajet.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color, fmt='-', capsize=0)
 	histo01 = ajet.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color=data11color,fmt='o', capsize=0, label ='data')
 	ajet = plotBase.captions(ajet,settings,False)
 	ajet.set_ylim(top=histo_mc.ymax*1.4)
@@ -217,7 +224,8 @@ def jetphi():
 	histo_mc.scale(factor)
 
 	fjet, ajet, jetname = plotBase.makeplot('jet1_phi')
-	histo02 = ajet.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fillstyle='full',fmt='-', capsize=0, label ='MC')
+	histo00 = ajet.bar(histo_mc.x, histo_mc.y,(histo_mc.x[2]-histo_mc.x[1]),fill=True, facecolor=settings.mcColor, edgecolor=settings.mcColor, label ='MC')
+	histo02 = ajet.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color=mc11color,fillstyle='full',fmt='-', capsize=0)
 	histo01 = ajet.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color=data11color,fmt='o', capsize=0, label ='data')
 	ajet = plotBase.captions(ajet,settings,False)
 	ajet.set_ylim(top=histo_mc.ymax*1.4)
@@ -560,9 +568,6 @@ def npumc(typ=''):
 		color = 'FireBrick', fmt='-', label='MC "flat10"')
 #	else:
 
-
-
-
 	anpu = plotBase.captions(anpu,settings, False)
 	anpu = plotBase.tags(anpu, 'Private work', 'Joram Berger')
 	anpu.legend(loc = 'upper right', bbox_to_anchor = (0.98, 0.92), numpoints=1, frameon=False)
@@ -573,6 +578,32 @@ def npumc(typ=''):
 	anpu.set_ylabel('Fraction of events')
 	#plt.minorticks_on()
 	plotBase.Save(fnpu,'npumc'+typ, settings,False)
+
+def npuRunA(filename="data/pudist/Pileup_2011_to_173692_LPLumiScale_68mb.root", select='qualitycuts'):
+	select='allevents'
+	print "Number of pile-up interactions in 2011A"
+	fpu = OpenFile(filename, (settings.verbosity>1))
+	n_pu = plotBase.GetNameFromSelection('pu',{},{'incut':select})[0]
+	n_rv = plotBase.GetNameFromSelection('recovert',{},{'incut':select})[0]
+	hrvdata = SafeConvert(fdata, n_rv, settings.lumi,settings.outputformats) #.normalize()
+	hrvmc = SafeConvert(fmc, n_rv, settings.lumi,settings.outputformats)#.normalize()
+	hpudata = SafeConvert(fpu, 'pileup', settings.lumi,settings.outputformats)#.normalize()
+	hpumc = SafeConvert(fmc, n_pu, settings.lumi,settings.outputformats)#.normalize()
+	hpudata.scale(2220/2.6e8)
+	hrvdata.scale(3.8)
+	fnpu, anpu, npuname = plotBase.makeplot('recovert')
+	h1 = anpu.errorbar(hpumc.xc, hpumc.y, hpumc.yerr, color='FireBrick', fmt='--', capsize=0, label =r'$n_\mathrm{PU}$ MC (reweighted)')
+	h2 = anpu.errorbar(hpudata.xc, hpudata.y, hpudata.yerr, color='black', fmt='^', capsize=0, label =r'$n_\mathrm{PU}$ data (estimated)')
+	h3 = anpu.errorbar(hrvmc.xc, hrvmc.y, hrvmc.yerr, color='orange', fmt='-', capsize=0, label =r'$n_\mathrm{reco. vert.}$ MC')
+	h4 = anpu.errorbar(hrvdata.xc, hrvdata.y, hrvdata.yerr, color='green', fmt='s', capsize=0, label =r'$n_\mathrm{reco. vert.}$ data')
+
+	anpu = plotBase.captions(anpu,settings, False)
+	anpu.legend(loc = 'upper right', numpoints=1, frameon=False)
+	anpu = plotBase.AxisLabels(anpu, 'recovert')
+#	anpu.set_ylim(0,0.2)
+	anpu.set_xlabel('Number of pile-up vertices')
+	anpu.set_ylabel('Fraction of events')
+	plotBase.Save(fnpu,'npuRunA', settings,False)
 
 # The actual plotting starts here:
 #List of plots to do - leave empty for all plots

@@ -12,6 +12,15 @@ import getROOT
 
 
 #os.makedir('out/dat')
+
+def getFactor(settngs,f_data, f_mc, quantity='z_phi'):
+	hdata = GetNameFromSelection(quantity)[0]
+	hmc = hdata.replace('Res','')
+	histo_data = getROOT.SafeConvert(f_data,hdata, settngs.lumi,settngs.outputformats,5)
+	histo_mc = getROOT.SafeConvert(f_mc,hmc, settngs.lumi,settngs.outputformats,5)
+	histo_mc.scale(settngs.lumi)
+	print "    >>> The additional scaling factor is:", histo_data.ysum/histo_mc.ysum
+	return histo_data.ysum/histo_mc.ysum
     
 def GetReweighting(datahisto, mchisto, drop=True):
     if drop:
@@ -206,44 +215,50 @@ def tags(ax, status='', author='', date='today'):
 
 def AxisLabels(ax, q='resp', obj='jet', rezise = True):
     """label the axes according to the plotted quantity"""
+    # ax.legend(loc='best', numpoints=1, frameon=True)
     # according to quantity q
     if q == 'pt':
-        ax.set_xlabel(r"$p_{T}^{" + obj + "} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{" + obj + "} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"Events", va="top", y=1)
         ax.set_xlim(0, 200)
         ax.set_ylim(bottom=0.0)
     elif q == 'phi':
-        ax.set_xlabel(r"$\phi^{" + obj + "}$", ha="right", x=1)
+        ax.set_xlabel(r"$\phi^\mathrm{" + obj + "}$", ha="right", x=1)
         ax.set_ylabel(r"Events", va="top", y=1)
         ax.set_xlim(-3.5, 3.5)
-        #ax.set_ticks(-3.141592654,-1.570796327,0,1.570796327,3.141592654)
-        #ax.set_ticklabels(r'$-\pi',r'$-\frac{\pi}{2}$','0',r'$\frac{\pi}{2}$',r'$\pi')
+        ax.set_xticks([-3.141592654,-1.570796327,0,1.570796327,3.141592654])
+        ax.set_xticklabels([r"$-\pi$",r"$-\frac{\pi}{2}$",r"$0$",r"$\frac{\pi}{2}$",r"$\pi$"])
+#        ax.set_xticklabels([r"$20$",r"$30$",r"$40$",r"$50$",r"$60$",r"",r"$80$",r"",r"$200$",r"$300$",r"$400$"],minor=True)
         ax.set_ylim(bottom=0.0)
+        ax.legend(loc='lower center', numpoints=1, frameon=True)
     elif q == 'eta':
-        ax.set_xlabel(r"$\eta^{" + obj + "}$", ha="right", x=1)
+        ax.set_xlabel(r"$\eta^\mathrm{" + obj + "}$", ha="right", x=1)
         ax.set_ylabel(r"Events", va="top", y=1)
         ax.set_xlim(-5.0, 5.0)
         ax.set_ylim(bottom=0.0)
+        if obj == 'Z':
+            ax.legend(loc='lower center', numpoints=1, frameon=True)
     elif q == 'mass':
-        ax.set_xlabel(r"$m_{" + obj + "} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_xlabel(r"$m_\mathrm{" + obj + "} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"Events", va="top", y=1)
-        ax.set_xlim(60, 120)
+        ax.set_xlim(70, 110)
         ax.set_ylim(bottom=0.0)
     elif q == 'jetresp':
-        ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
-        ax.set_ylabel(r"$p_{T}$ balance", va="top", y=1)
+        ax.set_xlabel(r"$p_\mathrm{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_ylabel(r"$p_\mathrm{T}$ balance", va="top", y=1)
         ax.set_xlim(10, 240)
         ax.set_ylim(0.75, 1.0)
     elif q == 'mpfresp':
-        ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_xlabel(r"$p_\mathrm{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"MPF", va="top", y=1)
         ax.set_xlim(10, 240)
         ax.set_ylim(0.75, 1.0)
     elif q == 'datamc_ratio':
-        ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_xlabel(r"$p_\mathrm{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"Data/MC", va="top", y=1)
         ax.set_xlim(10, 240)
         ax.set_ylim(0.8, 1.1)
+        ax.legend(bbox_to_anchor=(0.65, 0.6, 0.3, 0.2), loc='upper right', numpoints=1, frameon=True)
     elif q == 'cutineff':
         ax.set_ylabel(r"Cut Infficiency", y=1, va="top" )
         ax.set_xlabel(r"NRV",x=1)
@@ -260,7 +275,7 @@ def AxisLabels(ax, q='resp', obj='jet', rezise = True):
         ax.set_xlim(1, 60)
         #ax.set_xlim(0, 350)
     elif q == 'components':
-        ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_xlabel(r"$p_\mathrm{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"Leading Jet Component Fraction", va="top", y=1)
         ax.set_xlim(25,500)
         ax.set_ylim(0.0,1.0)
@@ -268,7 +283,7 @@ def AxisLabels(ax, q='resp', obj='jet', rezise = True):
         ax.set_xticklabels([r"$10$",r"$100$",r"$1000$"])
         ax.set_xticklabels([r"$20$",r"$30$",r"$40$",r"$50$",r"$60$",r"",r"$80$",r"",r"$200$",r"$300$",r"$400$"],minor=True)
     elif q == 'components_diff':
-        ax.set_xlabel(r"$p_{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_xlabel(r"$p_\mathrm{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"Data$-$MC of Leading Jet Components", va="top", y=1)
         ax.set_xlim(25,500)
         ax.set_ylim(-0.05,0.05)
@@ -277,15 +292,25 @@ def AxisLabels(ax, q='resp', obj='jet', rezise = True):
         ax.set_xticklabels([r"$20$",r"$30$",r"$40$",r"$50$",r"$60$",r"",r"$80$",r"",r"$200$",r"$300$",r"$400$"],minor=True)
     elif q == 'extrapol':
         if obj == 'jet2':
-            ax.set_xlabel(r"$p_{T}^{"+obj+"}/p_{T}^{Z}$", ha="right", x=1)
+            ax.set_xlabel(r"$p_\mathrm{T}^{\mathrm{"+obj+"}}/p_\mathrm{T}^{Z}$", ha="right", x=1)
         elif obj == 'deltaphi':
             ax.set_xlabel(r"$\Delta\phi$", ha="right", x=1)
         ax.set_ylabel(r"Response", va="top", y=1)
         ax.set_xlim(0,0.4)
         ax.set_ylim(0.86,1.04)
+    elif q == 'runs':
+        ax.set_xlabel(r"run", ha="right", x=1)
+        ax.set_ylabel(r"Events / ($\mathcal{L}/ \mathrm{pb}^{-1}$)", va="top", y=1)
+        ax.set_xlim(160404,173692)
+        ax.set_ylim(0.0,20.0)
+    elif q == 'runlist':
+        ax.set_xlabel(r"run", ha="right", x=1)
+        ax.set_ylabel(r"Events / ($\mathcal{L}/ \mathrm{pb}^{-1}$)", va="top", y=1)
+        ax.set_xlim(0,320)
+        ax.set_ylim(0.0,20.0)
     else:
         print "The quantity", q, "was not found. A default formatting of the axis labels is used."
-        ax.set_xlabel(r"$p_{T} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_xlabel(r"$p_\mathrm{T} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"arb. units", va="top", y=1)
         ax.set_xlim(0, 350)
         ax.set_ylim(bottom=0.0)
@@ -385,7 +410,7 @@ def genericplot(quantity, q, obj, fdata, custom_keys_data, fmc, custom_keys_mc, 
     histo_mc.scale(factor)
 
     tf, ta, tname = makeplot(quantity)
-    histo0 = ta.bar(histo_mc.x, histo_mc.y,(histo_mc.x[2]-histo_mc.x[1]),bottom =np.ones(len(histo_mc.x))*1e-6, fill=True, facecolor=stg.mcColor, edgecolor=stg.mcColor)
+    histo00 = ta.bar(histo_mc.x, histo_mc.y,(histo_mc.x[2]-histo_mc.x[1]),bottom =np.ones(len(histo_mc.x))*1e-6, fill=True, facecolor=stg.mcColor, edgecolor=stg.mcColor)
     histo02 = ta.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr, drawstyle='steps-mid', color='#CBDBF9', fmt='-', capsize=0, label='MC')
     histo01 = ta.errorbar(histo_data.xc, histo_data.y, histo_data.yerr, drawstyle='steps-mid', color='black', fmt='o', capsize=0, label='data')
     ta = captions(ta, stg, False)
