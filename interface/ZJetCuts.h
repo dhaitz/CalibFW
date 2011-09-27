@@ -366,13 +366,21 @@ public:
 		TString hltDoubleMu2 = "HLT_DoubleMu7_v2";
 		TString hltDoubleMu3 = "HLT_DoubleMu7_v3";
 		TString hltDoubleMu4 = "HLT_DoubleMu7_v4";
+		TString hltDoubleMu5 = "HLT_DoubleMu7_v5";
+		TString hltDoubleMu6 = "HLT_DoubleMu7_v6";
+		TString hltDoubleMu7 = "HLT_DoubleMu7_v7";
+		TString hltDoubleMu8 = "HLT_DoubleMu7_v8";
 		
 		// between 163869 and 165088 DoubleMu7_v2 changed to _v3 and is now prescaled and Mu13_Mu8 ist introduced
 		if (pEv->m_pData->cmsRun >= 165000) {
-			TString hltDoubleMu_1 = "HLT_Mu13_Mu8_v1";
-			TString hltDoubleMu_2 = "HLT_Mu13_Mu8_v2";
-			TString hltDoubleMu_3 = "HLT_Mu13_Mu8_v3";
-			TString hltDoubleMu_4 = "HLT_Mu13_Mu8_v4";
+			TString hltDoubleMu1 = "HLT_Mu13_Mu8_v1";
+			TString hltDoubleMu2 = "HLT_Mu13_Mu8_v2";
+			TString hltDoubleMu3 = "HLT_Mu13_Mu8_v3";
+			TString hltDoubleMu4 = "HLT_Mu13_Mu8_v4";
+			TString hltDoubleMu5 = "HLT_Mu13_Mu8_v5";
+			TString hltDoubleMu6 = "HLT_Mu13_Mu8_v6";
+			TString hltDoubleMu7 = "HLT_Mu13_Mu8_v7";
+			TString hltDoubleMu8 = "HLT_Mu13_Mu8_v8";
 		}
 
 		const int nHLTriggers = pEv->m_pData->HLTriggers_accept->GetEntries();
@@ -397,7 +405,9 @@ public:
 			else
 			{
 				if (hltDoubleMu1 == curName || hltDoubleMu2 == curName ||
-					hltDoubleMu3 == curName || hltDoubleMu4 == curName)
+					hltDoubleMu3 == curName || hltDoubleMu4 == curName ||
+					hltDoubleMu5 == curName || hltDoubleMu6 == curName ||
+					hltDoubleMu7 == curName || hltDoubleMu8 == curName)
 					return true;
 			}
 		}
