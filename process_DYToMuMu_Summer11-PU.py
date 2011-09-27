@@ -8,7 +8,7 @@ conf = JsonConfigBase.GetMcBaseConfig()
 
 conf["Algos"] = ["ak5PFJets", "ak5PFJetsL1", "ak5PFJetsL1CHS", "ak5PFJetsL1L2L3", "ak5PFJetsL1L2L3CHS"] #, "ak7PFJetsL1", "ak7PFJetsL1L2L3"  ]
 conf["InputFiles"] = "/data/berger/data/DYToMuMu-Summer11/*.root"
-conf["OutputPath"] = "/data/berger/data/MC_Sept08"
+conf["OutputPath"] = "/data/berger/data/MC_Sept22"
 
 conf["UseWeighting"] = 0
 conf = JsonConfigBase.ExpandDefaultMcConfig( [0, 30, 45, 60, 80, 105, 140, 1000], conf, True )

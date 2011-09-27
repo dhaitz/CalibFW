@@ -7,8 +7,9 @@ import copy
 conf = JsonConfigBase.GetDataBaseConfig()
 
 conf["Algos"] = ["ak5PFJets", "ak5PFJetsL1", "ak5PFJetsL1CHS", "ak5PFJetsL1L2L3", "ak5PFJetsL1L2L3CHS", "ak5PFJetsL1L2L3Res", "ak5PFJetsL1L2L3ResCHS" ]
+conf["Algos"] = ["ak5PFJetsL1L2L3CHS"]
 conf["InputFiles"] = "/data/berger/data/Run2011A/*.root"
-conf["OutputPath"] = "/data/berger/data/data_Sept08"
+conf["OutputPath"] = "/data/berger/data/data_Sept23"
 
 
 conf = JsonConfigBase.ExpandDefaultDataConfig( [0, 30, 45, 60, 80, 105, 140, 1000], conf, True )
