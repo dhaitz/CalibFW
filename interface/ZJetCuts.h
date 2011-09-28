@@ -373,14 +373,14 @@ public:
 		
 		// between 163869 and 165088 DoubleMu7_v2 changed to _v3 and is now prescaled and Mu13_Mu8 ist introduced
 		if (pEv->m_pData->cmsRun >= 165000) {
-			TString hltDoubleMu1 = "HLT_Mu13_Mu8_v1";
-			TString hltDoubleMu2 = "HLT_Mu13_Mu8_v2";
-			TString hltDoubleMu3 = "HLT_Mu13_Mu8_v3";
-			TString hltDoubleMu4 = "HLT_Mu13_Mu8_v4";
-			TString hltDoubleMu5 = "HLT_Mu13_Mu8_v5";
-			TString hltDoubleMu6 = "HLT_Mu13_Mu8_v6";
-			TString hltDoubleMu7 = "HLT_Mu13_Mu8_v7";
-			TString hltDoubleMu8 = "HLT_Mu13_Mu8_v8";
+			hltDoubleMu1 = "HLT_Mu13_Mu8_v1";
+			hltDoubleMu2 = "HLT_Mu13_Mu8_v2";
+			hltDoubleMu3 = "HLT_Mu13_Mu8_v3";
+			hltDoubleMu4 = "HLT_Mu13_Mu8_v4";
+			hltDoubleMu5 = "HLT_Mu13_Mu8_v5";
+			hltDoubleMu6 = "HLT_Mu13_Mu8_v6";
+			hltDoubleMu7 = "HLT_Mu13_Mu8_v7";
+			hltDoubleMu8 = "HLT_Mu13_Mu8_v8";
 		}
 
 		const int nHLTriggers = pEv->m_pData->HLTriggers_accept->GetEntries();
