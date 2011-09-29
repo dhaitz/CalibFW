@@ -354,61 +354,42 @@ public:
 
 	bool IsInCut(EventResult * pEv, ZJetPipelineSettings * pset)
 	{
-		// SingleMu trigger: use always the lowest-pt unprescaled Mu trigger (works up to early 2011 data)
-		TString hltSingleMu = "HLT_Mu9";
-		if (pEv->m_pData->cmsRun >= 147146) // 2010B (up to about 149711, json up to 149442)
-			hltSingleMu = "HLT_Mu15_v1";
-		if (pEv->m_pData->cmsRun >= 160000) // 2011A (ongoing, json starting with 160404)
-			hltSingleMu = "HLT_Mu15_v2";
+		std::string triggerName = "HLT";
 
-		// DoubleMu trigger: use unprescaled DoubleMu7 and Mu13_Mu8 trigger
-		TString hltDoubleMu1 = "HLT_DoubleMu7_v1";
-		TString hltDoubleMu2 = "HLT_DoubleMu7_v2";
-		TString hltDoubleMu3 = "HLT_DoubleMu7_v3";
-		TString hltDoubleMu4 = "HLT_DoubleMu7_v4";
-		TString hltDoubleMu5 = "HLT_DoubleMu7_v5";
-		TString hltDoubleMu6 = "HLT_DoubleMu7_v6";
-		TString hltDoubleMu7 = "HLT_DoubleMu7_v7";
-		TString hltDoubleMu8 = "HLT_DoubleMu7_v8";
-		
-		// between 163869 and 165088 DoubleMu7_v2 changed to _v3 and is now prescaled and Mu13_Mu8 ist introduced
-		if (pEv->m_pData->cmsRun >= 165000) {
-			hltDoubleMu1 = "HLT_Mu13_Mu8_v1";
-			hltDoubleMu2 = "HLT_Mu13_Mu8_v2";
-			hltDoubleMu3 = "HLT_Mu13_Mu8_v3";
-			hltDoubleMu4 = "HLT_Mu13_Mu8_v4";
-			hltDoubleMu5 = "HLT_Mu13_Mu8_v5";
-			hltDoubleMu6 = "HLT_Mu13_Mu8_v6";
-			hltDoubleMu7 = "HLT_Mu13_Mu8_v7";
-			hltDoubleMu8 = "HLT_Mu13_Mu8_v8";
+		// DoubleMu triggers (2011)
+		if (pEv->m_pData->cmsRun < 165000)
+			triggerName = "HLT_DoubleMu7_v*";
+		else
+			triggerName = "HLT_Mu13_Mu8_v*";
+
+		// SingleMu triggers (used for 2010A+B)
+		if (pset->GetCutHLT() == "SingleMu") {
+			if (pEv->m_pData->cmsRun < 147146)
+				triggerName = "HLT_Mu9";
+			else
+				triggerName = "HLT_Mu15_v*";
 		}
+
+		// Use wildcards at the end of string
+		size_t n = triggerName.find('*');
+		triggerName = triggerName.substr(0,n);
 
 		const int nHLTriggers = pEv->m_pData->HLTriggers_accept->GetEntries();
-
 		if (nHLTriggers == 0)
-		{
 			CALIB_LOG_FATAL( "No HLT Trigger in Event!");
-		}
-
 		TObjString *theHLTbit = NULL;
 
 		for (int i = 0; i < nHLTriggers; ++i)
 		{
 			theHLTbit = (TObjString*) pEv->m_pData->HLTriggers_accept->At(i);
-			TString curName = theHLTbit->GetString();
+			std::string curName = theHLTbit->GetString().Data();
 
-			if (pset->GetCutHLT() == "SingleMu")
-			{
-				if (hltSingleMu == curName)
-					return true;
-			}
-			else
-			{
-				if (hltDoubleMu1 == curName || hltDoubleMu2 == curName ||
-					hltDoubleMu3 == curName || hltDoubleMu4 == curName ||
-					hltDoubleMu5 == curName || hltDoubleMu6 == curName ||
-					hltDoubleMu7 == curName || hltDoubleMu8 == curName)
-					return true;
+			if (n == std::string::npos) {
+				// No wildcards used (exact match)
+				if (curName == triggerName) return true;
+			} else {
+				// Use wildcards
+				if (curName.find(triggerName) == 0) return true;
 			}
 		}
 		return false;
