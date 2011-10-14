@@ -9,7 +9,7 @@
 #define SOURCES_H_
 
 
-#include "../../Pipeline/SourceBase.h"
+#include "Pipeline/SourceBase.h"
 #include "../ZJetEventData.h"
 #include "../ZJetMetaData.h"
 #include "../ZJetPipelineSettings.h"

@@ -17,7 +17,7 @@
 
  > done
  */
-#include "RootIncludes.h"
+#include "RootTools/RootIncludes.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,7 +43,7 @@
 //#include "Toolbox/libToolbox.h"
 //#include "RootTools/libKRootTools.h"
 
-#include "OpenMP-Support.h"
+#include "Misc/OpenMP-Support.h"
 
 /*
  #include <iostream>
@@ -61,7 +61,7 @@
 #include "ZJet/MetaDataProducer/CorrJetProducer.h"
 
 #include "ZJet/ZJetPipelineInitializer.h"
-#include "EventPipelineRunner.h"
+#include "Pipeline/EventPipelineRunner.h"
 
 using namespace CalibFW;
 

@@ -10,7 +10,7 @@
 
 #include "Pipeline/EventPipeline.h"
 #include "Draw/Profile.h"
-#include "SourceBase.h"
+#include "Pipeline/SourceBase.h"
 
 namespace CalibFW
 {

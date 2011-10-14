@@ -5,7 +5,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "FilterBase.h"
+#include "../FilterBase.h"
 
 
 #include <boost/test/included/unit_test.hpp>
@@ -26,8 +26,6 @@ BOOST_AUTO_TEST_CASE( test_filter_result )
 
 	BOOST_CHECK( fres.HasPassed() == false );
 	BOOST_CHECK( fres.HasPassedIfExcludingFilter("filter_too") == true );
-
-
 }
 
 

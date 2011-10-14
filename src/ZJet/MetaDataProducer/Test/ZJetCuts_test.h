@@ -8,8 +8,8 @@
 
 
 
-#include "../../../Test/EventPipeline_test.h"
-#include "../../../EventPipelineRunner.h"
+#include "Pipeline/Test/EventPipeline_test.h"
+#include "Pipeline//EventPipelineRunner.h"
 
 
 #include "../ZJetCuts.h"

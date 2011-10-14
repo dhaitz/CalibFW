@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "../../FilterBase.h"
+#include "Pipeline/FilterBase.h"
 
 #include "../ZJetEventData.h"
 #include "../ZJetMetaData.h"

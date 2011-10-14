@@ -9,14 +9,12 @@
 
 #include "DataFormats/interface/Kappa.h"
 
-#include "../../../Test/EventPipeline_test.h"
-#include "../../../EventPipelineRunner.h"
-
+#include "Pipeline/Test/EventPipeline_test.h"
+#include "Pipeline/EventPipelineRunner.h"
 
 #include "../ZJetCuts.h"
 
 #include "../../Test/ZJetTestSupport.h"
-#include "../../../EventData.h"
 #include "../ZJetMetaDataProducer.h"
 
 namespace CalibFW

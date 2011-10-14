@@ -2,14 +2,9 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "../RootIncludes.h"
-#include "../PtBin.h"
-#include "../PipelineSettings.h"
-
-
-
-//#include "ZJet/Filter/ZJetFilterBase.h"
-//#include "ZJetFilter.h"
+#include "RootTools/RootIncludes.h"
+#include "Misc/PtBin.h"
+#include "Pipeline/PipelineSettings.h"
 
 namespace CalibFW
 {

@@ -3,10 +3,6 @@
 
 #include <set>
 
-// this include will overload comparison headers automatically
-//#include <utility>
-//using namespace std::rel_ops;
-
 #include <iomanip>
 
 #include <vector>
@@ -14,16 +10,9 @@
 
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "RootIncludes.h"
+#include "RootTools/RootIncludes.h"
 #include "GlobalInclude.h"
-//#include "PtBinWeighter.h"
-#include "PtBin.h"
-//#include "EventPipeline.h"
-//#include "ZJetPipeline.h"
-
-
-
-//#define SAFE_DELETE( first ) {  if ( first != NULL ) { delete first; } }
+#include "Misc/PtBin.h"
 
 namespace CalibFW
 {

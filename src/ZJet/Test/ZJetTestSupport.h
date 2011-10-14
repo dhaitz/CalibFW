@@ -5,8 +5,8 @@
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "../../Test/EventPipeline_test.h"
-#include "../../EventPipelineRunner.h"
+#include "Pipeline/Test/EventPipeline_test.h"
+#include "Pipeline/EventPipelineRunner.h"
 
 #include <boost/test/included/unit_test.hpp>
 

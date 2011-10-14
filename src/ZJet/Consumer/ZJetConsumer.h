@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Pipeline/EventPipeline.h"
-#include "PipelineSettings.h"
+#include "Pipeline/PipelineSettings.h"
 
 // todo: move zJet specific pline settings here
 

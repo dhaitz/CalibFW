@@ -20,7 +20,7 @@ AM_CXXFLAGS = 	-fopenmp -pedantic -Werror -Wall -Wfatal-errors -std=c++0x \
 				 -O3 -march=native -g -DSTANDALONE \
 		          -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \
 		          		          -Wsign-compare -Wtype-limits  -Wuninitialized \
-				-I$(top_srcdir)/include $(ROOTCFLAGS) -I$(KAPPA_PATH) -I$(CMSSW_PATH) \
+				-I$(top_srcdir)/src $(ROOTCFLAGS) -I$(KAPPA_PATH) -I$(CMSSW_PATH) \
 				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)
 				
 AM_LDFLAGS 	= $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox \
@@ -32,11 +32,13 @@ OFFLINE_CORR_SRC = $(OFFLINE_CORR)/FactorizedJetCorrector.cc $(OFFLINE_CORR)/Jet
 				   $(OFFLINE_CORR)/JetCorrectionUncertainty.cc 
 
 # seems we cant use m4 vars here ??  
-CALIB_SRC = src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
-			src/GlobalInclude.cc include/ZJet/ZJetPipeline.cpp  \
-			include/ZJet/MetaDataProducer/CorrJetProducer.cpp  \
-			include/Pipeline/ProfileConsumerBase.cpp \
-			include/ZJet/ZJetMetaData.cpp \
+CALIB_SRC = src/DrawBase.cc src/EventData.cc \
+			src/EventPipelineRunner.cc \
+			src/GlobalInclude.cc \
+			src/ZJet/ZJetPipeline.cpp  \
+			src/ZJet/MetaDataProducer/CorrJetProducer.cpp  \
+			src/Pipeline/ProfileConsumerBase.cpp \
+			src/ZJet/ZJetMetaData.cpp \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc \ 
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc \ 
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrector.cc \
