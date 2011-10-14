@@ -17,8 +17,8 @@
 #include "RootIncludes.h"
 
 
-#include "../DrawModifierBase.h"
-#include "../DrawBase.h"
+#include "DrawModifierBase.h"
+#include "DrawBase.h"
 
 namespace CalibFW
 {

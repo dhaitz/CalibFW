@@ -8,8 +8,8 @@
 #ifndef PROFILECONSUMERBASE_H_
 #define PROFILECONSUMERBASE_H_
 
-#include "../EventPipeline.h"
-#include "../Draw/Profile.h"
+#include "Pipeline/EventPipeline.h"
+#include "Draw/Profile.h"
 #include "SourceBase.h"
 
 namespace CalibFW

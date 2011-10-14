@@ -11,8 +11,8 @@ CorrJetProducer::CorrJetProducer() :
 	//std::string prefix = "data/jec_data/MC_42_V13_AK5PF_";
 	std::string prefix = "data/jec_data/GR_R_42_V19_AK5PF_";
 
-	//corLevel.push_back("L1FastJet");
-	corLevel.push_back("L1Offset");
+	corLevel.push_back("L1FastJet");
+	//corLevel.push_back("L1Offset");
 
 
 	m_l1 = std::shared_ptr<JECService>(new JECService(

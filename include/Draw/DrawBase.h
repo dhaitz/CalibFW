@@ -13,9 +13,9 @@
 
 #include "GlobalInclude.h"
 #include "RootIncludes.h"
-#include "EventData.h"
+//#include "EventData.h"
 //#include "PtBinWeighter.h"
-#include "EventPipeline.h"
+#include "Pipeline/EventPipeline.h"
 
 #include "DrawModifierBase.h"
 

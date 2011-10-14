@@ -21,8 +21,8 @@
 
 #include "GlobalInclude.h"
 #include "RootIncludes.h"
-#include "EventData.h"
-#include "DrawBase.h"
+
+#include "Draw/DrawBase.h"
 
 #include "../ZJetPipeline.h"
 #include "ZJetConsumer.h"

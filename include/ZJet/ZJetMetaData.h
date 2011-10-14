@@ -3,7 +3,7 @@
 
 #include <boost/ptr_container/ptr_map.hpp>
 
-#include "../EventPipeline.h"
+#include "Pipeline/EventPipeline.h"
 #include "ZJetPipelineSettings.h"
 #include "ZJetEventData.h"
 

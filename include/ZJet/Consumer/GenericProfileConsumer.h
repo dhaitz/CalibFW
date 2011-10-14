@@ -10,7 +10,7 @@
 #include "ZJetConsumer.h"
 #include "../ZJetPipelineSettings.h"
 
-#include "../../Pipeline/ProfileConsumerBase.h"
+#include "Draw/ProfileConsumerBase.h"
 
 #include "../Sources/Sources.h"
 

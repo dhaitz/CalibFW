@@ -1,4 +1,5 @@
-#include "EventPipelineRunner.h"
+
+#include "Pipeline/EventPipelineRunner.h"
 
 #include <boost/foreach.hpp>
 

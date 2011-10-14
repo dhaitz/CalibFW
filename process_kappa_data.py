@@ -7,7 +7,7 @@ import copy
 
 conf = JsonConfigBase.GetDataBaseConfig()
 
-conf["InputFiles"] = JsonConfigBase.CreateFileList( "/home/poseidon/uni/data/ZPJ2011/skim.root") 
+conf["InputFiles"] = JsonConfigBase.CreateFileList( "/home/poseidon/uni/data/Kappa/skim_data.root") 
 conf["OutputPath"] = "kappa_data_2011"
 
 #algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2", "AK5PFJetsL1L2L3"   ]

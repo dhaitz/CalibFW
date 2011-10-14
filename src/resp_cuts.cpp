@@ -50,7 +50,6 @@
  #include <hash_map>
  */
 //#include "Json_wrapper.h"
-#include "EventData.h"
 
 #include "ZJet/ZJetPipeline.h"
 
