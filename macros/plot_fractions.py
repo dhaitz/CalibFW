@@ -19,12 +19,12 @@ settings = plotBase.StandardSettings()
 settings.outputformats = ['png', 'pdf', 'txt', 'dat']
 settings.lumi = 2179.0
 settings.verbosity = 2
-bins = [30, 45, 60, 80, 105, 140, 1000]
+bins = [25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364,1000]
 
 #### INPUTFILES
 print "%1.2f Open files:" % time.clock()
-fdata = getROOT.OpenFile(plotBase.GetPath() + "data_Sept22.root", (settings.verbosity > 1))
-fmc = getROOT.OpenFile(plotBase.GetPath() + "MC_Sept22.root", (settings.verbosity > 1))
+fdata = getROOT.OpenFile(plotBase.GetPath() + "data_Oct12_morebins.root", (settings.verbosity > 1))
+fmc = getROOT.OpenFile(plotBase.GetPath() + "MC_Oct12_morebins.root", (settings.verbosity > 1))
 
 def DrawComposition(algoname, bins):
 	"""Plot the components of the leading jet"""
@@ -85,12 +85,15 @@ def DrawComposition(algoname, bins):
 	for i in range(len(mcG)-1):
 		mcG[i+1].y = map(lambda a,b: a+b, mcG[i+1].y,mcG[i].y)
 		dataG[i+1].y = map(lambda a,b: a+b, dataG[i+1].y, dataG[i].y)
+	# undo the jet energy correction for fractions, i.e. normalize to 1.0
+	for i in range(len(mcG)):
+		mcG[i].y = map(lambda a,b: a/b, mcG[i].y,mcG[len(mcG)-1].y)
+		dataG[i].y = map(lambda a,b: a/b, dataG[i].y, dataG[len(mcG)-1].y)
 
 	print "\nSum :",
 	for y in mcG[-1].y + dataG[-1].y: print "%1.4f" % (y),
 	print
 
-	# Tell me ...
 	if settings.verbosity>2:
 		print mcG[0].x
 		print mcG[1].y
@@ -128,6 +131,6 @@ def DrawComposition(algoname, bins):
 	plt.legend(loc='lower right', numpoints=1)
 	plotBase.Save(tf, algoname + "_fractions_diff", settings, False)
 
-DrawComposition( "ak5PFJets", bins)
+DrawComposition( "ak5PFJetsL1L2L3CHS", bins)
 
 
