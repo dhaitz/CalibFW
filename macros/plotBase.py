@@ -300,13 +300,13 @@ def AxisLabels(ax, q='resp', obj='jet', rezise = True):
         ax.set_ylim(0.86,1.04)
     elif q == 'runs':
         ax.set_xlabel(r"run", ha="right", x=1)
-        ax.set_ylabel(r"Events / ($\mathcal{L}/ \mathrm{pb}^{-1}$)", va="top", y=1)
+        ax.set_ylabel(r"n_\mathrm{Events} / $\mathcal{L} \; [\mathrm{pb}]$", va="top", y=1)
         ax.set_xlim(160404,173692)
         ax.set_ylim(0.0,20.0)
     elif q == 'runlist':
-        ax.set_xlabel(r"run", ha="right", x=1)
-        ax.set_ylabel(r"Events / ($\mathcal{L}/ \mathrm{pb}^{-1}$)", va="top", y=1)
-        ax.set_xlim(0,320)
+        ax.set_xlabel(r"run range", ha="right", x=1)
+        ax.set_ylabel(r"$n_\mathrm{Events} / \mathcal{L} \; [\mathrm{pb}]$", va="top", y=1)
+        ax.set_xlim(0,300)
         ax.set_ylim(0.0,20.0)
     else:
         print "The quantity", q, "was not found. A default formatting of the axis labels is used."
