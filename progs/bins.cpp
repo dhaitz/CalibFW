@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 {
 	/// Show usage if needed.
 	if (argc!=2 and argc!=3 and argc!=4) {
-		std::cout << "Usage: " << argv[0] << " file Histoname [events per bin = 100]\n";
+		std::cout << "Usage: " << argv[0] << " file Histoname [events per bin = 100]\n"; //[0] file -n 2500 -H histo -h help would be better
 		return 0;
 	}
 	int eventsPerBin = 100;

@@ -24,6 +24,7 @@ const double npu_probs_flat10[maxNpu] = {
 };
 
 // http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimGeneral/MixingModule/python/mix_E7TeV_FlatDist10_2011EarlyData_inTimeOnly_cfi.py:
+// used for Summer11 MC DY pythia (and powheg)
 const double npu_probs_spring11[maxNpu] = {
 	0.0698146584, 0.0698146584, 0.0698146584, 0.0698146584,
 	0.0698146584, 0.0698146584, 0.0698146584, 0.0698146584,
@@ -34,6 +35,7 @@ const double npu_probs_spring11[maxNpu] = {
 };
 
 // http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/SimGeneral/MixingModule/python/mix_E7TeV_Summer_2011_50ns_PoissonOOT.py
+// is not used in our datasets
 const double npu_probs_summer11oot[maxNpu] = {
 	0.0400676665, 0.0403580090, 0.0807116334, 0.0924154156, 0.0924154156,
 	0.0924154156, 0.0924154156, 0.0924154156, 0.0870356742, 0.0767913175,
@@ -42,7 +44,7 @@ const double npu_probs_summer11oot[maxNpu] = {
 	0.0004108859, 0.0001905137, 0.0000842383, 0.0000349390, 0.0000142801
 };
 
-// real distribution in Summer11 MC dataset:
+// real distribution in Summer11 MC DY pythia dataset:
 const double npu_probs_summer11real[maxNpu] = {
 	0.0719617, 0.0722807, 0.0650920, 0.0723523, 0.0649074,
 	0.0759789, 0.0800069, 0.0722771, 0.0671723, 0.0708293,
@@ -50,6 +52,25 @@ const double npu_probs_summer11real[maxNpu] = {
 	0.0180953, 0.0121036, 0.00800573, 0.00282745, 0.00283283,
 	0.0017685, 0.000198889, 0.0001, 0.000204264, 0.0001
 };
+
+// real distribution in Summer11 MC DY powheg dataset:
+const double npu_probs_powhegSummer11real[maxNpu] = {
+	0.0719617, 0.0722807, 0.0650920, 0.0723523, 0.0649074,
+	0.0759789, 0.0800069, 0.0722771, 0.0671723, 0.0708293,
+	0.0661459, 0.0581419, 0.0495951, 0.0363465, 0.0306755,
+	0.0180953, 0.0121036, 0.00800573, 0.00282745, 0.00283283,
+	0.0017685, 0.000198889, 0.0001, 0.000204264, 0.0001
+};
+
+// real distribution in Summer11 MC ZJet herwig dataset:
+const double npu_probs_herwigSummer11real[maxNpu] = {
+	0.0719617, 0.0722807, 0.0650920, 0.0723523, 0.0649074,
+	0.0759789, 0.0800069, 0.0722771, 0.0671723, 0.0708293,
+	0.0661459, 0.0581419, 0.0495951, 0.0363465, 0.0306755,
+	0.0180953, 0.0121036, 0.00800573, 0.00282745, 0.00283283,
+	0.0017685, 0.000198889, 0.0001, 0.000204264, 0.0001
+};
+
 
 std::vector<double> generate_weights(TH1D* data_npu_estimated, std::string mc="summer11real");
 
@@ -83,7 +104,7 @@ int main(int argc, char** argv)
 
 	/// Use the function generate_weights and write them to cout.
 	std::vector<double> distribution = generate_weights(pu_histo, mc);
-	std::cout << "conf[\"PUWeights\"] = [" << std::fixed << std::setprecision(10) << distribution[0];
+	std::cout << "conf[\"RecovertWeight\"] = [" << std::fixed << std::setprecision(10) << distribution[0];
 	for (unsigned short npu=1; npu<maxNpu; ++npu)
 		std::cout << ", " << distribution[npu];
 	std::cout << "]\n";

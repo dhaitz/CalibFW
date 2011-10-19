@@ -69,8 +69,6 @@ int main(int argc, char** argv)
 	mittel /= dataresp->GetN()-1;
 	std::cout << histoName << ": Mittel: "<< mittel << "\n";
 	mpf_ratio.RemovePoint(0);
-	int stop =0;
-//	std::cout << "Write";
 	mpf_ratio.Write();
 	}
 	outfile->Write();
