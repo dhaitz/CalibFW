@@ -43,8 +43,8 @@ def printWeights(weights, nice=False):
 	s = "[" + ", ".join("%1.9f" % w for w in weights) + "]"
 	if nice:
 		s = "conf[\"RecovertWeight\"] = " + s
-		while s.rfind(",",0,80)>0:
-			i = max(s.rfind(",",0,80), s.rfind("]",0,80)) + 1
+		while s.rfind(",",0,72)>0:
+			i = max(s.rfind(",",0,72), s.rfind("]",0,72)) + 1
 			print "        " + s[0:i]
 			s = " " + s[i:]
 	else:
