@@ -8,16 +8,13 @@
 //using namespace std::rel_ops;
 
 #include <iomanip>
-
 #include <vector>
 #include <sstream>
-
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include "RootIncludes.h"
 #include "GlobalInclude.h"
 #include "PtBinWeighter.h"
-
 #include "EventPipeline.h"
 //#include "ZJetPipeline.h"
 
@@ -27,6 +24,7 @@ enum CorrectionLevelEnum
 {
 	Uncorrected, L2Corrected, L3Corrected
 };
+
 enum InputTypeEnum
 {
 	McInput, DataInput, UnknownInput
@@ -447,7 +445,9 @@ public:
 			if (npv<m_weights->size()){
 				fct = m_weights->at(npv);
 			} else {
-				CALIB_LOG_FATAL("Number of PV (" << npv << ") exceeds weight range (" << m_weights->size() << "). This should not happen!");
+				CALIB_LOG_FATAL("Number of PV (" << npv << ") exceeds weight range (0.."
+					<< m_weights->size()-1 << ") in event " << this->m_pData->cmsEventNum
+					<< ". This should not happen!");
 			}
 			return (m_weight * fct);
 		}
