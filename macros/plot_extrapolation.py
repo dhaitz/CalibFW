@@ -35,18 +35,10 @@ data10color = 'gray'
 
 from_folder = "NoBinning_incut/"
 
-###quantity R(ptZ) pt eta phi
-###set algo, cone size, #pv, L1L2L3, 
-###data/mc(generator,tune)
-###document: serif,LaTeX ; slides: sans serif 
-#mpl.rc('text', usetex=True)#does not work on the naf! no latex there
-#matplotlib.rc('font', family='serif')
-#mpl.pylab.rcParams['legend.loc'] = 'best' rc lines.color linewidth font family weight size
-
 #### INPUTFILES
 print "%1.2f Open files:" % time.clock()
-fdata = getROOT.OpenFile(plotBase.GetPath() + "data_Sept22.root", (settings.verbosity > 1))
-fmc = getROOT.OpenFile(plotBase.GetPath() + "MC_Sept22.root", (settings.verbosity > 1))
+fdata = getROOT.OpenFile(plotBase.GetPath() + "data_Oct12.root", (settings.verbosity > 1))
+fmc = getROOT.OpenFile(plotBase.GetPath() + "MC_Oct12.root", (settings.verbosity > 1))
 
 def CreateBinStrings (the_bins):
 	
@@ -58,19 +50,13 @@ def CreateBinStrings (the_bins):
 	return str_bins
 
 def IsErrorCompatible( v1, v2, err1, err2 ):
-
-
-
 	diff = TMath.Abs(v1-v2);
 	errsum = err1+err2;
 
-	print "diff " + str( diff )
-	print "errsum " + str( errsum )	
+	print "diff", diff
+	print "errsum", errsum
 	
-	if diff < errsum:
-		return True
-	else:
-		return False
+	return (diff < errsum)
 
 def GetErrErr( rootHisto ):
 	sqrtNminus1=TMath.Sqrt( rootHisto.GetEntries() - 1 );
@@ -94,7 +80,7 @@ def extrapolation_prototype(fdatasource,
    	extr_func.SetParameter(1, 1)
    	extr_func.SetParameter(2, 1)
 	
-	varvals = copy.deepcopy( varvals )	
+	varvals = copy.deepcopy( varvals )
 	varvals.reverse()
 	print varvals
 
@@ -182,7 +168,7 @@ def extrapolation_prototype(fdatasource,
 	b_fit = fitres.GetParams()[0]
 	xx_fit = fitres.GetParams()[2]
 	
-	print str(m_fit) + "  " + str(m_fit_err)
+	print m_fit, m_fit_err
 	
 	## simple geometrical calculation of the error introduced by tho uncertainty of the slope
 	exp_err = extr_func.Eval(0) -  ( (first_resp + first_err) + ( m_fit - m_fit_err ) * ( - first_var ) ) 
@@ -198,7 +184,7 @@ def extrapolation_prototype(fdatasource,
 	print exp_err
 	
 	fitres.Print()
-	print "Extrapolated response " + str(extr_func.Eval(0.0))
+	print "Extrapolated response", extr_func.Eval(0.0)
 
 	# Draw the extrapolation
 	tf, ta, tname = plotBase.makeplot("extrapol")
@@ -209,7 +195,7 @@ def extrapolation_prototype(fdatasource,
 	func_yh = [(m_fit-m_fit_err)*(x-xx_fit) + b_fit+first_err for x in func_x]
 	ta.fill_between(func_x, func_yl, func_yh, facecolor='CornflowerBlue', edgecolor='white', interpolate=True, alpha=0.3)
 	fitfct = ta.plot(func_x, func_y, '-', label='extrapolation')
-	# Variation data points with uncorrelated and correlated errors
+	# Cut variation data points with uncorrelated and correlated errors
 	pygraph = getROOT.ConvertToArray(tge)
 	gr_extr1 = ta.errorbar(pygraph.xc, pygraph.y, pygraph.yerr, color='Black', fmt='o', capsize=2, label='uncorrelated')
 	for i in range(1, len(pygraph)):
@@ -219,10 +205,13 @@ def extrapolation_prototype(fdatasource,
 	ta = plotBase.captions(ta, settings, False)
 	ta.legend(loc="upper right", numpoints=1, frameon=False)
 	ta = plotBase.AxisLabels(ta, "extrapol", "jet2")
-	ta.text(0.04, 0.10, r"$\chi^2 / n_\mathrm{dof} = %1.3f / %d $" % (fitres.Chi2(), fitres.Ndf()),
-			va='bottom', ha='left', transform=ta.transAxes, fontsize=16)
+	ta.text(0.04, 0.11, r"$\chi^2 / n_\mathrm{dof} = %1.3f / %d $" % (fitres.Chi2(), fitres.Ndf()),
+			va='bottom', ha='left', transform=ta.transAxes, fontsize=18)
 	ta.text(0.04, 0.05, r"$R_\mathrm{corr} = %1.3f \pm %1.3f $" % (func_y[0], (func_y[0]-func_yl[0])),
-			va='bottom', ha='left', transform=ta.transAxes, fontsize=16)
+			va='bottom', ha='left', transform=ta.transAxes, fontsize=18)
+	ta.text(0.96, 0.05, r"$%s < p_\mathrm{T}^\mathrm{Z} / \mathrm{GeV} < %s$" % (folder[folder.find('Pt')+2:folder.find('to')],folder[folder.find('to')+2:folder.find('_incut')]),
+			va='bottom', ha='right', transform=ta.transAxes, fontsize=18)
+
 	plotBase.Save(tf, folder + quantity + "_" + datatype, settings, False)
 
 	zpt = zpt.replace("<bin>", folder.split("_")[0])
@@ -258,8 +247,9 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 		 algoname_data = algoname_data[: len (algoname_data) - 3]
 		 algoname_data = algoname_data + add_to_data + "CHS"
 		 
-	
+	# loop over bins
 	for s in str_bins:
+		# extrapolate data
 		(tge, extr_func, fitres, exp_err,
 		   hist_jetresp_orig, hist_zpt) = extrapolation_prototype(fdata,  folder_prefix +  s + "_incut_var_CutSecondLeadingToZPt_",
 																	response_measure + "_" + algoname_data,
@@ -271,7 +261,7 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 		data_y_orig_err	 += [hist_jetresp_orig.GetMeanError()]
 		data_x += [hist_zpt.GetMean()]
 
-
+		# extrapolate MC
 		( tge, extr_func, fitres, exp_err, 
 		   hist_jetresp_orig, hist_zpt) = extrapolation_prototype( fmc,  
 								folder_prefix + s + "_incut_var_CutSecondLeadingToZPt_",
@@ -281,22 +271,20 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 		mc_y += [extr_func.Eval(0.0)]
 		mc_yerr += [exp_err]
 		mc_y_orig += [hist_jetresp_orig.GetMean()]
-		mc_y_orig_err	+= [hist_jetresp_orig.GetMeanError()]
+		mc_y_orig_err += [hist_jetresp_orig.GetMeanError()]
 		mc_x += [hist_zpt.GetMean()]
 	
+	print mc_y, data_y
+
 	# plot data solo
 	tf, ta, tname = plotBase.makeplot(response_measure + "_data")
 	
-	hist = ta.errorbar(np.array(data_x), np.array(data_y),
-						yerr=np.array(data_yerr), drawstyle='steps-mid',
-							color='black', fmt='o',
-							capsize=0, label='data extrapolated')
+	hist = ta.errorbar(data_x, data_y, data_yerr,
+		drawstyle='steps-mid', color='black', fmt='o', capsize=0, label='data extrapolated')
 	
-	
-	hist_orig = ta.errorbar(np.array(data_x), np.array(data_y_orig),
-						yerr=np.array(data_y_orig_err), drawstyle='steps-mid',
-							color='red', fmt='o',
-							capsize=0, label='data')
+	hist_orig = ta.errorbar(data_x, data_y_orig, data_y_orig_err,
+		drawstyle='steps-mid',color='red', fmt='o', capsize=0, label='data')
+
 	ta = plotBase.captions(ta, settings, False)
 	plotBase.AddAlgoAndCorrectionCaption( ta, algoname_data, settings )
 	ta.set_ylim( 0.5, 1.1 )
@@ -308,20 +296,16 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	
 	tf, ta, tname = plotBase.makeplot(response_measure + "_mc")
 	
-	hist = ta.errorbar(np.array(mc_x), np.array(mc_y),
-						yerr=np.array(mc_yerr), drawstyle='steps-mid',
-							color='black', fmt='o',
-							capsize=0, label='mc extrapolated')
+	hist = ta.errorbar(mc_x, mc_y, mc_yerr, drawstyle='steps-mid',
+			color='black', fmt='o', capsize=0, label='mc extrapolated')
 	
-	hist_orig = ta.errorbar(np.array(mc_x), np.array(mc_y_orig),
-						yerr=np.array(mc_y_orig_err), drawstyle='steps-mid',
-							color='red', fmt='o',
-							capsize=0, label='mc')
+	hist_orig = ta.errorbar(mc_x, mc_y_orig, mc_y_orig_err,
+			drawstyle='steps-mid', color='red', fmt='o', capsize=0, label='mc')
 	
 	ta = plotBase.captions(ta, settings, False)
 	plotBase.AddAlgoAndCorrectionCaption( ta, algoname_data, settings )
 
-	ta.legend(numpoints=1, frameon=False, )
+	ta.legend(numpoints=1, frameon=False)
 	ta.set_ylim( 0.5, 1.1 )
 	ta = plotBase.AxisLabels(ta, response_measure, 'jet')
 	
@@ -337,13 +321,13 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 
 	if do_extrapolation:
 		# use the extrapolated values
-		for both_x, the_mc_y, the_mc_yerr, the_data_y, the_data_yerr in zip(mc_x, mc_y, mc_yerr, data_y, data_yerr):
+		for both_x, the_mc_y, the_mc_yerr, the_data_y, the_data_yerr in zip(data_x, mc_y, mc_yerr, data_y, data_yerr):
 			data_mc_ratio += [the_data_y / the_mc_y]
 			# error propagation
 			data_mc_ratio_err += [  the_data_yerr / the_mc_y + the_data_y / ( the_mc_y * the_mc_y ) * the_mc_yerr   ]
 	else:
 		# use the not-extrapolated values
-		for both_x, the_mc_y, the_mc_yerr, the_data_y, the_data_yerr in zip(mc_x, mc_y_orig, mc_y_orig_err, data_y_orig, data_y_orig_err):
+		for both_x, the_mc_y, the_mc_yerr, the_data_y, the_data_yerr in zip(data_x, mc_y_orig, mc_y_orig_err, data_y_orig, data_y_orig_err):
 			data_mc_ratio += [the_data_y / the_mc_y]
 			# error propagation
 			data_mc_ratio_err += [  the_data_yerr / the_mc_y + the_data_y / ( the_mc_y * the_mc_y ) * the_mc_yerr   ]
@@ -386,10 +370,8 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	fitres = tfit.Fit( extr_func, "SQN")
 	
 		
-	hist = ta_ratio.errorbar(np.array(mc_x), np.array(data_mc_ratio),
-						yerr=np.array(data_mc_ratio_err), drawstyle='steps-mid',
-							color=the_color, fmt='o',
-							 label=the_label)
+	hist = ta_ratio.errorbar(data_x, data_mc_ratio,data_mc_ratio_err,
+			drawstyle='steps-mid', color=the_color, fmt='o', label=the_label)
 	
 	const_fit_res = fitres.GetParams()[0]
 	const_fit_res_err = fitres.GetErrors()[0]
