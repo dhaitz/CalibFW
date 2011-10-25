@@ -445,7 +445,8 @@ public:
 			if (npv<m_weights->size()){
 				fct = m_weights->at(npv);
 			} else {
-				CALIB_LOG_FATAL("Number of PV (" << npv << ") exceeds weight range (0.."
+				fct = 0.0f;
+				CALIB_LOG("Number of PV (" << npv << ") exceeds weight range (0.."
 					<< m_weights->size()-1 << ") in event " << this->m_pData->cmsEventNum
 					<< ". This should not happen!");
 			}
