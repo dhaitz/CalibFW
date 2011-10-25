@@ -3,13 +3,13 @@
 import getROOT
 import sys, os, math #, kein pylab!
 import time
+import math
 import numpy as np
 import matplotlib
 import matplotlib.font_manager as font_man
 import copy as copy
 
-from ROOT import TGraphErrors, TCanvas, TF1, TFitResultPtr, TMath
-from ROOT import kRed, kBlue
+from ROOT import TGraphErrors, TCanvas, TF1, TFitResultPtr
 
 
 matplotlib.rc('text', usetex=False)
@@ -25,7 +25,7 @@ settings.outputformats = ['png', 'pdf', 'txt', 'dat']
 settings.lumi = 2179.0
 settings.verbosity = 2
 
-bins = [30, 45, 60, 80, 105, 140, 1000]
+bins = [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]
 
 factor10 = 36 * 0.001 * 0.75
 mc11color = 'FireBrick'
@@ -37,8 +37,8 @@ from_folder = "NoBinning_incut/"
 
 #### INPUTFILES
 print "%1.2f Open files:" % time.clock()
-fdata = getROOT.OpenFile(plotBase.GetPath() + "data_Oct12.root", (settings.verbosity > 1))
-fmc = getROOT.OpenFile(plotBase.GetPath() + "MC_Oct12.root", (settings.verbosity > 1))
+fdata = getROOT.OpenFile(plotBase.GetPath() + "data_Oct19.root", (settings.verbosity > 1))
+fmc = getROOT.OpenFile(plotBase.GetPath() + "pythia_Oct19.root", (settings.verbosity > 1))
 
 def CreateBinStrings (the_bins):
 	
@@ -59,7 +59,7 @@ def IsErrorCompatible( v1, v2, err1, err2 ):
 	return (diff < errsum)
 
 def GetErrErr( rootHisto ):
-	sqrtNminus1=TMath.Sqrt( rootHisto.GetEntries() - 1 );
+	sqrtNminus1 = math.sqrt( rootHisto.GetEntries() - 1 );
 	center_err_err = rootHisto.GetRMSError()/sqrtNminus1;
 	
 	return 	center_err_err
@@ -74,7 +74,6 @@ def extrapolation_prototype(fdatasource,
 
   	extr_func = TF1("interpolation1", ext_formula, 0, 1000.0)
   	extr_func.SetLineWidth(2)
-  	extr_func.SetLineColor(kRed)
 
    	extr_func.SetParameter(0, 1)
    	extr_func.SetParameter(1, 1)
@@ -132,12 +131,12 @@ def extrapolation_prototype(fdatasource,
   			this_err = hist_jetresp.GetMeanError()
   			
   			if first_err <  this_err:  			  			
-  				this_err=TMath.Sqrt(  hist_jetresp.GetMeanError() * hist_jetresp.GetMeanError() -  first_err * first_err);
+				this_err = math.sqrt(  hist_jetresp.GetMeanError()**2 - first_err**2)
   				
   			else: # fix this hack !
 	  			#elif IsErrorCompatible(first_err, hist_jetresp.GetMeanError(), 
 				#						first_err_err, GetErrErr(hist_jetresp )):
-  			 	this_err = 0.5*(first_err_err+GetErrErr(hist_jetresp ));
+				this_err = 0.5*(first_err_err+GetErrErr(hist_jetresp))
 	  			#else:
 	  			#	print "FAIL: errors not in order"
 	  			#	exit()
@@ -178,8 +177,6 @@ def extrapolation_prototype(fdatasource,
 	upper_exp_err.SetParameter(1, ( m_fit - m_fit_err ) )
 	upper_exp_err.SetParameter(2, first_var )
 	
-	upper_exp_err.SetLineColor( kBlue )
-	
 	
 	print exp_err
 	
@@ -199,7 +196,7 @@ def extrapolation_prototype(fdatasource,
 	pygraph = getROOT.ConvertToArray(tge)
 	gr_extr1 = ta.errorbar(pygraph.xc, pygraph.y, pygraph.yerr, color='Black', fmt='o', capsize=2, label='uncorrelated')
 	for i in range(1, len(pygraph)):
-		pygraph.yerr[i] = TMath.Sqrt(  pygraph.yerr[i]*pygraph.yerr[i] + first_err * first_err)
+		pygraph.yerr[i] = math.sqrt(  pygraph.yerr[i]**2 + first_err**2)
 	gr_extr = ta.errorbar(pygraph.xc, pygraph.y, pygraph.yerr, color='FireBrick', fmt='o', capsize=2, label='correlated')
 	# Labels and the rest
 	ta = plotBase.captions(ta, settings, False)

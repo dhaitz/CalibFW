@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import ROOT
+import ROOT #from ROOT import TFile, TH1D, TGraphErrors
 import cPickle as pickle
-from time import localtime, strftime
+from time import localtime, strftime, clock
 
 
 def SafeGet(RootDict, ObjectName):
@@ -14,13 +14,9 @@ def SafeGet(RootDict, ObjectName):
     return oj
 
 def IsObjectExistent ( RootDict, ObjectName ):
-    oj = RootDict.Get( ObjectName )
-    if oj:
-        return True
-    else:
-        return False
+    return bool(RootDict.Get(ObjectName))
         
-def OpenFile(filename, message=False):
+def openFile(filename, message=False):
     """Open a root file"""
     f = ROOT.TFile(filename)
     if f:
@@ -30,22 +26,29 @@ def OpenFile(filename, message=False):
         assert False
     return f
 
-def ConvertToArray(histo, lumi=0.0, rootfile='', rebin=1):
+
+def openFiles(datafiles, mcfiles, verbose=True):
+#	if datafiles ... openFiles(op) auch machen
+    if verbose: print "%1.2f | Open files" % clock()
+    fdata = [openFile(f, verbose) for f in datafiles]
+    fmc   = [openFile(f, verbose) for f in mcfiles]
+    # be prepared for multiple data and multiple mc files. For the moment: return the first
+    return fdata[0], fmc[0]
+
+def ConvertToArray(histo, rootfile='', rebin=1):
     """Convert a root histogram to a numpy histogram
     
     """
-    hst = npHisto()
+    hst = nHisto()
     # Detect if it is a TH1D or a TGraphErrors
     if hasattr(histo,'GetNbinsX'): 
         # histo is a histogram, read it
         histo.Rebin(rebin)
-        hst.source = ""#rootfile
-        hst.path = ""#path in rootfile
+        hst.source = rootfile
         hst.name = histo.GetName()
         hst.title = histo.GetTitle()
         hst.xlabel = histo.GetXaxis().GetTitle()
         hst.ylabel = histo.GetYaxis().GetTitle()
-        hst.lumi = lumi
         for i in range(1,histo.GetSize()-1):
             hst.x.append(histo.GetBinLowEdge(i))
             hst.xc.append(histo.GetBinCenter(i))
@@ -63,12 +66,10 @@ def ConvertToArray(histo, lumi=0.0, rootfile='', rebin=1):
     elif hasattr(histo,'GetN'):
         # histo is a graph, read it
         hst.source = rootfile
-        hst.path = ""#path in rootfile
         hst.name = histo.GetName()
         hst.title = histo.GetTitle()
         hst.xlabel = histo.GetXaxis().GetTitle()
         hst.ylabel = histo.GetYaxis().GetTitle()
-        hst.lumi = lumi
         a = ROOT.Double(0.0)
         b = ROOT.Double(0.0)
         for i in range(0,histo.GetN()):
@@ -86,25 +87,49 @@ def ConvertToArray(histo, lumi=0.0, rootfile='', rebin=1):
     else:
         # histo is of unknown type
         print "The object '" + histo + "' is no histogram and no graph! Could not convert."
-    #print hst
     return hst
     
 
-def SafeConvert(RootDict, ObjectName, lumi=0.0, formatslist=[], rebin=1):
+def SafeConvert(RootDict, ObjectName, formatslist=[], rebin=1):
     """Combined import and conversion to npHisto"""
     root_histo = SafeGet(RootDict, ObjectName)
-    histo = ConvertToArray(root_histo,lumi,'',rebin)
+    histo = ConvertToArray(root_histo,'',rebin)
     if 'txt' in formatslist:
         histo.write()
     if 'dat' in formatslist:
         histo.dump()
     return histo
 
-class npHisto:
+class nHisto:
     """Reduced Histogramm or Graph
     
-    Self-defined Numpy histogram
+    Self-defined histogram class
     """
+#    def __init__(self,xcv=[],yv=[],yerrv=[],xv=[],xerrv=[]):
+#        if len(xcv)!=len(yv) and len(xv)!=len(yv):
+#            print "x and y values are not of equal number:", xc, y
+#        print xcv, yv, yerrv, xv, xerrv
+#        self.source = ""
+#        self.path = ""
+#        self.name = ""
+#        self.title = ""
+#        self.xlabel = "x"
+#        self.ylabel = "y"
+#        self.x = xv
+#        self.xc = xcv
+#        self.y = yv
+#        self.xerr = xerrv
+#        self.yerr = yerrv #TODO yel, yeh wenn unterschiedlich...
+#        self.ysum = sum(yv)
+#        if self.ysum:
+#            self.norm = 1.0/self.ysum
+#        else:
+#            self.norm = 1.0
+#        if self.y==[]:
+#            self.ymax=0.0
+#        else:
+#            self.ymax = max(yv)
+
     def __init__(self):
         self.source = ""
         self.path = ""
@@ -112,15 +137,14 @@ class npHisto:
         self.title = ""
         self.xlabel = "x"
         self.ylabel = "y"
-        self.lumi = 0.0
-        self.norm = 1.0
-        self.ysum = 0.0
-        self.ymax = 0.0
         self.x = []
         self.xc = []
         self.y = []
         self.xerr = []
-        self.yerr = [] #TODO yel, yeh wenn unterschiedlich...
+        self.yerr =  [] #TODO yel, yeh wenn unterschiedlich...
+        self.ysum = 0.0
+        self.norm = 1.0
+        self.ymax=0.0
 
     def __del__(self):
         pass
@@ -200,7 +224,6 @@ class npHisto:
         text += "\n#y label:   " + self.ylabel
         text += "\n#title:     " + self.title
         text += "\n#energy:    7"  # in TeV
-        text += "\n#lumi:      " + str(self.lumi) # in pb^{-1}
         text += "\n#  i     x        xmid      y               ynorm"
         text += "           yerr            ynormerr\n"
         for i in range(len(self.y)):
@@ -248,13 +271,10 @@ class fitfunction:
     """
     
     """
-    def __init__(self):
+    def __init__(self, rootfunction=""):
         self.function = 'a*x+b'
         self.parameter = [0.5,-1.0]
         
-    def __init__(self, rootfunction):
-        pass
-    
     def __del__(self):
         pass
     

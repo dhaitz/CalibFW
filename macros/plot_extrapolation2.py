@@ -2,40 +2,13 @@
 
 import getROOT
 import math
-import time
-import matplotlib
 import copy
 
 from ROOT import TGraphErrors, TCanvas, TF1
-
-
-matplotlib.rc('text', usetex=False)
-matplotlib.rc('font', size=16)
-#import matplotlib.pyplot as plt
 import plotBase
 
-print "%1.2f Start with settings" % time.clock()
-### SETTINGS
-settings = plotBase.StandardSettings()
-settings.outputformats = ['png', 'pdf', 'txt', 'dat']
-#settings.outputformats = ['png', 'txt', 'dat']
-settings.lumi = 2179.0
-settings.verbosity = 2
 
-bins = [0,25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364,1000]
-
-factor10 = 36 * 0.001 * 0.75
-mc11color = 'FireBrick'
-mc10color = 'MidnightBlue'
-data11color = 'black'
-data10color = 'gray'
-
-from_folder = "NoBinning_incut/"
-
-#### INPUTFILES
-print "%1.2f Open files:" % time.clock()
-fdata = getROOT.OpenFile(plotBase.GetPath() + "data_Oct12_morebins.root", (settings.verbosity > 1))
-fmc = getROOT.OpenFile(plotBase.GetPath() + "MC_Oct12_morebins.root", (settings.verbosity > 1))
+#from_folder = "NoBinning_incut/"
 
 def BinStrings(the_bins):
 	return [ "Pt" + str(the_bins[i]) + "to" + str(the_bins[i+1]) for i in range(len(the_bins)-1) ]	
@@ -55,9 +28,10 @@ def extrapolateRatio(fdata, fmc,
 	#				zpt, #="z_pt_ak5PFJetsL1L2L3_hist",
 					var = [0.1, 0.15, 0.2, 0.3],
 					fit_formula = "[0]+[1]*(x-[2])",
-					drawPlot = True):
+					drawPlot = True,
+					opt=plotBase.commandlineOptions()):
 
-	print "Fit", fit_formula, "to", var
+	print "Fit", fit_formula, "to [" + ", ".join("%1.3f" % v for v in var) + "]"
 	var = copy.deepcopy(var)
 	var.reverse()
 
@@ -118,7 +92,7 @@ def extrapolateRatio(fdata, fmc,
 	yex_err = y0err + m_fit_err*x0
 
 	if drawPlot:
-		drawExtrapolation(graph, fitres, m_fit, m_fit_err, y0, x0, y0err, folder, histo)
+		drawExtrapolation(graph, fitres, m_fit, m_fit_err, y0, x0, y0err, folder, histo, opt)
 
 	print "Extrapolated response: R = %1.4f +- %1.4f" % (yex, yex_err)
 
@@ -128,55 +102,52 @@ def extrapolateRatio(fdata, fmc,
 
 
 
-def drawExtrapolation(graph, fitres, m, merr, b, x0, y0err, folder, quantity):
-	tf, ta, tname = plotBase.makeplot("extrapol")
+def drawExtrapolation(graph, fitres, m, merr, b, x0, y0err, folder, quantity, opt):
+	graph = getROOT.ConvertToArray(graph)
+	fig, ax = plotBase.newplot()
 	# Fit function with errorband
 	func_x = [x/100.0 for x in range(34)]
 	func_y = [m*(x-x0) + b for x in func_x]
 	func_yl = [(m+merr)*(x-x0) + b - y0err for x in func_x]
 	func_yh = [(m-merr)*(x-x0) + b + y0err for x in func_x]
-	ta.fill_between(func_x, func_yl, func_yh, facecolor='CornflowerBlue', edgecolor='white', interpolate=True, alpha=0.3)
-	fitfct = ta.plot(func_x, func_y, '-', label='extrapolation')
+	ax.fill_between(func_x, func_yl, func_yh, facecolor='CornflowerBlue', edgecolor='white', interpolate=True, alpha=0.3)
+	fitfct = ax.plot(func_x, func_y, '-', label='extrapolation')
 	# Cut variation data points with uncorrelated and correlated errors
-	pygraph = getROOT.ConvertToArray(graph)
-	if pygraph.yerr[0] != y0err: print "\n\n!!!!!!!!!", pygraph.yerr[0], "!=", y0err, "\n\n"
-	gr_extr1 = ta.errorbar(pygraph.xc, pygraph.y, pygraph.yerr, color='Black', fmt='o', capsize=2, label='uncorrelated')
-	for i in range(1, len(pygraph)):
-		if pygraph.yerr[i] < y0err:
-			pygraph.yerr[i] = math.sqrt(  pygraph.yerr[i]**2 + y0err**2 )
-	gr_extr = ta.errorbar(pygraph.xc, pygraph.y, pygraph.yerr, color='FireBrick', fmt='o', capsize=2, label='correlated')
+	if graph.yerr[0] != y0err: print "\n\n!!!!!!!!!", graph.yerr[0], "!=", y0err, "\n\n"
+	gr_extr1 = ax.errorbar(graph.xc, graph.y, graph.yerr, color='Black', fmt='o', capsize=2, label='uncorrelated')
+	for i in range(1, len(graph)):
+		if graph.yerr[i] < y0err:
+			graph.yerr[i] = math.sqrt(  graph.yerr[i]**2 + y0err**2 )
+	gr_extr = ax.errorbar(graph.xc, graph.y, graph.yerr, color='FireBrick', fmt='o', capsize=2, label='correlated')
 	# Legend and labels
-	ta = plotBase.captions(ta, settings, False)
-	ta.legend(loc="upper right", numpoints=1, frameon=False)
-	ta = plotBase.AxisLabels(ta, "extrapol", "jet2")
-	ta.text(0.04, 0.11, r"$\chi^2 / n_\mathrm{dof} = %1.3f / %d $" % (fitres.Chi2(), fitres.Ndf()),
-			va='bottom', ha='left', transform=ta.transAxes, fontsize=18)
-	ta.text(0.04, 0.05, r"$R_\mathrm{corr} = %1.3f \pm %1.3f $" % (func_y[0], (func_y[0]-func_yl[0])),
-			va='bottom', ha='left', transform=ta.transAxes, fontsize=18)
-	ta.text(0.96, 0.05, r"$%s < p_\mathrm{T}^\mathrm{Z} / \mathrm{GeV} < %s$" % (folder[folder.find('Pt')+2:folder.find('to')],folder[folder.find('to')+2:folder.find('_incut')]),
-			va='bottom', ha='right', transform=ta.transAxes, fontsize=18)
+	ax = plotBase.captions(ax, opt)
+	ax.legend(loc="upper right", numpoints=1, frameon=False)
+	ax = plotBase.AxisLabels(ax, "extrapol", "jet2")
+	ax.text(0.04, 0.11, r"$\chi^2 / n_\mathrm{dof} = %1.3f / %d $" % (fitres.Chi2(), fitres.Ndf()),
+			va='bottom', ha='left', transform=ax.transAxes, fontsize=18)
+	ax.text(0.04, 0.05, r"$R_\mathrm{corr} = %1.3f \pm %1.3f $" % (func_y[0], (func_y[0]-func_yl[0])),
+			va='bottom', ha='left', transform=ax.transAxes, fontsize=18)
+	ax.text(0.96, 0.05, r"$%s < p_\mathrm{T}^\mathrm{Z} / \mathrm{GeV} < %s$" % (folder[folder.find('Pt')+2:folder.find('to')],folder[folder.find('to')+2:folder.find('_incut')]),
+			va='bottom', ha='right', transform=ax.transAxes, fontsize=18)
 
-	plotBase.Save(tf, folder + quantity + "_RATIOTEST", settings, False)
-
-
+	plotBase.Save(fig, folder + quantity + "_RATIOTEST", opt, False)
 
 
-def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrapolation = True, tag = "extrapol", add_to_data = "", folder_prefix = ""  ):	
-	
-	
+
+
+def extrapolate_ratio( response_measure, fdata, fmc, opt, do_extrapolation = True, tag = "extrapol", add_to_data = "", folder_prefix = "" ):
+	tf_ratio, ta_ratio = plotBase.newplot()
+	bins=opt.bins
+	if bins[0]==0: bins.pop(0)
 	str_bins = BinStrings (bins) 
 	
 	ext_res_data = []
-	# nphisto!!
-	ratioEx_x = []
-	ratioEx_y = []
-	ratioEx_yerr = []
-	
+	ratioEx = getROOT.nHisto()
+	algoname = opt.algorithm + opt.correction
 	
 	algoname_data = algoname + add_to_data
 	if "CHS" in algoname_data:
-		 algoname_data = algoname_data[: len (algoname_data) - 3]
-		 algoname_data = algoname_data + add_to_data + "CHS"
+		 algoname_data = algoname_data[: len (algoname_data) - 3] + add_to_data + "CHS"
 		 
 	# loop over bins
 	for s in str_bins:
@@ -184,9 +155,9 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 		yex, yex_err, x = extrapolateRatio(fdata, fmc,  
 				folder_prefix +  s + "_incut_var_CutSecondLeadingToZPt_",
 				response_measure + "_" + algoname_data + "_hist")
-		ratioEx_y    += [yex]
-		ratioEx_yerr += [yex_err]
-		ratioEx_x    += [x]
+		ratioEx.y    += [yex]
+		ratioEx.yerr += [yex_err]
+		ratioEx.x    += [x]
 
 	ext_str = ""
 	if do_extrapolation:
@@ -206,12 +177,12 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 		the_label = 'MPF' + ext_str
 	
 	
-	tfit = TGraphErrors(len(ratioEx_x))
+	tfit = TGraphErrors(len(ratioEx.x))
 	
-	for i in range(0, len(ratioEx_x)):
-		print "   %2d:% 7.2f | %1.4f +- %1.4f" % (i, ratioEx_x[i], ratioEx_y[i], ratioEx_yerr[i] )
-		tfit.SetPoint( i, ratioEx_x[i], ratioEx_y[i] )
-		tfit.SetPointError( i, 0, ratioEx_yerr[i] )
+	for i in range(0, len(ratioEx.x)):
+		print "   %2d:% 7.2f | %1.4f +- %1.4f" % (i, ratioEx.x[i], ratioEx.y[i], ratioEx.yerr[i] )
+		tfit.SetPoint( i, ratioEx.x[i], ratioEx.y[i] )
+		tfit.SetPointError( i, 0, ratioEx.yerr[i] )
 		
 	extr_func = TF1("fit12", "[0]", 0.0, 1000.0)
 	extr_func.SetParameter(0, 1.0)
@@ -219,23 +190,21 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	fitres = tfit.Fit( extr_func, "SQN")
 	
 		
-	hist = ta_ratio.errorbar(ratioEx_x, ratioEx_y,ratioEx_yerr, drawstyle='steps-mid',
+	hist = ta_ratio.errorbar(ratioEx.x, ratioEx.y,ratioEx.yerr, drawstyle='steps-mid',
 							color=the_color, fmt='o', label=the_label)
 	
 	const_fit_res = fitres.GetParams()[0]
 	const_fit_res_err = fitres.GetErrors()[0]
 	
 
-	print "Fit result: overall ratio = $%1.4f \pm %1.4f$" % (const_fit_res, const_fit_res_err)
+	print "Fit result: overall ratio = %1.4f +- %1.4f" % (const_fit_res, const_fit_res_err)
 	
 	ta_ratio.axhline( const_fit_res, color=the_color )
 	ta_ratio.axhspan( const_fit_res - const_fit_res_err,  const_fit_res + const_fit_res_err, color=the_color, alpha = 0.23 )
 	
 	ta_ratio.axhline( 1.0, color="black", linestyle = '--' )
 	 
-	plotBase.captions(ta_ratio, settings, False)
-	plotBase.AddAlgoAndCorrectionCaption( ta_ratio, algoname_data, settings )
-	#ta = plotBase.tags(ta, 'Private work', 'Joram Berger')
+	plotBase.captions(ta_ratio, opt)
 	
 	#font = font_man.Fo FontProperties( size = 10)
 	
@@ -247,7 +216,7 @@ def extrapolate_ratio( response_measure, algoname, tf_ratio, ta_ratio, do_extrap
 	ta_ratio.text(0.95, .05, "Overall Ratio (fit) = $%1.3f \pm %1.3f$" % (const_fit_res, const_fit_res_err),
 			 color = the_color,	va='bottom', ha='right', fontsize=15, transform=ta_ratio.transAxes )
 	ta_ratio.minorticks_on()
-	
+	plotBase.Save(tf_ratio, response_measure+"_ratio_"+opt.algorithm+opt.correction+"_ratio_beforextrapol", opt, False)
 	
 def AddEtaRange( ta, eta_range):
 	ta.text(0.05, .05, eta_range, 
@@ -258,21 +227,23 @@ def AddEtaRange( ta, eta_range):
 
 # Balance 
 
-def balex(level="L1L2L3CHS", res=""):
-	tf, ta, tname = plotBase.makeplot("jetresp_mc")
-	extrapolate_ratio("jetresp", "ak5PFJets"+level, tf, ta, True, "extrapol", res)
-	#AddEtaRange(ta, "$|\eta| < 1.3$")
-	plotBase.Save(tf, "jetresp_ratio_ak5PFJets"+level+res+"_ratio_beforextrapol", settings, False)
+def balanceex(fdata, fmc, opt):
+	extrapolate_ratio("jetresp", fdata, fmc, opt, True, "extrapol")
+
 
 # MPF 
 
-def mpfex(level="L1L2L3CHS", res=""):
-	tf, ta, tname = plotBase.makeplot("jetresp_mc")
-	extrapolate_ratio("mpfresp", "ak5PFJets"+level, tf, ta, False, "no_extrapol", res)
+def mpfex(fdata, fmc, opt):
+	extrapolate_ratio("mpfresp", fdata, fmc, opt, False, "no_extrapol")
 	#AddEtaRange(ta, r"$|\eta| < 1.3$")
-	plotBase.Save(tf, "mpfresp_ratio_ak5PFJets"+level+res+"_ratio_TEST", settings, False)
 
 
-balex()
-mpfex()
 
+plots = ['balanceex', 'mpfex']
+
+if __name__ == "__main__":
+	fdata = getROOT.openFile(plotBase.GetPath() + "data_Oct19.root")
+	fmc = getROOT.openFile(plotBase.GetPath() + "pythia_Oct19.root")
+	bins = plotBase.guessBins(fdata, [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]) #binning must be after file open. plots do this later: if bins[0] == 0 bins.pop(0)
+	balanceex(fdata, fmc, opt=plotBase.commandlineOptions(bins=bins))
+	mpfex(fdata, fmc, opt=plotBase.commandlineOptions(bins=bins))

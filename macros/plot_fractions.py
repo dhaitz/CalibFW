@@ -1,36 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import getROOT
-import time
 import numpy as np
-import matplotlib 
-import matplotlib.pyplot as plt 
-import matplotlib.font_manager as font_man
-
-matplotlib.rc('text', usetex=True) 
-matplotlib.rc('font', size=16)
 import plotBase
-import ROOT
+from ROOT import TF1
 import math
 
-print "%1.2f Start with settings" % time.clock()
-### SETTINGS
-settings = plotBase.StandardSettings()
-settings.outputformats = ['png', 'pdf', 'txt', 'dat']
-settings.lumi = 2179.0
-settings.verbosity = 2
-bins = [25,30,36,43,51,61,73,87,104,124,148,177,212,254,304,364,1000]
 
-#### INPUTFILES
-print "%1.2f Open files:" % time.clock()
-fdata = getROOT.OpenFile(plotBase.GetPath() + "data_Oct12_morebins.root", (settings.verbosity > 1))
-fmc = getROOT.OpenFile(plotBase.GetPath() + "MC_Oct12_morebins.root", (settings.verbosity > 1))
 
-def DrawComposition(algoname, bins):
+def fractions(fdata, fmc, opt):
 	"""Plot the components of the leading jet"""
-	tf, ta, tname = plotBase.makeplot("jetresp_mc")
+	tf, ta = plotBase.newplot()
 	# use a finer binning
 	ta = plotBase.AxisLabels(ta, 'components')
+	algoname = opt.algorithm+opt.correction
 	
 	# Name everything you want and take only the first <nbr> entries of them
 	nbr = 5
@@ -46,7 +29,10 @@ def DrawComposition(algoname, bins):
 	dataG = [ getROOT.SafeConvert(fdata,graphname) for graphname in graphnames ]
 
 	# get x values and bar widths
-	x = bins[:-1]	
+	x = opt.bins[1:-1]
+	bins = opt.bins
+	if bins[0] == 0:
+		bins.pop(0)
 	barWidth = []
 	for i in range(len(bins)-1):
 		barWidth.append(bins[i+1] - bins[i])
@@ -58,7 +44,7 @@ def DrawComposition(algoname, bins):
 	for i in range(len(mcG)):
 		mcG[i].dropbin(0)
 		dataG[i].dropbin(0)
-		fitf = ROOT.TF1("fit1", "1*[0]", 1.0, 1000.0)
+		fitf = TF1("fit1", "1*[0]", 1.0, 1000.0)
 		getROOT.SafeGet(fdata,graphnames[i]).Fit(fitf,"QN")
 		fitd.append(fitf.GetParameter(0))
 		fitderr.append(fitf.GetParError(0))
@@ -77,7 +63,7 @@ def DrawComposition(algoname, bins):
 		print "Bins:",
 		for bn in x + x: print "%6.0f" % bn,
 		for i in range(len(mcG)):
-			print "\n%4s:" % (labels[i]),
+			print "\n%4s:" % (labels[i].replace("$\,$","")),
 			for y in mcG[i].y + dataG[i].y: print "%1.4f" % (y),
 			print "%+1.2f%% +- %1.2f%%" % ((fitd[i]-fitm[i])*100, (fitderr[i]+fitmerr[i])*100),
 
@@ -94,7 +80,7 @@ def DrawComposition(algoname, bins):
 	for y in mcG[-1].y + dataG[-1].y: print "%1.4f" % (y),
 	print
 
-	if settings.verbosity>2:
+	if opt.verbose:
 		print mcG[0].x
 		print mcG[1].y
 		print len(mcG), len(mcG[0].y), len(bins), len(x), len(barWidth)
@@ -102,35 +88,40 @@ def DrawComposition(algoname, bins):
 			
 	# MC histograms (begin with the last one)
 	for i in range(len(mcG)-1,-1,-1):
-		plt.bar(x, mcG[i].y, width=barWidth, color=colours[i], edgecolor = None, linewidth=0, label=r"%s: $%1.3f(%d)\, %1.3f(%d)$" % (labels[i],fitd[i],math.ceil(1000*fitderr[i]),fitm[i], math.ceil(1000*fitmerr[i])))
-		plt.plot(bins, mcG[i].y+[mcG[i].y[-1]], drawstyle='steps-post', color='black',linewidth=1)
+		ta.bar(x, mcG[i].y, width=barWidth, color=colours[i], edgecolor = None, linewidth=0,
+			label=r"%s: $%1.3f(%d)\, %1.3f(%d)$" % (labels[i],fitd[i],math.ceil(1000*fitderr[i]),fitm[i], math.ceil(1000*fitmerr[i])))
+		ta.plot(bins, mcG[i].y+[mcG[i].y[-1]], drawstyle='steps-post', color='black',linewidth=1)
 	ta.text(0.625,0.43, r"Data $\quad\;$ MC", va='top', ha='left', transform=ta.transAxes)
 	#data points
 	for i in range(len(mcG)-1,-1,-1):
-		plt.errorbar(dataG[i].x, dataG[i].y, dataG[i].yerr, elinewidth=1,
+		ta.errorbar(dataG[i].x, dataG[i].y, dataG[i].yerr, elinewidth=1,
 			marker = markers[i], ms =3, color="black", lw = 0, ecolor=None)
 
-	plt.legend(loc='lower right', numpoints=1)
-	ta = plotBase.captions(ta, settings)
-	plotBase.Save(tf, algoname + "_fractions", settings, False)
+	ta.legend(loc='lower right', numpoints=1)
+	ta = plotBase.captions(ta)
+	plotBase.Save(tf, algoname + "_fractions", opt, False)
 
 	#plot the difference (with MC error neglected)
-	tf, ta, tname = plotBase.makeplot("components_diff")
+	tf, ta = plotBase.newplot()
 	tf.subplots_adjust(left=0.15)
-	ta = plotBase.captions(ta, settings)
+	ta = plotBase.captions(ta)
 	ta = plotBase.AxisLabels(ta,'components_diff')
 	ta.tick_params(which='both')
 	ta.grid(True,which="both", ls='-',color='0.75', zorder=0)
-	plt.axhline(0.0, color='black', lw=1, zorder=10)
+	ta.axhline(0.0, color='black', lw=1, zorder=10)
 
 
 	for i in range(len(mcG)):
-		plt.errorbar( mcG[i].x, diff[i], dataG[i].yerr, label = labels[i], fmt = "o", capsize = 2, color = colours[i], zorder=15+i)
-		plt.plot([1.0,1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
+		ta.errorbar( mcG[i].x, diff[i], dataG[i].yerr, label = labels[i], fmt = "o", capsize = 2, color = colours[i], zorder=15+i)
+		ta.plot([1.0,1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
 
-	plt.legend(loc='lower right', numpoints=1)
-	plotBase.Save(tf, algoname + "_fractions_diff", settings, False)
+	ta.legend(loc='lower right', numpoints=1)
+	plotBase.Save(tf, algoname + "_fractions_diff", opt, False)
 
-DrawComposition( "ak5PFJetsL1L2L3CHS", bins)
+plots = ['fractions']
 
-
+if __name__ == "__main__":
+	fdata = getROOT.openFile(plotBase.GetPath() + "data_Oct19.root")
+	fmc = getROOT.openFile(plotBase.GetPath() + "pythia_Oct19.root")
+	bins = plotBase.guessBins(fdata, [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]) #binning must be after file open. plots do this later: if bins[0] == 0 bins.pop(0)
+	fractions(fdata, fmc, opt=plotBase.commandlineOptions(bins=bins))

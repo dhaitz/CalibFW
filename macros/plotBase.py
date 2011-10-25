@@ -5,22 +5,118 @@ import getpass
 import os
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
-from time import localtime, strftime
+import matplotlib
+from matplotlib.pyplot import figure as plt_figure
+from time import localtime, strftime, clock
 import getROOT
+import argparse
+
+matplotlib.rcParams.update({
+	'text.usetex': False,
+	'axes.linewidth': 0.8, # thickness of main box lines
+#	'patch.linewidth': 1.5, # thickness of legend pictures and border
+#	'grid.linewidth': 1.3, # thickness of grid lines
+#	'lines.linewidth': 2.5, # thickness of error bars
+#	'lines.markersize': 2.5, # size of markers
+	'legend.fontsize': 20,
+	'xtick.labelsize': 18,
+	'ytick.labelsize': 18,
+	'text.fontsize': 16,
+	'font.size': 18,
+})
+
+# The actual plotting starts here:
+#List of plots to do - leave empty for all plots
+
+def guessBins(rootfile, fallbackBins):
+    # assumes directories starting with Pt<low>to<high>_
+    result = []
+    try:
+        for key in rootfile.GetListOfKeys():
+            name = key.GetName()
+            if name.find("Pt")==0 and name.find("to")>0:
+                low  = int(name[2:name.find("to")])
+                high = int(name[name.find("to")+2:name.find("_")])
+                if low  not in result: result.append(low)
+                if high not in result: result.append(high)
+        assert result != []
+    except:
+        print result
+        print "Bins could not be determined from root file, fall-back binning used:", fallbackBins
+        result = fallbackBins
+        assert result != []
+    result.sort()
+    return result
+
+def plot(module, plots, fdata, mc, op):
+    if op.verbose: print "%1.2f | Start plotting" % clock()
+    if len(plots)==0:
+        plots = []
+    for p in plots:
+        if hasattr(module, p):
+            print "New plot:",
+            getattr(module,p)(fdata,mc,op)
+    if op.verbose: print "%1.2f | End" % clock()
 
 
+def commandlineOptions(algorithm="ak5PFJets", correction = "L1L2L3CHS", lumi=0.0, energy=7, out="out", formats=['png', 'pdf'], files=["../../data/data_Oct19.root", "../../data/powheg_Oct19.root"], plots = [], bins = []):
+    parser = argparse.ArgumentParser(
+        description="%(prog)s does all the plotting.",
+        epilog="Have fun.")
+    # input files
+    parser.add_argument('files', metavar='file', type=str, nargs='*', default=files,#type=argparse.FileType('r'), nargs='+',
+        help="data and Monte Carlo input root file(s). One data file and at least one Monte Carlo file is assumed.")
+#    parser.add_argument('-m','--mc', type=argparse.FileType('r'), nargs='+',
+#        help="Monte Carlo input file(s) if one likes to use more than one data input file (not implemented yet)")
+#    parser.add_argument('-d','--data', type=argparse.FileType('r'), nargs='+',
+#        help="data input file(s). This is an alternative to simply specifying files if more than one data input file is required (not implemented yet)")
+    parser.add_argument('-D','--data-label', type=str, nargs='+', default = "data",
+        help="pile-up distributions")
+    parser.add_argument('-M','--mc-label', type=str, nargs='+', default = "MC",
+        help="pile-up distributions")
+    parser.add_argument('-p','--pudist', type=str, nargs='+', #type=argparse.FileType('r'), nargs='+',
+        help="pile-up distributions")
+    # lumi and energy settings
+    parser.add_argument('-a','--algorithm', type=str, default=algorithm,
+        help="output directory for plots")
+    parser.add_argument('-c','--correction', type=str, default=correction,
+        help="output directory for plots")
+    parser.add_argument('-l','--lumi', type=float, default=lumi,
+        help="luminosity for the given data in /pb")
+    parser.add_argument('-e','--energy', type=int, default=energy,
+        help="centre-of-mass energy for the given samples in TeV")
+    # output and selection settings
+    parser.add_argument('-o','--out', type=str, default=out,
+        help="output directory for plots")
+    parser.add_argument('-f','--formats', type=str, nargs='+', default=formats,
+        help="output format for the plots")
+    parser.add_argument('-L','--layout', type=str, nargs='+', default='generic', ##document: serif,LaTeX,pdf ; slides: sans serif, big, png ; generic: slides + pdf
+        help="output format for the plots")
+    parser.add_argument('-P','--plots', type=str, nargs='+', default = plots,
+        help="do only this plot/these plots")
 
-#os.makedir('out/dat')
+    parser.add_argument('-n', '--normalize', action='store_true', help="normalize Monte Carlo samples to the event count in data and regardless of the given luminosity. This is only applied to data/MC comparisons")
+    parser.add_argument('-v', '--verbose', action='store_true', help="verbosity")
+    opt = parser.parse_args()
+    #to be substituted by commandline arguments (perhaps changed, no formatting options here? but for multiple MC, colors (predefined sequence?) and labels are needed)
+    if opt.verbose: print opt #schoener for o in opt.dict print...
+    opt.mc_color = '#CBDBF9'
+    opt.data_color = 'black'
+    opt.author = 'Berger / Hauth'
+    opt.factor = 1.0
+    opt.data = opt.files[0]
+    opt.mc = opt.files[1]
+    opt.bins = bins
+    return opt
 
-def getFactor(settngs,f_data, f_mc, quantity='z_phi'):
-	hdata = GetNameFromSelection(quantity)[0]
-	hmc = hdata.replace('Res','')
-	histo_data = getROOT.SafeConvert(f_data,hdata, settngs.lumi,settngs.outputformats,5)
-	histo_mc = getROOT.SafeConvert(f_mc,hmc, settngs.lumi,settngs.outputformats,5)
-	histo_mc.scale(settngs.lumi)
-	print "    >>> The additional scaling factor is:", histo_data.ysum/histo_mc.ysum
-	return histo_data.ysum/histo_mc.ysum
+
+def getFactor(lumi,f_data, f_mc, quantity='z_phi', change={}):
+    name = GetHistoname(quantity,change)
+    histo_data = getROOT.SafeConvert(f_data,name)
+    histo_mc = getROOT.SafeConvert(f_mc, name.replace('Res',''))
+    histo_mc.scale(lumi)
+    print "    >>> The additional scaling factor is:", histo_data.ysum/histo_mc.ysum
+    return histo_data.ysum/histo_mc.ysum
     
 def GetReweighting(datahisto, mchisto, drop=True):
     if drop:
@@ -34,28 +130,7 @@ def GetReweighting(datahisto, mchisto, drop=True):
         reweighting.append(datahisto.y[i]/mchisto.y[i])
     return reweighting
 
-
-class StandardSettings:
-    outputformats = ['png', 'pdf'] #['png', 'pdf', 'svg', 'txt', 'dat']
-    style = 'document' # web, presentation, tdr, sloppy 
-    lumi = 0.0
-    additionalFactor = 1.0
-    cme = 7
-    mcColor = '#CBDBF9'
-    dataColor = 'black'
-    author = 'Berger / Hauth'
-    outputdir = 'out/'
-    outputdatadir = 'out/dat/'
-    def SetOutputdir(self, path, datapath=outputdatadir):
-        outputdir = path
-        try:
-            os.mkdir(self.outputdatadir)
-            os.mkdir(self.outputdir)
-        except(OSError):
-            pass
-    verbosity = 1  # 0: no comments, only errors, 1: no comments only warnings, 2: , 3: comment everything
-    
-
+# gets obsolete
 def GetPath():
     """Return datapath depending on machine and user name."""
     host = socket.gethostname()
@@ -88,6 +163,9 @@ def GetPath():
     return datapath
 
 def GetNameFromSelection(quantity='zmass', common={}, variation={}):
+    GetHistoname(quantity, common)
+
+def GetHistoname(quantity='zmass', change={}):
     #Typical name: 'NoBinning_incut/zmass_ak7PFJetsL1L2L3Res_hist'
     # Set standard values
     keys = ['bin', 'incut', 'var', 'sep', 'algo', 'jettype', 'jet', 'correction', 'plottype']
@@ -95,9 +173,9 @@ def GetNameFromSelection(quantity='zmass', common={}, variation={}):
     hst = ''
     histolist = []
     # apply requested changes
-    for k in common.keys():
-        print "Replacing standardselection for " + k + " with " + common[k] 
-        standardselection[k] = common[k]
+    for k in change.keys():
+        print "Replacing standardselection for " + k + " with " + change[k]
+        standardselection[k] = change[k]
     # make a prototype name
     for k in keys:
         hst += standardselection[k] + '_'
@@ -115,21 +193,24 @@ def GetNameFromSelection(quantity='zmass', common={}, variation={}):
     while hst.find('__') >= 0:
         hst = hst.replace('__', '_')
     
-    print "Histogram: ", hst
-    # apply variation
-#    for i in key:
-#    hst.replace(variationkey standardvalue, variation i)
-    histolist.append(hst)
-    return histolist
+    return hst
     
 #    wording = {'ak5': 'Anti-$k_T$ 0.5', 'ak7': 'Anti-$k_T$ 0.7',
 #       'PF': Particle Flow jets', 'Calo': 'Calorimeter jets',
 #        'L1': 'L1 corrected', 'L1L2': 'L2 corrected', 'L1L2L3': 'Fully corrected',
 #        'data': '2011 data','jet': 'Jets', 'correction': 'L1L2L3', 'zjet': 'Zplusjet', 'type': 'data', 'object': 'hist', 'generator':'none'}
 
+def newplot(ratio=False):
+    fig = plt_figure(figsize=[7,7])
+    ax = fig.add_subplot(111)
+    if ratio:
+        pass
+    return fig, ax
+
+# obsolete
 def makeplot(quantity, variation={}, common={}):
     # fig (mit ratio?)
-    fig = plt.figure(figsize=[7,7])
+    fig = matplotlib.pyplot.figure(figsize=[7,7])
     ax = fig.add_subplot(111)
     name = quantity
 ####1. standard captions L (always), sqrt(s) (if data) tick_params
@@ -140,56 +221,46 @@ def makeplot(quantity, variation={}, common={}):
 ####4. draw extra lines and texts (common)
 ####axh/vline/span arrow, annotate line.set_label('') text(0.5, 0.5,'matplotlib', horizontalalignment='center', verticalalignment='center', transform = ax.transAxes)
     return fig, ax, name
-    
-def captions(ax, stg=StandardSettings(), twolumis=False):
+
+# collect all captions here
+def captions(ax, opt=commandlineOptions(), algo=""):
     # Energy
-    ax.text(0.99, 1.06, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (stg.cme),
+    ax.text(0.99, 1.06, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (opt.energy),
         va='top', ha='right', transform=ax.transAxes, fontsize=15)
     # Luminosity
-    if stg.lumi >= 1000:
-        ax.text(0.01, 1.06, r"$\mathcal{L} = %1.1f\,\mathrm{fb}^{-1}$" % (stg.lumi / 1000.0),
+    if opt.lumi >= 1000:
+        ax.text(0.01, 1.06, r"$\mathcal{L} = %1.1f\,\mathrm{fb}^{-1}$" % (opt.lumi / 1000.0),
             va='top', ha='left', transform=ax.transAxes, fontsize=15)
-    elif stg.lumi > 0:
-        ax.text(0.01, 1.06, r"$\mathcal{L} = %1.1f\,\mathrm{pb}^{-1}$" % (stg.lumi),
+    elif opt.lumi > 0:
+        ax.text(0.01, 1.06, r"$\mathcal{L} = %1.1f\,\mathrm{pb}^{-1}$" % (opt.lumi),
             va='top', ha='left', transform=ax.transAxes, fontsize=15)
+    AddAlgoAndCorrectionCaption(ax,algo)
     return ax
 
-def AddAlgoAndCorrectionCaption(ax, algo = "ak5PFJetsL1", stg=StandardSettings()):
+def AddAlgoAndCorrectionCaption(ax, algo = "ak5PFJets"):
     posx = 0.05
     posy = 0.95
-
-    if algo == "ak5PFJets":
-        ax.text(posx, posy, r"ak5 PF Jets uncorrected",
-                va='top', ha='left', transform=ax.transAxes, fontsize=15)
-    if algo == "ak5PFJetsL1":
-        ax.text(posx, posy, r"ak5 PF Jets L1 corrected",
-                va='top', ha='left', transform=ax.transAxes, fontsize=15)
-    if algo == "ak5PFJetsL1L2":
-        ax.text(posx, posy, r"ak5 PF Jets L1 L2 corrected",
-                va='top', ha='left', transform=ax.transAxes, fontsize=15)
-    if algo == "ak5PFJetsL1L2L3":
-        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 corrected",
-                va='top', ha='left', transform=ax.transAxes, fontsize=15)
-    if algo == "ak5PFJetsL1L2L3Res":
-        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 Res corrected",
-                va='top', ha='left', transform=ax.transAxes, fontsize=15)
-    if algo == "ak7PFJetsL1L2L3":
-        ax.text(posx, posy, r"ak7 PF Jets L1 L2 L3 corrected",
-                va='top', ha='left', transform=ax.transAxes, fontsize=15)
-    if algo == "ak7PFJetsL1L2L3Res":
-        ax.text(posx, posy, r"ak7 PF Jets L1 L2 L3 Res corrected",
-                va='top', ha='left', transform=ax.transAxes, fontsize=15)
-    if algo == "ak5PFJetsL1L2L3CHS":
-        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 corrected",
-                va='top', ha='left', transform=ax.transAxes, fontsize=15)
-        ax.text(posx, posy - 0.07, r"CHS applied",
-                va='top', ha='left', transform=ax.transAxes, fontsize=15)
-    if algo == "ak5PFJetsL1L2L3ResCHS":
-        ax.text(posx, posy, r"ak5 PF Jets L1 L2 L3 Res corrected",
-                va='top', ha='left', transform=ax.transAxes, fontsize=15)
-        ax.text(posx, posy - 0.07, r"CHS applied",
-                va='top', ha='left', transform=ax.transAxes, fontsize=15)
-
+    if algo.find("L1L2L3Res")>=0:
+        corr = r"L1L2L3 Res corrected"
+    elif algo.find("L1L2L3")>=0:
+        corr = r"L1L2L3 corrected"
+    elif algo.find("L1L2")>=0:
+        corr = r"L1L2 corrected"
+    elif algo.find("L1")>=0:
+        corr = r"L1 corrected"
+    else:
+        corr = r"uncorrected"
+    if algo.find("ak5")>=0:
+        jet = r"anti-$k_{T}$ 0.5 PF jets"
+    else:
+        jet = ""
+        corr = ""
+    ax.text(posx, posy, jet, va='top', ha='left', transform=ax.transAxes)
+    ax.text(posx, posy-0.07, corr, va='top', ha='left', transform=ax.transAxes)
+    if algo.find("CHS")>=0:
+        ax.text(posx, posy - 0.14, r"CHS applied",
+            va='top', ha='left', transform=ax.transAxes)
+    return ax
 
 def tags(ax, status='', author='', date='today'):
     status = '' #for now do not show 'private work'
@@ -213,10 +284,19 @@ def tags(ax, status='', author='', date='today'):
         va='bottom', ha='left', transform=ax.transAxes, fontsize=15)
     return ax
 
-def AxisLabels(ax, q='resp', obj='jet', rezise = True):
+
+def AxisLabels(ax, q='resp', obj='jet'):
     """label the axes according to the plotted quantity"""
     # ax.legend(loc='best', numpoints=1, frameon=True)
     # according to quantity q
+    def gev():
+        return unit("GeV")
+    def unit(s="", brackets=False):
+        if s !="":
+            if brackets: return " [\mathrm{%s}]" % s
+            else: return " / \mathrm{%s}" % s
+        else: return s
+    # all labels va top ha right x=1 y =1,
     if q == 'pt':
         ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{" + obj + "} / \mathrm{GeV}$", ha="right", x=1)
         ax.set_ylabel(r"Events", va="top", y=1)
@@ -244,7 +324,7 @@ def AxisLabels(ax, q='resp', obj='jet', rezise = True):
         ax.set_xlim(70, 110)
         ax.set_ylim(bottom=0.0)
     elif q == 'jetresp':
-        ax.set_xlabel(r"$p_\mathrm{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
+        ax.set_xlabel(r"$p_\mathrm{T}^{Z} %s$" % unit("GeV"), ha="right", x=1)
         ax.set_ylabel(r"$p_\mathrm{T}$ balance", va="top", y=1)
         ax.set_xlim(10, 240)
         ax.set_ylim(0.75, 1.0)
@@ -385,22 +465,14 @@ def moregenericplot(quantity, q, obj, fdata, fmc, factor, stg, legloc='center ri
     Save(tf, quantity, stg)
     
 
-def GetDataOrMC(quantity, inp_file, custom_keys,settings):
-    hname = GetNameFromSelection(quantity, {}, custom_keys)[0]
-    return getROOT.SafeConvert(inp_file, hname, settings.lumi, settings.outputformats,5)
-#    # try load data and mc from the input files.
-#    # if data was not found, mc will be tried
-#def GetDataOrMC(quantity, inp_file, custom_keys,settings):
-#    oname = GetNameFromSelection(quantity, {}, custom_keys)[0]
-#
-#    # try load data and mc from the input files.
-#    # if data was not found, mc will be tried
-#    if getROOT.IsObjectExistent( inp_file, oname):
-#        return getROOT.SafeConvert( inp_file, oname, settings.lumi, settings.outputformats,5)
-#
-#    oname = oname.replace('data','mc').replace('Res','')
-#    return getROOT.SafeConvert( inp_file, oname, settings.lumi, settings.outputformats,5)
-    
+# use this!
+def GetDataOrMC(quantity, rootfile, changes={}, rebin=1):
+    histo = GetHistoname(quantity, changes)
+    if getROOT.IsObjectExistent(rootfile, histo):
+        return getROOT.SafeConvert(rootfile, histo, rebin=rebin)
+    else:
+        return getROOT.SafeConvert(rootfile, histo.replace("Res",""), rebin=rebin)
+
     
     
 def genericplot(quantity, q, obj, fdata, custom_keys_data, fmc, custom_keys_mc, factor, stg, legloc='center right'):
@@ -422,34 +494,41 @@ def genericplot(quantity, q, obj, fdata, custom_keys_data, fmc, custom_keys_mc, 
     Save(tf, quantity, stg)
 
 
-def Save(figure, name, stg, alsoInLogScale = False):
-    _internal_Save ( figure, name, stg)
+def Save(figure, name, opt, alsoInLogScale = False):
+    _internal_Save ( figure, name, opt)
     
     if alsoInLogScale:
         figure.get_axes()[0].set_yscale( 'log' )
-        _internal_Save(figure, name + "_log_scale", stg)  
+        _internal_Save(figure, name + "_log_scale", opt)
 
-def _internal_Save(figure, name, stg):
+def _internal_Save(figure, name, opt):
     """Save this figure in all listed data formats.
     
     The standard data formats are png and pdf.
     Available graphics formats are: pdf, png, ps, eps and svg
     """
-    name = stg.outputdir + name
+    if opt.out not in os.listdir("."):
+        os.mkdir(opt.out)
+    name = opt.out + '/' + name
     print ' -> Saving as',
-    for format in stg.outputformats:
+    first = True
+    for format in opt.formats:
         if format in ['pdf', 'png', 'ps', 'eps', 'svg']:
-            print name + '.' + format
+            if not first:
+                print ",",
+            else:
+                first = False
+            print name + '.' + format,
             figure.savefig(name + '.' + format, dpi = 100)
             
         elif format in ['txt', 'npz', 'dat']:
             pass    #Ignore this here, as it is respected in the SafeConvert function
         else:
             print format, "failed. Output type is unknown or not supported."
-
+    print
     
 
-
+# obsolete to be replaced
 def GetScaleResolution(filename='scale_and_resolution.txt'):
     """Read the values for the jet energy scale and the jet energy resolution from a file
     
