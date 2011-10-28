@@ -1,45 +1,133 @@
 # -*- coding: utf-8 -*-
+""" interaction with ROOT
 
-import ROOT #from ROOT import TFile, TH1D, TGraphErrors
+    file open, reading of histograms and converting to a Histo class
+    as well as the resp_cuts file format specific functions.
+
+    Here is an overview of the most interesting functions besides 'openfile':
+             -------------------gethisto(f)------------------------->
+    quantity -gethistoname-> name -getobject(f)-> histo -root2histo-> Histo
+                                  --------gethisto(f)--------------->
+
+"""
+import ROOT
 import cPickle as pickle
 from time import localtime, strftime, clock
 
 
-def SafeGet(RootDict, ObjectName):
-    """Import a root object"""
-    oj = RootDict.Get(ObjectName)
-    if not oj:
-        print "Can't load", ObjectName, "from", RootDict.GetName()
-        assert False
-    return oj
-
-def IsObjectExistent ( RootDict, ObjectName ):
-    return bool(RootDict.Get(ObjectName))
-        
-def openFile(filename, message=False):
+def openfile(filename, verbose=False):
     """Open a root file"""
     f = ROOT.TFile(filename)
     if f:
-        if message: print " -> Inputfile:", filename
+        if verbose: print " * Inputfile:", filename
     else:
         print "Can't open file:", filename
         assert False
     return f
 
 
-def openFiles(datafiles, mcfiles, verbose=True):
-#	if datafiles ... openFiles(op) auch machen
-    if verbose: print "%1.2f | Open files" % clock()
-    fdata = [openFile(f, verbose) for f in datafiles]
-    fmc   = [openFile(f, verbose) for f in mcfiles]
-    # be prepared for multiple data and multiple mc files. For the moment: return the first
-    return fdata[0], fmc[0]
+def gethisto(name, rootfile, changes={}, isdata=False, rebin=1):
+    """get a Histo by only knowing the name of the quantity
 
-def ConvertToArray(histo, rootfile='', rebin=1):
-    """Convert a root histogram to a numpy histogram
-    
+    if the full name is present in the root file this will be taken
+    if not the name is made by the gethistoname algorithm.
+    isdata is used to enforce the loading of exactly this histogram and
+    not the MC version without 'Res'
     """
-    hst = nHisto()
+    if not rootfile.Get(name):
+        name = gethistoname(name, changes)
+    if rootfile.Get(name) or isdata:
+        roothist = getobject(rootfile, name)
+    else:
+        roothist = getobject(rootfile, name.replace("Res",""))
+    return root2histo(roothist, rootfile.GetName(), rebin)
+
+
+def getbins(rootfile, fallbackbins):
+    """ guess the binning from the folders in a rootfile
+
+    this function assumes that the binning is reflected in the naming
+    scheme of the folders in the rootfile in the following way:
+    Pt<low>to<high>_* where <low> and <high> are the bin borders.
+    If this fails the value of fallbackbins is returned.
+    """
+    result = []
+    try:
+        for key in rootfile.GetListOfKeys():
+            name = key.GetName()
+            if name.find("Pt")==0 and name.find("to")>0:
+                low  = int(name[2:name.find("to")])
+                high = int(name[name.find("to")+2:name.find("_")])
+                if low  not in result:
+                    result.append(low)
+                if high not in result:
+                    result.append(high)
+        assert result != []
+    except:
+        print result
+        print "Bins could not be determined from root file."
+        print "Fall-back binning used:", fallbackBins
+        result = fallbackbins
+        assert result != []
+    result.sort()
+    return result
+
+
+def getobject(rootfile, objectname):
+    """Import a root object"""
+    oj = rootfile.Get(objectname)
+    if not oj:
+        print "Can't load", objectname, "from", rootfile.GetName()
+        assert False
+    return oj
+
+
+def gethistoname(quantity='zmass', change={}):
+    """Build the name of a histogram according to CalibFW conventions.
+
+    Every histogram written by resp_cuts has a name like
+    'NoBinning_incut/<quantity>_ak5PFJetsL1L2L3CHS_hist'
+    This string is returned for each quantity and any changes to the default
+    can be applied via the change dictionary.
+    Toplevel plots have names like
+    'jetresp_ak5PFJetsL1L2L3CHS_graph'
+    and they are retrieved with the '../' prefix, e.g. '../jetrepsonse'
+
+    """
+    # Set default values
+    keys = ['bin', 'incut', 'var', 'quantity', 'algorithm', 'correction', 'plottype']
+    selection = {'bin': 'NoBinning', 'incut': 'incut', 'var': '',
+                 'quantity': '<quantity>', 'algorithm': 'ak5PFJets',
+                 'correction': 'L1L2L3CHS', 'plottype': 'hist'}
+    hst = ''
+    # apply requested changes
+    for k in change.keys():
+        if k in selection.keys():
+            selection[k] = change[k]
+        else:
+            print k, "is no valid key. Valid keys are: ", keys
+            assert False
+    # make a prototype name
+    for k in keys:
+        hst += selection[k] + '_'
+    hst = hst[:-1].replace('Jets_', 'Jets').replace('__', '_')
+    # Now, the default string for hst looks like:
+    # NoBinning_incut_<quantity>_ak5PFJetsL1L2L3CHS_hist
+    # ability to get level 2 pipeline plots via ../ prefix:
+    if quantity.find('../') == 0:
+        quantity = quantity[3:]
+        hst = hst[hst.find('_<quantity>'):]
+        hst = hst.replace('hist', 'graph')
+    else:
+        quantity = '/' + quantity
+    hst = hst.replace('_<quantity>',quantity)
+    return hst
+
+
+
+def root2histo(histo, rootfile='', rebin=1):
+    """Convert a root histogram to the Histo class"""
+    hst = Histo()
     # Detect if it is a TH1D or a TGraphErrors
     if hasattr(histo,'GetNbinsX'): 
         # histo is a histogram, read it
@@ -90,20 +178,11 @@ def ConvertToArray(histo, rootfile='', rebin=1):
     return hst
     
 
-def SafeConvert(RootDict, ObjectName, formatslist=[], rebin=1):
-    """Combined import and conversion to npHisto"""
-    root_histo = SafeGet(RootDict, ObjectName)
-    histo = ConvertToArray(root_histo,'',rebin)
-    if 'txt' in formatslist:
-        histo.write()
-    if 'dat' in formatslist:
-        histo.dump()
-    return histo
-
-class nHisto:
+class Histo:
     """Reduced Histogramm or Graph
     
     Self-defined histogram class
+    constructor needed: (), (roothisto), (x,y,yerr)
     """
 #    def __init__(self,xcv=[],yv=[],yerrv=[],xv=[],xerrv=[]):
 #        if len(xcv)!=len(yv) and len(xv)!=len(yv):
@@ -248,7 +327,6 @@ class nHisto:
         """Write the histogram to a data file"""
         f = file(filename)
         self = pickle.load(f)
-#        print self
 
 
 def getValue(line, key):
@@ -259,12 +337,6 @@ def getValue(line, key):
         return val
     except:
         return value
-#    if type(value) == type('s'):
-#        return str(value)
-#    elif type(value) == type(1.0):
-#        return float(value)
-#    else:
-#        return value
 
 
 class fitfunction:
@@ -285,3 +357,39 @@ class fitfunction:
         pass
 
 
+# deprecated
+def IsObjectExistent ( RootDict, ObjectName ):
+    return bool(RootDict.Get(ObjectName))
+
+# not necessary, there is openfile
+def openFiles(datafiles, mcfiles, verbose=False):
+    print "DEPRECATED"
+#    if datafiles ... openFiles(op) auch machen
+    if verbose: print "%1.2f | Open files" % clock()
+    fdata = [openfile(f, verbose) for f in datafiles]
+    fmc   = [openfile(f, verbose) for f in mcfiles]
+    # be prepared for multiple data and multiple mc files. For the moment: return the first
+    return fdata[0], fmc[0]
+
+def SafeGet(RootDict, ObjectName):
+    print "SafeGet is deprecated, use getobject instead"
+    return getobject(RootDict, ObjectName)
+
+def GetHistoname(quantity='zmass', change={}):
+    print "'GetHistoname' is deprecated, use 'gethistoname' instead."
+    gethistoname(quantity, change)
+
+def ConvertToArray(histo, rootfile='', rebin=1):
+    print "'ConverToArray' is deprecated, use 'root2histo' instead."
+    return root2histo(histo, rootfile, rebin)
+
+def SafeConvert(RootDict, ObjectName, formatslist=[], rebin=1):
+    """Combined import and conversion to Histo"""
+    print "Deprecated SafeConvert, please use gethisto?"
+    root_histo = SafeGet(RootDict, ObjectName)
+    histo = ConvertToArray(root_histo,'',rebin)
+    if 'txt' in formatslist:
+        histo.write()
+    if 'dat' in formatslist:
+        histo.dump()
+    return histo
