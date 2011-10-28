@@ -25,11 +25,11 @@ matplotlib.rcParams.update({
 #	'grid.linewidth': 1.3, # thickness of grid lines
 #	'lines.linewidth': 2.5, # thickness of error bars
 #	'lines.markersize': 2.5, # size of markers
-	'legend.fontsize': 20,
-	'xtick.labelsize': 18,
-	'ytick.labelsize': 18,
-	'text.fontsize': 50,
-	'font.size': 18,
+	'font.size': 16, # axislabels, text
+	'legend.fontsize': 18,
+	'xtick.labelsize': 16,
+	'ytick.labelsize': 16,
+	'text.fontsize': 18,
 })
 
 
@@ -52,6 +52,8 @@ def options(
             lumi=0.0,
             energy=7,
             status="",
+            author=None,
+            date=None,
             out="out",
             formats=['png', 'pdf'],
             files=["../../data/data_Oct19.root", "../../data/powheg_Oct19.root"],
@@ -85,6 +87,10 @@ def options(
         help="centre-of-mass energy for the given samples in TeV")
     parser.add_argument('-s','--status', type=str, default=status,
         help="status of the plot (e.g. CMS preliminary)")
+    parser.add_argument('-A','--author', type=str, default=author,
+        help="status of the plot (e.g. CMS preliminary)")
+    parser.add_argument('--date', type=str, default=date,
+        help="show the date in the top left corner. 'iso' is YYYY-MM-DD, 'today' is DD Mon YYYY and 'now' is DD Mon YYYY HH:MM.")
     # output and selection settings
     parser.add_argument('-o','--out', type=str, default=out,
         help="output directory for plots")
@@ -103,7 +109,6 @@ def options(
     if opt.verbose: print opt #schoener for o in opt.dict print...
     opt.mc_color = '#CBDBF9'
     opt.data_color = 'black'
-    opt.author = 'Berger / Hauth'
     opt.factor = 1.0
     opt.data = opt.files[0]
     opt.mc = opt.files[1]
@@ -174,7 +179,7 @@ def newplot(ratio=False):
 
 
 # collect all labels here
-def labels(ax, opt=options(), jet=False, bin=False, result=None, date=False, legloc='best', frame=False):
+def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='best', frame=False):
     lumilabel(ax, opt.lumi)    #always (if given) pure MC plots?
     statuslabel(ax, opt.status)
     energylabel(ax, opt.energy)
@@ -182,23 +187,23 @@ def labels(ax, opt=options(), jet=False, bin=False, result=None, date=False, leg
     binlabel(ax, bin)
     resultlabel(ax, result)
     authorlabel(ax, opt.author)
-    datelabel(ax, date)
+    datelabel(ax, opt.date)
     ax.legend(loc=legloc, numpoints=1, frameon=frame)
     return ax
     
 
-def lumilabel(ax, lumi=0.0, xpos=0.01, ypos=1.06):
+def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
     if lumi >= 1000.0:
         ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{fb}^{-1}$" % (lumi / 1000.0),
-            va='top', ha='left', transform=ax.transAxes)
+            va='bottom', ha='left', transform=ax.transAxes)
     elif lumi > 0.0:
         ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{pb}^{-1}$" % (lumi),
-            va='top', ha='left', transform=ax.transAxes)
+            va='bottom', ha='left', transform=ax.transAxes)
     return ax
 
-def energylabel(ax, energy=7, xpos=0.99, ypos=1.06):
+def energylabel(ax, energy=7, xpos=1.00, ypos=1.01):
     ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
-        va='top', ha='right', transform=ax.transAxes)
+        va='bottom', ha='right', transform=ax.transAxes)
 
 def jetlabel(ax, algorithm="", correction="", posx = 0.05, posy = 0.95):
     if correction.find("L1L2L3Res")>=0:
@@ -223,13 +228,13 @@ def jetlabel(ax, algorithm="", correction="", posx = 0.05, posy = 0.95):
             va='top', ha='left', transform=ax.transAxes)
     return ax
 
-def authorlabel(ax, author="", xpos=0.01, ypos=1.13):
-    if author:
+def authorlabel(ax, author=None, xpos=0.01, ypos=1.10):
+    if author is not None:
         ax.text(xpos, ypos, author, va='top', ha='left', transform=ax.transAxes)
     return ax
 
-def datelabel(ax, date='iso', xpos=0.99, ypos=1.13):
-    if not date: return ax
+def datelabel(ax, date='iso', xpos=0.99, ypos=1.10):
+    if date is None: return ax
     if date == 'now':
         ax.text(xpos, ypos, strftime("%d %b %Y %H:%M", localtime()),
         va='top', ha='right', transform=ax.transAxes)
@@ -243,8 +248,8 @@ def datelabel(ax, date='iso', xpos=0.99, ypos=1.13):
         ax.text(xpos, ypos, date, va='top', ha='right', transform=ax.transAxes)
     return ax
 
-def binlabel(ax, bin="", low=0, high=0, xpos=0.05, ypos=0.05):
-    if not bin: return ax
+def binlabel(ax, bin=None, low=0, high=0, xpos=0.05, ypos=0.05):
+    if bin is None: return ax
     if bin=='ptz':
         text = r"$%u < p_\mathrm{T}^\mathrm{Z} < %u" % (low, high)
     elif bin == 'pthat':
@@ -258,8 +263,9 @@ def binlabel(ax, bin="", low=0, high=0, xpos=0.05, ypos=0.05):
         text = bin
     ax.text(xpos, ypos, text, va='top', ha='left', transform=ax.transAxes)
 
-def statuslabel(ax, status="", xpos=0.25, ypos=1.06):
-    ax.text(xpos, ypos, status, va='top', ha='left', transform=ax.transAxes)
+def statuslabel(ax, status=None, xpos=0.25, ypos=1.018):
+    if status is not None:
+        ax.text(xpos, ypos, r"%s" % status, va='bottom', ha='left', transform=ax.transAxes)
 
 def resultlabel(ax, text="", xpos=0.05, ypos=0.05):
     if text is not None:
@@ -409,16 +415,14 @@ def _internal_Save(figure, name, opt):
             print format, "failed. Output type is unknown or not supported."
     print
 
+
+
+
 # is that used?
 def hist_baseplot(plot_collection, caption, settings, modifierBeforeSave, alsoInLogScale = True):
-
     tf, ta, tname = makeplot(caption) 
     ta = captions(ta, settings, False)
-#    ta.set_ylim(top=histo_mc.ymax*1.2)
     ta = tags(ta, 'Private work', 'Joram Berger')
-    #ta.legend(loc=legloc, numpoints=1, frameon=False)
-    #sta = AxisLabels(ta, q, obj)
-    #ta.autoscale()
 
     for (quantName, inpFile, drawParameters, modifierFunc, modifierDataFunc) in plot_collection:
         rootHisto = getROOT.SafeConvert(inpFile, quantName, settings.lumi, settings.outputformats, 5)
@@ -456,9 +460,8 @@ def hist_baseplot(plot_collection, caption, settings, modifierBeforeSave, alsoIn
 
     Save(tf, caption, settings, alsoInLogScale)
 
-# obsolete to be replaced
 
-# use this!
+# obsolete functions (please do not use)
 def GetDataOrMC(quantity, rootfile, changes={}, rebin=1):
     print "This function 'GetDataOrMC' is deprecated and has moved to 'getroot.gethisto'"
     getROOT.GetDataOrMC(quantity, rootfile, changes, rebin)

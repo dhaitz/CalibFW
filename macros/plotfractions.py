@@ -89,12 +89,12 @@ def fractions(fdata, fmc, opt):
         ax.bar(x, mcG[i].y, width=barWidth, color=colours[i], edgecolor = None, linewidth=0,
             label=r"%s: $%1.3f(%d)\, %1.3f(%d)$" % (labels[i],fitd[i],math.ceil(1000*fitderr[i]),fitm[i], math.ceil(1000*fitmerr[i])))
         ax.plot(bins, mcG[i].y+[mcG[i].y[-1]], drawstyle='steps-post', color='black',linewidth=1)
-    ax.text(0.625,0.43, r"Data $\quad\;$ MC", va='top', ha='left', transform=ax.transAxes)
+    ax.text(0.615,0.45, r"Data $\quad$ MC", va='top', ha='left', transform=ax.transAxes)
     #data points
     for i in range(len(mcG)-1,-1,-1):
         ax.errorbar(dataG[i].x, dataG[i].y, dataG[i].yerr, elinewidth=1,
             marker = markers[i], ms =3, color="black", lw = 0, ecolor=None)
-    plotbase.labels(ax, opt, legloc='lower right')
+    plotbase.labels(ax, opt, legloc='lower right', frame=True)
     plotbase.axislabel(ax, 'components')
     plotbase.Save(fig, algoname + "_fractions", opt, False)
 
@@ -108,7 +108,7 @@ def fractions(fdata, fmc, opt):
     for i in range(len(mcG)):
         ax.errorbar( mcG[i].x, diff[i], dataG[i].yerr, label = labels[i], fmt = "o", capsize = 2, color = colours[i], zorder=15+i)
         ax.plot([1.0,1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
-    ax = plotbase.labels(ax, opt, legloc='lower right')
+    ax = plotbase.labels(ax, opt, legloc='lower left', frame=True)
     ax = plotbase.axislabel(ax,'components_diff')
     plotbase.Save(fig, algoname + "_fractions_diff", opt, False)
 
@@ -117,7 +117,7 @@ plots = ['fractions']
 
 
 if __name__ == "__main__":
-    fdata = getROOT.openFile(plotbase.GetPath() + "data_Oct19.root")
-    fmc = getROOT.openFile(plotbase.GetPath() + "pythia_Oct19.root")
+    fdata = getROOT.openFile(plotbase.getpath() + "data_Oct19.root")
+    fmc = getROOT.openFile(plotbase.getpath() + "pythia_Oct19.root")
     bins = plotbase.guessBins(fdata, [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]) #binning must be after file open. plots do this later: if bins[0] == 0 bins.pop(0)
     fractions(fdata, fmc, opt=plotbase.commandlineOptions(bins=bins))

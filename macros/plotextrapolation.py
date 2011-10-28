@@ -8,18 +8,13 @@ from ROOT import TGraphErrors, TCanvas, TF1
 import plotbase
 import getroot
 
-#from_folder = "NoBinning_incut/"
+def BinStrings(bins):
+    return [ "Pt%sto%s" %(bins[i], bins[i+1]) for i in range(len(bins)-1) ]
 
-def BinStrings(the_bins):
-    return [ "Pt" + str(the_bins[i]) + "to" + str(the_bins[i+1]) for i in range(len(the_bins)-1) ]    
-
-def IsErrorCompatible( v1, v2, err1, err2 ):
-    return (abs(v1-v2) < err1+err2)
 
 def GetErrErr( rootHisto ):
     sqrtNminus1 = math.sqrt( rootHisto.GetEntries() - 1 )
     return rootHisto.GetRMSError() / sqrtNminus1
-
 
 
 def extrapolateRatio(fdata, fmc,
@@ -35,8 +30,8 @@ def extrapolateRatio(fdata, fmc,
     var = copy.deepcopy(var)
     var.reverse()
 
-      fitFunc = TF1("fit1", fit_formula, 0, 1000.0)
-       fitFunc.SetParameters(1.0, 0.001, 0.3)
+    fitFunc = TF1("fit1", fit_formula, 0, 1000.0)
+    fitFunc.SetParameters(1.0, 0.001, 0.3)
     graph = TGraphErrors(len(var))
 
     n = 0
@@ -57,17 +52,17 @@ def extrapolateRatio(fdata, fmc,
         print "   %1.2f | %1.4f +- (%1.4f +- %1.4f)" % (x, y, yerr, yerrerr),
         
         if n == 0: #remember values for first point var[0]
-              y0 = y
-              x0 = x
-              y0err = yerr
-              y0errerr = yerrerr
-          else:
-              if y0err < yerr:      
-                #uncorrelate errors                      
-                  yerr = math.sqrt( yerr**2 - y0err**2)
-              else: 
-                   yerr = yerr
-                print " >>>>  This is not ok: Errors are not in order!",
+            y0 = y
+            x0 = x
+            y0err = yerr
+            y0errerr = yerrerr
+        else:
+            if y0err < yerr:
+            #uncorrelate errors
+                yerr = math.sqrt( yerr**2 - y0err**2)
+            else:
+                yerr = yerr
+            print " >>>>  This is not ok: Errors are not in order!",
         print 
         # set the point
         graph.SetPoint(n, x, y)
@@ -90,7 +85,7 @@ def extrapolateRatio(fdata, fmc,
     yex_err = y0err + m_fit_err*x0
 
     if drawPlot:
-        drawExtrapolation(graph, fitres, m_fit, m_fit_err, y0, x0, y0err, folder, histo, opt)
+        draw_extrapolation(graph, fitres, m_fit, m_fit_err, y0, x0, y0err, folder, histo, opt)
 
     print "Extrapolated response: R = %1.4f +- %1.4f" % (yex, yex_err)
 
@@ -99,7 +94,7 @@ def extrapolateRatio(fdata, fmc,
     return yex, yex_err, zpt
 
 
-def drawExtrapolation(graph, fitres, m, merr, b, x0, y0err, folder, quantity, opt):
+def draw_extrapolation(graph, fitres, m, merr, b, x0, y0err, folder, quantity, opt):
     graph = getroot.root2histo(graph)
     # Fit function with errorband
     func_x = [x/100.0 for x in range(34)]
@@ -130,32 +125,26 @@ def drawExtrapolation(graph, fitres, m, merr, b, x0, y0err, folder, quantity, op
     plotbase.Save(fig, folder + quantity + "_RATIOTEST", opt, False)
 
 
-def extrapolate_ratio( response_measure, fdata, fmc, opt, do_extrapolation = True, tag = "extrapol", add_to_data = "", folder_prefix = "" ):
+def extrapolate_ratio(method, fdata, fmc, opt, tag = "extrapol", folder_prefix = "" ):
     bins=opt.bins
-    if bins[0]==0: bins.pop(0)
+    if bins[0]==0:
+        bins.pop(0)
     str_bins = BinStrings(bins)
     
     ext_res_data = []
     ratioEx = getroot.Histo()
-    algoname = opt.algorithm + opt.correction
-    
-    algoname_data = algoname + add_to_data
-    if "CHS" in algoname_data:
-         algoname_data = algoname_data[: len (algoname_data) - 3] + add_to_data + "CHS"
          
     # loop over bins
     for s in str_bins:
         # extrapolate ratio
         yex, yex_err, x = extrapolateRatio(fdata, fmc,  
                 folder_prefix +  s + "_incut_var_CutSecondLeadingToZPt_",
-                response_measure + "_" + algoname_data + "_hist")
+                response_measure + "_" + opt.algorithm + opt.correction + "_hist")
         ratioEx.y    += [yex]
         ratioEx.yerr += [yex_err]
         ratioEx.x    += [x]
 
-    ext_str = ""
-    if do_extrapolation:
-        ext_str = " extr"
+    ext_str = " extr"
         
     if response_measure == "jetresp":
         if tag == "extrapol":
@@ -174,8 +163,8 @@ def extrapolate_ratio( response_measure, fdata, fmc, opt, do_extrapolation = Tru
     for i in range(0, len(ratioEx)):
         print "   %2d:% 7.2f | %1.4f +- %1.4f" % (
                 i, ratioEx.x[i], ratioEx.y[i], ratioEx.yerr[i])
-        tfit.SetPoint( i, ratioEx.x[i], ratioEx.y[i] )
-        tfit.SetPointError( i, 0, ratioEx.yerr[i] )
+        tfit.SetPoint(i, ratioEx.x[i], ratioEx.y[i])
+        tfit.SetPointError(i, 0, ratioEx.yerr[i])
         
     extr_func = TF1("fit12", "[0]", 0.0, 1000.0)
     extr_func.SetParameter(0, 1.0)
@@ -198,23 +187,40 @@ def extrapolate_ratio( response_measure, fdata, fmc, opt, do_extrapolation = Tru
     ax.set_ylim( 0.88, 1.12 )
     ax.minorticks_on()
     plotbase.Save(fig, response_measure+"_ratio_"+opt.algorithm+opt.correction+"_ratio_beforextrapol", opt, False)
+
+
+def response(rootfile, method='jetresp', extrapol=None, algorithm=plotbase.options().algorithm, correction=plotbase.options().correction, fit=None):
+    #extrapolation = None keine, 'ratio' neu, F'response' extrapolate response and then ratio
+    result = getroot.Histo()
+    # extrapolate if necessary
+    if extrapol:
+        pass #extrapolate(...)
+    else:
+        pass # get directly from file
+    #get from file
+    #fit not implemented: return fit, fiterr
+    return result
     
+def response_ratio(fdata, fmc, method='jetresp', extrapol=None, algorithm=plotbase.options().algorithm, correction=plotbase.options().correction, fit=None):)
+	return getroot.Histo()
+
 
 # Balance 
 def balanceex(fdata, fmc, opt):
-    extrapolate_ratio("jetresp", fdata, fmc, opt, True, "extrapol")
+    extrapolate_ratio("jetresp", fdata, fmc, opt, "extrapol")
 
 # MPF 
 def mpfex(fdata, fmc, opt):
-    extrapolate_ratio("mpfresp", fdata, fmc, opt, False, "no_extrapol")
+    extrapolate_ratio("mpfresp", fdata, fmc, opt, "no_extrapol")
+
 
 
 plots = ['balanceex', 'mpfex']
 
 
 if __name__ == "__main__":
-    fdata = getROOT.openFile(plotbase.GetPath() + "data_Oct19.root")
-    fmc = getROOT.openFile(plotbase.GetPath() + "pythia_Oct19.root")
+    fdata = getROOT.openFile(plotbase.getpath() + "data_Oct19.root")
+    fmc = getROOT.openFile(plotbase.getpath() + "pythia_Oct19.root")
     bins = plotbase.guessBins(fdata, [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]) #binning must be after file open. plots do this later: if bins[0] == 0 bins.pop(0)
     balanceex(fdata, fmc, opt=plotbase.options(bins=bins))
     mpfex(fdata, fmc, opt=plotbase.options(bins=bins))

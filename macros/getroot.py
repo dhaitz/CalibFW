@@ -62,8 +62,8 @@ def getbins(rootfile, fallbackbins):
                     result.append(low)
                 if high not in result:
                     result.append(high)
-        assert result != []
-    except:
+        assert result != [], "No bins found in "+rootfile.GetName()
+    except AssertionError:
         print result
         print "Bins could not be determined from root file."
         print "Fall-back binning used:", fallbackBins

@@ -13,8 +13,8 @@ def datamcplot(quantity, q, obj, fdata, fmc, opt, legloc='center right',
     """Template for all data/MC comparison plots for basic quantities."""
     # read the values
     if opt.verbose: print q, "of the", obj
-    hdata = getroot.gethisto(quantity, fdata, change, rebin)
-    hmc = getroot.gethisto(quantity, fmc, change, rebin)
+    hdata = getroot.gethisto(quantity, fdata, change, True, rebin)
+    hmc = getroot.gethisto(quantity, fmc, change, False, rebin)
     if opt.normalize:
         hmc.scale(hdata.ysum/hmc.ysum)
     else:
@@ -28,7 +28,7 @@ def datamcplot(quantity, q, obj, fdata, fmc, opt, legloc='center right',
         color=opt.mc_color, fmt='-', capsize=0, label=opt.mc_label)
     ax.errorbar(hdata.xc, hdata.y, hdata.yerr, drawstyle='steps-mid',
         color=opt.data_color, fmt='o', capsize=0, label=opt.data_label)
-    plotbase.labels(ax, opt, legloc=legloc)
+    plotbase.labels(ax, opt, legloc=legloc, frame=True)
     ax.set_ylim(top=hmc.ymax * 1.2)
     ax = plotbase.axislabel(ax, q, obj)
 
@@ -116,8 +116,8 @@ plots = ['zpt', 'zeta', 'zphi', 'zmass', 'zmass_qualitycuts',
 
 
 if __name__ == "__main__":
-    fdata = getROOT.openFile(plotbase.GetPath() + "data_Oct19.root")
-    fmc = getROOT.openFile(plotbase.GetPath() + "pythia_Oct19.root")
+    fdata = getROOT.openFile(plotbase.getpath() + "data_Oct19.root")
+    fmc = getROOT.openFile(plotbase.getpath() + "pythia_Oct19.root")
     bins = plotbase.guessBins(fdata, [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
     balance(fdata, fmc, opt=plotbase.commandlineOptions(bins=bins))
     mpf(fdata, fmc, opt=plotbase.commandlineOptions(bins=bins))

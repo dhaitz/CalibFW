@@ -26,6 +26,7 @@ import getroot
 import plotdatamc
 import plotfractions
 import plotextrapolation
+import plot_extrapolation
 
 
 def plot():
@@ -40,7 +41,7 @@ def plot():
         correction = "L1L2L3CHS",
         lumi = 2179.0,
         plots =  plotdatamc.plots +
-                 plotextrapolation.plots +
+                 plot_extrapolation.plots +
                  plotfractions.plots,
         )
     # override commandline (3):
@@ -51,7 +52,7 @@ def plot():
     op.bins = getroot.getbins(fdata, [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
     plotbase.plot(plotdatamc, op.plots, fdata, fmc, op)
     plotbase.plot(plotfractions, op.plots, fdata, fmc, op)
-    plotbase.plot(plotextrapolation, op.plots, fdata, fmc, op)
+    plotbase.plot(plot_extrapolation, op.plots, fdata, fmc, op)
 
 
 if __name__ == "__main__":
