@@ -68,7 +68,7 @@ public:
 		{
 			//if (!pm.Update()) break;
 			evtProvider.GotoEvent( lCur );
-			TMetaData  metaDataGlobal;
+			TMetaData metaDataGlobal;
 
 			for( GlobalMetaProducerIterator it = m_globalMetaProducer.begin();
 					it != m_globalMetaProducer.end(); it++)

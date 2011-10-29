@@ -83,6 +83,12 @@ IMPL_SETTING(bool, Filter2ndJetPtCutSet)
 IMPL_SETTING(bool, FilterDeltaPhiCutSet)
 
 IMPL_SETTING(std::string, JetAlgorithm)
+
+std::string GetGenJetAlgorithm()
+{
+	return "AK5GenJets";
+}
+
 IMPL_SETTING(std::string, RootFileFolder)
 IMPL_SETTING(std::string, SecondLevelFolderTemplate)
 

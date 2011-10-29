@@ -40,12 +40,18 @@ public:
 		}
 
 	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
+			unsigned int index, std::string algoName) const
+			{
+		assert ( index < m_jets.size());
+
+		return &m_jets[index];
+
+			}
+
+	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
 			unsigned int index ) const
 			{
-				assert ( index < m_jets.size());
-
-				return &m_jets[index];
-
+				return GetJet( psettings, index, "no algo used for this test code" );
 			}
 
 	mutable KDataLVs m_jets;

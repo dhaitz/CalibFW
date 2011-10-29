@@ -47,8 +47,8 @@ def GetBaseConfig():
             "Cuts": ["muon_pt",
                      "muon_eta",
                      "leadingjet_eta",
-                     "secondleading_to_zpt",
-                     "back_to_back",
+                     #"secondleading_to_zpt",
+                     #"back_to_back",
                      "zmass_window"],
             "Filter":["valid_z", "valid_jet"],
             "Consumer": {}
@@ -78,6 +78,8 @@ def GetMcBaseConfig():
     d["UseGlobalWeightBin"] = 0
     
     d["InputType"] = "mc"
+    
+    d["JecBase"] = "data/jec_data/MC_42_V13_"
 
     return d
 
@@ -92,13 +94,16 @@ def GetDefaultDataPipeline():
 def GetDataBaseConfig():
     d = GetBaseConfig()
     
-    d["JsonFile"] = "data/json/Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON.txt"
+    d["JsonFile"] = "data/json/Cert_160404-178677_7TeV_PromptReco_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
     d["InputType"] = "data"
     d["Pipelines"]["default"]["CutHLT"] = "DoubleMu"
     d["Pipelines"]["default"]["Filter"].append ("json")
+    
+    d["JecBase"] = "data/jec_data/GR_R_42_V19_"
+
     #for key, val in d["Pipelines"].items():
       #  "Filter":["valid_z", "valid_jet"]
        # val["Cuts"].append( "hlt" ) 
@@ -136,7 +141,9 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource):
 
 def AddConsumer( pline, name, config):
     pline["Consumer"][name] = config
-  
+
+def AddConsumerEasy( pline, consumer):
+    pline["Consumer"][ consumer["ProductName"] ] = consumer  
 
 def ExpandCutNoCut( pipelineDict):
     newDict = dict()
@@ -188,6 +195,25 @@ def Expand( pipelineDict, expandCount, includeSource):
     else:
         return newDict
 
+
+def AddSingleCutConsumer( pline, cut_name, cut_id, algoname ):
+    
+    AddConsumer(pline, "cut_" + algoname + cut_name + "_overnpv", 
+                { "Name" : "generic_profile_consumer",
+                  "RunUnfiltered" : 1,
+                  "YSource" : "cutvalue",
+                  "CutId" : cut_id,
+                  "XSource" : "reco",
+                  "ProductName" : "cut_" + algoname + cut_name + "_overnpv"})
+    
+    AddConsumer(pline, "cut_" + algoname + cut_name + "_overzpt", 
+                { "Name" : "generic_profile_consumer",
+                  "RunUnfiltered" : 1,
+                  "YSource" : "cutvalue",
+                  "CutId" : cut_id,
+                  "XSource" : "zpt",
+                  "ProductName" : "cut_" + algoname + cut_name + "_overzpt"})
+
 def AddCutConsumer( pipelineDict, algos):
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
@@ -204,21 +230,40 @@ def AddCutConsumer( pipelineDict, algos):
                               "CutId" : -1,
                               "XSource" : "reco",
                               "ProductName" : "cut_" + algo + "_all"})
-                AddConsumer(pval, "cut_" + algo + "_jet2pt_over_zpt", 
+                AddSingleCutConsumer(pval, "jet2pt_over_zpt", 16, algo )
+                AddSingleCutConsumer(pval, "back_to_back", 32, algo )
+                AddSingleCutConsumer(pval, "zmass", 64, algo )
+                AddSingleCutConsumer(pval, "muon_pt", 2, algo )
+              
+def AddLumiConsumer( pipelineDict, algos):
+    for algo in algos:
+        for p, pval in pipelineDict["Pipelines"].items():
+            if p == "default_" + algo:                
+                AddConsumerEasy(pval,  
                             { "Name" : "generic_profile_consumer",
-                              "RunUnfiltered" : 1,
-                              "YSource" : "cutvalue",
-                              "CutId" : 16,
-                              "XSource" : "reco",
-                              "ProductName" : "cut_" + algo + "_jet2pt_over_zpt"})
-                AddConsumer(pval, "cut_" + algo + "_back_to_back", 
+                              "YSource" : "eventcount",
+                              "XSource" : "intlumi",
+                              "ProductName" : "eventcount_" + algo + "_lumi"})
+        
+                AddConsumerEasy(pval, 
                             { "Name" : "generic_profile_consumer",
-                              "RunUnfiltered" : 1,
-                              "YSource" : "cutvalue",
-                              "CutId" : 32,
-                              "XSource" : "reco",
-                              "ProductName" : "cut_" + algo + "_back_to_back"})
-      
+                              "YSource" : "eventcount",
+                              "XSource" : "runnumber",
+                              "ProductName" : "eventcount_" + algo + "_runnumber"})
+
+
+def AddHltConsumer( pipelineDict, algoNames, hlt_names):
+    for algo in algoNames:
+        for hname in hlt_names:
+            for p, pval in pipelineDict["Pipelines"].items():
+                if p == "default_" + algo + "nocuts":
+                    AddConsumer(pval, "hlt_" + algo + "_" + hname + "_prescale", 
+                                                { "Name" : "generic_profile_consumer",
+                                                  "YSource" : "hltprescale",
+                                                  "YSourceConfig" : hname, 
+                                                  "XSource" : "runnumber",
+                                                  "ProductName" : "hlt_" + algo + "_" + hname + "_prescale"})
+
 
 def ExpandPtBins( pipelineDict, ptbins, includeSource):
     newDict = dict()
@@ -352,7 +397,8 @@ def ExpandDefaultMcConfig( ptBins, algoNames, conf_template, useFolders, FolderP
                                              "SourceResponse" : "mpfresp_" + algo,
                                              # this product will be in the upmost folder
                                             "ProductName"    : "mpfresp_" + algo,
-                                             "SourceBinning"  : "z_pt_" + algo}
+                                             "SourceBinning"  : "z_pt_" + algo}      
+        
         secpline["Level"] = 2
         #secLevelPline[FolderPrefix + "sec_default"]["CustomBins"] = ptBins
         secpline["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"
@@ -371,7 +417,7 @@ def ExpandDefaultMcConfig( ptBins, algoNames, conf_template, useFolders, FolderP
 def ExpandDefaultDataConfig( ptBins, conf_template, useFolders, FolderPrefix = ""):
     conf = ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix)
 
-    conf["Pipelines"][FolderPrefix + "default"]["AdditionalConsumer"].append( "event_storer" )
+    #conf["Pipelines"][FolderPrefix + "default"]["AdditionalConsumer"].append( "event_storer" )
 
     return conf
 

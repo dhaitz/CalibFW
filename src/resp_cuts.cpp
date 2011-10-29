@@ -38,6 +38,9 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+#include <google/profiler.h>
+//#include <google/heap-profiler.h>
+
 #include "DataFormats/interface/Kappa.h"
 #include "DataFormats/interface/KDebug.h"
 //#include "Toolbox/libToolbox.h"
@@ -59,6 +62,8 @@
 #include "ZJet/MetaDataProducer/ZJetCuts.h"
 #include "ZJet/MetaDataProducer/PuReweightingProducer.h"
 #include "ZJet/MetaDataProducer/CorrJetProducer.h"
+#include "ZJet/MetaDataProducer/JetSorter.h"
+#include "ZJet/MetaDataProducer/HltSetup.h"
 
 #include "ZJet/ZJetPipelineInitializer.h"
 #include "Pipeline/EventPipelineRunner.h"
@@ -179,24 +184,25 @@ class ZJetEventProvider: public EventProvider<ZJetEventData>
 {
 public:
 	ZJetEventProvider(FileInterface & fi, InputTypeEnum inpType) :
-		m_fi(fi)
+		m_prevRun( -1), m_prevLumi( -1),  m_inpType( inpType ), m_fi(fi)
 	{
 		// setup pointer to collections
 		m_event.m_eventmetadata = fi.Get<KEventMetadata> ();
-
-		// open Kappa issue, disable the check and it will work
-		m_event.m_vertexSummary = fi.Get<KVertexSummary> (
-				"offlinePrimaryVerticesSummary", false);
-		m_event.m_jetArea = fi.Get<KJetArea> ("KT6Area");
 
 		if (inpType == McInput)
 		{
 			m_event.m_geneventmetadata = fi.Get<KGenEventMetadata> ();
 		}
 
+		// open Kappa issue, disable the check and it will work
+		m_event.m_vertexSummary = fi.Get<KVertexSummary> (
+				"offlinePrimaryVerticesSummary", false);
+		m_event.m_jetArea = fi.Get<KJetArea> ("KT6Area");
+
 		//InitPFJets(m_event, "AK5PFJets");
 		// dont load corrected jet here, we will do this offline
 		InitPFJets(m_event, "AK5PFJets");
+		InitPFJets(m_event, "AK7PFJets");
 
 		/*		InitPFJets(m_event, "AK7PFJets");
 		 InitPFJets(m_event, "KT4PFJets");
@@ -212,6 +218,29 @@ public:
 	{
 		m_mon->Update();
 		m_fi.eventdata.GetEntry(lEvent);
+
+
+		if (m_prevRun!=m_event.m_eventmetadata->nRun)
+		{
+			m_prevRun=m_event.m_eventmetadata->nRun;
+			m_prevLumi=-1;
+		}
+
+		if (m_prevLumi!=m_event.m_eventmetadata->nLumi)
+		{
+			m_prevLumi = m_event.m_eventmetadata->nLumi;
+
+			// load the correct lumi information
+			if (m_inpType == McInput)
+			{
+				m_event.m_lumimetadata = m_fi.Get<KGenLumiMetadata> ( m_event.m_eventmetadata->nRun, m_event.m_eventmetadata->nLumi );
+			}
+			if (m_inpType == DataInput)
+			{
+				m_event.m_lumimetadata = m_fi.Get<KDataLumiMetadata> ( m_event.m_eventmetadata->nRun, m_event.m_eventmetadata->nLumi );
+			}
+		}
+
 
 		/*	if ( lEvent > 5 )
 		 exit(0);*/
@@ -239,8 +268,14 @@ private:
 	{
 		event.m_pfJets[algoName] = m_fi.Get<KDataPFJets> (algoName);
 	}
+	void InitGenJets(ZJetEventData & event, std::string algoName)
+	{
+		event.m_genJets[algoName] = m_fi.Get<KLV> (algoName);
+	}
 
+	long m_prevRun, m_prevLumi;
 	ZJetEventData m_event;
+	InputTypeEnum m_inpType;
 	boost::scoped_ptr<ProgressMonitor> m_mon;
 private:
 
@@ -275,11 +310,16 @@ int main(int argc, char** argv)
 
 	// openmp setup
 	omp_set_num_threads(g_propTree.get<int> ("ThreadCount", 1));
-	CALIB_LOG_FILE( "Running with " << omp_get_max_threads() << " thread(s)" )
+//	CALIB_LOG_FILE( "Running with " << omp_get_max_threads() << " thread(s)" )
 
 	// input files
 	g_sourcefiles = PropertyTreeSupport::GetAsStringList(&g_propTree,
 			"InputFiles");
+
+	if ( g_sourcefiles.size() == 0)
+	{
+		CALIB_LOG_FATAL("No Kappa input files specified")
+	}
 
 	BOOST_FOREACH( std::string s, g_sourcefiles)
 {	CALIB_LOG_FILE("Input File " << s)
@@ -293,9 +333,8 @@ ZJetGlobalSettings gset;
 gset.SetEnablePuReweighting( g_propTree.get<bool> ("EnablePuReweighting", false) );
 
 std::vector<std::string> sJetNames = fi.GetNames<KDataJet> (true);
-BOOST_FOREACH( std::string s, sJetNames)
-{	std::cout << "KDataJet " << s << std::endl;
-}
+
+
 
 if ( g_propTree.get<std::string> ("InputType", "mc") == "data")
 {
@@ -314,10 +353,8 @@ gset.SetInputType ( g_inputType );
 
 sJetNames = fi.GetNames<KVertexSummary>(true);
 
-BOOST_FOREACH( std::string s, sJetNames)
-{
-	std::cout << "KVertexSummary " << s << std::endl;
-}
+
+
 
 ZJetEventProvider evtProvider( fi, g_inputType );
 
@@ -382,14 +419,15 @@ pRunner.AddGlobalMetaProducer( new PuReweightingProducer());
 pRunner.AddGlobalMetaProducer( new ValidMuonProducer());
 pRunner.AddGlobalMetaProducer( new ZProducer());
 pRunner.AddGlobalMetaProducer( new ValidJetProducer());
-pRunner.AddGlobalMetaProducer( new CorrJetProducer());
+pRunner.AddGlobalMetaProducer( new CorrJetProducer( g_propTree.get<std::string> ("JecBase") ));
+pRunner.AddGlobalMetaProducer( new JetSorter());
+//pRunner.AddGlobalMetaProducer( new HltSetup());
+
+
 
 for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 				== g_pipeSettings.end()); it++)
 {
-
-	std::cout << (*it)->GetSettingsRoot() << std::endl;
-
 	(*it)->m_globalSettings = & gset;
 
 	if ((*it)->GetLevel() == 1)
@@ -414,41 +452,11 @@ for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 		pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 3));
 		pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 4));
 
-		// plot l1 correction
-		/*
-		 pLine->AddConsumer( new ProfileConsumerBase( new SourceRecoVert(),
-		 new SourceJetPtRatio( "AK5PFJets", "AK5PFJetsL1", 0, 0),
-		 "L1FastJet_AK5PF_npv"));
-		 pLine->AddConsumer( new ProfileConsumerBase( new SourceJetEta(),
-		 new SourceJetPtRatio( "AK5PFJets", "AK5PFJetsL1", 0, 0),
-		 "L1FastJet_AK5PF_jet1_eta"));
-		 pLine->AddConsumer( new ProfileConsumerBase( new SourceJetPt(),
-		 new SourceJetPtRatio( "AK5PFJets", "AK5PFJetsL1", 0, 0),
-		 "L1FastJet_AK5PF_jet1_pt"));
-
-		 // plot l2 correction
-		 pLine->AddConsumer( new ProfileConsumerBase( new SourceRecoVert(),
-		 new SourceJetPtRatio( "AK5PFJetsL1", "AK5PFJetsL1L2", 0, 0),
-		 "L2_AK5PF_npv"));
-		 pLine->AddConsumer( new ProfileConsumerBase( new SourceJetEta(),
-		 new SourceJetPtRatio( "AK5PFJetsL1", "AK5PFJetsL1L2", 0, 0),
-		 "L2_AK5PF_jet1_eta"));
-		 pLine->AddConsumer( new ProfileConsumerBase( new SourceJetPt(),
-		 new SourceJetPtRatio( "AK5PFJetsL1", "AK5PFJetsL1L2", 0, 0),
-		 "L2_AK5PF_jet1_pt"));
-
-		 // plot l3 correction
-		 pLine->AddConsumer( new ProfileConsumerBase( new SourceRecoVert(),
-		 new SourceJetPtRatio( "AK5PFJetsL1L2", "AK5PFJetsL1L2L3", 0, 0),
-		 "L3_AK5PF_npv"));
-		 pLine->AddConsumer( new ProfileConsumerBase( new SourceJetEta(),
-		 new SourceJetPtRatio( "AK5PFJetsL1L2", "AK5PFJetsL1L2L3", 0, 0),
-		 "L3_AK5PF_jet1_eta"));
-		 pLine->AddConsumer( new ProfileConsumerBase( new SourceJetPt(),
-		 new SourceJetPtRatio( "AK5PFJetsL1L2", "AK5PFJetsL1L2L3", 0, 0),
-		 "L3_AK5PF_jet1_pt"));
-		 */
-		//pLine->AddConsumer(	new ResponseConsumerBase() );
+		if ( g_inputType == McInput )
+		{
+			// add gen jets plots
+			//pLine->AddConsumer( new DataLVsConsumer( (*it)->GetJetAlgorithm() + "_gen_", 0, (*it)->GetGenJetAlgorithm() ));
+		}
 
 		if ( g_inputType == McInput )
 		{
@@ -472,12 +480,6 @@ for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 	}
 }
 
-/*
- g_sTrackedEventsFile = p.getString(secname + ".tracked_events");
- if (g_sTrackedEventsFile.length() > 0)a
- loadTrackedEventsFromFile(g_sTrackedEventsFile);
- */
-
 // weighting settings
 g_useEventWeight = g_propTree.get<bool> ("UseEventWeight", false);
 g_useWeighting = g_propTree.get<bool> ("UseWeighting", false);
@@ -490,45 +492,21 @@ g_eventReweighting = g_propTree.get<bool> ("EventReweighting", false);
 if (g_eventReweighting)
 CALIB_LOG_FILE( "\n\n --------> reweightin events for # reco !!\n\n" )
 
-/*if ( g_propTree.get("JsonFile", "") != "" )
- g_json.reset(new Json_wrapper(g_propTree.get("JsonFile", "").c_str()));
- */
-/*
- g_l2CorrFiles = p.getvString(secname + ".l2_correction_data");
- g_l3CorrFiles = p.getvString(secname + ".l3_correction_data");
- */
-
-//g_cutHandler.reset(new ZJetCutHandler());
-
-// init cuts
-// values are set for each Pipeline individually
-/*
- // technical cuts
- g_ZJetCuts.push_back(new JsonCut(g_json.get()));
- g_ZJetCuts.push_back(new HltCut());
-
- // muon cuts
- g_ZJetCuts.push_back(new MuonEtaCut());
- g_ZJetCuts.push_back(new MuonPtCut() );
- g_ZJetCuts.push_back(new ZMassWindowCut());
- g_ZJetCuts.push_back(new ZPtCut());
-
- // jet cuts
- g_ZJetCuts.push_back(new LeadingJetEtaCut());
- g_ZJetCuts.push_back(new JetPtCut());
-
- // topology cuts
- //g_ZJetCuts.push_back(new SecondLeadingToZPtCutDir());
- g_ZJetCuts.push_back(new SecondLeadingToZPtCut());
- g_ZJetCuts.push_back(new BackToBackCut());
- */
 
 std::cout << TIMING_GET_RESULT_STRING << std::endl;
 
 ZJetPipelineSettings settings;
 settings.m_globalSettings = &gset;
 
+
+ProfilerStart( "resp_cuts.prof");
+//HeapProfilerStart( "resp_cuts.heap");
+
 pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings >( evtProvider, settings );
+
+//HeapProfilerStop();
+ProfilerStop();
+
 
 g_resFile->Close();
 g_logFile->close();
@@ -537,6 +515,7 @@ CALIB_LOG_FILE("Output file " << sRootOutputFilename << " closed.")
 
 // todo this delete produces seg fault
 delete g_logFile;
+
 
 return 0;
 }

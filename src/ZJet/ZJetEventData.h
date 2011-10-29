@@ -4,6 +4,7 @@
 #include "DataFormats/interface/Kappa.h"
 
 #include "ZJetPipelineSettings.h"
+#include "Misc/SafeMap.h"
 
 namespace CalibFW
 {
@@ -22,12 +23,16 @@ public:
 	typedef std::map<std::string, KDataPFJets *> PfMap;
 	typedef typename PfMap::const_iterator PfMapIterator;
 
+	typedef std::map<std::string, KLV *> GenJetMap;
+	typedef typename PfMap::const_iterator GenJetMapIterator;
+
 	typedef std::map<std::string, KDataJets *> JetMap;
 	typedef typename PfMap::const_iterator JetMapIterator;
 
 	//typedef std::map<std::string, K * > GenMap;
 	PfMap m_pfJets;
 	JetMap m_jets;
+	GenJetMap m_genJets;
 
 	// May return null, if no primary jet is available
 	virtual KDataLV * GetPrimaryJet(ZJetPipelineSettings const& psettings) const
@@ -71,7 +76,10 @@ public:
 	{
 		if (psettings.IsPF(algoName))
 		{
-			KDataPFJets * pfJets = m_pfJets.at(algoName);
+			KDataPFJets * pfJets =
+			SafeMap<std::string, KDataPFJets *>::Get( algoName, m_pfJets );
+
+			//KDataPFJets * pfJets = m_pfJets.at(algoName);
 
 			if (pfJets->size() <= index)
 				return NULL;
@@ -106,6 +114,20 @@ public:
 
 	KDataMuons * Muons;
 	KEventMetadata * m_eventmetadata;
+
+	KLumiMetadata * m_lumimetadata;
+
+	KGenLumiMetadata * GetGenLumiMetadata() const
+	{
+		return (KGenLumiMetadata *) m_lumimetadata ;
+	}
+
+	KDataLumiMetadata * GetDataLumiMetadata() const
+	{
+		return (KDataLumiMetadata *) m_lumimetadata;
+	}
+
+
 	KGenEventMetadata * m_geneventmetadata;
 
 	KVertexSummary * m_vertexSummary;

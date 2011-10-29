@@ -30,6 +30,17 @@ public:
 			TSettings const& settings) const {}
 
 
+	virtual bool HasDefaultBinCount() const
+	{
+		return true;
+	}
+
+	virtual double HasDefaultBins() const
+	{
+		return true;
+	}
+
+
 	virtual unsigned int GetDefaultBinCount() const
 	{
 		CALIB_LOG_FATAL("implement this for your class")

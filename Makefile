@@ -104,7 +104,7 @@ CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2
+CXXFLAGS = -g
 CYGPATH_W = echo
 DEFS = -DPACKAGE_NAME=\"CALIB_FW\" -DPACKAGE_TARNAME=\"calib_fw\" -DPACKAGE_VERSION=\"VERSION\" -DPACKAGE_STRING=\"CALIB_FW\ VERSION\" -DPACKAGE_BUGREPORT=\"BUG-REPORT-ADDRESS\" -DPACKAGE_URL=\"\" -DPACKAGE=\"calib_fw\" -DVERSION=\"VERSION\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_STDLIB_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1
 DEPDIR = .deps
@@ -143,7 +143,7 @@ abs_srcdir = /home/poseidon/uni/code/CalibFW
 abs_top_builddir = /home/poseidon/uni/code/CalibFW
 abs_top_srcdir = /home/poseidon/uni/code/CalibFW
 ac_ct_CC = gcc
-ac_ct_CXX = g++
+ac_ct_CXX = 
 am__include = include
 am__leading_dot = .
 am__quote = 
@@ -193,13 +193,13 @@ KAPPATOOLS_PATH = $(top_srcdir)/../KappaTools
 KAPPA_ROOT_PATH = $(top_srcdir)/..
 CMSSW_PATH = external/OfflineCorrection
 AM_CXXFLAGS = -fopenmp -pedantic -Werror -Wall -Wfatal-errors -std=c++0x \
-				 -O3 -march=native -g -DSTANDALONE \
+				 -O2 -march=native -g -DSTANDALONE \
 		          -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \
 		          		          -Wsign-compare -Wtype-limits  -Wuninitialized \
 				-I$(top_srcdir)/src $(ROOTCFLAGS) -I$(KAPPA_PATH) -I$(CMSSW_PATH) \
 				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)
 
-AM_LDFLAGS = $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox \
+AM_LDFLAGS = $(ROOTLIBS) -l profiler -l tcmalloc -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox \
 			  $(LIB_PATH)
 
 OFFLINE_CORR = $(CMSSW_PATH)/CondFormats/JetMETObjects/src

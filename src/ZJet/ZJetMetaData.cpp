@@ -1,4 +1,5 @@
 #include <sstream>
+#include <algorithm>
 
 #include "ZJetMetaData.h"
 
@@ -61,6 +62,7 @@ KDataLV * ZJetMetaData::GetValidJet(ZJetPipelineSettings const& psettings,
 	}
 	else
 	{
+
 		KDataLV * j = evtData.GetJet(psettings, m_listValidJets[algoName].at(
 				index), algoName);
 		assert( j != NULL);
@@ -74,11 +76,11 @@ unsigned int ZJetMetaData::GetValidJetCount(
 {
 	if (IsMetaJetAlgo(algoName))
 	{
-		return m_validPFJets.at(algoName).size();
+		return SafeMap<std::string, std::vector<KDataPFJet> >::Get( algoName,  m_validPFJets).size();
 	}
 	else
 	{
-		return this->m_listValidJets.at(algoName).size();
+		return SafeMap<std::string, std::vector<unsigned int> >::Get( algoName,  m_listValidJets).size();
 	}
 }
 
@@ -91,6 +93,25 @@ double ZJetMetaData::GetMPF(KDataLV * met) const
 			* GetRefZ().p4.Py();
 
 	return 1.0f + (scalPtEt / scalPtSq);
+}
+
+bool cmpPFJetPt (KDataPFJet i,KDataPFJet j)
+{ return (i.p4.Pt()<j.p4.Pt());
+}
+
+
+void ZJetMetaData::SortJetCollections()
+{
+
+	for ( MetaPFJetContainer::iterator it = m_validPFJets.begin();
+			it != m_validPFJets.end();
+			++ it)
+	{
+		std::vector<KDataPFJet> & jet_vect = it->second;
+
+		std::sort( jet_vect.begin(), jet_vect.end(), cmpPFJetPt);
+		std::reverse( jet_vect.begin(), jet_vect.end() );
+	}
 }
 
 }

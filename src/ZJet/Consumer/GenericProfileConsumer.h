@@ -36,6 +36,15 @@ public:
 			this->SetYSource ( new SourceCutValue( l) );
 		}
 
+		else if ( ref == "hltprescale" )
+		{
+			this->SetYSource ( new SourceHltPrescale( ptree->get<std::string>( configPath + ".YSourceConfig") ) );
+		}
+
+		else if ( ref == "eventcount" )
+		{
+			this->SetYSource ( new SourceEventcount() );
+		}
 		else if ( ref == "jetptratio" )
 		{
 
@@ -49,8 +58,6 @@ public:
 			CALIB_LOG_FATAL( "Source " << ref << " not supported" )
 		}
 
-
-
 		ref = ptree->get<std::string>( configPath + ".XSource");
 
 		if ( ref == "jetpt" )
@@ -59,12 +66,17 @@ public:
 			this->SetXSource ( new SourceRecoVert());
 		else if ( ref == "jeteta")
 			this->SetXSource ( new SourceJetEta());
+		else if ( ref == "zpt")
+			this->SetXSource ( new SourceZPt());
+		else if ( ref == "runnumber")
+			this->SetXSource ( new SourceRunNumber());
+		else if ( ref == "intlumi")
+			this->SetXSource ( new SourceIntegratedLumi() );
 		else
 		{
 			CALIB_LOG_FATAL( "Source " << ref << " not supported" )
 		}
 	}
-
 
 	static std::string GetName()
 	{

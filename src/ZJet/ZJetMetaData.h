@@ -8,6 +8,7 @@
 #include "ZJetEventData.h"
 
 
+#include "KappaTools/RootTools/HLTTools.h"
 
 
 namespace CalibFW
@@ -133,6 +134,19 @@ IMPL_PROPERTY(double, Weight)
 	{
 		return m_listInvalidMuons;
 	}
+
+	void InitMetaJetCollection( std::string algoname)
+	{
+		m_validPFJets[ algoname ] = std::vector< KDataPFJet >();
+	}
+
+
+	void SortJetCollections();
+
+
+	//std::shared_ptr< HLTTools > m_hlt;
+
+
 /*
 	std::list<unsigned int> const& GetValidJets() const
 	{

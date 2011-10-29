@@ -9,6 +9,7 @@
 #include "ZJet/Consumer/GenericProfileConsumer.h"
 #include "ZJet/Consumer/JetRespConsumer.h"
 
+
 #include "ZJet/Filter/ValidZFilter.h"
 #include "ZJet/Filter/InCutFilter.h"
 #include "ZJet/Filter/PtWindowFilter.h"
@@ -86,7 +87,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		//pLine->AddMetaDataProducer( new	ValidMuonProducer());
 
 
-
+		// Cuts
 		fvec = pset.GetCuts();
 		BOOST_FOREACH( std::string sid, fvec )
 		{		// make this more beautiful :)
@@ -137,6 +138,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 		else if (sName == FilterStatisticsConsumer::GetName())
 			pLine->AddConsumer( new FilterStatisticsConsumer());
+
 
 
 		// 2nd Level

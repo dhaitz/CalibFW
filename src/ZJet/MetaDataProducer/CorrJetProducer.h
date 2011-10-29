@@ -11,12 +11,22 @@
 namespace CalibFW
 {
 
+struct JecCorrSet
+{
+	std::shared_ptr<JECService> m_l1;
+	std::shared_ptr<JECService> m_l2;
+	std::shared_ptr<JECService> m_l3;
+
+	// for data
+	std::shared_ptr<JECService> m_l2l3res;
+};
+
 // takes the jets contained in an event and applies the necessary corrections
 class CorrJetProducer: public ZJetMetaDataProducerBase
 {
 public:
 
-	CorrJetProducer();
+	CorrJetProducer( std::string corBase );
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData,
@@ -26,20 +36,22 @@ public:
 			ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const;
 
+	void InitCorrection( std::string algoName );
+
 	void CorrectJetCollection( std::string algoName, std::string newAlgoName,
 					std::shared_ptr< JECService > corrService,
 					ZJetEventData const& event,
 					ZJetMetaData & metaData,
 					ZJetPipelineSettings const& settings) const;
 
-private:
-	std::unique_ptr<JECService> m_jecService;
-	std::shared_ptr<JECService> m_l1;
-	std::shared_ptr<JECService> m_l2;
-	std::shared_ptr<JECService> m_l3;
+	void CreateCorrections( std::string algoName,
+			ZJetEventData const& event,
+			ZJetMetaData & metaData,
+			ZJetPipelineSettings const& settings ) const;
 
-	// for data
-	std::shared_ptr<JECService> m_l2l3res;
+private:
+	std::map< std::string, JecCorrSet> m_corrService;
+	std::string m_corectionFileBase;
 };
 
 }

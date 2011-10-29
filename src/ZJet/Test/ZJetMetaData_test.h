@@ -33,6 +33,7 @@ BOOST_AUTO_TEST_CASE( test_meta_data_meta_jet )
 	mData.m_listValidJets[algoNoMeta].push_back(1);
 
 	set.CacheJetAlgorithm.SetCache(algoName1 );
+	mData.InitMetaJetCollection(algoName1);
 
 	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, algoName1 ), 0  );
 	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, algoNoMeta ), 2 );
@@ -52,6 +53,40 @@ BOOST_AUTO_TEST_CASE( test_meta_data_meta_jet )
 	pJet = static_cast<KDataPFJet * > ( mData.GetValidJet(set, evt, 1, algoName1 )  );
 	BOOST_CHECK_EQUAL( pJet->area, 42.0f );
 }
+
+BOOST_AUTO_TEST_CASE( test_meta_data_sort_jets )
+{
+	ZJetPipelineSettings set;
+	TestZJetEventData evt;
+	ZJetMetaData mData;
+
+	KDataPFJet pjet1;
+	KDataPFJet pjet2;
+	KDataPFJet pjet3;
+
+	pjet1.p4.SetPt(23.0f );
+	pjet2.p4.SetPt(2.0f );
+	pjet3.p4.SetPt(33.0f );
+
+	std::string algoName1 = "ak5pf";
+
+	mData.AddValidJet( pjet1, algoName1 );
+	mData.AddValidJet( pjet2, algoName1 );
+	mData.AddValidJet( pjet3, algoName1 );
+
+	BOOST_CHECK_EQUAL( mData.GetValidJetCount( set, algoName1), 3 );
+
+	BOOST_CHECK_EQUAL( mData.GetValidJet(  set,  evt, 0, algoName1)->p4.Pt(), 23.0f);
+	BOOST_CHECK_EQUAL( mData.GetValidJet(  set,  evt, 1, algoName1)->p4.Pt(), 2.0f);
+	BOOST_CHECK_EQUAL( mData.GetValidJet(  set,  evt, 2, algoName1)->p4.Pt(), 33.0f);
+
+	mData.SortJetCollections();
+
+	BOOST_CHECK_EQUAL( mData.GetValidJet(  set,  evt, 0, algoName1)->p4.Pt(), 33.0f);
+	BOOST_CHECK_EQUAL( mData.GetValidJet(  set,  evt, 1, algoName1)->p4.Pt(), 23.0f);
+	BOOST_CHECK_EQUAL( mData.GetValidJet(  set,  evt, 2, algoName1)->p4.Pt(), 2.0f);
+}
+
 
 }
 

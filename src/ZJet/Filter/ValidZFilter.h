@@ -13,11 +13,11 @@ public:
 			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
 	{
 		// std::cout << "val z " << metaData.HasValidZ() << std::endl;
-		// metaData.HasValidZ();
+		return metaData.HasValidZ();
 
 		// just for debugging !!!
 		// remove everything down here !
-
+/*		debug code for comparing
 		for ( KDataMuons::const_iterator it = metaData.GetValidMuons().begin();
 				it != metaData.GetValidMuons().end(); it ++)
 		{
@@ -40,7 +40,7 @@ public:
 			return true;
 		}
 		else
-			return false;
+			return false;*/
 	}
 
 	virtual std::string GetFilterId()

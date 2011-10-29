@@ -43,8 +43,12 @@ public:
 
 		// init the profile plot
 		Profile2d::ModifierList modlist;
-		modlist.push_back( new ModProfileXBinCount( m_xsource->GetDefaultBinCount()) );
-		modlist.push_back( new ModProfileXBinRange( m_xsource->GetDefaultLowBin(),
+
+		if ( m_xsource->HasDefaultBinCount())
+			modlist.push_back( new ModProfileXBinCount( m_xsource->GetDefaultBinCount()) );
+
+		if ( m_xsource->HasDefaultBins())
+			modlist.push_back( new ModProfileXBinRange( m_xsource->GetDefaultLowBin(),
 													m_xsource->GetDefaultHighBin() ));
 
 		m_profile = std::unique_ptr<Profile2d> (
