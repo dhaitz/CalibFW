@@ -46,10 +46,10 @@ CALIB_SRC = src/DrawBase.cc src/EventData.cc \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc
 					
 
-bin_PROGRAMS = resp_cuts resp_cuts_test
-resp_cuts_SOURCES = src/resp_cuts.cpp $(CALIB_SRC)
+bin_PROGRAMS = closure closure_test
+closure_SOURCES = src/resp_cuts.cpp $(CALIB_SRC)
 
-resp_cuts_test_SOURCES = src/resp_cuts_test.cpp $(CALIB_SRC)
+closure_test_SOURCES = src/resp_cuts_test.cpp $(CALIB_SRC)
 
 
 
