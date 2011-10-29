@@ -6,6 +6,7 @@
 
 #include "ZJet/Consumer/ZJetDrawConsumer.h"
 #include "ZJet/Consumer/CutStatistics.h"
+#include "ZJet/Consumer/FilterStatistics.h"
 #include "ZJet/Consumer/GenericProfileConsumer.h"
 #include "ZJet/Consumer/JetRespConsumer.h"
 
@@ -117,9 +118,6 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		}
 	}
 
-	// add consumer
-	std::cout << pset.GetSettingsRoot() << std::endl;
-
 	BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
 			pset.GetPropTree()->get_child( pset.GetSettingsRoot() + ".Consumer") )
 	{
@@ -138,8 +136,6 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 		else if (sName == FilterStatisticsConsumer::GetName())
 			pLine->AddConsumer( new FilterStatisticsConsumer());
-
-
 
 		// 2nd Level
 		else if( sName == JetRespConsumer::GetName() )

@@ -47,8 +47,8 @@ public:
 		{
 			CALIB_LOG_FATAL("No unprescaled trigger found for Run " << event.m_eventmetadata->nRun << " Lumisection " << event.m_eventmetadata->nLumi );
 		}
-
-		std::cout << "using trigger " << curName << std::endl;
+		// TODO: Report that we changed the HLT, if we did
+		//std::cout << "using trigger " << curName << std::endl;
 		return event.m_eventmetadata->hltFired( curName, event.m_lumimetadata );
 	}
 

@@ -168,11 +168,7 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 		HLTTools ht ( event.m_lumimetadata );
-
-		std::cout << m_hltName << std::endl;
-
 		std::string curName = ht.getHLTName( m_hltName);
-		std::cout << curName << std::endl;
 
 		if ( ht.isAvailable( curName ) )
 			val = ht.getPrescale( curName );

@@ -44,12 +44,12 @@ def GetBaseConfig():
             "CutBack2Back": 0.34,
 
             
-            "Cuts": ["muon_pt",
-                     "muon_eta",
-                     "leadingjet_eta",
+            "Cuts": ["muon_pt"],
+ #                    "muon_eta",
+#                     "leadingjet_eta",
                      #"secondleading_to_zpt",
                      #"back_to_back",
-                     "zmass_window"],
+#                     "zmass_window"],
             "Filter":["valid_z", "valid_jet"],
             "Consumer": {}
                       }
@@ -119,9 +119,7 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource):
         
         if elem["Level"] == 1:            
             for v in vals:
-                #print( elem )
                 newPipe = copy.deepcopy(elem)
-                #print( newPipe )
                 newPipe[ varName ] = v
                 
                 varadd = "_var_" + varName + "_" + str(v).replace(".", "_")
@@ -174,7 +172,7 @@ def ExpandCutNoCut( pipelineDict):
 
 
         # only add the nocut pipeline for the default ( no binning )
-        print name
+
         #if name == "default":
         newDict[name + "nocuts" ] = nocutPipe
 
@@ -448,7 +446,7 @@ def StoreSettings( settings, filename):
 def Run( settings, filename):    
     StoreSettings( settings, filename)
     print "Running config from file " + filename
-    subprocess.call(["./resp_cuts",filename])
+    subprocess.call(["./closure",filename])
     try:
         import pynotify
         if pynotify.init("CalibFW resp_cuts"):

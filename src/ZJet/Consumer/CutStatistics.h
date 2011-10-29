@@ -8,7 +8,6 @@
 #include "GlobalInclude.h"
 #include "RootTools/RootIncludes.h"
 
-
 #include "../ZJetPipeline.h"
 #include "ZJetConsumer.h"
 
@@ -56,15 +55,12 @@ public:
 
 	virtual void Finish()
 	{
-		CALIB_LOG_FILE("Cut Report for " << this->GetPipelineSettings().GetRootFileFolder() )
-		CALIB_LOG_FILE("Cuts evaluated with Algorithm " << this->GetPipelineSettings().GetJetAlgorithm() )
-		CALIB_LOG_FILE("Overall Event Count: " << m_eventCount)
-
 		unsigned long overallCountLeft = m_eventCount;
 		double droppedRel = 0.0f;
 
 		CALIB_LOG_FILE( std::setprecision(3) << std::fixed )
-		CALIB_LOG_FILE( "--- Event Cut Report ---" )
+		CALIB_LOG_FILE( std::endl << "--- Event Cut Report: " << this->GetPipelineSettings().GetRootFileFolder()
+						<< " Algo: " << this->GetPipelineSettings().GetJetAlgorithm() << " ---" )
 		CALIB_LOG_FILE( std::setw(20) << "CutName" << std::setw(23) << "EvtsLeftRel [%]" << std::setw(23)<< "EvtsLeft"
 				<< std::setw(23)<< "EvtsDropRel [%]"<< std::setw(21) << "EvtsDropAbs")
 
@@ -84,22 +80,15 @@ public:
 			ZJetCutBase * c = static_cast<ZJetCutBase *>( m );
 			unsigned long rejAbs = m_cutRejected[c->GetCutShortName()];
 
-/*			if ( ZJetCutHandler::IsCutEnabled( c, this->GetPipelineSettings() ) )
-			{*/
-				droppedRel = 1.0f -(double) ( overallCountLeft - rejAbs ) / (double) overallCountLeft;
+			droppedRel = 1.0f -(double) ( overallCountLeft - rejAbs ) / (double) overallCountLeft;
 
-				CALIB_LOG_FILE(std::setw(20) << c->GetCutShortName() << " : "
-						<< std::setw(20) << std::setprecision(5) << (1.0f - droppedRel) * 100.0f
-						<< std::setw(20) << overallCountLeft - rejAbs
-						<< std::setw(20) << std::setprecision(5) << droppedRel * 100.0f
-						<< std::setw(20) << rejAbs)
+			CALIB_LOG_FILE(std::setw(20) << c->GetCutShortName() << " : "
+					<< std::setw(20) << std::setprecision(5) << (1.0f - droppedRel) * 100.0f
+					<< std::setw(20) << overallCountLeft - rejAbs
+					<< std::setw(20) << std::setprecision(5) << droppedRel * 100.0f
+					<< std::setw(20) << rejAbs)
 
-				overallCountLeft -= rejAbs;
-		/*	}
-			else
-			{
-				CALIB_LOG_FILE(std::setw(20) << c->GetCutShortName() << " : disabled")
-			}*/
+			overallCountLeft -= rejAbs;
 		}
 		CALIB_LOG_FILE( "Events left after Cuts : " << overallCountLeft )
 
@@ -143,21 +132,6 @@ public:
 				break;
 			}
 		}
-/*
-		if (metaData.IsCutPassed( SecondLeadingToZPtCut::CudId ))
-		{
-			m_conditional2ndJetPtCutBase++;
-			if ( metaData.IsCutPassed( BackToBackCut::CudId ))
-				m_conditional2ndJetPtCut++;
-		}
-
-		if ( metaData.IsCutPassed( BackToBackCut::CudId ))
-		{
-			m_conditionalDeltaPhiCutBase++;
-			if ( metaData.IsCutPassed(SecondLeadingToZPtCut::CudId ))
-				m_conditionalDeltaPhiCut++;
-		}*/
-
 	}
 
 
@@ -174,79 +148,6 @@ public:
 };
 
 
-
-class FilterStatisticsConsumer: public ZJetConsumerBase
-{
-public:
-	FilterStatisticsConsumer() :
-		ZJetConsumerBase()
-		{
-
-		}
-
-	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
-			ZJetPipelineSettings> * pset)
-	{
-		ZJetConsumerBase::Init(pset);
-
-		m_cutRejected.clear();
-		m_eventCount = 0;
-	}
-
-	static std::string GetName()
-	{
-		return "filter_statistics";
-	}
-
-	virtual void Finish()
-	{
-		CALIB_LOG_FILE("Filter Report for " << this->GetPipelineSettings().GetRootFileFolder() )
-		CALIB_LOG_FILE("Filter evaluated with Algorithm " << this->GetPipelineSettings().GetJetAlgorithm() )
-		CALIB_LOG_FILE("Overall Event Count: " << m_eventCount)
-
-
-		for ( RejIterator_const it = m_cutRejected.begin();
-				it != m_cutRejected.end();
-				++ it)
-		{
-			CALIB_LOG_FILE("Filter " << it->first << " Rejection Ratio " << ( (double)it->second / (double)m_eventCount ))
-		}
-	}
-
-	// this method is only called for events which have passed the filter imposed on the
-	// pipeline
-	virtual void ProcessFilteredEvent(ZJetEventData const& event, ZJetMetaData const& metaData)
-	{
-
-	}
-
-	// this method is called for all events
-	virtual void ProcessEvent(ZJetEventData const& event,
-			ZJetMetaData const& metaData,
-			FilterResult & result)
-	{
-		// only look at the event if it passed all filters, except the incut filter
-		m_eventCount++;
-		for ( FilterResult::FilterDecisionsIterator_const it = result.GetFilterDecisions().begin();
-				it != result.GetFilterDecisions().end();
-				++ it)
-		{
-			if ( m_cutRejected.find( it->first) == m_cutRejected.end())
-				m_cutRejected[it->first] = 0;
-
-			if ( ! it->second )
-			{
-				m_cutRejected[it->first] ++;
-			}
-		}
-	}
-
-	typedef std::map<std::string, unsigned long>::const_iterator RejIterator_const;
-	std::map<std::string, unsigned long> m_cutRejected;
-
-
-	unsigned long m_eventCount;
-};
 
 }
 
