@@ -3,6 +3,8 @@
 #include <sstream>
 #include "DataFormats/interface/Kappa.h"
 
+#include <KappaTools/RootTools/FileInterface.h>
+
 #include "ZJetPipelineSettings.h"
 #include "Misc/SafeMap.h"
 
@@ -19,6 +21,9 @@ public:
 	KDataPFJets * m_primaryJetCollection;
 	KDataMuons * m_muons;
 	KDataPFMET * m_pfMet;
+
+	// only use directly if there is no other way
+	FileInterface * m_fi;
 
 	typedef std::map<std::string, KDataPFJets *> PfMap;
 	typedef typename PfMap::const_iterator PfMapIterator;

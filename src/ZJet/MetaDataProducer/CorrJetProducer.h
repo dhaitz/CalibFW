@@ -36,7 +36,8 @@ public:
 			ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const;
 
-	void InitCorrection( std::string algoName );
+	void InitCorrection( std::string algoName,
+			ZJetEventData const& event ) const;
 
 	void CorrectJetCollection( std::string algoName, std::string newAlgoName,
 					std::shared_ptr< JECService > corrService,
@@ -50,7 +51,7 @@ public:
 			ZJetPipelineSettings const& settings ) const;
 
 private:
-	std::map< std::string, JecCorrSet> m_corrService;
+	mutable std::map< std::string, JecCorrSet> m_corrService;
 	std::string m_corectionFileBase;
 };
 

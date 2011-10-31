@@ -29,6 +29,7 @@
 #include <map>
 #include <sstream>
 #include <iostream>
+#include <ios>
 #include <fstream>
 
 #include <boost/foreach.hpp>
@@ -210,6 +211,8 @@ public:
 		m_event.m_muons = fi.Get<KDataMuons> ("muons");
 		m_event.m_pfMet = fi.Get<KDataPFMET> ("PFMET");
 
+		m_event.m_fi = &fi;
+
 		m_mon.reset(new ProgressMonitor(GetOverallEventCount()));
 		}
 
@@ -303,7 +306,7 @@ int main(int argc, char** argv)
 
 	g_sOutputPath = g_propTree.get<std::string> ("OutputPath");
 	std::string sLogFileName = g_sOutputPath + ".log";
-	g_logFile = new ofstream(sLogFileName.c_str(), ios_base::trunc);
+	g_logFile = new ofstream(sLogFileName.c_str(), std::ios_base::trunc);
 
 	// openmp setup
 	omp_set_num_threads(g_propTree.get<int> ("ThreadCount", 1));

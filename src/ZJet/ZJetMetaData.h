@@ -2,6 +2,7 @@
 #pragma once
 
 #include <boost/ptr_container/ptr_map.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include "Pipeline/EventPipeline.h"
 #include "ZJetPipelineSettings.h"
@@ -14,6 +15,53 @@
 namespace CalibFW
 {
 
+struct MatchingPair{
+
+	explicit MatchingPair( long j1, long j2)
+	: m_jet1( j1), m_jet2 ( j2 ) { }
+
+	enum { NoMatchFound = -1, NotMatched = -2 } MatchingResult;
+
+	long m_jet1;
+	long m_jet2;
+};
+
+class MatchingResult
+{
+public:
+
+	void AddMatch ( long jet1, long jet2)
+	{
+		m_pair.push_back( MatchingPair ( jet1, jet2 ) );
+	}
+
+	void AddMismatch ( long jet1 )
+	{
+		m_pair.push_back( MatchingPair( jet1, MatchingPair::NoMatchFound ) );
+	}
+
+	long GetMatchingJet( long jet1 )
+	{
+		for ( MatchingList::iterator it = m_pair.begin();
+				it != m_pair.end();
+				++ it )
+		{
+			if ( it->m_jet1 == jet1 )
+				return it->m_jet2;
+		}
+
+		return MatchingPair::NotMatched;
+	}
+
+	unsigned long GetEntryCount ()
+	{
+		return m_pair.size();
+	}
+
+private:
+	typedef std::vector < MatchingPair > MatchingList;
+	std::vector < MatchingPair > m_pair;
+};
 
 class ZJetMetaData: public CalibFW::EventMetaDataBase
 {
@@ -140,6 +188,15 @@ IMPL_PROPERTY(double, Weight)
 		m_validPFJets[ algoname ] = std::vector< KDataPFJet >();
 	}
 
+	MatchingResult & GetMatchingResults( std::string matchingName )
+	{
+		return m_matchingResults[ matchingName ];
+	}
+
+	MatchingResult const& GetMatchingResults( std::string matchingName ) const
+	{
+		return m_matchingResults.at( matchingName );
+	}
 
 	void SortJetCollections();
 
@@ -166,8 +223,11 @@ IMPL_PROPERTY(double, Weight)
 
 
 	// create a complete copy of the jet collections ??
-	typedef typename std::map < std::string, std::vector<KDataPFJet>> MetaPFJetContainer;
+	typedef typename std::map < std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
 	mutable MetaPFJetContainer m_validPFJets;
+
+	typedef std::map< std::string , MatchingResult > MatchingResults;
+	MatchingResults m_matchingResults;
 
 
 	std::vector< KDataLV *> m_primaryJets;

@@ -37,6 +37,7 @@ CALIB_SRC = src/DrawBase.cc src/EventData.cc \
 			src/GlobalInclude.cc \
 			src/ZJet/ZJetPipeline.cpp  \
 			src/ZJet/MetaDataProducer/CorrJetProducer.cpp  \
+			src/ZJet/MetaDataProducer/JetMatcher.cpp  \
 			src/Pipeline/ProfileConsumerBase.cpp \
 			src/ZJet/ZJetMetaData.cpp \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc \ 
@@ -47,9 +48,9 @@ CALIB_SRC = src/DrawBase.cc src/EventData.cc \
 					
 
 bin_PROGRAMS = closure closure_test
-closure_SOURCES = src/resp_cuts.cpp $(CALIB_SRC)
+closure_SOURCES = src/closure.cpp $(CALIB_SRC)
 
-closure_test_SOURCES = src/resp_cuts_test.cpp $(CALIB_SRC)
+closure_test_SOURCES = src/closure_test.cpp $(CALIB_SRC)
 
 
 

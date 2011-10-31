@@ -9,7 +9,10 @@
 #include "ZJet/MetaDataProducer/Test/ZJetCuts_test.h"
 #include "ZJet/Test/ZJetPipeline_test.h"
 #include "ZJet/Test/ZJetMetaData_test.h"
+
+/// Meta data producer test
 #include "ZJet/MetaDataProducer/Test/ZJetMetaProducer_test.h"
+#include "ZJet/MetaDataProducer/Test/JetMatcher_test.h"
 
 
 using namespace CalibFW;

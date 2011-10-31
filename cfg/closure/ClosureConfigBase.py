@@ -44,12 +44,12 @@ def GetBaseConfig():
             "CutBack2Back": 0.34,
 
             
-            "Cuts": ["muon_pt"],
- #                    "muon_eta",
-#                     "leadingjet_eta",
-                     #"secondleading_to_zpt",
-                     #"back_to_back",
-#                     "zmass_window"],
+            "Cuts": ["muon_pt",
+                     "muon_eta",
+                     "leadingjet_eta",
+                     "secondleading_to_zpt",
+                     "back_to_back",
+                     "zmass_window"],
             "Filter":["valid_z", "valid_jet"],
             "Consumer": {}
                       }

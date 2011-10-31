@@ -8,11 +8,7 @@ CorrJetProducer::CorrJetProducer( std::string corBase) :
 	ZJetMetaDataProducerBase(),
 			m_corectionFileBase ( corBase )
 {
-	std::vector<std::string> corLevel;
-
 	CALIB_LOG( "Loading JEC from " + m_corectionFileBase)
-	InitCorrection( "AK5PF" );
-	InitCorrection( "AK7PF" );
 }
 
 void CorrJetProducer::PopulateMetaData(ZJetEventData const& data,
@@ -22,8 +18,12 @@ void CorrJetProducer::PopulateMetaData(ZJetEventData const& data,
 }
 
 
-void CorrJetProducer::InitCorrection( std::string algoName )
+void CorrJetProducer::InitCorrection( std::string algoName, ZJetEventData const& event ) const
 {
+	if ( m_corrService.find( algoName ) != m_corrService.end() )
+		// already loaded
+		return;
+
 	std::vector<std::string> corLevel;
 	std::string prefix = m_corectionFileBase + algoName + "_";
 
@@ -31,9 +31,10 @@ void CorrJetProducer::InitCorrection( std::string algoName )
 	corLevel.push_back("L1FastJet");
 	//corLevel.push_back("L1Offset");
 
+	FileInterface & fi = *( const_cast< FileInterface*> ( event.m_fi ));
 
 	m_corrService[ algoName ].m_l1 = std::shared_ptr<JECService>(new JECService(
-			prefix, corLevel, -1.0) // -1.0 takes the area of the jet from FastJet calculation
+			fi, prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
 			);
 
 	// only apply one correction step in a round !
@@ -41,7 +42,7 @@ void CorrJetProducer::InitCorrection( std::string algoName )
 	corLevel.push_back("L2Relative");
 
 	m_corrService[ algoName ].m_l2 = std::shared_ptr<JECService>(new JECService(
-			prefix, corLevel,-1.0) // -1.0 takes the area of the jet from FastJet calculation
+			fi, prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
 			);
 
 	// only apply one correction step in a round !
@@ -49,7 +50,7 @@ void CorrJetProducer::InitCorrection( std::string algoName )
 	corLevel.push_back("L3Absolute");
 
 	m_corrService[ algoName ].m_l3 = std::shared_ptr<JECService>(new JECService(
-			prefix, corLevel, -1.0) // -1.0 takes the area of the jet from FastJet calculation
+			fi, prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
 		);
 
 	// only used for data
@@ -57,7 +58,7 @@ void CorrJetProducer::InitCorrection( std::string algoName )
 	corLevel.push_back("L2L3Residual");
 
 	m_corrService[ algoName ].m_l2l3res = std::shared_ptr<JECService>(new JECService(
-			prefix, corLevel,-1.0) // -1.0 takes the area of the jet from FastJet calculation
+			fi,prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
 			);
 }
 
@@ -66,6 +67,9 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 		ZJetMetaData & metaData,
 		ZJetPipelineSettings const& settings) const
 {
+
+	InitCorrection( "AK5PF", event );
+	InitCorrection( "AK7PF", event );
 
 	std::string algoName_raw =algoName + "Jets";
 	std::string algoName_l1 = algoName_raw + "L1";
@@ -132,8 +136,8 @@ void CorrJetProducer::CorrectJetCollection( std::string algoName, std::string ne
 	}
 
 	corrService->correct(
-			&metaData.m_validPFJets[newAlgoName],
-			event.m_vertexSummary, event.m_jetArea);
+			&metaData.m_validPFJets[newAlgoName] );/*,
+			event.m_vertexSummary, event.m_jetArea);*/
 }
 
 
