@@ -98,26 +98,30 @@ public:
 
 	void RunModifierBeforeCreation(TPlotType * pElem)
 	{
-		BOOST_FOREACH( ModifierBase<TPlotType> * p, m_modifiers )
-		{		p->BeforeCreation(pElem);}
+		for ( typename ModifierVector::iterator it = m_modifiers.begin() ; it != m_modifiers.end(); ++ it )
+		{		it->BeforeCreation(pElem);}
 	}
 	void RunModifierBeforeDataEntry( TPlotType * pElem )
 	{
-		BOOST_FOREACH( ModifierBase<TPlotType> * p, m_modifiers )
-			{	p->BeforeDataEntry(pElem);}
+		for ( typename ModifierVector::iterator it = m_modifiers.begin() ; it != m_modifiers.end(); ++ it )
+			{	it->BeforeDataEntry(pElem);}
 	}
 	void RunModifierAfterDataEntry( TPlotType * pElem )
 	{
-		BOOST_FOREACH( ModifierBase<TPlotType> * p, m_modifiers )
-			{	p->AfterDataEntry(pElem);}
+		for ( typename ModifierVector::iterator it = m_modifiers.begin() ; it != m_modifiers.end(); ++ it )
+			{	it->AfterDataEntry(pElem);}
 	}
 	void RunModifierAfterDraw( TPlotType * pElem )
 	{
-		BOOST_FOREACH( ModifierBase<TPlotType> * p, m_modifiers )
-			{	p->AfterDraw(pElem);}
+		for ( typename ModifierVector::iterator it = m_modifiers.begin() ; it != m_modifiers.end(); ++ it )
+			{	it->AfterDraw(pElem);}
 	}
 
-	std::vector<ModifierBase<TPlotType> *> m_modifiers;
+	typedef ModifierBase<TPlotType> ModifierForThisClass;
+
+	typedef typename boost::ptr_vector<ModifierForThisClass >  ModifierVector;
+	ModifierVector m_modifiers;
+	//std::vector<ModifierBase<TPlotType> *> m_modifiers;
 
 	void SetNameAndCaption( std::string sName)
 	{

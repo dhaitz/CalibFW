@@ -6,6 +6,7 @@
 #include <boost/ptr_container/ptr_list.hpp>
 
 #include "RootTools/libKRootTools.h"
+#include "KappaTools/RootTools/HLTTools.h"
 
 #include "EventPipeline.h"
 
@@ -21,7 +22,7 @@ public:
 	}
 
 	virtual TEvent const& GetCurrentEvent() const = 0;
-	virtual bool GotoEvent( long long lEventNumber ) = 0;
+	virtual bool GotoEvent( long long lEventNumber, std::shared_ptr< HLTTools > & hltInfo ) = 0;
 	virtual long long GetOverallEventCount() const = 0;
 };
 
@@ -64,11 +65,14 @@ public:
 
 		//ProgressMonitor pm(nEvents);
 
+		std::shared_ptr< HLTTools > hltTools( new HLTTools());
+
 		for ( long long lCur = 0; lCur < nEvents; lCur ++)
 		{
 			//if (!pm.Update()) break;
-			evtProvider.GotoEvent( lCur );
+			evtProvider.GotoEvent( lCur, hltTools );
 			TMetaData metaDataGlobal;
+			metaDataGlobal.m_hltInfo = hltTools;
 
 			for( GlobalMetaProducerIterator it = m_globalMetaProducer.begin();
 					it != m_globalMetaProducer.end(); it++)

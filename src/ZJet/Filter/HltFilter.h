@@ -5,7 +5,7 @@
 #include "RootTools/RunLumiReader.h"
 
 #include "ZJetFilterBase.h"
-#include "KappaTools/RootTools/HLTTools.h"
+
 
 namespace CalibFW
 {
@@ -25,8 +25,6 @@ public:
 			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
 	{
 		// move this to a MetaDataProducer
-		HLTTools ht ( event.m_lumimetadata );
-
 		bool bPathFound = false;
 		std::string curName;
 
@@ -34,11 +32,11 @@ public:
 				it != m_hltnames.end();
 				++ it )
 		{
-			curName = ht.getHLTName( *it );
+			curName = metaData.m_hltInfo->getHLTName( *it );
 
-			if ( ht.isAvailable(curName) )
+			if ( metaData.m_hltInfo->isAvailable(curName) )
 			{
-				if (! ht.isPrescaled(curName))
+				if (! metaData.m_hltInfo->isPrescaled(curName))
 					bPathFound = true;
 			}
 		}
@@ -50,6 +48,7 @@ public:
 		// TODO: Report that we changed the HLT, if we did
 		//std::cout << "using trigger " << curName << std::endl;
 		return event.m_eventmetadata->hltFired( curName, event.m_lumimetadata );
+
 	}
 
 	virtual std::string GetFilterId()

@@ -23,6 +23,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include <typeinfo>
+#include <memory>
 
 #include "RootTools/RootIncludes.h"
 
@@ -63,7 +64,7 @@ public:
 	{
 		ZJetConsumer::Init( pset );
 
-		m_resp = new GraphErrors( m_productName, "");
+		m_resp.reset( new GraphErrors( m_productName, "") );
 		m_resp->Init();
 	}
 
@@ -97,7 +98,7 @@ public:
 	}
 
 private:
-	GraphErrors * m_resp;
+	std::unique_ptr< GraphErrors >  m_resp;
 	stringvector m_sourceFolder;
 	std::string m_sourceResponse;
 	std::string m_sourceBinning;

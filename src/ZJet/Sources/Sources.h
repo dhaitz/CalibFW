@@ -167,11 +167,10 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		HLTTools ht ( event.m_lumimetadata );
-		std::string curName = ht.getHLTName( m_hltName);
+		std::string curName = metaData.m_hltInfo->getHLTName( m_hltName);
 
-		if ( ht.isAvailable( curName ) )
-			val = ht.getPrescale( curName );
+		if ( metaData.m_hltInfo->isAvailable( curName ) )
+			val = metaData.m_hltInfo->getPrescale( curName );
 		else
 			val = 0.0f;
 

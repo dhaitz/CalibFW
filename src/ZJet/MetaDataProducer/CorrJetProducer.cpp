@@ -136,8 +136,7 @@ void CorrJetProducer::CorrectJetCollection( std::string algoName, std::string ne
 	}
 
 	corrService->correct(
-			&metaData.m_validPFJets[newAlgoName] );/*,
-			event.m_vertexSummary, event.m_jetArea);*/
+			&metaData.m_validPFJets[newAlgoName] );
 }
 
 

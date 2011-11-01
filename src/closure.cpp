@@ -64,6 +64,10 @@
 #include "ZJet/MetaDataProducer/PuReweightingProducer.h"
 #include "ZJet/MetaDataProducer/CorrJetProducer.h"
 #include "ZJet/MetaDataProducer/JetSorter.h"
+#include "ZJet/MetaDataProducer/HltInfoProducer.h"
+
+
+#include "KappaTools/RootTools/HLTTools.h"
 
 #include "ZJet/ZJetPipelineInitializer.h"
 #include "Pipeline/EventPipelineRunner.h"
@@ -213,10 +217,12 @@ public:
 
 		m_event.m_fi = &fi;
 
+		fi.SpeedupTree(10000000);
+
 		m_mon.reset(new ProgressMonitor(GetOverallEventCount()));
 		}
 
-	virtual bool GotoEvent(long long lEvent)
+	virtual bool GotoEvent(long long lEvent, std::shared_ptr< HLTTools > & hltInfo )
 	{
 		m_mon->Update();
 		m_fi.eventdata.GetEntry(lEvent);
@@ -244,6 +250,9 @@ public:
 						m_event.m_eventmetadata->nRun,
 						m_event.m_eventmetadata->nLumi);
 			}
+
+			// reload the HLT information associated with this lumi
+			hltInfo->setLumiMetadata( m_event.m_lumimetadata );
 		}
 
 		/*	if ( lEvent > 5 )
@@ -406,11 +415,14 @@ int main(int argc, char** argv)
 	typedef std::map<std::string, KDataPFJets * > PfMap;
 	PfMap pfJets;
 
+	//pRunner.AddGlobalMetaProducer( new HltInfoProducer());
 	pRunner.AddGlobalMetaProducer( new PuReweightingProducer());
 	pRunner.AddGlobalMetaProducer( new ValidMuonProducer());
 	pRunner.AddGlobalMetaProducer( new ZProducer());
 	pRunner.AddGlobalMetaProducer( new ValidJetProducer());
 	pRunner.AddGlobalMetaProducer( new CorrJetProducer( g_propTree.get<std::string> ("JecBase") ));
+
+
 	pRunner.AddGlobalMetaProducer( new JetSorter());
 
 	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it

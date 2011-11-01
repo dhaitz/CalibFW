@@ -231,6 +231,8 @@ IMPL_PROPERTY(double, Weight)
 
 
 	std::vector< KDataLV *> m_primaryJets;
+
+	std::shared_ptr< HLTTools > m_hltInfo;
 };
 
 
