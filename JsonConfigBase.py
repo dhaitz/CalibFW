@@ -1,28 +1,33 @@
 import copy
 import subprocess
 
-def getDefaultCorrectionL2( data_path ):
-  globalTag = "GR_R_311_V2_"
-  
-  g_l2_correction_data=["ak5PFJets:" + data_path + "jec_data/" + globalTag + "AK5PF_L2Relative.txt",
-      "ak7PFJets:" + data_path + "jec_data/" + globalTag + "AK7PF_L2Relative.txt",
-      "kt4PFJets:" + data_path + "jec_data/" + globalTag + "KT4PF_L2Relative.txt",
-      "kt6PFJets:" + data_path + "jec_data/" + globalTag + "KT6PF_L2Relative.txt",
-      "ak5CaloJetst:" + data_path + "jec_data/" + globalTag + "AK5Calo_L2Relative.txt",
-      "ak7CaloJets:" + data_path + "jec_data/" + globalTag + "AK7Calo_L2Relative.txt",
-      "kt4CaloJets:" + data_path + "jec_data/" + globalTag + "KT4Calo_L2Relative.txt",
-      "kt6CaloJets:" + data_path + "jec_data/" + globalTag + "KT6Calo_L2Relative.txt",
-    "iterativeCone5PFJets:" + data_path + "jec_data/" + globalTag + "IC5PF_L2Relative.txt",
-    "iterativeCone5CaloJets:" + data_path + "jec_data/" + globalTag + "IC5PF_L2Relative.txt"]
-    
-  return g_l2_correction_data
+
+def getDefaultCorrectionL2(data_path="data/", globalTag="GR_R_42_V2"):
+    data_path += "jec_data/" + globalTag + "_"
+    g_l2_correction_data = [
+      "ak5PFJets:" + data_path + "AK5PF_L2Relative.txt",
+      "ak7PFJets:" + data_path + "AK7PF_L2Relative.txt",
+      "kt4PFJets:" + data_path + "KT4PF_L2Relative.txt",
+      "kt6PFJets:" + data_path + "KT6PF_L2Relative.txt",
+      "ak5CaloJetst:" + data_path + "AK5Calo_L2Relative.txt",
+      "ak7CaloJets:" + data_path + "AK7Calo_L2Relative.txt",
+      "kt4CaloJets:" + data_path + "KT4Calo_L2Relative.txt",
+      "kt6CaloJets:" + data_path + "KT6Calo_L2Relative.txt",
+      "iterativeCone5PFJets:" + data_path + "IC5PF_L2Relative.txt",
+      "iterativeCone5CaloJets:" + data_path + "IC5PF_L2Relative.txt",
+    ]
+    return g_l2_correction_data
+
 
 def GetGitInformation():
-    gitlog = subprocess.Popen("git --no-pager log -n 1 | head -n 1" , stdout=subprocess.PIPE, shell=True).stdout.read()
-    gitremote = subprocess.Popen("git remote -v" , stdout=subprocess.PIPE, shell=True).stdout.read()
-    gitlog = gitlog.replace("'","`")
-    gitremote = gitremote.replace("'","`")
-    return (gitlog + "\n" + gitremote)
+    gitlog = subprocess.Popen("git --no-pager log -n 1 | head -n 1",
+            stdout=subprocess.PIPE, shell=True).stdout.read()
+    gitremote = subprocess.Popen("git remote -v",
+            stdout=subprocess.PIPE, shell=True).stdout.read()
+    gitlog = gitlog.replace("'", "`")
+    gitremote = gitremote.replace("'", "`")
+    return gitlog + "\n" + gitremote
+
 
 def GetBaseConfig():
     d = dict()
@@ -63,7 +68,7 @@ def GetMikkoCuts( conf ):
 
 # Keep a while for backwards compatibility
 def ApplyReweightingSummer11May10ReReco(conf):
-    ApplyReweighting(conf, 'pythia')
+    ApplyReweighting(conf, 'summer11pythia')
 
 def ApplyReweighting(conf, mcSample='summer11pythia'):
     conf["UseWeighting"] = 1
@@ -149,7 +154,7 @@ def CreateEndcapPipelines ( curPipelines ):
     return endcap
 
 
-def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, onlyOnIncut = True):
+def ExpandRange(pipelineDict, varName, vals, setRootFolder=True, includeSource=True, onlyOnIncut=True):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
@@ -170,10 +175,40 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, only
                     newDict[newName] = newPipe
                     if ( setRootFolder ):
                         newDict[newName]["RootFileFolder"] = newRootFileFolder
-
-
     if includeSource:
         return dict( pipelineDict.items() +  newDict.items() )
+    else:
+        return newDict
+
+def ExpandRange2(pipelines, filtername, low, high=None,
+                 foldername="var_{name}_{low}to{high}",
+                 includeSource=True, onlyOnIncut=True):
+    """Add pipelines with values between low and high for filtername
+
+    This only works if the filter is lowercase and it uses two variables
+    called Filter<FilterName>Low/High
+    The foldername string can contain the variables {name}, {low} and {high}
+    """
+    newDict = {}
+    for pipeline, subdict in pipelines.items():
+        if subdict["Level"] == 1 and (not onlyOnIncut or
+                "incut" in subdict["RootFileFolder"]):
+            for l, h in zip(low, high):
+                # copy existing pipeline (subdict) and modify it
+                newpipe = copy.deepcopy(subdict)
+                #print(new_pipe)
+                newpipe["Filter"].append(filtername.lower())
+                newpipe["Filter" + filtername + "Low"] = l
+                newpipe["Filter" + filtername + "High"] = h
+                f = foldername.format(name=filtername, low=l, high=h}
+                f = "_" + f.replace(".", "_")
+                newName = pipeline + f
+                newRootFileFolder =  newpipe["RootFileFolder"] + f
+                newDict[newName] = newpipe
+                if foldername is not None:
+                    newDict[newName]["RootFileFolder"] = newRootFileFolder
+    if includeSource:
+        return dict(pipelines.items() +  newDict.items())
     else:
         return newDict
 
@@ -213,14 +248,10 @@ def ExpandPtBins( pipelineDict, ptbins, includeSource):
         i = 0
         for upper in ptbins[1:]:
             ptbinsname =  str(ptbins[i]) + "to" + str(upper)
-
             newPipe = copy.deepcopy(elem)
-            
             newPipe["Filter"].append( "ptbin")
-            
             newPipe["FilterPtBinLow"] = ptbins[i]
             newPipe["FilterPtBinHigh"] = upper
-
             newDict[name + ptbinsname ] = newPipe
             i = i + 1
 
@@ -253,7 +284,7 @@ def AddQualityCuts( conf ):
    return
 
     
-def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = ""):
+def ExpandDefaultMcConfig( ptBins, conf_template, useFolders=True, FolderPrefix = ""):
     conf = conf_template
 
     conf["Pipelines"]["default"]["CustomBins"] = ptBins
@@ -302,7 +333,7 @@ def ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix = "")
 
     
     
-def ExpandDefaultDataConfig( ptBins, conf_template, useFolders, FolderPrefix = ""):
+def ExpandDefaultDataConfig( ptBins, conf_template, useFolders=True, FolderPrefix = ""):
     conf = ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix)
 
     # dont use the event storer for now. enable if you have concrete need for this
@@ -322,16 +353,13 @@ def StoreSettings( settings, filename):
         # dont display config on console, it is annyoing
         #print json.dumps( settings, sort_keys=True, indent=4 )
         json.dump( settings, f, sort_keys=True, indent=4 )
-            
     except BaseException:
-    
-        f.write ( jsonOut )
-    
+        f.write(jsonOut)
         print "No json Module found. Using fallback method ..."
         
     f.close()
     
-    print ( "Configured " + str( len( settings["Pipelines"] )) + " Pipelines" )
+    print "Configured", len(settings["Pipelines"]), "Pipelines"
     
     
 def Run( settings, filename):    
