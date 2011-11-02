@@ -33,23 +33,24 @@ def plot():
     """Run all plots with the given settings"""
     # settings (1):
     op = plotbase.options(
-        files = [
+        files=[
             "../../data/data_Oct19.root",
             "../../data/powheg_Oct19.root",
         ],
-        algorithm = "ak5PFJets",
-        correction = "L1L2L3CHS",
-        lumi = 2179.0,
-        plots =  plotdatamc.plots +
-                 plot_extrapolation.plots +
-                 plotfractions.plots,
+        algorithm="ak5PFJets",
+        correction="L1L2L3CHS",
+        lumi=2179.0,
+        plots=plotdatamc.plots +
+              plot_extrapolation.plots +
+              plotfractions.plots,
         )
     # override commandline (3):
     op.normalize = True
 
     fdata = getroot.openfile(op.data, op.verbose)
     fmc = getroot.openfile(op.mc, op.verbose)
-    op.bins = getroot.getbins(fdata, [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
+    op.bins = getroot.getbins(fdata,
+            [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
     plotbase.plot(plotdatamc, op.plots, fdata, fmc, op)
     plotbase.plot(plotfractions, op.plots, fdata, fmc, op)
     plotbase.plot(plot_extrapolation, op.plots, fdata, fmc, op)

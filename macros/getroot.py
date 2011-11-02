@@ -19,7 +19,8 @@ def openfile(filename, verbose=False):
     """Open a root file"""
     f = ROOT.TFile(filename)
     if f:
-        if verbose: print " * Inputfile:", filename
+        if verbose:
+            print " * Inputfile:", filename
     else:
         print "Can't open file:", filename
         assert False
@@ -39,7 +40,7 @@ def gethisto(name, rootfile, changes={}, isdata=False, rebin=1):
     if rootfile.Get(name) or isdata:
         roothist = getobject(rootfile, name)
     else:
-        roothist = getobject(rootfile, name.replace("Res",""))
+        roothist = getobject(rootfile, name.replace("Res", ""))
     return root2histo(roothist, rootfile.GetName(), rebin)
 
 
@@ -55,14 +56,13 @@ def getbins(rootfile, fallbackbins):
     try:
         for key in rootfile.GetListOfKeys():
             name = key.GetName()
-            if name.find("Pt")==0 and name.find("to")>0:
-                low  = int(name[2:name.find("to")])
-                high = int(name[name.find("to")+2:name.find("_")])
+            if name.find("Pt") == 0 and "to" in name:
+                low, high = [int(x) for x in name[2:name.find("_")].split("to")]
                 if low  not in result:
                     result.append(low)
                 if high not in result:
                     result.append(high)
-        assert result != [], "No bins found in "+rootfile.GetName()
+        assert result != [], "No bins found in " + rootfile.GetName()
     except AssertionError:
         print result
         print "Bins could not be determined from root file."
@@ -95,14 +95,15 @@ def gethistoname(quantity='zmass', change={}):
 
     """
     # Set default values
-    keys = ['bin', 'incut', 'var', 'quantity', 'algorithm', 'correction', 'plottype']
+    keys = ['bin', 'incut', 'var', 'quantity', 'algorithm', 'correction',
+            'plottype']
     selection = {'bin': 'NoBinning', 'incut': 'incut', 'var': '',
                  'quantity': '<quantity>', 'algorithm': 'ak5PFJets',
                  'correction': 'L1L2L3CHS', 'plottype': 'hist'}
     hst = ''
     # apply requested changes
-    for k in change.keys():
-        if k in selection.keys():
+    for k in change:
+        if k in selection:
             selection[k] = change[k]
         else:
             print k, "is no valid key. Valid keys are: ", keys
@@ -120,16 +121,15 @@ def gethistoname(quantity='zmass', change={}):
         hst = hst.replace('hist', 'graph')
     else:
         quantity = '/' + quantity
-    hst = hst.replace('_<quantity>',quantity)
+    hst = hst.replace('_<quantity>', quantity)
     return hst
-
 
 
 def root2histo(histo, rootfile='', rebin=1):
     """Convert a root histogram to the Histo class"""
     hst = Histo()
     # Detect if it is a TH1D or a TGraphErrors
-    if hasattr(histo,'GetNbinsX'): 
+    if hasattr(histo, 'GetNbinsX'):
         # histo is a histogram, read it
         histo.Rebin(rebin)
         hst.source = rootfile
@@ -137,21 +137,21 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.title = histo.GetTitle()
         hst.xlabel = histo.GetXaxis().GetTitle()
         hst.ylabel = histo.GetYaxis().GetTitle()
-        for i in range(1,histo.GetSize()-1):
+        for i in range(1, histo.GetSize() - 1):
             hst.x.append(histo.GetBinLowEdge(i))
             hst.xc.append(histo.GetBinCenter(i))
             hst.y.append(histo.GetBinContent(i))
-            hst.xerr.append(histo.GetBinWidth(i)/2.0)
+            hst.xerr.append(histo.GetBinWidth(i) / 2.0)
             hst.yerr.append(histo.GetBinError(i))
-        hst.x.append(histo.GetBinLowEdge(histo.GetSize()-1))
-        hst.xc.append(histo.GetBinLowEdge(histo.GetSize()-1))
+        hst.x.append(histo.GetBinLowEdge(histo.GetSize() - 1))
+        hst.xc.append(histo.GetBinLowEdge(histo.GetSize() - 1))
         hst.y.append(0.0)
         hst.xerr.append(0.0)
         hst.yerr.append(0.0)
-        hst.norm = 1.0/histo.GetSum()
+        hst.norm = 1.0 / histo.GetSum()
         hst.ysum = histo.GetSum()
         hst.ymax = histo.GetMaximum()
-    elif hasattr(histo,'GetN'):
+    elif hasattr(histo, 'GetN'):
         # histo is a graph, read it
         hst.source = rootfile
         hst.name = histo.GetName()
@@ -160,27 +160,29 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.ylabel = histo.GetYaxis().GetTitle()
         a = ROOT.Double(0.0)
         b = ROOT.Double(0.0)
-        for i in range(0,histo.GetN()):
-            histo.GetPoint(i,a,b)
-            x=float(a)
-            y=float(b)
-            if hst.ymax < y: hst.ymax = y
+        for i in range(0, histo.GetN()):
+            histo.GetPoint(i, a, b)
+            x = float(a)
+            y = float(b)
+            if hst.ymax < y:
+                hst.ymax = y
             hst.ysum += y
             hst.x.append(x)
             hst.xc.append(x)
             hst.y.append(y)
             hst.xerr.append(histo.GetErrorX(i))
             hst.yerr.append(histo.GetErrorY(i))
-        hst.norm = 1.0/hst.ysum
+        hst.norm = 1.0 / hst.ysum
     else:
         # histo is of unknown type
-        print "The object '" + histo + "' is no histogram and no graph! Could not convert."
+        print "The object '" + histo + "' is no histogram and no graph!",
+        print "Could not convert."
     return hst
-    
+
 
 class Histo:
     """Reduced Histogramm or Graph
-    
+
     Self-defined histogram class
     constructor needed: (), (roothisto), (x,y,yerr)
     """
@@ -220,18 +222,18 @@ class Histo:
         self.xc = []
         self.y = []
         self.xerr = []
-        self.yerr =  [] #TODO yel, yeh wenn unterschiedlich...
+        self.yerr = []  # TODO yel, yeh wenn unterschiedlich...
         self.ysum = 0.0
         self.norm = 1.0
-        self.ymax=0.0
+        self.ymax = 0.0
 
     def __del__(self):
         pass
-    
+
     def __len__(self):
         return len(self.y)
-        
-    def scale(self,factor):
+
+    def scale(self, factor):
         for i in range(len(self.y)):
             self.y[i] *= factor
             self.yerr[i] *= factor
@@ -240,10 +242,10 @@ class Histo:
         self.ymax *= factor
 
     def normalize(self, factor=1.0):
-        self.scale(factor*self.norm)
+        self.scale(factor * self.norm)
         return self
 
-    def dropbin(self,number):
+    def dropbin(self, number):
         self.x.pop(number)
         self.xc.pop(number)
         self.y.pop(number)
@@ -252,36 +254,47 @@ class Histo:
 
     def read(self, filename):
         """Read the histogram from a text file
-        
+
         """
         f = file(filename, 'r')
         self.__init__()
         while True:
             line = f.readline()
-            if len(line) == 0: break
-            if line.find('#') >=0:
-                if line.find('Histogram')>0: self.name = getValue(line,':')
-                elif line.find('Path')>0: self.path = getValue(line,':')
-                elif line.find('file')>0: self.source = getValue(line,':')
-                elif line.find('lumi')>0: self.lumi = getValue(line,':')
-                elif line.find('Norm')>0: self.norm = getValue(line,':')
-                elif line.find('Sum')>0: self.ysum = getValue(line,':')
-                elif line.find('Max')>0: self.ymax = getValue(line,':')
-                elif line.find('x label')>0: self.xlabel = getValue(line,':')
-                elif line.find('y label')>0: self.xlabel = getValue(line,':')
-                elif line.find('Title')>0: self.title = getValue(line,':')
+            if not line:
+                break
+            if '#' in line:
+                if 'Histogram' in line:
+                    self.name = getValue(line, ':')
+                elif 'Path' in line:
+                    self.path = getValue(line, ':')
+                elif 'file' in line:
+                    self.source = getValue(line, ':')
+                elif 'lumi' in line:
+                    self.lumi = getValue(line, ':')
+                elif 'Norm' in line:
+                    self.norm = getValue(line, ':')
+                elif 'Sum' in line:
+                    self.ysum = getValue(line, ':')
+                elif 'Max' in line:
+                    self.ymax = getValue(line, ':')
+                elif 'x label' in line:
+                    self.xlabel = getValue(line, ':')
+                elif 'y label' in line:
+                    self.xlabel = getValue(line, ':')
+                elif 'Title' in line:
+                    self.title = getValue(line, ':')
             else:
                 values = line.split()
                 self.x.append(float(values[1]))
-                if len(values)>5:
+                if len(values) > 5:
                     self.xc.append(float(values[2]))
                     self.y.append(float(values[3]))
                     self.yerr.append(float(values[5]))
-                elif len(values)>2:
+                elif len(values) > 2:
                     self.xc.append(float(values[1]))
                     self.y.append(float(values[2]))
                     self.yerr.append(0.0)
-    
+
     def write(self, filename='.txt'):
         """Write the histogram to a text file"""
         if filename == '.txt':
@@ -289,10 +302,10 @@ class Histo:
         f = file(filename, 'w')
         f.write(str(self))
         f.close()
-        
+
     def __str__(self):
         """Show the data of the histogram"""
-        text =    "#Histogram: " + self.name
+        text = "#Histogram: " + self.name
         text += "\n#Path:      " + self.path
         text += "\n#From file: " + self.source
         text += strftime("\n#Date/time: %a, %d %b %Y %H:%M:%S", localtime())
@@ -306,11 +319,11 @@ class Histo:
         text += "\n#  i     x        xmid      y               ynorm"
         text += "           yerr            ynormerr\n"
         for i in range(len(self.y)):
-            text += '%4d %8.2f %8.2f %15.8f %15.8f %15.8f %15.8f\n' \
-                % (i, self.x[i], self.xc[i], self.y[i], self.y[i]*self.norm, \
-                self.yerr[i], self.yerr[i]*self.norm)
+            text += '%4d %8.2f %8.2f %15.8f %15.8f %15.8f %15.8f\n' % (
+                    i, self.x[i], self.xc[i], self.y[i], self.y[i] * self.norm,
+                    self.yerr[i], self.yerr[i] * self.norm)
         return text
-        
+
     def dump(self, filename='.dat'):
         """Write the histogram to a data file"""
         if filename == '.dat':
@@ -330,7 +343,7 @@ class Histo:
 
 
 def getValue(line, key):
-    value = line[line.rfind(key)+len(key):line.rfind('\n')]
+    value = line[line.rfind(key) + len(key):line.rfind('\n')]
     value = str.strip(value)
     try:
         val = float(value)
@@ -341,53 +354,60 @@ def getValue(line, key):
 
 class fitfunction:
     """
-    
+
     """
     def __init__(self, rootfunction=""):
         self.function = 'a*x+b'
-        self.parameter = [0.5,-1.0]
-        
+        self.parameter = [0.5, -1.0]
+
     def __del__(self):
         pass
-    
+
     def __str__(self):
         pass
-    
+
     def __len__(self):
         pass
 
 
 # deprecated
-def IsObjectExistent ( RootDict, ObjectName ):
+def IsObjectExistent(RootDict, ObjectName):
     return bool(RootDict.Get(ObjectName))
+
 
 # not necessary, there is openfile
 def openFiles(datafiles, mcfiles, verbose=False):
     print "DEPRECATED"
-#    if datafiles ... openFiles(op) auch machen
-    if verbose: print "%1.2f | Open files" % clock()
+    # if datafiles ... openFiles(op) auch machen
+    if verbose:
+        print "%1.2f | Open files" % clock()
     fdata = [openfile(f, verbose) for f in datafiles]
-    fmc   = [openfile(f, verbose) for f in mcfiles]
-    # be prepared for multiple data and multiple mc files. For the moment: return the first
+    fmc = [openfile(f, verbose) for f in mcfiles]
+    # be prepared for multiple data and multiple mc files.
+    # For the moment: return the first
     return fdata[0], fmc[0]
+
 
 def SafeGet(RootDict, ObjectName):
     print "SafeGet is deprecated, use getobject instead"
     return getobject(RootDict, ObjectName)
 
+
 def GetHistoname(quantity='zmass', change={}):
     print "'GetHistoname' is deprecated, use 'gethistoname' instead."
     gethistoname(quantity, change)
+
 
 def ConvertToArray(histo, rootfile='', rebin=1):
     print "'ConverToArray' is deprecated, use 'root2histo' instead."
     return root2histo(histo, rootfile, rebin)
 
+
 def SafeConvert(RootDict, ObjectName, formatslist=[], rebin=1):
     """Combined import and conversion to Histo"""
     print "Deprecated SafeConvert, please use gethisto?"
     root_histo = SafeGet(RootDict, ObjectName)
-    histo = ConvertToArray(root_histo,'',rebin)
+    histo = ConvertToArray(root_histo, '', rebin)
     if 'txt' in formatslist:
         histo.write()
     if 'dat' in formatslist:
