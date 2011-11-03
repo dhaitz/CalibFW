@@ -339,7 +339,7 @@ public:
 			ZJetMetaData const& metaData)
 	{
 		MetadataConsumer::ProcessFilteredEvent( event, metaData);
-		m_numPU->Fill( event.m_geneventmetadata->numPUInteractions, metaData.GetWeight());
+		m_numPU->Fill( event.m_geneventmetadata->numPUInteractions0, metaData.GetWeight());
 	}
 
 private:

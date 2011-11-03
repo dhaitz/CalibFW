@@ -18,14 +18,9 @@
 
 using namespace CalibFW;
 
-ZJetPipeline::MetaDataProducerVector ZJetPipeline::GetSupportedCuts()
+void ZJetPipeline::GetSupportedCuts(ZJetPipeline::MetaDataProducerVector & cuts)
 {
-	/// TODO: this pointer must be released at some point !! -> memleak cries !
-
-	ZJetPipeline::MetaDataProducerVector cuts;
-
-
-
+	cuts.clear();
 	cuts.push_back( new MuonEtaCut() );
 	cuts.push_back( new MuonPtCut() );
 
@@ -37,7 +32,7 @@ ZJetPipeline::MetaDataProducerVector ZJetPipeline::GetSupportedCuts()
 	cuts.push_back( new BackToBackCut() );
 	//cuts.push_back( new ZPtCut() );
 
-	return cuts;
+
 }
 
 void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> * pLine,

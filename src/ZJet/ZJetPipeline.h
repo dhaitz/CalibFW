@@ -16,7 +16,7 @@ class ZJetPipeline: public EventPipeline<ZJetEventData, ZJetMetaData,
 {
 public:
 	// returns a list of metaproducer which are cuts and modify the cut list
-	static MetaDataProducerVector GetSupportedCuts();
+	static void GetSupportedCuts( ZJetPipeline::MetaDataProducerVector & cuts);
 };
 
 

@@ -39,7 +39,9 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
+#ifdef USE_PERFTOOLS
 #include <google/profiler.h>
+#endif
 //#include <google/heap-profiler.h>
 
 #include "DataFormats/interface/Kappa.h"
@@ -81,9 +83,6 @@ using namespace CalibFW;
 
 stringvector g_sourcefiles;
 
-std::string g_sCurAlgo;
-int g_iAlgoOverallCount;
-int g_iCurAlgoCount;
 
 // weighting related settings
 bool g_useWeighting;
@@ -106,31 +105,7 @@ long g_lOverallNumberOfProcessedEvents = 0;
 
 std::map<std::string, std::string> g_l2CorrData;
 
-/*
- class CHistEvtCount : public  CHistDataDrawBase< PtBinWeighter * >
- {
- public:
-
- virtual void Draw( TH1D * pHist, PtBinWeighter * pData )
- {
- std::vector<PtBinWeight>::iterator it;
-
- for ( it = pData->m_weights.begin(); it != pData->m_weights.end(); ++it)
- {
- //pHist->Fill
- }
- }
- };
- */
-
 TFile * g_resFile;
-
-TString g_sOutFolder("out/");
-//std::auto_ptr<Json_wrapper> g_json;
-
-//std::auto_ptr<ZJetCutHandler> g_cutHandler;
-
-//PtBinWeighter g_mcWeighter;
 
 typedef std::vector<ZJetPipelineSettings *> PipelineSettingsVector;
 typedef boost::ptr_vector<ZJetPipeline> PipelineVector;
@@ -138,58 +113,14 @@ typedef boost::ptr_vector<ZJetPipeline> PipelineVector;
 PipelineSettingsVector g_pipeSettings;
 PipelineVector g_pipelines;
 
-// set via config file
-boost::ptr_vector<PtBin> g_newPtBins;
-
-void AddConsumerToPipeline(ZJetPipeline * pline, std::string consumerName)
-{/*
- if (consumerName == EventStorerConsumer().GetId())
- {
- pline->m_consumer.push_back(new EventStorerConsumer());
- }
-
- if (consumerName == CutStatisticsConsumer(g_cutHandler.get()).GetId())
- {
- pline->m_consumer.push_back(new CutStatisticsConsumer(g_cutHandler.get()));
- }*/
-}
-
-void AddConsumersToPipeline(ZJetPipeline * pline,
-		std::vector<std::string> consList)
-{
-	BOOST_FOREACH( std::string s, consList )
-		{	CALIB_LOG( "Adding consumer " << s)
-		AddConsumerToPipeline( pline, s);
-		}
-}
-/*
- void CreateWeightBins()
- {
- g_mcWeighter.AddBin(PtBin(0.0, 15.0), 4.281e+03);
- g_mcWeighter.AddBin(PtBin(15.0, 20.0), 1.451e+02);
- g_mcWeighter.AddBin(PtBin(20.0, 30.0), 1.305e+02);
- g_mcWeighter.AddBin(PtBin(30.0, 50.0), 8.398e+01);
- g_mcWeighter.AddBin(PtBin(50.0, 80.0), 3.224e+01);
- g_mcWeighter.AddBin(PtBin(80.0, 120.0), 9.984e+00);
- g_mcWeighter.AddBin(PtBin(120.0, 170.0), 2.734e+00);
- g_mcWeighter.AddBin(PtBin(170.0, 230.0), 7.207e-01);
- g_mcWeighter.AddBin(PtBin(230.0, 300.0), 1.939e-01);
- g_mcWeighter.AddBin(PtBin(300.0, 999999.0), 7.586e-02);
- }
- */
-ZJetPipelineSettings * CreateDefaultSettings(std::string sAlgoName,
-		InputTypeEnum inpType)
-		{
-	ZJetPipelineSettings * psetting = new ZJetPipelineSettings();
-	return psetting;
-		}
-
 class ZJetEventProvider: public EventProvider<ZJetEventData>
 {
 public:
 	ZJetEventProvider(FileInterface & fi, InputTypeEnum inpType) :
 		m_prevRun(-1), m_prevLumi(-1), m_inpType(inpType), m_fi(fi)
 		{
+
+
 		// setup pointer to collections
 		m_event.m_eventmetadata = fi.Get<KEventMetadata> ();
 
@@ -208,16 +139,12 @@ public:
 		InitPFJets(m_event, "AK5PFJets");
 		InitPFJets(m_event, "AK7PFJets");
 
-		/*		InitPFJets(m_event, "AK7PFJets");
-		 InitPFJets(m_event, "KT4PFJets");
-		 InitPFJets(m_event, "KT6PFJets");*/
-
 		m_event.m_muons = fi.Get<KDataMuons> ("muons");
 		m_event.m_pfMet = fi.Get<KDataPFMET> ("PFMET");
 
 		m_event.m_fi = &fi;
 
-		fi.SpeedupTree(10000000);
+		fi.SpeedupTree();
 
 		m_mon.reset(new ProgressMonitor(GetOverallEventCount()));
 		}
@@ -295,11 +222,6 @@ private:
 	FileInterface & m_fi;
 };
 
-struct ConsumerConfig
-{
-public:
-	int EventDataID;
-};
 
 int main(int argc, char** argv)
 {
@@ -318,12 +240,12 @@ int main(int argc, char** argv)
 	g_logFile = new ofstream(sLogFileName.c_str(), std::ios_base::trunc);
 
 	// openmp setup
-	omp_set_num_threads(g_propTree.get<int> ("ThreadCount", 1));
+	//omp_set_num_threads(g_propTree.get<int> ("ThreadCount", 1));
 	//	CALIB_LOG_FILE( "Running with " << omp_get_max_threads() << " thread(s)" )
 
 	// input files
 	g_sourcefiles = PropertyTreeSupport::GetAsStringList(&g_propTree,
-			"InputFiles");
+					"InputFiles");
 
 	if (g_sourcefiles.size() == 0)
 	{
@@ -496,13 +418,17 @@ int main(int argc, char** argv)
 	ZJetPipelineSettings settings;
 	settings.m_globalSettings = &gset;
 
+#ifdef USE_PERFTOOLS
 	ProfilerStart( "closure.prof");
+#endif
 	//HeapProfilerStart( "resp_cuts.heap");
 
 	pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings >( evtProvider, settings );
 
 	//HeapProfilerStop();
+#ifdef USE_PERFTOOLS
 	ProfilerStop();
+#endif
 
 	g_resFile->Close();
 	g_logFile->close();
