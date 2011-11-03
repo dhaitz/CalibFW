@@ -17,13 +17,13 @@ CMSSW_PATH 	  = external/OfflineCorrection
 
 
 AM_CXXFLAGS = 	-fopenmp -pedantic -Werror -Wall -Wfatal-errors -std=c++0x \
-				 -O3 -march=native -g -DSTANDALONE \
+				 -O2 -march=native -g -DSTANDALONE \
 		          -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \
 		          		          -Wsign-compare -Wtype-limits  -Wuninitialized \
-				-I$(top_srcdir)/include $(ROOTCFLAGS) -I$(KAPPA_PATH) -I$(CMSSW_PATH) \
+				-I$(top_srcdir)/src $(ROOTCFLAGS) -I$(KAPPA_PATH) -I$(CMSSW_PATH) \
 				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)
 				
-AM_LDFLAGS 	= $(ROOTLIBS) -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox \
+AM_LDFLAGS 	= $(ROOTLIBS) -l profiler -l tcmalloc -l RooFit -l RooFitCore -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox \
 			  $(LIB_PATH)
 
 					
@@ -32,11 +32,14 @@ OFFLINE_CORR_SRC = $(OFFLINE_CORR)/FactorizedJetCorrector.cc $(OFFLINE_CORR)/Jet
 				   $(OFFLINE_CORR)/JetCorrectionUncertainty.cc 
 
 # seems we cant use m4 vars here ??  
-CALIB_SRC = src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
-			src/GlobalInclude.cc include/ZJet/ZJetPipeline.cpp  \
-			include/ZJet/MetaDataProducer/CorrJetProducer.cpp  \
-			include/Pipeline/ProfileConsumerBase.cpp \
-			include/ZJet/ZJetMetaData.cpp \
+CALIB_SRC = src/DrawBase.cc src/EventData.cc \
+			src/EventPipelineRunner.cc \
+			src/GlobalInclude.cc \
+			src/ZJet/ZJetPipeline.cpp  \
+			src/ZJet/MetaDataProducer/CorrJetProducer.cpp  \
+			src/ZJet/MetaDataProducer/JetMatcher.cpp  \
+			src/Pipeline/ProfileConsumerBase.cpp \
+			src/ZJet/ZJetMetaData.cpp \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc \ 
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc \ 
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrector.cc \
@@ -44,10 +47,10 @@ CALIB_SRC = src/DrawBase.cc src/EventData.cc src/EventPipelineRunner.cc \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc
 					
 
-bin_PROGRAMS = resp_cuts resp_cuts_test
-resp_cuts_SOURCES = src/resp_cuts.cpp $(CALIB_SRC)
+bin_PROGRAMS = closure closure_test
+closure_SOURCES = src/closure.cpp $(CALIB_SRC)
 
-resp_cuts_test_SOURCES = src/resp_cuts_test.cpp $(CALIB_SRC)
+closure_test_SOURCES = src/closure_test.cpp $(CALIB_SRC)
 
 
 

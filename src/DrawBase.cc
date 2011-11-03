@@ -1,4 +1,4 @@
-#include "DrawBase.h"
+#include "Draw/DrawBase.h"
 
 namespace CalibFW
 {
@@ -101,8 +101,8 @@ Hist1D::ModifierList Hist1D::GetAreaModifier()
 {
 	Hist1D::ModifierList modList;
 
-	modList.push_back(new ModHistBinRange(.0f, 100.0f));
-	modList.push_back(new ModHistBinCount(200));
+	modList.push_back(new ModHistBinRange(.0f, 2.0f));
+	modList.push_back(new ModHistBinCount(100));
 	return modList;
 }
 
