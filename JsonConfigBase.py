@@ -200,7 +200,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
                 newpipe["Filter"].append(filtername.lower())
                 newpipe["Filter" + filtername + "Low"] = l
                 newpipe["Filter" + filtername + "High"] = h
-                f = foldername.format(name=filtername, low=l, high=h}
+                f = foldername.format(name=filtername, low=l, high=h)
                 f = "_" + f.replace(".", "_")
                 newName = pipeline + f
                 newRootFileFolder =  newpipe["RootFileFolder"] + f
