@@ -3,6 +3,7 @@ obj/
 bin/
 out/
 
+*~
 .*
 *.root
 *.exe
@@ -16,3 +17,7 @@ out/
 cintdict.cc
 cintdict.h
 getitback
+
+
+cfg/SkimmingCalibFW/work.*
+external/boost

@@ -215,7 +215,7 @@ IMPL_PROPERTY(double, Weight)
 
 
 	typedef  std::map< std::string , std::vector<unsigned int> >  JetMapping ;
-	typedef typename JetMapping::iterator  JetMappingIterator ;
+	typedef  JetMapping::iterator  JetMappingIterator ;
 
 	mutable JetMapping m_listValidJets;
 	mutable JetMapping m_listInvalidJets;
@@ -223,7 +223,7 @@ IMPL_PROPERTY(double, Weight)
 
 
 	// create a complete copy of the jet collections ??
-	typedef typename std::map < std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
+	typedef std::map < std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
 	mutable MetaPFJetContainer m_validPFJets;
 
 	typedef std::map< std::string , MatchingResult > MatchingResults;

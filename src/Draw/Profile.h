@@ -17,6 +17,8 @@
 #include "RootTools/RootIncludes.h"
 
 
+#include <boost/scoped_ptr.hpp>
+
 #include "DrawModifierBase.h"
 #include "DrawBase.h"
 
@@ -68,8 +70,8 @@ public:
 		this->RunModifierBeforeCreation( this );
 
 		RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
-		m_profile =
-				std::unique_ptr<TProfile> (
+		m_profile.reset
+				 (
 					RootFileHelper::GetStandaloneTProfile(
 					GetName().c_str(),GetName().c_str(),
 					m_iBinCountX, m_dBinLowerX, m_dBinLowerX )
@@ -105,7 +107,7 @@ public:
 
 	std::list<DataPoint> m_points;
 
-	std::unique_ptr<TProfile> m_profile;
+	boost::scoped_ptr<TProfile> m_profile;
 };
 
 

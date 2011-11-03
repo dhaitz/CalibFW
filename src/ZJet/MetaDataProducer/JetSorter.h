@@ -1,7 +1,5 @@
 #pragma once
 
-#include <root/Math/VectorUtil.h>
-
 #include "../ZJetPipeline.h"
 
 namespace CalibFW

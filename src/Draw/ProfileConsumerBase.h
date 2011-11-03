@@ -8,6 +8,8 @@
 #ifndef PROFILECONSUMERBASE_H_
 #define PROFILECONSUMERBASE_H_
 
+#include <boost/scoped_ptr.hpp>
+
 #include "Pipeline/EventPipeline.h"
 #include "Draw/Profile.h"
 #include "Pipeline/SourceBase.h"
@@ -30,10 +32,10 @@ public:
 	ProfileConsumerBase( SourceTypeForThis * xsource,
 			SourceTypeForThis * ysource,
 			std::string plotName ) :
-			m_xsource( std::unique_ptr<SourceTypeForThis>( xsource )),
-			m_ysource( std::unique_ptr<SourceTypeForThis>( ysource )),
 			m_plotName ( plotName)
 	{
+        m_xsource.reset( xsource );
+        m_ysource.reset( ysource );
 
 	}
 
@@ -51,7 +53,7 @@ public:
 			modlist.push_back( new ModProfileXBinRange( m_xsource->GetDefaultLowBin(),
 													m_xsource->GetDefaultHighBin() ));
 
-		m_profile = std::unique_ptr<Profile2d> (
+		m_profile.reset(
 				new Profile2d( m_plotName,
 								this->GetPipelineSettings().GetRootFileFolder())
 		);
@@ -121,12 +123,12 @@ public:
 
 	void SetXSource ( SourceTypeForThis * xsource )
 	{
-		m_xsource = std::unique_ptr<SourceTypeForThis>( xsource );
+		m_xsource.reset( xsource );
 	}
 
 	void SetYSource ( SourceTypeForThis * ysource )
 	{
-		m_ysource = std::unique_ptr<SourceTypeForThis>( ysource );
+		m_ysource.reset( ysource );
 	}
 
 	void SetPlotName ( std::string plotName )
@@ -140,10 +142,10 @@ public:
 	}
 
 private:
-	std::unique_ptr<SourceTypeForThis> m_xsource;
-	std::unique_ptr<SourceTypeForThis> m_ysource;
+	boost::scoped_ptr<SourceTypeForThis> m_xsource;
+	boost::scoped_ptr<SourceTypeForThis> m_ysource;
 
-	std::unique_ptr<Profile2d> m_profile;
+	boost::scoped_ptr<Profile2d> m_profile;
 
 	std::string m_plotName;
 	bool m_runUnfiltered;

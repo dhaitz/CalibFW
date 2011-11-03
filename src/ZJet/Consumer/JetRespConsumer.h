@@ -23,7 +23,7 @@
 #include <boost/property_tree/ptree.hpp>
 
 #include <typeinfo>
-#include <memory>
+#include <boost/scoped_ptr.hpp>
 
 #include "RootTools/RootIncludes.h"
 
@@ -98,7 +98,7 @@ public:
 	}
 
 private:
-	std::unique_ptr< GraphErrors >  m_resp;
+	boost::scoped_ptr< GraphErrors >  m_resp;
 	stringvector m_sourceFolder;
 	std::string m_sourceResponse;
 	std::string m_sourceBinning;

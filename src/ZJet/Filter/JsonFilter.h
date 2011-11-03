@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+#include <boost/scoped_ptr.hpp>
 
 #include "RootTools/RunLumiReader.h"
 
@@ -21,7 +21,7 @@ public:
 
 	JsonFilter( std::string jsonFileName)
 	{
-		m_lumiSelector = std::unique_ptr<RunLumiSelector> (
+		m_lumiSelector.reset (
 				new RunLumiSelector( jsonFileName)
 				);
 	}
@@ -45,7 +45,7 @@ public:
 	}
 private:
 
-	std::unique_ptr<RunLumiSelector> m_lumiSelector;
+	boost::scoped_ptr<RunLumiSelector> m_lumiSelector;
 };
 
 }

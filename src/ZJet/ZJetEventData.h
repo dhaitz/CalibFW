@@ -26,13 +26,13 @@ public:
 	FileInterface * m_fi;
 
 	typedef std::map<std::string, KDataPFJets *> PfMap;
-	typedef typename PfMap::const_iterator PfMapIterator;
+	typedef PfMap::const_iterator PfMapIterator;
 
 	typedef std::map<std::string, KLV *> GenJetMap;
-	typedef typename PfMap::const_iterator GenJetMapIterator;
+	typedef PfMap::const_iterator GenJetMapIterator;
 
 	typedef std::map<std::string, KDataJets *> JetMap;
-	typedef typename PfMap::const_iterator JetMapIterator;
+	typedef PfMap::const_iterator JetMapIterator;
 
 	//typedef std::map<std::string, K * > GenMap;
 	PfMap m_pfJets;
