@@ -73,7 +73,7 @@ public:
 			evtProvider.GotoEvent( lCur, hltTools );
 			TMetaData metaDataGlobal;
 			metaDataGlobal.m_hltInfo = hltTools;
-
+/*
 			for( GlobalMetaProducerIterator it = m_globalMetaProducer.begin();
 					it != m_globalMetaProducer.end(); it++)
 			{
@@ -89,10 +89,10 @@ public:
 					it->RunEvent( evtProvider.GetCurrentEvent(), metaDataGlobal );
 				}
 			}
-
+*/
 			metaDataGlobal.ClearContent();
 		}
-
+/*
 		// first safe the results ( > plots ) from all level one pipelines
 		for (PipelinesIterator it = m_pipelines.begin();
 				!(it == m_pipelines.end()); it++)
@@ -119,7 +119,7 @@ public:
 
 			}
 		}
-
+*/
 
 	}
 

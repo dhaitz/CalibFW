@@ -39,11 +39,18 @@ public:
 		m_conditional2ndJetPtCutBase = 0;
 		m_conditionalDeltaPhiCutBase = 0;
 
-		m_cuts = ZJetPipeline::GetSupportedCuts();
+		ZJetPipeline::GetSupportedCuts( m_cuts );
 
-		BOOST_FOREACH( ZJetPipeline::MetaDataProducerForThisPipeline * m, m_cuts )
+		for (ZJetPipeline::MetaDataVectorIterator it = m_cuts.begin(); !(it
+				== m_cuts.end()); it++)
+
 		{
-			ZJetCutBase * c = static_cast<ZJetCutBase *>( m );
+
+			ZJetPipeline::MetaDataProducerForThisPipeline * mp;
+
+			mp = &(*it);
+
+			ZJetCutBase * c = static_cast<ZJetCutBase *>( mp );
 			m_cutRejected[ c->GetCutShortName() ] = 0;
 		}
 	}
@@ -75,9 +82,16 @@ public:
 				<< std::setw(23) << std::setprecision(5) << ( 1.0f - precutsLetfRel )
 				<< std::setw(21))// << GetPipelineSettings()->GetOverallNumberOfProcessedEvents() - overallCountLeft)
 
-		BOOST_FOREACH( ZJetPipeline::MetaDataProducerForThisPipeline * m, m_cuts )
+		for (ZJetPipeline::MetaDataVectorIterator it = m_cuts.begin(); !(it
+				== m_cuts.end()); it++)
+
 		{
-			ZJetCutBase * c = static_cast<ZJetCutBase *>( m );
+			ZJetPipeline::MetaDataProducerForThisPipeline * mp;
+
+			mp = &(*it);
+
+			ZJetCutBase * c = static_cast<ZJetCutBase *>( mp );
+
 			unsigned long rejAbs = m_cutRejected[c->GetCutShortName()];
 
 			droppedRel = 1.0f -(double) ( overallCountLeft - rejAbs ) / (double) overallCountLeft;
@@ -120,9 +134,15 @@ public:
 			return;
 
 		m_eventCount++;
-		BOOST_FOREACH( ZJetPipeline::MetaDataProducerForThisPipeline * m, m_cuts)
+		for (ZJetPipeline::MetaDataVectorIterator it = m_cuts.begin(); !(it
+				== m_cuts.end()); it++)
+
 		{
-			ZJetCutBase * c = static_cast<ZJetCutBase *>( m );
+			ZJetPipeline::MetaDataProducerForThisPipeline * mp;
+
+			mp = &(*it);
+
+			ZJetCutBase * c = static_cast<ZJetCutBase *>( mp );
 
 			if ( ! metaData.IsCutPassed( c->GetId() ) )
 			{

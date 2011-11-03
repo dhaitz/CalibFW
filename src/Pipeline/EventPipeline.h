@@ -128,7 +128,7 @@ public:
 			MetaDataProducerForThisPipeline;
 
 	// this is NOT a ptr_vector, since one producer instance is used with many pipelines
-	typedef std::vector<MetaDataProducerBase<TData, TMetaData, TSettings> *>
+	typedef boost::ptr_vector<MetaDataProducerBase<TData, TMetaData, TSettings> >
 			MetaDataProducerVector;
 	typedef typename MetaDataProducerVector::iterator MetaDataVectorIterator;
 
@@ -204,7 +204,7 @@ public:
 		for (MetaDataVectorIterator it = m_producer.begin(); !(it
 				== m_producer.end()); it++)
 		{
-			(*it)->PopulateMetaData(evt, metaData, m_pipelineSettings);
+			(it)->PopulateMetaData(evt, metaData, m_pipelineSettings);
 		}
 
 
