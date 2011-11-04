@@ -142,16 +142,19 @@ public:
 		m_event.m_muons = fi.Get<KDataMuons> ("muons");
 		m_event.m_pfMet = fi.Get<KDataPFMET> ("PFMET");
 
-		m_event.m_fi = &fi;
+		//m_event.m_fi = &fi;
 
 		fi.SpeedupTree();
+
+        // auto-delete objects when moving to a new object. Not defult root behaviour
+        //fi.eventdata.SetAutoDelete(kTRUE);
 
 		m_mon.reset(new ProgressMonitor(GetOverallEventCount()));
 		}
 
 	virtual bool GotoEvent(long long lEvent, std::shared_ptr< HLTTools > & hltInfo )
 	{
-		m_mon->Update();
+		m_mon->Update( );
 		m_fi.eventdata.GetEntry(lEvent);
 
 		if (m_prevRun != m_event.m_eventmetadata->nRun)
@@ -182,14 +185,6 @@ public:
 			hltInfo->setLumiMetadata( m_event.m_lumimetadata );
 		}
 
-		/*	if ( lEvent > 5 )
-		 exit(0);*/
-
-		//CALIB_LOG( "Event " << m_eventmetadata->nEvent << " Lumi " << m_eventmetadata->nLumi << " Run " << m_eventmetadata->nRun )
-
-		/*CALIB_LOG( "Event " << m_eventmetadata->nEvent << " Lumi " << m_eventmetadata->nLumi
-		 << " Run " << m_eventmetadata->nRun << "PF " << m_kPF->size())
-		 */
 		return true;
 	}
 
@@ -239,10 +234,6 @@ int main(int argc, char** argv)
 	std::string sLogFileName = g_sOutputPath + ".log";
 	g_logFile = new ofstream(sLogFileName.c_str(), std::ios_base::trunc);
 
-	// openmp setup
-	//omp_set_num_threads(g_propTree.get<int> ("ThreadCount", 1));
-	//	CALIB_LOG_FILE( "Running with " << omp_get_max_threads() << " thread(s)" )
-
 	// input files
 	g_sourcefiles = PropertyTreeSupport::GetAsStringList(&g_propTree,
 					"InputFiles");
@@ -256,14 +247,15 @@ int main(int argc, char** argv)
 	{	CALIB_LOG_FILE("Input File " << s)
 	}
 
-	FileInterface fi(g_sourcefiles);
+	FileInterface finterface(g_sourcefiles);
+
 
 	// setup Global Settings
 	ZJetGlobalSettings gset;
 
 	gset.SetEnablePuReweighting( g_propTree.get<bool> ("EnablePuReweighting", false) );
 
-	std::vector<std::string> sJetNames = fi.GetNames<KDataJet> (true);
+	//std::vector<std::string> sJetNames = fi.GetNames<KDataJet> (true);
 
 	if ( g_propTree.get<std::string> ("InputType", "mc") == "data")
 	{
@@ -280,24 +272,9 @@ int main(int argc, char** argv)
 
 	gset.SetInputType ( g_inputType );
 
-	sJetNames = fi.GetNames<KVertexSummary>(true);
+	//sJetNames = fi.GetNames<KVertexSummary>(true);
 
-	ZJetEventProvider evtProvider( fi, g_inputType );
-
-	/*KDataPFJets * myJets = fi.Get<KDataPFJets>("AK5PFJets");
- evtProvider.m_data.PF_jets = myJets;*/
-
-	/*	typedef std::pair<std::string, ConsumerConfig > configpair;
- typedef std::vector<std::pair<std::string, ConsumerConfig > > configpairvector;
-
- configpairvector LVPlots(1,
- configpair( "jet1_ak5PF",
- ConsumerConfig()
- ));
-	 */
-	/*s.second.EventDataID =
- evtProvider.GetEventData().AddDataLV( fi.Get<KDataPFJets>( "AK5PFJets" )[0] );
-	 */
+	ZJetEventProvider evtProvider( finterface, g_inputType );
 
 	// removes the old file
 	std::string sRootOutputFilename = (g_sOutputPath + ".root");

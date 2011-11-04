@@ -57,23 +57,21 @@ public:
 			}
 	}
 
+
 	template< class TEvent, class TMetaData, class TSettings>
 	void RunPipelines( EventProvider< TEvent > & evtProvider, TSettings const& settings  )
 	{
 		long long nEvents = evtProvider.GetOverallEventCount();
 		CALIB_LOG("Running over " << nEvents << " Events")
 
-		//ProgressMonitor pm(nEvents);
-
 		std::shared_ptr< HLTTools > hltTools( new HLTTools());
 
-		for ( long long lCur = 0; lCur < nEvents; lCur ++)
+		for ( long long lCur = 0; lCur < nEvents; ++ lCur)
 		{
-			//if (!pm.Update()) break;
-			evtProvider.GotoEvent( lCur, hltTools );
+			evtProvider.GotoEvent( lCur , hltTools );
 			TMetaData metaDataGlobal;
 			metaDataGlobal.m_hltInfo = hltTools;
-/*
+
 			for( GlobalMetaProducerIterator it = m_globalMetaProducer.begin();
 					it != m_globalMetaProducer.end(); it++)
 			{
@@ -89,10 +87,10 @@ public:
 					it->RunEvent( evtProvider.GetCurrentEvent(), metaDataGlobal );
 				}
 			}
-*/
+
 			metaDataGlobal.ClearContent();
 		}
-/*
+
 		// first safe the results ( > plots ) from all level one pipelines
 		for (PipelinesIterator it = m_pipelines.begin();
 				!(it == m_pipelines.end()); it++)
@@ -119,9 +117,10 @@ public:
 
 			}
 		}
-*/
+
 
 	}
+
 
 private:
 

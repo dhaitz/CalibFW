@@ -23,7 +23,7 @@ public:
 	KDataPFMET * m_pfMet;
 
 	// only use directly if there is no other way
-	FileInterface * m_fi;
+	//FileInterface * m_fi;
 
 	typedef std::map<std::string, KDataPFJets *> PfMap;
 	typedef PfMap::const_iterator PfMapIterator;

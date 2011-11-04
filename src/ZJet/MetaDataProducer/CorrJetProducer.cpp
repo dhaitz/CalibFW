@@ -31,8 +31,8 @@ void CorrJetProducer::InitCorrection( std::string algoName, ZJetEventData const&
 	corLevel.push_back("L1FastJet");
 	//corLevel.push_back("L1Offset");
 
-	FileInterface & fi = *( const_cast< FileInterface*> ( event.m_fi ));
-
+	//FileInterface & fi = *( const_cast< FileInterface*> ( event.m_fi ))
+/*
 	m_corrService[ algoName ].m_l1 = std::shared_ptr<JECService>(new JECService(
 			fi, prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
 			);
@@ -59,7 +59,7 @@ void CorrJetProducer::InitCorrection( std::string algoName, ZJetEventData const&
 
 	m_corrService[ algoName ].m_l2l3res = std::shared_ptr<JECService>(new JECService(
 			fi,prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
-			);
+			);*/
 }
 
 void CorrJetProducer::CreateCorrections( std::string algoName,
@@ -67,6 +67,8 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 		ZJetMetaData & metaData,
 		ZJetPipelineSettings const& settings) const
 {
+
+    return;
 
 	InitCorrection( "AK5PF", event );
 	InitCorrection( "AK7PF", event );

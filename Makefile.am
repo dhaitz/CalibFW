@@ -16,15 +16,15 @@ KAPPA_ROOT_PATH = $(top_srcdir)/..
 CMSSW_PATH 	  = external/OfflineCorrection
 
 
-AM_CXXFLAGS = 	-fopenmp -pedantic -Wall -std=c++0x \
-				 -O2 -g -DSTANDALONE \
-		          -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \
-        		          -Wsign-compare -Wtype-limits  -Wuninitialized \
+AM_CXXFLAGS = -pedantic -Wall -std=c++0x \
+              -O2 -g -fPIC -DSTANDALONE \
+              -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \
+               -Wsign-compare -Wtype-limits  -Wuninitialized \
 				-I$(top_srcdir)/external -I$(top_srcdir)/src $(ROOTCFLAGS) -I$(KAPPA_PATH) -I$(CMSSW_PATH) \
 				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)
 
 PERFTOOLS_FLAGS = -l profiler -l tcmalloc
-AM_LDFLAGS 	= $(ROOTLIBS) -l Minuit -l EG -l GenVector -l Foam -l Kappa -l KRootTools -l KToolbox \
+AM_LDFLAGS 	= $(ROOTLDFLAGS) $(ROOTLIBS)  -l Kappa -l KRootTools -l KToolbox \
 			  $(LIB_PATH)
 
 

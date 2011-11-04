@@ -229,9 +229,6 @@ IMPL_PROPERTY(double, Weight)
 	typedef std::map< std::string , MatchingResult > MatchingResults;
 	MatchingResults m_matchingResults;
 
-
-	std::vector< KDataLV *> m_primaryJets;
-
 	std::shared_ptr< HLTTools > m_hltInfo;
 };
 
