@@ -32,9 +32,9 @@ namespace CalibFW
 
 
  DrawBase ( sets up histos, graphs ), implements Pipeline,
- taken 
+ taken
  can add multiple data providers here
- DrawHisto 
+ DrawHisto
  needs: value, weight
 
  DrawGraph
@@ -44,8 +44,8 @@ namespace CalibFW
  needs: r, phi, rho
 
  DataProvider ( extracts all needed values from data classes )
- * linked to tho output the Draw classes 
- * can also cache the values and insert them in a FINAL STEP into the 
+ * linked to tho output the Draw classes
+ * can also cache the values and insert them in a FINAL STEP into the
  graph
 
  DataSelection
@@ -190,7 +190,7 @@ public:
 		this->RunModifierBeforeCreation( this );
 
 		RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
-		m_graph = RootFileHelper::GetStandaloneTGraphErrors( m_points.size());
+		m_graph.reset( RootFileHelper::GetStandaloneTGraphErrors( m_points.size()) );
 		m_graph->SetName( GetName().c_str() );
 		//m_graph->SetCaption( m_sCaption.c_str() );
 
@@ -225,7 +225,7 @@ public:
 
 	std::list<DataPoint> m_points;
 
-	TGraphErrors * m_graph;
+	boost::scoped_ptr< TGraphErrors > m_graph;
 };
 /*
 class Profile2D: public PlotBase< Profile2D>
@@ -378,17 +378,17 @@ public:
 		RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
 		if ( m_bUseCustomBin )
 		{
-			m_hist = RootFileHelper::GetStandaloneTH1D_1( GetName(),
+			m_hist.reset( RootFileHelper::GetStandaloneTH1D_1( GetName(),
 					GetCaption(),
-					m_iBinCount, &m_dCustomBins[0]);
+					m_iBinCount, &m_dCustomBins[0]) );
 			/*new TH1D(    this->m_sName.c_str(),
 		 this->m_sCaption.c_str(),
 		 m_iBinCount, &m_dCustomBins[0] );*/
 		}
 		else
 		{
-			m_hist = RootFileHelper::GetStandaloneTH1D_2( GetRootFileFolder() + "_" + GetName(),
-					GetCaption(), this->m_iBinCount, this->m_dBinLower, this->m_dBinUpper);
+			m_hist.reset( RootFileHelper::GetStandaloneTH1D_2( GetRootFileFolder() + "_" + GetName(),
+					GetCaption(), this->m_iBinCount, this->m_dBinLower, this->m_dBinUpper)  );
 
 		}
 		m_hist->Sumw2();
@@ -425,9 +425,9 @@ public:
 	{
 		m_hist->Fill(val, weight);
 	}
-
+/*
 	TH1D * GetRawHisto()
-		{	return m_hist;}
+		{	return m_hist;}*/
 
 	int m_iBinCount;
 	double m_dBinLower;
@@ -436,7 +436,7 @@ public:
 
 	bool m_bUseCustomBin;
 
-	TH1D * m_hist;
+	boost::scoped_ptr<TH1D> m_hist;
 };
 
 template<class TData, class TMetaData, class TSettings>
@@ -449,69 +449,7 @@ public:
 	virtual ~DrawConsumerBase()
 	{}
 
-	// generates a name for the created product
-	/*std::string GetProductName(std::string sQuant)
-	{
-		// check if there is a PtBin Filter which will affect our Product Name
-		PtWindowFilter * pwin =
-				dynamic_cast<PtWindowFilter *> (this->m_pipeline->FindFilter(
-						PtWindowFilter().GetFilterId()));
-		PtBin * ptBin = NULL;
 
-		InCutFilter * pcut =
-				dynamic_cast<InCutFilter *> (this->m_pipeline->FindFilter(
-						InCutFilter().GetFilterId()));
-		bool isNoCut = (pcut == NULL);
-
-		if (pwin != NULL)
-		{
-			ptBin = new PtBin(this->GetPipelineSettings()->GetFilterPtBinLow(),
-					this->GetPipelineSettings()->GetFilterPtBinHigh());
-
-		}
-
-		TString sName = RootNamer::GetHistoName(
-				this->GetPipelineSettings()->GetJetAlgorithm(), sQuant,
-				this->GetPipelineSettings()->GetInputType(), 0, ptBin, isNoCut);
-		return sName.Data();
-	}*/
-/*
-	// generates a name for the created product
-	std::string GetProductName()
-	{
-		return GetProductName();
-	}*/
-
-};
-
-template<class TData, class TMetaData, class TSettings>
-class DrawGraphErrorsConsumerBase: public DrawConsumerBase<TData, TMetaData,TSettings>
-{
-public:
-	DrawGraphErrorsConsumerBase() :
-		m_graph(NULL)
-		{
-		}
-
-	virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
-	{
-		DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
-		//CALIB_LOG( "Initializing GraphErrors for " << this->GetProductName() )
-
-		m_graph->m_sName = m_graph->m_sCaption = this->GetProductName();
-		m_graph->SetRootFileFolder( this->GetPipelineSettings()->GetRootFileFolder());
-		m_graph->Init();
-	}
-
-	virtual void Finish()
-	{
-		// store hist
-		// + modifiers
-		//CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
-		m_graph->Store(this->GetPipelineSettings()->GetRootOutFile());
-	}
-	// already configured histogramm
-	GraphErrors * m_graph;
 };
 
 template<class TData, class TMetaData,class TSettings>
@@ -528,8 +466,7 @@ public:
 		DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
 		//CALIB_LOG( "Initializing Hist for " << this->GetProductName() )
 
-		/* m_hist->m_sName = "nname"; //this->GetProductName();
-	 m_hist->m_sCaption = "ccapt" ;//this->GetProductName(); */
+
 		//m_hist->SetNameAndCaption( this->GetProductName());
 		m_hist->SetRootFileFolder (this->GetPipelineSettings().GetRootFileFolder());
 		m_hist->Init( Hist1D::ModifierList()  );
@@ -545,38 +482,6 @@ public:
 	// already configured histogramm
 	Hist1D * m_hist;
 };
-/*
-template<class TData, class TMetaData,class TSettings>
-class DrawHist2DConsumerBase: public DrawConsumerBase<TData, TMetaData,TSettings>
-{
-public:
-	DrawHist2DConsumerBase() :
-		m_hist(NULL)
-		{
-		}
-
-	virtual void Init(EventPipeline<TData, TMetaData,TSettings> * pset)
-	{
-		DrawConsumerBase<TData, TMetaData,TSettings>::Init(pset);
-		//CALIB_LOG( "Initializing 2d Hist for " << this->GetProductName() )
-
-		 m_hist->m_sName = "nname"; //this->GetProductName();
-	 m_hist->m_sCaption = "ccapt" ;//this->GetProductName();
-		m_hist->m_sName = m_hist->m_sCaption = this->GetProductName();
-		m_hist->SetRootFileFolder( this->GetPipelineSettings()->GetRootFileFolder() );
-		m_hist->Init();
-	}
-
-	virtual void Finish()
-	{
-		// store hist
-		// + modifiers
-		//CALIB_LOG( "Z mass mean " << m_hist->m_hist->GetMean() )
-		m_hist->Store(this->GetPipelineSettings()->GetRootOutFile());
-	}
-	// already configured histogramm
-	Hist2D * m_hist;
-};*/
 
 
 class ModHistBinRange : public ModifierBase<Hist1D>
@@ -596,31 +501,7 @@ private:
 	double m_dBinLower;
 	double m_dBinUpper;
 };
-/*
-class ModHist2DBinRange : public ModifierBase<Hist2D>
-{
-public:
-	ModHist2DBinRange( double lowerx, double upperx, double lowery, double uppery) :
-		m_dBinXLower(lowerx),m_dBinXUpper(upperx),
-		m_dBinYLower(lowery),m_dBinYUpper(uppery)
-	{
-	}
 
-	virtual void BeforeCreation(Hist2D * pElem)
-	{
-		pElem->m_dBinXLower = this->m_dBinXLower;
-		pElem->m_dBinXUpper = this->m_dBinXUpper;
-		pElem->m_dBinYLower = this->m_dBinYLower;
-		pElem->m_dBinYUpper = this->m_dBinYUpper;
-	}
-
-private:
-	double m_dBinXLower;
-	double m_dBinXUpper;
-	double m_dBinYLower;
-	double m_dBinYUpper;
-};
-*/
 class ModHistCustomBinning : public ModifierBase<Hist1D>
 {
 public:
@@ -680,26 +561,6 @@ private:
 	unsigned int m_iBinCount;
 
 };
-/*
-class ModHist2DBinCount : public ModifierBase<Hist2D>
-{
-public:
-	ModHist2DBinCount( unsigned int countx, unsigned int county) :
-		m_iBinXCount(countx), m_iBinYCount(county)
-	{
-	}
 
-	virtual void BeforeCreation(Hist2D * pElem)
-	{
-		pElem->m_iBinXCount = m_iBinXCount;
-		pElem->m_iBinYCount = m_iBinYCount;
-	}
-
-private:
-	unsigned int m_iBinXCount;
-	unsigned int m_iBinYCount;
-};
-
-*/
 }
 

@@ -44,8 +44,7 @@
 #endif
 //#include <google/heap-profiler.h>
 
-#include "DataFormats/interface/Kappa.h"
-#include "DataFormats/interface/KDebug.h"
+
 //#include "Toolbox/libToolbox.h"
 //#include "RootTools/libKRootTools.h"
 
@@ -58,6 +57,9 @@
 //#include "Json_wrapper.h"
 
 #include "ZJet/ZJetPipeline.h"
+
+#include "ZJet/ZJetEventProvider.h"
+
 
 #include "ZJet/Consumer/GenericProfileConsumer.h"
 #include "ZJet/Consumer/ZJetDrawConsumer.h"
@@ -108,114 +110,8 @@ std::map<std::string, std::string> g_l2CorrData;
 TFile * g_resFile;
 
 typedef std::vector<ZJetPipelineSettings *> PipelineSettingsVector;
-typedef boost::ptr_vector<ZJetPipeline> PipelineVector;
 
 PipelineSettingsVector g_pipeSettings;
-PipelineVector g_pipelines;
-
-class ZJetEventProvider: public EventProvider<ZJetEventData>
-{
-public:
-	ZJetEventProvider(FileInterface & fi, InputTypeEnum inpType) :
-		m_prevRun(-1), m_prevLumi(-1), m_inpType(inpType), m_fi(fi)
-		{
-
-
-		// setup pointer to collections
-		m_event.m_eventmetadata = fi.Get<KEventMetadata> ();
-
-		if (inpType == McInput)
-		{
-			m_event.m_geneventmetadata = fi.Get<KGenEventMetadata> ();
-		}
-
-		// open Kappa issue, disable the check and it will work
-		m_event.m_vertexSummary = fi.Get<KVertexSummary> (
-				"offlinePrimaryVerticesSummary", false);
-		m_event.m_jetArea = fi.Get<KJetArea> ("KT6Area");
-
-		//InitPFJets(m_event, "AK5PFJets");
-		// dont load corrected jet here, we will do this offline
-		InitPFJets(m_event, "AK5PFJets");
-		InitPFJets(m_event, "AK7PFJets");
-
-		m_event.m_muons = fi.Get<KDataMuons> ("muons");
-		m_event.m_pfMet = fi.Get<KDataPFMET> ("PFMET");
-
-		//m_event.m_fi = &fi;
-
-		fi.SpeedupTree();
-
-        // auto-delete objects when moving to a new object. Not defult root behaviour
-        //fi.eventdata.SetAutoDelete(kTRUE);
-
-		m_mon.reset(new ProgressMonitor(GetOverallEventCount()));
-		}
-
-	virtual bool GotoEvent(long long lEvent, std::shared_ptr< HLTTools > & hltInfo )
-	{
-		m_mon->Update( );
-		m_fi.eventdata.GetEntry(lEvent);
-
-		if (m_prevRun != m_event.m_eventmetadata->nRun)
-		{
-			m_prevRun = m_event.m_eventmetadata->nRun;
-			m_prevLumi = -1;
-		}
-
-		if (m_prevLumi != m_event.m_eventmetadata->nLumi)
-		{
-			m_prevLumi = m_event.m_eventmetadata->nLumi;
-
-			// load the correct lumi information
-			if (m_inpType == McInput)
-			{
-				m_event.m_lumimetadata = m_fi.Get<KGenLumiMetadata> (
-						m_event.m_eventmetadata->nRun,
-						m_event.m_eventmetadata->nLumi);
-			}
-			if (m_inpType == DataInput)
-			{
-				m_event.m_lumimetadata = m_fi.Get<KDataLumiMetadata> (
-						m_event.m_eventmetadata->nRun,
-						m_event.m_eventmetadata->nLumi);
-			}
-
-			// reload the HLT information associated with this lumi
-			hltInfo->setLumiMetadata( m_event.m_lumimetadata );
-		}
-
-		return true;
-	}
-
-	virtual ZJetEventData const& GetCurrentEvent() const
-			{
-		return m_event;
-			}
-
-	virtual long long GetOverallEventCount() const
-			{
-		return m_fi.eventdata.GetEntries();
-			}
-
-private:
-	void InitPFJets(ZJetEventData & event, std::string algoName)
-	{
-		event.m_pfJets[algoName] = m_fi.Get<KDataPFJets> (algoName);
-	}
-	void InitGenJets(ZJetEventData & event, std::string algoName)
-	{
-		event.m_genJets[algoName] = m_fi.Get<KLV> (algoName);
-	}
-
-	long m_prevRun, m_prevLumi;
-	ZJetEventData m_event;
-	InputTypeEnum m_inpType;
-	boost::scoped_ptr<ProgressMonitor> m_mon;
-private:
-
-	FileInterface & m_fi;
-};
 
 
 int main(int argc, char** argv)
@@ -287,9 +183,6 @@ int main(int argc, char** argv)
 	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump:" );
 	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
 
-	// cloning of a pipeline ?? goes here maybe
-	// clone default pipeline for the number of settings we have
-	g_pipelines.clear();
 
 	ZJetPipelineInitializer plineInit;
 
@@ -377,6 +270,13 @@ int main(int argc, char** argv)
 			pLine->InitPipeline( *(*it), plineInit);
 			pRunner.AddPipeline( pLine );
 		}
+	}
+
+	// delete the pipeline settings
+		for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
+			== g_pipeSettings.end()); it++)
+	{
+	    delete (*it);
 	}
 
 	// weighting settings

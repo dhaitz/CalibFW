@@ -13,12 +13,12 @@ namespace CalibFW
 
 struct JecCorrSet
 {
-	std::shared_ptr<JECService> m_l1;
-	std::shared_ptr<JECService> m_l2;
-	std::shared_ptr<JECService> m_l3;
+	boost::scoped_ptr<JECService> m_l1;
+	boost::scoped_ptr<JECService> m_l2;
+	boost::scoped_ptr<JECService> m_l3;
 
 	// for data
-	std::shared_ptr<JECService> m_l2l3res;
+	boost::scoped_ptr<JECService> m_l2l3res;
 };
 
 // takes the jets contained in an event and applies the necessary corrections
@@ -40,7 +40,7 @@ public:
 			ZJetEventData const& event ) const;
 
 	void CorrectJetCollection( std::string algoName, std::string newAlgoName,
-					std::shared_ptr< JECService > corrService,
+					boost::scoped_ptr< JECService > const& corrService,
 					ZJetEventData const& event,
 					ZJetMetaData & metaData,
 					ZJetPipelineSettings const& settings) const;
@@ -51,7 +51,7 @@ public:
 			ZJetPipelineSettings const& settings ) const;
 
 private:
-	mutable std::map< std::string, JecCorrSet> m_corrService;
+	mutable boost::ptr_map< std::string, JecCorrSet> m_corrService;
 	std::string m_corectionFileBase;
 };
 
