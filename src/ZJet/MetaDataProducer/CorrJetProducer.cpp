@@ -108,12 +108,12 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 	}
 }
 
-void CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
+bool CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
 		ZJetMetaData & metaData, ZJetPipelineSettings const& settings) const
 {
 	CreateCorrections( "AK5PF", event, metaData, settings );
 	CreateCorrections( "AK7PF", event, metaData, settings );
-
+    return true;
 }
 
 void CorrJetProducer::CorrectJetCollection( std::string algoName, std::string newAlgoName,

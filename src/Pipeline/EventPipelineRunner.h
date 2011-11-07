@@ -66,8 +66,11 @@ public:
 
 		std::shared_ptr< HLTTools > hltTools( new HLTTools());
 
+        bool bEventValid = true;
+
 		for ( long long lCur = 0; lCur < nEvents; ++ lCur)
 		{
+		    // TODO refactor the evtProvider to clean up this mess with the hltTools
 			evtProvider.GotoEvent( lCur , hltTools );
 			TMetaData metaDataGlobal;
 			metaDataGlobal.m_hltInfo = hltTools;
@@ -75,18 +78,26 @@ public:
 			for( GlobalMetaProducerIterator it = m_globalMetaProducer.begin();
 					it != m_globalMetaProducer.end(); it++)
 			{
-				it->PopulateGlobalMetaData(evtProvider.GetCurrentEvent(), metaDataGlobal, settings);
-			}
+				bEventValid = it->PopulateGlobalMetaData(evtProvider.GetCurrentEvent(), metaDataGlobal, settings);
 
-			for( PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
-			{
-				if (it->GetSettings().GetLevel() == 1)
+				if ( !bEventValid )
 				{
-					//CALIB_LOG( it->GetContent() )
-
-					it->RunEvent( evtProvider.GetCurrentEvent(), metaDataGlobal );
+                    break;
 				}
 			}
+
+            if ( bEventValid )
+            {
+                for( PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
+                {
+                    if (it->GetSettings().GetLevel() == 1)
+                    {
+                        //CALIB_LOG( it->GetContent() )
+
+                        it->RunEvent( evtProvider.GetCurrentEvent(), metaDataGlobal );
+                    }
+                }
+            }
 
 			metaDataGlobal.ClearContent();
 		}
@@ -104,7 +115,6 @@ public:
 		// run the pipelines greater level one
 		for( unsigned int i = 2; i < 10; i++)
 		{
-
 			for( PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
 			{
 				if (it->GetSettings().GetLevel() == i)

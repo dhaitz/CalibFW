@@ -593,6 +593,12 @@ public:
 
 		AddPlot( m_neutralHadFraction );
 
+		m_muonFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_muon_fraction_"),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetFractionModifier());
+
+		AddPlot( m_muonFraction );
+
 		m_const = new Hist1D( GenName(GetPhysicsObjectName(), "_const_"),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetConstituentsModifier());
@@ -629,6 +635,9 @@ public:
 		m_chargedHadFraction->Fill( pfJet->chargedHadFraction, metaData.GetWeight() );
 		m_neutralHadFraction->Fill( pfJet->neutralHadFraction, metaData.GetWeight() );
 
+		//to come in next kappa skim
+		// m_muonEtFraction->Fill( pfJet->muonEtFraction, metaData.GetWeight() );
+
 		m_const->Fill( pfJet->nConst, metaData.GetWeight() );
 		m_charged->Fill( pfJet->nCharged, metaData.GetWeight() );
 		m_area->Fill( pfJet->area, metaData.GetWeight() );
@@ -644,6 +653,7 @@ public:
 	Hist1D * m_chargedEMFraction;
 	Hist1D * m_chargedHadFraction;
 	Hist1D * m_neutralHadFraction;
+	Hist1D * m_muonFraction;
 	Hist1D * m_const;
 	Hist1D * m_charged;
 	Hist1D * m_area;

@@ -4,16 +4,20 @@ import glob
 
 def CreateFileList( wildcardExpression):
     flist = []
-    
+
     for name in glob.glob(wildcardExpression):
         flist.append(name)
-        
+
     return flist
-    
+
+
+def GetDefaultBinning():
+    return [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]
+
 
 def getDefaultCorrectionL2( data_path ):
   globalTag = "GR_R_311_V2_"
-  
+
   g_l2_correction_data=["ak5PFJets:" + data_path + "jec_data/" + globalTag + "AK5PF_L2Relative.txt",
       "ak7PFJets:" + data_path + "jec_data/" + globalTag + "AK7PF_L2Relative.txt",
       "kt4PFJets:" + data_path + "jec_data/" + globalTag + "KT4PF_L2Relative.txt",
@@ -24,7 +28,7 @@ def getDefaultCorrectionL2( data_path ):
       "kt6CaloJets:" + data_path + "jec_data/" + globalTag + "KT6Calo_L2Relative.txt",
     "iterativeCone5PFJets:" + data_path + "jec_data/" + globalTag + "IC5PF_L2Relative.txt",
     "iterativeCone5CaloJets:" + data_path + "jec_data/" + globalTag + "IC5PF_L2Relative.txt"]
-    
+
   return g_l2_correction_data
 
 
@@ -43,7 +47,7 @@ def GetBaseConfig():
             "CutSecondLeadingToZPt": 0.2,
             "CutBack2Back": 0.34,
 
-            
+
             "Cuts": ["muon_pt",
                      "muon_eta",
                      "leadingjet_eta",
@@ -54,7 +58,7 @@ def GetBaseConfig():
             "Consumer": {}
                       }
             }
-    
+
     return d
 
 
@@ -72,13 +76,13 @@ def ApplyReweightingSummer11May10ReReco(conf):
 
 def GetMcBaseConfig():
     d = GetBaseConfig()
-    
+
     d["UseWeighting"] = 1
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
-    
+
     d["InputType"] = "mc"
-    
+
     d["JecBase"] = "data/jec_data/MC_42_V13_"
 
     return d
@@ -86,14 +90,14 @@ def GetMcBaseConfig():
 def GetDefaultDataPipeline():
     pline = GetDataBaseConfig()["Pipelines"]["default"]
 
-    pline["FilterInCutIgnored"] = 0    
+    pline["FilterInCutIgnored"] = 0
     pline["Filter"].append ("incut")
-    
+
     return pline
 
 def GetDataBaseConfig():
     d = GetBaseConfig()
-    
+
     d["JsonFile"] = "data/json/Cert_160404-178677_7TeV_PromptReco_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
@@ -101,12 +105,12 @@ def GetDataBaseConfig():
     d["InputType"] = "data"
     d["Pipelines"]["default"]["CutHLT"] = "DoubleMu"
     d["Pipelines"]["default"]["Filter"].append ("json")
-    
+
     d["JecBase"] = "data/jec_data/GR_R_42_V19_"
 
     #for key, val in d["Pipelines"].items():
       #  "Filter":["valid_z", "valid_jet"]
-       # val["Cuts"].append( "hlt" ) 
+       # val["Cuts"].append( "hlt" )
        # val["Cuts"].append( "json" )
 
     return d
@@ -116,17 +120,17 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
-        
-        if elem["Level"] == 1:            
+
+        if elem["Level"] == 1:
             for v in vals:
                 newPipe = copy.deepcopy(elem)
                 newPipe[ varName ] = v
-                
+
                 varadd = "_var_" + varName + "_" + str(v).replace(".", "_")
-                
-                newName = name + varadd            
+
+                newName = name + varadd
                 newRootFileFolder =  newPipe["RootFileFolder"] + varadd
-                
+
                 newDict[newName] = newPipe
                 if ( setRootFolder ):
                     newDict[newName]["RootFileFolder"] = newRootFileFolder
@@ -141,26 +145,26 @@ def AddConsumer( pline, name, config):
     pline["Consumer"][name] = config
 
 def AddConsumerEasy( pline, consumer):
-    pline["Consumer"][ consumer["ProductName"] ] = consumer  
+    pline["Consumer"][ consumer["ProductName"] ] = consumer
 
 def ExpandCutNoCut( pipelineDict):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
-        
+
         nocutPipe = copy.deepcopy(elem)
         cutPipe = copy.deepcopy(elem)
-        
+
         algoName = cutPipe["JetAlgorithm"]
-        
+
         cutPipe["FilterInCutIgnored"] = 0
-        cutPipe["Filter"].append ("incut")        
-        
+        cutPipe["Filter"].append ("incut")
+
         cutPipe["Consumer"]["bin_mpf_response"] = { "Name" : "bin_response",
                                                         "ProductName" : "mpfresp_" +  algoName,
-                                                        "ResponseType" : "mpf", 
+                                                        "ResponseType" : "mpf",
                                                          "JetNumber" : 0}
-        
+
         cutPipe["Consumer"]["bin_balance_response"] = { "Name" : "bin_response",
                                                         "ResponseType" : "bal",
                                                         "ProductName" : "balresp_" +  algoName,
@@ -187,7 +191,7 @@ def Expand( pipelineDict, expandCount, includeSource):
         for i in range( expandCount):
             newPipe = copy.deepcopy(elem)
             newDict[name + str(i) ] = newPipe
-    
+
     if includeSource:
         return dict( pipelineDict.items() +  newDict.items() )
     else:
@@ -195,16 +199,16 @@ def Expand( pipelineDict, expandCount, includeSource):
 
 
 def AddSingleCutConsumer( pline, cut_name, cut_id, algoname ):
-    
-    AddConsumer(pline, "cut_" + algoname + cut_name + "_overnpv", 
+
+    AddConsumer(pline, "cut_" + algoname + cut_name + "_overnpv",
                 { "Name" : "generic_profile_consumer",
                   "RunUnfiltered" : 1,
                   "YSource" : "cutvalue",
                   "CutId" : cut_id,
                   "XSource" : "reco",
                   "ProductName" : "cut_" + algoname + cut_name + "_overnpv"})
-    
-    AddConsumer(pline, "cut_" + algoname + cut_name + "_overzpt", 
+
+    AddConsumer(pline, "cut_" + algoname + cut_name + "_overzpt",
                 { "Name" : "generic_profile_consumer",
                   "RunUnfiltered" : 1,
                   "YSource" : "cutvalue",
@@ -221,7 +225,7 @@ def AddCutConsumer( pipelineDict, algos):
                 AddConsumer(pval, "filter_statistics",
                             { "Name": "filter_statistics" })
                 # for every intersting cut
-                AddConsumer(pval, "cut_" + algo + "_all", 
+                AddConsumer(pval, "cut_" + algo + "_all",
                             { "Name" : "generic_profile_consumer",
                               "RunUnfiltered" : 1,
                               "YSource" : "cutvalue",
@@ -232,18 +236,18 @@ def AddCutConsumer( pipelineDict, algos):
                 AddSingleCutConsumer(pval, "back_to_back", 32, algo )
                 AddSingleCutConsumer(pval, "zmass", 64, algo )
                 AddSingleCutConsumer(pval, "muon_pt", 2, algo )
-              
+
 def AddLumiConsumer( pipelineDict, algos):
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
-            if p == "default_" + algo:                
-                AddConsumerEasy(pval,  
+            if p == "default_" + algo:
+                AddConsumerEasy(pval,
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "eventcount",
                               "XSource" : "intlumi",
                               "ProductName" : "eventcount_" + algo + "_lumi"})
-        
-                AddConsumerEasy(pval, 
+
+                AddConsumerEasy(pval,
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "eventcount",
                               "XSource" : "runnumber",
@@ -255,31 +259,31 @@ def AddHltConsumer( pipelineDict, algoNames, hlt_names):
         for hname in hlt_names:
             for p, pval in pipelineDict["Pipelines"].items():
                 if p == "default_" + algo + "nocuts":
-                    AddConsumer(pval, "hlt_" + algo + "_" + hname + "_prescale", 
+                    AddConsumer(pval, "hlt_" + algo + "_" + hname + "_prescale",
                                                 { "Name" : "generic_profile_consumer",
                                                   "YSource" : "hltprescale",
-                                                  "YSourceConfig" : hname, 
+                                                  "YSourceConfig" : hname,
                                                   "XSource" : "runnumber",
                                                   "ProductName" : "hlt_" + algo + "_" + hname + "_prescale"})
 
 
 def ExpandPtBins( pipelineDict, ptbins, includeSource):
     newDict = dict()
-        
+
     for name, elem in pipelineDict.items():
         # dont do this for uncut events
         if not "nocuts" in name:
             i = 0
             for upper in ptbins[1:]:
                 ptbinsname =  "Bin" + str(ptbins[i]) + "To" + str(upper)
-    
+
                 newPipe = copy.deepcopy(elem)
-                
+
                 newPipe["Filter"].append( "ptbin")
-                
+
                 newPipe["FilterPtBinLow"] = ptbins[i]
                 newPipe["FilterPtBinHigh"] = upper
-    
+
                 newDict[name + "_" + ptbinsname ] = newPipe
                 i = i + 1
 
@@ -292,7 +296,7 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
     for algo in algoNames:
         for p, pval in conf["Pipelines"].items():
             if p == "default_" + algo:
-                AddConsumer(pval, "L1_" + algo + "_npv", 
+                AddConsumer(pval, "L1_" + algo + "_npv",
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
                               "Jet1Ratio" : algo,
@@ -300,7 +304,7 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
                               "XSource" : "reco",
                               "ProductName" : "L1_" + algo + "_npv"})
                 if level > 1:
-                    AddConsumer(pval, "L2_" + algo + "_jeteta", 
+                    AddConsumer(pval, "L2_" + algo + "_jeteta",
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
                               "Jet1Ratio" : algo + "L1",
@@ -308,39 +312,39 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
                               "XSource" : "jeteta",
                               "ProductName" : "L2_" + algo + "_jeteta"})
                 if level > 2:
-                    AddConsumer(pval, "L3_" + algo + "_jetpt", 
+                    AddConsumer(pval, "L3_" + algo + "_jetpt",
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
                               "Jet1Ratio" : algo + "L1L2",
                               "Jet2Ratio" : algo + "L1L2L3",
                               "XSource" : "jetpt",
                               "ProductName" : "L3_" + algo + "_jetpt"})
-                    
+
                 if l3residual:
-                    AddConsumer(pval, "L3Res_" + algo + "_jetpt", 
+                    AddConsumer(pval, "L3Res_" + algo + "_jetpt",
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
                               "Jet1Ratio" : algo + "L1L2L3",
                               "Jet2Ratio" : algo + "L1L2L3Res",
                               "XSource" : "jetpt",
                               "ProductName" : "L3Res_" + algo + "_jetpt"})
-                    AddConsumer(pval, "L3Res_" + algo + "_jeteta", 
+                    AddConsumer(pval, "L3Res_" + algo + "_jeteta",
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
                               "Jet1Ratio" : algo + "L1L2L3",
                               "Jet2Ratio" : algo + "L1L2L3Res",
                               "XSource" : "jeteta",
                               "ProductName" : "L3Res_" + algo + "_jeteta"})
-            
-            
-                
-def ExpandDefaultMcConfig( ptBins, algoNames, conf_template, useFolders, FolderPrefix = ""):
+
+
+
+def ExpandDefaultMcConfig(  algoNames, conf_template, useFolders, FolderPrefix = "", binning = GetDefaultBinning() ):
     conf = copy.deepcopy(conf_template)
 
     # generate folder names
     srcFolder = []
-    for i in range( len(ptBins) - 1):
-        srcFolder += ["Pt" + str(ptBins[i]) + "to" + str(ptBins[i+1]) + "_incut"]
+    for i in range( len(binning) - 1):
+        srcFolder += ["Pt" + str(binning[i]) + "to" + str(binning[i+1]) + "_incut"]
 
     algoPipelines = {}
 
@@ -351,14 +355,14 @@ def ExpandDefaultMcConfig( ptBins, algoNames, conf_template, useFolders, FolderP
             pline = copy.deepcopy( pval )
             pline["JetAlgorithm"] = algo
             algoPipelines[ p + "_" +  algo  ] = pline
-            
+
     conf["Pipelines"] = algoPipelines
 
     #conf["Pipelines"]["default"]["CustomBins"] = ptBins
-    conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )    
+    conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )
 
     # create pipelines for all bins
-    conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], ptBins, True )
+    conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], binning, True )
 
     #set the folder name
     for p, pval in conf["Pipelines"].items():
@@ -378,8 +382,8 @@ def ExpandDefaultMcConfig( ptBins, algoNames, conf_template, useFolders, FolderP
     for algo in algoNames:
         # create second level pipelines
         pipename = FolderPrefix + "sec_default_" + algo
-        
-        secpline = {} 
+
+        secpline = {}
 
         # code this in a more generic way
         secpline["Consumer"] = {}
@@ -389,31 +393,31 @@ def ExpandDefaultMcConfig( ptBins, algoNames, conf_template, useFolders, FolderP
                                              # this product will be in the upmost folder
                                              "ProductName"    : "balresp_" + algo,
                                              "SourceBinning"  : "z_pt_" + algo}
-        
+
         secpline["Consumer"]["mpf_response"] = { "Name" : "response_balance",
                                              "SourceFolder" : srcFolder,
                                              "SourceResponse" : "mpfresp_" + algo,
                                              # this product will be in the upmost folder
                                             "ProductName"    : "mpfresp_" + algo,
-                                             "SourceBinning"  : "z_pt_" + algo}      
-        
+                                             "SourceBinning"  : "z_pt_" + algo}
+
         secpline["Level"] = 2
         #secLevelPline[FolderPrefix + "sec_default"]["CustomBins"] = ptBins
         secpline["SecondLevelFolderTemplate"] = FolderPrefix + "XXPT_BINXX_incut"
         secpline["RootFileFolder"] = FolderPrefix
-        
-        
+
+
         #for (key, val) in conf["Pipelines"].items():
         #    secLevelPline[ FolderPrefix + key ] = val
-    
+
         conf["Pipelines"][pipename] =  secpline
 
     return conf
 
-    
-    
-def ExpandDefaultDataConfig( ptBins, conf_template, useFolders, FolderPrefix = ""):
-    conf = ExpandDefaultMcConfig( ptBins, conf_template, useFolders, FolderPrefix)
+
+
+def ExpandDefaultDataConfig( conf_template, useFolders, FolderPrefix = ""):
+    conf = ExpandDefaultMcConfig( conf_template, useFolders, FolderPrefix)
 
     #conf["Pipelines"][FolderPrefix + "default"]["AdditionalConsumer"].append( "event_storer" )
 
@@ -421,29 +425,29 @@ def ExpandDefaultDataConfig( ptBins, conf_template, useFolders, FolderPrefix = "
 
 def StoreSettings( settings, filename):
     f = open(filename, "w")
-    
+
     jsonOut = str(settings)
     # make it json conform
     jsonOut = jsonOut.replace( "\'", "\"")
-    
+
     try:
         import json
         # dont display config on console, it is annyoing
         #print json.dumps( settings, sort_keys=True, indent=4 )
         json.dump( settings, f, sort_keys=True, indent=4 )
-            
+
     except BaseException:
-    
+
         f.write ( jsonOut )
-    
+
         print "No json Module found. Using fallback method ..."
-        
+
     f.close()
-    
+
     print ( "Configured " + str( len( settings["Pipelines"] )) + " Pipelines" )
-    
-    
-def Run( settings, filename):    
+
+
+def Run( settings, filename):
     StoreSettings( settings, filename)
     print "Running config from file " + filename
     subprocess.call(["./closure",filename])

@@ -24,17 +24,19 @@ public:
 		// noting todo here
 	}
 
-	virtual void PopulateGlobalMetaData(ZJetEventData const& data,
+	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		if ( !m_pipelineSettings.Global()->GetEnablePuReweighting())
-			return;
+			return true;
 
 		assert(	data.m_geneventmetadata != NULL );
 
 		double fact = m_pipelineSettings.Global()->GetPuReweighting().at( data.m_geneventmetadata->numPUInteractions0 );
 		metaData.SetWeight( metaData.GetWeight() * fact );
+
+		return true;
 	}
 };
 

@@ -68,8 +68,6 @@
 #include "ZJet/MetaDataProducer/PuReweightingProducer.h"
 #include "ZJet/MetaDataProducer/CorrJetProducer.h"
 #include "ZJet/MetaDataProducer/JetSorter.h"
-#include "ZJet/MetaDataProducer/HltInfoProducer.h"
-
 
 #include "KappaTools/RootTools/HLTTools.h"
 
@@ -208,9 +206,12 @@ int main(int argc, char** argv)
 	PfMap pfJets;
 
 	//pRunner.AddGlobalMetaProducer( new HltInfoProducer());
-	pRunner.AddGlobalMetaProducer( new PuReweightingProducer());
 	pRunner.AddGlobalMetaProducer( new ValidMuonProducer());
 	pRunner.AddGlobalMetaProducer( new ZProducer());
+
+	pRunner.AddGlobalMetaProducer( new PuReweightingProducer());
+
+
 	pRunner.AddGlobalMetaProducer( new ValidJetProducer());
 	pRunner.AddGlobalMetaProducer( new CorrJetProducer( g_propTree.get<std::string> ("JecBase") ));
 

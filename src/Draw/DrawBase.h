@@ -211,7 +211,7 @@ public:
 
 		//CALIB_LOG( "Storing GraphErrors " + this->m_sRootFileFolder + "/" + this->m_sName + "_graph" )
 		RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
-		m_graph->Write(( GetName() + "_graph").c_str());
+		m_graph->Write(( GetName() ).c_str());
 	}
 
 	void AddPoint( double x, double y, double xe, double ye )

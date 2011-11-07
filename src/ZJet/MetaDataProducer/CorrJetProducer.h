@@ -32,7 +32,7 @@ public:
 			ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const;
 
-	virtual void PopulateGlobalMetaData(ZJetEventData const& event,
+	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
 			ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const;
 

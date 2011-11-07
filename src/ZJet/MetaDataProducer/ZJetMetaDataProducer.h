@@ -26,7 +26,7 @@ public:
 		// nothing to do here
 	}
 
-	virtual void PopulateGlobalMetaData(ZJetEventData const& data,
+	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
 	{
 		// appy muon isolation and fit quality
@@ -45,6 +45,8 @@ public:
 				metaData.m_listInvalidMuons.push_back(*it);
 			}
 		}
+
+		return true;
 	}
 };
 
@@ -59,7 +61,7 @@ public:
 		// nothing to do here
 	}
 
-	virtual void PopulateGlobalMetaData(ZJetEventData const& event,
+	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
 			ZJetMetaData & metaData,
 			ZJetPipelineSettings const& globalSettings) const
 	{
@@ -133,6 +135,8 @@ public:
 
 		}
 
+		return true;
+
 	}
 
 };
@@ -148,14 +152,14 @@ public:
 		// nothing to do here
 	}
 
-	virtual void PopulateGlobalMetaData(ZJetEventData const& data,
+	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
 	{
 		if (metaData.GetValidMuons().size() < 2)
 		{
 			// no Z to produce here
 			metaData.SetValidZ(false);
-			return;
+			return false;
 		}
 
 		if (data.m_muons->size() > 2)
@@ -163,7 +167,7 @@ public:
 			//			CALIB_LOG_FATA( " -- more than 2 muons in an event, spookey ? how to combine this --")
 			// drop this event for now
 			metaData.SetValidZ(false);
-			return;
+			return false;
 		}
 
 		KDataMuon const& m1 = metaData.GetValidMuons().at(0);
@@ -172,7 +176,7 @@ public:
 		if ((m1.charge + m2.charge) != 0)
 		{
 			metaData.SetValidZ(false);
-			return;
+			return false;
 		}
 
 		// quality cuts on muon go here
@@ -182,6 +186,7 @@ public:
 		metaData.SetZ(z);
 		metaData.SetValidZ(true);
 
+        return true;
 	}
 };
 

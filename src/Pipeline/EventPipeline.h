@@ -46,10 +46,12 @@ public:
 	virtual void PopulateMetaData(TData const& data, TMetaData & metaData,
 			TSettings const& m_pipelineSettings) const = 0;
 
-	virtual void PopulateGlobalMetaData(TData const& data, TMetaData & metaData,
+    // if false is returned, the event is dropped as it does not meet the minimum requirements for the producer
+	virtual bool PopulateGlobalMetaData(TData const& data, TMetaData & metaData,
 			TSettings const& globalSettings) const
 	{
 		// optional
+        return true;
 	}
 
 };

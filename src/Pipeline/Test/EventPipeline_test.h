@@ -90,10 +90,11 @@ public:
 	}
 
 	// for the global metadata producer
-	virtual void  PopulateGlobalMetaData(TestData const& data, TestMetaData & metaData,
+	virtual bool  PopulateGlobalMetaData(TestData const& data, TestMetaData & metaData,
 			TestSettings const& m_pipelineSettings) const
 	{
 		metaData.iGlobalMetaData += 1;
+        return true;
 	}
 
 };

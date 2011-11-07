@@ -5,7 +5,7 @@
 namespace CalibFW
 {
 
-void JetMatcher::PopulateGlobalMetaData(ZJetEventData const& data,
+bool JetMatcher::PopulateGlobalMetaData(ZJetEventData const& data,
 		ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
 {
 	//MatchingResult & mres = metaData.GetMatchingResults( m_matching_name );
@@ -19,6 +19,7 @@ void JetMatcher::PopulateGlobalMetaData(ZJetEventData const& data,
 	{
 
 	}*/
+	return true;
 }
 
 

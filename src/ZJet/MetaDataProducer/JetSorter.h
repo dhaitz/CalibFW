@@ -19,10 +19,11 @@ public:
 		// nothing to do here
 	}
 
-	virtual void PopulateGlobalMetaData(ZJetEventData const& data,
+	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
 	{
 		metaData.SortJetCollections();
+		return true;
 	}
 };
 

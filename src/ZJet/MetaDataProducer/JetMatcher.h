@@ -25,7 +25,7 @@ public:
 			ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const { }
 
-	virtual void PopulateGlobalMetaData(ZJetEventData const& data,
+	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const;
 private:
 	std::string m_jets1, m_jets2, m_matching_name;
