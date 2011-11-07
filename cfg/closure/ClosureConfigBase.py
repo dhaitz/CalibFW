@@ -115,13 +115,13 @@ def GetDataBaseConfig():
 
     return d
 
-# does not work right now
-def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource):
+
+def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, alsoForNoCuts = False, correction = ""):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
 
-        if elem["Level"] == 1:
+        if (elem["Level"] == 1 )and ( ( not "nocuts" in name) or alsoForNoCuts ) and ( correction in name):
             for v in vals:
                 newPipe = copy.deepcopy(elem)
                 newPipe[ varName ] = v
