@@ -116,7 +116,7 @@ def GetDataBaseConfig():
     return d
 
 
-def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, alsoForNoCuts = False, correction = ""):
+def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, alsoForNoCuts = False, correction = "L1L2L3"):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
