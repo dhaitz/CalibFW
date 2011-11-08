@@ -24,6 +24,9 @@ public:
 		// noting todo here
 	}
 
+	static std::string Name() { return "pu_reweighting_producer"; }
+
+
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const

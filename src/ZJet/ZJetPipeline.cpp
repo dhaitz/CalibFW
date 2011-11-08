@@ -48,11 +48,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 			if ( sid == PtWindowFilter().GetFilterId())
 				pLine->AddFilter( new PtWindowFilter);
-
 			else if ( sid == JsonFilter().GetFilterId())
-
 				pLine->AddFilter( new JsonFilter( pset.Global()->GetJsonFile()));
-
 			else if ( sid == InCutFilter().GetFilterId())
 				pLine->AddFilter( new InCutFilter);
 			else if ( sid == ValidZFilter().GetFilterId())
@@ -61,22 +58,6 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddFilter( new ValidJetFilter);
 			else
 				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
-
-				/*
-		if ( sid == CutSelectionFilter().GetFilterId())
-			pLine->AddFilter( new CutSelectionFilter);
-		else if ( sid == PtWindowFilter().GetFilterId())
-			pLine->AddFilter( new PtWindowFilter);
-		else if ( sid == InCutFilter().GetFilterId())
-			pLine->AddFilter( new InCutFilter);
-		else if ( sid == RecoVertFilter().GetFilterId())
-			pLine->AddFilter( new RecoVertFilter);
-		else if ( sid == JetEtaFilter().GetFilterId())
-			pLine->AddFilter( new JetEtaFilter);
-		else if ( sid == SecondJetRatioFilter().GetFilterId())
-			pLine->AddFilter( new SecondJetRatioFilter);
-		else
-			CALIB_LOG_FATAL( "Filter " << sid << " not found." )*/
 		}
 
 
@@ -119,7 +100,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		std::string sName = v.second.get<std::string>("Name");
 		std::string consPath = pset.GetSettingsRoot() + ".Consumer." + v.first.data();
 
-		// 1st Level
+		// optional 1st Level Producer
 		if (sName == BinResponseConsumer::GetName())
 			pLine->AddConsumer( new BinResponseConsumer( pset.GetPropTree(), consPath ) );
 
@@ -132,7 +113,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		else if (sName == FilterStatisticsConsumer::GetName())
 			pLine->AddConsumer( new FilterStatisticsConsumer());
 
-		// 2nd Level
+		// 2nd Level Producer
 		else if( sName == JetRespConsumer::GetName() )
 			pLine->AddConsumer( new JetRespConsumer( pset.GetPropTree(), consPath ) );
 		else

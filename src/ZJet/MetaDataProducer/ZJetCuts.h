@@ -131,7 +131,7 @@ public:
 	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		if( !metaData.HasValidJet( m_pipelineSettings ) )
+		if( !metaData.HasValidJet( m_pipelineSettings,event ) )
 		{
 			// no decision possible for this event
 			return;
@@ -173,7 +173,7 @@ public:
 			return;
 		}
 
-		if (metaData.GetValidJetCount(m_pipelineSettings) < 2)
+		if (metaData.GetValidJetCount( m_pipelineSettings, event) < 2)
 		{
 			// is ok, there seems to be no 2nd Jet in the event
 			metaData.SetCutResult ( this->GetId(), true );
@@ -297,7 +297,7 @@ public:
 	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData & metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		if (! metaData.HasValidJet(m_pipelineSettings) || !metaData.HasValidZ() )
+		if (! metaData.HasValidJet(m_pipelineSettings, event) || !metaData.HasValidZ() )
 			//No valid objects found to apply this cut
 			return ;
 

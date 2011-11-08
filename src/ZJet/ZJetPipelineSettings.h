@@ -84,9 +84,20 @@ IMPL_SETTING(bool, FilterDeltaPhiCutSet)
 
 IMPL_SETTING(std::string, JetAlgorithm)
 
-std::string GetGenJetAlgorithm()
+std::string GetCorrespondingGenJetAlgorithm()
 {
-	return "AK5GenJets";
+	std::string s = GetJetAlgorithm();
+
+	boost::algorithm::replace_first( s, "PFJets", "GenJets");
+	boost::algorithm::replace_first( s, "CaloJets", "GenJets");
+
+	// remove any correction, we dont need that on gen jets. JEAH !
+	boost::algorithm::replace_first( s, "L1", "");
+	boost::algorithm::replace_first( s, "L2", "");
+	boost::algorithm::replace_first( s, "L3", "");
+
+
+	return s;
 }
 
 IMPL_SETTING(std::string, RootFileFolder)
@@ -198,32 +209,6 @@ IMPL_PROPERTY(TFile *, RootOutFile)
 
 	 stringvector m_filter;*/
 
-	bool IsPF() const
-	{
-		return IsPF(this->GetJetAlgorithm());
-	}
-
-	bool IsPF(std::string algoname) const
-	{
-		if ( ! m_isPF.IsCached())
-		{
-			m_isPF.SetCache( boost::algorithm::starts_with( algoname, "AK5PF")
-				|| boost::algorithm::starts_with( algoname,
-						"AK7PF") || boost::algorithm::starts_with(
-								algoname, "KT4PF")
-				|| boost::algorithm::starts_with( algoname,
-						"KT6PF"));
-		}
-
-		return m_isPF.GetValue();
-	}
-
-	bool IsCalo() const
-	{
-		return false;
-	}
-
-	VarCache<bool> m_isPF;
 };
 
 }

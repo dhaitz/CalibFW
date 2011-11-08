@@ -8,6 +8,8 @@
 #include "ZJetPipelineSettings.h"
 #include "Misc/SafeMap.h"
 
+#include "Pipeline/JetTools.h"
+
 namespace CalibFW
 {
 
@@ -28,11 +30,11 @@ public:
 	typedef std::map<std::string, KDataPFJets *> PfMap;
 	typedef PfMap::const_iterator PfMapIterator;
 
-	typedef std::map<std::string, KLV *> GenJetMap;
-	typedef PfMap::const_iterator GenJetMapIterator;
+	typedef std::map<std::string, KDataLVs *> GenJetMap;
+	typedef GenJetMap::const_iterator GenJetMapIterator;
 
 	typedef std::map<std::string, KDataJets *> JetMap;
-	typedef PfMap::const_iterator JetMapIterator;
+	typedef JetMap::const_iterator JetMapIterator;
 
 	//typedef std::map<std::string, K * > GenMap;
 	PfMap m_pfJets;
@@ -53,13 +55,17 @@ public:
 	// May return null, if the jet is not available
 	virtual unsigned int GetJetCount(ZJetPipelineSettings const& psettings, std::string algoName) const
 	{
-		if (psettings.IsPF(algoName))
+		if (JetType::IsPF(algoName))
 		{
-			return m_pfJets.at(algoName)->size();
+			return SafeMap<std::string, KDataPFJets *>::Get( algoName, m_pfJets )->size();
+		}
+		if ( JetType::IsGen(algoName))
+		{
+			return SafeMap<std::string, KDataLVs *>::Get( algoName, m_genJets )->size();
 		}
 		else
 		{
-			return m_jets.at(algoName)->size();
+			return SafeMap<std::string, KDataJets *>::Get( algoName, m_jets )->size();
 		}
 	}
 
@@ -79,7 +85,7 @@ public:
 	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
 			unsigned int index, std::string algoName) const
 	{
-		if (psettings.IsPF(algoName))
+		if (JetType::IsPF(algoName))
 		{
 			KDataPFJets * pfJets =
 			SafeMap<std::string, KDataPFJets *>::Get( algoName, m_pfJets );
@@ -91,9 +97,21 @@ public:
 
 			return &pfJets->at(index);
 		}
+		else if (JetType::IsGen(algoName))
+		{
+			KDataLVs * genJets =
+			SafeMap<std::string, KDataLVs *>::Get( algoName, m_genJets );
+
+
+			if (genJets->size() <= index)
+				return NULL;
+
+			return &genJets->at(index);
+		}
+
 		else
 		{
-			assert ("we dont use this");
+			CALIB_LOG_FATAL("not implmented")
 			KDataJets * jets = m_jets.at(algoName);
 
 			if (jets->size() >= index)

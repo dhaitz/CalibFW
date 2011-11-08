@@ -26,6 +26,9 @@ class CorrJetProducer: public ZJetMetaDataProducerBase
 {
 public:
 
+	static std::string Name() { return "corr_jet_producer"; }
+
+
 	CorrJetProducer( std::string corBase );
 
 	virtual void PopulateMetaData(ZJetEventData const& data,

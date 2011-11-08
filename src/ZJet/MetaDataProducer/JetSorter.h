@@ -19,6 +19,8 @@ public:
 		// nothing to do here
 	}
 
+	static std::string Name() { return "jet_sorter_produer"; }
+
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
 	{

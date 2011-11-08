@@ -20,6 +20,13 @@ void KappaEventProvider< ZJetEventData >::WireEvent()
 		InitPFJets(m_event, "AK5PFJets");
 		InitPFJets(m_event, "AK7PFJets");
 
+		if ( m_fi.isMC() )
+		{
+			// nice, we have the all-mighty TRUTH !
+			InitGenJets(m_event, "AK5GenJets");
+			InitGenJets(m_event, "AK7GenJets");
+		}
+
 		m_event.m_muons = m_fi.Get<KDataMuons> ("muons");
 		m_event.m_pfMet = m_fi.Get<KDataPFMET> ("PFMET");
 

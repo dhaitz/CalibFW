@@ -35,17 +35,17 @@ BOOST_AUTO_TEST_CASE( test_meta_data_meta_jet )
 	set.CacheJetAlgorithm.SetCache(algoName1 );
 	mData.InitMetaJetCollection(algoName1);
 
-	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, algoName1 ), 0  );
-	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, algoNoMeta ), 2 );
+	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, evt, algoName1 ), 0  );
+	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, evt, algoNoMeta ), 2 );
 
 	mData.AddValidJet( pjet1, algoName1);
 
-	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, algoName1 ), 1  );
-	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, algoNoMeta ), 2 );
+	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, evt, algoName1 ), 1  );
+	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, evt, algoNoMeta ), 2 );
 
 	mData.AddValidJet( pjet2, algoName1);
-	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, algoName1 ), 2  );
-	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, algoNoMeta ), 2 );
+	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, evt, algoName1 ), 2  );
+	BOOST_CHECK_EQUAL( mData.GetValidJetCount(set, evt, algoNoMeta ), 2 );
 
 	KDataPFJet * pJet = static_cast<KDataPFJet * > ( mData.GetValidJet(set, evt, 0, algoName1 )  );
 	BOOST_CHECK_EQUAL( pJet->area, 23.0f );
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( test_meta_data_sort_jets )
 	mData.AddValidJet( pjet2, algoName1 );
 	mData.AddValidJet( pjet3, algoName1 );
 
-	BOOST_CHECK_EQUAL( mData.GetValidJetCount( set, algoName1), 3 );
+	BOOST_CHECK_EQUAL( mData.GetValidJetCount( set, evt, algoName1), 3 );
 
 	BOOST_CHECK_EQUAL( mData.GetValidJet(  set,  evt, 0, algoName1)->p4.Pt(), 23.0f);
 	BOOST_CHECK_EQUAL( mData.GetValidJet(  set,  evt, 1, algoName1)->p4.Pt(), 2.0f);
