@@ -7,6 +7,10 @@ namespace CalibFW
 
 typedef KappaEventProvider< ZJetEventData > ZJetEventProvider;
 
+
+/*
+ * Template specialization for the ZJet related event data
+ */
 template<>
 void KappaEventProvider< ZJetEventData >::WireEvent()
 {
@@ -31,19 +35,5 @@ void KappaEventProvider< ZJetEventData >::WireEvent()
 		m_event.m_pfMet = m_fi.Get<KDataPFMET> ("PFMET");
 
 }
-/*
-class ZJetEventProvider: public KappaEventProvider< ZJetEventData >
-{
-public:
-	ZJetEventProvider(FileInterface & fi, InputTypeEnum inpType) :
-        KappaEventProvider< ZJetEventData >( fi, inpType )	{ }
-
-
-    virtual void WireEvent()
-    {
-
-    }
-
-};*/
 
 }

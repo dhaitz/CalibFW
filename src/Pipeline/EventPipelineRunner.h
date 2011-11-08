@@ -26,6 +26,14 @@ public:
 	virtual long long GetOverallEventCount() const = 0;
 };
 
+/*
+ * The EventPipelineRunner utilizes a user-provided EventProvider to load events and passes them to
+ * all registered EventPipelines.
+ * Furthermore, GlobalEventProducers can be registered, which can generate Pipeline-Independet meta data
+ * of the event. This GlobalEventProducers are run before any pipeline is started and the generated data is passed to the
+ * pipelines.
+ */
+
 template < class TPipeline, class TGlobalMetaProducer >
 class EventPipelineRunner : public boost::noncopyable
 {
@@ -37,18 +45,25 @@ public:
 	typedef typename GlobalMetaProducer::iterator GlobalMetaProducerIterator;
 
 
+	/*
+	 * Add a pipeline. The object is destroy in the destructor of the EventPipelineRunner
+	 */
 	void AddPipeline( TPipeline * pline )
 	{
 		m_pipelines.push_back( pline );
 	}
 
-	// Global MetaProducer operate without the concrete settings of one
-	// pipeline
+	/*
+	 * Add a GlobalMetaProducer. The object is destroy in the destructor of the EventPipelineRunner
+	 */
 	void AddGlobalMetaProducer( TGlobalMetaProducer * metaProd )
 	{
 		m_globalMetaProducer.push_back( metaProd );
 	}
 
+	/*
+	 * Add a range of pipelines. The object is destroy in the destructor of the EventPipelineRunner
+	 */
 	void AddPipelines(std::vector<TPipeline*> pVec)
 	{
 		BOOST_FOREACH( TPipeline * pline, pVec )
@@ -57,7 +72,9 @@ public:
 			}
 	}
 
-
+	/*
+	 * Run the GlobalMetaProducers and all pipelines.
+	 */
 	template< class TEvent, class TMetaData, class TSettings>
 	void RunPipelines( EventProvider< TEvent > & evtProvider, TSettings const& settings  )
 	{
@@ -75,6 +92,7 @@ public:
 			TMetaData metaDataGlobal;
 			metaDataGlobal.m_hltInfo = hltTools;
 
+			// create global meta data
 			for( GlobalMetaProducerIterator it = m_globalMetaProducer.begin();
 					it != m_globalMetaProducer.end(); it++)
 			{
@@ -86,6 +104,7 @@ public:
 				}
 			}
 
+			// run the pipelines, if the event is valid
             if ( bEventValid )
             {
                 for( PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)

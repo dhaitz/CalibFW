@@ -6,16 +6,21 @@
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-
-
 #include "PipelineSettings.h"
 #include "FilterBase.h"
+#include "EventConsumerBase.h"
+#include "MetaDataProducerBase.h"
 
 namespace CalibFW
 {
 
 template<class TData, class TMetaData, class TSettings>
 class EventPipeline;
+
+
+/*
+ * Draft for your own meta data.
+ */
 
 class EventMetaDataBase
 {
@@ -30,75 +35,12 @@ public:
 	}
 };
 
+
 /*
- * This producer creates meta-data for a pipeline and event before the filter or the consumer are run
- * Meta data producer have to be stateless since they are used by multiple threads
+
+  Base class for your custom PipelineInitializer. Your custom code
+  can add Filters and Consumers to newly created pipelines.
  */
-template<class TData, class TMetaData, class TSettings>
-class MetaDataProducerBase: public boost::noncopyable
-{
-public:
-	virtual ~MetaDataProducerBase()
-	{
-
-	}
-
-	virtual void PopulateMetaData(TData const& data, TMetaData & metaData,
-			TSettings const& m_pipelineSettings) const = 0;
-
-    // if false is returned, the event is dropped as it does not meet the minimum requirements for the producer
-	virtual bool PopulateGlobalMetaData(TData const& data, TMetaData & metaData,
-			TSettings const& globalSettings) const
-	{
-		// optional
-        return true;
-	}
-
-};
-
-template<class TData, class TMetaData, class TSettings>
-class EventConsumerBase: public boost::noncopyable
-{
-public:
-	virtual ~EventConsumerBase()
-	{
-	}
-	virtual void Init(EventPipeline<TData, TMetaData, TSettings> * pset)
-	{
-		m_pipeline = pset;
-	}
-	virtual void Finish() = 0;
-
-	// this method is only called for events which have passed the filter imposed on the
-	// pipeline
-	virtual void ProcessFilteredEvent(TData const& event,
-			TMetaData const& metaData)
-	{
-	}
-
-	// this method is called for all events
-	virtual void ProcessEvent(TData const& event, TMetaData const& metaData,
-			FilterResult & result)
-	{
-	}
-
-	// this method is called for secondary pipelines
-	virtual void Process()
-	{
-	}
-
-	virtual std::string GetId() const
-	{
-		return "default";
-	}
-
-	TSettings const& GetPipelineSettings() const
-	{
-		return this->m_pipeline->GetSettings();
-	}
-
-	EventPipeline<TData, TMetaData, TSettings> * m_pipeline;
-};
 
 template<class TData, class TMetaData, class TSettings>
 class PipelineInitilizerBase
@@ -109,6 +51,42 @@ public:
 			TSettings const& pset) const = 0;
 
 };
+
+
+/*
+
+ \brief Base implementation of the EventPipeline paradigm
+
+  The EventPipline contains settings, filter and MetaDataProducer and Consumer which, when combined,
+  produce the desired outpout of a pipline as soon as Events are send to the pipeline. An incoming event
+  must not be changed by the pipeline but the pipeline can createt additional data for an event using
+  MetaDataProducers.
+  Most of the time, the EventPipeline will not be used stand-alone but by an EventPipelineRunner class.
+
+  The intention of the
+  different components is outlined in the following:
+
+
+  - Settings
+  Contain all specifics for the behaviour of this pipeline. The Settings object of type TSettings must be used
+  to steer the behaviour of the MetaDataProducers, Filters and Consumers
+
+  - MetaDataProducers
+  Create additional, pipeline-specific, data for an event and stores this information in a TMetaData object
+
+  - Filter
+  Filter decide wether an input event is suitable to be processed by this pipeline. An event might not be in the desired
+  PtRange and is therefore not useful for this pipline. The FilterResult is stored and Consumers can access the outcome of the
+  Filter process.
+
+  - Consumer
+  The Consumer can access the input event, the created metadata, the settings and the filter result and produce the output they
+  desire, like Histograms -> PLOTS PLOTS PLOTS
+
+  Execution order is easy:
+  MetaDataProducers -> Filters -> Consumers
+
+ */
 
 template<class TData, class TMetaData, class TSettings>
 class EventPipeline: public boost::noncopyable
@@ -129,11 +107,20 @@ public:
 	typedef MetaDataProducerBase<TData, TMetaData, TSettings>
 			MetaDataProducerForThisPipeline;
 
-	// this is NOT a ptr_vector, since one producer instance is used with many pipelines
 	typedef boost::ptr_vector<MetaDataProducerBase<TData, TMetaData, TSettings> >
 			MetaDataProducerVector;
 	typedef typename MetaDataProducerVector::iterator MetaDataVectorIterator;
 
+
+	/*
+	 * Virtual constructor
+	 */
+	virtual ~EventPipeline(){};
+
+	/*
+	  Initialize the pipline using a custom PipelineInitilizer. This PipelineInitilizerBase can
+	  create specific Filters and Consumers
+	 */
 	virtual void InitPipeline(TSettings pset, PipelineInitilizerBase<TData,
 			TMetaData, TSettings> const& initializer)
 	{
@@ -141,12 +128,14 @@ public:
 
 		initializer.InitPipeline(this, pset);
 
+		// init Filters
 		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
 				== m_filter.end()); itfilter++)
 		{
 			itfilter->Init(this);
 		}
 
+		// init Consumers
 		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
 				== m_consumer.end()); itcons++)
 		{
@@ -155,6 +144,11 @@ public:
 
 	}
 
+
+
+	/*
+	  Useful debug output of the Pipeline Content
+	 */
 	virtual std::string GetContent()
 	{
 		std::stringstream s;
@@ -171,6 +165,9 @@ public:
 		return s.str();
 	}
 
+	/*
+	  Called once all events have been passed to the pipeline
+	 */
 	virtual void FinishPipeline()
 	{
 		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
@@ -183,7 +180,8 @@ public:
 	}
 
 	/*
-	 * Run the pipeline without specific event input.
+	 * Run the pipeline without specific event input. This is most useful for
+	 * Pipelines which process output from Pipelines already run.
 	 */
 	virtual void Run()
 	{
@@ -196,13 +194,15 @@ public:
 
 	/*
 	 * Run the pipeline with one specific event as input
+	 * The globalMetaData is meta data which is equal for all pipelines and has therefore
+	 * been created only once.
 	 */
 	virtual void RunEvent(TData const& evt, TMetaData const& globalMetaData)
 	{
-
 		// copy global meta data and use as input for the local meta producers
 		TMetaData metaData = globalMetaData;
 
+		// run MetaDataProducers
 		for (MetaDataVectorIterator it = m_producer.begin(); !(it
 				== m_producer.end()); it++)
 		{
@@ -212,6 +212,7 @@ public:
 
 		FilterResult fres;
 
+		// run Filters
 		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
 				== m_filter.end()); itfilter++)
 		{
@@ -219,8 +220,8 @@ public:
 					itfilter->DoesEventPass(evt, metaData, m_pipelineSettings));
 		}
 
-		// todo : we dont need to create this object here, i guess
 
+		// run Consumer
 		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
 				== m_consumer.end()); itcons++)
 		{
@@ -229,12 +230,13 @@ public:
 				itcons->ProcessFilteredEvent(evt, metaData);
 			}
 
-			// ensure the event is valid, ( if coming from data )
-			//if ( CutHandler::IsValidEvent( evt))
 			itcons->ProcessEvent(evt, metaData, fres);
 		}
 	}
 
+	/*
+	 * Find and return a Filter by it's id in this Pipline
+	 */
 	virtual FilterBase<TData, TMetaData, TSettings> * FindFilter(
 			std::string sFilterId)
 	{
@@ -248,11 +250,18 @@ public:
 		return NULL;
 	}
 
-	virtual TSettings const& GetSettings()
+	/*
+	 * Return a reference to the settings used within this pipline
+	 */
+	virtual TSettings const& GetSettings() const
 	{
 		return m_pipelineSettings;
 	}
 
+	/*
+	 * Add a new Filter to this Pipeline
+	 * The object will be freed in EventPipelines destructor
+	 */
 	virtual void AddFilter(FilterForThisPipeline * pFilter)
 	{
 		if (FindFilter(pFilter->GetFilterId()) != NULL)
@@ -261,27 +270,42 @@ public:
 		m_filter.push_back(pFilter);
 	}
 
+	/*
+	 * Add a new Consumer to this Pipeline
+	 * The object will be freed in EventPipelines destructor
+	 */
 	virtual void AddConsumer(ConsumerForThisPipeline * pConsumer)
 	{
 		m_consumer.push_back(pConsumer);
 	}
 
+	/*
+	 * Add a new MetaDataProducer to this Pipeline
+	 * The object will be freed in EventPipelines destructor
+	 */
 	virtual void AddMetaDataProducer(MetaDataProducerForThisPipeline * pProd)
 	{
 		m_producer.push_back(pProd);
 	}
 
+
+	/*
+	 * Return a list of filters is this pipline
+	 */
 	const boost::ptr_vector<FilterBase<TData, TMetaData, TSettings> >& GetFilters()
 	{
 		return m_filter;
 	}
 
+private:
 	ConsumerVector m_consumer;
 	FilterVector m_filter;
 	MetaDataProducerVector m_producer;
 
 	TSettings m_pipelineSettings;
 };
+
+
 
 }
 
