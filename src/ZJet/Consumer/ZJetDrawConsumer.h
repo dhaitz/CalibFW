@@ -194,8 +194,8 @@ public:
 			ZJetMetaData const& metaData)
 	{
 		ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
-		m_valid->Fill( metaData.GetValidJetCount( this->GetPipelineSettings() ), metaData.GetWeight());
-		m_invalid->Fill( metaData.GetInvalidJetCount( this->GetPipelineSettings()), metaData.GetWeight());
+		m_valid->Fill( metaData.GetValidJetCount( this->GetPipelineSettings(), event ), metaData.GetWeight());
+		m_invalid->Fill( metaData.GetInvalidJetCount( this->GetPipelineSettings(), event), metaData.GetWeight());
 	}
 
 private:
@@ -258,7 +258,7 @@ public:
 		if ( m_respType == BalResponse )
 		{
 
-			if ( m_jetnum >= metaData.GetValidJetCount( this->GetPipelineSettings()))
+			if ( m_jetnum >= metaData.GetValidJetCount( this->GetPipelineSettings(), event))
 				// on jet for us here
 				return;
 
@@ -443,6 +443,8 @@ public:
 	}
 };
 
+
+
 class DataMuonConsumer: public MetaConsumerDataLV
 {
 public:
@@ -517,7 +519,7 @@ public:
 		//CALIB_LOG( m_source->size() )
 		// call sub plots
 
-		if ( GetProductIndex() >= ( metaData.GetValidJetCount( this->GetPipelineSettings())) )
+		if ( GetProductIndex() >= ( metaData.GetValidJetCount( this->GetPipelineSettings(), event)) )
 			// no valid entry for us here !
 			return;
 
@@ -552,14 +554,27 @@ public:
 	std::string m_algorithm;
 };
 
-class DataPFJetsConsumer:
-public DataLVsConsumer
+
+
+class DataGenJetConsumer: public DataLVsConsumer
+{
+public:
+	DataGenJetConsumer(   std::string productName,
+			unsigned int productIndex, std::string algoName ) :
+					DataLVsConsumer( productName, productIndex, algoName)
+	{
+	}
+};
+
+
+class DataPFJetsConsumer: public DataLVsConsumer
 {
 public:
 
 	DataPFJetsConsumer( std::string productName,
-			unsigned int productIndex) :
-				DataLVsConsumer( productName, productIndex, "")
+			unsigned int productIndex,
+			std::string algoName = "") :
+				DataLVsConsumer( productName, productIndex, algoName)
 				{
 
 				}

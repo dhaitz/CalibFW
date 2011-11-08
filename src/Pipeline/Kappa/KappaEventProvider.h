@@ -94,9 +94,10 @@ protected:
 	{
 		event.m_pfJets[algoName] = m_fi.Get<KDataPFJets> (algoName);
 	}
+
 	void InitGenJets(ZJetEventData & event, std::string algoName)
 	{
-		event.m_genJets[algoName] = m_fi.Get<KLV> (algoName);
+		event.m_genJets[algoName] = m_fi.Get<KDataLVs> (algoName);
 	}
 
 	long m_prevRun, m_prevLumi;

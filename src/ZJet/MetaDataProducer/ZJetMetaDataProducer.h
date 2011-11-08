@@ -48,6 +48,8 @@ public:
 
 		return true;
 	}
+
+	static std::string Name() { return "valid_muon_producer"; }
 };
 
 class ValidJetProducer: public ZJetMetaDataProducerBase
@@ -65,7 +67,9 @@ public:
 			ZJetMetaData & metaData,
 			ZJetPipelineSettings const& globalSettings) const
 	{
+		// all gen jets are valid ...
 
+		// validate PF Jets
 		for (ZJetEventData::PfMapIterator italgo = event.m_pfJets.begin(); italgo
 				!= event.m_pfJets.end(); ++italgo)
 		{
@@ -139,6 +143,7 @@ public:
 
 	}
 
+	static std::string Name() { return "valid_jet_producer"; }
 };
 
 // need the ValidMuonProducer before
@@ -188,26 +193,9 @@ public:
 
         return true;
 	}
+
+	static std::string Name() { return "z_producer"; }
 };
 
-/*
- class ValidNPVProducer: public ZJetMetaDataProducerBase
- {
- public:
- virtual void PopulateMetaData(ZJetEventData const& data, ZJetMetaData & metaData,
- ZJetPipelineSettings const& m_pipelineSettings)
- {
- unsigned int n = 0;
-
- for( KDataVertices::iterator it = data.m_primaryVertex->begin();
- it != data.m_primaryVertex->end();
- it ++)
- {
- if ( !it->fake )
- n++;
- }
- metaData.SetValidNPV(n);
- }
- };*/
 
 }

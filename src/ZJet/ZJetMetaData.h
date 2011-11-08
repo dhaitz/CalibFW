@@ -125,15 +125,19 @@ public:
 		m_validPFJets[algoName].push_back( jet );
 	}
 
-	unsigned int GetValidJetCount(ZJetPipelineSettings const& psettings ) const
+	unsigned int GetValidJetCount(
+			ZJetPipelineSettings const& psettings,
+			ZJetEventData const& evtData) const
 	{
-		return GetValidJetCount( psettings, psettings.GetJetAlgorithm());
+		return GetValidJetCount( psettings, evtData, psettings.GetJetAlgorithm());
 	}
 
-	unsigned int GetValidJetCount(ZJetPipelineSettings const& psettings,
-			std::string algoName) const;
+	unsigned int GetValidJetCount(
+			ZJetPipelineSettings const& psettings,
+			ZJetEventData const& evtData, std::string algoName) const;
 
-	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings) const
+	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings,
+			ZJetEventData const& evtData) const
 	{
 		return this->m_listInvalidJets[ psettings.GetJetAlgorithm() ].size();
 	}
@@ -143,9 +147,9 @@ public:
 		return this->GetValidZ();
 	}
 
-	bool HasValidJet(ZJetPipelineSettings const& psettings) const
+	bool HasValidJet(ZJetPipelineSettings const& psettings , ZJetEventData const& evtData) const
 	{
-		return GetValidJetCount(psettings) > 0;
+		return GetValidJetCount(psettings, evtData ) > 0;
 	}
 
 	bool IsAllCutsPassed() const

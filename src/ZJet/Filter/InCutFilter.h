@@ -43,7 +43,7 @@ public:
 			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
 	{
 		// std::cout << "val z " << metaData.HasValidZ() << std::endl;
-		return metaData.HasValidJet(settings);
+		return metaData.HasValidJet(settings, event);
 	}
 
 	virtual std::string GetFilterId()

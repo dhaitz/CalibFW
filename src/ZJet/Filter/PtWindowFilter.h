@@ -42,7 +42,7 @@ public:
 		}
 		else
 		{
-			if (!metaData.HasValidJet(settings))
+			if (!metaData.HasValidJet(settings, event))
 				return false;
 
 			KDataLV * pJet = metaData.GetValidPrimaryJet(settings,event);

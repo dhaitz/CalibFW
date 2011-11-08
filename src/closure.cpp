@@ -56,6 +56,8 @@
  */
 //#include "Json_wrapper.h"
 
+#include "Pipeline/JetTools.h"
+
 #include "ZJet/ZJetPipeline.h"
 
 #include "ZJet/ZJetEventProvider.h"
@@ -111,6 +113,32 @@ typedef std::vector<ZJetPipelineSettings *> PipelineSettingsVector;
 
 PipelineSettingsVector g_pipeSettings;
 
+
+void AddGlobalMetaProducer( std::vector< std::string > const& producer,
+		EventPipelineRunner<ZJetPipeline, ZJetMetaDataProducerBase> & runner,
+		boost::property_tree::ptree & globalSettings)
+{
+	// extend here, if you want to provide a new global meta producer
+
+	for ( std::vector< std::string >::const_iterator it = producer.begin();
+			it != producer.end(); ++ it )
+	{
+		if ( ValidMuonProducer::Name() == (*it) )
+			runner.AddGlobalMetaProducer( new ValidMuonProducer());
+		else if ( ZProducer::Name() == (*it) )
+			runner.AddGlobalMetaProducer( new ZProducer());
+		else if ( PuReweightingProducer::Name() == (*it))
+			runner.AddGlobalMetaProducer( new PuReweightingProducer());
+		else if ( ValidJetProducer::Name() == (*it) )
+			runner.AddGlobalMetaProducer( new ValidJetProducer());
+		else if ( CorrJetProducer::Name() == (*it) )
+			runner.AddGlobalMetaProducer( new CorrJetProducer( globalSettings.get<std::string> ("JecBase") ));
+		else if ( JetSorter::Name() == (*it))
+			runner.AddGlobalMetaProducer( new JetSorter());
+		else
+			CALIB_LOG_FATAL( "Global MetaData producer of name " << (*it) << " not found")
+	}
+}
 
 int main(int argc, char** argv)
 {
@@ -205,15 +233,10 @@ int main(int argc, char** argv)
 	typedef std::map<std::string, KDataPFJets * > PfMap;
 	PfMap pfJets;
 
-	//pRunner.AddGlobalMetaProducer( new HltInfoProducer());
-	pRunner.AddGlobalMetaProducer( new ValidMuonProducer());
-	pRunner.AddGlobalMetaProducer( new ZProducer());
+	stringvector globalProducer = PropertyTreeSupport::GetAsStringList(&g_propTree,
+									"GlobalProducer");
 
-	pRunner.AddGlobalMetaProducer( new PuReweightingProducer());
-
-
-	pRunner.AddGlobalMetaProducer( new ValidJetProducer());
-	pRunner.AddGlobalMetaProducer( new CorrJetProducer( g_propTree.get<std::string> ("JecBase") ));
+	AddGlobalMetaProducer( globalProducer, pRunner, g_propTree );
 
 
 	pRunner.AddGlobalMetaProducer( new JetSorter());
@@ -239,19 +262,28 @@ int main(int argc, char** argv)
 			pLine->AddConsumer( new ValidMuonsConsumer());
 			pLine->AddConsumer( new ValidJetsConsumer());
 
-			pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 0));
-			pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 1));
-			pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 2));
-			pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 3));
-			pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 4));
-
-			if ( g_inputType == McInput )
+			if ( JetType::IsPF( (*it)->GetJetAlgorithm() ))
 			{
-				// add gen jets plots
-				//pLine->AddConsumer( new DataLVsConsumer( (*it)->GetJetAlgorithm() + "_gen_", 0, (*it)->GetGenJetAlgorithm() ));
+				pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 0));
+				pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 1));
+				pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 2));
+				pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 3));
+				pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 4));
 			}
 
-			if ( g_inputType == McInput )
+			if ( finterface.isMC() && JetType::IsGen( (*it)->GetJetAlgorithm() ))
+			{
+				// add gen jets plots
+				pLine->AddConsumer( new DataGenJetConsumer( (*it)->GetJetAlgorithm(), 0,
+															(*it)->GetJetAlgorithm() ));
+				pLine->AddConsumer( new DataGenJetConsumer( (*it)->GetJetAlgorithm(), 1,
+															(*it)->GetJetAlgorithm() ));
+				pLine->AddConsumer( new DataGenJetConsumer( (*it)->GetJetAlgorithm(), 2,
+															(*it)->GetJetAlgorithm() ));
+
+			}
+
+			if (  finterface.isMC() )
 			{
 				pLine->AddConsumer( new GenMetadataConsumer( ) );
 			}
@@ -295,6 +327,8 @@ int main(int argc, char** argv)
 
 	ZJetPipelineSettings settings;
 	settings.m_globalSettings = &gset;
+
+
 
 #ifdef USE_PERFTOOLS
 	ProfilerStart( "closure.prof");

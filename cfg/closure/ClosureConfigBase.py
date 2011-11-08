@@ -34,6 +34,11 @@ def getDefaultCorrectionL2( data_path ):
 
 def GetBaseConfig():
     d = dict()
+    
+    d["GlobalProducer"] = ["valid_muon_producer" , "z_producer", 
+                           "pu_reweighting_producer", "valid_jet_producer",
+                           "corr_jet_producer"]
+    
     d["ThreadCount"] = 1
     d["Pipelines"] = { "default": {
             "Level": 1,

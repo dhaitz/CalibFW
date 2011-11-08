@@ -122,7 +122,7 @@ void CorrJetProducer::CorrectJetCollection( std::string algoName, std::string ne
 				ZJetMetaData & metaData,
 				ZJetPipelineSettings const& settings) const
 {
-	unsigned int jetcount = metaData.GetValidJetCount(settings,
+	unsigned int jetcount = metaData.GetValidJetCount(settings, event,
 			algoName);
 
 	for (unsigned int i = 0; i < jetcount; ++i)
