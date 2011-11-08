@@ -8,27 +8,36 @@
 namespace CalibFW
 {
 
+/*
+ * Enum to store wether the input data if MC or Data
+ */
 enum InputTypeEnum
 {
 	McInput, DataInput, UnknownInput
 };
 
+/*
+ * Implements a Setting with automatic read + caching from a Boost PropertyTree
+ * You can access the value via myObject.GetSNAME
+ */
+
 #define IMPL_SETTING(TYPE, SNAME) \
-private: \
-TYPE m_##SNAME;                                                                                                                        \
-public: \
-std::string Key##SNAME () const { return "##SNAME"; }                                                        \
-std::string FullKey##SNAME () const { return GetSettingsRoot() + "." + #SNAME; }                                                     \
-mutable VarCache<TYPE> Cache##SNAME; \
-TYPE Get##SNAME ( ) const { if (Cache##SNAME.IsCached()) { return Cache##SNAME.GetValue(); }         \
-       TYPE  val = GetPropTree()->get< TYPE >( FullKey##SNAME ());     \
+private: 						  \
+TYPE m_##SNAME;					  \
+public:  						  \
+std::string Key##SNAME () const { return "##SNAME"; }                                         \
+std::string FullKey##SNAME () const { return GetSettingsRoot() + "." + #SNAME; }              \
+mutable VarCache<TYPE> Cache##SNAME; 														  \
+TYPE Get##SNAME ( ) const { if (Cache##SNAME.IsCached()) { return Cache##SNAME.GetValue(); }  \
+       TYPE  val = GetPropTree()->get< TYPE >( FullKey##SNAME ());     						  \
        Cache##SNAME.SetCache( val ); \
        return val;}
 
-// not supported for readonly settings
-//void Set##SNAME ( TYPE val) { GetPropTree()->put( FullKey##SNAME (), val);
-//                                                               Cache##SNAME.SetCache( val );}
-
+/*
+ * Implements a Setting with automatic read + caching from a Boost PropertyTree
+ * You can set a default value which will be used if the entry was not found in the PropertyTree
+ * You can access the value via myObject.GetSNAME
+ */
 
 #define IMPL_SETTING_DEFAULT(TYPE, SNAME, DEFAULT_VAL) \
 private: \
@@ -44,11 +53,18 @@ TYPE Get##SNAME ( ) const { if (Cache##SNAME.IsCached()) { return Cache##SNAME.G
 void Set##SNAME ( TYPE val) { GetPropTree()->put( FullKey##SNAME (), val);     \
                                                                Cache##SNAME.SetCache( val );}  \
 
+/*
+ * Implements a implicit caching using the VarCache class
+ */
 #define RETURN_CACHED(CACHE_MEMBER,VALUEPATH) \
 { if (! CACHE_MEMBER.IsCached() ) \
   {             CACHE_MEMBER.SetCache( VALUEPATH );} \
 return CACHE_MEMBER.GetValue(); }
 
+/*
+ * Convenience class to implement for an arbitrary type TData. This class is useful
+ * in conjunction with reading from a Boost PropertyTree or similar
+ */
 template<class TData>
 class VarCache
 {
@@ -59,29 +75,42 @@ public:
 
 	}
 
+	/*
+	 * Sets the cached varible to a certain value.
+	 */
 	inline void SetCache(TData t) const
 	{
 		m_val = t;
 		m_isCached = true;
 	}
 
+	/*
+	 * Returns the cached value
+	 */
 	inline TData GetValue() const
 	{
 		if (!m_isCached)
 			CALIB_LOG_FATAL("not Cached variable used")
 
-	return m_val;
-}
+			return m_val;
+	}
 
-inline bool IsCached() const
-{
-	return m_isCached;
-}
+	/*
+	 * Returns true, if the value has already been cached
+	 */
+	inline bool IsCached() const
+	{
+		return m_isCached;
+	}
 
-mutable bool m_isCached;
-mutable TData m_val;
+private:
+	mutable bool m_isCached;
+	mutable TData m_val;
 };
 
+/*
+ * This class provides various convenices functions when working with Boost PropertyTrees.
+ */
 class PropertyTreeSupport
 {
 public:

@@ -13,6 +13,9 @@
 namespace CalibFW
 {
 
+/*
+ * Event Data for the ZJet analyses
+ */
 class ZJetEventData
 {
 
@@ -155,24 +158,6 @@ public:
 
 	KVertexSummary * m_vertexSummary;
 	KJetArea * m_jetArea;
-
-	// convinience functions
-	//double GetPrimaryJetPt() const { return PF_Jets->at(0).Pt(); }
-	//KDataPFJet const& GetPrimaryJet() const { return PF_Jets->at(0); }
-
-	/*
-	 template <class TJetType>
-	 std::vector<TJetType> * GetJets(std::string jetAlgo) const
-	 {
-	 return m_fi->Get< std::vector<TJetType> >( jetAlgo );
-	 }*/
-	/*
-	 KDataLV GetPrimaryJet( std::string sJetAlgo)
-	 {
-	 return m_fi->Get<KDataLVs>(sJetAlgo)->at(0);
-	 }
-	 */
-private:
 
 };
 }
