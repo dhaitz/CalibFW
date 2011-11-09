@@ -118,8 +118,7 @@ IMPL_SETTING(std::string, WriteEvents)
 		return NoEvents;
 	}
 
-	// Cut settings
-IMPL_SETTING(std::string, CutHLT)
+// Cut settings
 IMPL_SETTING(double, CutMuonPt)
 IMPL_SETTING(double, CutZMassWindow)
 IMPL_SETTING(double, CutMuEta)

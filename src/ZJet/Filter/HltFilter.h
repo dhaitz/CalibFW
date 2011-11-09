@@ -23,32 +23,16 @@ public:
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
 			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
-	{
-		// move this to a MetaDataProducer
-		bool bPathFound = false;
-		std::string curName;
+	{/*
+	    // no hlt found
+	    if ( metaData.m_selHltName == "" )
+            return false;
 
-		for ( std::vector< std::string >::iterator it = m_hltnames.begin();
-				it != m_hltnames.end();
-				++ it )
-		{
-			curName = metaData.m_hltInfo->getHLTName( *it );
-
-			if ( metaData.m_hltInfo->isAvailable(curName) )
-			{
-				if (! metaData.m_hltInfo->isPrescaled(curName))
-					bPathFound = true;
-			}
-		}
-
-		if ( ! bPathFound )
-		{
-			CALIB_LOG_FATAL("No unprescaled trigger found for Run " << event.m_eventmetadata->nRun << " Lumisection " << event.m_eventmetadata->nLumi );
-		}
 		// TODO: Report that we changed the HLT, if we did
 		//std::cout << "using trigger " << curName << std::endl;
-		return event.m_eventmetadata->hltFired( curName, event.m_lumimetadata );
-
+		return event.m_eventmetadata->hltFired( metaData.m_selHltName, event.m_lumimetadata );
+*/
+return true;
 	}
 
 	virtual std::string GetFilterId()
