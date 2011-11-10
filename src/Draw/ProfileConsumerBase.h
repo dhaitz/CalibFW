@@ -58,6 +58,7 @@ public:
 								this->GetPipelineSettings().GetRootFileFolder())
 		);
 		m_profile->AddModifiers( modlist );
+		m_profile->Init();
 	}
 
 	virtual void ProcessEvent(TEvent const& event, TMetaData const& metaData,

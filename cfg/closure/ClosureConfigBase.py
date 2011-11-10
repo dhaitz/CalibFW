@@ -29,7 +29,7 @@ def GetDataPath():
 def ApplyFast( inputfiles, args ):
     if len(args) > 1:
         if args[1] == "fast":
-            inputfiles = inputfiles[:3]
+            inputfiles = inputfiles[:2]
             
     return inputfiles
 
@@ -127,11 +127,16 @@ def GetDataBaseConfig():
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
+
+    d["HltPaths"] = ["HLT_DoubleMu7", "HLT_Mu13_Mu8"]
+    
     d["InputType"] = "data"
-    d["Pipelines"]["default"]["CutHLT"] = "DoubleMu"
     d["Pipelines"]["default"]["Filter"].append ("json")
+    d["Pipelines"]["default"]["Filter"].append ("hlt")
 
     d["JecBase"] = "data/jec_data/GR_R_42_V19_"
+
+    d["GlobalProducer"]+= ["hlt_selector"]
 
     #for key, val in d["Pipelines"].items():
       #  "Filter":["valid_z", "valid_jet"]
@@ -168,6 +173,9 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, also
 
 def AddConsumer( pline, name, config):
     pline["Consumer"][name] = config
+    
+def AddMetaDataProducer( pline, name, config):
+    pline["MetaDataProducer"][name] = config
 
 def AddConsumerEasy( pline, consumer):
     pline["Consumer"][ consumer["ProductName"] ] = consumer
@@ -179,6 +187,10 @@ def AddConsumerNoConfig( pline, consumer_name):
 def RemoveConsumer( pline, consumer_name):
     if consumer_name in pline["Consumer"] :
         del pline["Consumer"][ consumer_name ]
+
+def AddMetaDataProducerEasy( pline, producer_name):
+    pline["MetaDataProducer"][ consumer["Name"] ] = producer_name
+
 
 def ExpandCutNoCut( pipelineDict):
     newDict = dict()
@@ -291,13 +303,21 @@ def AddHltConsumer( pipelineDict, algoNames, hlt_names):
     for algo in algoNames:
         for hname in hlt_names:
             for p, pval in pipelineDict["Pipelines"].items():
+                #print p
                 if p == "default_" + algo + "nocuts":
-                    AddConsumer(pval, "hlt_" + algo + "_" + hname + "_prescale",
+                    #print "ADDING"
+                    AddConsumer(pval, "hlt_" + algo + "_" + hname + "_prescale_runnumber",
                                                 { "Name" : "generic_profile_consumer",
                                                   "YSource" : "hltprescale",
                                                   "YSourceConfig" : hname,
                                                   "XSource" : "runnumber",
                                                   "ProductName" : "hlt_" + algo + "_" + hname + "_prescale"})
+                    AddConsumer(pval, "hlt_" + algo + "_" + hname + "_prescale_lumi",
+                                                { "Name" : "generic_profile_consumer",
+                                                  "YSource" : "hltprescale",
+                                                  "YSourceConfig" : hname,
+                                                  "XSource" : "intlumi",
+                                                  "ProductName" : "hlt_" + algo + "_" + hname + "_prescale_lumi"})
 
 
 def ExpandPtBins( pipelineDict, ptbins, includeSource):

@@ -210,6 +210,12 @@ IMPL_PROPERTY(TFile *, RootOutFile)
 	{
 		RETURN_CACHED( m_cuts,PropertyTreeSupport::GetAsStringList( GetPropTree(),GetSettingsRoot() + ".Cuts" ) )
 	}
+
+	VarCache<stringvector> m_metaDataProducers;
+	stringvector GetMetaDataProducers() const
+	{
+		RETURN_CACHED( m_metaDataProducers,PropertyTreeSupport::GetAsStringList( GetPropTree(),GetSettingsRoot() + ".MetaDataProducers" ) )
+	}
 	/*
 	 void AddFilter( std::string sFilterId)
 	 {

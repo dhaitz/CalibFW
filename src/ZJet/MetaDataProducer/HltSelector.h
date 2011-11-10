@@ -5,13 +5,14 @@
 namespace CalibFW
 {
 
-/*
- * Matches all jets in the event by the geomerty
- */
-
 class HltSelector: public ZJetMetaDataProducerBase
 {
 public:
+
+	HltSelector( stringvector paths )
+	 : m_hltpaths ( paths ), m_verbose ( false )
+	{
+	}
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData,
@@ -20,30 +21,56 @@ public:
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
 			{
-/*
-                // move this to a MetaDataProducer
-                bool bPathFound = false;
-                std::string curName;
+                bool unprescaledPathFound = false;
+                std::string bestHltName, curName;
 
-                for ( std::vector< std::string >::iterator it = m_hltnames.begin();
-                        it != m_hltnames.end();
+                if ( m_hltpaths.size() == 0)
+                {
+                	CALIB_LOG_FATAL("No Hlt Trigger path list configured")
+                }
+
+                for ( stringvector::const_iterator it = m_hltpaths.begin();
+                        it != m_hltpaths.end();
                         ++ it )
                 {
                     curName = metaData.m_hltInfo->getHLTName( *it );
 
-                    if ( metaData.m_hltInfo->isAvailable(curName) )
+                    if ( m_verbose )
+                    	std::cout << *it << " becomes " << curName << std::endl;
+
+                    if ( 	( curName != "" ) &&
+                    		metaData.m_hltInfo->isAvailable(curName) )
                     {
-                        if (! metaData.m_hltInfo->isPrescaled(curName))
-                            bPathFound = true;
+                    	bestHltName = curName;
+                    	if ( !metaData.m_hltInfo->isPrescaled(curName))
+                    	{
+                    		unprescaledPathFound = true;
+                            break;
+                    	}
                     }
                 }
 
-                if ( ! bPathFound )
+                if ( ! unprescaledPathFound )
                 {
-                    CALIB_LOG_FATAL("No unprescaled trigger found for Run " << event.m_eventmetadata->nRun << " Lumisection " << event.m_eventmetadata->nLumi );
+                    //CALIB_LOG_FATAL("No unprescaled trigger found" );
+                	if ( m_verbose)
+                	{
+                		CALIB_LOG("Warning: No unprescaled trigger found for " << bestHltName )
+                	}
                 }
-*/
+
+                metaData.SetSelectedHlt( bestHltName );
+
+                return true;
 			}
+
+	static std::string Name()
+	{
+		return "hlt_selector";
+	}
+
+	stringvector m_hltpaths;
+	bool m_verbose;
 
 };
 

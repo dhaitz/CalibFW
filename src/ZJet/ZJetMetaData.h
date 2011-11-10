@@ -177,6 +177,8 @@ IMPL_PROPERTY(KDataLV, Z)
 
 IMPL_PROPERTY(double, Weight)
 
+IMPL_PROPERTY(std::string, SelectedHlt)
+
 	KDataMuons const& GetValidMuons() const
 	{
 		return m_listValidMuons;

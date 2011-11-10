@@ -70,6 +70,8 @@
 #include "ZJet/MetaDataProducer/PuReweightingProducer.h"
 #include "ZJet/MetaDataProducer/CorrJetProducer.h"
 #include "ZJet/MetaDataProducer/JetSorter.h"
+#include "ZJet/MetaDataProducer/HltSelector.h"
+
 
 #include "KappaTools/RootTools/HLTTools.h"
 
@@ -135,6 +137,8 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 			runner.AddGlobalMetaProducer( new CorrJetProducer( globalSettings.get<std::string> ("JecBase") ));
 		else if ( JetSorter::Name() == (*it))
 			runner.AddGlobalMetaProducer( new JetSorter());
+		else if ( HltSelector::Name() == (*it))
+			runner.AddGlobalMetaProducer( new HltSelector( PropertyTreeSupport::GetAsStringList( &globalSettings, "HltPaths", true ) ));
 		else
 			CALIB_LOG_FATAL( "Global MetaData producer of name " << (*it) << " not found")
 	}
@@ -285,7 +289,6 @@ int main(int argc, char** argv)
 
 	ZJetPipelineSettings settings;
 	settings.m_globalSettings = &gset;
-
 
 
 #ifdef USE_PERFTOOLS

@@ -22,7 +22,7 @@ jetpt_var = cbase.ExpandRange( conf["Pipelines"], "CutSecondLeadingToZPt", [0.1,
 
 cbase.AddCorrectionPlots( conf, base_algorithms, l3residual = True )
 cbase.AddCutConsumer( conf , ["AK5PFJetsL1L2L3", "AK5PFJetsL1", "AK5PFJetsL1L2"] )
-#cbase.AddHltConsumer( conf , base_algorithms, ["HLT_Mu17_Mu8", "HLT_Mu13_Mu8", "HLT_DoubleMu7", "HLT_DoubleMu5" ] )
+cbase.AddHltConsumer( conf , base_algorithms, ["HLT_Mu17_Mu8", "HLT_Mu13_Mu8", "HLT_DoubleMu7", "HLT_DoubleMu5" ] )
 cbase.AddLumiConsumer( conf , base_algorithms )
 
 

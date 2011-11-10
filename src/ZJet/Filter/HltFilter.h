@@ -23,16 +23,14 @@ public:
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
 			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
-	{/*
+	{
 	    // no hlt found
-	    if ( metaData.m_selHltName == "" )
+	    if ( metaData.GetSelectedHlt() == "" )
             return false;
 
 		// TODO: Report that we changed the HLT, if we did
 		//std::cout << "using trigger " << curName << std::endl;
-		return event.m_eventmetadata->hltFired( metaData.m_selHltName, event.m_lumimetadata );
-*/
-return true;
+		return event.m_eventmetadata->hltFired( metaData.GetSelectedHlt(), event.m_lumimetadata );
 	}
 
 	virtual std::string GetFilterId()

@@ -59,13 +59,10 @@ public:
 		m_dBinUpperX( 100)
 
 		{
+			//m_points.reserve( 1000 );
 		}
 
 	void Init()
-	{
-	}
-
-	void Store(TFile * pRootFile)
 	{
 		this->RunModifierBeforeCreation( this );
 
@@ -77,17 +74,23 @@ public:
 					m_iBinCountX, m_dBinLowerX, m_dBinLowerX )
 			);
 
+		this->RunModifierBeforeDataEntry( this );
+	}
+
+	void Store(TFile * pRootFile)
+	{
+
+
 		//m_graph->SetCaption( m_sCaption.c_str() );
 
-		this->RunModifierBeforeDataEntry( this );
+		/*
 
-		for ( std::list<DataPoint>::const_iterator it = m_points.begin();
+		for ( std::vector<DataPoint>::const_iterator it = m_points.begin();
 				!( it == m_points.end()); it++)
 		{
 			m_profile->Fill( it->m_fx, it->m_fy, it->m_fweight);
-
 		}
-
+*/
 		this->RunModifierAfterDataEntry(this );
 		this->RunModifierAfterDraw( this );
 
@@ -98,14 +101,15 @@ public:
 
 	void AddPoint( double x, double y, double weight)
 	{
-		m_points.push_back( DataPoint( x, y, weight ) );
+		//m_points.push_back( DataPoint( x, y, weight ) );
+		m_profile->Fill( x, y, weight);
 	}
 
 	unsigned int m_iBinCountX;
 	double m_dBinLowerX;
 	double m_dBinUpperX;
 
-	std::list<DataPoint> m_points;
+	std::vector<DataPoint> m_points;
 
 	boost::scoped_ptr<TProfile> m_profile;
 };

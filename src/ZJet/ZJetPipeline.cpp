@@ -3,6 +3,7 @@
 #include "ZJet/MetaDataProducer/ZJetCuts.h"
 #include "ZJet/MetaDataProducer/PuReweightingProducer.h"
 #include "ZJet/MetaDataProducer/ZJetMetaDataProducer.h"
+#include "ZJet/MetaDataProducer/HltSelector.h"
 
 #include "ZJet/Consumer/ZJetDrawConsumer.h"
 #include "ZJet/Consumer/CutStatistics.h"
@@ -15,6 +16,7 @@
 #include "ZJet/Filter/InCutFilter.h"
 #include "ZJet/Filter/PtWindowFilter.h"
 #include "ZJet/Filter/JsonFilter.h"
+#include "ZJet/Filter/HltFilter.h"
 
 using namespace CalibFW;
 
@@ -56,6 +58,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddFilter( new ValidZFilter);
 			else if ( sid == ValidJetFilter().GetFilterId())
 				pLine->AddFilter( new ValidJetFilter);
+			else if ( sid == HltFilter().GetFilterId())
+				pLine->AddFilter( new HltFilter);
 			else
 				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 		}
@@ -92,6 +96,20 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			else
 				CALIB_LOG_FATAL( "MetaDataProducer " << sid << " not found." )
 		}
+
+		// Other MetaDataProducers
+		/*
+		BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
+		pset.GetPropTree()->get_child( pset.GetSettingsRoot() + ".Consumer") )
+		{
+			std::string sName = v.second.get<std::string>("Name");
+			std::string consPath = pset.GetSettingsRoot() + ".MetaDataProducer." + v.first.data();
+
+			if ( sName == HltSelector::GetName() )
+				pLine->AddMetaDataProducer( new HltSelector(  pset.GetPropTree(), consPath  ) );
+			else
+				CALIB_LOG_FATAL( "MetaDataProducer " << sName << " not found." )
+		}*/
 	}
 
 	BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
