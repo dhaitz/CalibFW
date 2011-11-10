@@ -136,7 +136,17 @@ IMPL_PROPERTY(unsigned long, CutEnabledBitmask)
 
 IMPL_PROPERTY(TFile *, RootOutFile)
 
-	InputTypeEnum GetInputType()
+	bool IsMC() const
+	{
+		return (GetInputType() == McInput );
+	}
+
+	bool IsData() const
+	{
+		return (GetInputType() == DataInput );
+	}
+
+	InputTypeEnum GetInputType() const
 	{
 		std::string sInp = GetPropTree()->get<std::string> ("InputType");
 

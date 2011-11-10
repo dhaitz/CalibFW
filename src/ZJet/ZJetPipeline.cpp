@@ -100,8 +100,68 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		std::string sName = v.second.get<std::string>("Name");
 		std::string consPath = pset.GetSettingsRoot() + ".Consumer." + v.first.data();
 
+		if (sName == "quantities_all" )
+		{
+			pLine->AddConsumer( new DataZConsumer( pset.GetJetAlgorithm() ));
+
+			pLine->AddConsumer( new DataMuonConsumer(+1, pset.GetJetAlgorithm()));
+			pLine->AddConsumer( new DataMuonConsumer(-1, pset.GetJetAlgorithm()));
+
+			pLine->AddConsumer( new ValidMuonsConsumer());
+			pLine->AddConsumer( new ValidJetsConsumer());
+
+			if ( JetType::IsPF( pset.GetJetAlgorithm() ))
+			{
+				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 0));
+				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 1));
+				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 2));
+			}
+
+			if ( pset.IsMC() && JetType::IsGen( pset.GetJetAlgorithm() ) )
+			{
+				// add gen jets plots
+				pLine->AddConsumer( new DataGenJetConsumer( pset.GetJetAlgorithm(), 0,
+															pset.GetJetAlgorithm() ));
+				pLine->AddConsumer( new DataGenJetConsumer( pset.GetJetAlgorithm(), 1,
+															pset.GetJetAlgorithm() ));
+				pLine->AddConsumer( new DataGenJetConsumer( pset.GetJetAlgorithm(), 2,
+															pset.GetJetAlgorithm() ));
+
+			}
+
+			if (  pset.IsMC() )
+			{
+				pLine->AddConsumer( new GenMetadataConsumer( ) );
+			}
+			else
+			{
+				pLine->AddConsumer( new MetadataConsumer( ) );
+			}
+		}
+
+		else if (sName == "quantities_basic" )
+		{
+			pLine->AddConsumer( new DataZConsumer( pset.GetJetAlgorithm() ));
+
+			if ( JetType::IsPF( pset.GetJetAlgorithm() ))
+			{
+				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(),
+						0,
+						"", // means to use the default jet algo
+						true ));
+			}
+
+			if ( pset.IsMC() && JetType::IsGen( pset.GetJetAlgorithm() ) )
+			{
+				// add gen jets plots
+				pLine->AddConsumer( new DataGenJetConsumer( pset.GetJetAlgorithm(), 0,
+															pset.GetJetAlgorithm() ));
+			}
+		}
+
+
 		// optional 1st Level Producer
-		if (sName == BinResponseConsumer::GetName())
+		else if (sName == BinResponseConsumer::GetName())
 			pLine->AddConsumer( new BinResponseConsumer( pset.GetPropTree(), consPath ) );
 
 		else if (sName == GenericProfileConsumer::GetName())

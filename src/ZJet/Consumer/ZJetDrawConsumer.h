@@ -573,8 +573,10 @@ public:
 
 	DataPFJetsConsumer( std::string productName,
 			unsigned int productIndex,
-			std::string algoName = "") :
-				DataLVsConsumer( productName, productIndex, algoName)
+			std::string algoName = "",
+			bool onlyBasic = false) :
+				DataLVsConsumer( productName, productIndex, algoName),
+				m_onlyBasic( onlyBasic )
 				{
 
 				}
@@ -584,82 +586,88 @@ public:
 	{
 		DataLVsConsumer::Init(pset);
 
-		m_neutralEmFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_neutral_em_fraction_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetFractionModifier());
+		if ( ! m_onlyBasic )
+			{
+			m_neutralEmFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_neutral_em_fraction_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetFractionModifier());
 
-		AddPlot( m_neutralEmFraction );
+			AddPlot( m_neutralEmFraction );
 
-		m_chargedEMFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_charged_em_fraction_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetFractionModifier());
+			m_chargedEMFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_charged_em_fraction_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetFractionModifier());
 
-		AddPlot( m_chargedEMFraction );
+			AddPlot( m_chargedEMFraction );
 
-		m_chargedHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_charged_had_fraction_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetFractionModifier());
+			m_chargedHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_charged_had_fraction_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetFractionModifier());
 
-		AddPlot( m_chargedHadFraction );
+			AddPlot( m_chargedHadFraction );
 
-		m_neutralHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_neutral_had_fraction_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetFractionModifier());
+			m_neutralHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_neutral_had_fraction_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetFractionModifier());
 
-		AddPlot( m_neutralHadFraction );
+			AddPlot( m_neutralHadFraction );
 
-		m_muonFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_muon_fraction_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetFractionModifier());
+			m_muonFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_muon_fraction_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetFractionModifier());
 
-		AddPlot( m_muonFraction );
+			AddPlot( m_muonFraction );
 
-		m_const = new Hist1D( GenName(GetPhysicsObjectName(), "_const_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetConstituentsModifier());
+			m_const = new Hist1D( GenName(GetPhysicsObjectName(), "_const_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetConstituentsModifier());
 
-		AddPlot( m_const );
+			AddPlot( m_const );
 
-		m_charged = new Hist1D( GenName(GetPhysicsObjectName(), "_charged_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetConstituentsModifier());
+			m_charged = new Hist1D( GenName(GetPhysicsObjectName(), "_charged_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetConstituentsModifier());
 
-		AddPlot( m_charged );
+			AddPlot( m_charged );
 
-		m_summedFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_summed_fractions_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetFractionModifier());
+			m_summedFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_summed_fractions_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetFractionModifier());
 
-		AddPlot( m_summedFraction );
+			AddPlot( m_summedFraction );
 
-		m_area = new Hist1D( GenName(GetPhysicsObjectName(), "_area_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetAreaModifier());
+			m_area = new Hist1D( GenName(GetPhysicsObjectName(), "_area_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetAreaModifier());
 
-		AddPlot( m_area );
+			AddPlot( m_area );
+		}
 	}
 
 	virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
 			ZJetMetaData const& metaData,
 			KDataLV * jet)
 	{
-		KDataPFJet * pfJet = static_cast<KDataPFJet*>( jet );
+		if ( ! m_onlyBasic)
+			{
+			KDataPFJet * pfJet = static_cast<KDataPFJet*>( jet );
 
-		m_neutralEmFraction->Fill( pfJet->neutralEMFraction, metaData.GetWeight() );
-		m_chargedEMFraction->Fill( pfJet->chargedEMFraction, metaData.GetWeight() );
-		m_chargedHadFraction->Fill( pfJet->chargedHadFraction, metaData.GetWeight() );
-		m_neutralHadFraction->Fill( pfJet->neutralHadFraction, metaData.GetWeight() );
+			m_neutralEmFraction->Fill( pfJet->neutralEMFraction, metaData.GetWeight() );
+			m_chargedEMFraction->Fill( pfJet->chargedEMFraction, metaData.GetWeight() );
+			m_chargedHadFraction->Fill( pfJet->chargedHadFraction, metaData.GetWeight() );
+			m_neutralHadFraction->Fill( pfJet->neutralHadFraction, metaData.GetWeight() );
 
-		//to come in next kappa skim
-		// m_muonEtFraction->Fill( pfJet->muonEtFraction, metaData.GetWeight() );
+			//to come in next kappa skim
+			// m_muonEtFraction->Fill( pfJet->muonEtFraction, metaData.GetWeight() );
 
-		m_const->Fill( pfJet->nConst, metaData.GetWeight() );
-		m_charged->Fill( pfJet->nCharged, metaData.GetWeight() );
-		m_area->Fill( pfJet->area, metaData.GetWeight() );
+			m_const->Fill( pfJet->nConst, metaData.GetWeight() );
+			m_charged->Fill( pfJet->nCharged, metaData.GetWeight() );
+			m_area->Fill( pfJet->area, metaData.GetWeight() );
 
-		m_summedFraction->Fill( pfJet->neutralEMFraction + pfJet->chargedEMFraction +
-				pfJet->chargedHadFraction + pfJet->neutralHadFraction ,
-				metaData.GetWeight() );
+			m_summedFraction->Fill( pfJet->neutralEMFraction + pfJet->chargedEMFraction +
+					pfJet->chargedHadFraction + pfJet->neutralHadFraction ,
+					metaData.GetWeight() );
+		}
 
 	}
 
@@ -672,6 +680,8 @@ public:
 	Hist1D * m_const;
 	Hist1D * m_charged;
 	Hist1D * m_area;
+
+	bool m_onlyBasic;
 };
 
 /*

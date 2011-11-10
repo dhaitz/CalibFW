@@ -250,48 +250,6 @@ int main(int argc, char** argv)
 		{
 			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
 
-			// does not work at the moment due to an error about wrong root dictionaries
-			//pLine->AddConsumer(	new PrimaryVertexConsumer());
-
-
-			pLine->AddConsumer( new DataZConsumer( (*it)->GetJetAlgorithm() ));
-
-			pLine->AddConsumer( new DataMuonConsumer(+1, (*it)->GetJetAlgorithm()));
-			pLine->AddConsumer( new DataMuonConsumer(-1, (*it)->GetJetAlgorithm()));
-
-			pLine->AddConsumer( new ValidMuonsConsumer());
-			pLine->AddConsumer( new ValidJetsConsumer());
-
-			if ( JetType::IsPF( (*it)->GetJetAlgorithm() ))
-			{
-				pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 0));
-				pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 1));
-				pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 2));
-				pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 3));
-				pLine->AddConsumer( new DataPFJetsConsumer( (*it)->GetJetAlgorithm(), 4));
-			}
-
-			if ( finterface.isMC() && JetType::IsGen( (*it)->GetJetAlgorithm() ))
-			{
-				// add gen jets plots
-				pLine->AddConsumer( new DataGenJetConsumer( (*it)->GetJetAlgorithm(), 0,
-															(*it)->GetJetAlgorithm() ));
-				pLine->AddConsumer( new DataGenJetConsumer( (*it)->GetJetAlgorithm(), 1,
-															(*it)->GetJetAlgorithm() ));
-				pLine->AddConsumer( new DataGenJetConsumer( (*it)->GetJetAlgorithm(), 2,
-															(*it)->GetJetAlgorithm() ));
-
-			}
-
-			if (  finterface.isMC() )
-			{
-				pLine->AddConsumer( new GenMetadataConsumer( ) );
-			}
-			else
-			{
-				pLine->AddConsumer( new MetadataConsumer( ) );
-			}
-
 			pLine->InitPipeline( *(*it), plineInit);
 			pRunner.AddPipeline( pLine );
 		}

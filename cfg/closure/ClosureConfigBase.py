@@ -1,9 +1,12 @@
 import copy
 import subprocess
 import glob
+import socket
 
 def CreateFileList( wildcardExpression):
     flist = []
+
+    print "Creating file list from " + wildcardExpression
 
     for name in glob.glob(wildcardExpression):
         flist.append(name)
@@ -13,6 +16,22 @@ def CreateFileList( wildcardExpression):
 
 def GetDefaultBinning():
     return [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]
+
+def GetDataPath():
+    
+    # feel free to insert your machine here !
+    if socket.gethostname() == "saturn": 
+        return "/home/poseidon/uni/data/Kappa/"
+    else:
+        return ""
+
+# only leaves the first 5 root files, for a faster processing while testing
+def ApplyFast( inputfiles, args ):
+    if len(args) > 1:
+        if args[1] == "fast":
+            inputfiles = inputfiles[:3]
+            
+    return inputfiles
 
 
 def getDefaultCorrectionL2( data_path ):
@@ -63,6 +82,7 @@ def GetBaseConfig():
             "Consumer": {}
                       }
             }
+    AddConsumerNoConfig( d["Pipelines"]["default"], "quantities_all")
 
     return d
 
@@ -151,6 +171,14 @@ def AddConsumer( pline, name, config):
 
 def AddConsumerEasy( pline, consumer):
     pline["Consumer"][ consumer["ProductName"] ] = consumer
+
+def AddConsumerNoConfig( pline, consumer_name):
+    cons_dict = { "Name" : consumer_name }
+    pline["Consumer"][ consumer_name ] = cons_dict
+
+def RemoveConsumer( pline, consumer_name):
+    if consumer_name in pline["Consumer"] :
+        del pline["Consumer"][ consumer_name ]
 
 def ExpandCutNoCut( pipelineDict):
     newDict = dict()
@@ -342,6 +370,9 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
                               "ProductName" : "L3Res_" + algo + "_jeteta"})
 
 
+def ReplaceWithQuantitiesBasic(pline):
+    RemoveConsumer( pline, "quantities_all" )
+    AddConsumerNoConfig(pline, "quantities_basic")
 
 def ExpandDefaultMcConfig(  algoNames, conf_template, useFolders, FolderPrefix = "", binning = GetDefaultBinning() ):
     conf = copy.deepcopy(conf_template)
@@ -375,9 +406,13 @@ def ExpandDefaultMcConfig(  algoNames, conf_template, useFolders, FolderPrefix =
 
         if "ptbin" in pval["Filter"]:
             ptVal = "Pt" + str(pval["FilterPtBinLow"]) + "to" + str(pval["FilterPtBinHigh"])
+            ReplaceWithQuantitiesBasic ( pval )
 
         if "incut" in pval["Filter"]:
             ptVal = ptVal + "_incut"
+            
+            if not ptVal == "NoBinning_incut":
+                ReplaceWithQuantitiesBasic ( pval )
         else:
             ptVal = ptVal + "_allevents"
 
