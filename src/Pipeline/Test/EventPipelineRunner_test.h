@@ -56,7 +56,7 @@ class TestEventProvider : public EventProvider< TestData >
 			{
 		return m_data;
 			}
-	virtual bool GotoEvent( long long lEventNumber, std::shared_ptr< HLTTools > & hltInfo )
+	virtual bool GotoEvent( long long lEventNumber,HLTTools * hltInfo )
 	{
 		return true;
 	}

@@ -235,7 +235,7 @@ IMPL_PROPERTY(std::string, SelectedHlt)
 	typedef std::map< std::string , MatchingResult > MatchingResults;
 	MatchingResults m_matchingResults;
 
-	std::shared_ptr< HLTTools > m_hltInfo;
+	HLTTools * m_hltInfo;
 };
 
 

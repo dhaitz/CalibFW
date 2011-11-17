@@ -75,6 +75,9 @@ IMPL_SETTING( int, FilterRecoVertHigh)
 IMPL_SETTING(double, FilterJetEtaLow)
 IMPL_SETTING(double, FilterJetEtaHigh)
 
+IMPL_SETTING(unsigned int, FilterRunRangeLow)
+IMPL_SETTING(unsigned int, FilterRunRangeHigh)
+
 IMPL_SETTING(double, FilterSecondJetRatioLow)
 IMPL_SETTING(double, FilterSecondJetRatioHigh)
 IMPL_SETTING(unsigned long, FilterInCutIgnored)

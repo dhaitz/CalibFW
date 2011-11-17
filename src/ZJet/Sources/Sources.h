@@ -189,7 +189,42 @@ public:
 
 	virtual double GetDefaultHighBin() const
 	{
-		return 100.0;
+		return 200.0;
+	}
+
+
+
+private:
+	std::string m_hltName;
+};
+
+class SourceSelectedHltPrescale: public ZJetSourceBase
+{
+public:
+  
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		assert ( metaData.GetSelectedHlt() != "") ;
+
+		val = metaData.m_hltInfo->getPrescale( metaData.GetSelectedHlt() );
+
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+
+	virtual double GetDefaultHighBin() const
+	{
+		return 200.0;
 	}
 
 

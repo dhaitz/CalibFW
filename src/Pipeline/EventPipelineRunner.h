@@ -22,7 +22,7 @@ public:
 	}
 
 	virtual TEvent const& GetCurrentEvent() const = 0;
-	virtual bool GotoEvent( long long lEventNumber, std::shared_ptr< HLTTools > & hltInfo ) = 0;
+	virtual bool GotoEvent( long long lEventNumber, HLTTools * hltInfo ) = 0;
 	virtual long long GetOverallEventCount() const = 0;
 };
 
@@ -81,7 +81,7 @@ public:
 		long long nEvents = evtProvider.GetOverallEventCount();
 		CALIB_LOG("Running over " << nEvents << " Events")
 
-		std::shared_ptr< HLTTools > hltTools( new HLTTools());
+		HLTTools * hltTools = new HLTTools;
 
         bool bEventValid = true;
 
@@ -90,7 +90,7 @@ public:
 		    // TODO refactor the evtProvider to clean up this mess with the hltTools
 			evtProvider.GotoEvent( lCur , hltTools );
 			TMetaData metaDataGlobal;
-			metaDataGlobal.m_hltInfo = hltTools;
+            metaDataGlobal.m_hltInfo = hltTools;
 
 			// create global meta data
 			for( GlobalMetaProducerIterator it = m_globalMetaProducer.begin();
@@ -147,7 +147,7 @@ public:
 			}
 		}
 
-
+		delete  hltTools;
 	}
 
 

@@ -25,12 +25,12 @@ public:
 			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
 	{
 	    // no hlt found
-	    if ( metaData.GetSelectedHlt() == "" )
-            return false;
+	    if ( metaData.GetSelectedHlt().empty() )
+            	return false;
 
 		// TODO: Report that we changed the HLT, if we did
 		//std::cout << "using trigger " << curName << std::endl;
-		return event.m_eventmetadata->hltFired( metaData.GetSelectedHlt(), event.m_lumimetadata );
+	    return event.m_eventmetadata->hltFired( metaData.GetSelectedHlt(), event.m_lumimetadata );
 	}
 
 	virtual std::string GetFilterId()

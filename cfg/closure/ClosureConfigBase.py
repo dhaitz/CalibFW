@@ -18,19 +18,23 @@ def GetDefaultBinning():
     return [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]
 
 def GetDataPath():
-    
+
+    hname = socket.gethostname()
     # feel free to insert your machine here !
-    if socket.gethostname() == "saturn": 
+    if hname == "saturn":
         return "/home/poseidon/uni/data/Kappa/"
+    elif hname == "ekpcms5":
+        return "/storage/5/hauth/zpj/"
     else:
-        return ""
+        print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
+	exit(0)
 
 # only leaves the first 5 root files, for a faster processing while testing
 def ApplyFast( inputfiles, args ):
     if len(args) > 1:
         if args[1] == "fast":
             inputfiles = inputfiles[:2]
-            
+
     return inputfiles
 
 
@@ -53,11 +57,11 @@ def getDefaultCorrectionL2( data_path ):
 
 def GetBaseConfig():
     d = dict()
-    
-    d["GlobalProducer"] = ["valid_muon_producer" , "z_producer", 
+
+    d["GlobalProducer"] = ["valid_muon_producer" , "z_producer",
                            "pu_reweighting_producer", "valid_jet_producer",
                            "corr_jet_producer"]
-    
+
     d["ThreadCount"] = 1
     d["Pipelines"] = { "default": {
             "Level": 1,
@@ -128,8 +132,8 @@ def GetDataBaseConfig():
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
 
-    d["HltPaths"] = ["HLT_DoubleMu7", "HLT_Mu13_Mu8"]
-    
+    d["HltPaths"] = ["HLT_DoubleMu7_v2", "HLT_DoubleMu7_v8", "HLT_Mu17_Mu8_v7" ]#, "HLT_Mu13_Mu8"]
+
     d["InputType"] = "data"
     d["Pipelines"]["default"]["Filter"].append ("json")
     d["Pipelines"]["default"]["Filter"].append ("hlt")
@@ -173,7 +177,7 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, also
 
 def AddConsumer( pline, name, config):
     pline["Consumer"][name] = config
-    
+
 def AddMetaDataProducer( pline, name, config):
     pline["MetaDataProducer"][name] = config
 
@@ -318,6 +322,23 @@ def AddHltConsumer( pipelineDict, algoNames, hlt_names):
                                                   "YSourceConfig" : hname,
                                                   "XSource" : "intlumi",
                                                   "ProductName" : "hlt_" + algo + "_" + hname + "_prescale_lumi"})
+    # plot the selcted hlt
+    for algo in algoNames:
+	for p, pval in pipelineDict["Pipelines"].items():
+	    #print p
+	    if p == "default_" + algo + "nocuts":
+		AddConsumer(pval, "hlt_" + algo + "_selected_prescale_lumi",
+					    { "Name" : "generic_profile_consumer",
+					      "YSource" : "selectedhltprescale",
+					      "YSourceConfig" : hname,
+					      "XSource" : "intlumi",
+					      "ProductName" : "hlt_" + algo + "_selected_prescale_lumi"})
+		AddConsumer(pval, "hlt_" + algo + "_selected_prescale_runnumber",
+					    { "Name" : "generic_profile_consumer",
+					      "YSource" : "selectedhltprescale",
+					      "YSourceConfig" : hname,
+					      "XSource" : "runnumber",
+					      "ProductName" : "hlt_" + algo + "_selected_prescale_runnumber"})
 
 
 def ExpandPtBins( pipelineDict, ptbins, includeSource):
@@ -430,7 +451,7 @@ def ExpandDefaultMcConfig(  algoNames, conf_template, useFolders, FolderPrefix =
 
         if "incut" in pval["Filter"]:
             ptVal = ptVal + "_incut"
-            
+
             if not ptVal == "NoBinning_incut":
                 ReplaceWithQuantitiesBasic ( pval )
         else:

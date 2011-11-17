@@ -43,11 +43,11 @@ public:
     // overwrite using template specialization
     void WireEvent() { assert(false);}
 
-	virtual bool GotoEvent(long long lEvent, std::shared_ptr< HLTTools > & hltInfo )
+	virtual bool GotoEvent(long long lEvent, HLTTools * hltInfo )
 	{
 		m_mon->Update( );
 		m_fi.eventdata.GetEntry(lEvent);
-
+        //std::cout << "goto event" << std::endl;
 		if (m_prevRun != m_event.m_eventmetadata->nRun)
 		{
 			m_prevRun = m_event.m_eventmetadata->nRun;
@@ -65,16 +65,22 @@ public:
 						m_event.m_eventmetadata->nRun,
 						m_event.m_eventmetadata->nLumi);
 			}
-			if (m_inpType == DataInput)
+			else if (m_inpType == DataInput)
 			{
 				m_event.m_lumimetadata = m_fi.Get<KDataLumiMetadata> (
 						m_event.m_eventmetadata->nRun,
 						m_event.m_eventmetadata->nLumi);
 			}
+			else
+			{
+                CALIB_LOG_FATAL("Unknown input type" )
+			}
 
+			//std::cout << "Loading new lumi info" << std::endl;
 			// reload the HLT information associated with this lumi
 			hltInfo->setLumiMetadata( m_event.m_lumimetadata );
 		}
+        //std::cout << "DONE: goto event" << std::endl;
 
 		return true;
 	}

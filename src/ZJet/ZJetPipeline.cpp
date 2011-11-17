@@ -17,6 +17,8 @@
 #include "ZJet/Filter/PtWindowFilter.h"
 #include "ZJet/Filter/JsonFilter.h"
 #include "ZJet/Filter/HltFilter.h"
+#include "ZJet/Filter/RunRangeFilter.h"
+
 
 using namespace CalibFW;
 
@@ -60,6 +62,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddFilter( new ValidJetFilter);
 			else if ( sid == HltFilter().GetFilterId())
 				pLine->AddFilter( new HltFilter);
+            else if ( sid == RunRangeFilter().GetFilterId())
+				pLine->AddFilter( new RunRangeFilter);
 			else
 				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 		}
@@ -160,7 +164,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		else if (sName == "quantities_basic" )
 		{
 			pLine->AddConsumer( new DataZConsumer( pset.GetJetAlgorithm() ));
-
+/*
 			if ( JetType::IsPF( pset.GetJetAlgorithm() ))
 			{
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(),
@@ -174,7 +178,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				// add gen jets plots
 				pLine->AddConsumer( new DataGenJetConsumer( pset.GetJetAlgorithm(), 0,
 															pset.GetJetAlgorithm() ));
-			}
+			}*/
 		}
 
 

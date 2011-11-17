@@ -40,6 +40,10 @@ public:
 		{
 			this->SetYSource ( new SourceHltPrescale( ptree->get<std::string>( configPath + ".YSourceConfig") ) );
 		}
+		else if ( ref == "selectedhltprescale" )
+		{
+			this->SetYSource ( new SourceSelectedHltPrescale( ) );
+		}
 
 		else if ( ref == "eventcount" )
 		{
