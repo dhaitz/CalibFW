@@ -49,6 +49,7 @@ public:
 					ZJetPipelineSettings const& settings) const;
 
 	void CreateCorrections( std::string algoName,
+            std::string algoPostfix,
 			ZJetEventData const& event,
 			ZJetMetaData & metaData,
 			ZJetPipelineSettings const& settings ) const;

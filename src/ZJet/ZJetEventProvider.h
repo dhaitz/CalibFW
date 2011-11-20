@@ -22,7 +22,11 @@ void KappaEventProvider< ZJetEventData >::WireEvent()
 		//InitPFJets(m_event, "AK5PFJets");
 		// dont load corrected jet here, we will do this offline
 		InitPFJets(m_event, "AK5PFJets");
+		InitPFJets(m_event, "AK5PFJetsCHS");
+
 		InitPFJets(m_event, "AK7PFJets");
+		InitPFJets(m_event, "AK7PFJetsCHS");
+
 
 		if ( m_fi.isMC() )
 		{

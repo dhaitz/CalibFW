@@ -164,7 +164,7 @@ public:
 		{
 			// no Z to produce here
 			metaData.SetValidZ(false);
-			return true;
+			return false;
 		}
 
 		if (data.m_muons->size() > 2)
@@ -172,7 +172,7 @@ public:
 			//			CALIB_LOG_FATA( " -- more than 2 muons in an event, spookey ? how to combine this --")
 			// drop this event for now
 			metaData.SetValidZ(false);
-			return true;
+			return false;
 		}
 
 		KDataMuon const& m1 = metaData.GetValidMuons().at(0);
@@ -181,7 +181,7 @@ public:
 		if ((m1.charge + m2.charge) != 0)
 		{
 			metaData.SetValidZ(false);
-			return true;
+			return false;
 		}
 
 		// quality cuts on muon go here
