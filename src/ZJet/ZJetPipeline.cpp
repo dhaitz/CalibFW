@@ -151,6 +151,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 			}
 
+			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
+
 			if (  pset.IsMC() )
 			{
 				pLine->AddConsumer( new GenMetadataConsumer( ) );

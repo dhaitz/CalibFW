@@ -119,7 +119,7 @@ public:
 	{
 		ZJetMetaConsumer::Init( pset );
 
-		m_npv = new Hist1D( "npv_",
+		m_npv = new Hist1D( "npv_"  + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetNRVModifier() );
 		AddPlot ( m_npv );

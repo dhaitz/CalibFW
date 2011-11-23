@@ -115,6 +115,8 @@ bool cmpPFJetPt (KDataPFJet i,KDataPFJet j)
 
 void ZJetMetaData::SortJetCollections()
 {
+    //CALIB_LOG("Sorting jets")
+
 
 	for ( MetaPFJetContainer::iterator it = m_validPFJets.begin();
 			it != m_validPFJets.end();
@@ -125,6 +127,26 @@ void ZJetMetaData::SortJetCollections()
 		std::sort( jet_vect.begin(), jet_vect.end(), cmpPFJetPt);
 		std::reverse( jet_vect.begin(), jet_vect.end() );
 	}
+
+
+	for ( MetaPFJetContainer::iterator it = m_validPFJets.begin();
+			it != m_validPFJets.end();
+			++ it)
+	{
+		std::vector<KDataPFJet> & jet_vect = it->second;
+
+        double largest = 50000000.0;
+        for( unsigned int i = 0; i < jet_vect.size(); ++ i )
+        {
+            if ( jet_vect[i].p4.Pt() > largest )
+            {
+                CALIB_LOG_FATAL("Jets not sorted correctly")
+
+            }
+            largest = jet_vect[i].p4.Pt();
+        }
+	}
+
 }
 
 }

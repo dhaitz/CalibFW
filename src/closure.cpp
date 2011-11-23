@@ -242,9 +242,6 @@ int main(int argc, char** argv)
 
 	AddGlobalMetaProducer( globalProducer, pRunner, g_propTree );
 
-
-	pRunner.AddGlobalMetaProducer( new JetSorter());
-
 	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 			== g_pipeSettings.end()); it++)
 	{

@@ -19,7 +19,7 @@ public:
 		// nothing to do here
 	}
 
-	static std::string Name() { return "jet_sorter_produer"; }
+	static std::string Name() { return "jet_sorter_producer"; }
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const

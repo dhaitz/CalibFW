@@ -58,9 +58,10 @@ def getDefaultCorrectionL2( data_path ):
 def GetBaseConfig():
     d = dict()
 
+    # the order of this producers is important
     d["GlobalProducer"] = ["valid_muon_producer" , "z_producer",
                            "pu_reweighting_producer", "valid_jet_producer",
-                           "corr_jet_producer"]
+                           "corr_jet_producer", "jet_sorter_producer"]
 
     d["ThreadCount"] = 1
     d["Pipelines"] = { "default": {
@@ -132,7 +133,7 @@ def GetDataBaseConfig():
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
 
-    d["HltPaths"] = ["HLT_DoubleMu7_v2", "HLT_DoubleMu7_v8", "HLT_Mu17_Mu8_v7" ]#, "HLT_Mu13_Mu8"]
+    d["HltPaths"] = ["HLT_DoubleMu7_v1", "HLT_DoubleMu7_v2", "HLT_DoubleMu7_v8", "HLT_Mu13_Mu8_v2", "HLT_Mu17_Mu8_v2", "HLT_Mu17_Mu8_v3","HLT_Mu17_Mu8_v4", "HLT_Mu17_Mu8_v6", "HLT_Mu17_Mu8_v7", "HLT_Mu17_Mu8_v10", "HLT_Mu17_Mu8_v11" ]
 
     d["InputType"] = "data"
     d["Pipelines"]["default"]["Filter"].append ("json")
