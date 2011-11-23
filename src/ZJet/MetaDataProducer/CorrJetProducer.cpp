@@ -70,7 +70,7 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 		ZJetPipelineSettings const& settings) const
 {
 	InitCorrection( "AK5PF", event );
-	InitCorrection( "AK7PF", event );
+	//InitCorrection( "AK7PF", event );
 
 	std::string algoName_raw =algoName + algoPostfix;
 	std::string algoName_l1 = algoName_raw + "L1";
@@ -115,7 +115,7 @@ bool CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
 	CreateCorrections( "AK5PF", "Jets", event, metaData, settings );
 	CreateCorrections( "AK5PF", "JetsCHS", event, metaData, settings );
 
-	CreateCorrections( "AK7PF", "Jets",event, metaData, settings );
+	//CreateCorrections( "AK7PF", "Jets",event, metaData, settings );
     return true;
 }
 
@@ -128,6 +128,7 @@ void CorrJetProducer::CorrectJetCollection( std::string algoName, std::string ne
 	unsigned int jetcount = metaData.GetValidJetCount(settings, event,
 			algoName);
 
+    // copy the jet collecetion
 	for (unsigned int i = 0; i < jetcount; ++i)
 	{
 		KDataPFJet * jet = static_cast<KDataPFJet*> (metaData.GetValidJet(
@@ -138,6 +139,7 @@ void CorrJetProducer::CorrectJetCollection( std::string algoName, std::string ne
 		metaData.AddValidJet(jet_corr, newAlgoName);
 	}
 
+    // correct the copied jet collection
 	corrService->correct(
 			&metaData.m_validPFJets[newAlgoName] );
 }

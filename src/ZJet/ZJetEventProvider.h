@@ -23,16 +23,16 @@ void KappaEventProvider< ZJetEventData >::WireEvent()
 		// dont load corrected jet here, we will do this offline
 		InitPFJets(m_event, "AK5PFJets");
 		InitPFJets(m_event, "AK5PFJetsCHS");
-
+/*
 		InitPFJets(m_event, "AK7PFJets");
-		InitPFJets(m_event, "AK7PFJetsCHS");
+		InitPFJets(m_event, "AK7PFJetsCHS");*/
 
 
 		if ( m_fi.isMC() )
 		{
 			// nice, we have the all-mighty TRUTH !
 			InitGenJets(m_event, "AK5GenJets");
-			InitGenJets(m_event, "AK7GenJets");
+			//InitGenJets(m_event, "AK7GenJets");
 		}
 
 		m_event.m_muons = m_fi.Get<KDataMuons> ("muons");
