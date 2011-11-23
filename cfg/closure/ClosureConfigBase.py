@@ -104,6 +104,52 @@ def ApplyReweightingSummer11May10ReReco(conf):
         0.0115549447, 0.0094252128]
     return conf
 
+
+def ApplyReweightingSummer11For2011A(conf):
+
+    conf["GlobalXSection"] = 1614.0
+    conf["EnablePuReweighting"] = 1
+    conf["RecovertWeight"] = [
+        0.084106610999999998,
+        0.35995739599999999,
+        0.91852761699999996,
+        1.3510727730000001,
+        1.9583181540000001,
+        1.8208386409999999,
+        1.6526294479999999,
+        1.5880086179999999,
+        1.3640806400000001,
+        0.97649600000000003,
+        0.73847579500000005,
+        0.56429364000000004,
+        0.42385982700000002,
+        0.35508907899999997,
+        0.247419634,
+        0.236049025,
+        0.190887375,
+        0.14981613199999999,
+        0.21162260099999999,
+        0.10273360300000001,
+        0.078282562,
+        0.30758960899999999,
+        0.0,
+        0.059026296999999998,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0]
+
+    return conf
+
+
 def GetMcBaseConfig():
     d = GetBaseConfig()
 
@@ -128,7 +174,7 @@ def GetDefaultDataPipeline():
 def GetDataBaseConfig():
     d = GetBaseConfig()
 
-    d["JsonFile"] = "data/json/Cert_160404-178677_7TeV_PromptReco_Collisions11_JSON.txt"
+    d["JsonFile"] = "data/json/Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
