@@ -1,5 +1,7 @@
 #include "CorrJetProducer.h"
 
+#include <boost/algorithm/string/predicate.hpp>
+
 namespace CalibFW
 {
 
@@ -18,15 +20,28 @@ void CorrJetProducer::PopulateMetaData(ZJetEventData const& data,
 }
 
 
-void CorrJetProducer::InitCorrection( std::string algoName, ZJetEventData const& event ) const
+void CorrJetProducer::InitCorrection( std::string algoName,
+                                     ZJetEventData const& event,
+                                    std::string prefix ) const
 {
 	if ( m_corrService.find( algoName ) != m_corrService.end() )
 		// already loaded
 		return;
 
 	std::vector<std::string> corLevel;
-	std::string prefix = m_corectionFileBase + algoName + "_";
 
+	if ( prefix == "")
+	{
+	   // if ( boost::algorithm::ends_with( algoName, "chs" ))
+	   /* {
+            prefix = m_corectionFileBase + algoName + "chs_";
+	    }
+	    else*/
+	    {
+            prefix = m_corectionFileBase + algoName + "_";
+	    }
+
+	}
 
 	corLevel.push_back("L1FastJet");
 	//corLevel.push_back("L1Offset");
@@ -67,9 +82,11 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
                                          std::string algoPostfix,
 		ZJetEventData const& event,
 		ZJetMetaData & metaData,
-		ZJetPipelineSettings const& settings) const
+		ZJetPipelineSettings const& settings,
+		std::string algoAlias) const
 {
-	InitCorrection( "AK5PF", event );
+	InitCorrection( "AK5PF", event);
+	InitCorrection( "AK5PFchs", event );
 	//InitCorrection( "AK7PF", event );
 
 	std::string algoName_raw =algoName + algoPostfix;
@@ -80,18 +97,18 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 
 
 	CorrectJetCollection( algoName_raw, algoName_l1,
-				this->m_corrService.at( algoName ).m_l1,
+				this->m_corrService.at( algoAlias ).m_l1,
 				event,
 				metaData,
 				settings );
 
 	CorrectJetCollection( algoName_l1, algoName_l2,
-				this->m_corrService.at( algoName ).m_l2,
+				this->m_corrService.at( algoAlias ).m_l2,
 				event,
 				metaData,
 				settings );
 	CorrectJetCollection( algoName_l2, algoName_l3,
-				this->m_corrService.at( algoName ).m_l3,
+				this->m_corrService.at( algoAlias ).m_l3,
 				event,
 				metaData,
 				settings );
@@ -102,7 +119,7 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 		//CALIB_LOG_FATAL("Implement this ")
 		// do l2l3res here
 		CorrectJetCollection( algoName_l3, algoName_l3res,
-					this->m_corrService.at( algoName ).m_l2l3res,
+					this->m_corrService.at( algoAlias ).m_l2l3res,
 					event,
 					metaData,
 					settings );
@@ -112,8 +129,8 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 bool CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
 		ZJetMetaData & metaData, ZJetPipelineSettings const& settings) const
 {
-	CreateCorrections( "AK5PF", "Jets", event, metaData, settings );
-	CreateCorrections( "AK5PF", "JetsCHS", event, metaData, settings );
+	CreateCorrections( "AK5PF", "Jets", event, metaData, settings, "AK5PF" );
+	CreateCorrections( "AK5PF", "JetsCHS", event, metaData, settings, "AK5PFchs" );
 
 	//CreateCorrections( "AK7PF", "Jets",event, metaData, settings );
     return true;

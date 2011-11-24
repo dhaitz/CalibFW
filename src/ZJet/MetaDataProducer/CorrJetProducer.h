@@ -40,7 +40,8 @@ public:
 			ZJetPipelineSettings const& m_pipelineSettings) const;
 
 	void InitCorrection( std::string algoName,
-			ZJetEventData const& event ) const;
+			ZJetEventData const& event,
+			std::string prefix = "" ) const;
 
 	void CorrectJetCollection( std::string algoName, std::string newAlgoName,
 					boost::scoped_ptr< JECService > const& corrService,
@@ -52,7 +53,8 @@ public:
             std::string algoPostfix,
 			ZJetEventData const& event,
 			ZJetMetaData & metaData,
-			ZJetPipelineSettings const& settings ) const;
+			ZJetPipelineSettings const& settings,
+			std::string algoAlias  ) const;
 
 private:
 	mutable boost::ptr_map< std::string, JecCorrSet> m_corrService;

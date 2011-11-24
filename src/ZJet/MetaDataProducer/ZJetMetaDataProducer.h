@@ -123,9 +123,9 @@ public:
                                 (itjet->nConst > 1)
                                 // to be sure to exclude the PF Jets originating from muons.
                                 &&
-                                (dr1 > 0.1)
+                                (dr1 > 0.5)
                                 &&
-                                (dr2 > 0.1);
+                                (dr2 > 0.5);
 
 				//Add criteria for PF jets with eta > 2.4 according to https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
 				if (TMath::Abs(itjet->p4.eta()) >= 2.4)

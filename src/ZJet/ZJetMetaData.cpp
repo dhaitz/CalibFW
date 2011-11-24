@@ -127,8 +127,8 @@ void ZJetMetaData::SortJetCollections()
 		std::sort( jet_vect.begin(), jet_vect.end(), cmpPFJetPt);
 		std::reverse( jet_vect.begin(), jet_vect.end() );
 	}
-
-
+/*
+    for testing purpses, to ensure the jets are ordered
 	for ( MetaPFJetContainer::iterator it = m_validPFJets.begin();
 			it != m_validPFJets.end();
 			++ it)
@@ -146,7 +146,7 @@ void ZJetMetaData::SortJetCollections()
             largest = jet_vect[i].p4.Pt();
         }
 	}
-
+*/
 }
 
 }
