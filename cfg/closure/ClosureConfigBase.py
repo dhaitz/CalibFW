@@ -213,7 +213,7 @@ def GetDefaultDataPipeline():
 def GetDataBaseConfig():
     d = GetBaseConfig()
 
-    d["JsonFile"] = "data/json/Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt"
+    d["JsonFile"] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
@@ -614,6 +614,7 @@ def StoreSettings( settings, filename):
     print ( "Configured " + str( len( settings["Pipelines"] )) + " Pipelines" )
 
 def StoreGCDataset( settings, nickname, filename ):
+    print "Generating " + filename
 
     # ordering is important in the .dbs file format
     cfile = open(filename, 'wb')
@@ -630,6 +631,8 @@ def StoreGCDataset( settings, nickname, filename ):
     cfile.close()
     
 def StoreGCConfig ( settings, nickname, filename ):
+    print "Generating " + filename
+
     config = ConfigParser.RawConfigParser()
     # important, so the case is preserved
     config.optionxform = str
@@ -644,6 +647,8 @@ def StoreGCConfig ( settings, nickname, filename ):
     cfile.close()
         
 def StoreGCCommon ( settings, nickname, filename, output_folder ):
+    print "Generating " + filename
+
     config = ConfigParser.RawConfigParser()
     # important, so the case is preserved
     config.optionxform = str
@@ -661,7 +666,7 @@ def StoreGCCommon ( settings, nickname, filename, output_folder ):
     config.set("local", "queue", "short")
     
     config.add_section("UserMod")
-    config.set("UserMod", "files per job", 5 )
+    config.set("UserMod", "files per job", 25 )
     config.set("UserMod", "executable", "gc-run-closure.sh" )
     config.set("UserMod", "subst files", "gc-run-closure.sh" )
     config.set("UserMod", "input files", "/usr/lib64/libboost_regex.so.2" )
@@ -677,13 +682,15 @@ def StoreGCCommon ( settings, nickname, filename, output_folder ):
     cfile.close()    
     
 def StoreMergeScript ( settings, nickname, filename, output_folder ):
+    print "Generating " + filename
+
     cfile = open(filename, 'wb')
     cfile.write("hadd " + output_folder + settings["OutputPath"] + ".root " + output_folder + nickname + "_job_*.root\n" )
     cfile.close()
     os.chmod ( filename, stat.S_IRWXU )	
     
 def StoreShellRunner ( settings, nickname, filename ):
-  
+    print "Generating " + filename
     cfile = open(filename, 'wb')
     cfile.write("echo $FILE_NAMES\n" )
     cfile.write("cd /storage/5/hauth/zpj/CMSSW_4_2_8\n" )
