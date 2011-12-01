@@ -2,6 +2,10 @@ import copy
 import subprocess
 import glob
 import socket
+#import argparse
+import ConfigParser
+import os.path
+import stat
 
 def CreateFileList( wildcardExpression):
     flist = []
@@ -28,6 +32,20 @@ def GetDataPath():
     else:
         print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
 	exit(0)
+
+
+def GetBasePath():
+
+    hname = socket.gethostname()
+    # feel free to insert your machine here !
+    if hname == "saturn":
+        return "/home/poseidon/uni/data/Kappa/"
+    elif hname == "ekpcms5":
+        return "/storage/5/hauth/zpj/CalibFW/"
+    else:
+        print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
+	exit(0)
+
 
 # only leaves the first 5 root files, for a faster processing while testing
 def ApplyFast( inputfiles, args ):
@@ -180,7 +198,7 @@ def GetMcBaseConfig():
 
     d["InputType"] = "mc"
 
-    d["JecBase"] = "data/jec_data/MC_42_V13_"
+    d["JecBase"] = GetBasePath() + "data/jec_data/MC_42_V13_"
 
     return d
 
@@ -206,7 +224,7 @@ def GetDataBaseConfig():
     d["Pipelines"]["default"]["Filter"].append ("json")
     d["Pipelines"]["default"]["Filter"].append ("hlt")
 
-    d["JecBase"] = "data/jec_data/GR_R_42_V19_"
+    d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_42_V19_"
 
     d["GlobalProducer"]+= ["hlt_selector"]
 
@@ -595,11 +613,132 @@ def StoreSettings( settings, filename):
 
     print ( "Configured " + str( len( settings["Pipelines"] )) + " Pipelines" )
 
+def StoreGCDataset( settings, nickname, filename ):
 
-def Run( settings, filename):
+    # ordering is important in the .dbs file format
+    cfile = open(filename, 'wb')
+    cfile.write ("[" +  nickname + "]\n" )
+    cfile.write ("nickname = " +  nickname + "\n" )
+    cfile.write ("events = " +  str ( - len ( settings["InputFiles"] ))  + "\n" )
+
+    path = os.path.split(  settings["InputFiles"][0] ) [0] 
+    cfile.write ("prefix = " + path + "\n" )
+
+    for f in settings["InputFiles"]:
+        cfile.write ( os.path.split(f)[1] +  ' = -1\n' )
+
+    cfile.close()
+    
+def StoreGCConfig ( settings, nickname, filename ):
+    config = ConfigParser.RawConfigParser()
+    # important, so the case is preserved
+    config.optionxform = str
+    config.add_section("global")
+    config.set("global", "include", "gc_common.conf")
+    config.add_section("UserMod")
+    config.set("UserMod", "dataset", nickname + " : " + nickname + ".dbs" )
+
+    # Writing our configuration file to 'example.cfg'
+    cfile = open(filename, 'wb')
+    config.write(cfile)
+    cfile.close()
+        
+def StoreGCCommon ( settings, nickname, filename, output_folder ):
+    config = ConfigParser.RawConfigParser()
+    # important, so the case is preserved
+    config.optionxform = str
+    config.add_section("global")
+    config.set("global", "module", "UserMod")
+    config.set("global", "backend", "local")
+    
+    config.add_section("jobs")
+    config.set("jobs", "in queue", 50)
+    config.set("jobs", "shuffle", True)
+    config.set("jobs", "wall time", "0:30:00" )
+    config.set("jobs", "monitor", "scripts" )
+
+    config.add_section("local")
+    config.set("local", "queue", "short")
+    
+    config.add_section("UserMod")
+    config.set("UserMod", "files per job", 5 )
+    config.set("UserMod", "executable", "gc-run-closure.sh" )
+    config.set("UserMod", "subst files", "gc-run-closure.sh" )
+    config.set("UserMod", "input files", "/usr/lib64/libboost_regex.so.2" )
+
+    config.add_section("storage")
+    config.set("storage", "se path", "dir://" + output_folder )
+    config.set("storage", "se output files", settings["OutputPath"] + ".root" )
+    config.set("storage", "se output pattern", "@NICK@_job_@MY_JOBID@.root" )
+    
+    # Writing our configuration file to 'example.cfg'
+    cfile = open(filename, 'wb')
+    config.write(cfile)
+    cfile.close()    
+    
+def StoreMergeScript ( settings, nickname, filename, output_folder ):
+    cfile = open(filename, 'wb')
+    cfile.write("hadd " + output_folder + settings["OutputPath"] + ".root " + output_folder + nickname + "_job_*.root\n" )
+    cfile.close()
+    os.chmod ( filename, stat.S_IRWXU )	
+    
+def StoreShellRunner ( settings, nickname, filename ):
+  
+    cfile = open(filename, 'wb')
+    cfile.write("echo $FILE_NAMES\n" )
+    cfile.write("cd /storage/5/hauth/zpj/CMSSW_4_2_8\n" )
+    cfile.write("source /wlcg/sw/cms/experimental/cmsset_default.sh\n" )
+    cfile.write("eval `scramv1 runtime -sh`\n" )
+    cfile.write("cd -\n" )
+    cfile.write("source /storage/5/hauth/zpj/CalibFW/scripts/CalibFWenv.sh\n" )
+    cfile.write("/storage/5/hauth/zpj/CalibFW/closure /storage/5/hauth/zpj/CalibFW/cfg/closure/" + nickname + ".py.json" )
+    cfile.close()
+    os.chmod ( filename, stat.S_IRWXU )	
+
+    
+def Run( settings, arguments):
+
+    # parser = argparse.ArgumentParser(description='Run the ROCED scheduler')
+    #parser.add_argument('--batch',  help="Generate all Grid-Control configs", action='store_true' )
+#    parser.add_argument('config', metavar='config file', nargs=1,
+#                        help='Run using config file')
+  #  parser.add_argument('--config', nargs=1, help="Run using config file" )
+
+    #args = parser.parse_args(arguments)
+    #print args
+    filename = arguments[0] + ".json"
     StoreSettings( settings, filename)
-    print "Running config from file " + filename
-    subprocess.call(["./closure",filename])
+
+    base_path = "/storage/5/hauth/zpj/CalibFW/"
+    
+    batch = False
+    if len ( arguments ) > 1 :
+        batch = arguments[1] == "--batch"
+   
+    if not batch:
+        subprocess.call(["./closure",filename])
+    else:
+	nickname = os.path.split( filename )[1]
+	nickname = nickname.split ( "." )[0]
+	print "Generating GC configs with nickname " + nickname + " ..."
+        # store the input files in gc format
+        if not os.path.exists( base_path + "work/" ) :
+	    os.mkdir( base_path + "work/" )
+        if not os.path.exists( base_path + "work/" + nickname ) :
+	    os.mkdir( base_path + "work/" + nickname )
+	if not os.path.exists( base_path + "work/" + nickname + "/out/" ) :
+	    os.mkdir( base_path + "work/" + nickname + "/out/" )
+	
+        
+        StoreGCDataset( settings, nickname, base_path + "work/" + nickname + "/" + nickname + ".dbs")
+        StoreGCConfig( settings,  nickname, base_path + "work/" + nickname + "/" + nickname + ".conf")
+        StoreGCCommon( settings,  nickname, base_path + "work/" + nickname + "/gc_common.conf", base_path + "work/" + nickname + "/out/" )
+        StoreMergeScript( settings,  nickname, base_path + "work/" + nickname + "/merge.sh", base_path + "work/" + nickname + "/out/" )
+        StoreShellRunner( settings,  nickname, base_path + "work/" + nickname + "/gc-run-closure.sh" )
+
+        # generate merge script 
+	print "done"
+
     try:
         import pynotify
         if pynotify.init("CalibFW resp_cuts"):

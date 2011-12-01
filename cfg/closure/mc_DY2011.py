@@ -31,6 +31,6 @@ cbase.AddCutConsumer( conf , ["AK5PFJetsCHSL1L2L3", "AK5PFJetsL1L2L3"] )
 
 conf["Pipelines"] = dict( conf["Pipelines"].items() + jetpt_var.items() )
 
-cbase.Run( conf, sys.argv[0] + ".json")
+cbase.Run( conf, sys.argv)
 
 #subprocess.call("pprof --callgrind closure closure.prof > closure.callgrind", shell=True)

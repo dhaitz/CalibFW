@@ -17,6 +17,8 @@
 
  > done
  */
+
+
 #include "RootTools/RootIncludes.h"
 
 #include <stdio.h>
@@ -35,6 +37,7 @@
 #include <boost/foreach.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/smart_ptr/scoped_ptr.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -161,18 +164,28 @@ int main(int argc, char** argv)
 	g_logFile = new ofstream(sLogFileName.c_str(), std::ios_base::trunc);
 
 	// input files
-	g_sourcefiles = PropertyTreeSupport::GetAsStringList(&g_propTree,
-					"InputFiles");
 
-	if (g_sourcefiles.size() == 0)
-	{
-		CALIB_LOG_FATAL("No Kappa input files specified")
-	}
+	// hast GC the file list ?
+	  char * pPath;
+    pPath = getenv ("FILE_NAMES");
+    if (pPath!=NULL)
+    {
+        boost::split( g_sourcefiles, pPath, boost::is_any_of(" "), boost::token_compress_on ); // SplitVec == { "hello abc","ABC","aBc goodbye" }
+    }
+    else{
+        CALIB_LOG_FILE("Getting file list from env-variable FILE_NAMES" )
+                g_sourcefiles = PropertyTreeSupport::GetAsStringList(&g_propTree,
+                        "InputFiles");
 
-	BOOST_FOREACH( std::string s, g_sourcefiles)
-	{	CALIB_LOG_FILE("Input File " << s)
-	}
+        if (g_sourcefiles.size() == 0)
+        {
+            CALIB_LOG_FATAL("No Kappa input files specified")
+        }
 
+        BOOST_FOREACH( std::string s, g_sourcefiles)
+        {	CALIB_LOG_FILE("Input File " << s)
+        }
+    }
 	FileInterface finterface(g_sourcefiles);
 
 
