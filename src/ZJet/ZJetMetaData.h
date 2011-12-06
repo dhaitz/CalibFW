@@ -125,6 +125,13 @@ public:
 		m_validPFJets[algoName].push_back( jet );
 	}
 
+
+	std::vector< KDataPFJet > & GetPFValidJetCollection( std::string const& algoName )
+	{
+        return m_validPFJets.at( algoName );
+	}
+
+
 	unsigned int GetValidJetCount(
 			ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData) const
@@ -237,6 +244,7 @@ IMPL_PROPERTY(std::string, SelectedHlt)
 
 	HLTTools * m_hltInfo;
 };
+
 
 
 }

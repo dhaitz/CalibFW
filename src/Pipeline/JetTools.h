@@ -8,6 +8,16 @@ namespace CalibFW
 class JetType
 {
 public:
+  
+	static std::string GetGenName( std::string algoname )
+	{
+	  if ( algoname == "AK5PFJetsL1L2L3" )
+	  {
+	    return "AK5GenJets"
+	  }
+	  
+	  CALIB_LOG_FATAL ( "Cant convert algoname " << algoname << " to Gen " );
+	}
 
 	static bool IsPF(std::string algoname)
 	{

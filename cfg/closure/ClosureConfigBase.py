@@ -198,7 +198,7 @@ def GetMcBaseConfig():
 
     d["InputType"] = "mc"
 
-    d["JecBase"] = GetBasePath() + "data/jec_data/MC_42_V13_"
+    d["JecBase"] = GetBasePath() + "data/jec_data/MC_42_V14B_"
 
     return d
 

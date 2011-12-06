@@ -139,15 +139,17 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 2));
 			}
 
-			if ( pset.IsMC() && JetType::IsGen( pset.GetJetAlgorithm() ) )
+			if ( pset.IsMC() && ( pset.GetJetAlgorithm() == "AK5PFJetsL1L2L3" ))
 			{
+			    std::string genName = JetTools::GetGenName( pset.GetJetAlgorithm() );
+			  
 				// add gen jets plots
-				pLine->AddConsumer( new DataGenJetConsumer( pset.GetJetAlgorithm(), 0,
-															pset.GetJetAlgorithm() ));
-				pLine->AddConsumer( new DataGenJetConsumer( pset.GetJetAlgorithm(), 1,
-															pset.GetJetAlgorithm() ));
-				pLine->AddConsumer( new DataGenJetConsumer( pset.GetJetAlgorithm(), 2,
-															pset.GetJetAlgorithm() ));
+				pLine->AddConsumer( new DataGenJetConsumer( genName, 0,
+									    genName));
+				pLine->AddConsumer( new DataGenJetConsumer( genName, 1,
+									    genName ));
+				pLine->AddConsumer( new DataGenJetConsumer( genName, 2,
+									    genName));
 
 			}
 
@@ -182,6 +184,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 															pset.GetJetAlgorithm() ));
 			}*/
 		}
+		
 
 
 		// optional 1st Level Producer

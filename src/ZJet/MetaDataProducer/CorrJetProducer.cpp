@@ -86,7 +86,7 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 		std::string algoAlias) const
 {
 	InitCorrection( "AK5PF", event);
-	InitCorrection( "AK5PFchs", event );
+	//InitCorrection( "AK5PFchs", event );
 	//InitCorrection( "AK7PF", event );
 
 	std::string algoName_raw =algoName + algoPostfix;
@@ -130,7 +130,9 @@ bool CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
 		ZJetMetaData & metaData, ZJetPipelineSettings const& settings) const
 {
 	CreateCorrections( "AK5PF", "Jets", event, metaData, settings, "AK5PF" );
-	CreateCorrections( "AK5PF", "JetsCHS", event, metaData, settings, "AK5PFchs" );
+	
+	// for now, use no special CHS
+	CreateCorrections( "AK5PF", "JetsCHS", event, metaData, settings, "AK5PF" );
 
 	//CreateCorrections( "AK7PF", "Jets",event, metaData, settings );
     return true;
