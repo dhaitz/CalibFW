@@ -11,7 +11,8 @@ import os
 import sys
 import numpy
 import matplotlib
-from matplotlib.pyplot import figure as plt_figure
+import matplotlib.pyplot as plt
+#from matplotlib.pyplot import figure as plt_figure
 from time import localtime, strftime, clock
 import argparse
 
@@ -218,7 +219,7 @@ def getpath():
 
 
 def newplot(ratio=False):
-    fig = plt_figure(figsize=[7, 7])
+    fig = plt.figure(figsize=[7, 7])
     ax = fig.add_subplot(111)
     if ratio:
         print "The ratio plot template is not yet implemented"
@@ -240,7 +241,7 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='best',
     resultlabel(ax, result)
     authorlabel(ax, opt.author)
     datelabel(ax, opt.date)
-    ax.legend(loc=legloc, numpoints=1, frameon=frame)
+    ax.legend(loc=legloc, numpoints=1, frameon=frame )
     return ax
 
 
@@ -258,10 +259,9 @@ def energylabel(ax, energy=7, xpos=1.00, ypos=1.01):
     ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
         va='bottom', ha='right', transform=ax.transAxes)
 
-
-def jetlabel(ax, algorithm="", correction="", posx=0.05, posy=0.95):
+def jetlabel_string( algorithm, correction):
     if "L1L2L3Res" in correction:
-        corr = r"L1L2L3 Res corrected"
+        corr = r"L1L2L3 Residual corrected"
     elif "L1L2L3" in correction:
         corr = r"L1L2L3 corrected"
     elif "L1L2" in correction:
@@ -270,14 +270,23 @@ def jetlabel(ax, algorithm="", correction="", posx=0.05, posy=0.95):
         corr = r"L1 corrected"
     else:
         corr = r"uncorrected"
-    if "ak5PFJets" in algorithm:
+    if "ak5pfjets" in algorithm.lower():
         jet = r"anti-$k_{T}$ 0.5 PF jets"
+    elif "ak7pfjets" in algorithm.lower():
+        jet = r"anti-$k_{T}$ 0.7 PF jets"
     else:
         jet = ""
         corr = ""
-    ax.text(posx, posy, jet, va='top', ha='left', transform=ax.transAxes)
-    ax.text(posx, posy - 0.07, corr, va='top', ha='left',
+    return ( jet , corr )
+
+def jetlabel(ax, algorithm="", correction="", posx=0.05, posy=0.95):
+  
+    res = jetlabel_string( algorithm, correction)
+    
+    ax.text(posx, posy, res[0], va='top', ha='left', transform=ax.transAxes)
+    ax.text(posx, posy - 0.07, res[1], va='top', ha='left',
             transform=ax.transAxes)
+            
     if "CHS" in correction:
         ax.text(posx, posy - 0.14, r"CHS applied",
             va='top', ha='left', transform=ax.transAxes)
