@@ -27,8 +27,13 @@ def GetDataPath():
     # feel free to insert your machine here !
     if hname == "saturn":
         return "/home/poseidon/uni/data/Kappa/"
+    
     elif hname == "ekpcms5":
         return "/storage/5/hauth/zpj/"
+        
+    elif hname == "ekpcms4.physik.uni-karlsruhe.de":
+        return "/storage/5/hauth/zpj/"
+    
     else:
         print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
 	exit(0)
@@ -40,8 +45,13 @@ def GetBasePath():
     # feel free to insert your machine here !
     if hname == "saturn":
         return "/home/poseidon/uni/data/Kappa/"
+        
     elif hname == "ekpcms5":
         return "/storage/5/hauth/zpj/CalibFW/"
+        
+    elif hname == "ekpcms4.physik.uni-karlsruhe.de":
+	return "/storage/5/hauth/zpj/CalibFW/"
+
     else:
         print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
 	exit(0)
@@ -51,7 +61,7 @@ def GetBasePath():
 def ApplyFast( inputfiles, args ):
     if len(args) > 1:
         if args[1] == "fast":
-            inputfiles = inputfiles[:2]
+            inputfiles = inputfiles[:1]
 
     return inputfiles
 
@@ -86,7 +96,7 @@ def GetBaseConfig():
             "Level": 1,
             "JetAlgorithm" : "to_set",
             "RootFileFolder": "",
-            "AdditionalConsumer": [],
+            
             "CutMuonEta": 2.3,
             "CutMuonPt": 15,
             "CutZMassWindow": 20,
@@ -236,7 +246,7 @@ def GetDataBaseConfig():
     return d
 
 
-def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, alsoForNoCuts = False, correction = "L1L2L3"):
+def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, alsoForNoCuts = False, correction = "L1L2L3", onlyBasicQuantities = True):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
@@ -245,6 +255,10 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, also
             for v in vals:
                 newPipe = copy.deepcopy(elem)
                 newPipe[ varName ] = v
+                
+                #only do basic plots
+                if onlyBasicQuantities:
+		    ReplaceWithQuantitiesBasic( newPipe )
 
                 varadd = "_var_" + varName + "_" + str(v).replace(".", "_")
 
@@ -261,6 +275,45 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, also
     else:
         return newDict
 
+def ExpandRange2(pipelines, filtername, low, high=None,
+                 foldername="var_{name}_{low}to{high}",
+                 includeSource=True, onlyOnIncut=True,
+		 onlyBasicQuantities = True):
+    """Add pipelines with values between low and high for filtername
+
+    This only works if the filter is lowercase and it uses two variables
+    called Filter<FilterName>Low/High
+    The foldername string can contain the variables {name}, {low} and {high}
+    """
+    newDict = {}
+    for pipeline, subdict in pipelines.items():
+        if subdict["Level"] == 1 and (not onlyOnIncut or
+                "incut" in subdict["RootFileFolder"]):
+            for l, h in zip(low, high):
+                # copy existing pipeline (subdict) and modify it
+                newpipe = copy.deepcopy(subdict)
+                
+                #only do basic plots
+                if onlyBasicQuantities:
+		    ReplaceWithQuantitiesBasic( newpipe )
+
+                #print(new_pipe)
+                newpipe["Filter"].append(filtername.lower())
+                newpipe["Filter" + filtername + "Low"] = l
+                newpipe["Filter" + filtername + "High"] = h
+                f = foldername.format(name=filtername, low=l, high=h)
+                f = "_" + f.replace(".", "_")
+
+                newName = pipeline + f
+                newRootFileFolder =  newpipe["RootFileFolder"] + f
+                newDict[newName] = newpipe
+                if foldername is not None:
+                    newDict[newName]["RootFileFolder"] = newRootFileFolder
+    if includeSource:
+        return dict(pipelines.items() +  newDict.items())
+    else:
+        return newDict        
+        
 def AddConsumer( pline, name, config):
     pline["Consumer"][name] = config
 
@@ -586,7 +639,6 @@ def ExpandDefaultMcConfig(  algoNames, conf_template, useFolders, FolderPrefix =
 def ExpandDefaultDataConfig( conf_template, useFolders, FolderPrefix = ""):
     conf = ExpandDefaultMcConfig( conf_template, useFolders, FolderPrefix)
 
-    #conf["Pipelines"][FolderPrefix + "default"]["AdditionalConsumer"].append( "event_storer" )
 
     return conf
 
@@ -666,11 +718,13 @@ def StoreGCCommon ( settings, nickname, filename, output_folder ):
     config.set("local", "queue", "short")
     
     config.add_section("UserMod")
-    config.set("UserMod", "files per job", 25 )
+    config.set("UserMod", "files per job", 7 )
     config.set("UserMod", "executable", "gc-run-closure.sh" )
     config.set("UserMod", "subst files", "gc-run-closure.sh" )
-    config.set("UserMod", "input files", "/usr/lib64/libboost_regex.so.2" )
-
+    #config.set("UserMod", "input files", "/usr/lib64/libboost_regex.so.2" )
+    config.set("UserMod", "input files", "/wlcg/sw/cms/experimental/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_2_8/external/slc5_amd64_gcc434/lib/libboost_regex.so.1.44.0" )
+ 
+    
     config.add_section("storage")
     config.set("storage", "se path", "dir://" + output_folder )
     config.set("storage", "se output files", settings["OutputPath"] + ".root" )
@@ -720,7 +774,7 @@ def Run( settings, arguments):
     
     batch = False
     if len ( arguments ) > 1 :
-        batch = arguments[1] == "--batch"
+        batch = arguments[1] == "batch"
    
     if not batch:
         subprocess.call(["./closure",filename])

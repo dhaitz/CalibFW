@@ -71,7 +71,7 @@ public:
 				 (
 					RootFileHelper::GetStandaloneTProfile(
 					GetName().c_str(),GetName().c_str(),
-					m_iBinCountX, m_dBinLowerX, m_dBinLowerX )
+					m_iBinCountX, m_dBinLowerX, m_dBinUpperX )
 			);
 
 		this->RunModifierBeforeDataEntry( this );

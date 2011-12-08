@@ -8,6 +8,10 @@
 #include <vector>
 #include <exception>
 
+     #include <execinfo.h>
+     #include <stdio.h>
+     #include <stdlib.h>
+     
 extern std::ofstream * g_logFile;
 
 #define FLOAT_COMPARE( first, second ) (  TMath::Abs( (first - second) / second) < 0.02 )
@@ -40,3 +44,9 @@ TYPE Get##SNAME ( ) const { return m_##SNAME; }			\
 private:											\
 void Set##SNAME ( TYPE val) { m_##SNAME = val; }
 
+
+     /* Obtain a backtrace and print it to stdout. */
+     void
+     print_trace (void);
+     
+     void backtrace_assert( bool val );

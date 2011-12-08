@@ -25,8 +25,12 @@ def fractions(fdata, fmc, opt):
     getroot.createchanges( opt, changes )
 
     # Get list of graphs from inputfiles
+    print "Loading MC Plots"
     mcG = [getroot.gethisto(graphname, fmc, changes) for graphname in graphnames]
+    print mcG[0]
+    print "Loading Data Plots"
     dataG = [getroot.gethisto(graphname, fdata, changes) for graphname in graphnames]
+    print "Loading done"
 
     # get x values and bar widths
     x = opt.bins[1:-1]
@@ -46,8 +50,10 @@ def fractions(fdata, fmc, opt):
         dataG[i].dropbin(0)
         fitf = TF1("fit1", "1*[0]", 1.0, 1000.0)
         getroot.getobject( graphnames[i], fdata, changes).Fit(fitf,"QN")
+        
         fitd.append(fitf.GetParameter(0))
         fitderr.append(fitf.GetParError(0))
+        
         getroot.getobject(graphnames[i], fmc, changes).Fit(fitf, "QN")
         fitm.append(fitf.GetParameter(0))
         fitmerr.append(fitf.GetParError(0))
@@ -89,8 +95,10 @@ def fractions(fdata, fmc, opt):
     fig, ax = plotbase.newplot()
     # MC histograms (begin with the last one)
     for i in range(len(mcG)-1,-1,-1):
+        print " -- "
         print ( bins )
-        print (  mcG[i].y+[mcG[i].y[-1]] )
+        print  mcG[i].y
+        print (  mcG[i].y + [mcG[i].y[-1]] )
 #        ax.bar(x, mcG[i].y, width=barWidth, color=colours[i], edgecolor = None, linewidth=0 )
 #           label=r"%s: $%1.3f(%d)\, %1.3f(%d)$" % (labels[i],fitd[i],math.ceil(1000*fitderr[i]),fitm[i], math.ceil(1000*fitmerr[i])))
         ax.plot(bins, mcG[i].y+[mcG[i].y[-1]], drawstyle='steps-post', color='black',linewidth=1)

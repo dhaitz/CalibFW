@@ -8,7 +8,7 @@ import getroot
 import plotbase
 
 def datamcplot(quantity, q, obj, fdata, fmc, opt, legloc='center right',
-               change={}, log=False, rebin=5):
+               change={}, log=False, rebin=5, file_name = ""):
     """Template for all data/MC comparison plots for basic quantities."""
     # read the values
     if opt.verbose:
@@ -16,9 +16,9 @@ def datamcplot(quantity, q, obj, fdata, fmc, opt, legloc='center right',
 
     getroot.createchanges ( opt, change )
 
-
     hdata = getroot.gethisto(quantity, fdata, change, True, rebin)
     hmc = getroot.gethisto(quantity, fmc, change, False, rebin)
+    
     if opt.normalize:
         hmc.scale(hdata.ysum / hmc.ysum)
     else:
@@ -39,13 +39,23 @@ def datamcplot(quantity, q, obj, fdata, fmc, opt, legloc='center right',
     ax.set_ylim(top=hmc.ymax * 1.2)
     ax = plotbase.axislabel(ax, q, obj)
 
+    if file_name == "":
+        file_name = quantity
+
     # save it
-    plotbase.Save(fig, quantity, opt)
+    plotbase.Save(fig, file_name, opt)
     if log:
         ax.set_ylim(bottom=1.0)
         ax.set_yscale('log')
         plotbase.Save(fig, quantity + '_log', opt)
 
+
+# NPV
+def npv(fdata, fmc, opt):
+    datamcplot('npv', 'recovert', 'npv', fdata, fmc, opt, 'center right', rebin = 1)
+
+def npv_before_cuts(fdata, fmc, opt):
+    datamcplot('NoBinning_allevents/npv_AK5PFJetsCHSL1L2L3', 'recovert', 'npv', fdata, fmc, opt, 'center right', rebin = 1, file_name="npv_nocuts")
 
 # Z boson
 def zpt(fdata, fmc, opt):
@@ -135,7 +145,7 @@ def mpf(fdata, fmc, opt):
 #    'jet2pt', 'jet2pt_qualitycuts', 'jet2eta', 'jet2phi',
 #    'balance', 'mpf']
 
-plots = ['zpt', 'zeta', 'zphi', 'zmass',
+plots = [  'npv_before_cuts', 'npv', 'zpt', 'zeta', 'zphi', 'zmass',
     'jetpt', 'jeteta', 'jetphi',
     'jet2pt',  'jet2eta', 'jet2phi',
     'balance', 'mpf']

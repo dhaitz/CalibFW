@@ -76,7 +76,7 @@ public:
 
 	void ClearContent();
 
-	virtual std::string GetContent();
+	virtual std::string GetContent() const;
 
 	// cutPassed is true, if the event was not dropped by the cut
 	void SetCutResult(long cutId, bool cutPassed)

@@ -7,7 +7,10 @@ This module contains all the often used plotting tools
 
 import socket
 import getpass
+
 import os
+import os.path
+
 import sys
 import numpy
 import matplotlib
@@ -15,6 +18,9 @@ import matplotlib.pyplot as plt
 #from matplotlib.pyplot import figure as plt_figure
 from time import localtime, strftime, clock
 import argparse
+
+
+from ROOT import gROOT
 
 import getroot
 
@@ -35,6 +41,9 @@ matplotlib.rcParams.update({
 
 
 def plot(module, plots, fdata, mc, op):
+    # dont display any graphics
+    gROOT.SetBatch( True )
+  
     """Search for plots in the module and run them."""
     if op.verbose:
         print "%1.2f | Start plotting" % clock()
@@ -65,6 +74,8 @@ def options(
                 "../../data/powheg_Oct19.root",
             ],
             plots=None,
+            # current default
+            npv =  [ (0,1), (2,5), (6,11), (12,100 ) ],
             bins=None):
     """Set standard options and read command line arguments
 
@@ -151,6 +162,7 @@ def options(
     opt.mc = opt.files[-1]
     opt.bins = bins
     opt.brackets = False
+    opt.npv = npv
     if opt.verbose:
         showoptions(opt)
     return opt
@@ -334,8 +346,7 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.05, ypos=0.05):
     ax.text(xpos, ypos, text, va='top', ha='left', transform=ax.transAxes)
 
 
-def statuslabel(ax, status=None, xpos=0.25, ypos=1.018
-):
+def statuslabel(ax, status=None, xpos=0.25, ypos=1.018):
     if status is not None:
         ax.text(xpos, ypos, r"%s" % status, va='bottom', ha='left',
                 transform=ax.transAxes)
@@ -480,15 +491,26 @@ def Save(figure, name, opt, alsoInLogScale=False):
         figure.get_axes()[0].set_yscale('log')
         _internal_Save(figure, name + "_log_scale", opt)
 
+def EnsurePathExists( path ):
+    
+    full_path = ""
+    for p in path.split ( "/" ):
+	full_path += p + "/";
+	print "Checking " + full_path
+	if not os.path.exists( full_path ):
+	    print "Creating " + full_path
+	    os.mkdir ( full_path )
 
+        
 def _internal_Save(figure, name, opt):
     """Save this figure in all listed data formats.
 
     The standard data formats are png and pdf.
     Available graphics formats are: pdf, png, ps, eps and svg
     """
-    if opt.out not in os.listdir("."):
-        os.mkdir(opt.out)
+
+    EnsurePathExists( opt.out )
+    
     name = opt.out + '/' + name
     print ' -> Saving as',
     first = True

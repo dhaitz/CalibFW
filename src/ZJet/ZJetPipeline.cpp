@@ -1,3 +1,5 @@
+#include "Pipeline/JetTools.h"
+
 #include "ZJet/ZJetPipeline.h"
 
 #include "ZJet/MetaDataProducer/ZJetCuts.h"
@@ -10,7 +12,7 @@
 #include "ZJet/Consumer/FilterStatistics.h"
 #include "ZJet/Consumer/GenericProfileConsumer.h"
 #include "ZJet/Consumer/JetRespConsumer.h"
-
+#include "ZJet/Consumer/Dumper.h"
 
 #include "ZJet/Filter/ValidZFilter.h"
 #include "ZJet/Filter/InCutFilter.h"
@@ -18,7 +20,7 @@
 #include "ZJet/Filter/JsonFilter.h"
 #include "ZJet/Filter/HltFilter.h"
 #include "ZJet/Filter/RunRangeFilter.h"
-
+#include "ZJet/Filter/NpvFilter.h"
 
 using namespace CalibFW;
 
@@ -60,6 +62,10 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddFilter( new ValidZFilter);
 			else if ( sid == ValidJetFilter().GetFilterId())
 				pLine->AddFilter( new ValidJetFilter);
+			else if ( sid == NpvFilter().GetFilterId())
+				pLine->AddFilter( new NpvFilter() );
+
+			
 			else if ( sid == HltFilter().GetFilterId())
 				pLine->AddFilter( new HltFilter);
             else if ( sid == RunRangeFilter().GetFilterId())
@@ -116,6 +122,9 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		}*/
 	}
 
+	// add this for debugging output ...
+	//pLine->AddConsumer( new Dumper() );
+	
 	BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
 			pset.GetPropTree()->get_child( pset.GetSettingsRoot() + ".Consumer") )
 	{
@@ -138,10 +147,10 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 1));
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 2));
 			}
-
+/*
 			if ( pset.IsMC() && ( pset.GetJetAlgorithm() == "AK5PFJetsL1L2L3" ))
 			{
-			    std::string genName = JetTools::GetGenName( pset.GetJetAlgorithm() );
+			    std::string genName = JetType::GetGenName( pset.GetJetAlgorithm() );
 			  
 				// add gen jets plots
 				pLine->AddConsumer( new DataGenJetConsumer( genName, 0,
@@ -151,7 +160,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddConsumer( new DataGenJetConsumer( genName, 2,
 									    genName));
 
-			}
+			}*/
 
 			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
 
@@ -189,8 +198,19 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 		// optional 1st Level Producer
 		else if (sName == BinResponseConsumer::GetName())
-			pLine->AddConsumer( new BinResponseConsumer( pset.GetPropTree(), consPath ) );
-
+		{		
+		    BinResponseConsumer * resp = new BinResponseConsumer( pset.GetPropTree(), consPath );
+		    pLine->AddConsumer( resp );
+		    if ( pset.IsMC() && (resp->m_jetnum == 0) )
+		    {
+		      // do gen gesponse
+		      BinResponseConsumer * gen = new BinResponseConsumer( pset.GetPropTree(), consPath );
+		      gen->m_useGenJet = true;
+		      gen->m_name += "Gen";
+		      pLine->AddConsumer( gen );
+		    }
+		}
+			
 		else if (sName == GenericProfileConsumer::GetName())
 			pLine->AddConsumer( new GenericProfileConsumer( pset.GetPropTree(), consPath ) );
 

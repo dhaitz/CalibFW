@@ -22,6 +22,7 @@ def get_errerr(roothisto):
 
 
 def fit_resolution ( file, histo_name, tag,
+                     out_path,
                      fit_formula = "gaus"  ):
 
     c = TCanvas (histo_name, histo_name, 600, 600)
@@ -64,7 +65,7 @@ def fit_resolution ( file, histo_name, tag,
     
     histo_name = histo_name.replace ( "/", "_")
     print "Storing plot to " +  tag + histo_name + "_resolution_fit.png"
-    c.Print ( tag + histo_name + "_resolution_fit.png")
+    c.Print ( out_path + tag + histo_name + "_resolution_fit.png")
 
     # extract the fit result
     m_reso_fit_err = fitres.GetErrors()[2]
@@ -75,6 +76,7 @@ def fit_resolution ( file, histo_name, tag,
 def extrapolate_resolution ( file, 
                              base_name, # is "Pt300to1000_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3
                              tag,
+                             out_path,
                              var=[0.1, 0.15, 0.2, 0.3] ):
     variation_result = []
 
@@ -94,7 +96,7 @@ def extrapolate_resolution ( file,
         folder_var = base_name.replace ( "XXX", str(x).replace(".", "_") )  # 0.3 -> 0_3
 
         # read the ratio and error (propagated)
-        reso = fit_resolution( file, folder_var, tag )
+        reso = fit_resolution( file, folder_var, tag, out_path )
         
         print "Variation " + str(x) + " has resolution " + str( reso )
         
@@ -136,7 +138,7 @@ def extrapolate_resolution ( file,
     print "Extrapolated resolution for " + base_name + " is " + str( (yex, yex_err) )
         
     base_name = base_name.replace ( "/", "_")
-    c.Print ( tag + base_name + "_resolution_extrapolation.png")
+    c.Print ( out_path + tag + base_name + "_resolution_extrapolation.png")
     #c.Print ( tag + base_name + "_resolution_extrapolation.root")
 
 
@@ -152,6 +154,9 @@ def plot_resolution ( file,
                       ):
     str_bins = binstrings(opt.bins)
     
+
+    tmp_out_path = opt.out + "/resolution_tmp/"  
+    plotbase.EnsurePathExists( tmp_out_path )
 
     
 
@@ -173,7 +178,7 @@ def plot_resolution ( file,
     for str_bin in str_bins:
         hist_template = base_name.replace("YYY", str_bin)
         
-        extra_res = extrapolate_resolution( file, hist_template, tag )
+        extra_res = extrapolate_resolution( file, hist_template, tag, tmp_out_path )
         print hist_template + " results in extrapolation " + str(extra_res)
                
         print ref_hist.replace("YYY", str_bin)
@@ -208,7 +213,7 @@ def plot_resolution ( file,
     
     graph.Draw( "ap" )
     base_name = base_name.replace ( "/", "_")
-    c.Print ( tag + base_name + "_resolution.png")
+    c.Print ( tmp_out_path + tag + base_name + "_resolution.png")
     
     return (plot_x, plot_y, plot_yerr )
 
@@ -243,6 +248,13 @@ def mytest(fdata, fmc, opt):
                      corr,
                     "YYY_incut/z_pt_AK5PFJetsL1L2L3" )
                     
+    gen_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsL1L2L3Gen", 
+                    "MC Gen",
+                     opt,
+                     algo,
+                     corr,
+                    "YYY_incut/z_pt_AK5PFJetsL1L2L3" )                    
+                    
     ax = f.get_axes()[0]
     ax.set_ylim( 0.0, 0.351 )
     ax.set_xlim( 30.0, 501 )
@@ -259,7 +271,8 @@ def mytest(fdata, fmc, opt):
 
     plotbase.jetlabel( ax, "AK5PFJets", "L1L2L3" )
                  
-    f.savefig( "resolution_balresp_AK5PFJetsL1L2L3" )
+    plotbase.Save(f, "resolution_balresp_AK5PFJetsL1L2L3", opt)
+
 
     # plot ratio
     ratio_x = []
@@ -291,7 +304,7 @@ def mytest(fdata, fmc, opt):
     plotbase.energylabel(ax, opt.energy)  
     plotbase.jetlabel( ax, "AK5PFJets", "L1L2L3" )   
     f.savefig( "resolution_balresp_AK5PFJetsL1L2L3_ratio" )
-   
+    plotbase.Save(f, "resolution_balresp_AK5PFJetsL1L2L3_ratio", opt)
    
     # akp5pf CHS
     f = plt.figure()
@@ -311,6 +324,13 @@ def mytest(fdata, fmc, opt):
                      algo,
                      corr,
                     "YYY_incut/z_pt_AK5PFJetsCHSL1L2L3" )
+
+    gen_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3Gen", 
+                    "MC Gen",
+                     opt,
+                     algo,
+                     corr,
+                    "YYY_incut/z_pt_AK5PFJetsL1L2L3" )                    
                     
     ax = f.get_axes()[0]
     ax.set_ylim( 0.0, 0.351 )
@@ -326,7 +346,8 @@ def mytest(fdata, fmc, opt):
     plotbase.energylabel(ax, opt.energy)  
     plotbase.jetlabel( ax, "AK5PFJets", "CHSL1L2L3" )
                  
-    f.savefig( "resolution_balresp_AK5PFJetsCHSL1L2L3" )
+    plotbase.Save(f, "resolution_balresp_AK5PFJetsCHSL1L2L3", opt)
+
     
         # plot ratio
     ratio_x = []
@@ -357,8 +378,11 @@ def mytest(fdata, fmc, opt):
     plotbase.statuslabel(ax, opt.status)
     plotbase.energylabel(ax, opt.energy)  
     plotbase.jetlabel( ax, "AK5PFJets", "CHSL1L2L3" )   
-    f.savefig( "resolution_balresp_AK5PFJetsCHSL1L2L3_ratio" )
-#    plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3", 
+    
+    
+    plotbase.Save(f, "resolution_balresp_AK5PFJetsCHSL1L2L3_ratio", opt)
+
+    #    plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3", 
 #                    "mc_",
 #                    opt,
 #                    "YYY_incut/z_pt_AK5PFJetsCHSL1L2L3" )

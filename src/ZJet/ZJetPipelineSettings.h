@@ -70,8 +70,8 @@ IMPL_SETTING( bool, EnableReweighting)
 	// Filter Settings
 IMPL_SETTING(double, FilterPtBinLow)
 IMPL_SETTING(double, FilterPtBinHigh)
-IMPL_SETTING( int, FilterRecoVertLow)
-IMPL_SETTING( int, FilterRecoVertHigh)
+IMPL_SETTING( int, FilterNpvLow)
+IMPL_SETTING( int, FilterNpvHigh)
 IMPL_SETTING(double, FilterJetEtaLow)
 IMPL_SETTING(double, FilterJetEtaHigh)
 

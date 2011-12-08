@@ -28,7 +28,7 @@ KEventMetadata *  ZJetMetaData::GetKappaMetaData( ZJetEventData const& evtData,
 				return evtData.m_eventmetadata;
 		}
 
-std::string ZJetMetaData::GetContent()
+std::string ZJetMetaData::GetContent() const
 {
 	std::stringstream s;
 
@@ -55,7 +55,9 @@ std::string ZJetMetaData::GetContent()
 KDataLV * ZJetMetaData::GetValidJet(ZJetPipelineSettings const& psettings,
 		ZJetEventData const& evtData, unsigned int index, std::string algoName) const
 {
-	assert( GetValidJetCount(psettings, evtData, algoName) > index );
+	//s44td::cout << algoName << " index: " << index << std::endl;
+  
+	backtrace_assert( GetValidJetCount(psettings, evtData, algoName) > index );
 
 	if (IsMetaJetAlgo(algoName))
 	{
@@ -83,6 +85,8 @@ unsigned int ZJetMetaData::GetValidJetCount(
 		ZJetPipelineSettings const& psettings,
 		ZJetEventData const& evtData, std::string algoName) const
 {
+	//std::cout << "IsgenJet " << JetType::IsGen( algoName ) << std::endl;
+  
 	if (IsMetaJetAlgo(algoName))
 	{
 		return SafeMap<std::string, std::vector<KDataPFJet> >::Get( algoName,  m_validPFJets).size();

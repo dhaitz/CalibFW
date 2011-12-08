@@ -135,6 +135,12 @@ public:
 			s << it->first << " count " << it->second->size() <<  std::endl;
 		}
 
+		s << "Gen Jets collection:" << std::endl;
+		for (GenJetMapIterator it = m_genJets.begin(); it != m_genJets.end(); ++it)
+		{
+			s << it->first << " count " << it->second->size() <<  std::endl;
+		}		
+		
 		return s.str();
 	}
 

@@ -2,6 +2,8 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include "GlobalInclude.h"
+
 namespace CalibFW
 {
 
@@ -11,10 +13,17 @@ public:
   
 	static std::string GetGenName( std::string algoname )
 	{
-	  if ( algoname == "AK5PFJetsL1L2L3" )
+	  if ( boost::algorithm::starts_with( algoname, "AK5PFJets" ))
 	  {
-	    return "AK5GenJets"
+	    return "AK5GenJets";
 	  }
+
+
+	  if ( boost::algorithm::starts_with( algoname, "AK7PFJets" ))
+	  {
+	    return "AK7GenJets";
+	  }
+	 
 	  
 	  CALIB_LOG_FATAL ( "Cant convert algoname " << algoname << " to Gen " );
 	}

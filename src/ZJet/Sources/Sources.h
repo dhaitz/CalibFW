@@ -110,9 +110,24 @@ public:
 		val = event.m_eventmetadata->nRun;
 		return true;
 	}
-
+/*
 	virtual bool HasDefaultBinCount() const	{ return false;	}
-	virtual double HasDefaultBins() const { return false; }
+	virtual double HasDefaultBins() const { return false; }*/
+
+	// hardcoded for now ...
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 19848;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+	  
+		return 160404.0;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 180252.0;
+	}
 };
 
 
@@ -132,8 +147,21 @@ public:
 		return true;
 	}
 
-	virtual bool HasDefaultBinCount() const	{ return false;	}
-	virtual double HasDefaultBins() const { return false; }
+	/*virtual bool HasDefaultBinCount() const	{ return false;	}
+	virtual double HasDefaultBins() const { return false; }*/
+	// hardcoded for now ...
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 10000;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return  1000000.0;
+	}	
 };
 
 class SourceIntegratedLumi: public ZJetSourceBase
@@ -151,9 +179,26 @@ public:
 
 		return true;
 	}
-
+/*
 	virtual bool HasDefaultBinCount() const	{ return false;	}
 	virtual double HasDefaultBins() const { return false; }
+	*/
+
+	// hardcoded for now ...
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 2000;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+	  
+		return 0.0;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		//return 0.000000000000006; // lumi in year 2011
+		return 6.0;
+	}
 };
 
 class SourceHltPrescale: public ZJetSourceBase
@@ -326,6 +371,20 @@ public:
 				m_jetAlgo2);
 		val = (jet1->p4.Pt() / jet2->p4.Pt());
 		return true;
+	}
+
+	
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 100.0;
 	}
 
 private:

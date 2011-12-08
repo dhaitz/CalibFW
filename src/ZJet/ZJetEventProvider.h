@@ -32,7 +32,7 @@ void KappaEventProvider< ZJetEventData >::WireEvent()
 		{
 			// nice, we have the all-mighty TRUTH !
 			InitGenJets(m_event, "AK5GenJets");
-			//InitGenJets(m_event, "AK7GenJets");
+			InitGenJets(m_event, "AK7GenJets");
 		}
 
 		m_event.m_muons = m_fi.Get<KDataMuons> ("muons");

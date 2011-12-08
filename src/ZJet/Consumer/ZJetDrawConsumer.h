@@ -23,6 +23,7 @@
 #include "RootTools/RootIncludes.h"
 
 #include "Draw/DrawBase.h"
+#include "Pipeline/JetTools.h"
 
 #include "../ZJetPipeline.h"
 #include "ZJetConsumer.h"
@@ -31,53 +32,53 @@ namespace CalibFW
 {
 /*
 
- Draw Calc  c
+Draw Calc  c
 
 
- DrawBase ( [DataProvider for val, weight], DataSelection )
+DrawBase ( [DataProvider for val, weight], DataSelection )
 
 
- DrawBase ( sets up histos, graphs ), implements Pipeline,
- taken
- can add multiple data providers here
- DrawHisto
- needs: value, weight
+DrawBase ( sets up histos, graphs ), implements Pipeline,
+taken
+can add multiple data providers here
+DrawHisto
+needs: value, weight
 
- DrawGraph
- needs: x, y
+DrawGraph
+needs: x, y
 
- DrawPolar (3d)
- needs: r, phi, rho
+DrawPolar (3d)
+needs: r, phi, rho
 
- DataProvider ( extracts all needed values from data classes )
- * linked to tho output the Draw classes
- * can also cache the values and insert them in a FINAL STEP into the
- graph
+DataProvider ( extracts all needed values from data classes )
+* linked to tho output the Draw classes
+* can also cache the values and insert them in a FINAL STEP into the
+graph
 
- DataSelection
- * selects which events are included into the draw set
+DataSelection
+* selects which events are included into the draw set
 
- DrawZMassConsumer
+DrawZMassConsumer
 
- to solve:
- fukin hell: what about plots which first have to aggregate data of all events. especially cut-efficiency plots
- which have to know the percentage of all cuts passed ?
- So eine Art Value aggregator? das wird in den meisten fällen ein TH1d sein, kann aber auch eine Custom klasse sein.
+to solve:
+fukin hell: what about plots which first have to aggregate data of all events. especially cut-efficiency plots
+which have to know the percentage of all cuts passed ?
+So eine Art Value aggregator? das wird in den meisten fällen ein TH1d sein, kann aber auch eine Custom klasse sein.
 
- Major design change:
- DrawProvider ist ein EventConsumer, der wiederum ein DrawHisto verwendet um Plots rauszuschreiben. The other way around.
- Der Event Selektor wird nicht im DrawHisto, sondern direkt im EventConsumer angwendet.
- So machen, dass der EventConsumer noch die Kontrolle drüber hat, was ihm entzogen wird.
- */
+Major design change:
+DrawProvider ist ein EventConsumer, der wiederum ein DrawHisto verwendet um Plots rauszuschreiben. The other way around.
+Der Event Selektor wird nicht im DrawHisto, sondern direkt im EventConsumer angwendet.
+So machen, dass der EventConsumer noch die Kontrolle drüber hat, was ihm entzogen wird.
+*/
 /*
- typedef DrawHist2DConsumerBase<ZJetEventData, ZJetMetaData,
- ZJetPipelineSettings> ZJetHist2D;*/
+typedef DrawHist2DConsumerBase<ZJetEventData, ZJetMetaData,
+ZJetPipelineSettings> ZJetHist2D;*/
 typedef DrawHist1dConsumerBase<ZJetEventData, ZJetMetaData,
 ZJetPipelineSettings> ZJetHist1D;
 /*
- typedef DrawGraphErrorsConsumerBase<ZJetEventData, ZJetMetaData,
- ZJetPipelineSettings> ZJetGraphErrors;
- */
+typedef DrawGraphErrorsConsumerBase<ZJetEventData, ZJetMetaData,
+ZJetPipelineSettings> ZJetGraphErrors;
+*/
 
 template<class TData, class TMetaData, class TSettings>
 class MetaConsumerBase: public DrawConsumerBase<TData, TMetaData, TSettings>
@@ -205,8 +206,8 @@ private:
 };
 
 /*
- * Calculates the Response distribution with a Histogram
- */
+* Calculates the Response distribution with a Histogram
+*/
 class BinResponseConsumer: public ZJetMetaConsumer
 {
 public:
@@ -214,15 +215,15 @@ public:
 	{	MpfResponse, BalResponse}m_respType;
 
 	BinResponseConsumer( boost::property_tree::ptree * ptree , std::string configPath) :
-		ZJetMetaConsumer()
+		ZJetMetaConsumer(), m_useGenJet ( false )
 		{
 		{
 			/*
-		 "Name" : "response_balance",
-		 "ProductName" : "binresp",
-		 "ResponseType": "bal"|"mpf",
-		 "JetNumber" : 1 to n
-			 */
+		"Name" : "response_balance",
+		"ProductName" : "binresp",
+		"ResponseType": "bal"|"mpf",
+		"JetNumber" : 1 to n
+			*/
 			m_jetnum = ptree->get<unsigned int>( configPath + ".JetNumber", 1 ) -1;
 			m_name = ptree->get<std::string>( configPath + ".ProductName");
 
@@ -262,20 +263,56 @@ public:
 				// on jet for us here
 				return;
 
-			KDataLV * jet0 = metaData.GetValidJet(this->GetPipelineSettings(),
-					event,
-					m_jetnum);
-			assert( jet0 != NULL );
+			KDataLV * jet0 = NULL; 
+			
+			if ( ! m_useGenJet )
+			{
+			  jet0
+			  = metaData.GetValidJet(this->GetPipelineSettings(),
+					  event,
+					  m_jetnum);
+			  
+			  
+						// fill with the Pt Balance Response
+			  assert( jet0 != NULL );
+			m_resp->Fill( metaData.GetBalance( jet0 ),
+					metaData.GetWeight());
+			}
+			else
+			{
+			  unsigned int count = 
+			  metaData.GetValidJetCount(this->GetPipelineSettings(),
+					  event,
+					  JetType::GetGenName ( this->GetPipelineSettings().GetJetAlgorithm() )
+						);
+			  
+			  // get the gen jet
+			  if ( count > m_jetnum )
+			  {
+			  jet0
+			    = metaData.GetValidJet(this->GetPipelineSettings(),
+					    event,
+					    m_jetnum,
+					    JetType::GetGenName ( this->GetPipelineSettings().GetJetAlgorithm() )
+						  );
+			  }
+						// fill with the Pt Balance Response
+			  if (jet0 != NULL )
+			    m_resp->Fill( metaData.GetBalance( jet0 ),
+					    metaData.GetWeight());
+			  else 
+			    std::cout << "no gen jet for balance found ?" << std::endl;
+			}
+			
 			//std::cout << "Folder: " <<  this->GetPipelineSettings().GetRootFileFolder() << std::endl;
 
 
-			// fill with the Pt Balance Response
-			m_resp->Fill( metaData.GetBalance( jet0 ),
-					metaData.GetWeight());
+
 		}
 
 		if ( m_respType == MpfResponse )
 		{
+		    // todo: get Gen MPF
 			m_resp->Fill( metaData.GetMPF( event.GetMet( this->GetPipelineSettings()) ),
 					metaData.GetWeight());
 
@@ -287,11 +324,16 @@ public:
 		return "bin_response";
 	}
 
+	
+	bool m_useGenJet;
+	std::string m_name;
+	unsigned int m_jetnum;
 private:
 	Hist1D * m_resp;
-	unsigned int m_jetnum;
+	
 
-	std::string m_name;
+	
+	
 };
 
 class MetadataConsumer: public ZJetMetaConsumer
@@ -685,12 +727,12 @@ public:
 };
 
 /*
- template<>
- void MetaConsumerDataLV_Vector<KDataPFJet>::ProcessFilteredEvent(ZJetEventData const& event,
- ZJetMetaData const& metaData)
- {
- CALIB_LOG_FATAL("oh ja !")
- }*/
+template<>
+void MetaConsumerDataLV_Vector<KDataPFJet>::ProcessFilteredEvent(ZJetEventData const& event,
+ZJetMetaData const& metaData)
+{
+CALIB_LOG_FATAL("oh ja !")
+}*/
 
 }
 

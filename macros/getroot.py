@@ -44,10 +44,14 @@ def gethisto(name, rootfile, changes={}, isdata=False, rebin=1):
     if not rootfile.Get(name):
         print "Can't find " + name + " . Using fallback method"
         name = gethistoname(name, changes)
+        print "Trying name " + name
     if rootfile.Get(name) or isdata:
         roothist = getobject_direct(name, rootfile)
     else:
         roothist = getobject_direct(name.replace("Res", ""), rootfile)
+    
+    print "-> loaded"
+    
     return root2histo(roothist, rootfile.GetName(), rebin)
 
 
@@ -86,8 +90,11 @@ def getobject( name, rootfile, changes={}):
     if not rootfile.Get(name):
         print "Can't find " + name + " . Using fallback method"
         name = gethistoname(name, changes)
+        print "Trying " + name
     if rootfile.Get(name):
         oj = rootfile.Get( name)
+
+    print "-> loaded"
 
     return oj
 
@@ -101,7 +108,7 @@ def gethistoname(quantity='zmass', change={}):
     """Build the name of a histogram according to CalibFW conventions.
 
     Every histogram written by resp_cuts has a name like
-    'NoBinning_incut/<quantity>_ak5PFJetsL1L2L3CHS_hist'
+    'NoBinning_incut/<quantity>_ak5PFJetsL1L2L3_hist'
     This string is returned for each quantity and any changes to the default
     can be applied via the change dictionary.
     Toplevel plots have names like
@@ -113,7 +120,7 @@ def gethistoname(quantity='zmass', change={}):
     keys = ['bin', 'incut', 'var', 'quantity', 'algorithm', 'correction']
     selection = {'bin': 'NoBinning', 'incut': 'incut', 'var': '',
                  'quantity': '<quantity>', 'algorithm': 'ak5PFJets',
-                 'correction': 'L1L2L3CHS' }
+                 'correction': 'L1L2L3' }
     hst = ''
     # apply requested changes
     for k in change:
@@ -125,7 +132,8 @@ def gethistoname(quantity='zmass', change={}):
     # make a prototype name
     for k in keys:
         hst += selection[k] + '_'
-    hst = hst[:-1].replace('Jets_', 'Jets').replace('__', '_')
+        
+    hst = hst[:-1].replace('Jets_', 'Jets').replace('__', '_').replace('_L1', 'L1')
     # Now, the default string for hst looks like:
     # NoBinning_incut_<quantity>_ak5PFJetsL1L2L3CHS_hist
     # ability to get level 2 pipeline plots via ../ prefix:
@@ -189,8 +197,9 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.norm = 1.0 / hst.ysum
     else:
         # histo is of unknown type
-        print "The object '" + histo + "' is no histogram and no graph!",
+        print "The object '" + str(histo) + "' is no histogram and no graph!",
         print "Could not convert."
+        exit()
     return hst
 
 
