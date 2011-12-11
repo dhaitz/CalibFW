@@ -61,7 +61,8 @@ def GetBasePath():
 def ApplyFast( inputfiles, args ):
     if len(args) > 1:
         if args[1] == "fast":
-            inputfiles = inputfiles[:1]
+            #inputfiles = inputfiles[:1]
+            inputfiles = [  inputfiles[4] ]
 
     return inputfiles
 
@@ -690,6 +691,7 @@ def StoreGCConfig ( settings, nickname, filename ):
     config.optionxform = str
     config.add_section("global")
     config.set("global", "include", "gc_common.conf")
+    config.set("global", "workdir space", "0")
     config.add_section("UserMod")
     config.set("UserMod", "dataset", nickname + " : " + nickname + ".dbs" )
 
@@ -718,7 +720,14 @@ def StoreGCCommon ( settings, nickname, filename, output_folder ):
     config.set("local", "queue", "short")
     
     config.add_section("UserMod")
-    config.set("UserMod", "files per job", 7 )
+    
+    # we can run more data files with one MC job as they don't contain that many 
+    # events
+    if settings["InputType"] == "mc":
+	config.set("UserMod", "files per job", 5 )
+    else:
+	config.set("UserMod", "files per job", 20 )
+	
     config.set("UserMod", "executable", "gc-run-closure.sh" )
     config.set("UserMod", "subst files", "gc-run-closure.sh" )
     #config.set("UserMod", "input files", "/usr/lib64/libboost_regex.so.2" )

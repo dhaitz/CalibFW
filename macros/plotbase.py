@@ -40,22 +40,24 @@ matplotlib.rcParams.update({
 })
 
 
-def plot(module, plots, fdata, mc, op):
+def plot(modules, plots, fdata, mc, op):
     # dont display any graphics
     gROOT.SetBatch( True )
   
     """Search for plots in the module and run them."""
-    if op.verbose:
-        print "%1.2f | Start plotting" % clock()
-    if not plots:
-        print "Nothing to do. Please list the plots you want!"
-        plots = []
-    for p in plots:
-        if hasattr(module, p):
-            print "New plot:",
-            getattr(module, p)(fdata, mc, op)
-    if op.verbose:
-        print "%1.2f | End" % clock()
+    
+    for module in modules:    
+	if op.verbose:
+	    print "%1.2f | Start plotting" % clock()
+	if not plots:
+	    print "Nothing to do. Please list the plots you want!"
+	    plots = []
+	for p in plots:
+	    if hasattr(module, p):
+		print "New plot:",
+		getattr(module, p)(fdata, mc, op)
+	if op.verbose:
+	    print "%1.2f | End" % clock()
 
 
 def options(
@@ -75,7 +77,8 @@ def options(
             ],
             plots=None,
             # current default
-            npv =  [ (0,1), (2,5), (6,11), (12,100 ) ],
+            # new ones: [0, 3, 6, 12], [2, 5, 11, 100]
+            npv =  [ (0,2), (3,5), (6,11 ), ( 12,100) ],
             bins=None):
     """Set standard options and read command line arguments
 
@@ -167,6 +170,10 @@ def options(
         showoptions(opt)
     return opt
 
+def fail( fail_message ):
+    print fail_message
+    exit ( 0 )
+
 
 def showoptions(opt):
     print "Options:"
@@ -233,13 +240,15 @@ def getpath():
 def newplot(ratio=False):
     fig = plt.figure(figsize=[7, 7])
     ax = fig.add_subplot(111)
+    ax.minorticks_on()
+
     if ratio:
         print "The ratio plot template is not yet implemented"
     return fig, ax
 
 
-def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='best',
-           frame=False):
+def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper right',
+           frame=True):
     """This function prints all labels and captions in a plot.
 
     Several functions are called for each type of label.
@@ -299,7 +308,7 @@ def jetlabel(ax, algorithm="", correction="", posx=0.05, posy=0.95):
     ax.text(posx, posy - 0.07, res[1], va='top', ha='left',
             transform=ax.transAxes)
             
-    if "CHS" in correction:
+    if "CHS" in correction or "CHS" in algorithm:
         ax.text(posx, posy - 0.14, r"CHS applied",
             va='top', ha='left', transform=ax.transAxes)
     return ax
@@ -357,6 +366,26 @@ def resultlabel(ax, text="", xpos=0.05, ypos=0.05):
         ax.text(xpos, ypos, text, va='top', ha='left', transform=ax.transAxes)
 
 
+
+# same as the old version, but can handle and and y axis indpendetly      
+def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
+        
+    # set for specific objects
+    if x_q == 'npv':
+        ax.set_xlabel(r"Number of Primary Vertices [1]",
+                      ha="right", x=1)
+	ax.set_xlim(0, 20)                      
+    else:
+	fail ( "x_q " + x_q + " not supported" )
+                      
+    if y_q == 'datamc_ratio':
+        ax.set_ylabel(r"Data/MC", va="top", y=1)
+        ax.set_ylim(0.8, 1.1)
+#        ax.legend(bbox_to_anchor=(0.65, 0.6, 0.3, 0.2), loc='upper right',
+#                  numpoints=1, frameon=True)        
+    else:
+	fail ( "y_q " + y_q + " not supported" )
+        
 def axislabel(ax, q='pt', obj='Z', brackets=False):
     """label the axes according to the plotted quantity"""
     # according to quantity q
@@ -371,7 +400,8 @@ def axislabel(ax, q='pt', obj='Z', brackets=False):
 
     def gev():
         return unit("GeV")
-
+    
+        
     # all labels va top ha right x=1 y =1,
     if q == 'pt':
         ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{" + obj + r"} / \mathrm{GeV}$",
@@ -416,7 +446,7 @@ def axislabel(ax, q='pt', obj='Z', brackets=False):
         ax.set_ylabel(r"Data/MC", va="top", y=1)
         ax.set_xlim(10, 240)
         ax.set_ylim(0.8, 1.1)
-        ax.legend(bbox_to_anchor=(0.65, 0.6, 0.3, 0.2), loc='upper right',
+        ax.legend( loc='upper right',
                   numpoints=1, frameon=True)
     elif q == 'cutineff':
         ax.set_ylabel(r"Cut Infficiency", y=1, va="top")
@@ -481,6 +511,9 @@ def axislabel(ax, q='pt', obj='Z', brackets=False):
         ax.set_ylabel(r"arb. units", va="top", y=1)
         ax.set_xlim(0, 350)
         ax.set_ylim(bottom=0.0)
+        
+
+        
     return ax
 
 

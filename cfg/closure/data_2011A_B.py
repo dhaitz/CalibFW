@@ -25,7 +25,7 @@ conf = cbase.ExpandDefaultDataConfig(  algorithms, conf, True )
 # create various variations ...
 variations = []
 variations += [ cbase.ExpandRange( conf["Pipelines"], "CutSecondLeadingToZPt", [0.1, 0.15, 0.2, 0.3], True, True  ) ]
-variations += [ cbase.ExpandRange2( variations[-1], 'Npv', [0, 2, 6, 12], [1, 5, 11, 100], "var_{name}_{low}to{high}", False) ]
+variations += [ cbase.ExpandRange2( variations[-1], 'Npv', [0, 3, 6, 12], [2, 5, 11, 100], "var_{name}_{low}to{high}", False) ]
 
 
 cbase.AddCorrectionPlots( conf, base_algorithms, l3residual = True )

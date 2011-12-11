@@ -94,7 +94,10 @@ def getobject( name, rootfile, changes={}):
     if rootfile.Get(name):
         oj = rootfile.Get( name)
 
-    print "-> loaded"
+    if oj == None:
+	print "Cant load object " + name + " from root file"
+	exit (0)
+    print "-> " + name + " loaded"
 
     return oj
 
