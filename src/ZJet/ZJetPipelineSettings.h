@@ -70,13 +70,19 @@ IMPL_SETTING( bool, EnableReweighting)
 	// Filter Settings
 IMPL_SETTING(double, FilterPtBinLow)
 IMPL_SETTING(double, FilterPtBinHigh)
-IMPL_SETTING( int, FilterNpvLow)
-IMPL_SETTING( int, FilterNpvHigh)
+IMPL_SETTING(unsigned int, FilterNpvLow)
+IMPL_SETTING(unsigned int, FilterNpvHigh)
 IMPL_SETTING(double, FilterJetEtaLow)
 IMPL_SETTING(double, FilterJetEtaHigh)
 
 IMPL_SETTING(unsigned int, FilterRunRangeLow)
 IMPL_SETTING(unsigned int, FilterRunRangeHigh)
+
+IMPL_SETTING(unsigned int, FilterRunRangeLumiLow)
+IMPL_SETTING(unsigned int, FilterRunRangeLumiHigh)
+IMPL_SETTING(unsigned int, FilterRunRangeEventLow)
+IMPL_SETTING(unsigned int, FilterRunRangeEventHigh)
+
 
 IMPL_SETTING(double, FilterSecondJetRatioLow)
 IMPL_SETTING(double, FilterSecondJetRatioHigh)

@@ -4,6 +4,8 @@
 #include "DataFormats/interface/Kappa.h"
 
 #include <KappaTools/RootTools/FileInterface.h>
+#include <Kappa/DataFormats/interface/KDebug.h>
+
 
 #include "ZJetPipelineSettings.h"
 #include "Misc/SafeMap.h"
@@ -124,21 +126,45 @@ public:
 		}
 	}
 
-	virtual std::string GetContent() const
+	virtual std::string GetContent(	ZJetPipelineSettings const& settings  ) const
 	{
-
 		std::stringstream s;
 
+		s << "EventMetadada " << std::endl;
+		s << "Run: " << m_eventmetadata->nRun << " LumiSec: " <<  m_eventmetadata->nLumi << " EventNum: " <<  m_eventmetadata->nEvent << std::endl;
+		
+		if ( settings.IsData() )
+		{		  
+		    s << "KDataLumiMetadata: " << std::endl;
+		    s << "CurLumi: " << GetDataLumiMetadata()->getLumi() << std::endl;
+		}
+/*
+		if ( settings.IsMC() )
+		{		  
+		    s << GetGenLumiMetadata() << std::endl;
+		}*/
 		s << "PF Jets collection:" << std::endl;
 		for (PfMapIterator it = m_pfJets.begin(); it != m_pfJets.end(); ++it)
 		{
 			s << it->first << " count " << it->second->size() <<  std::endl;
+			
+			KDataPFJets * pfJets = it->second;
+			for ( unsigned int i = 0; i < pfJets->size(); ++ i )
+			{
+			    s << "Jet " << i << ":" << std::endl << pfJets->at(i) << std::endl; 
+			}
 		}
 
 		s << "Gen Jets collection:" << std::endl;
 		for (GenJetMapIterator it = m_genJets.begin(); it != m_genJets.end(); ++it)
 		{
 			s << it->first << " count " << it->second->size() <<  std::endl;
+			
+			KDataLVs * genJets = it->second;
+			for ( unsigned int i = 0; i < genJets->size(); ++ i )
+			{
+			    s << "Jet " << i << ":" << std::endl << genJets->at(i) << std::endl; 
+			}
 		}		
 		
 		return s.str();

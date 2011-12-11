@@ -196,8 +196,7 @@ public:
 	}
 	virtual double GetDefaultHighBin() const
 	{
-		//return 0.000000000000006; // lumi in year 2011
-		return 6.0;
+		return 0.06; // lumi of year 2011 in atto barn
 	}
 };
 
@@ -370,6 +369,19 @@ public:
 		KDataLV * jet2 = metaData.GetValidJet(settings, event, m_jet2Num,
 				m_jetAlgo2);
 		val = (jet1->p4.Pt() / jet2->p4.Pt());
+		
+// debug stuff, remove !
+		/*
+		if ( val > 3.5)
+		{
+		    CALIB_LOG_FILE ( "jet1pt " << jet1->p4.Pt()  << " jet2pt " << jet2->p4.Pt() )
+		    CALIB_LOG_FILE ( "freak event ? update: " << val << " algo1: " << m_jetAlgo1 << " algo: " << m_jetAlgo2 )
+		    CALIB_LOG_FILE ( "jet1Num: " << m_jet1Num << " jet2Num: " << m_jet2Num )
+		    CALIB_LOG_FILE ( "Jet1 " << *jet1 )
+		    CALIB_LOG_FILE ( "Jet2 " << *jet2 )
+		    CALIB_LOG_FILE( event.GetContent( settings ) )
+		}*/
+		
 		return true;
 	}
 

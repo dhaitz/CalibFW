@@ -17,7 +17,7 @@ public:
 	{
 
 	}
-
+	
 	virtual void PopulateMetaData(TData const& data, TMetaData & metaData,
 			TSettings const& m_pipelineSettings) const = 0;
 

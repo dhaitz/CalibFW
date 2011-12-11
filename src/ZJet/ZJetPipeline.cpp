@@ -177,6 +177,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		else if (sName == "quantities_basic" )
 		{
 			pLine->AddConsumer( new DataZConsumer( pset.GetJetAlgorithm() ));
+			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
 /*
 			if ( JetType::IsPF( pset.GetJetAlgorithm() ))
 			{

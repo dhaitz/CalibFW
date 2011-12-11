@@ -29,7 +29,9 @@ public:
 	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
 			ZJetPipelineSettings> * pset)
 	{
-	      // hm ...
+	      ZJetConsumerBase::Init( pset );	
+
+	  
 	}
 
 	static std::string GetName()
@@ -39,7 +41,6 @@ public:
 
 	virtual void Finish()
 	{
-	  
 	}
 
 	// this method is only called for events which have passed the filter imposed on the
@@ -54,15 +55,16 @@ public:
 			ZJetMetaData const& metaData,
 			FilterResult & result)
 	{
-	    std::cout << "## Event" << std::endl << event.GetContent();
-
-	  std::cout << "## MetaData" << std::endl << metaData.GetContent();
+	    std::cout << "## Event" << std::endl << event.GetContent( this->GetPipelineSettings() );
+	    std::cout << "## MetaData" << std::endl << metaData.GetContent();
 	}
 
 
 	std::map<std::string, unsigned long> m_cutRejected;
 	ZJetPipeline::MetaDataProducerVector m_cuts;
 
+	bool m_isMC;
+	
 	unsigned long m_conditional2ndJetPtCut;
 	unsigned long m_conditional2ndJetPtCutBase;
 

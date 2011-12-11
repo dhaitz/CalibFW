@@ -21,6 +21,7 @@ void CorrJetProducer::PopulateMetaData(ZJetEventData const& data,
 
 
 void CorrJetProducer::InitCorrection( std::string algoName,
+				      std::string algoCorrectionAlias,
                                      ZJetEventData const& event,
                                     std::string prefix ) const
 {
@@ -47,9 +48,9 @@ void CorrJetProducer::InitCorrection( std::string algoName,
 	//corLevel.push_back("L1Offset");
 
 	//FileInterface & fi = *( const_cast< FileInterface*> ( event.m_fi ))
-    m_corrService.insert( algoName ,new JecCorrSet() );
+    m_corrService.insert( algoCorrectionAlias ,new JecCorrSet() );
 
-	m_corrService[ algoName ].m_l1.reset( new JECService(
+	m_corrService[ algoCorrectionAlias ].m_l1.reset( new JECService(
             event.m_vertexSummary, event.m_jetArea, prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
 			);
 
@@ -57,7 +58,7 @@ void CorrJetProducer::InitCorrection( std::string algoName,
 	corLevel.clear();
 	corLevel.push_back("L2Relative");
 
-	m_corrService[ algoName ].m_l2.reset( new JECService(
+	m_corrService[ algoCorrectionAlias ].m_l2.reset( new JECService(
 			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
 			);
 
@@ -65,7 +66,7 @@ void CorrJetProducer::InitCorrection( std::string algoName,
 	corLevel.clear();
 	corLevel.push_back("L3Absolute");
 
-	m_corrService[ algoName ].m_l3.reset( new JECService(
+	m_corrService[ algoCorrectionAlias ].m_l3.reset( new JECService(
 			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
 		);
 
@@ -73,7 +74,7 @@ void CorrJetProducer::InitCorrection( std::string algoName,
 	corLevel.clear();
 	corLevel.push_back("L2L3Residual");
 
-	m_corrService[ algoName ].m_l2l3res.reset( new JECService(
+	m_corrService[ algoCorrectionAlias ].m_l2l3res.reset( new JECService(
 			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
 			);
 }
@@ -83,11 +84,9 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 		ZJetEventData const& event,
 		ZJetMetaData & metaData,
 		ZJetPipelineSettings const& settings,
-		std::string algoAlias) const
+		std::string algoCorrectionAlias) const
 {
-	InitCorrection( "AK5PF", event);
-	//InitCorrection( "AK5PFchs", event );
-	//InitCorrection( "AK7PF", event );
+
 
 	std::string algoName_raw =algoName + algoPostfix;
 	std::string algoName_l1 = algoName_raw + "L1";
@@ -97,18 +96,18 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 
 
 	CorrectJetCollection( algoName_raw, algoName_l1,
-				this->m_corrService.at( algoAlias ).m_l1,
+				this->m_corrService.at( algoCorrectionAlias ).m_l1,
 				event,
 				metaData,
 				settings );
 
 	CorrectJetCollection( algoName_l1, algoName_l2,
-				this->m_corrService.at( algoAlias ).m_l2,
+				this->m_corrService.at( algoCorrectionAlias ).m_l2,
 				event,
 				metaData,
 				settings );
 	CorrectJetCollection( algoName_l2, algoName_l3,
-				this->m_corrService.at( algoAlias ).m_l3,
+				this->m_corrService.at( algoCorrectionAlias ).m_l3,
 				event,
 				metaData,
 				settings );
@@ -119,7 +118,7 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 		//CALIB_LOG_FATAL("Implement this ")
 		// do l2l3res here
 		CorrectJetCollection( algoName_l3, algoName_l3res,
-					this->m_corrService.at( algoAlias ).m_l2l3res,
+					this->m_corrService.at( algoCorrectionAlias ).m_l2l3res,
 					event,
 					metaData,
 					settings );
@@ -129,10 +128,15 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 bool CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
 		ZJetMetaData & metaData, ZJetPipelineSettings const& settings) const
 {
-	CreateCorrections( "AK5PF", "Jets", event, metaData, settings, "AK5PF" );
-	
-	// for now, use no special CHS
-	CreateCorrections( "AK5PF", "JetsCHS", event, metaData, settings, "AK5PF" );
+    InitCorrection( "AK5PF", "AK5PF", event);
+    InitCorrection( "AK5PFchs", "AK5PFchs", event);
+
+    //InitCorrection( "AK5PFchs", event );
+    //InitCorrection( "AK7PF", event );
+    
+    CreateCorrections( "AK5PF", "Jets", event, metaData, settings, "AK5PF" );	
+    // for now, use no special CHS
+    CreateCorrections( "AK5PF", "JetsCHS", event, metaData, settings, "AK5PFchs" );
 
 	//CreateCorrections( "AK7PF", "Jets",event, metaData, settings );
     return true;
