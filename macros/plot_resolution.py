@@ -155,7 +155,7 @@ def plot_resolution ( file,
     str_bins = binstrings(opt.bins)
     
 
-    tmp_out_path = opt.out + "/resolution_tmp/"  
+    tmp_out_path = opt.out + "/tmp_resolution/"  
     plotbase.EnsurePathExists( tmp_out_path )
 
     
@@ -256,9 +256,10 @@ def mytest(fdata, fmc, opt):
                     "YYY_incut/z_pt_AK5PFJetsL1L2L3" )                    
                     
     ax = f.get_axes()[0]
-    ax.set_ylim( 0.0, 0.351 )
+    ax.set_ylim( 0.0, 0.311 )
     ax.set_xlim( 30.0, 501 )
     ax.set_xscale ("log")
+    ax.minorticks_on()
 
     ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{Z" + r"} / \mathrm{GeV}$",
 		  ha="right", x=1)
@@ -291,6 +292,7 @@ def mytest(fdata, fmc, opt):
 	      capsize=2 )
     
     ax = f.get_axes()[0]
+    ax.minorticks_on()
     ax.set_ylim( 0.0, 2.5 )
     ax.set_xlim( 30.0, 501 )
     ax.set_xscale ("log")
@@ -333,7 +335,8 @@ def mytest(fdata, fmc, opt):
                     "YYY_incut/z_pt_AK5PFJetsL1L2L3" )                    
                     
     ax = f.get_axes()[0]
-    ax.set_ylim( 0.0, 0.351 )
+    ax.minorticks_on()
+    ax.set_ylim( 0.0, 0.311 )
     ax.set_xlim( 30.0, 501 )
     ax.set_xscale ("log")
     
@@ -366,10 +369,11 @@ def mytest(fdata, fmc, opt):
 	      capsize=2 )
     
     ax = f.get_axes()[0]
+    ax.set_xscale ("log")
+    ax.minorticks_on()
     ax.set_ylim( 0.0, 2.5 )
     ax.axhline(1.0, color="black", linestyle='--')
     ax.set_xlim( 30.0, 501 )
-    ax.set_xscale ("log")
    
     ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{Z" + r"} / \mathrm{GeV}$",
 		  ha="right", x=1)

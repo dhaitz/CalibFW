@@ -363,6 +363,10 @@ def statuslabel(ax, status=None, xpos=0.25, ypos=1.018):
 
 def resultlabel(ax, text="", xpos=0.05, ypos=0.05):
     if text is not None:
+	if "\n" in text:
+	    # two lined thingy
+	    ypos = 0.12
+	
         ax.text(xpos, ypos, text, va='top', ha='left', transform=ax.transAxes)
 
 

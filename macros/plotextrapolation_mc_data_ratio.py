@@ -251,9 +251,9 @@ def extrapolate_ratio( fig, method, fdata, fmc, opt, tag,
 		const_fit_res + const_fit_res_err, color=the_color, alpha=0.23)
 	ax.axhline(1.0, color="black", linestyle='--')
 
-
+	str_fit_quality = r"$ \chi^2$ / NDF = {0:.2f} / {1:.0f} ".format(fitres.Chi2(),fitres.Ndf() ) 
 	plotbase.labels(ax, opt, result=("Overall Ratio (fit) = "
-		"${0:.3f} \pm {1:.3f}$".format(const_fit_res, const_fit_res_err)),
+		"${0:.3f} \pm {1:.3f}$".format(const_fit_res, const_fit_res_err)) + "\n" + str_fit_quality,
 			legloc = 'upper right')
 	plotbase.axislabel(ax, 'datamc_ratio', 'jet')
 	plotbase.jetlabel( ax, opt.algorithm, opt.correction )

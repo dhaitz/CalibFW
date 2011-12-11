@@ -35,6 +35,8 @@ def plot():
     """Run all plots with the given settings"""
 
     print "plot 1.0"
+    
+    module_list = [plotfractions, plotdatamc, plotextrapolation_mc_data_ratio, plot_resolution]
     # settings (1):
     op = plotbase.options(
         files=[
@@ -45,9 +47,9 @@ def plot():
         #algorithm="AK5PFJets",
         correction="L1L2L3",
         lumi=4700.0,
-        plots= #plot_resolution.plots +
+        plots= plot_resolution.plots# +
 	       #plotdatamc.plots + 
-	       plotextrapolation_mc_data_ratio.plots
+	       #plotextrapolation_mc_data_ratio.plots
               #plotfractions.plots,
         )
     # override commandline (3):
@@ -67,12 +69,12 @@ def plot():
     #op.npv =  [ (0,2), (3,5), (6,11 ) ]
     op.verbose = True
     
-    plotbase.plot( [plotfractions, plotdatamc, plotextrapolation_mc_data_ratio], 
+    plotbase.plot( module_list, 
 		    op.plots, fdata, fmc, op)
 
     op.algorithm = "AK5PFJets"
     op.npv = [ (0,2), (3,5), (6,11 ) ]
-    plotbase.plot( [plotfractions, plotdatamc, plotextrapolation_mc_data_ratio], 
+    plotbase.plot( module_list, 
 		    op.plots, fdata, fmc, op)
 		    
 if __name__ == "__main__":
