@@ -112,7 +112,7 @@ def options(
         default=algorithm,
         help="output directory for plots")
 
-    print "Coor " + correction
+#    print "Coor " + correction
 
     parser.add_argument('-c', '--correction', type=str,
         default=correction,
@@ -435,7 +435,7 @@ def axislabel(ax, q='pt', obj='Z', brackets=False):
         ax.set_ylabel(r"Events", va="top", y=1)
         ax.set_xlim(70, 110)
         ax.set_ylim(bottom=0.0)
-    elif q == 'jetresp':
+    elif q == 'balresp':
         ax.set_xlabel(r"$p_\mathrm{T}^{Z} %s$" % gev(), ha="right", x=1)
         ax.set_ylabel(r"$p_\mathrm{T}$ balance", va="top", y=1)
         ax.set_xlim(10, 240)
