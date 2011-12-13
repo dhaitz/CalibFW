@@ -143,6 +143,10 @@ IMPL_SETTING(double, CutSecondLeadingToZPtRegionHigh )
 IMPL_SETTING(double, CutSecondLeadingToZPtDeltaR)
 IMPL_SETTING(double, CutBack2Back)
 IMPL_SETTING(double, CutJetPt)
+IMPL_SETTING(double, CutRapidityGap)
+IMPL_SETTING(double, CutInvariantMass)
+IMPL_SETTING(double, CutLeadingJetEnergy)
+IMPL_SETTING(double, CutSecondJetEnergy)
 
 	// if a cut is enabled, the bit corresponding to the cut id it set in this integer
 IMPL_PROPERTY(unsigned long, CutEnabledBitmask)
