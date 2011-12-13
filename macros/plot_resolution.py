@@ -9,6 +9,7 @@ import plotbase
 
 import getroot
 import matplotlib.pyplot as plt 
+import matplotlib.ticker as tck
 
 
 def binstrings(bins):
@@ -31,7 +32,7 @@ def fit_resolution ( file, histo_name, tag,
 
 
     hist_resp = getroot.getobject( histo_name, file )
-    hist_resp.Rebin(6)
+    hist_resp.Rebin(8)
     
     # give useful start parameters 
     fitFunc.SetParameters(1.0, 1.0, 1.0)
@@ -77,13 +78,14 @@ def extrapolate_resolution ( file,
                              base_name, # is "Pt300to1000_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3
                              tag,
                              out_path,
-                             var=[0.1, 0.15, 0.2, 0.3] ):
+                             var=[0.1, 0.15, 0.2, 0.3],
+                             extr_method = "plain" ):
     variation_result = []
 
     c = TCanvas (base_name, base_name, 600, 600)
 
-    fit_formula = "[0]+[1]*(x-[2])"
-    fitFunc = TF1("fit1", fit_formula, 0, 2.0)
+
+
     #fitFunc.SetParameters(1.0, 0.001, 0.3)
 
     
@@ -111,19 +113,44 @@ def extrapolate_resolution ( file,
         x_last = x
         
         n = n + 1
-    
-    # Fix the parameters and do the fit
-    fitFunc.FixParameter(0, y_last)
-    fitFunc.FixParameter(2, x_last)
-    
-    fitres = graph.Fit(fitFunc, "S")
-    
-    m_fit_err = fitres.GetErrors()[1]
-    m_fit = fitres.GetParams()[1]    
 
-    yex = fitFunc.Eval( 0.0 )  #y_last - m_fit * x_last
-    yex_err = y_last_err + m_fit_err * x_last
+    if extr_method == "plain":
+    	fit_formula = "[0]+[1]*(x-[2])"
+    	fitFunc = TF1("fit1", fit_formula, 0, 2.0)
 
+    	# Fix the parameters and do the fit
+    	fitFunc.FixParameter(0, y_last)
+    	fitFunc.FixParameter(2, x_last)
+
+    	fitres = graph.Fit(fitFunc, "S")
+
+    	m_fit_err = fitres.GetErrors()[1]
+    	m_fit = fitres.GetParams()[1]    
+
+    	yex = fitFunc.Eval( 0.0 )  #y_last - m_fit * x_last
+    	yex_err = y_last_err + m_fit_err * x_last
+
+    elif extr_method == "complex":
+    	fit_formula = "( [0]^2+[1]^2 + 2 * [1] * [2] * x  + [2]^2 * x^2 ) ^ (1/2)"
+    	fitFunc = TF1("fit1", fit_formula, 0, 2.0)
+
+    	fitres = graph.Fit(fitFunc, "S")
+
+    	# 'resonable' start parameters
+    	fitFunc.SetParameter(0, 0.1)
+    	fitFunc.SetParameter(1, 0.1)
+    	fitFunc.SetParameter(2, 0.5)
+
+    	gen_intrinsic = fitres.GetParams() [0]
+    	reco_res = fitres.GetParams() [1]
+
+    	print "Complex Resolution fit. GenIntr: " + str( gen_intrinsic ) + " RecoRes: " + str( reco_res )  
+
+    	yex = fitres.GetParams() [1]
+    	yex_err = fitres.GetErrors() [1]
+    else:
+	    plotbase.fail( "Method " + extr_method + " not supported" )
+    
 
     if not fitres.IsValid():
         print " A FIT FAILED !"
@@ -150,7 +177,10 @@ def plot_resolution ( file,
                       opt,
                       algo,
                       correction,
-                      ref_hist # some zpt ... 
+                      ref_hist,
+        		      fit_method = "plain", # some zpt ...
+        		      subtract_gen = None,
+                    draw_ax = None
                       ):
     str_bins = binstrings(opt.bins)
     
@@ -166,7 +196,7 @@ def plot_resolution ( file,
 
     skip_evens = 1
     
-    graph = TGraphErrors(len(str_bins) - skip_evens)
+    #graph = TGraphErrors(len(str_bins) - skip_evens)
         
     
     plot_x = []
@@ -178,7 +208,7 @@ def plot_resolution ( file,
     for str_bin in str_bins:
         hist_template = base_name.replace("YYY", str_bin)
         
-        extra_res = extrapolate_resolution( file, hist_template, tag, tmp_out_path )
+        extra_res = extrapolate_resolution( file, hist_template, tag, tmp_out_path, extr_method = fit_method )
         print hist_template + " results in extrapolation " + str(extra_res)
                
         print ref_hist.replace("YYY", str_bin)
@@ -186,34 +216,45 @@ def plot_resolution ( file,
         
         
         # skip first bin
-        if not n == 0:
-            graph.SetPoint(n - skip_evens, hist_zpt.GetMean (), extra_res[0] )
-            graph.SetPointError(n - skip_evens, hist_zpt.GetMeanError (), extra_res[1] )
+        #if not n == 0:
+        #    graph.SetPoint(n - skip_evens, hist_zpt.GetMean (), extra_res[0] )
+        #    graph.SetPointError(n - skip_evens, hist_zpt.GetMeanError (), extra_res[1] )
 
-            plot_x += [ hist_zpt.GetMean () ]
-	    plot_y += [extra_res[0] ]
-	    plot_yerr += [extra_res[1] ]
+
+        if not subtract_gen == None:
+            print " subtracting gen response: " + str(subtract_gen[1][n])
+            #subtract gen response
+            if ( extra_res[0]**2 - subtract_gen[1][n]**2 ) > 0.0:
+                plot_y += [ math.sqrt( extra_res[0]**2 - subtract_gen[1][n]**2 ) ]        
+            else:
+                print "cant subtract gen response"
+                plot_y += [extra_res[0] ]
+        else:
+            plot_y += [extra_res[0] ]
+            
+        plot_x += [ hist_zpt.GetMean () ]
+        plot_yerr += [extra_res[1] ]
 
         n = n + 1
         
         
-    plt.errorbar(plot_x, plot_y, plot_yerr, fmt='o',
+    draw_ax.errorbar(plot_x, plot_y, plot_yerr, fmt='o',
                  capsize=2, label=tag )
     
     
     
-    c = TCanvas (base_name, base_name, 600, 600)
+    #c = TCanvas (base_name, base_name, 600, 600)
     
-    graph.SetMarkerColor(4)
-    graph.SetMarkerSize(1.5)
-    graph.SetMarkerStyle(21)
+    #graph.SetMarkerColor(4)
+    #graph.SetMarkerSize(1.5)
+    #graph.SetMarkerStyle(21)
     
-    graph.SetMinimum( 0.0 )
-    graph.SetMaximum ( 0.3 )
+    #graph.SetMinimum( 0.0 )
+    #graph.SetMaximum ( 0.3 )
     
-    graph.Draw( "ap" )
-    base_name = base_name.replace ( "/", "_")
-    c.Print ( tmp_out_path + tag + base_name + "_resolution.png")
+    #graph.Draw( "ap" )
+    #base_name = base_name.replace ( "/", "_")
+    #c.Print ( tmp_out_path + tag + base_name + "_resolution.png")
     
     return (plot_x, plot_y, plot_yerr )
 
@@ -228,50 +269,64 @@ def mytest(fdata, fmc, opt):
     # dont display any graphics
     gROOT.SetBatch( True )
     
-    f = plt.figure()
-
-    algo = "AK5PFJets"
-    corr = "L1L2L3"
-    
-    # akp5pf 
-    mc_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsL1L2L3", 
-                    "MC",
-                     opt,
-                     algo,
-                     corr,
-                    "YYY_incut/z_pt_AK5PFJetsL1L2L3" )
-    
-    data_res = plot_resolution( fdata, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsL1L2L3", 
-                    "Run 2011",
-                     opt,
-                     algo,
-                     corr,
-                    "YYY_incut/z_pt_AK5PFJetsL1L2L3" )
-                    
-    gen_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsL1L2L3Gen", 
-                    "MC Gen",
-                     opt,
-                     algo,
-                     corr,
-                    "YYY_incut/z_pt_AK5PFJetsL1L2L3" )                    
-                    
-    ax = f.get_axes()[0]
-    ax.set_ylim( 0.0, 0.311 )
+    f,ax = plotbase.newplot()
+    # move the plot a bit
+    #ax = f.add_subplot(111, position=[0.125,0.1,0.825,0.8])
+    #ax.xaxis.set_major_locator( tck.FixedLocator([60,100,400]) )
+    ax.set_ylim( 0.0, 0.291 )
     ax.set_xlim( 30.0, 501 )
+
+    # this modifies the tick formaters on the x-axis !
     ax.set_xscale ("log")
-    ax.minorticks_on()
+
+    ax.xaxis.set_major_locator( tck.LogLocator( base = 10 , subs = [1,2,4,5,7]) )
+    ax.xaxis.set_major_formatter( tck.ScalarFormatter() )
+
 
     ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{Z" + r"} / \mathrm{GeV}$",
 		  ha="right", x=1)
     ax.set_ylabel(r"Jet Resolution", va="top", y=1)
-    ax.legend( frameon=True,  numpoints=1 )
     plotbase.lumilabel(ax, opt.lumi)    # always (if given) pure MC plots?
     plotbase.statuslabel(ax, opt.status)
     plotbase.energylabel(ax, opt.energy)    
     
 
     plotbase.jetlabel( ax, "AK5PFJets", "L1L2L3" )
-                 
+
+    algo = "AK5PFJets"
+    corr = "L1L2L3"
+    
+    # akp5pf 
+    
+    gen_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsL1L2L3Gen", 
+                    "MC Gen",
+                     opt,
+                     algo,
+                     corr,
+                    "YYY_incut/z_pt_AK5PFJetsL1L2L3",
+                    draw_ax = ax ) 
+    
+    mc_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsL1L2L3", 
+                    "MC RECO",
+                     opt,
+                     algo,
+                     corr,
+                    "YYY_incut/z_pt_AK5PFJetsL1L2L3",
+                    subtract_gen = gen_res ,
+		            fit_method = "plain",
+                    draw_ax = ax )
+    
+    data_res = plot_resolution( fdata, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsL1L2L3", 
+                    "Run 2011",
+                     opt,
+                     algo,
+                     corr,
+                    "YYY_incut/z_pt_AK5PFJetsL1L2L3",
+                    subtract_gen = gen_res,
+		            fit_method = "plain",
+                    draw_ax = ax )
+                    
+    ax.legend( frameon=True,  numpoints=1 )
     plotbase.Save(f, "resolution_balresp_AK5PFJetsL1L2L3", opt)
 
 
@@ -305,34 +360,40 @@ def mytest(fdata, fmc, opt):
     plotbase.statuslabel(ax, opt.status)
     plotbase.energylabel(ax, opt.energy)  
     plotbase.jetlabel( ax, "AK5PFJets", "L1L2L3" )   
-    f.savefig( "resolution_balresp_AK5PFJetsL1L2L3_ratio" )
+    #f.savefig( "resolution_balresp_AK5PFJetsL1L2L3_ratio" )
     plotbase.Save(f, "resolution_balresp_AK5PFJetsL1L2L3_ratio", opt)
    
+    exit(0)
+
     # akp5pf CHS
     f = plt.figure()
     algo = "AK5PFJetsCHS"
     corr = "L1L2L3"
     
+    gen_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3Gen", 
+                    "MC Gen",
+                     opt,
+                     algo,
+                     corr,
+                    "YYY_incut/z_pt_AK5PFJetsL1L2L3" )
+
     mc_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3", 
                     "MC",
                      opt,
                      algo,
                      corr,
-                    "YYY_incut/z_pt_AK5PFJetsCHSL1L2L3" )
+                    "YYY_incut/z_pt_AK5PFJetsCHSL1L2L3",
+                    subtract_gen = gen_res )
     
     data_res = plot_resolution( fdata, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3", 
                     "Run 2011",
                      opt,
                      algo,
                      corr,
-                    "YYY_incut/z_pt_AK5PFJetsCHSL1L2L3" )
+                    "YYY_incut/z_pt_AK5PFJetsCHSL1L2L3",
+                    subtract_gen = gen_res )
 
-    gen_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3Gen", 
-                    "MC Gen",
-                     opt,
-                     algo,
-                     corr,
-                    "YYY_incut/z_pt_AK5PFJetsL1L2L3" )                    
+                    
                     
     ax = f.get_axes()[0]
     ax.minorticks_on()

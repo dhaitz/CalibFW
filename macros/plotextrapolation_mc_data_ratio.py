@@ -369,7 +369,7 @@ def balanceex(fdata, fmc, opt):
 # MPF
 def mpfex(fdata, fmc, opt):
     fig, ax = plotbase.newplot()
-    extrapolate_ratio(fig, "mpfresp", fdata, fmc, opt, "no_extrapol", extrapolation = False)
+    extrapolate_ratio(fig, "mpfresp", fdata, fmc, opt, "no_extrapol", extrapolation = False,  store_tmp_files = True)
     file_name = "mpfresp_ratio_" + opt.algorithm + opt.correction 
 
     plolResponseRatioOverNPV( fdata, fmc, opt, "mpfresp", use_extrapolation = False, the_label = "MPF" )
