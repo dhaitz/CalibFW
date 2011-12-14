@@ -6,7 +6,7 @@
 
     Here is an overview of the most interesting functions besides 'openfile':
              -------------------gethisto(f)------------------------->
-    quantity -gethistoname-> name -getobject(f)-> histo -root2histo-> Histo
+    quantity -gethistoname-> name -getobject(f)-> plot -root2histo-> Histo
                                   --------gethisto(f)--------------->
 
 """
@@ -122,7 +122,7 @@ def gethistoname(quantity='zmass', change={}):
     # Set default values
     keys = ['bin', 'incut', 'var', 'quantity', 'algorithm', 'correction']
     selection = {'bin': 'NoBinning', 'incut': 'incut', 'var': '',
-                 'quantity': '<quantity>', 'algorithm': 'ak5PFJets',
+                 'quantity': '<quantity>', 'algorithm': 'AK5PFJets',
                  'correction': 'L1L2L3' }
     hst = ''
     # apply requested changes

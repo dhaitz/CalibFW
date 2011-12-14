@@ -347,7 +347,7 @@ def plolResponseRatioOverNPV( fdata, fmc,  opt, method, use_extrapolation, the_l
     
 # Balance with various dependencies
 def balanceex(fdata, fmc, opt):
-  
+    print "Balex"
     # regular 
     fig, ax = plotbase.newplot()
     extrapolate_ratio( fig , "balresp", fdata, fmc, opt, "extrapol", store_tmp_files = True)
@@ -368,6 +368,7 @@ def balanceex(fdata, fmc, opt):
     
 # MPF
 def mpfex(fdata, fmc, opt):
+    print "MPF ex"
     fig, ax = plotbase.newplot()
     extrapolate_ratio(fig, "mpfresp", fdata, fmc, opt, "no_extrapol", extrapolation = False,  store_tmp_files = True)
     file_name = "mpfresp_ratio_" + opt.algorithm + opt.correction 

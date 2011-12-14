@@ -46,18 +46,19 @@ def plot(modules, plots, fdata, mc, op):
   
     """Search for plots in the module and run them."""
     
-    for module in modules:    
-	if op.verbose:
-	    print "%1.2f | Start plotting" % clock()
-	if not plots:
-	    print "Nothing to do. Please list the plots you want!"
-	    plots = []
-	for p in plots:
-	    if hasattr(module, p):
-		print "New plot:",
-		getattr(module, p)(fdata, mc, op)
-	if op.verbose:
-	    print "%1.2f | End" % clock()
+    for module in modules:
+        print module.__name__
+        if op.verbose:
+            print "%1.2f | Start plotting" % clock()
+        if not plots:
+            print "Nothing to do. Please list the plots you want!"
+            plots = []
+        for p in plots:
+            if hasattr(module, p):
+                print "New plot:",
+                getattr(module, p)(fdata, mc, op)
+        if op.verbose:
+            print "%1.2f | End" % clock()
 
 
 def options(
@@ -361,12 +362,11 @@ def statuslabel(ax, status=None, xpos=0.25, ypos=1.018):
                 transform=ax.transAxes)
 
 
-def resultlabel(ax, text="", xpos=0.05, ypos=0.05):
+def resultlabel(ax, text=None, xpos=0.05, ypos=0.05):
     if text is not None:
-	if "\n" in text:
-	    # two lined thingy
-	    ypos = 0.12
-	
+        if "\n" in text:
+            # two lined thingy
+            ypos += 0.07
         ax.text(xpos, ypos, text, va='top', ha='left', transform=ax.transAxes)
 
 
@@ -378,9 +378,9 @@ def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
     if x_q == 'npv':
         ax.set_xlabel(r"Number of Primary Vertices [1]",
                       ha="right", x=1)
-	ax.set_xlim(0, 20)                      
+        ax.set_xlim(0, 20)
     else:
-	fail ( "x_q " + x_q + " not supported" )
+        fail ( "x_q " + x_q + " not supported" )
                       
     if y_q == 'datamc_ratio':
         ax.set_ylabel(r"Data/MC", va="top", y=1)
@@ -388,7 +388,7 @@ def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
 #        ax.legend(bbox_to_anchor=(0.65, 0.6, 0.3, 0.2), loc='upper right',
 #                  numpoints=1, frameon=True)        
     else:
-	fail ( "y_q " + y_q + " not supported" )
+        fail ( "y_q " + y_q + " not supported" )
         
 def axislabel(ax, q='pt', obj='Z', brackets=False):
     """label the axes according to the plotted quantity"""
@@ -528,15 +528,10 @@ def Save(figure, name, opt, alsoInLogScale=False):
         figure.get_axes()[0].set_yscale('log')
         _internal_Save(figure, name + "_log_scale", opt)
 
-def EnsurePathExists( path ):
-    
-    full_path = ""
-    for p in path.split ( "/" ):
-	full_path += p + "/";
-	print "Checking " + full_path
-	if not os.path.exists( full_path ):
-	    print "Creating " + full_path
-	    os.mkdir ( full_path )
+def EnsurePathExists(path):
+    if not os.path.exists(path):
+        print "Creating", path
+        os.mkdir(path)
 
         
 def _internal_Save(figure, name, opt):

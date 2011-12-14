@@ -37,7 +37,7 @@ def plot():
     # settings (1):
     op = plotbase.options(
         files=[
-            "closure_data_2011A.root",
+            "closure_data_2011B.root",
             "closure_mc_DY2011.root",
         ],
         algorithm="AK5PFJetsCHS",
@@ -47,6 +47,8 @@ def plot():
               plotextrapolation_mc_data_ratio.plots +
               plotfractions.plots,
         )
+    mods = [plotdatamc, plotextrapolation_mc_data_ratio]
+    mods = [ plotextrapolation_mc_data_ratio ]
     # override commandline (3):
     op.normalize = True
 
@@ -60,9 +62,8 @@ def plot():
 
     op.verbose = True
 
-    plotbase.plot(plotdatamc, op.plots, fdata, fmc, op)
-    plotbase.plot(plotfractions, op.plots, fdata, fmc, op)
-    plotbase.plot(plotextrapolation_mc_data_ratio, op.plots, fdata, fmc, op)
+    plotbase.plot(mods, op.plots, fdata, fmc, op)
+#    plotbase.plot([plotfractions], op.plots, fdata, fmc, op)
 
 
 if __name__ == "__main__":
