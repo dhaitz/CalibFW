@@ -24,15 +24,16 @@ Makefile
 Makefile.in
 aclocal.m4
 autom4te.cache/
-closure
 closure_test
-config.status
-configure
-configure.scan
-depcomp
-install-sh
-missing
+/closure
+/config.status
+/configure
+/configure.scan
+/depcomp
+/install-sh
+/missing
+/work
 
-cfg/SkimmingCalibFW/work.*
-external/boost
-external/lib
+/cfg/SkimmingCalibFW/work.*
+/external/boost
+/external/lib
