@@ -5,9 +5,18 @@
     as well as the resp_cuts file format specific functions.
 
     Here is an overview of the most interesting functions besides 'openfile':
-             -------------------gethisto(f)------------------------->
+             -------------------getplot(f)------------------------->
+             ------getobject-------------------->
     quantity -gethistoname-> name -getobject(f)-> plot -root2histo-> Histo
-                                  --------gethisto(f)--------------->
+                                  --------getplot(f)--------------->
+    quantity: Short name (expanded with default values) e.g. z_pt
+    name:     name of root object in file, e.g. NoBinning_incut/z_pt_AK5PFJetsL1L2L3
+    plot:     root object (TH1D, TGraphErrors, etc.)
+    Histo:    getroot Histo class object
+
+    gethistoname expands a short name with default values to the object name in the root file
+    getobject yields a root object
+    getplot yields a getroot Histo
 
 """
 import ROOT
@@ -16,7 +25,6 @@ from time import localtime, strftime, clock
 
 
 def createchanges( opt, change ):
-
     change["correction"] = opt.correction
     change["algorithm"] = opt.algorithm
 
@@ -32,26 +40,12 @@ def openfile(filename, verbose=False, exitonfail=True):
         assert exitonfail
     return f
 
-
+# for compatibility
 def gethisto(name, rootfile, changes={}, isdata=False, rebin=1):
-    """get a Histo by only knowing the name of the quantity
+    getplot(name, rootfile, changes, isdata, rebin):
 
-    if the full name is present in the root file this will be taken
-    if not the name is made by the gethistoname algorithm.
-    isdata is used to enforce the loading of exactly this histogram and
-    not the MC version without 'Res'
-    """
-    if not rootfile.Get(name):
-        # 'name' is a nick name and will be expanded in the next line
-        name = gethistoname(name, changes)
-        print "Trying name " + name
-    if rootfile.Get(name) or isdata:
-        roothist = getobject_direct(name, rootfile)
-    else:
-        roothist = getobject_direct(name.replace("Res", ""), rootfile)
-    
-    print "-> loaded"
-    
+def getplot(name, rootfile, changes={}, exact=False, rebin=1):
+    getobject(name, rootfile, changes, exact)
     return root2histo(roothist, rootfile.GetName(), rebin)
 
 
@@ -84,40 +78,57 @@ def getbins(rootfile, fallbackbins):
     return result
 
 
-def getobject( name, rootfile, changes={}):
-    """Import a root object"""
-    oj = None
-    if not rootfile.Get(name):
-        print "Can't find " + name + " . Using fallback method"
-        name = gethistoname(name, changes)
-        print "Trying " + name
-    if rootfile.Get(name):
-        oj = rootfile.Get( name)
+def getobject(name, rootfile, changes={}, exact=True):
+    """get a root object by only knowing the name of the quantity
 
-    if oj == None:
-	print "Cant load object " + name + " from root file"
-	exit (0)
-    print "-> " + name + " loaded"
+    if the full name is present in the root file this will be taken
+    if not the name is made by the gethistoname algorithm.
+    isdata is used to enforce the loading of exactly this histogram and
+    not the MC version without 'Res'
+    """
+    oj = rootfile.Get(name)
+    if oj:
+        # 'name' is a valid path in the rootfile
+        return oj
+    else:
+        # 'name' is a nick name and will be expanded in the next line
+        longname = gethistoname(name, changes)
+        oj = rootfile.Get(longname)
+        if oj:
+            return oj
+        else:
+            print "Can't load object " + name + " from root file", rootfile.GetName()
+            print longname, "is no valid object neither."
+            exit(0)
 
+#    if rootfile.Get(name) or isdata:
+#        roothist = getobject_direct(name, rootfile)
+#    else:
+#        roothist = getobject_direct(name.replace("Res", ""), rootfile)
+#    return oj
+
+
+def getobject_direct(name, rootfile):
+    oj = rootfile.Get(name)
     return oj
 
-
-def getobject_direct( name, rootfile):
-    oj = rootfile.Get( name )
-
-    return oj
-
-def gethistoname(quantity='zmass', change={}):
+def gethistoname(quantity='z_mass', change={}):
     """Build the name of a histogram according to CalibFW conventions.
 
-    Every histogram written by resp_cuts has a name like
+    Every histogram written by closure has a name like
     'NoBinning_incut/<quantity>_ak5PFJetsL1L2L3_hist'
     This string is returned for each quantity and any changes to the default
     can be applied via the change dictionary.
+
     Toplevel plots have names like
     'jetresp_ak5PFJetsL1L2L3CHS_graph'
     and they are retrieved with the '../' prefix, e.g. '../jetrepsonse'
 
+    I would suggest L1_npv_AK5PFJetsL1L2L3 instead of L1_AK5PFJetsL1L2L3_npv_profile
+    and cut_all_AK5PFJetsL1L2L3 instead of cut_AK5PFJetsL1L2L3_all_profile
+
+    Examples for quantities:
+        z_pt, mu_plus_eta, ../balresp, cut__all, L1_npv
     """
     # Set default values
     keys = ['bin', 'incut', 'var', 'quantity', 'algorithm', 'correction']
@@ -141,21 +152,37 @@ def gethistoname(quantity='zmass', change={}):
     # NoBinning_incut_<quantity>_ak5PFJetsL1L2L3CHS_hist
     # ability to get level 2 pipeline plots via ../ prefix:
     if quantity.find('../') == 0:
+        # top level responses
         quantity = quantity[3:]
         hst = hst[hst.find('_<quantity>'):]
-       # hst = hst.replace('hist', 'graph')
+        hst = hst.replace('_<quantity>', quantity)
+    elif quantity.find('L') == 0:
+        # correction level check plot
+        # e.g. L1_AK5PFJetsCHS_npv_profile
+        hst = hst[:hst.find('_<quantity>'+11)] + quantity[3:] +'_profile'
+        hst = hst.replace('_<quantity>', quantity[:3])
+    elif quantity.find('cut_') == 0:
+        # cut inefficiency plot
+        # e.g. cut_AK5PFJetsL1L2L3zmass_overnpv_profile
+        hst = hst[:hst.find('_<quantity>'+11)] + quantity[4:] +'_profile'
+        hst = hst.replace('_<quantity>', 'cut')
     else:
-        quantity = '/' + quantity
-    hst = hst.replace('_<quantity>', quantity)
+        # default case: standard physical quantity
+        hst = hst.replace('_<quantity>', '/' + quantity)
     return hst
 
 
 def root2histo(histo, rootfile='', rebin=1):
     """Convert a root histogram to the Histo class"""
     hst = Histo()
-    # Detect if it is a TH1D or a TGraphErrors
-    if hasattr(histo, 'GetNbinsX'):
-        # histo is a histogram, read it
+
+    if not hasattr(histo, 'ClassName'):
+        print histo, "is no TObject. Could not be converted."
+        exit(0)
+    # Detect if it is a histogram or a graph
+    if histo.ClassName() == 'TH1D' or histo.ClassName() == 'TH1F'
+            or histo.ClassName() == 'TProfile':
+        # histo is a 1D histogram, read it
         histo.Rebin(rebin)
         hst.source = rootfile
         hst.name = histo.GetName()
@@ -176,7 +203,7 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.norm = 1.0 / histo.GetSum()
         hst.ysum = histo.GetSum()
         hst.ymax = histo.GetMaximum()
-    elif hasattr(histo, 'GetN'):
+    elif histo.ClassName() == 'TGraphErrors':
         # histo is a graph, read it
         hst.source = rootfile
         hst.name = histo.GetName()
@@ -200,9 +227,9 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.norm = 1.0 / hst.ysum
     else:
         # histo is of unknown type
-        print "The object '" + str(histo) + "' is no histogram and no graph!",
+        print "The object '" + str(histo) + "' is no histogram, no graph and no profile!",
         print "Could not convert."
-        exit()
+        exit(0)
     return hst
 
 
