@@ -21,7 +21,7 @@ def createchanges( opt, change ):
     change["algorithm"] = opt.algorithm
 
 
-def openfile(filename, verbose=False, exitonfail =False):
+def openfile(filename, verbose=False, exitonfail=True):
     """Open a root file"""
     f = ROOT.TFile(filename)
     if f:
@@ -29,7 +29,7 @@ def openfile(filename, verbose=False, exitonfail =False):
             print " * Inputfile:", filename
     else:
         print "Can't open file:", filename
-        assert False
+        assert exitonfail
     return f
 
 
@@ -42,7 +42,7 @@ def gethisto(name, rootfile, changes={}, isdata=False, rebin=1):
     not the MC version without 'Res'
     """
     if not rootfile.Get(name):
-        print "Can't find " + name + " . Using fallback method"
+        # 'name' is a nick name and will be expanded in the next line
         name = gethistoname(name, changes)
         print "Trying name " + name
     if rootfile.Get(name) or isdata:

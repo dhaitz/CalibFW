@@ -27,7 +27,7 @@ import plotdatamc
 import plotfractions
 import plotextrapolation_mc_data_ratio
 
-#import plot_extrapolation
+#import plotextrapolation
 
 
 def plot():
@@ -43,9 +43,9 @@ def plot():
         algorithm="AK5PFJetsCHS",
         correction="L1L2L3",
         lumi=2179.0,
-        plots=#plotdatamc.plots +
-              #plotextrapolation_mc_data_ratio.plots +
-              plotfractions.plots
+        plots=plotdatamc.plots +
+              plotextrapolation_mc_data_ratio.plots +
+              plotfractions.plots,
         )
     # override commandline (3):
     op.normalize = True
@@ -57,11 +57,12 @@ def plot():
     fmc = getroot.openfile(op.mc, op.verbose)
     op.bins = getroot.getbins(fdata,
             [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
+
     op.verbose = True
-    
-    #plotbase.plot(plotdatamc, op.plots, fdata, fmc, op)
+
+    plotbase.plot(plotdatamc, op.plots, fdata, fmc, op)
     plotbase.plot(plotfractions, op.plots, fdata, fmc, op)
-    #plotbase.plot(plotextrapolation_mc_data_ratio, op.plots, fdata, fmc, op)
+    plotbase.plot(plotextrapolation_mc_data_ratio, op.plots, fdata, fmc, op)
 
 
 if __name__ == "__main__":
