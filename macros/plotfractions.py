@@ -14,23 +14,27 @@ def fractions(fdata, fmc, opt):
 
     # Name everything you want and take only the first <nbr> entries of them
     nbr = 4
-    labels =     ["CHF",    "NEF",    "NHF",    "CEF",    r"MF $\,$", "PF", "EF"][:nbr]
-    colours =    ['Orange','LightSkyBlue','YellowGreen','MediumBlue','Darkred', 'yellow','Blue'][:nbr]
+    labels =     ["CHF", "NEF", "NHF", "CEF", r"MF $\,$", "PF", "EF"][:nbr]
+    colours =    ['Orange', 'LightSkyBlue', 'YellowGreen', 'MediumBlue',
+                  'Darkred', 'yellow', 'Blue'][:nbr]
     markers =    ['o','x','*','^','d','D','>'][:nbr]
-    components = ["charged_had_fraction", "neutral_em_fraction", "neutral_had_fraction", "charged_em_fraction"][:nbr] # "muon", "photon", "electron"][:nbr] disabled for nows
-    graphnames = ["jet1_" + component
+    components = ["charged_had", "neutral_em", "neutral_had", "charged_em", 
+                  "muon", "photon", "electron"][:nbr]
+    graphnames = ["jet1_" + component + "_fraction"
         for component in components]
 
-    changes = dict()
-    getroot.createchanges( opt, changes )
+    getroot.createchanges(opt)
 
     # Get list of graphs from inputfiles
-    print "Loading MC Plots"
+    if opt.verbose:
+        print "Loading MC Plots"
     mcG = [getroot.gethisto(graphname, fmc, changes) for graphname in graphnames]
-    print mcG[0]
-    print "Loading Data Plots"
+    if opt.verbose:
+        print mcG[0]
+        print "Loading Data Plots"
     dataG = [getroot.gethisto(graphname, fdata, changes) for graphname in graphnames]
-    print "Loading done"
+    if opt.verbose:
+        print "Loading done"
 
     # get x values and bar widths
     x = opt.bins[1:-1]
@@ -99,8 +103,8 @@ def fractions(fdata, fmc, opt):
         print ( bins )
         print  mcG[i].y
         print (  mcG[i].y + [mcG[i].y[-1]] )
-#        ax.bar(x, mcG[i].y, width=barWidth, color=colours[i], edgecolor = None, linewidth=0 )
-#           label=r"%s: $%1.3f(%d)\, %1.3f(%d)$" % (labels[i],fitd[i],math.ceil(1000*fitderr[i]),fitm[i], math.ceil(1000*fitmerr[i])))
+        ax.bar(x, mcG[i].y, width=barWidth, color=colours[i], edgecolor = None, linewidth=0,
+           label=r"%s: $%1.3f(%d)\, %1.3f(%d)$" % (labels[i],fitd[i],math.ceil(1000*fitderr[i]),fitm[i], math.ceil(1000*fitmerr[i])))
         ax.plot(bins, mcG[i].y+[mcG[i].y[-1]], drawstyle='steps-post', color='black',linewidth=1)
     ax.text(0.615,0.45, r"Data $\quad$ MC", va='top', ha='left', transform=ax.transAxes)
     #data points
@@ -130,7 +134,7 @@ plots = ['fractions']
 
 
 if __name__ == "__main__":
-    fdata = getROOT.openFile(plotbase.getpath() + "data_Oct19.root")
-    fmc = getROOT.openFile(plotbase.getpath() + "pythia_Oct19.root")
-    bins = plotbase.guessBins(fdata, [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]) #binning must be after file open. plots do this later: if bins[0] == 0 bins.pop(0)
-    fractions(fdata, fmc, opt=plotbase.commandlineOptions(bins=bins))
+    fdata = getroot.openfile(plotbase.getpath() + "data_Oct19.root")
+    fmc = getroot.openfile(plotbase.getpath() + "pythia_Oct19.root")
+    bins = getroot.getbins(fdata, [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
+    fractions(fdata, fmc, opt=plotbase.options(bins=bins))

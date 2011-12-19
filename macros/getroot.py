@@ -24,9 +24,10 @@ import cPickle as pickle
 from time import localtime, strftime, clock
 
 
-def createchanges( opt, change ):
+def createchanges(opt, change={}):
     change["correction"] = opt.correction
     change["algorithm"] = opt.algorithm
+    return change
 
 
 def openfile(filename, verbose=False, exitonfail=True):
