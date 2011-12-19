@@ -102,6 +102,7 @@ def GetBaseConfig():
             "CutMuonPt": 15,
             "CutZMassWindow": 20,
             "CutLeadingJetEta": 1.3,
+
             "CutSecondLeadingToZPt": 0.2,
             "CutBack2Back": 0.34,
 
@@ -296,7 +297,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
                 
                 #only do basic plots
                 if onlyBasicQuantities:
-		    ReplaceWithQuantitiesBasic( newpipe )
+                    ReplaceWithQuantitiesBasic( newpipe )
 
                 #print(new_pipe)
                 newpipe["Filter"].append(filtername.lower())
@@ -313,7 +314,45 @@ def ExpandRange2(pipelines, filtername, low, high=None,
     if includeSource:
         return dict(pipelines.items() +  newDict.items())
     else:
-        return newDict        
+        return newDict   
+
+def ExpandRange2Cut(pipelines, cutname, low, high=None,
+                 foldername="var_{name}_{low}to{high}",
+                 includeSource=True, onlyOnIncut=True,
+		 onlyBasicQuantities = True):
+    """Add pipelines with values between low and high for filtername
+
+    This only works if the filter is lowercase and it uses two variables
+    called Filter<FilterName>Low/High
+    The foldername string can contain the variables {name}, {low} and {high}
+    """
+    newDict = {}
+    for pipeline, subdict in pipelines.items():
+        if subdict["Level"] == 1 and (not onlyOnIncut or
+                "incut" in subdict["RootFileFolder"]):
+            for l, h in zip(low, high):
+                # copy existing pipeline (subdict) and modify it
+                newpipe = copy.deepcopy(subdict)
+                
+                #only do basic plots
+                if onlyBasicQuantities:
+                    ReplaceWithQuantitiesBasic( newpipe )
+
+                #print(new_pipe)
+                newpipe["Cut" + cutname.replace("_", "") + "Low"] = l
+                newpipe["Cut" + cutname.replace("_", "") + "High"] = h
+                f = foldername.format(name=cutname, low=l, high=h)
+                f = "_" + f.replace(".", "_")
+
+                newName = pipeline + f
+                newRootFileFolder =  newpipe["RootFileFolder"] + f
+                newDict[newName] = newpipe
+                if foldername is not None:
+                    newDict[newName]["RootFileFolder"] = newRootFileFolder
+    if includeSource:
+        return dict(pipelines.items() +  newDict.items())
+    else:
+        return newDict       
         
 def AddConsumer( pline, name, config):
     pline["Consumer"][name] = config
@@ -724,7 +763,7 @@ def StoreGCCommon ( settings, nickname, filename, output_folder ):
     # we can run more data files with one MC job as they don't contain that many 
     # events
     if settings["InputType"] == "mc":
-	config.set("UserMod", "files per job", 5 )
+	config.set("UserMod", "files per job", 3 )
     else:
 	config.set("UserMod", "files per job", 20 )
 	

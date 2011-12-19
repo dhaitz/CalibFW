@@ -71,7 +71,7 @@ def zphi(fdata, fmc, opt):
 
 
 def zmass(fdata, fmc, opt):
-    datamcplot('z_mass', 'mass', 'Z', fdata, fmc, opt)
+    datamcplot('z_mass', 'mass', 'Z', fdata, fmc, opt, rebin = 2)
 
 
 def zmass_qualitycuts(fdata, fmc, opt):

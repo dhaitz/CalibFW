@@ -202,6 +202,50 @@ public:
 	static const long CudId = 16;
 };
 
+
+// covers a region of the cut 0.1 > x > 0.2 etc...
+class SecondLeadingToZPtRegionCut: public ZJetCutBase
+{
+public:
+
+	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData & metaData,
+			ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		if ( !metaData.HasValidZ() )
+		{
+			// no decision possible for this event
+			return;
+		}
+
+		if (metaData.GetValidJetCount( m_pipelineSettings, event) < 2)
+		{
+			// is ok, there seems to be no 2nd Jet in the event
+			metaData.SetCutResult ( this->GetId(), true );
+			return;
+		}
+
+		KDataLV * Jet2 = metaData.GetValidJet( m_pipelineSettings, event, 1 );
+
+		metaData.SetCutResult ( this->GetId(),
+				 ( metaData.GetBalance(Jet2) >= m_pipelineSettings.GetCutSecondLeadingToZPtRegionLow() ) && 
+                 ( metaData.GetBalance(Jet2) < m_pipelineSettings.GetCutSecondLeadingToZPtRegionHigh() ));
+	}
+
+	unsigned long GetId() const
+	{
+		return SecondLeadingToZPtRegionCut::CudId;
+	}
+	std::string GetCutName()
+	{
+		return "9) 2nd leading jet to Z pt (region)";
+	}
+	std::string GetCutShortName() const
+	{
+		return "secondleading_to_zpt_region";
+	}
+	static const long CudId = 2048;
+};
+
 /* 31.5.2011, Thomas: commented for now, as it is not used any more
  class SecondLeadingToZPtCutDir: public EventCutBase<EventResult *>
  {

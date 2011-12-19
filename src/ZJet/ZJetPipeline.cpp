@@ -88,6 +88,9 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			else if ( sid == SecondLeadingToZPtCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new SecondLeadingToZPtCut() );
 
+			else if ( sid == SecondLeadingToZPtRegionCut().GetCutShortName())
+				pLine->AddMetaDataProducer( new SecondLeadingToZPtRegionCut() );
+
 			else if ( sid == MuonPtCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new MuonPtCut() );
 

@@ -24,7 +24,8 @@ def get_errerr(roothisto):
 
 def fit_resolution ( file, histo_name, tag,
                      out_path,
-                     fit_formula = "gaus"  ):
+                     fit_formula = "gaus",
+                     strong_rebin = False  ):
 
     c = TCanvas (histo_name, histo_name, 600, 600)
 
@@ -32,13 +33,17 @@ def fit_resolution ( file, histo_name, tag,
 
 
     hist_resp = getroot.getobject( histo_name, file )
-    hist_resp.Rebin(8)
+    
+    if strong_rebin:
+        hist_resp.Rebin(10)
+    else:
+        hist_resp.Rebin(8)
     
     # give useful start parameters 
     fitFunc.SetParameters(1.0, 1.0, 1.0)
         
     # untruncated
-    fitres = hist_resp.Fit( fitFunc , "S")
+    fitres = hist_resp.Fit( fitFunc , "SQ")
     if not fitres.IsValid():
         print " A FIT FAILED !"
         exit( 0 )
@@ -55,7 +60,7 @@ def fit_resolution ( file, histo_name, tag,
     fitFunc_trunc.SetParameters(1.0, 1.0, 1.0)    
 
       
-    fitres = hist_resp.Fit( fitFunc_trunc , "SR")
+    fitres = hist_resp.Fit( fitFunc_trunc , "SRQ")
 
     
     if not fitres.IsValid():
@@ -79,6 +84,7 @@ def extrapolate_resolution ( file,
                              tag,
                              out_path,
                              var=[0.1, 0.15, 0.2, 0.3],
+                             gen_imbalance = 0.0,
                              extr_method = "plain" ):
     variation_result = []
 
@@ -88,17 +94,19 @@ def extrapolate_resolution ( file,
 
     #fitFunc.SetParameters(1.0, 0.001, 0.3)
 
-    
+    local_var = copy.deepcopy ( var ) 
+    local_var.reverse()
     graph = TGraphErrors(len(var))
     
     n = 0
     
-    for x in var:
+    for x in local_var:
         # get the histograms
         folder_var = base_name.replace ( "XXX", str(x).replace(".", "_") )  # 0.3 -> 0_3
 
         # read the ratio and error (propagated)
-        reso = fit_resolution( file, folder_var, tag, out_path )
+        srebin = ( n == 0 )
+        reso = fit_resolution( file, folder_var, tag, out_path, strong_rebin = srebin )
         
         print "Variation " + str(x) + " has resolution " + str( reso )
         
@@ -106,12 +114,29 @@ def extrapolate_resolution ( file,
         
         # add to our graph
         graph.SetPoint(n, x, reso[0])
-        graph.SetPointError(n, 0.0, reso[1])
         
-        y_last = reso[0]
-        y_last_err = reso[1]
-        x_last = x
-        
+        yerr = reso[1]
+
+        if n == 0:  # remember values for first point var[0]
+            y_first = reso[0]
+            y_first_err = reso[1]
+            x_first = x
+
+            yerr = 0.0 # this error will be added, after the extrapolation is done
+            #y0errerr = yerrerr
+        else:
+            if y_first_err < yerr:
+                # uncorrelate errors
+                yerr = math.sqrt(yerr ** 2 - y_first_err ** 2)
+            else:
+                print "Error not uncorrelated"
+
+        # old code
+        #graph.SetPointError(n, 0.0, reso[1])
+        if extr_method == "plain":
+            graph.SetPointError(n, 0.0, yerr )
+        else:
+            graph.SetPointError(n, 0.0, reso[1] )
         n = n + 1
 
     if extr_method == "plain":
@@ -119,8 +144,8 @@ def extrapolate_resolution ( file,
     	fitFunc = TF1("fit1", fit_formula, 0, 2.0)
 
     	# Fix the parameters and do the fit
-    	fitFunc.FixParameter(0, y_last)
-    	fitFunc.FixParameter(2, x_last)
+    	fitFunc.FixParameter(0, y_first)
+    	fitFunc.FixParameter(2, x_first)
 
     	fitres = graph.Fit(fitFunc, "S")
 
@@ -128,26 +153,29 @@ def extrapolate_resolution ( file,
     	m_fit = fitres.GetParams()[1]    
 
     	yex = fitFunc.Eval( 0.0 )  #y_last - m_fit * x_last
-    	yex_err = y_last_err + m_fit_err * x_last
+        # add the first error and extrapolate the rest
+    	yex_err = math.sqrt(y_first_err**2  +  ( m_fit_err * x_first ) ** 2 )
 
     elif extr_method == "complex":
-    	fit_formula = "( [0]^2+[1]^2 + 2 * [1] * [2] * x  + [2]^2 * x^2 ) ^ (1/2)"
-    	fitFunc = TF1("fit1", fit_formula, 0, 2.0)
+    	fit_formula = "sqrt( [0]^2+[1]^2 + 2 * [1] * [2] * x  + [2]^2 * x^2 )"
+    	fitFunc = TF1("fit1", fit_formula, 0, 0.4)
 
-    	fitres = graph.Fit(fitFunc, "S")
+        # fix the gen imbalance 
+        fitFunc.FixParameter(1, gen_imbalance )
 
     	# 'resonable' start parameters
-    	fitFunc.SetParameter(0, 0.1)
-    	fitFunc.SetParameter(1, 0.1)
+    	fitFunc.SetParameter(0, gen_imbalance)
     	fitFunc.SetParameter(2, 0.5)
 
-    	gen_intrinsic = fitres.GetParams() [0]
-    	reco_res = fitres.GetParams() [1]
+    	fitres = graph.Fit(fitFunc, "S")
+    	reco_res = fitres.GetParams() [0]
 
-    	print "Complex Resolution fit. GenIntr: " + str( gen_intrinsic ) + " RecoRes: " + str( reco_res )  
+        print "  ---- "
+    	print "Complex Resolution fit. GenIntr: " + str( gen_imbalance ) + " RecoRes: " + str( reco_res )  
 
-    	yex = fitres.GetParams() [1]
-    	yex_err = fitres.GetErrors() [1]
+
+    	yex = reco_res
+    	yex_err = fitres.GetErrors() [0]
     else:
 	    plotbase.fail( "Method " + extr_method + " not supported" )
     
@@ -161,14 +189,15 @@ def extrapolate_resolution ( file,
     graph.SetMarkerStyle(21);
     graph.Draw( "ap" )
 
-    print "Outermost resolution for " + base_name + " is " + str( (y_last, y_last_err) )
+    print "Outermost resolution for " + base_name + " is " + str( (y_first, y_first_err) )
     print "Extrapolated resolution for " + base_name + " is " + str( (yex, yex_err) )
         
     base_name = base_name.replace ( "/", "_")
     c.Print ( out_path + tag + base_name + "_resolution_extrapolation.png")
     #c.Print ( tag + base_name + "_resolution_extrapolation.root")
 
-
+    #if extr_method == "complex":
+    #    exit ( 0 )
     return (yex, yex_err)
 
 def plot_resolution ( file, 
@@ -180,35 +209,37 @@ def plot_resolution ( file,
                       ref_hist,
         		      fit_method = "plain", # some zpt ...
         		      subtract_gen = None,
-                    draw_ax = None
+                    draw_ax = None,
+                        drop_first_bin = 0, drop_last_bin = 0
                       ):
     str_bins = binstrings(opt.bins)
     
+    for i in range ( drop_first_bin ):
+    	str_bins.pop( 0 )
+    for i in range ( drop_last_bin ):
+    	str_bins.pop( len(str_bins) - 1 )
+
 
     tmp_out_path = opt.out + "/tmp_resolution/"  
     plotbase.EnsurePathExists( tmp_out_path )
 
-    
-
-    #fit_formula = "[0]+[1]*(x-[2])"
-    #fitFunc = TF1("fit1", fit_formula, 0, 2.0)
-    #fitFunc.SetParameters(1.0, 0.001, 0.3)
-
-    skip_evens = 1
-    
-    #graph = TGraphErrors(len(str_bins) - skip_evens)
-        
-    
     plot_x = []
     plot_y = []
     plot_yerr = []
     
-    n = 0
+    n_access = 0
     
-    for str_bin in str_bins:
+    for str_bin in str_bins:    
         hist_template = base_name.replace("YYY", str_bin)
         
-        extra_res = extrapolate_resolution( file, hist_template, tag, tmp_out_path, extr_method = fit_method )
+        if not subtract_gen == None:
+            gen_imb = subtract_gen[1][n_access]
+        else:
+            gen_imb = 0.0
+
+        extra_res = extrapolate_resolution( file, hist_template, tag, tmp_out_path, 
+                                            extr_method = fit_method, 
+                                            gen_imbalance = gen_imb )
         print hist_template + " results in extrapolation " + str(extra_res)
                
         print ref_hist.replace("YYY", str_bin)
@@ -221,21 +252,24 @@ def plot_resolution ( file,
         #    graph.SetPointError(n - skip_evens, hist_zpt.GetMeanError (), extra_res[1] )
 
 
-        if not subtract_gen == None:
-            print " subtracting gen response: " + str(subtract_gen[1][n])
-            #subtract gen response
-            if ( extra_res[0]**2 - subtract_gen[1][n]**2 ) > 0.0:
-                plot_y += [ math.sqrt( extra_res[0]**2 - subtract_gen[1][n]**2 ) ]        
-            else:
-                print "cant subtract gen response"
-                plot_y += [extra_res[0] ]
-        else:
-            plot_y += [extra_res[0] ]
-            
+        #if not subtract_gen == None:
+        #    print " subtracting gen response: " + str(subtract_gen[1][n])
+        #    #subtract gen response
+        #    if ( extra_res[0]**2 - subtract_gen[1][n]**2 ) > 0.0:
+        #        plot_y += [ math.sqrt( extra_res[0]**2 - subtract_gen[1][n]**2 ) ]        
+        #    else:
+        #        print "cant subtract gen response"
+        #        plot_y += [extra_res[0] ]
+        #else:
+        #    plot_y += [extra_res[0] ]
+                
+        plot_y += [extra_res[0] ]
         plot_x += [ hist_zpt.GetMean () ]
         plot_yerr += [extra_res[1] ]
+        n_access = n_access + 1
 
-        n = n + 1
+
+        
         
         
     draw_ax.errorbar(plot_x, plot_y, plot_yerr, fmt='o',
@@ -258,22 +292,20 @@ def plot_resolution ( file,
     
     return (plot_x, plot_y, plot_yerr )
 
-
-def mytest(fdata, fmc, opt):
-    #fit_resolution( fmc, "Pt300to1000_incut_var_CutSecondLeadingToZPt_0_15/balresp_AK5PFJetsCHSL1L2L3", "test")
-    #extrapolate_resolution( fmc, "Pt300to1000_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3", 
-    #                        "test")
-    #pass
-    #plotbase.newplot()
-    
-    # dont display any graphics
-    gROOT.SetBatch( True )
-    
+def combined_resolution( fdata, fmc, opt, 
+                        folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
+                        algo = "AK5PFJets",
+                        corr = "L1L2L3",
+                        method_name = "balresp",
+                        filename_postfix = "",
+                        subtract_gen = True, 
+                        drop_first = 0,
+                        drop_last = 0 ):
     f,ax = plotbase.newplot()
     # move the plot a bit
     #ax = f.add_subplot(111, position=[0.125,0.1,0.825,0.8])
     #ax.xaxis.set_major_locator( tck.FixedLocator([60,100,400]) )
-    ax.set_ylim( 0.0, 0.291 )
+    ax.set_ylim( 0.0, 0.301 )
     ax.set_xlim( 30.0, 501 )
 
     # this modifies the tick formaters on the x-axis !
@@ -291,44 +323,53 @@ def mytest(fdata, fmc, opt):
     plotbase.energylabel(ax, opt.energy)    
     
 
-    plotbase.jetlabel( ax, "AK5PFJets", "L1L2L3" )
+    plotbase.jetlabel( ax, algo, corr )
 
-    algo = "AK5PFJets"
-    corr = "L1L2L3"
     
-    # akp5pf 
+    # construct names
+    plot_filename = "resolution_" + method_name + "_" + algo + corr + filename_postfix
+    hist_name = folder_template + "/" + method_name + "_" + algo + corr
+    hist_z = "YYY_incut/z_pt_" + algo + corr
     
-    gen_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsL1L2L3Gen", 
-                    "MC Gen",
+    gen_res = plot_resolution( fmc, hist_name + "Gen", 
+                    "MC Truth",
                      opt,
                      algo,
                      corr,
-                    "YYY_incut/z_pt_AK5PFJetsL1L2L3",
-                    draw_ax = ax ) 
+                    hist_z,
+                    draw_ax = ax,
+                    drop_first_bin = drop_first, drop_last_bin = drop_last ) 
     
-    mc_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsL1L2L3", 
-                    "MC RECO",
+    if subtract_gen:         
+        title_postfix = "Reco"
+    else:
+        gen_res = None
+        title_postfix = "Total"
+
+    mc_res = plot_resolution( fmc, hist_name, 
+                    "MC " + title_postfix,
                      opt,
                      algo,
                      corr,
-                    "YYY_incut/z_pt_AK5PFJetsL1L2L3",
+                    hist_z,
+                    fit_method = "complex",
                     subtract_gen = gen_res ,
-		            fit_method = "plain",
-                    draw_ax = ax )
+                    draw_ax = ax,
+                    drop_first_bin = drop_first, drop_last_bin = drop_last )
     
-    data_res = plot_resolution( fdata, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsL1L2L3", 
-                    "Run 2011",
+    data_res = plot_resolution( fdata, hist_name, 
+                    "Run 2011 " + title_postfix,
                      opt,
                      algo,
                      corr,
-                    "YYY_incut/z_pt_AK5PFJetsL1L2L3",
+                    hist_z,
+                    fit_method = "complex",
                     subtract_gen = gen_res,
-		            fit_method = "plain",
-                    draw_ax = ax )
+                    draw_ax = ax,
+                    drop_first_bin = drop_first, drop_last_bin = drop_last )
                     
     ax.legend( frameon=True,  numpoints=1 )
-    plotbase.Save(f, "resolution_balresp_AK5PFJetsL1L2L3", opt)
-
+    plotbase.Save(f, plot_filename, opt)
 
     # plot ratio
     ratio_x = []
@@ -336,126 +377,102 @@ def mytest(fdata, fmc, opt):
     ratio_err = []
     
     for i in range( len ( data_res[0] ) - 1):
-	ratio_x += [data_res[0][i]]
-	ratio_y += [data_res[1][i] / mc_res[1][i]]
-	#ratio_err += [data_res[0][i]]
-	
-	ratio_err += [ abs( data_res[2][i] * ( 1.0 / mc_res[1][i] ) ) + abs ( mc_res[2][i] * ( data_res[1][i] / ( mc_res[1][i] * mc_res[1][i] ) )) ]
+    	ratio_x += [data_res[0][i]]
+    	ratio_y += [data_res[1][i] / mc_res[1][i]]
+    	#ratio_err += [data_res[0][i]]
+    	
+    	ratio_err += [ abs( data_res[2][i] * ( 1.0 / mc_res[1][i] ) ) + abs ( mc_res[2][i] * ( data_res[1][i] / ( mc_res[1][i] * mc_res[1][i] ) )) ]
 
-    f = plt.figure()
-    plt.errorbar(ratio_x, ratio_y, ratio_err, fmt='o',
-	      capsize=2 )
-    
-    ax = f.get_axes()[0]
-    ax.minorticks_on()
-    ax.set_ylim( 0.0, 2.5 )
-    ax.set_xlim( 30.0, 501 )
+    f, ax = plotbase.newplot()
     ax.set_xscale ("log")
+    ax.xaxis.set_major_locator( tck.LogLocator( base = 10 , subs = [1,2,4,5,7]) )
+    ax.xaxis.set_major_formatter( tck.ScalarFormatter() )
+    ax.set_ylim( -0.5, 2.5 )
+    ax.set_xlim( 30.0, 501 )
+    plotbase.lumilabel(ax, opt.lumi)    # always (if given) pure MC plots?
+    plotbase.statuslabel(ax, opt.status)
+    plotbase.energylabel(ax, opt.energy)  
+    plotbase.jetlabel( ax, algo, corr )   
+
+    ax.errorbar(ratio_x, ratio_y, ratio_err, fmt='o',
+	      capsize=2 )
+
     ax.axhline(1.0, color="black", linestyle='--')
    
     ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{Z" + r"} / \mathrm{GeV}$",
 		  ha="right", x=1)
     ax.set_ylabel(r"( Data/MC ) Jet Resolution", va="top", y=1)
-    plotbase.lumilabel(ax, opt.lumi)    # always (if given) pure MC plots?
-    plotbase.statuslabel(ax, opt.status)
-    plotbase.energylabel(ax, opt.energy)  
-    plotbase.jetlabel( ax, "AK5PFJets", "L1L2L3" )   
     #f.savefig( "resolution_balresp_AK5PFJetsL1L2L3_ratio" )
-    plotbase.Save(f, "resolution_balresp_AK5PFJetsL1L2L3_ratio", opt)
-   
-    exit(0)
+    plotbase.Save(f,plot_filename + "_ratio", opt)
 
-    # akp5pf CHS
-    f = plt.figure()
-    algo = "AK5PFJetsCHS"
-    corr = "L1L2L3"
-    
-    gen_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3Gen", 
-                    "MC Gen",
-                     opt,
-                     algo,
-                     corr,
-                    "YYY_incut/z_pt_AK5PFJetsL1L2L3" )
+def mytest(fdata, fmc, opt):
 
-    mc_res = plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3", 
-                    "MC",
-                     opt,
-                     algo,
-                     corr,
-                    "YYY_incut/z_pt_AK5PFJetsCHSL1L2L3",
-                    subtract_gen = gen_res )
-    
-    data_res = plot_resolution( fdata, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3", 
-                    "Run 2011",
-                     opt,
-                     algo,
-                     corr,
-                    "YYY_incut/z_pt_AK5PFJetsCHSL1L2L3",
-                    subtract_gen = gen_res )
+    # balance
+    combined_resolution( fdata, fmc, opt, 
+                        folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
+                        algo = "AK5PFJets",
+                        corr = "L1L2L3",
+                        method_name = "balresp",
+                        filename_postfix = "",
+                        subtract_gen = False )
 
-                    
-                    
-    ax = f.get_axes()[0]
-    ax.minorticks_on()
-    ax.set_ylim( 0.0, 0.311 )
-    ax.set_xlim( 30.0, 501 )
-    ax.set_xscale ("log")
-    
-    ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{Z" + r"} / \mathrm{GeV}$",
-		  ha="right", x=1)
-    ax.set_ylabel(r"Jet Resolution", va="top", y=1)
-    ax.legend( frameon=True,  numpoints=1 )
-    plotbase.lumilabel(ax, opt.lumi)    # always (if given) pure MC plots?
-    plotbase.statuslabel(ax, opt.status)
-    plotbase.energylabel(ax, opt.energy)  
-    plotbase.jetlabel( ax, "AK5PFJets", "CHSL1L2L3" )
-                 
-    plotbase.Save(f, "resolution_balresp_AK5PFJetsCHSL1L2L3", opt)
+    combined_resolution( fdata, fmc, opt, 
+                        folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
+                        algo = "AK5PFJetsCHS",
+                        corr = "L1L2L3",
+                        method_name = "balresp",
+                        filename_postfix = "",
+                        subtract_gen = False )
 
+    combined_resolution( fdata, fmc, opt, 
+                        folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
+                        algo = "AK5PFJets",
+                        corr = "L1L2L3",
+                        method_name = "balresp",
+                        filename_postfix = "gen_subtract", 
+                        subtract_gen = True,
+                        drop_first = 1, drop_last = 1 )
     
-        # plot ratio
-    ratio_x = []
-    ratio_y = []
-    ratio_err = []
-    
-    for i in range( len ( data_res[0] ) - 1):
-	ratio_x += [data_res[0][i]]
-	ratio_y += [data_res[1][i] / mc_res[1][i]]
-	#ratio_err += [data_res[0][i]]
-	
-	ratio_err += [ abs( data_res[2][i] * ( 1.0 / mc_res[1][i] ) ) + abs ( mc_res[2][i] * ( data_res[1][i] / ( mc_res[1][i] * mc_res[1][i] ) )) ]
+    combined_resolution( fdata, fmc, opt, 
+                        folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
+                        algo = "AK5PFJetsCHS",
+                        corr = "L1L2L3",
+                        method_name = "balresp",
+                        filename_postfix = "gen_subtract",
+                        subtract_gen = True,
+                        drop_last = 1 )
 
-    f = plt.figure()
-    plt.errorbar(ratio_x, ratio_y, ratio_err, fmt='o',
-	      capsize=2 )
-    
-    ax = f.get_axes()[0]
-    ax.set_xscale ("log")
-    ax.minorticks_on()
-    ax.set_ylim( 0.0, 2.5 )
-    ax.axhline(1.0, color="black", linestyle='--')
-    ax.set_xlim( 30.0, 501 )
-   
-    ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{Z" + r"} / \mathrm{GeV}$",
-		  ha="right", x=1)
-    ax.set_ylabel(r"( Data/MC ) Jet Resolution", va="top", y=1)
-    plotbase.lumilabel(ax, opt.lumi)    # always (if given) pure MC plots?
-    plotbase.statuslabel(ax, opt.status)
-    plotbase.energylabel(ax, opt.energy)  
-    plotbase.jetlabel( ax, "AK5PFJets", "CHSL1L2L3" )   
-    
-    
-    plotbase.Save(f, "resolution_balresp_AK5PFJetsCHSL1L2L3_ratio", opt)
+    # mpf >> not in gen right now
+    #    combined_resolution( fdata, fmc, opt, 
+    #                    folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
+    #                    algo = "AK5PFJets",
+    #                    corr = "L1L2L3",
+    #                    method_name = "mpfresp",
+    #                    filename_postfix = "",
+    #                    subtract_gen = False )
 
-    #    plot_resolution( fmc, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3", 
-#                    "mc_",
-#                    opt,
-#                    "YYY_incut/z_pt_AK5PFJetsCHSL1L2L3" )
-#    plot_resolution( fdata, "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3", 
-#                    "data_",
-#                    opt,
-#                    "YYY_incut/z_pt_AK5PFJetsCHSL1L2L3" )
-    #plotbase.Save(fig, "resolution_balresp_AK5PFJetsCHSL1L2L3" , opt, False)
+    # PU related -- problematic due to low statistics
+    #combined_resolution( fdata, fmc, opt, 
+    #                    folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX_var_Npv_0to2",
+    #                    algo = "AK5PFJets",
+    #                    corr = "L1L2L3",
+    #                    method_name = "balresp",
+    #                    filename_postfix = "npv_0_2" )
+
+    #combined_resolution( fdata, fmc, opt, 
+    #                    folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX_var_Npv_3to5",
+    #                    algo = "AK5PFJets",
+    #                    corr = "L1L2L3",
+    #                    method_name = "balresp",
+    #                    filename_postfix = "npv_3_5" )
+
+    #combined_resolution( fdata, fmc, opt, 
+    #                    folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX_var_Npv_6to11",
+    #                    algo = "AK5PFJets",
+    #                    corr = "L1L2L3",
+    #                    method_name = "balresp",
+    #                    filename_postfix = "npv_6_11" )
+
 
 
 plots = ['mytest']

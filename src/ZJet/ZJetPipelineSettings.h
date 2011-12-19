@@ -136,6 +136,10 @@ IMPL_SETTING(double, CutMuonEta)
 IMPL_SETTING(double, CutLeadingJetEta)
 IMPL_SETTING(double, CutSecondLeadingToZPt)
 IMPL_SETTING(double, CutSecondLeadingToZPtJet2Threshold)
+
+IMPL_SETTING(double, CutSecondLeadingToZPtRegionLow )
+IMPL_SETTING(double, CutSecondLeadingToZPtRegionHigh )
+
 IMPL_SETTING(double, CutSecondLeadingToZPtDeltaR)
 IMPL_SETTING(double, CutBack2Back)
 IMPL_SETTING(double, CutJetPt)
