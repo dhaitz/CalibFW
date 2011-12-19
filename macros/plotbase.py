@@ -7,15 +7,12 @@ This module contains all the often used plotting tools
 
 import socket
 import getpass
-
 import os
 import os.path
-
 import sys
 import numpy
 import matplotlib
 import matplotlib.pyplot as plt
-#from matplotlib.pyplot import figure as plt_figure
 from time import localtime, strftime, clock
 import argparse
 
@@ -23,29 +20,14 @@ import argparse
 from ROOT import gROOT
 
 import getroot
-
-
-matplotlib.rcParams.update({
-    'text.usetex': False,
-    'axes.linewidth': 0.8,  # thickness of main box lines
-#    'patch.linewidth': 1.5,  # thickness of legend pictures and border
-#    'grid.linewidth': 1.3,  # thickness of grid lines
-#    'lines.linewidth': 2.5,  # thickness of error bars
-#    'lines.markersize': 2.5,  # size of markers
-    'font.size': 16,  # axislabels, text
-    'legend.fontsize': 18,
-    'xtick.labelsize': 16,
-    'ytick.labelsize': 16,
-    'text.fontsize': 18,
-})
+import plotrc
 
 
 def plot(modules, plots, fdata, mc, op):
-    # dont display any graphics
-    gROOT.SetBatch( True )
-  
     """Search for plots in the module and run them."""
-    
+    # dont display any graphics
+    gROOT.SetBatch(True)
+  
     for module in modules:
         print module.__name__
         if op.verbose:
@@ -63,7 +45,7 @@ def plot(modules, plots, fdata, mc, op):
 
 def options(
             # standard values go here:
-            algorithm="ak5PFJets",
+            algorithm="AK5PFJets",
             correction="L1L2L3",
             lumi=0.0,
             energy=7,
@@ -72,6 +54,7 @@ def options(
             date=None,
             out="out",
             formats=['png', 'pdf'],
+            layout='generic',
             files=[
                 "../../data/data_Oct19.root",
                 "../../data/powheg_Oct19.root",
@@ -79,7 +62,7 @@ def options(
             plots=None,
             # current default
             # new ones: [0, 3, 6, 12], [2, 5, 11, 100]
-            npv =  [ (0,2), (3,5), (6,11 ), ( 12,100) ],
+            npv=[(0,2), (3,5), (6,11 ), ( 12,100)],
             bins=None):
     """Set standard options and read command line arguments
 
@@ -113,8 +96,6 @@ def options(
         default=algorithm,
         help="output directory for plots")
 
-#    print "Coor " + correction
-
     parser.add_argument('-c', '--correction', type=str,
         default=correction,
         help="output directory for plots")
@@ -129,7 +110,7 @@ def options(
         help="status of the plot (e.g. CMS preliminary)")
     parser.add_argument('-A', '--author', type=str,
         default=author,
-        help="status of the plot (e.g. CMS preliminary)")
+        help="author name of the plot")
     parser.add_argument('--date', type=str,
         default=date,
         help="show the date in the top left corner. 'iso' is YYYY-MM-DD, " +
@@ -141,7 +122,7 @@ def options(
     parser.add_argument('-f', '--formats', type=str, nargs='+',
         default=formats,
         help="output format for the plots")
-    parser.add_argument('-L', '--layout', type=str, nargs='+',
+    parser.add_argument('-L', '--layout', type=str,
         default='generic',
         help="layout for the plots. E.g. 'document': serif, LaTeX, pdf; " +
              "'slides': sans serif, big, png; 'generic': slides + pdf. " +
@@ -169,6 +150,7 @@ def options(
     opt.npv = npv
     if opt.verbose:
         showoptions(opt)
+    matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
     return opt
 
 def fail( fail_message ):
@@ -180,6 +162,9 @@ def showoptions(opt):
     print "Options:"
     for o, v in opt.__dict__.items():
         print "   {0:11}: {1}".format(o, v)
+    print "matplotlib settings:"
+    for k, v in plotrc.getstyle(opt.layout).items():
+        print "   {0:24}: {1}".format(k, v)
 
 
 def getfactor(lumi, fdata, fmc, quantity='z_phi', change={}):
@@ -240,12 +225,15 @@ def getpath():
 
 def newplot(ratio=False):
     fig = plt.figure(figsize=[7, 7])
-    ax = fig.add_subplot(111)
-    ax.minorticks_on()
-
     if ratio:
-        print "The ratio plot template is not yet implemented"
-    return fig, ax
+        ax = fig.add_subplot(111, position=[0.13, 0.35, 0.83, 0.58])
+        ratio = fig.add_subplot(111, position=[0.13, 0.12, 0.83, 0.22], sharex=ax)
+        ratio.axhline(1.0, color='black', lw=1)
+        return fig, ax, ratio
+    else:
+        ax = fig.add_subplot(111)
+        return fig, ax
+    return fig
 
 
 def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper right',
@@ -263,7 +251,7 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper ri
     resultlabel(ax, result)
     authorlabel(ax, opt.author)
     datelabel(ax, opt.date)
-    ax.legend(loc=legloc, numpoints=1, frameon=frame )
+    ax.legend(loc=legloc, numpoints=1, frameon=frame)
     return ax
 
 
@@ -293,9 +281,9 @@ def jetlabel_string( algorithm, correction):
     else:
         corr = r"uncorrected"
     if "ak5pfjets" in algorithm.lower():
-        jet = r"anti-$k_{T}$ 0.5 PF jets"
+        jet = r"Anti-$k_{T}$ 0.5 PF jets"
     elif "ak7pfjets" in algorithm.lower():
-        jet = r"anti-$k_{T}$ 0.7 PF jets"
+        jet = r"Anti-$k_{T}$ 0.7 PF jets"
     else:
         jet = ""
         corr = ""
@@ -521,20 +509,19 @@ def axislabel(ax, q='pt', obj='Z', brackets=False):
     return ax
 
 
-def Save(figure, name, opt, alsoInLogScale=False):
+def Save(figure, name, opt, alsoInLogScale=False, crop=True):
     _internal_Save(figure, name, opt)
 
     if alsoInLogScale:
         figure.get_axes()[0].set_yscale('log')
-        _internal_Save(figure, name + "_log_scale", opt)
+        _internal_Save(figure, name + "_log_scale", opt, crop)
 
 def EnsurePathExists(path):
     if not os.path.exists(path):
-        print "Creating", path
         os.mkdir(path)
 
         
-def _internal_Save(figure, name, opt):
+def _internal_Save(figure, name, opt, crop=True):
     """Save this figure in all listed data formats.
 
     The standard data formats are png and pdf.
@@ -545,6 +532,9 @@ def _internal_Save(figure, name, opt):
     
     name = opt.out + '/' + name
     print ' -> Saving as',
+    # this helps not to crop labels
+    if crop:
+        title = figure.suptitle("I", color='white')
     first = True
     for f in opt.formats:
         if f in ['pdf', 'png', 'ps', 'eps', 'svg']:
@@ -553,10 +543,12 @@ def _internal_Save(figure, name, opt):
             else:
                 first = False
             print name + '.' + f,
-            figure.savefig(name + '.' + f, dpi=100)
+            if crop:
+                figure.savefig(name + '.' + f, bbox_inches='tight',
+                               bbox_extra_artists=[title])
+            else:
+                figure.savefig(name + '.' + f)
 
-#        elif format in ['txt', 'npz', 'dat']:
-#            pass    #Ignore this here, as it is respected elsewhere
         else:
             print f, "failed. Output type is unknown or not supported."
     print
