@@ -43,10 +43,11 @@ def openfile(filename, verbose=False, exitonfail=True):
 
 # for compatibility
 def gethisto(name, rootfile, changes={}, isdata=False, rebin=1):
-    getplot(name, rootfile, changes, isdata, rebin):
+    getplot(name, rootfile, changes, isdata, rebin)
 
 def getplot(name, rootfile, changes={}, exact=False, rebin=1):
-    getobject(name, rootfile, changes, exact)
+    histoname = gethistoname(name, changes)
+    roothist = getobject(histoname, rootfile, changes, exact)
     return root2histo(roothist, rootfile.GetName(), rebin)
 
 
@@ -88,19 +89,15 @@ def getobject(name, rootfile, changes={}, exact=True):
     not the MC version without 'Res'
     """
     oj = rootfile.Get(name)
+    print "getroot: name", name
     if oj:
         # 'name' is a valid path in the rootfile
+        if oj == None:
+            print "HAAAA"
         return oj
     else:
-        # 'name' is a nick name and will be expanded in the next line
-        longname = gethistoname(name, changes)
-        oj = rootfile.Get(longname)
-        if oj:
-            return oj
-        else:
-            print "Can't load object " + name + " from root file", rootfile.GetName()
-            print longname, "is no valid object neither."
-            exit(0)
+        print "Can't load object " + name + " from root file", rootfile.GetName()
+        exit(0)
 
 #    if rootfile.Get(name) or isdata:
 #        roothist = getobject_direct(name, rootfile)
@@ -150,8 +147,10 @@ def gethistoname(quantity='z_mass', change={}):
         
     hst = hst[:-1].replace('Jets_', 'Jets').replace('__', '_').replace('_L1', 'L1')
     # Now, the default string for hst looks like:
-    # NoBinning_incut_<quantity>_ak5PFJetsL1L2L3CHS_hist
+    # NoBinning_incut_<quantity>_ak5PFJetsL1L2L3
     # ability to get level 2 pipeline plots via ../ prefix:
+    print "We have now", hst
+    print quantity
     if quantity.find('../') == 0:
         # top level responses
         quantity = quantity[3:]
@@ -169,7 +168,9 @@ def gethistoname(quantity='z_mass', change={}):
         hst = hst.replace('_<quantity>', 'cut')
     else:
         # default case: standard physical quantity
+        print quantity, hst
         hst = hst.replace('_<quantity>', '/' + quantity)
+    print "return:", hst
     return hst
 
 
@@ -181,8 +182,8 @@ def root2histo(histo, rootfile='', rebin=1):
         print histo, "is no TObject. Could not be converted."
         exit(0)
     # Detect if it is a histogram or a graph
-    if histo.ClassName() == 'TH1D' or histo.ClassName() == 'TH1F'
-            or histo.ClassName() == 'TProfile':
+    if histo.ClassName() == 'TH1D' or histo.ClassName() == 'TH1F' or \
+            histo.ClassName() == 'TProfile':
         # histo is a 1D histogram, read it
         histo.Rebin(rebin)
         hst.source = rootfile

@@ -14,11 +14,18 @@ def datamcplot(quantity, q, obj, fdata, fmc, opt, legloc='center right',
     if opt.verbose:
         print q, "of the", obj
 
-    getroot.createchanges ( opt, change )
-
-    hdata = getroot.gethisto(quantity, fdata, change, True, rebin)
-    hmc = getroot.gethisto(quantity, fmc, change, False, rebin)
-    
+    change = getroot.createchanges(opt, change)
+    tstname = getroot.gethistoname(quantity, change)
+    print tstname
+    print fdata.Get(tstname)
+    hdata = getroot.getplot(quantity, fdata, change, True, rebin)
+    hmc = getroot.getplot(quantity, fmc, change, False, rebin)
+    if hdata==None: 
+      print "OHHHHHHHHHHHH"
+      exit(0)
+    if hmc == None:
+      print "NEINNNN"
+      exit(0)
     if opt.normalize:
         hmc.scale(hdata.ysum / hmc.ysum)
     else:
@@ -55,7 +62,8 @@ def npv(fdata, fmc, opt):
     datamcplot('npv', 'recovert', 'npv', fdata, fmc, opt, 'center right', rebin = 1)
 
 def npv_before_cuts(fdata, fmc, opt):
-    datamcplot('NoBinning_allevents/npv_AK5PFJetsCHSL1L2L3', 'recovert', 'npv', fdata, fmc, opt, 'center right', rebin = 1, file_name="npv_nocuts")
+    print "npv_before"
+    datamcplot('npv', 'recovert', 'npv', fdata, fmc, opt, 'center right', {'incut': 'allevents'}, rebin = 1, file_name="npv_nocuts")
 
 # Z boson
 def zpt(fdata, fmc, opt):
