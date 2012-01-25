@@ -4,9 +4,9 @@ import copy
 # Basic process setup ----------------------------------------------------------
 process = cms.Process("kappaSkim")
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-	'file:/scratch/hh/lustre/cms/user/hauth/ZPJ2011/examples/mc_DYToMuMu_M-20_TuneZ2_7TeV-pythia6_AOD.root',
+       'file:/scratch/hh/lustre/cms/user/hauth/ZPJ2011/examples/mc_DYToMuMu_M-20_TuneZ2_7TeV-pythia6_AOD.root',
 ))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 #-------------------------------------------------------------------------------
 
 # Includes + Global Tag --------------------------------------------------------
@@ -37,7 +37,7 @@ process.pathJEC = cms.Path(process.kt6PFJets *
 
 
 process.GlobalTag.globaltag = '@GLOBALTAG@'
-#process.GlobalTag.globaltag = 'START42_V13::All'
+#process.GlobalTag.globaltag = 'START42_V17::All'
 #-------------------------------------------------------------------------------
 
 # Reduce amount of messages ----------------------------------------------------

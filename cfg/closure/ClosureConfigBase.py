@@ -6,6 +6,7 @@ import socket
 import ConfigParser
 import os.path
 import stat
+import getpass
 
 def CreateFileList( wildcardExpression):
     flist = []
@@ -24,8 +25,12 @@ def GetDefaultBinning():
 def GetDataPath():
 
     hname = socket.gethostname()
+    username = getpass.getuser()
     # feel free to insert your machine here !
-    if hname == "saturn":
+    if username == 'berger':
+        if 'ekpcms' in hname:
+            return "/storage/5/hauth/zpj/"
+    elif hname == "saturn":
         return "/home/poseidon/uni/data/Kappa/"
     elif "ekpcms" in hname:
         return "/storage/5/hauth/zpj/"
@@ -35,18 +40,39 @@ def GetDataPath():
         print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
 	exit(0)
 
+def GetCMSSWPath():
+
+    hname = socket.gethostname()
+    username = getpass.getuser()
+    # feel free to insert your machine here !
+    if username == 'berger':
+        if 'ekpcms' in hname:
+            return "/storage/6/berger/CMSSW_4_2_8_patch1/"
+    elif hname == "saturn":
+        return "/home/poseidon/uni/data/Kappa/"
+    elif "ekpcms" in hname:
+        return "/storage/5/hauth/zpj/CMSSW_4_2_8/"
+    elif "ekpplus" in hname:
+        return "/storage/5/hauth/zpj/CMSSW_4_2_8/"
+    else:
+        print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
+	exit(0)
+
 
 def GetBasePath():
 
     hname = socket.gethostname()
     # feel free to insert your machine here !
-    # add user name dependency
-    if hname == "saturn":
+    username = getpass.getuser()
+    if username == 'berger':
+        if 'ekpcms' in hname:
+            return "/storage/6/berger/zpj/CalibFW/"
+    elif hname == "saturn":
         return "/home/poseidon/uni/data/Kappa/"
     elif hname == "ekpcms5":
         return "/storage/5/hauth/zpj/CalibFW/"
     elif hname == "ekpcms4.physik.uni-karlsruhe.de":
-	return "/storage/5/hauth/zpj/CalibFW/"
+        return "/storage/5/hauth/zpj/CalibFW/"
     else:
         print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
 	exit(0)
@@ -790,12 +816,12 @@ def StoreShellRunner ( settings, nickname, filename ):
     print "Generating " + filename
     cfile = open(filename, 'wb')
     cfile.write("echo $FILE_NAMES\n" )
-    cfile.write("cd /storage/5/hauth/zpj/CMSSW_4_2_8\n" )
+    cfile.write("cd " + GetCMSSWPath() +"\n" )
     cfile.write("source /wlcg/sw/cms/experimental/cmsset_default.sh\n" )
     cfile.write("eval `scramv1 runtime -sh`\n" )
     cfile.write("cd -\n" )
-    cfile.write("source /storage/5/hauth/zpj/CalibFW/scripts/CalibFWenv.sh\n" )
-    cfile.write("/storage/5/hauth/zpj/CalibFW/closure /storage/5/hauth/zpj/CalibFW/cfg/closure/" + nickname + ".py.json" )
+    cfile.write("source "+ GetBasePath() + "/scripts/CalibFWenv.sh\n" )
+    cfile.write( GetBasePath() + "closure " + GetBasePath() + "cfg/closure/" + nickname + ".py.json" )
     cfile.close()
     os.chmod ( filename, stat.S_IRWXU )	
 
@@ -813,8 +839,8 @@ def Run( settings, arguments):
     filename = arguments[0] + ".json"
     StoreSettings( settings, filename)
 
-    base_path = "/storage/5/hauth/zpj/CalibFW/"
-    
+    base_path = GetBasePath()
+    print "BASEPATH", base_path
     batch = False
     if len ( arguments ) > 1 :
         batch = arguments[1] == "batch"
