@@ -517,9 +517,13 @@ def Save(figure, name, opt, alsoInLogScale=False, crop=True):
         _internal_Save(figure, name + "_log_scale", opt, crop)
 
 def EnsurePathExists(path):
-    if not os.path.exists(path):
-        os.mkdir(path)
-
+    full_path = ""
+    for p in path.split("/"):
+        full_path += p + "/"
+        #print "Checking " + full_path
+        if not os.path.exists(full_path):
+            print "Creating " + full_path
+            os.mkdir(full_path)
         
 def _internal_Save(figure, name, opt, crop=True):
     """Save this figure in all listed data formats.
