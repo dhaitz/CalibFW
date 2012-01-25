@@ -23,7 +23,7 @@ def fractions(fdata, fmc, opt):
     graphnames = ["jet1_" + component + "_fraction"
         for component in components]
 
-    getroot.createchanges(opt)
+    changes = getroot.createchanges(opt)
 
     # Get list of graphs from inputfiles
     if opt.verbose:
