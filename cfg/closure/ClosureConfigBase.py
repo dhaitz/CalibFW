@@ -29,7 +29,7 @@ def GetDataPath():
     # feel free to insert your machine here !
     if username == 'berger':
         if 'ekpcms' in hname:
-            return "/storage/5/hauth/zpj/"
+            return "/storage/6/berger/zpj/"
     elif hname == "saturn":
         return "/home/poseidon/uni/data/Kappa/"
     elif "ekpcms" in hname:
