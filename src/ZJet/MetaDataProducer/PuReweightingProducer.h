@@ -36,7 +36,7 @@ public:
 
 		assert(	data.m_geneventmetadata != NULL );
 
-		double fact = m_pipelineSettings.Global()->GetPuReweighting().at( data.m_geneventmetadata->numPUInteractions0 );
+		double fact = m_pipelineSettings.Global()->GetPuReweighting().at( data.m_geneventmetadata->numPUInteractionsTruth );
 		metaData.SetWeight( metaData.GetWeight() * fact );
 
 		return true;

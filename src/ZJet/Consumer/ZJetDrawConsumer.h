@@ -374,7 +374,11 @@ public:
 		m_numPU = new Hist1D( "numpu_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetNRVModifier() );
+		m_numPUtruth = new Hist1D( "numputruth_" + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetNRVModifier() );
 		AddPlot ( m_numPU );
+		AddPlot ( m_numPUtruth );
 	}
 
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
@@ -382,10 +386,12 @@ public:
 	{
 		MetadataConsumer::ProcessFilteredEvent( event, metaData);
 		m_numPU->Fill( event.m_geneventmetadata->numPUInteractions0, metaData.GetWeight());
+		m_numPUtruth->Fill( event.m_geneventmetadata->numPUInteractionsTruth, metaData.GetWeight());
 	}
 
 private:
 	Hist1D * m_numPU;
+	Hist1D * m_numPUtruth;
 
 };
 
