@@ -24,6 +24,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <execinfo.h>
+#include <signal.h>
+
+
 #include <math.h>
 
 #include <vector>
@@ -41,6 +45,9 @@
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+
+
+
 
 #ifdef USE_PERFTOOLS
 #include <google/profiler.h>
@@ -74,6 +81,7 @@
 #include "ZJet/MetaDataProducer/CorrJetProducer.h"
 #include "ZJet/MetaDataProducer/JetSorter.h"
 #include "ZJet/MetaDataProducer/HltSelector.h"
+#include "ZJet/MetaDataProducer/JetMatcher.h"
 
 
 #include "KappaTools/RootTools/HLTTools.h"
@@ -142,13 +150,34 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 			runner.AddGlobalMetaProducer( new JetSorter());
 		else if ( HltSelector::Name() == (*it))
 			runner.AddGlobalMetaProducer( new HltSelector( PropertyTreeSupport::GetAsStringList( &globalSettings, "HltPaths", true ) ));
+		else if ( JetMatcher::Name() == (*it))
+			runner.AddGlobalMetaProducer( new JetMatcher() );
 		else
 			CALIB_LOG_FATAL( "Global MetaData producer of name " << (*it) << " not found")
 	}
 }
+/* did not work
+void handler(int sig) {
+  void *array[10];
+  size_t size;
+
+  // get void*'s for all entries on the stack
+  size = backtrace(array, 10);
+
+  // print out all the frames to stderr
+  fprintf(stderr, "Error: signal %d:\n", sig);
+  backtrace_symbols_fd(array, size, 2);
+  exit(1);
+}*/
+
 
 int main(int argc, char** argv)
 {
+    // install signal 
+    // did not work
+    //signal(SIGSEGV, handler);   // install our handler
+
+
 	if (argc < 2)
 	{
 		std::cerr << "Usage: " << argv[0]
@@ -306,7 +335,7 @@ int main(int argc, char** argv)
 #endif
 	//HeapProfilerStart( "resp_cuts.heap");
 
-	pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings >( evtProvider, settings );
+    pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings >( evtProvider, settings );
 
 	//HeapProfilerStop();
 #ifdef USE_PERFTOOLS

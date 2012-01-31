@@ -13,6 +13,9 @@
 #include "ZJet/Consumer/GenericProfileConsumer.h"
 #include "ZJet/Consumer/JetRespConsumer.h"
 #include "ZJet/Consumer/Dumper.h"
+#include "ZJet/Consumer/BinResponseConsumer.h"
+#include "ZJet/Consumer/MetaConsumerDataLV.h"
+#include "ZJet/Consumer/JetMatchingPlots.h"
 
 #include "ZJet/Filter/ValidZFilter.h"
 #include "ZJet/Filter/InCutFilter.h"
@@ -73,10 +76,6 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			else
 				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 		}
-
-
-		//pLine->AddMetaDataProducer( new	ValidMuonProducer());
-
 
 		// Cuts
 		fvec = pset.GetCuts();
@@ -170,6 +169,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			if (  pset.IsMC() )
 			{
 				pLine->AddConsumer( new GenMetadataConsumer( ) );
+				// rate the matching
+				pLine->AddConsumer( new JetMatchingConsumer( ) );
 			}
 			else
 			{
@@ -207,11 +208,18 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		    pLine->AddConsumer( resp );
 		    if ( pset.IsMC() && (resp->m_jetnum == 0) )
 		    {
-		      // do gen gesponse
-		      BinResponseConsumer * gen = new BinResponseConsumer( pset.GetPropTree(), consPath );
+		      // do gen gesponse to z.pt
+    	      BinResponseConsumer * gen = new BinResponseConsumer( pset.GetPropTree(), consPath );
 		      gen->m_useGenJet = true;
 		      gen->m_name += "Gen";
 		      pLine->AddConsumer( gen );
+		      
+		      // do Reco To Gen response
+		      BinResponseConsumer * reco_to_gen = new BinResponseConsumer( pset.GetPropTree(), consPath );
+		      reco_to_gen->m_useGenJetAsReference = true;
+		      reco_to_gen->m_name += "RecoToGen";
+		      pLine->AddConsumer( reco_to_gen );
+
 		    }
 		}
 			

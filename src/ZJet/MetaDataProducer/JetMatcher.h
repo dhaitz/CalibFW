@@ -18,8 +18,11 @@ public:
 				m_jets1 ( input_jets1 ),
 				m_jets2 ( input_jets2) ,
 				m_matching_name( matching_name)	{ }
+	JetMatcher () {}
 
 	virtual ~JetMatcher() {}
+
+	static std::string Name() { return "jet_matcher"; }
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData,

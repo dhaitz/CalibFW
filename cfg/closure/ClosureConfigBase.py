@@ -18,7 +18,6 @@ def CreateFileList( wildcardExpression):
 
     return flist
 
-
 def GetDefaultBinning():
     return [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]
 
@@ -233,6 +232,7 @@ def GetMcBaseConfig():
 
     d["JecBase"] = GetBasePath() + "data/jec_data/MC_42_V14B_"
 
+    d["GlobalProducer"] += ["jet_matcher"]
     return d
 
 def GetDefaultDataPipeline():

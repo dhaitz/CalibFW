@@ -46,6 +46,11 @@ public:
 	JetMap m_jets;
 	GenJetMap m_genJets;
 
+    virtual KDataLVs * GetGenJetCollection ( std::string const& name ) const
+    {
+        return SafeMap<std::string, KDataLVs *>::Get( name, m_genJets );
+    }
+
 	// May return null, if no primary jet is available
 	virtual KDataLV * GetPrimaryJet(ZJetPipelineSettings const& psettings) const
 	{

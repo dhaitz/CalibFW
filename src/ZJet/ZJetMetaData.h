@@ -15,54 +15,6 @@
 namespace CalibFW
 {
 
-struct MatchingPair{
-
-	explicit MatchingPair( long j1, long j2)
-	: m_jet1( j1), m_jet2 ( j2 ) { }
-
-	enum { NoMatchFound = -1, NotMatched = -2 } MatchingResult;
-
-	long m_jet1;
-	long m_jet2;
-};
-
-class MatchingResult
-{
-public:
-
-	void AddMatch ( long jet1, long jet2)
-	{
-		m_pair.push_back( MatchingPair ( jet1, jet2 ) );
-	}
-
-	void AddMismatch ( long jet1 )
-	{
-		m_pair.push_back( MatchingPair( jet1, MatchingPair::NoMatchFound ) );
-	}
-
-	long GetMatchingJet( long jet1 )
-	{
-		for ( MatchingList::iterator it = m_pair.begin();
-				it != m_pair.end();
-				++ it )
-		{
-			if ( it->m_jet1 == jet1 )
-				return it->m_jet2;
-		}
-
-		return MatchingPair::NotMatched;
-	}
-
-	unsigned long GetEntryCount ()
-	{
-		return m_pair.size();
-	}
-
-private:
-	typedef std::vector < MatchingPair > MatchingList;
-	std::vector < MatchingPair > m_pair;
-};
-
 class ZJetMetaData: public CalibFW::EventMetaDataBase
 {
 public:
@@ -174,6 +126,11 @@ public:
 		return jet->p4.Pt() / this->GetRefZ().p4.Pt();
 	}
 
+	double GetBalanceBetweenJets(KDataLV * jet1, KDataLV * jet_ref) const
+	{
+		return jet1->p4.Pt() / jet_ref->p4.Pt();
+	}
+
 	double GetMPF(KDataLV * met) const;
 
 IMPL_PROPERTY_READONLY(long, CutBitmask)
@@ -200,7 +157,7 @@ IMPL_PROPERTY(std::string, SelectedHlt)
 	{
 		m_validPFJets[ algoname ] = std::vector< KDataPFJet >();
 	}
-
+/*
 	MatchingResult & GetMatchingResults( std::string matchingName )
 	{
 		return m_matchingResults[ matchingName ];
@@ -209,7 +166,7 @@ IMPL_PROPERTY(std::string, SelectedHlt)
 	MatchingResult const& GetMatchingResults( std::string matchingName ) const
 	{
 		return m_matchingResults.at( matchingName );
-	}
+	}*/
 
 	void SortJetCollections();
 
@@ -239,7 +196,9 @@ IMPL_PROPERTY(std::string, SelectedHlt)
 	typedef std::map < std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
 	mutable MetaPFJetContainer m_validPFJets;
 
-	typedef std::map< std::string , MatchingResult > MatchingResults;
+
+    // Jet Matching Result
+	typedef std::map< std::string , std::vector<int> > MatchingResults;
 	MatchingResults m_matchingResults;
 
 	HLTTools * m_hltInfo;
