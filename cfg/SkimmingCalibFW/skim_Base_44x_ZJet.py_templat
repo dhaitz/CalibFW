@@ -2,16 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
     """Default config for Z+jet skims with Kappa
-    
+
        This is used in a cmssw config file via:
        import skim_base
        process = skim_base.getBaseConfig('START44_V12', "filename of testfile")
-       
+
        additional_actives can for example be used for MC-only products
     """
     # Basic process setup -----------------------------------------------------
     process = cms.Process('kappaSkim')
-    process.source = cms.Source('PoolSource', 
+    process.source = cms.Source('PoolSource',
         fileNames = cms.untracked.vstring(srcfile))
     process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(maxevents))
@@ -54,7 +54,7 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
     process.ak7PFJets.doAreaFastjet = cms.bool(True)
     process.kt4PFJets.doAreaFastjet = cms.bool(True)
     process.kt6PFJets.doAreaFastjet = cms.bool(True)
-    
+
     # CHS Jets with the NoPU sequence -----------------------------------------
     process.load('CommonTools.ParticleFlow.pfParticleSelection_cff')
     process.load('CommonTools.ParticleFlow.pfNoPileUp_cff')
