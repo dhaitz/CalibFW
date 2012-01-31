@@ -32,8 +32,8 @@ def calcWeights(dataDistribution, mcDistribution, verbose=False, warn=True):
         if mcDistribution[npu] == 0:
             result.append(0.0)
             if warn:
-                print("WARNING: There are no MC events with", npu,
-                      "pile-up interactions!")
+                print "WARNING: There are no MC events with", npu,
+                print "pile-up interactions!"
         else:
             result.append(dataDistribution[npu] / mcDistribution[npu])
     assert len(result) == len(mcDistribution)
@@ -58,12 +58,19 @@ def getDataDistribution(files, histo="pileup", verbose=False):
     result = []
     for f in files:
         rootfile = getroot.openfile(f, verbose)
-        dist = getroot.gethisto(rootfile, histo).y
+        dist = getroot.gethisto(histo, rootfile).y
+        if verbose:
+            print getroot.gethisto(histo, rootfile).xc
         dist.pop(-1)
         result += [0.0] * (len(dist) - len(result))
         dist += [0.0] * (len(result) - len(dist))
         assert len(dist) == len(result)
         result = map(lambda a, b: a + b, result, dist)
+    for i in range(len(result)):
+        if result[i] > 0.0:
+            mx=i
+    result = result[0:mx+1]
+    print "INFO: There are up to", mx, "vertices in Data."
     return result
 
 
@@ -81,14 +88,21 @@ def getMCDistribution(source, histo="pu", verbose=False):
         result = [float(s) for s in result]
     elif source[-5:] == ".root":
         rootfile = getroot.openfile(source, verbose)
-        result = getroot.gethisto(rootfile, histo).y
+        result = getroot.gethisto(histo, rootfile).y
+        if verbose:
+            print getroot.gethisto(histo, rootfile).xc
         result.pop(-1)
     elif source in std_values:
         result = std_values[source]
     else:
         print "This MC distribution could not be found!"
         assert False
+    for i in range(len(result)):
+        if result[i] > 0.0:
+            mx=i
+    result = result[0:mx+1]
     s = sum(result)
+    print "INFO: There are up to", mx, "vertices in MC."
     return [w / s for w in result]
 
 
@@ -156,6 +170,21 @@ std_values = {
         0.010082689541145369, 0.007409553992765740, 0.005231152843277586,
         0.003750064317963593, 0.002488996177550720, 0.001668591741212173,
         0.001082410591178329, 0.000714007262666091],
+   'fall11powheg':
+    # /DYToMuMu_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Fall11-PU_S6_START44_V12-v1/AODSIM
+        [0.00126617296561117, 0.006288304392236976, 0.017151855635001701,
+        0.033441862444671434, 0.048093292475314950, 0.065064266258086478,
+        0.070448161389172620, 0.073384831460674163, 0.074385001702417436,
+        0.066394279877425938, 0.058435478379298605, 0.042443394620360911,
+        0.046773918964930203, 0.041453864487572351, 0.044582056520258768,
+        0.042188032005447733, 0.032814096016343205, 0.029249659516513447,
+        0.033495062989445011, 0.027174838270343889, 0.019982124616956077,
+        0.025610742254000680, 0.021748382703438884, 0.015332397003745318,
+        0.017024174327545116, 0.012768130745658836, 0.007479996595165134,
+        0.007522557030983998, 0.003500595846101464, 0.005266853932584270,
+        0.002989870616275111, 0.003202672795369425, 0.001425774599931903,
+        0.000617126319373510, 0.000393684031324481, 0.000351123595505618,
+        0.000000000000000000, 0.000234082397003745, 0.000021280217909431],
 }
 
 if __name__ == "__main__":

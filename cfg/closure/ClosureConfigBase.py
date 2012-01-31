@@ -221,6 +221,23 @@ def ApplyReweightingSummer11PythiaForFull2011(conf):
         0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000]
 
 
+def ApplyReweightingFall11Powheg44ReReco(conf):
+    # Reweighting for this combination:
+    # MC:   Fall11 powheg-pythia sample (fall11powheg)
+    # Data: 2011A+B, 44ReReco, official PU-truth distributions
+    conf["GlobalXSection"] = 1614.0
+    conf["EnablePuReweighting"] = 1
+    conf["RecovertWeight"] = [0.000000000, 0.012557911, 0.097144404,
+          0.418582642, 1.544015685, 2.230095368, 2.208725001, 1.811206349,
+          1.430101041, 1.396694033, 1.277394355, 1.477623074, 1.131601965,
+          0.994771452, 0.592843656, 0.307448202, 0.143732816, 0.049939385,
+          0.012298643, 0.004690900, 0.001359566, 0.000070959, 0.000000000,
+          0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
+          0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
+          0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
+          0.000000000, 0.000000000]
+
+
 def GetMcBaseConfig():
     d = GetBaseConfig()
 
@@ -246,12 +263,22 @@ def GetDefaultDataPipeline():
 def GetDataBaseConfig():
     d = GetBaseConfig()
 
-    d["JsonFile"] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt"
+    d["JsonFile"] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
 
-    d["HltPaths"] = ["HLT_DoubleMu7_v1", "HLT_DoubleMu7_v2", "HLT_DoubleMu7_v8", "HLT_Mu13_Mu8_v2", "HLT_Mu17_Mu8_v2", "HLT_Mu17_Mu8_v3","HLT_Mu17_Mu8_v4", "HLT_Mu17_Mu8_v6", "HLT_Mu17_Mu8_v7", "HLT_Mu17_Mu8_v10", "HLT_Mu17_Mu8_v11" ]
+    d["HltPaths"] = [
+    # Mu7 Trigger
+    "HLT_DoubleMu7_v1", "HLT_DoubleMu7_v2", "HLT_DoubleMu7_v3", "HLT_DoubleMu7_v4", "HLT_DoubleMu7_v5",
+    # Mu13_Mu8 Trigger
+    "HLT_Mu13_Mu8_v1", "HLT_Mu13_Mu8_v2", "HLT_Mu13_Mu8_v3", "HLT_Mu13_Mu8_v4", "HLT_Mu13_Mu8_v5",
+    "HLT_Mu13_Mu8_v6", "HLT_Mu13_Mu8_v7", "HLT_Mu13_Mu8_v8", "HLT_Mu13_Mu8_v9", "HLT_Mu13_Mu8_v10",
+    "HLT_Mu13_Mu8_v11", 
+    # Mu17_Mu8 Trigger
+    "HLT_Mu17_Mu8_v2", "HLT_Mu17_Mu8_v3","HLT_Mu17_Mu8_v4", 
+    "HLT_Mu17_Mu8_v6", "HLT_Mu17_Mu8_v7", "HLT_Mu17_Mu8_v10", "HLT_Mu17_Mu8_v11"
+    ]
 
     d["InputType"] = "data"
     d["Pipelines"]["default"]["Filter"].append ("json")

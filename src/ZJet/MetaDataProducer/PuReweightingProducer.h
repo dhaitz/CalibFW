@@ -3,7 +3,6 @@
 // from ROOT
 #include <Math/VectorUtil.h>
 
-
 #include "ZJetMetaDataProducer.h"
 
 namespace CalibFW
@@ -35,8 +34,8 @@ public:
 			return true;
 
 		assert(	data.m_geneventmetadata != NULL );
-
-		double fact = m_pipelineSettings.Global()->GetPuReweighting().at( data.m_geneventmetadata->numPUInteractionsTruth );
+		double fact = m_pipelineSettings.Global()->GetPuReweighting().at(
+			int(data.m_geneventmetadata->numPUInteractionsTruth + 0.5) );
 		metaData.SetWeight( metaData.GetWeight() * fact );
 
 		return true;
