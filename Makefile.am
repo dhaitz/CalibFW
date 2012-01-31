@@ -16,7 +16,7 @@ KAPPA_ROOT_PATH = $(top_srcdir)/..
 CMSSW_PATH 	  = external/OfflineCorrection
 
 
-AM_CXXFLAGS = -pedantic -Wall -std=c++0x \
+AM_CXXFLAGS = -pedantic -Wall -Wfatal-errors -std=c++0x \
               -O2 -g -fPIC -DSTANDALONE \
               -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \
                -Wsign-compare -Wtype-limits  -Wuninitialized \
