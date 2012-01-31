@@ -43,7 +43,7 @@ def openfile(filename, verbose=False, exitonfail=True):
 
 # for compatibility
 def gethisto(name, rootfile, changes={}, isdata=False, rebin=1):
-    getplot(name, rootfile, changes, isdata, rebin)
+    return getplot(name, rootfile, changes, isdata, rebin)
 
 def getplot(name, rootfile, changes={}, exact=False, rebin=1):
     histoname = gethistoname(name, changes)
@@ -90,6 +90,7 @@ def getobject(name, rootfile, changes={}, exact=True):
     """
     oj = rootfile.Get(name)
     print "getroot: name", name
+    print oj
     if oj:
         # 'name' is a valid path in the rootfile
         if oj == None:

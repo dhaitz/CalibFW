@@ -47,8 +47,8 @@ def plot():
         #algorithm="AK5PFJets",
         correction="L1L2L3",
         lumi=2200.0,
-        plots= plot_resolution.plots + 
-	       plotdatamc.plots #+ 
+        plots= plot_resolution.plots #+ 
+	       #plotdatamc.plots #+ 
 	       #plotextrapolation_mc_data_ratio.plots
               #plotfractions.plots,
         )

@@ -12,16 +12,15 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as tck
 
 
-def binstrings(bins):
-    return ["Pt{0}to{1}".format(bins[i], bins[i + 1])
-            for i in range(len(bins) - 1)]
+
 
 
 def get_errerr(roothisto):
     sqrt_nminus1 = math.sqrt(roothisto.GetEntries() - 1)
     return roothisto.GetRMSError() / sqrt_nminus1
 
-
+# fits the resolution of an distribution with a truncated gaussian
+# and returns a tuple with sigma and the stat. error on sigma
 def fit_resolution ( file, histo_name, tag,
                      out_path,
                      fit_formula = "gaus",
@@ -30,8 +29,6 @@ def fit_resolution ( file, histo_name, tag,
     c = TCanvas (histo_name, histo_name, 600, 600)
 
     fitFunc = TF1("fit1", fit_formula, 0, 2.0)
-
-
     hist_resp = getroot.getobject( histo_name, file )
     
     if strong_rebin:
@@ -42,7 +39,7 @@ def fit_resolution ( file, histo_name, tag,
     # give useful start parameters 
     fitFunc.SetParameters(1.0, 1.0, 1.0)
         
-    # untruncated
+    # untruncated, to get an idea of the gauss mean
     fitres = hist_resp.Fit( fitFunc , "SQ")
     if not fitres.IsValid():
         print " A FIT FAILED !"
@@ -58,11 +55,10 @@ def fit_resolution ( file, histo_name, tag,
     fitFunc_trunc = TF1("fit1_trunc", fit_formula, gaus_center - trunc_parameter, gaus_center + trunc_parameter )
     fitFunc_trunc.SetLineColor ( kRed )
     fitFunc_trunc.SetParameters(1.0, 1.0, 1.0)    
-
       
     fitres = hist_resp.Fit( fitFunc_trunc , "SRQ")
 
-    
+    # check that the fit converged nicely    
     if not fitres.IsValid():
         print " A FIT FAILED !"
         exit( 0 )
@@ -79,6 +75,10 @@ def fit_resolution ( file, histo_name, tag,
     
     return ( m_reso_fit, m_reso_fit_err )
 
+# extrapolates the resolution for a set of histograms which can be defined
+# by the parameter 'base_name' and all belong to one Pt-Bin
+# various types of extrapolation are available and can be selected via 
+# the parameter 'extr_method'
 def extrapolate_resolution ( file, 
                              base_name, # is "Pt300to1000_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3
                              tag,
@@ -89,17 +89,13 @@ def extrapolate_resolution ( file,
     variation_result = []
 
     c = TCanvas (base_name, base_name, 600, 600)
-
-
-
-    #fitFunc.SetParameters(1.0, 0.001, 0.3)
-
     local_var = copy.deepcopy ( var ) 
     local_var.reverse()
     graph = TGraphErrors(len(var))
     
     n = 0
     
+    # iterate through all variations of the cut and fit the resolutions
     for x in local_var:
         # get the histograms
         folder_var = base_name.replace ( "XXX", str(x).replace(".", "_") )  # 0.3 -> 0_3
@@ -109,7 +105,6 @@ def extrapolate_resolution ( file,
         reso = fit_resolution( file, folder_var, tag, out_path, strong_rebin = srebin )
         
         print "Variation " + str(x) + " has resolution " + str( reso )
-        
         variation_result += [ x, reso ]
         
         # add to our graph
@@ -156,6 +151,7 @@ def extrapolate_resolution ( file,
         # add the first error and extrapolate the rest
     	yex_err = math.sqrt(y_first_err**2  +  ( m_fit_err * x_first ) ** 2 )
 
+    # implements the Extrapolation method described in ( JME-11-011 )
     elif extr_method == "complex":
     	fit_formula = "sqrt( [0]^2+[1]^2 + 2 * [1] * [2] * x  + [2]^2 * x^2 )"
     	fitFunc = TF1("fit1", fit_formula, 0, 0.4)
@@ -172,8 +168,6 @@ def extrapolate_resolution ( file,
 
         print "  ---- "
     	print "Complex Resolution fit. GenIntr: " + str( gen_imbalance ) + " RecoRes: " + str( reco_res )  
-
-
     	yex = reco_res
     	yex_err = fitres.GetErrors() [0]
     else:
@@ -194,12 +188,62 @@ def extrapolate_resolution ( file,
         
     base_name = base_name.replace ( "/", "_")
     c.Print ( out_path + tag + base_name + "_resolution_extrapolation.png")
-    #c.Print ( tag + base_name + "_resolution_extrapolation.root")
 
-    #if extr_method == "complex":
-    #    exit ( 0 )
     return (yex, yex_err)
 
+
+# plots the truth resolution in MC from GenJets
+def plot_resolution_truth ( file, 
+                      base_name, # is "YYY_incut/balresp_AK5PFJetsCHSL1L2L3
+                      tag,
+                      opt,
+                      algo,
+                      correction,
+                      ref_hist,
+        		      fit_method = "plain",
+        		      subtract_gen = None,
+                      draw_ax = None,
+                      drop_first_bin = 0, drop_last_bin = 0 ):
+    
+    str_bins = plotbase.binstrings(opt.bins)
+    
+    for i in range ( drop_first_bin ):
+    	str_bins.pop( 0 )
+    for i in range ( drop_last_bin ):
+    	str_bins.pop( len(str_bins) - 1 )
+
+
+    tmp_out_path = opt.out + "/tmp_resolution/"  
+    plotbase.EnsurePathExists( tmp_out_path )
+
+    plot_x = []
+    plot_y = []
+    plot_yerr = []
+    
+    n_access = 0
+    
+    for str_bin in str_bins:    
+        hist_template = base_name.replace("YYY", str_bin)
+        
+        # directly take the resolution, do NO extrapolation
+        reso = fit_resolution( file, hist_template, tag, "random"  )
+        
+        print "Reco To Gen has resolution " + str( reso[0] )
+
+        hist_zpt = getroot.getobject( ref_hist.replace("YYY", str_bin), file)
+        
+        plot_y += [reso[0] ]
+        plot_x += [ hist_zpt.GetMean () ]
+        plot_yerr += [reso[1] ]
+        n_access = n_access + 1
+
+    draw_ax.errorbar(plot_x, plot_y, plot_yerr, fmt='o',
+                 capsize=2, label=tag )
+                 
+    return (plot_x, plot_y, plot_yerr )
+
+
+# plots the resolution for one algorithm, over all available PtBins
 def plot_resolution ( file, 
                       base_name, # is "YYY_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3
                       tag,
@@ -207,12 +251,13 @@ def plot_resolution ( file,
                       algo,
                       correction,
                       ref_hist,
-        		      fit_method = "plain", # some zpt ...
+        		      fit_method = "plain",
         		      subtract_gen = None,
-                    draw_ax = None,
-                        drop_first_bin = 0, drop_last_bin = 0
-                      ):
-    str_bins = binstrings(opt.bins)
+                      draw_ax = None,
+                      drop_first_bin = 0, drop_last_bin = 0,
+                      draw_plot = True ):
+    
+    str_bins = plotbase.binstrings(opt.bins)
     
     for i in range ( drop_first_bin ):
     	str_bins.pop( 0 )
@@ -245,38 +290,15 @@ def plot_resolution ( file,
         print ref_hist.replace("YYY", str_bin)
         hist_zpt = getroot.getobject( ref_hist.replace("YYY", str_bin), file)
         
-        
-        # skip first bin
-        #if not n == 0:
-        #    graph.SetPoint(n - skip_evens, hist_zpt.GetMean (), extra_res[0] )
-        #    graph.SetPointError(n - skip_evens, hist_zpt.GetMeanError (), extra_res[1] )
-
-
-        #if not subtract_gen == None:
-        #    print " subtracting gen response: " + str(subtract_gen[1][n])
-        #    #subtract gen response
-        #    if ( extra_res[0]**2 - subtract_gen[1][n]**2 ) > 0.0:
-        #        plot_y += [ math.sqrt( extra_res[0]**2 - subtract_gen[1][n]**2 ) ]        
-        #    else:
-        #        print "cant subtract gen response"
-        #        plot_y += [extra_res[0] ]
-        #else:
-        #    plot_y += [extra_res[0] ]
-                
         plot_y += [extra_res[0] ]
         plot_x += [ hist_zpt.GetMean () ]
         plot_yerr += [extra_res[1] ]
         n_access = n_access + 1
 
-
-        
-        
-        
-    draw_ax.errorbar(plot_x, plot_y, plot_yerr, fmt='o',
-                 capsize=2, label=tag )
-    
-    
-    
+    if ( draw_plot ):
+        draw_ax.errorbar(plot_x, plot_y, plot_yerr, fmt='o',
+                     capsize=2, label=tag )
+                 
     #c = TCanvas (base_name, base_name, 600, 600)
     
     #graph.SetMarkerColor(4)
@@ -292,6 +314,7 @@ def plot_resolution ( file,
     
     return (plot_x, plot_y, plot_yerr )
 
+# plots all resolutions ( MC Truth, MC Reco and Data Reco ) in one plot
 def combined_resolution( fdata, fmc, opt, 
                         folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
                         algo = "AK5PFJets",
@@ -329,9 +352,12 @@ def combined_resolution( fdata, fmc, opt,
     # construct names
     plot_filename = "resolution_" + method_name + "_" + algo + corr + filename_postfix
     hist_name = folder_template + "/" + method_name + "_" + algo + corr
+    hist_truth_name = "YYY_incut" + "/" + method_name + "_" + algo + corr
+    
     hist_z = "YYY_incut/z_pt_" + algo + corr
     
-    gen_res = plot_resolution( fmc, hist_name + "Gen", 
+
+    plot_resolution_truth( fmc, hist_truth_name + "RecoToGen", 
                     "MC Truth",
                      opt,
                      algo,
@@ -339,6 +365,16 @@ def combined_resolution( fdata, fmc, opt,
                     hist_z,
                     draw_ax = ax,
                     drop_first_bin = drop_first, drop_last_bin = drop_last ) 
+    
+    # get the gen addition
+    gen_res = plot_resolution( fmc, hist_name + "Gen", 
+                    "MC Instrinsic",
+                     opt,
+                     algo,
+                     corr,
+                    hist_z,
+                    draw_ax = ax,
+                    drop_first_bin = drop_first, drop_last_bin = drop_last, draw_plot = False ) 
     
     if subtract_gen:         
         title_postfix = "Reco"
@@ -431,7 +467,7 @@ def mytest(fdata, fmc, opt):
                         method_name = "balresp",
                         filename_postfix = "gen_subtract", 
                         subtract_gen = True,
-                        drop_first = 1, drop_last = 1 )
+                        drop_first = 2, drop_last = 1 )
     
     combined_resolution( fdata, fmc, opt, 
                         folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
@@ -440,7 +476,7 @@ def mytest(fdata, fmc, opt):
                         method_name = "balresp",
                         filename_postfix = "gen_subtract",
                         subtract_gen = True,
-                        drop_last = 1 )
+                        drop_first = 1, drop_last = 1 )
 
     # mpf >> not in gen right now
     #    combined_resolution( fdata, fmc, opt, 

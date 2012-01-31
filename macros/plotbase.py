@@ -157,6 +157,12 @@ def fail( fail_message ):
     print fail_message
     exit ( 0 )
 
+# converts a integer list of bins [1,30,70] to a 
+# string representation [ "Pt1to30", "Pt30to70" ]
+def binstrings(bins):
+    return ["Pt{0}to{1}".format(bins[i], bins[i + 1])
+            for i in range(len(bins) - 1)]
+
 
 def showoptions(opt):
     print "Options:"
