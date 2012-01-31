@@ -19,6 +19,16 @@ Hist1D::ModifierList Hist1D::GetPtModifier()
 	return modList;
 }
 
+Hist1D::ModifierList Hist1D::GetJetMatchingModifier()
+{
+	Hist1D::ModifierList modList;
+
+	modList.push_back(new ModHistBinRange(-2.5f, 100.5f));
+	modList.push_back(new ModHistBinCount( 103 ));
+
+	return modList;
+}
+
 Hist1D::ModifierList Hist1D::GetResponseModifier()
 {
 	Hist1D::ModifierList modList;
