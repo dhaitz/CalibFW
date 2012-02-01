@@ -1,7 +1,7 @@
 import Kappa.Producers.skim_Base_44x_ZJet as base
 
-#globaltag = '@GLOBALTAG@'
-globaltag = 'START44_V12'
+globaltag = '@GLOBALTAG@'
+#globaltag = 'START44_V12'
 
 process = base.getBaseConfig(
     globaltag,
