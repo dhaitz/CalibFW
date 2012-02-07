@@ -27,7 +27,7 @@ def GetDataPath():
     username = getpass.getuser()
     # feel free to insert your machine here !
     if username == 'berger':
-        if 'ekpcms' in hname:
+        if 'ekpcms' in hname or 'ekpplus' in hname:
             return "/storage/6/berger/zpj/"
     elif hname == "saturn":
         return "/home/poseidon/uni/data/Kappa/"
@@ -45,7 +45,7 @@ def GetCMSSWPath():
     username = getpass.getuser()
     # feel free to insert your machine here !
     if username == 'berger':
-        if 'ekpcms' in hname:
+        if 'ekpcms' in hname or 'ekpplus' in hname:
             return "/storage/6/berger/CMSSW_4_2_8_patch1/"
     elif hname == "saturn":
         return "/home/poseidon/uni/data/Kappa/"
@@ -64,7 +64,7 @@ def GetBasePath():
     # feel free to insert your machine here !
     username = getpass.getuser()
     if username == 'berger':
-        if 'ekpcms' in hname:
+        if 'ekpcms' in hname or 'ekpplus' in hname:
             return "/storage/6/berger/zpj/CalibFW/"
     elif hname == "saturn":
         return "/home/poseidon/uni/data/Kappa/"
@@ -247,7 +247,7 @@ def GetMcBaseConfig():
 
     d["InputType"] = "mc"
 
-    d["JecBase"] = GetBasePath() + "data/jec_data/MC_42_V14B_"
+    d["JecBase"] = GetBasePath() + "data/jec_data/START44_V12_"
 
     d["GlobalProducer"] += ["jet_matcher"]
     return d
@@ -276,15 +276,16 @@ def GetDataBaseConfig():
     "HLT_Mu13_Mu8_v6", "HLT_Mu13_Mu8_v7", "HLT_Mu13_Mu8_v8", "HLT_Mu13_Mu8_v9", "HLT_Mu13_Mu8_v10",
     "HLT_Mu13_Mu8_v11", 
     # Mu17_Mu8 Trigger
-    "HLT_Mu17_Mu8_v2", "HLT_Mu17_Mu8_v3","HLT_Mu17_Mu8_v4", 
-    "HLT_Mu17_Mu8_v6", "HLT_Mu17_Mu8_v7", "HLT_Mu17_Mu8_v10", "HLT_Mu17_Mu8_v11"
+    "HLT_Mu17_Mu8_v1", "HLT_Mu17_Mu8_v2", "HLT_Mu17_Mu8_v3", "HLT_Mu17_Mu8_v4", "HLT_Mu17_Mu8_v5",
+    "HLT_Mu17_Mu8_v6", "HLT_Mu17_Mu8_v7", "HLT_Mu17_Mu8_v8", "HLT_Mu17_Mu8_v9", "HLT_Mu17_Mu8_v10",
+    "HLT_Mu17_Mu8_v11"
     ]
 
     d["InputType"] = "data"
     d["Pipelines"]["default"]["Filter"].append ("json")
     d["Pipelines"]["default"]["Filter"].append ("hlt")
 
-    d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_42_V19_"
+    d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_44_V13_"
 
     d["GlobalProducer"]+= ["hlt_selector"]
 
