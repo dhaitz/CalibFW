@@ -153,7 +153,7 @@ def draw_extrapolation(graph, fitres, m, merr, b, x0, y0err, folder, quantity,
                 capsize=2, label='correlated')
     # Legend and labels
     ax = plotbase.labels(ax, opt, legloc='upper right')
-    ax = plotbase.axislabel(ax, "extrapol", "jet2")
+    ax = plotbase.axislabels(ax, "jet2ratio")
     ax.text(0.04, 0.11, r"$\chi^2 / n_\mathrm{{dof}} = {0:.3f} / {1}$".format(
                         fitres.Chi2(), fitres.Ndf()),
             va='bottom', ha='left', transform=ax.transAxes, fontsize=18)
@@ -255,7 +255,7 @@ def extrapolate_ratio( fig, method, fdata, fmc, opt, tag,
 	plotbase.labels(ax, opt, result=("Overall Ratio (fit) = "
 		"${0:.3f} \pm {1:.3f}$".format(const_fit_res, const_fit_res_err)) + "\n" + str_fit_quality,
 			legloc = 'upper right')
-	plotbase.axislabel(ax, 'datamc_ratio', 'jet')
+	plotbase.axislabels(ax, 'z_pt', 'datamc_ratio')
 	plotbase.jetlabel( ax, opt.algorithm, opt.correction )
 	ax.set_ylim(0.88, 1.12)    
 
@@ -283,9 +283,7 @@ def response_ratio(fdata, fmc, method='balresp', extrapol=None,
 
 
 def getResponseRatioOverNPV( fdata, fmc,  opt, method, do_extrapolation ):
-    x_npx = []
-    y_ratio = []
-    y_ratio_err = []
+    hst = getroot.Histo()
     
     for n in opt.npv:
 	npvname = "Npv_" + str(n[0]) + "to" + str(n[1])
@@ -304,25 +302,25 @@ def getResponseRatioOverNPV( fdata, fmc,  opt, method, do_extrapolation ):
 			  extrapolation = do_extrapolation,
 			  plot_result = False)
 		
-	x_npx += [ meannpv ]
-	y_ratio += [ extr_res [ 0 ] ]
-	y_ratio_err += [ extr_res [ 1 ] ]
+	hst.x += [ meannpv ]
+	hst.y += [ extr_res [ 0 ] ]
+	hst.yerr += [ extr_res [ 1 ] ]
 	
-    return ( x_npx, y_ratio, y_ratio_err )
+    return hst
 
 def plolResponseRatioOverNPV( fdata, fmc,  opt, method, use_extrapolation, the_label ):
-    (x_npx, y_ratio, y_ratio_err) = getResponseRatioOverNPV( fdata, fmc, opt, method, do_extrapolation = use_extrapolation )
+    hst = getResponseRatioOverNPV( fdata, fmc, opt, method, do_extrapolation = use_extrapolation )
   
     # in relation to NPV for the constant factor
     fig, ax = plotbase.newplot()
 
-    ax.errorbar( x_npx, y_ratio, y_ratio_err, color='FireBrick', fmt='o',
+    ax.errorbar( hst.x, hst.y, hst.yerr, color='FireBrick', fmt='o',
                 capsize=2, label= the_label)    
 
     i = 0        
     for n in opt.npv:
-	if i > 0:
-	    ax.axvline( n[0], color="blue", alpha=0.5, linestyle='-')
+        if i > 0:
+            ax.axvline( n[0], color="blue", alpha=0.5, linestyle='-')
 	#if i < ( len(opt.npv) - 1):
 	#    ax.axvline( n[1], color="black", linestyle='-')
 	
@@ -331,13 +329,13 @@ def plolResponseRatioOverNPV( fdata, fmc,  opt, method, use_extrapolation, the_l
     # format plot
     ax.axhline(1.0, color="black", linestyle='--')
     plotbase.labels(ax, opt )    
-    plotbase.axislabel_2d(ax, 'datamc_ratio', 'balresp', 'npv', '1')
+    plotbase.axislabels(ax, 'npv', 'datamc_ratio')
     plotbase.jetlabel( ax, opt.algorithm, opt.correction )
                 
     file_name = method
     
     if not use_extrapolation:
-	file_name += "_no-extr" 
+        file_name += "_no-extr"
     
     file_name += "_" + opt.algorithm + opt.correction + "_over_npv" 
     
