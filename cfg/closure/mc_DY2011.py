@@ -6,9 +6,9 @@ import subprocess
 import copy
 
 conf = cbase.GetMcBaseConfig()
-conf["InputFiles"] = cbase.ApplyFast( cbase.CreateFileList( cbase.GetDataPath() + "Kappa_MC_428_14A/*pythia_Summer11*.root"), sys.argv )
+conf["InputFiles"] = cbase.ApplyFast( cbase.CreateFileList( cbase.GetDataPath() + "kappa44_MC11/*.root"), sys.argv )
 
-conf["OutputPath"] = "closure_mc_DY2011"
+conf["OutputPath"] = "closure_mc_DY2011_one"
 
 #algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2", "AK5PFJetsL1L2L3"   ]
 
@@ -33,7 +33,7 @@ base_algorithms = ["AK5PFJets", "AK5PFJetsCHS"]
 
 conf = cbase.ExpandDefaultMcConfig(  algorithms, conf, True )
 
-cbase.ApplyReweightingSummer11For2011A( conf )
+cbase.ApplyReweightingFall11Powheg44ReReco( conf )
 
 #cbase.ApplyReweightingSummer11May10ReReco( conf )
 

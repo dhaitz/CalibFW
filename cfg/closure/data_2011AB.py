@@ -5,12 +5,12 @@ import copy
 import subprocess
 
 conf = cbase.GetDataBaseConfig()
-conf["InputFiles"] = cbase.ApplyFast( cbase.CreateFileList( cbase.GetDataPath() + "Kappa_Data11/*Run2011A*.root"), sys.argv )
+conf["InputFiles"] = cbase.ApplyFast( cbase.CreateFileList("/storage/6/berger/zpj/kappa44_Data11/*.root"), sys.argv )
 #conf["InputFiles"] = cbase.ApplyFast( cbase.CreateFileList( cbase.GetDataPath() + "CalibFW/cfg/SkimmingCalibFW/skim.root"), sys.argv )
 #conf["InputFiles"] = cbase.ApplyFast( cbase.CreateFileList( cbase.GetDataPath() + "Kappa_Run2011A/*.root"), sys.argv )
 
 
-conf["OutputPath"] = "closure_data_2011A"
+conf["OutputPath"] = "closure_data_2011AB_one"
 
 #algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2", "AK5PFJetsL1L2L3"   ]
 
