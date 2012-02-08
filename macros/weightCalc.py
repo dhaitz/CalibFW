@@ -58,9 +58,9 @@ def getDataDistribution(files, histo="pileup", verbose=False):
     result = []
     for f in files:
         rootfile = getroot.openfile(f, verbose)
-        dist = getroot.gethisto(histo, rootfile).y
+        dist = getroot.getplot(histo, rootfile).y
         if verbose:
-            print getroot.gethisto(histo, rootfile).xc
+            print getroot.getplot(histo, rootfile).xc
         dist.pop(-1)
         result += [0.0] * (len(dist) - len(result))
         dist += [0.0] * (len(result) - len(dist))
@@ -88,9 +88,9 @@ def getMCDistribution(source, histo="pu", verbose=False):
         result = [float(s) for s in result]
     elif source[-5:] == ".root":
         rootfile = getroot.openfile(source, verbose)
-        result = getroot.gethisto(histo, rootfile).y
+        result = getroot.getplot(histo, rootfile).y
         if verbose:
-            print getroot.gethisto(histo, rootfile).xc
+            print getroot.getplot(histo, rootfile).xc
         result.pop(-1)
     elif source in std_values:
         result = std_values[source]

@@ -26,29 +26,29 @@ import getroot
 import plotdatamc
 import plotfractions
 import plotextrapolation_mc_data_ratio
-
+import plot_resolution
 #import plotextrapolation
 
 
 def plot():
     """Run all plots with the given settings"""
 
-    print "plot 1.0"
     # settings (1):
     op = plotbase.options(
         files=[
-            "closure_data_2011B.root",
-            "closure_mc_DY2011.root",
+            "work/data_2011AB/out/closure_data_2011AB_one.root",
+            "work/mc_DY2011/out/closure_mc_DY2011_one.root",
         ],
         algorithm="AK5PFJetsCHS",
         correction="L1L2L3",
-        lumi=2179.0,
+        lumi=4749.9,
         plots=plotdatamc.plots +
               plotextrapolation_mc_data_ratio.plots +
               plotfractions.plots,
+          
         )
-    mods = [plotdatamc, plotextrapolation_mc_data_ratio]
-    #mods = [ plotextrapolation_mc_data_ratio ]
+    module_list = [plotdatamc, plotextrapolation_mc_data_ratio, plot_resolution, plotfractions]
+
     # override commandline (3):
     op.normalize = True
 
@@ -59,10 +59,9 @@ def plot():
     fmc = getroot.openfile(op.mc, op.verbose)
     op.bins = getroot.getbins(fdata,
             [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
+    op.npv = [(0,2), (3,5), (6,11)]
 
-    op.verbose = True
-
-    plotbase.plot(mods, op.plots, fdata, fmc, op)
+    plotbase.plot(module_list, op.plots, fdata, fmc, op)
 #    plotbase.plot([plotfractions], op.plots, fdata, fmc, op)
 
 
