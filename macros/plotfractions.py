@@ -1,11 +1,36 @@
 # -*- coding: utf-8 -*-
-"""
+"""Plot Jet component fractions
+
+   This module plots the component fractions of the leading jet and the
+   differences between data and MC.
 """
 import math
-from ROOT import TF1
+from ROOT import TF1, TGraphErrors
 
 import getroot
 import plotbase
+
+def getvalues(nickname, f, changes, opt):
+    graph = TGraphErrors()
+    fitf = TF1("fit1", "1*[0]", 1.0, 1000.0)
+    bins = plotbase.binstrings(opt.bins)
+    for i in range(len(opt.bins)-2):
+        # read the values from pt-bin folders
+        changes['bin'] = bins[i+1]
+        ojx = getroot.getobjectfromnick('z_pt', f, changes)
+        ojy = getroot.getobjectfromnick(nickname, f, changes)
+        # store them in a root graph
+        graph.SetPoint(i, ojx.GetMean(), ojy.GetMean())
+        graph.SetPointError(i, ojx.GetMeanError(), ojy.GetMeanError())
+    # fit a horizontal line
+    graph.Fit(fitf,"QN")
+    # return plot (fit values are stored in the last point of result)
+    result = getroot.root2histo(graph)
+    result.x.append(0)
+    result.xc.append(0)
+    result.y.append(fitf.GetParameter(0))
+    result.yerr.append(fitf.GetParError(0))
+    return result
 
 
 def fractions(fdata, fmc, opt):
@@ -28,11 +53,11 @@ def fractions(fdata, fmc, opt):
     # Get list of graphs from inputfiles
     if opt.verbose:
         print "Loading MC Plots"
-    mcG = [getroot.gethisto(graphname, fmc, changes) for graphname in graphnames]
+    mcG = [getvalues(graphname, fmc, changes, opt) for graphname in graphnames]
     if opt.verbose:
         print mcG[0]
         print "Loading Data Plots"
-    dataG = [getroot.gethisto(graphname, fdata, changes) for graphname in graphnames]
+    dataG = [getvalues(graphname, fdata, changes, opt) for graphname in graphnames]
     if opt.verbose:
         print "Loading done"
 
@@ -44,23 +69,18 @@ def fractions(fdata, fmc, opt):
     barWidth = []
     for i in range(len(bins)-1):
         barWidth.append(bins[i+1] - bins[i])
-    # drop the first bin and calculate the average of data-MC via fit
+    # separate fit values, stored in the last entry (see getvalues)
     fitd = []
     fitderr = []
     fitm = []
     fitmerr = []
     for i in range(len(mcG)):
-        mcG[i].dropbin(0)
-        dataG[i].dropbin(0)
-        fitf = TF1("fit1", "1*[0]", 1.0, 1000.0)
-        getroot.getobject( graphnames[i], fdata, changes).Fit(fitf,"QN")
-        
-        fitd.append(fitf.GetParameter(0))
-        fitderr.append(fitf.GetParError(0))
-        
-        getroot.getobject(graphnames[i], fmc, changes).Fit(fitf, "QN")
-        fitm.append(fitf.GetParameter(0))
-        fitmerr.append(fitf.GetParError(0))
+        fitd.append(dataG[i].y[-1])
+        fitderr.append(dataG[i].yerr[-1])
+        fitm.append(mcG[i].y[-1])
+        fitmerr.append(mcG[i].yerr[-1])
+        mcG[i].dropbin(-1)
+        dataG[i].dropbin(-1)
 
     # calculate the difference between data and MC
     diff = []
@@ -81,10 +101,6 @@ def fractions(fdata, fmc, opt):
     for i in range(len(mcG)-1):
         mcG[i+1].y = map(lambda a,b: a+b, mcG[i+1].y,mcG[i].y)
         dataG[i+1].y = map(lambda a,b: a+b, dataG[i+1].y, dataG[i].y)
-    # undo the jet energy correction for fractions, i.e. normalize to 1.0
-#    for i in range(len(mcG)):
-#        mcG[i].y = map(lambda a,b: a/b, mcG[i].y,mcG[len(mcG)-1].y)
-#        dataG[i].y = map(lambda a,b: a/b, dataG[i].y, dataG[len(mcG)-1].y)
 
     print "\nSum :",
     for y in mcG[-1].y + dataG[-1].y: print "%1.4f" % (y),
@@ -98,22 +114,21 @@ def fractions(fdata, fmc, opt):
 
     fig, ax = plotbase.newplot()
     # MC histograms (begin with the last one)
+    assert len(mcG[0]) == len(x)
+    assert len(bins) == len(mcG[0]) + 1
     for i in range(len(mcG)-1,-1,-1):
-        print " -- "
-        print ( bins )
-        print  mcG[i].y
-        print (  mcG[i].y + [mcG[i].y[-1]] )
         ax.bar(x, mcG[i].y, width=barWidth, color=colours[i], edgecolor = None, linewidth=0,
-           label=r"%s: $%1.3f(%d)\, %1.3f(%d)$" % (labels[i],fitd[i],math.ceil(1000*fitderr[i]),fitm[i], math.ceil(1000*fitmerr[i])))
+            label=r"%s: $%1.3f(%d)\, %1.3f(%d)$" % (labels[i],fitd[i],math.ceil(1000*fitderr[i]),fitm[i], math.ceil(1000*fitmerr[i])))
         ax.plot(bins, mcG[i].y+[mcG[i].y[-1]], drawstyle='steps-post', color='black',linewidth=1)
-    ax.text(0.615,0.45, r"Data $\quad$ MC", va='top', ha='left', transform=ax.transAxes)
+        ax.errorbar(mcG[i].x, mcG[i].y, mcG[i].yerr, elinewidth=1, lw=0, color='grey')
+    ax.text(0.64,0.36, r"Data $\quad$MC", va='top', ha='left', transform=ax.transAxes)
     #data points
     for i in range(len(mcG)-1,-1,-1):
         ax.errorbar(dataG[i].x, dataG[i].y, dataG[i].yerr, elinewidth=1,
-            marker = markers[i], ms =3, color="black", lw = 0, ecolor=None)
+            marker=markers[i], ms=3, color="black", lw=0, ecolor=None)
     plotbase.labels(ax, opt, legloc='lower right', frame=True)
-    plotbase.axislabel(ax, 'components')
-    plotbase.Save(fig, algoname + "_fractions", opt, False)
+    plotbase.axislabels(ax, 'z_pt_log', 'components')
+    plotbase.Save(fig, "fractions_" + algoname, opt, False)
 
     #plot the difference (with MC error neglected)
     fig, ax = plotbase.newplot()
@@ -123,18 +138,24 @@ def fractions(fdata, fmc, opt):
     ax.axhline(0.0, color='black', lw=1, zorder=10)
 
     for i in range(len(mcG)):
-        ax.errorbar( mcG[i].x, diff[i], dataG[i].yerr, label = labels[i], fmt = "o", capsize = 2, color = colours[i], zorder=15+i)
+        ax.errorbar( mcG[i].x, diff[i], dataG[i].yerr, label=labels[i], 
+            fmt="o", capsize=2, color=colours[i], zorder=15+i)
         ax.plot([1.0,1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
     ax = plotbase.labels(ax, opt, legloc='lower left', frame=True)
-    ax = plotbase.axislabel(ax,'components_diff')
-    plotbase.Save(fig, algoname + "_fractions_diff", opt, False)
+    ax = plotbase.axislabels(ax,'z_pt_log', 'components_diff')
+    plotbase.Save(fig, "fractions_diff_" + algoname, opt, False)
 
 
 plots = ['fractions']
 
 
 if __name__ == "__main__":
-    fdata = getroot.openfile(plotbase.getpath() + "data_Oct19.root")
-    fmc = getroot.openfile(plotbase.getpath() + "pythia_Oct19.root")
-    bins = getroot.getbins(fdata, [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
+    """Unit test: doing the plots standalone (not as a module)."""
+    import sys
+    if len(sys.argv) < 2:
+        print "Usage: python macros/plotfractions.py data_file.root mc_file.root"
+        exit(0)
+    fdata = getroot.openfile(sys.argv[1])
+    fmc = getroot.openfile(sys.argv[2])
+    bins = getroot.getbins(fdata, [])
     fractions(fdata, fmc, opt=plotbase.options(bins=bins))

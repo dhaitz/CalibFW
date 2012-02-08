@@ -182,21 +182,11 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		{
 			pLine->AddConsumer( new DataZConsumer( pset.GetJetAlgorithm() ));
 			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
-/*
+
 			if ( JetType::IsPF( pset.GetJetAlgorithm() ))
 			{
-				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(),
-						0,
-						"", // means to use the default jet algo
-						true ));
+				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 0));
 			}
-
-			if ( pset.IsMC() && JetType::IsGen( pset.GetJetAlgorithm() ) )
-			{
-				// add gen jets plots
-				pLine->AddConsumer( new DataGenJetConsumer( pset.GetJetAlgorithm(), 0,
-															pset.GetJetAlgorithm() ));
-			}*/
 		}
 		
 
