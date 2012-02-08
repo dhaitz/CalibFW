@@ -44,8 +44,8 @@ def plot():
         lumi=4749.9,
         plots=plotdatamc.plots +
               plotextrapolation_mc_data_ratio.plots +
-              plotfractions.plots,
-          
+              plotfractions.plots +
+              plot_resolution.plots
         )
     module_list = [plotdatamc, plotextrapolation_mc_data_ratio, plot_resolution, plotfractions]
 

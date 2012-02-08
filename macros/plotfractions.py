@@ -5,6 +5,7 @@
    differences between data and MC.
 """
 import math
+import copy
 from ROOT import TF1, TGraphErrors
 
 import getroot
@@ -35,8 +36,6 @@ def getvalues(nickname, f, changes, opt):
 
 def fractions(fdata, fmc, opt):
     """Plot the components of the leading jet"""
-    algoname = opt.algorithm + opt.correction
-
     # Name everything you want and take only the first <nbr> entries of them
     nbr = 4
     labels =     ["CHF", "NEF", "NHF", "CEF", r"MF $\,$", "PF", "EF"][:nbr]
@@ -48,6 +47,7 @@ def fractions(fdata, fmc, opt):
     graphnames = ["jet1_" + component + "_fraction"
         for component in components]
 
+    algoname = opt.algorithm + opt.correction
     changes = getroot.createchanges(opt)
 
     # Get list of graphs from inputfiles
@@ -62,8 +62,8 @@ def fractions(fdata, fmc, opt):
         print "Loading done"
 
     # get x values and bar widths
-    x = opt.bins[1:-1]
-    bins = opt.bins
+    bins = copy.deepcopy(opt.bins)
+    x = bins[1:-1]
     if bins[0] == 0:
         bins.pop(0)
     barWidth = []

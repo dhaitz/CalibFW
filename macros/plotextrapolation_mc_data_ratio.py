@@ -175,7 +175,7 @@ def extrapolate_ratio( fig, method, fdata, fmc, opt, tag,
                       plot_result = True,
                       extrapolation = True,
                       store_tmp_files = False):
-    bins = opt.bins
+    bins = copy.deepcopy(opt.bins)
     if bins[0] == 0:
         bins.pop(0)
     str_bins = binstrings(bins)
