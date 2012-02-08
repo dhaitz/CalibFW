@@ -109,16 +109,8 @@ def getobjectname(quantity='z_mass', change={}):
     This string is returned for each quantity and any changes to the default
     can be applied via the change dictionary.
 
-    Toplevel plots have names like
-    'jetresp_ak5PFJetsL1L2L3CHS_graph'
-    and they are retrieved with the '../' prefix, e.g. '../jetrepsonse'
-    But there are no such plots at the moment.
-
-    TODO: I would suggest L1_npv_AK5PFJetsL1L2L3 instead of L1_AK5PFJetsL1L2L3_npv_profile
-    and cut_all_AK5PFJetsL1L2L3 instead of cut_AK5PFJetsL1L2L3_all_profile
-
     Examples for quantities:
-        z_pt, mu_plus_eta, ../balresp, cut__all, L1_npv
+        z_pt, mu_plus_eta, cut_all_npv, L1_npv
     """
     # Set default values
     keys = ['bin', 'incut', 'var', 'quantity', 'algorithm', 'correction']
@@ -133,32 +125,12 @@ def getobjectname(quantity='z_mass', change={}):
         else:
             print k, "is no valid key. Valid keys are: ", keys
             exit(1)
-    # make a prototype name
+    # make a prototype name and correct it
     for k in keys:
         hst += selection[k] + '_'
         
     hst = hst[:-1].replace('Jets_', 'Jets').replace('__', '_').replace('_L1', 'L1')
-    # Now, the default string for hst looks like:
-    # NoBinning_incut_<quantity>_ak5PFJetsCHSL1L2L3
-    # ability to get level 2 pipeline plots via ../ prefix:
-    if quantity.find('../') == 0:
-        # top level responses
-        quantity = quantity[3:]
-        hst = hst[hst.find('_<quantity>'):]
-        hst = hst.replace('_<quantity>', quantity)
-    elif quantity.find('L') == 0:
-        # correction level check plot (obsolete after TODO is fixed)
-        # e.g. L1_AK5PFJetsCHS_npv_profile
-        hst = hst[:hst.find('_<quantity>')+11] + quantity[3:] +'_profile'
-        hst = hst.replace('_<quantity>', quantity[:3])
-    elif quantity.find('cut_') == 0:
-        # cut inefficiency plot (obsolete after TODO is fixed)
-        # e.g. cut_AK5PFJetsL1L2L3zmass_overnpv_profile
-        hst = hst + quantity[4:] + '_profile'
-        hst = hst.replace('_<quantity>', '/cut')
-    else:
-        # default case: standard physical quantity
-        hst = hst.replace('_<quantity>', '/' + quantity)
+    hst = hst.replace('_<quantity>', '/' + quantity)
     #print "return:", hst
     return hst
 

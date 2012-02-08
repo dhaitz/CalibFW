@@ -431,6 +431,8 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
         setxaxis((0, 35), r"Number of Primary Vertices")
     elif 'npv' == x:
         setxaxis((0, 35), r"Number of Reconstructed Vertices $n$")
+    elif x == 'rho':
+        setxaxis((0, 50), r"$\rho$")
     elif 'constituents' == x:
         setxaxis((0, 60), r"Number of Jet Constituents")
     elif 'jet2ratio' == x:

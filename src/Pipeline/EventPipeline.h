@@ -58,7 +58,7 @@ public:
  \brief Base implementation of the EventPipeline paradigm
 
   The EventPipline contains settings, filter and MetaDataProducer and Consumer which, when combined,
-  produce the desired outpout of a pipline as soon as Events are send to the pipeline. An incoming event
+  produce the desired output of a pipline as soon as Events are send to the pipeline. An incoming event
   must not be changed by the pipeline but the pipeline can createt additional data for an event using
   MetaDataProducers.
   Most of the time, the EventPipeline will not be used stand-alone but by an EventPipelineRunner class.

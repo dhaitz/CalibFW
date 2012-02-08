@@ -36,8 +36,8 @@ def plot():
     # settings (1):
     op = plotbase.options(
         files=[
-            "work/data_2011AB/out/closure_data_2011AB_one.root",
-            "work/mc_DY2011/out/closure_mc_DY2011_one.root",
+            "closure_data_2011AB_one.root",
+            "closure_mc_DY2011_one.root",
         ],
         algorithm="AK5PFJetsCHS",
         correction="L1L2L3",

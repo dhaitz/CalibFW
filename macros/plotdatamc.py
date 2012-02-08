@@ -24,9 +24,9 @@ def datamcplot(quantity, fdata, fmc, opt, legloc='center right',
         hdata = getroot.getplotfromnick(quantity, fdata, change, rebin)
     hmc = getroot.getplotfromnick(quantity, fmc, change, rebin)
     print hdata.ysum
-    if opt.normalize and 'cut' not in quantity:
+    if opt.normalize and 'cut_' not in quantity:
         hmc.scale(hdata.ysum / hmc.ysum)
-    elif 'cut' not in quantity:
+    elif 'cut_' not in quantity:
         hmc.scale(opt.lumi)
 
     # create the plot
@@ -40,11 +40,9 @@ def datamcplot(quantity, fdata, fmc, opt, legloc='center right',
         color=opt.data_color, fmt='o', capsize=0, label=opt.data_label)
     plotbase.labels(ax, opt, legloc=legloc, frame=True)
     ax.set_ylim(top=hmc.ymax * 1.2)
-    if 'cut__all' == quantity:
+    if 'cut_' in quantity and '_npv' in quantity:
         ax = plotbase.axislabels(ax, 'npv', quantity)
-    elif 'cut' in quantity and 'npv' in quantity:
-        ax = plotbase.axislabels(ax, 'npv', quantity)
-    elif 'cut' in quantity and 'zpt' in quantity:
+    elif 'cut_' in quantity and '_zpt' in quantity:
         ax = plotbase.axislabels(ax, 'z_pt', quantity)
     else:
         ax = plotbase.axislabels(ax, quantity)
@@ -184,39 +182,39 @@ def jet2phi(fdata, fmc, opt):
 
 # cut efficiencies
 def cut_all_npv(fdata, fmc, opt):
-    datamcplot('cut__all', fdata, fmc, opt, rebin=1)
+    datamcplot('cut_all_npv', fdata, fmc, opt, rebin=1)
 
 
 def cut_backtoback_npv(fdata, fmc, opt):
-    datamcplot('cut_back_to_back_overnpv', fdata, fmc, opt)
+    datamcplot('cut_backtoback_npv', fdata, fmc, opt)
 
 
 def cut_jet2pt_npv(fdata, fmc, opt):
-    datamcplot('cut_jet2pt_overnpv', fdata, fmc, opt)
+    datamcplot('cut_jet2pt_npv', fdata, fmc, opt)
 
 
 def cut_muon_npv(fdata, fmc, opt):
-    datamcplot('cut_muon_overnpv', fdata, fmc, opt)
+    datamcplot('cut_muonpt_npv', fdata, fmc, opt)
 
 
 def cut_zmass_npv(fdata, fmc, opt):
-    datamcplot('cut_zmass_overnpv', fdata, fmc, opt)
+    datamcplot('cut_zmass_npv', fdata, fmc, opt)
 
 
 def cut_backtoback_zpt(fdata, fmc, opt):
-    datamcplot('cut_back_to_back_overzpt', fdata, fmc, opt)
+    datamcplot('cut_backtoback_zpt', fdata, fmc, opt)
 
 
 def cut_jet2pt_zpt(fdata, fmc, opt):
-    datamcplot('cut_jet2pt_overzpt', fdata, fmc, opt)
+    datamcplot('cut_jet2pt_zpt', fdata, fmc, opt)
 
 
 def cut_muon_npv(fdata, fmc, opt):
-    datamcplot('cut_muon_overzpt', fdata, fmc, opt)
+    datamcplot('cut_muonpt_zpt', fdata, fmc, opt)
 
 
 def cut_zmass_npv(fdata, fmc, opt):
-    datamcplot('cut_zmass_overzpt', fdata, fmc, opt)
+    datamcplot('cut_zmass_zpt', fdata, fmc, opt)
 
 
 
