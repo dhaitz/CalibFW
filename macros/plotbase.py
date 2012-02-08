@@ -29,7 +29,7 @@ def plot(modules, plots, fdata, mc, op):
     gROOT.SetBatch(True)
   
     for module in modules:
-        print module.__name__
+        print "Doing plots in", module.__name__, "..."
         if op.verbose:
             print "%1.2f | Start plotting" % clock()
         if not plots:
@@ -364,28 +364,113 @@ def resultlabel(ax, text=None, xpos=0.05, ypos=0.05):
         ax.text(xpos, ypos, text, va='top', ha='left', transform=ax.transAxes)
 
 
-
-# same as the old version, but can handle and and y axis indpendetly      
 def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
-        
-    # set for specific objects
-    if x_q == 'npv':
-        ax.set_xlabel(r"Number of Primary Vertices [1]",
-                      ha="right", x=1)
-        ax.set_xlim(0, 20)
+    print "Please use axislabels instead of axislabel_2d."
+    return axislabels(ax, x_q, y_q, brackets)
+
+
+def unitformat(quantity="", unit="", brackets=False):
+    """Returns a string according to SI standards
+
+       (r"$p_\mathrm{T}$", "GeV") yields "$p_\mathrm{T}$ / GeV"
+       brackets are not SI!
+    """
+
+    if unit != "":
+        if "/" in quantity:
+            quantity = "(%s)" % quantity
+        if "/" in unit:
+            unit = "(%s)" % unit
+        if brackets:	# units with [] (not allowed by SI system!)
+            quantity = r"%s [%s]" % (quantity, unit)
+        else:		# units with /
+           quantity = r"%s / %s" % (quantity, unit)
+    #print "The axis legend string is:", repr(quantity)
+    return quantity
+
+
+def axislabels(ax, x='z_pt', y='events', brackets=False):
+    """same as the old version, but can handle and and y axis indpendetly
+
+    """
+    def setxaxis(limits=(0, 200), quantity="x", unit=""):
+        ax.set_xlabel(unitformat(quantity, unit, brackets), ha="right", x=1)
+        ax.set_xlim(limits)
+
+    def setyaxis(limits=(0, 1), quantity="y", unit="", bottom=None):
+        ax.set_ylabel(unitformat(quantity, unit, brackets), va="top", y=1)
+        if bottom is not None:
+            ax.set_ylim(bottom=bottom)
+        else:
+            ax.set_ylim(limits)
+
+    #ax.set_ymargin(0.6)
+    #ax.set_ylim( bottom =0 )
+    # set x labelling
+    if x == 'z_pt_log':
+        setxaxis((25, 500), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-7].title(), "GeV")
+        ax.semilogx()
+        ax.set_xticklabels([r"$10$", r"$100$", r"$1000$"])
+        ax.set_xticklabels([r"$20$", r"$30$", r"$40$", r"$50$", r"$60$", r"",
+                            r"$80$", r"", r"$200$", r"$300$", r"$400$"],
+                            minor=True)
+    elif x in ['z_pt', 'jet1_pt', 'jet2_pt']:
+        setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-3].title(), "GeV")
+    elif x in ['z_eta', 'jet1_eta', 'jet2_eta']:
+        setxaxis((-5, 5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
+        #if obj == 'Z': ax.legend(loc='lower center', numpoints=1, frameon=True)
+    elif x in ['z_phi', 'jet1_phi', 'jet2_phi']:
+        setxaxis((-3.2, 3.2), r"$\phi^\mathrm{%s}$" % x[:-4].title())
+        ax.set_xticks([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
+        ax.set_xticklabels([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])
+    elif x in ['z_mass', 'jet1_mass', 'jet2_mass']:
+        setxaxis((70, 110), r"$m^\mathrm{%s}$" % x[:-5].title(), "GeV")
+    elif 'numputruth' == x:
+        setxaxis((0, 35), r"Pile-up Truth (Poisson mean)")
+    elif 'numpu' == x:
+        setxaxis((0, 35), r"Number of Primary Vertices")
+    elif 'npv' == x:
+        setxaxis((0, 35), r"Number of Reconstructed Vertices $n$")
+    elif 'constituents' == x:
+        setxaxis((0, 60), r"Number of Jet Constituents")
+    elif 'jet2ratio' == x:
+        setxaxis((0, 0.4), r"$p_\mathrm{T}^\mathrm{Jet_2}/p_\mathrm{T}^{Z}$")
+    elif 'runs' == x:
+        setxaxis((160404, 190000), r"Run")
     else:
-        fail ( "x_q " + x_q + " not supported" )
-                      
-    if y_q == 'datamc_ratio':
-        ax.set_ylabel(r"Data/MC", va="top", y=1)
-        ax.set_ylim(0.8, 1.1)
-#        ax.legend(bbox_to_anchor=(0.65, 0.6, 0.3, 0.2), loc='upper right',
-#                  numpoints=1, frameon=True)        
+        fail("x = " + x + " not supported. You could use e.g. 'z_pt' if appropriate.")
+
+    # set y labelling
+    if 'arb' == y:
+        setyaxis(bottom=0.0, quantity="arb. u.")
+    elif 'events' == y:
+        setyaxis(bottom=0.0, quantity="Events")
+    elif 'fracevents' == y:
+        setyaxis(bottom=0.0, quantity="Fraction of Events")
+    elif 'balresp' == y:
+        setyaxis((0.75, 1.00), r"$p_\mathrm{T}$ balance")
+    elif 'mpfresp' == y:
+        setyaxis((0.75, 1.00), r"MPF")
+    elif 'datamc_ratio' == y:
+        setyaxis((0.80, 1.10), r"Data/MC")
+    elif 'cut' in y:
+        setyaxis(quantity="Cut Infficiency")
+    elif 'components' == y:
+        setyaxis((0, 1), r"Leading Jet Component Fraction")
+    elif 'components_diff' == y:
+        setyaxis((-0.05, 0.05), r"Data-MC of Leading Jet Components")
+    elif 'extrapol' == y:
+        setyaxis((0.86, 1.04), r"Response")
+    elif 'xsec' == y:
+        setyaxis((0, 20), r"$n_\mathrm{Events} / \mathcal{L}$", "pb$^{-1}$")
     else:
-        fail ( "y_q " + y_q + " not supported" )
+        fail("y = " + y + " not supported. You could use e.g. 'events' if appropriate." )
+
+    return ax
         
 def axislabel(ax, q='pt', obj='Z', brackets=False):
     """label the axes according to the plotted quantity"""
+    print "plotbase.axislabel is deprecated! Use axislabels instead!"
     # according to quantity q
     def unit(s="", brackets=brackets):
         if s != "":
@@ -509,8 +594,6 @@ def axislabel(ax, q='pt', obj='Z', brackets=False):
         ax.set_ylabel(r"arb. units", va="top", y=1)
         ax.set_xlim(0, 350)
         ax.set_ylim(bottom=0.0)
-        
-
         
     return ax
 
