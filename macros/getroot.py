@@ -163,9 +163,6 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.y.append(0.0)
         hst.xerr.append(0.0)
         hst.yerr.append(0.0)
-        hst.norm = 1.0 / histo.GetSum()
-        hst.ysum = histo.GetSum()
-        hst.ymax = histo.GetMaximum()
     elif histo.ClassName() == 'TGraphErrors':
         # histo is a graph, read it
         hst.source = rootfile
@@ -179,16 +176,11 @@ def root2histo(histo, rootfile='', rebin=1):
             histo.GetPoint(i, a, b)
             x = float(a)
             y = float(b)
-            if hst.ymax < y:
-                hst.ymax = y
-            hst.ysum += y
             hst.x.append(x)
             hst.xc.append(x)
             hst.y.append(y)
             hst.xerr.append(histo.GetErrorX(i))
             hst.yerr.append(histo.GetErrorY(i))
-        if hst.ysum != 0:
-            hst.norm = 1.0 / hst.ysum
     else:
         # histo is of unknown type
         print "The object '" + str(histo) + "' is no histogram, no graph and no profile!",
@@ -215,9 +207,6 @@ class Histo:
         self.y = []
         self.xerr = []
         self.yerr = []  # TODO yel, yeh wenn unterschiedlich...
-        self.ysum = 0.0
-        self.norm = 1.0
-        self.ymax = 0.0
 
     def __del__(self):
         pass
@@ -229,19 +218,28 @@ class Histo:
         for i in range(len(self.y)):
             self.y[i] *= factor
             self.yerr[i] *= factor
-        self.ysum *= factor
-        self.norm /= factor
-        self.ymax *= factor
 
-    def yysum(self):
+    def ysum(self):
         return sum(self.y)
 
-    def yymax(self):
+    def ymax(self):
         return max(self.y)
+
+    def norm(self):
+        return 1.0 / sum(self.y)
 
     def normalize(self, factor=1.0):
         self.scale(factor * self.norm)
         return self
+
+    def append(self, x, xc, y, yerr=0, xerr=0):
+        if xc == True:
+            xc = x
+        self.x.append(x)
+        self.xc.append(xc)
+        self.y.append(y)
+        self.xerr.append(xerr)
+        self.yerr.append(yerr)
 
     def dropbin(self, number):
         self.x.pop(number)
@@ -269,12 +267,6 @@ class Histo:
                     self.source = getValue(line, ':')
                 elif 'lumi' in line:
                     self.lumi = getValue(line, ':')
-                elif 'Norm' in line:
-                    self.norm = getValue(line, ':')
-                elif 'Sum' in line:
-                    self.ysum = getValue(line, ':')
-                elif 'Max' in line:
-                    self.ymax = getValue(line, ':')
                 elif 'x label' in line:
                     self.xlabel = getValue(line, ':')
                 elif 'y label' in line:
@@ -307,15 +299,17 @@ class Histo:
         text += "\n#Path:      " + self.path
         text += "\n#From file: " + self.source
         text += strftime("\n#Date/time: %a, %d %b %Y %H:%M:%S", localtime())
-        text += "\n#Norm:      " + str(self.norm)
-        text += "\n#Sum:       " + str(self.ysum)
-        text += "\n#Maximum:   " + str(self.ymax)
+        text += "\n#Norm:      " + str(self.norm())
+        text += "\n#Sum:       " + str(self.ysum())
+        text += "\n#Maximum:   " + str(self.ymax())
         text += "\n#x label:   " + self.xlabel
         text += "\n#y label:   " + self.ylabel
         text += "\n#title:     " + self.title
         text += "\n#energy:    7"  # in TeV
         text += "\n#  i     x        xmid      y               ynorm"
         text += "           yerr            ynormerr\n"
+        if len(self.y) != len(self.x):
+            print "This will fail because x and y have not the same length."
         for i in range(len(self.y)):
             text += '%4d %8.2f %8.2f %15.8f %15.8f %15.8f %15.8f\n' % (
                     i, self.x[i], self.xc[i], self.y[i], self.y[i] * self.norm,
@@ -339,6 +333,15 @@ class Histo:
         f = file(filename)
         self = pickle.load(f)
 
+    def draw(self, filename="preview.png"):
+        import matplotlib.pyplot as plt
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        if len(self.y) == len(self.yerr):
+            ax.errorbar(self.x, self.y, self.yerr)
+        else:
+            ax.plot(self.x, self.y)
+        fig.savefig(filename)
 
 def getValue(line, key):
     value = line[line.rfind(key) + len(key):line.rfind('\n')]
@@ -350,23 +353,74 @@ def getValue(line, key):
         return value
 
 
-class fitfunction:
-    """
-
-    """
-    def __init__(self, rootfunction=""):
-        self.function = 'a*x+b'
-        self.parameter = [0.5, -1.0]
+class Fitfunction:
+    """For now this can only handle linear functions intended for extrapolation"""
+    def __init__(self, x=None, y=None, yerr=None, chi2=None, ndf=None):
+        if x is None:
+            x = [0.0, 0.3]
+        if y is None:
+            y = [1.0, 0.99]
+        if yerr is None:
+            yerr = [0.0, 0.0]
+        if chi2 is None:
+            chi2 = -1
+        if ndf is None:
+            ndf = -1
+        self.function = '(y1-y0)/(x1-x0)*x + y0'
+        self.x = x
+        self.y = y
+        self.yerr = yerr
+        self.chi2 = chi2
+        self.ndf = ndf
 
     def __del__(self):
         pass
 
     def __str__(self):
-        pass
+        return "y = %s \n  Parameters: x = %s, y = %s, yerr = %s\n  Fit: chi2 / ndf = %1.5f / %d" %(
+            (self.function).replace('(y1-y0)/(x1-x0)', str(float(self.y[1]-self.y[0])/(self.x[1]-self.x[0]))).replace('y0', str(self.y[0])),
+            str(self.x),
+            str(self.y),
+            str(self.yerr),
+            self.chi2,
+            self.ndf)
 
     def __len__(self):
-        pass
+        return len(self.y)
 
+    def f(self, x):
+        return float(self.y[1]-self.y[0])/(self.x[1]-self.x[0])*x + float(self.y[0])
+
+    def ferr(self, x):
+        return float(self.yerr[1]-self.yerr[0])/(self.x[1]-self.x[0])*x + float(self.yerr[0])
+
+    def k(self):
+        return float(self.y[0]/self.f(0.2))
+
+    def kerr(self):
+        return float(self.yerr[0]) / self.f(0.2) - self.y[0] / self.f(0.2) / self.f(0.2) * self.ferr(0.2)
+
+    def plotx(self, left=0.0, right=0.34):
+        assert left < right
+        return [left + x / 100.0 for x in range((right-left)*100)]
+
+    def ploty(self, left=0.0, right=0.34):
+        assert left < right
+        return [self.f(x) for x in self.plotx(left, right)]
+
+    def plotyh(self, left=0.0, right=0.34):
+        assert left < right
+        return [self.f(x) + self.ferr(x) for x in self.plotx(left, right)]
+
+    def plotyl(self, left=0.0, right=0.34):
+        assert left < right
+        return [self.f(x) - self.ferr(x) for x in self.plotx(left, right)]
+
+
+def fitline(rootgraph):
+    fitf = TF1("fit1", "1*[0]", 1.0, 1000.0)
+    rootgraph.Fit(fitf,"QN")
+    return (fitf.GetParameter(0), fitf.GetParError(0))
 
 # for compatibility
 def gethisto(name, rootfile, changes={}, rebin=1):

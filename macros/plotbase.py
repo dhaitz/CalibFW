@@ -171,11 +171,11 @@ def showoptions(opt):
 def getfactor(lumi, fdata, fmc, quantity='z_phi', change={}):
     """Get the normalization factor for the f_data file w.r.t. f_mc."""
     histo_data = getroot.gethisto(quantity, fdata, change)
-    histo_mc = getroot.gethisto(quantity, fmc, change, True)
+    histo_mc = getroot.gethisto(quantity, fmc, change)
     histo_mc.scale(lumi)
     print "    >>> The additional scaling factor is:", (
-        histo_data.ysum / histo_mc.ysum)
-    return histo_data.ysum / histo_mc.ysum
+        histo_data.ysum() / histo_mc.ysum())
+    return histo_data.ysum() / histo_mc.ysum()
 
 
 def getreweighting(datahisto, mchisto, drop=True):
@@ -454,7 +454,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
     elif 'mpfresp' in y:
         setyaxis((0.75, 1.00), r"MPF"+ratio)
     elif 'response' in y:
-        setyaxis((0.75, 1.00), r"Response"+ratio)
+        setyaxis((0.88, 1.10), r"Response"+ratio)
     elif 'datamc_ratio' == y:
         setyaxis((0.80, 1.10), ratio)
     elif 'cut' in y:

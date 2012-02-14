@@ -23,9 +23,9 @@ def datamcplot(quantity, fdata, fmc, opt, legloc='center right',
     else:
         hdata = getroot.getplotfromnick(quantity, fdata, change, rebin)
     hmc = getroot.getplotfromnick(quantity, fmc, change, rebin)
-    print hdata.ysum
+    print hdata.ysum()
     if opt.normalize and 'cut_' not in quantity:
-        hmc.scale(hdata.ysum / hmc.ysum)
+        hmc.scale(hdata.ysum() / hmc.ysum())
     elif 'cut_' not in quantity:
         hmc.scale(opt.lumi)
 
@@ -39,7 +39,7 @@ def datamcplot(quantity, fdata, fmc, opt, legloc='center right',
     ax.errorbar(hdata.xc, hdata.y, hdata.yerr, drawstyle='steps-mid',
         color=opt.data_color, fmt='o', capsize=0, label=opt.data_label)
     plotbase.labels(ax, opt, legloc=legloc, frame=True)
-    ax.set_ylim(top=hmc.ymax * 1.2)
+    ax.set_ylim(top=hmc.ymax() * 1.2)
     if 'cut_' in quantity and '_npv' in quantity:
         ax = plotbase.axislabels(ax, 'npv', quantity)
     elif 'cut_' in quantity and '_zpt' in quantity:
@@ -80,9 +80,6 @@ def getPUindata(version=''):
     result.yerr = [math.sqrt(i) for i in result.y] 
     result.x = range(len(result))
     result.xc = result.x
-    result.ysum = result.yysum()
-    result.ymax = max(result.y)
-    result.norm = 1.0 / result.ysum
     result.normalize()
     assert len(result) == len(result.yerr)
     assert len(result) > 10
@@ -237,7 +234,7 @@ def responseplot(method, fdata, fmc, opt, legloc='lower right', change={}):
     ax.errorbar(hdata.xc, hdata.y, hdata.yerr,
         color=opt.data_color, fmt='o', capsize=0, label=opt.data_label)
     ax = plotbase.labels(ax, opt, legloc=legloc)
-    ax.set_ylim(top=hmc.ymax * 1.2)
+    ax.set_ylim(top=hmc.ymax() * 1.2)
     ax = plotbase.axislabels(ax, 'z_pt', method[3:])
     plotbase.Save(fig, method[3:], opt)
 

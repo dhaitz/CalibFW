@@ -153,7 +153,7 @@ def draw_extrapolation(graph, fitres, m, merr, b, x0, y0err, folder, quantity,
                 capsize=2, label='correlated')
     # Legend and labels
     ax = plotbase.labels(ax, opt, legloc='upper right')
-    ax = plotbase.axislabels(ax, "jet2ratio")
+    ax = plotbase.axislabels(ax, "jet2ratio", "extrapol")
     ax.text(0.04, 0.11, r"$\chi^2 / n_\mathrm{{dof}} = {0:.3f} / {1}$".format(
                         fitres.Chi2(), fitres.Ndf()),
             va='bottom', ha='left', transform=ax.transAxes, fontsize=18)
