@@ -27,7 +27,6 @@ import plotdatamc
 import plotfractions
 import plotextrapolation_mc_data_ratio
 import plot_resolution
-#import plotextrapolation
 
 
 def plot():
@@ -36,12 +35,12 @@ def plot():
     # settings (1):
     op = plotbase.options(
         files=[
-            "closure_data_2011AB_one.root",
-            "closure_mc_DY2011_one.root",
+            "work/data_2011A/out/closure_data_2011A_only.root",
+            "work/mc_DY2011_44A/out/closure_mc_DY2011_Aonly.root",
         ],
         algorithm="AK5PFJetsCHS",
         correction="L1L2L3",
-        lumi=4749.9,
+        lumi=2179.0,#4749.9,
         plots=plotdatamc.plots +
               plotextrapolation_mc_data_ratio.plots +
               plotfractions.plots +
@@ -62,7 +61,6 @@ def plot():
     op.npv = [(0,2), (3,5), (6,11)]
 
     plotbase.plot(module_list, op.plots, fdata, fmc, op)
-#    plotbase.plot([plotfractions], op.plots, fdata, fmc, op)
 
 
 if __name__ == "__main__":

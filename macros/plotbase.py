@@ -62,7 +62,8 @@ def options(
             plots=None,
             # current default
             # new ones: [0, 3, 6, 12], [2, 5, 11, 100]
-            npv=[(0,2), (3,5), (6,11 ), ( 12,100)],
+            npv=[(0, 2), (3, 5), (6, 11), (12, 100)],
+            cut=[0.1, 0.15, 0.2, 0.3],
             bins=None):
     """Set standard options and read command line arguments
 
@@ -76,13 +77,6 @@ def options(
         default=files,  # type=argparse.FileType('r'), nargs='+',
         help="data and Monte Carlo input root file(s). One data file and at " +
              "least one Monte Carlo file is assumed.")
-#    parser.add_argument('-m','--mc', type=argparse.FileType('r'), nargs='+',
-#        help="Monte Carlo input file(s) if one likes to use more than one "\
-#             "data input file (not implemented yet)")
-#    parser.add_argument('-d','--data', type=argparse.FileType('r'), nargs='+',
-#        help="data input file(s). This is an alternative to simply"\
-#             "specifying files if more than one data input file is required "\
-#             "(not implemented yet)")
     parser.add_argument('-D', '--data-label', type=str, nargs='+',
         default="data",
         help="pile-up distributions")
@@ -148,14 +142,15 @@ def options(
     opt.bins = bins
     opt.brackets = False
     opt.npv = npv
+    opt.cut = cut
     if opt.verbose:
         showoptions(opt)
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
     return opt
 
-def fail( fail_message ):
+def fail(fail_message):
     print fail_message
-    exit ( 0 )
+    exit(0)
 
 # converts a integer list of bins [1,30,70] to a 
 # string representation [ "Pt1to30", "Pt30to70" ]
@@ -440,21 +435,28 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
     elif 'runs' == x:
         setxaxis((160404, 190000), r"Run")
     else:
-        fail("x = " + x + " not supported. You could use e.g. 'z_pt' if appropriate.")
+        print "x = " + x + " is not defined and therefore directly written to x-label."
+        setxaxis(quantity=x)
+        #fail("x = " + x + " not supported. You could use e.g. 'z_pt' if appropriate.")
 
     # set y labelling
+    ratio = ""
+    if 'ratio' in y:
+        ratio = " (data/MC ratio)"
     if 'arb' == y:
         setyaxis(bottom=0.0, quantity="arb. u.")
     elif 'events' == y:
         setyaxis(bottom=0.0, quantity="Events")
     elif 'fracevents' == y:
         setyaxis(bottom=0.0, quantity="Fraction of Events")
-    elif 'balresp' == y:
-        setyaxis((0.75, 1.00), r"$p_\mathrm{T}$ balance")
-    elif 'mpfresp' == y:
-        setyaxis((0.75, 1.00), r"MPF")
+    elif 'balresp' in y:
+        setyaxis((0.75, 1.00), r"$p_\mathrm{T}$ balance"+ratio)
+    elif 'mpfresp' in y:
+        setyaxis((0.75, 1.00), r"MPF"+ratio)
+    elif 'response' in y:
+        setyaxis((0.75, 1.00), r"Response"+ratio)
     elif 'datamc_ratio' == y:
-        setyaxis((0.80, 1.10), r"Data/MC")
+        setyaxis((0.80, 1.10), ratio)
     elif 'cut' in y:
         setyaxis(quantity="Cut Infficiency")
     elif 'components' == y:
@@ -466,7 +468,9 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
     elif 'xsec' == y:
         setyaxis((0, 20), r"$n_\mathrm{Events} / \mathcal{L}$", "pb$^{-1}$")
     else:
-        fail("y = " + y + " not supported. You could use e.g. 'events' if appropriate." )
+        print "y = " + y + " is not defined and therefore directly written to y-label."
+        setyaxis(quantity=y)
+        #fail("y = " + y + " not supported. You could use e.g. 'events' if appropriate." )
 
     return ax
         
@@ -648,156 +652,3 @@ def _internal_Save(figure, name, opt, crop=True):
             print f, "failed. Output type is unknown or not supported."
     print
 
-
-# is that used?
-def hist_baseplot(plot_collection, caption, settings, modifierBeforeSave,
-                  alsoInLogScale=True):
-    tf, ta, tname = makeplot(caption)
-    ta = captions(ta, settings, False)
-
-    for (quantName, inpFile, drawParameters, modifierFunc,
-         modifierDataFunc) in plot_collection:
-        rootHisto = getroot.SafeConvert(inpFile, quantName)
-
-        if modifierDataFunc is not None:
-            modifierDataFunc(rootHisto, settings)
-
-        my_fmt = "-"
-        my_color = "Red"
-        my_drawstyle = "steps-mid"
-        my_label = ""
-
-        for drawKey, drawValue in drawParameters.items():
-            if drawKey == "fmt":
-                my_fmt = drawValue
-            if drawKey == "color":
-                my_color = drawValue
-            if drawKey == "drawstyle":
-                my_drawstyle = drawValue
-            if drawKey == "label":
-                my_label = drawValue
-            if drawKey == "log":
-                my_label = drawValue
-
-        #print rootHisto.xc
-        #print rootHisto.y
-        mplHisto = ta.errorbar(rootHisto.xc, rootHisto.y, rootHisto.yerr,
-                               drawstyle=my_drawstyle, color=my_color,
-                               fmt=my_fmt, capsize=0, label=my_label)
-
-        if modifierFunc is not None:
-            modifierFunc(mplHisto, settings)
-
-    if modifierBeforeSave is not None:
-        modifierBeforeSave(tf, ta, tname, plot_collection, caption, settings)
-
-    Save(tf, caption, settings, alsoInLogScale)
-
-
-# obsolete functions (please do not use)
-def GetDataOrMC(quantity, rootfile, changes={}, rebin=1):
-    print "'GetDataOrMC' is deprecated and has moved to 'getroot.gethisto'"
-    getroot.gethisto(quantity, rootfile, changes, rebin)
-
-
-def genericplot(quantity, q, obj, fdata, custom_keys_data, fmc, custom_keys_mc,
-                factor, opt, legloc='center right'):
-    #print q, "of the", obj
-    print "'genericplot' is deprecated, use to 'plotdatamc.datamcplot'"
-    histo_data = getroot.gethisto(quantity, fdata, custom_keys_data)
-    histo_mc = getroot.gethisto(quantity, fmc, custom_keys_mc)
-    histo_mc.scale(factor)
-    tf, ta = newplot(quantity)
-    ta.bar(histo_mc.x, histo_mc.y, (histo_mc.x[2] - histo_mc.x[1]),
-            bottom=numpy.ones(len(histo_mc.x)) * 1e-6, fill=True,
-            facecolor=opt.mc_color, edgecolor=opt.mc_color)
-    ta.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr,
-            drawstyle='steps-mid', color='#CBDBF9', fmt='-', capsize=0,
-            label='MC')
-    ta.errorbar(histo_data.xc, histo_data.y, histo_data.yerr,
-            drawstyle='steps-mid', color='black', fmt='o', capsize=0,
-            label='data')
-    labels(ta, opt, legloc=legloc)
-    ta.set_ylim(top=histo_mc.ymax * 1.2)
-    ta = axislabel(ta, q, obj)
-    Save(tf, quantity, opt)
-
-
-def moregenericplot(quantity, q, obj, fdata, fmc, factor, opt,
-                    legloc='center right'):
-    print "This function 'moregenericplot' is deprecated"
-    print q, "of the", obj
-    histo_data = getroot.gethisto(quantity, fdata)
-    histo_mc = getroot.gethisto(quantity, fmc)
-    histo_mc.scale(factor)
-    tf, ta = newplot()
-    ta.errorbar(histo_mc.xc, histo_mc.y, histo_mc.yerr,
-            drawstyle='steps-mid', color='FireBrick', fmt='-', capsize=0,
-            label='MC')
-    ta.errorbar(histo_data.xc, histo_data.y, histo_data.yerr,
-            drawstyle='steps-mid', color='black', fmt='o', capsize=0,
-            label='data', fillcolor=opt.mcColor)
-    labels(ta, opt, legloc=legloc)
-    ta.set_ylim(top=histo_mc.ymax * 1.2)
-    axislabel(ta, q, obj)
-    Save(tf, quantity, opt)
-
-
-def GetScaleResolution(filename='scale_and_resolution.txt'):
-    print "This function 'GetScaleResolution' is deprecated"
-    """Read the values for the jet energy scale and the jet energy resolution
-
-    The file should look like:
-    #Jet energy scale, scale error-, scale error+:
-    #Jet energy resolution, resolution error-, resolution error+:
-    1.00 0.01 0.01
-    1.00 0.01 0.01
-    """
-    f = file(filename, 'r')
-    scale = []
-    resol = []
-    while True:
-        line = f.readline()
-        if  not line:
-            break
-        if line.find('#') < 0:
-            if not scale:
-                for v in line.split():
-                    scale.append(float(v))
-            else:
-                for v in line.split():
-                    resol.append(float(v))
-    print scale
-    print resol
-    return scale, resol
-
-
-#deprecated
-def captions(ax, opt=options(), algo=""):
-    print "This function 'captions' is deprecated and now called 'labels'"
-    labels(ax, opt)
-    AddAlgoAndCorrectionCaption(ax, algo)
-    return ax
-
-
-def AddAlgoAndCorrectionCaption(ax, algo="ak5PFJets"):
-    print "'AddAlgoAndCorrectionCaption' is deprecated, use 'jetlabel'"
-    jetlabel(ax, algo, algo)
-
-
-def AxisLabels(ax, q='resp', obj='jet'):
-    print "'AxisLabels' is now deprecated, please use 'axislabel' instead."
-    axislabel(ax, q, obj)
-
-
-def GetNameFromSelection(quantity='zmass', common={}, variation={}):
-    print "'GetNameFromSelection' is deprecated, use 'getroot.gethistoname'"
-    return [getroot.gethistoname(quantity, common)]
-
-
-def makeplot(quantity):
-    print "This function 'makeplot' is deprecated and now called 'newplot'"
-    fig = matplotlib.pyplot.figure(figsize=[7, 7])
-    ax = fig.add_subplot(111)
-    name = quantity
-    return fig, ax, name

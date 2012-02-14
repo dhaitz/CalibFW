@@ -11,9 +11,10 @@ from ROOT import TF1, TGraphErrors
 import getroot
 import plotbase
 
-def getvalues(nickname, f, changes, opt):
+def getvalues(nickname, f, opt):
     graph = TGraphErrors()
     fitf = TF1("fit1", "1*[0]", 1.0, 1000.0)
+    changes = getroot.createchanges(opt)
     bins = plotbase.binstrings(opt.bins)
     for i in range(len(opt.bins)-2):
         # read the values from pt-bin folders
@@ -48,16 +49,15 @@ def fractions(fdata, fmc, opt):
         for component in components]
 
     algoname = opt.algorithm + opt.correction
-    changes = getroot.createchanges(opt)
 
     # Get list of graphs from inputfiles
     if opt.verbose:
         print "Loading MC Plots"
-    mcG = [getvalues(graphname, fmc, changes, opt) for graphname in graphnames]
+    mcG = [getvalues(graphname, fmc, opt) for graphname in graphnames]
     if opt.verbose:
         print mcG[0]
         print "Loading Data Plots"
-    dataG = [getvalues(graphname, fdata, changes, opt) for graphname in graphnames]
+    dataG = [getvalues(graphname, fdata, opt) for graphname in graphnames]
     if opt.verbose:
         print "Loading done"
 
