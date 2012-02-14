@@ -449,7 +449,7 @@ def mytest(fdata, fmc, opt):
                         algo = "AK5PFJets",
                         corr = "L1L2L3",
                         method_name = "balresp",
-                        filename_postfix = "",
+                        filename_postfix = "_plus_gen",
                         subtract_gen = False )
 
     combined_resolution( fdata, fmc, opt, 
@@ -457,7 +457,7 @@ def mytest(fdata, fmc, opt):
                         algo = "AK5PFJetsCHS",
                         corr = "L1L2L3",
                         method_name = "balresp",
-                        filename_postfix = "",
+                        filename_postfix = "_plus_gen",
                         subtract_gen = False )
 
     combined_resolution( fdata, fmc, opt, 
@@ -465,7 +465,7 @@ def mytest(fdata, fmc, opt):
                         algo = "AK5PFJets",
                         corr = "L1L2L3",
                         method_name = "balresp",
-                        filename_postfix = "gen_subtract", 
+                        filename_postfix = "", 
                         subtract_gen = True,
                         drop_first = 2, drop_last = 1 )
     
@@ -474,7 +474,7 @@ def mytest(fdata, fmc, opt):
                         algo = "AK5PFJetsCHS",
                         corr = "L1L2L3",
                         method_name = "balresp",
-                        filename_postfix = "gen_subtract",
+                        filename_postfix = "",
                         subtract_gen = True,
                         drop_first = 1, drop_last = 1 )
 
