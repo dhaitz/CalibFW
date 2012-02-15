@@ -38,7 +38,7 @@ def getvalues(nickname, f, opt):
 def fractions(fdata, fmc, opt):
     """Plot the components of the leading jet"""
     # Name everything you want and take only the first <nbr> entries of them
-    nbr = 4
+    nbr = 5
     labels =     ["CHF", "NEF", "NHF", "CEF", r"MF $\,$", "PF", "EF"][:nbr]
     colours =    ['Orange', 'LightSkyBlue', 'YellowGreen', 'MediumBlue',
                   'Darkred', 'yellow', 'Blue'][:nbr]

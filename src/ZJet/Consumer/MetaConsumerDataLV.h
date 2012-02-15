@@ -341,16 +341,15 @@ public:
 			m_chargedEMFraction->Fill( pfJet->chargedEMFraction, metaData.GetWeight() );
 			m_chargedHadFraction->Fill( pfJet->chargedHadFraction, metaData.GetWeight() );
 			m_neutralHadFraction->Fill( pfJet->neutralHadFraction, metaData.GetWeight() );
-
-			//to come in next kappa skim
-			// m_muonEtFraction->Fill( pfJet->muonEtFraction, metaData.GetWeight() );
+			m_muonFraction->Fill( pfJet->muonFraction, metaData.GetWeight() );
 
 			m_const->Fill( pfJet->nConst, metaData.GetWeight() );
 			m_charged->Fill( pfJet->nCharged, metaData.GetWeight() );
 			m_area->Fill( pfJet->area, metaData.GetWeight() );
 
 			m_summedFraction->Fill( pfJet->neutralEMFraction + pfJet->chargedEMFraction +
-					pfJet->chargedHadFraction + pfJet->neutralHadFraction ,
+					pfJet->chargedHadFraction + pfJet->neutralHadFraction +
+					pfJet->muonFraction ,
 					metaData.GetWeight() );
 		}
 
