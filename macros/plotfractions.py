@@ -138,7 +138,8 @@ def fractions(fdata, fmc, opt):
     ax.axhline(0.0, color='black', lw=1, zorder=10)
 
     for i in range(len(mcG)):
-        ax.errorbar( mcG[i].x, diff[i], dataG[i].yerr, label=labels[i], 
+        ax.errorbar( mcG[i].x, diff[i], dataG[i].yerr,
+            label=r"%s: $%+1.3f(%d)$" % (labels[i],fitd[i]-fitm[i],math.ceil(1000*(fitderr[i]+fitmerr[i]))),
             fmt="o", capsize=2, color=colours[i], zorder=15+i)
         ax.plot([1.0,1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
     ax = plotbase.labels(ax, opt, legloc='lower left', frame=True)
