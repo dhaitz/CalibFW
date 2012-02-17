@@ -214,44 +214,50 @@ def cut_zmass_npv(fdata, fmc, opt):
     datamcplot('cut_zmass_zpt', fdata, fmc, opt)
 
 
+def balresp(fdata, fmc, opt):
+    datamcplot('balresp', fdata, fmc, opt)
 
-def responseplot(method, fdata, fmc, opt, legloc='lower right', change={}):
-    """Template for the data/MC comparison of the response.
 
-       Does not work with parallelized jobs - to be moved to plotresponse.py
-    """
-    if opt.verbose:
-        print "Response:", method[3:]
+def mpfresp(fdata, fmc, opt):
+    datamcplot('mpfresp', fdata, fmc, opt)
 
-    getroot.createchanges ( opt, change )
 
-    hdata = getroot.getplotfromnick(method, fdata, change)
-    hmc = getroot.getplotfromnick(method, fmc, change)
-
-    fig, ax = plotbase.newplot()
-    ax.errorbar(hmc.x, hmc.y, hmc.yerr,
-        color=opt.mc_color, fmt='-', capsize=0, label=opt.mc_label)
-    ax.errorbar(hdata.xc, hdata.y, hdata.yerr,
+def plotany(x, y, fdata, fmc, opt):
+    fig, ax = plotbase.newplot() #ratio=True?
+    plot = getroot.getgraph(x, y, fdata, opt, root=False)
+    ax.errorbar(plot.x, plot.y, plot.yerr,
         color=opt.data_color, fmt='o', capsize=0, label=opt.data_label)
-    ax = plotbase.labels(ax, opt, legloc=legloc)
-    ax.set_ylim(top=hmc.ymax() * 1.2)
-    ax = plotbase.axislabels(ax, 'z_pt', method[3:])
-    plotbase.Save(fig, method[3:], opt)
+    plot = getroot.getgraph(x, y, fmc, opt, root=False)
+    ax.errorbar(plot.x, plot.y, plot.yerr,
+        color='FireBrick', fmt='s', capsize=0, label=opt.mc_label)
+
+    plotbase.labels(ax, opt, jet=True)
+    plotbase.axislabels(ax, x, y)
+    plotbase.Save(fig, "_".join(['plot', x, y, opt.algorithm]) + opt.correction, opt)
 
 
-def balance(fdata, fmc, opt):
-    responseplot('../balresp', fdata, fmc, opt)
+#plotanys
+def basic_npv(fdata, fmc, opt):
+    for y in ['z_mass', 'z_pt', 'z_eta', 'jet1_pt', 'jet1_eta',
+              'jet1_neutral_had_fraction', 'jet1_charged_had_fraction',
+              'jet1_neutral_em_fraction', 'jet1_charged_em_fraction']:
+        plotany('npv', y, fdata, fmc, opt)
 
 
-def mpf(fdata, fmc, opt):
-    responseplot('../mpfresp', fdata, fmc, opt)
+def basic_zpt(fdata, fmc, opt):
+    for y in ['z_mass', 'z_eta', 'jet1_pt', 'jet1_eta']:
+        plotany('z_pt', y, fdata, fmc, opt)
 
 
-plots = ['npv', 'npv_nocuts',
+
+plots = [
+    'npv', 'npv_nocuts',
     'zpt', 'zeta', 'zphi', 'zmass',
     'jetpt', 'jeteta', 'jetphi',
-    'jet2pt',  'jet2eta', 'jet2phi',
-    'cut_all_npv'
+    'jet2pt',  'jet2eta', 'jet2phi', 'jet2pt_nocuts',
+    'cut_all_npv',
+    'balresp', 'mpfresp',
+    'basic_npv', 'basic_zpt',
     ]
 
 
