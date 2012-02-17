@@ -563,6 +563,7 @@ def getgraphratio(x, y, f1, f2, opt, changes={}, key='var', var=None, drop=True)
     graph2 = getgraph(x, y, f2, opt, changes, key, var, drop)
     return dividegraphs(graph1, graph2)
 
+
 # for compatibility
 def gethisto(name, rootfile, changes={}, rebin=1):
     return getplot(name, rootfile, changes, rebin)
