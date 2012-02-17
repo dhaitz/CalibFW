@@ -447,55 +447,123 @@ def fitline(rootgraph):
     fitres = rootgraph.Fit(fitf,"SQN")
     return (fitf.GetParameter(0), fitf.GetParError(0), fitres.Chi2(), fitres.Ndf())
 
+
+def dividegraphs(graph1, graph2):
+    assert graph1.ClassName() == 'TGraphErrors'
+    assert graph2.ClassName() == 'TGraphErrors'
+    assert graph1.GetN() == graph2.GetN()
+    result = ROOT.TGraphErrors(graph1.GetN())
+
+    for i in range(graph1.GetN()):
+        x1, y1, dx1, dy1 = getgraphpoint(graph1, i)
+        x2, y2, dx2, dy2 = getgraphpoint(graph2, i)
+        if dy2 == 0:
+            print "Division by zero!"
+            return exit(1)
+        result.SetPoint(i, 0.5 * (x1 + x2), y1 / y2)
+        result.SetPointError(i, 0.5 * (abs(dx1) + abs(dx2)),
+                             abs(dy1 / y2) + abs(dy2 * y1 / y2 / y2))
+    return result
+
+def getgraphpoint(graph, i):
+        a = ROOT.Double(0.0)
+        b = ROOT.Double(0.0)
+        graph.GetPoint(i, a, b)
+        return float(a), float(b), graph.GetErrorX(i), graph.GetErrorY(i)
+
+
+def getgraph(x, y, f, opt, changes={}, key='var', var=None, drop=True, root=True):
+    """get a Histo easily composed from different folders
+
+       x ['z_pt', 'npv', 'alpha', 'jet1_eta', 'var'(list), 'custom'(custom)]
+       y any quantity (ratio?)
+       var
+       #result = root, py, both (idee: x könnte bin grenzen beinhalten, xc mean)
+       get a Histo with quantity 'y' plotted over quantity 'x' from file 'f'
+       and the settings in 'changes'. The x axis is the variation in 'var'.
+         var = ["_var_SecondJetCut_0_3", ...] (stringlist)
+         var = {'var': ["_var_SecondJetCut_0_3", ...]} (dictionary)
+       Optionally a straight line can be fitted to it.
+       If var is Pt-bins, the first datapoint can be dropped (default).
+       x,y,var(x)
+    """
+    print "Get a", y, "over", x, "plot from file:", f.GetName()
+    try:
+        f1 = f[0]
+        f2 = f[1]
+    except:
+        f1 = f
+        f2 = None
+    # Determine the value to be varied/to be looped over:
+    if x == 'z_pt':
+        # x = mean(z_pt), var = Pt0to30
+        key = 'bin'
+        var = binstrings(opt.bins)
+        if drop:
+            var.pop(0)
+    elif x == 'npv':
+        # x = mitte(npvbin) from opt, var = var_Npv_0to1
+        var = npvstrings(opt.npv)
+        print opt.npv, var
+        x = [0.5 * (a + min(b, 35)) for a, b in opt.npv]
+        xerr = [0.5 * (b - a) for a, b in opt.npv]
+    elif x == 'alpha':
+        # x = alpha from opt, var mit
+        var = cutstrings(opt.cut)
+        x = opt.cut
+        xerr = [0 for a in x]
+    elif x == 'jet1_eta':
+        var = etastrings(opt.eta)
+    elif type(var) == list:
+        # x is a list of variations in the var key
+        print "Plot", x, "over this list:", var
+    elif type(var) == dict:
+        # x is a dictionary of variations
+        print "Plot", x, "over this dictionary:", var
+        key = var.keys()[0]
+        var = var.values()[0]
+    else:
+        print "The value to be varied is unknown! x =", x, "var =", var
+        exit(0)
+    assert type(var) == list
+    assert len(var) > 1
+    assert type(var[0]) == str
+
+    # loop over variation (x-axis)
+    ch = copy.deepcopy(changes)
+    if 'var' in ch:
+        var = [v + "_" + ch['var'] for v in var]
+    graph = ROOT.TGraphErrors()
+    for i in range(len(var)):
+        # read the values from folders
+        ch[key] = var[i]
+        # get x (histogram mean or from list)
+        if type(x) == str:
+            ojx = getobjectfromnick(x, f1, ch)
+            xi = ojx.GetMean()
+            xerri = ojx.GetMeanError()
+        else:
+            xi = x[i]
+            xerri = xerr[i]
+        # get y (single histogram mean or ratio)
+        ojy = getobjectfromnick(y, f1, ch)
+
+        # store them in a root graph
+        graph.SetPoint(i, xi, ojy.GetMean())
+        graph.SetPointError(i, xerri, ojy.GetMeanError())
+    if not root:
+        return root2histo(graph)
+    return graph
+
+
+def getgraphratio(x, y, f1, f2, opt, changes={}, key='var', var=None, drop=True):
+    if f2 is None:
+        return getgraph(x, y, f1, opt, changes, key, var, drop)
+    graph1 = getgraph(x, y, f1, opt, changes, key, var, drop)
+    graph2 = getgraph(x, y, f2, opt, changes, key, var, drop)
+    return dividegraphs(graph1, graph2)
+
 # for compatibility
 def gethisto(name, rootfile, changes={}, rebin=1):
     return getplot(name, rootfile, changes, rebin)
 
-# deprecated
-def getobject_direct(name, rootfile):
-    oj = rootfile.Get(name)
-    return oj
-
-# deprecated
-#def IsObjectExistent(RootDict, ObjectName):
-#    return bool(RootDict.Get(ObjectName))
-
-
-# not necessary, there is openfile
-#def openFiles(datafiles, mcfiles, verbose=False):
-#    print "DEPRECATED"
-    # if datafiles ... openFiles(op) auch machen
-#    if verbose:
-#        print "%1.2f | Open files" % clock()
-#    fdata = [openfile(f, verbose) for f in datafiles]
-#    fmc = [openfile(f, verbose) for f in mcfiles]
-#    # be prepared for multiple data and multiple mc files.
-#    # For the moment: return the first
-#    return fdata[0], fmc[0]
-
-
-#def SafeGet(RootDict, ObjectName):
-#    print "SafeGet is deprecated, use getobject instead"
-#    return getobject(RootDict, ObjectName)
-
-
-#def GetHistoname(quantity='zmass', change={}):
-#    print "'GetHistoname' is deprecated, use 'gethistoname' instead."
-#    gethistoname(quantity, change)
-
-
-#def ConvertToArray(histo, rootfile='', rebin=1):
-#    print "'ConverToArray' is deprecated, use 'root2histo' instead."
-#    return root2histo(histo, rootfile, rebin)
-
-
-#def SafeConvert(RootDict, ObjectName, formatslist=[], rebin=1):
-#    """Combined import and conversion to Histo"""
-#    print "Deprecated SafeConvert, please use gethisto?"
-#    root_histo = SafeGet(RootDict, ObjectName)
-#    histo = ConvertToArray(root_histo, '', rebin)
-#    if 'txt' in formatslist:
-#        histo.write()
-#    if 'dat' in formatslist:
-#        histo.dump()
-#    return histo
