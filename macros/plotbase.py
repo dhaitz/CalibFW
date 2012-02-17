@@ -369,6 +369,7 @@ def unitformat(quantity="", unit="", brackets=False):
 
        (r"$p_\mathrm{T}$", "GeV") yields "$p_\mathrm{T}$ / GeV"
        brackets are not SI!
+       "quantity|unit"
     """
 
     if unit != "":
@@ -387,6 +388,11 @@ def unitformat(quantity="", unit="", brackets=False):
 def axislabels(ax, x='z_pt', y='events', brackets=False):
     """same as the old version, but can handle and and y axis indpendetly
 
+       new idea: improve automatic scaling:
+       bottom=0
+       top
+       autoscaling
+       dict = { quantity: axsetting}
     """
     def setxaxis(limits=(0, 200), quantity="x", unit=""):
         ax.set_xlabel(unitformat(quantity, unit, brackets), ha="right", x=1)
@@ -455,11 +461,19 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
         setyaxis((0.75, 1.00), r"MPF"+ratio)
     elif 'response' in y:
         setyaxis((0.88, 1.10), r"Response"+ratio)
+    elif 'z_pt' == y:
+        setyaxis((50, 150), "$p_\mathrm{T}^\mathrm{Z}$")
+    elif 'z_mass' == y:
+        setyaxis((90, 93), "$m_\mathrm{Z}$")
+    elif 'z_eta' == y:
+        setyaxis((-0.3, 0.3), "$\eta_\mathrm{Z}$")
+    elif 'z_mass_ratio' == y:
+        setyaxis((0.98, 1.02), "$m_\mathrm{Z}$ ratio")
     elif 'datamc_ratio' == y:
         setyaxis((0.80, 1.10), ratio)
     elif 'cut' in y:
         setyaxis(quantity="Cut Infficiency")
-    elif 'components' == y:
+    elif 'components' == y or 'fraction' in y:
         setyaxis((0, 1), r"Leading Jet Component Fraction")
     elif 'components_diff' == y:
         setyaxis((-0.05, 0.05), r"Data-MC of Leading Jet Components")
