@@ -133,20 +133,17 @@ def getobjectname(quantity='z_mass', change={}):
                  'quantity': '<quantity>', 'algorithm': 'AK5PFJets',
                  'correction': 'L1L2L3' }
     hst = ''
-    # apply requested changes
     for k in change:
-        if k in selection:
-            selection[k] = change[k]
-        else:
+        if k not in selection:
             print k, "is no valid key. Valid keys are: ", keys
             exit(1)
+    # apply requested changes
+    selection.update(change)
     # make a prototype name and correct it
     for k in keys:
         hst += selection[k] + '_'
-        
     hst = hst[:-1].replace('Jets_', 'Jets').replace('__', '_').replace('_L1', 'L1')
     hst = hst.replace('_<quantity>', '/' + quantity)
-    #print "return:", hst
     return hst
 
 
@@ -223,9 +220,6 @@ class Histo:
         self.xerr = []
         self.yerr = []  # TODO yel, yeh wenn unterschiedlich...
 
-    def __del__(self):
-        pass
-
     def __len__(self):
         return len(self.y)
 
@@ -262,6 +256,20 @@ class Histo:
         self.y.pop(number)
         self.xerr.pop(number)
         self.yerr.pop(number)
+
+    def __div__(self, other):
+        if 0 in other.y:
+            print "Division by zero!"
+            return None
+        if len(self) != len(other):
+            print "Histos of different lengths! The shorter is taken."
+        res = Histo()
+        res.x = [0.5*(a+b) for a, b in zip(self.x, other.x)]
+        res.xc = [0.5*(a+b) for a, b in zip(self.xc, other.xc)]
+        res.y = [a / b for a,b in zip(self.y, other.y)]
+        res.xerr = [0.5*(abs(da)+abs(db)) for da, db in zip(self.xerr, other.xerr)]
+        res.yerr = [abs(da/b)+abs(db*a/b/b) for a, da, b, db in zip(self.y, self.yerr, other.y, other.yerr)]
+
 
     def read(self, filename):
         """Read the histogram from a text file
@@ -327,8 +335,8 @@ class Histo:
             print "This will fail because x and y have not the same length."
         for i in range(len(self.y)):
             text += '%4d %8.2f %8.2f %15.8f %15.8f %15.8f %15.8f\n' % (
-                    i, self.x[i], self.xc[i], self.y[i], self.y[i] * self.norm,
-                    self.yerr[i], self.yerr[i] * self.norm)
+                    i, self.x[i], self.xc[i], self.y[i], self.y[i] * self.norm(),
+                    self.yerr[i], self.yerr[i] * self.norm())
         return text
 
     def dump(self, filename='.dat'):
@@ -407,7 +415,9 @@ class Fitfunction:
         return float(self.y[1]-self.y[0])/(self.x[1]-self.x[0])*x + float(self.y[0])
 
     def ferr(self, x):
-        return float(self.yerr[1]-self.yerr[0])/(self.x[1]-self.x[0])*x + float(self.yerr[0])
+        result = float(self.yerr[1]-self.yerr[0])/(self.x[1]-self.x[0])*x + float(self.yerr[0])
+        assert result >= 0
+        return result
 
     def k(self):
         return float(self.y[0]/self.f(0.2))
@@ -434,8 +444,8 @@ class Fitfunction:
 
 def fitline(rootgraph):
     fitf = TF1("fit1", "1*[0]", 1.0, 1000.0)
-    rootgraph.Fit(fitf,"QN")
-    return (fitf.GetParameter(0), fitf.GetParError(0))
+    fitres = rootgraph.Fit(fitf,"SQN")
+    return (fitf.GetParameter(0), fitf.GetParError(0), fitres.Chi2(), fitres.Ndf())
 
 # for compatibility
 def gethisto(name, rootfile, changes={}, rebin=1):
