@@ -14,8 +14,8 @@ import plotbase
 def getvalues(nickname, f, opt):
     graph = TGraphErrors()
     fitf = TF1("fit1", "1*[0]", 1.0, 1000.0)
-    changes = getroot.createchanges(opt)
-    bins = plotbase.binstrings(opt.bins)
+    changes = plotbase.createchanges(opt)
+    bins = getroot.binstrings(opt.bins)
     for i in range(len(opt.bins)-2):
         # read the values from pt-bin folders
         changes['bin'] = bins[i+1]

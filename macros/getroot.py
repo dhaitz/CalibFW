@@ -22,13 +22,28 @@
 """
 import ROOT
 import cPickle as pickle
-from time import localtime, strftime, clock
+import time
+import copy
 
 
-def createchanges(opt, change={}):
-    change["correction"] = opt.correction
-    change["algorithm"] = opt.algorithm
-    return change
+
+# converts a integer list of bins [1, 30, 70] to a
+# string representation ["Pt1to30", "Pt30to70"]
+def binstrings(bins):
+    return ["Pt{0}to{1}".format(b) for b in zip(bins[:-1], bins[1:])]
+
+
+def npvstrings(npv):
+    return ["var_Npv_{0}to{1}".format(*n) for n in npv]
+
+
+def etastrings(eta):
+    etastr = map(lambda x: str(x).replace(".", "_"), eta)
+    return ["var_eta_%sto%s" % h for h in zip(etastr[:-1], etastr[1:]) ]
+
+
+def cutstrings(cuts):
+    return ["var_CutSecondLeadingToZPt__%s" % str(c).replace(".", "_") for c in cuts]
 
 
 def openfile(filename, verbose=False, exitonfail=True):
@@ -229,7 +244,7 @@ class Histo:
         return 1.0 / sum(self.y)
 
     def normalize(self, factor=1.0):
-        self.scale(factor * self.norm)
+        self.scale(factor * self.norm())
         return self
 
     def append(self, x, xc, y, yerr=0, xerr=0):
@@ -298,7 +313,7 @@ class Histo:
         text = "#Histogram: " + self.name
         text += "\n#Path:      " + self.path
         text += "\n#From file: " + self.source
-        text += strftime("\n#Date/time: %a, %d %b %Y %H:%M:%S", localtime())
+        text += time.strftime("\n#Date/time: %a, %d %b %Y %H:%M:%S", time.localtime())
         text += "\n#Norm:      " + str(self.norm())
         text += "\n#Sum:       " + str(self.ysum())
         text += "\n#Maximum:   " + str(self.ymax())

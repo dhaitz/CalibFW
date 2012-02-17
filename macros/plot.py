@@ -58,7 +58,6 @@ def plot():
     fmc = getroot.openfile(op.mc, op.verbose)
     op.bins = getroot.getbins(fdata,
             [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
-    op.npv = [(0,2), (3,5), (6,11)]
 
     plotbase.plot(module_list, op.plots, fdata, fmc, op)
 

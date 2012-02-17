@@ -17,7 +17,7 @@ def datamcplot(quantity, fdata, fmc, opt, legloc='center right',
     if opt.verbose:
         print quantity
 
-    change = getroot.createchanges(opt, change)
+    change = plotbase.createchanges(opt, change)
     if quantity in ['numpu', 'numputruth']:
         hdata = getPUindata(quantity)
     else:

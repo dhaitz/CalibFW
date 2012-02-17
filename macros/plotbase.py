@@ -152,11 +152,11 @@ def fail(fail_message):
     print fail_message
     exit(0)
 
-# converts a integer list of bins [1,30,70] to a 
-# string representation [ "Pt1to30", "Pt30to70" ]
-def binstrings(bins):
-    return ["Pt{0}to{1}".format(bins[i], bins[i + 1])
-            for i in range(len(bins) - 1)]
+
+def createchanges(opt, change={}):
+    change["correction"] = opt.correction
+    change["algorithm"] = opt.algorithm
+    return change
 
 
 def showoptions(opt):
@@ -418,7 +418,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
         setxaxis((-3.2, 3.2), r"$\phi^\mathrm{%s}$" % x[:-4].title())
         ax.set_xticks([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
         ax.set_xticklabels([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])
-    elif x in ['z_mass', 'jet1_mass', 'jet2_mass']:
+    elif x in ['z_mass']:
         setxaxis((70, 110), r"$m^\mathrm{%s}$" % x[:-5].title(), "GeV")
     elif 'numputruth' == x:
         setxaxis((0, 35), r"Pile-up Truth (Poisson mean)")
