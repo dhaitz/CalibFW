@@ -30,7 +30,7 @@ import copy
 # converts a integer list of bins [1, 30, 70] to a
 # string representation ["Pt1to30", "Pt30to70"]
 def binstrings(bins):
-    return ["Pt{0}to{1}".format(b) for b in zip(bins[:-1], bins[1:])]
+    return ["Pt{0}to{1}".format(*b) for b in zip(bins[:-1], bins[1:])]
 
 
 def npvstrings(npv):

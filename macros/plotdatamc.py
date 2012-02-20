@@ -50,6 +50,10 @@ def datamcplot(quantity, fdata, fmc, opt, legloc='center right',
     if not file_name:
         if 'incut' in change and change['incut'] == 'allevents':
             file_name = quantity + "_nocuts"
+        elif 'bin' in change:
+            file_name = change['bin'] + "_" + quantity
+            ranges = change['bin'][2:].split('to')
+            plotbase.binlabel(ax, 'ptz', int(ranges[0]), int(ranges[1]))
         else:
             file_name = quantity
 
@@ -220,6 +224,19 @@ def balresp(fdata, fmc, opt):
 
 def mpfresp(fdata, fmc, opt):
     datamcplot('mpfresp', fdata, fmc, opt)
+
+
+def balresp_bins(fdata, fmc, opt):
+    for bin in getroot.binstrings(opt.bins):
+        datamcplot('balresp', fdata, fmc, opt, 'upper right', {'bin': bin})
+
+def balresp_fornpv(fdata, fmc, opt):
+    for npv in getroot.npvstrings(opt.npv):
+        datamcplot('balresp', fdata, fmc, opt, 'upper right', {'var': npv}, file_name=npv + "_balresp")
+
+def mpfresp_bins(fdata, fmc, opt):
+    for bin in getroot.binstrings(opt.bins):
+        datamcplot('mpfresp', fdata, fmc, opt, 'upper right', {'bin': bin})
 
 
 def plotany(x, y, fdata, fmc, opt):

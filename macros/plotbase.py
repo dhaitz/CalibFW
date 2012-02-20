@@ -332,14 +332,14 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.05, ypos=0.05):
     if bin is None:
         return ax
     if bin == 'ptz':
-        text = r"$%u < p_\mathrm{T}^\mathrm{Z} < %u" % (low, high)
+        text = r"$%u < p_\mathrm{T}^\mathrm{Z} / \mathrm{GeV} < %u$" % (low, high)
     elif bin == 'pthat':
-        text = r"$%u < \hat{p}_\mathrm{T} < %u" % (low, high)
+        text = r"$%u < \hat{p}_\mathrm{T} / \mathrm{GeV} < %u$" % (low, high)
     elif bin == 'eta':
         if low == 0:
-            text = r"$|\eta_\mathrm{jet}| < %u" % (high)
+            text = r"$|\eta_\mathrm{jet}| < %u$" % (high)
         else:
-            text = r"$%u < |\eta_\mathrm{jet}| < %u" % (low, high)
+            text = r"$%u < |\eta_\mathrm{jet}| < %u$" % (low, high)
     else:
         text = bin
     ax.text(xpos, ypos, text, va='top', ha='left', transform=ax.transAxes)
@@ -421,11 +421,15 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
         setxaxis((-5, 5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
         #if obj == 'Z': ax.legend(loc='lower center', numpoints=1, frameon=True)
     elif x in ['z_phi', 'jet1_phi', 'jet2_phi']:
-        setxaxis((-3.2, 3.2), r"$\phi^\mathrm{%s}$" % x[:-4].title())
+        setxaxis((-3.5, 3.5), r"$\phi^\mathrm{%s}$" % x[:-4].title())
         ax.set_xticks([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
         ax.set_xticklabels([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])
     elif x in ['z_mass']:
         setxaxis((70, 110), r"$m^\mathrm{%s}$" % x[:-5].title(), "GeV")
+    elif x == 'balresp':
+        setxaxis((0.0, 1.8), r"$p_\mathrm{T}$ balance")
+    elif x == 'mpfresp':
+        setxaxis((0.0, 1.8), r"$R_\mathrm{MPF}$")
     elif 'numputruth' == x:
         setxaxis((0, 35), r"Pile-up Truth (Poisson mean)")
     elif 'numpu' == x:
