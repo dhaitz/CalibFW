@@ -255,14 +255,12 @@ def plotany(x, y, fdata, fmc, opt):
 
 #plotanys
 def basic_npv(fdata, fmc, opt):
-    for y in ['z_mass', 'z_pt', 'z_eta', 'jet1_pt', 'jet1_eta',
-              'jet1_neutral_had_fraction', 'jet1_charged_had_fraction',
-              'jet1_neutral_em_fraction', 'jet1_charged_em_fraction']:
+    for y in ['z_mass', 'z_pt', 'jet1_pt']:
         plotany('npv', y, fdata, fmc, opt)
 
 
 def basic_zpt(fdata, fmc, opt):
-    for y in ['z_mass', 'z_eta', 'jet1_pt', 'jet1_eta']:
+    for y in ['z_mass', 'jet1_pt']:
         plotany('z_pt', y, fdata, fmc, opt)
 
 
