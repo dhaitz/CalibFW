@@ -51,11 +51,10 @@ def plot():
     # override commandline (3):
     op.normalize = True
 
-    print "Using Data file " + op.data
-    print "Using MC file " + op.mc
+    print "Using Data file " + op.files[0]
+    print "Using MC file " + op.files[1]
 
-    fdata = getroot.openfile(op.data, op.verbose)
-    fmc = getroot.openfile(op.mc, op.verbose)
+    fdata, fmc = [getroot.openfile(f, op.verbose) for f in op.files]
     op.bins = getroot.getbins(fdata,
             [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
 

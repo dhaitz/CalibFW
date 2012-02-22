@@ -69,13 +69,8 @@ def options(
             out="out",
             formats=['png', 'pdf'],
             layout='generic',
-            files=[
-                "../../data/data_Oct19.root",
-                "../../data/powheg_Oct19.root",
-            ],
+            files=None,
             plots=None,
-            # current default
-            # new ones: [0, 3, 6, 12], [2, 5, 11, 100]
             npv=[(0, 2), (3, 5), (6, 11), (12, 100)],
             cut=[0.1, 0.15, 0.2, 0.3],
             bins=None):
@@ -151,8 +146,6 @@ def options(
     opt.mc_color = '#CBDBF9'
     opt.data_color = 'black'
     opt.factor = 1.0
-    opt.data = opt.files[0]
-    opt.mc = opt.files[-1]
     opt.bins = bins
     opt.brackets = False
     opt.npv = npv
