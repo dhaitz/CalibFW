@@ -10,6 +10,7 @@ import getpass
 import os
 import os.path
 import sys
+import copy
 import numpy
 import matplotlib
 import matplotlib.pyplot as plt
@@ -27,7 +28,8 @@ def plot(modules, plots, fdata, mc, op):
     """Search for plots in the module and run them."""
     # dont display any graphics
     gROOT.SetBatch(True)
-  
+    startop = copy.deepcopy(op)
+    whichfunctions = []
     for module in modules:
         print "Doing plots in", module.__name__, "..."
         if op.verbose:
@@ -39,9 +41,21 @@ def plot(modules, plots, fdata, mc, op):
             if hasattr(module, p):
                 print "New plot:",
                 getattr(module, p)(fdata, mc, op)
+                if op != startop:
+                    whichfunctions += [p+" in "+module.__name__]
         if op.verbose:
             print "%1.2f | End" % clock()
-
+    # check whether the options have changed and warn
+    if op != startop:
+        print "WARNING: The following options have been modified by a plot:"
+        for key in dir(op):
+            if "_" not in key and getattr(op, key) != getattr(startop, key):
+                print " -", repr(key), "was:", getattr(startop, key), "is now:", getattr(op, key)
+        print "These plots modify options:"
+        for f in whichfunctions:
+            print "  ", f
+        print "This should not be the case! Options should not be changed within a plotting function."
+        print "A solution could invoke copy.deepcopy() in such a case."
 
 def options(
             # standard values go here:
