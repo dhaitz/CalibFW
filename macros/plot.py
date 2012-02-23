@@ -25,7 +25,7 @@ import getroot
 
 import plotdatamc
 import plotfractions
-import plotextrapolation_mc_data_ratio
+import plotresponse
 import plot_resolution
 
 
@@ -42,11 +42,11 @@ def plot():
         correction="L1L2L3",
         lumi=2179.0,#4749.9,
         plots=plotdatamc.plots +
-              plotextrapolation_mc_data_ratio.plots +
+              plotresponse.plots +
               plotfractions.plots +
               plot_resolution.plots
         )
-    module_list = [plotdatamc, plotextrapolation_mc_data_ratio, plot_resolution, plotfractions]
+    module_list = [plotdatamc, plotresponse, plot_resolution, plotfractions]
 
     # override commandline (3):
     op.normalize = True
