@@ -481,6 +481,10 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
         setyaxis((0.75, 1.00), r"MPF"+ratio)
     elif 'response' in y:
         setyaxis((0.88, 1.10), r"Response"+ratio)
+    elif y == 'resolution':
+        setyaxis((0.0, 0.3), "Jet Resolution Ratio")
+    elif y == 'resolutionratio':
+        setyaxis((-0.5, 2.5), "Jet Resolution Ratio")
     elif 'z_pt' == y:
         setyaxis((50, 150), "$p_\mathrm{T}^\mathrm{Z}$")
     elif 'z_mass' == y:

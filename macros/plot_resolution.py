@@ -6,18 +6,13 @@ import copy
 from ROOT import TGraphErrors, TCanvas, TF1, TFile, kRed , kGreen, gROOT
 
 import plotbase
-
 import getroot
-import matplotlib.pyplot as plt
-import matplotlib.ticker as tck
-
-
-
 
 
 def get_errerr(roothisto):
     sqrt_nminus1 = math.sqrt(roothisto.GetEntries() - 1)
     return roothisto.GetRMSError() / sqrt_nminus1
+
 
 # fits the resolution of an distribution with a truncated gaussian
 # and returns a tuple with sigma and the stat. error on sigma
@@ -301,28 +296,10 @@ def combined_resolution( fdata, fmc, opt,
                         drop_first = 0,
                         drop_last = 0):
     f,ax = plotbase.newplot()
-    # move the plot a bit
-    #ax = f.add_subplot(111, position=[0.125,0.1,0.825,0.8])
-    #ax.xaxis.set_major_locator( tck.FixedLocator([60,100,400]) )
-    ax.set_ylim( 0.0, 0.301 )
-    ax.set_xlim( 30.0, 501 )
 
-    # this modifies the tick formaters on the x-axis !
-    ax.set_xscale ("log")
-
-    ax.xaxis.set_major_locator( tck.LogLocator( base = 10 , subs = [1,2,4,5,7]) )
-    ax.xaxis.set_major_formatter( tck.ScalarFormatter() )
-
-
-    ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{Z" + r"} / \mathrm{GeV}$",
-          ha="right", x=1)
-    ax.set_ylabel(r"Jet Resolution", va="top", y=1)
-    plotbase.lumilabel(ax, opt.lumi)    # always (if given) pure MC plots?
-    plotbase.statuslabel(ax, opt.status)
-    plotbase.energylabel(ax, opt.energy)
-
-
-    plotbase.jetlabel( ax, algo, corr )
+    plotbase.labels(ax, opt)
+    plotbase.jetlabel(ax, algo, corr)
+    plotbase.axislabels(ax, 'z_pt_log', 'resolution')
 
 
     # construct names
@@ -394,25 +371,15 @@ def combined_resolution( fdata, fmc, opt,
                     )
 
     f, ax = plotbase.newplot()
-    ax.set_xscale("log")
-    ax.xaxis.set_major_locator( tck.LogLocator( base = 10 , subs = [1,2,4,5,7]) )
-    ax.xaxis.set_major_formatter( tck.ScalarFormatter() )
-    ax.set_ylim( -0.5, 2.5 )
-    ax.set_xlim( 30.0, 501 )
-    plotbase.lumilabel(ax, opt.lumi)    # always (if given) pure MC plots?
-    plotbase.statuslabel(ax, opt.status)
-    plotbase.energylabel(ax, opt.energy)
-    plotbase.jetlabel( ax, algo, corr )
-
     ax.errorbar(ratio.x, ratio.y, ratio.yerr, fmt='o', capsize=2 )
-
     ax.axhline(1.0, color="black", linestyle='--')
 
-    ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{Z" + r"} / \mathrm{GeV}$",
-          ha="right", x=1)
-    ax.set_ylabel(r"( Data/MC ) Jet Resolution", va="top", y=1)
+    plotbase.labels(ax, opt)
+    plotbase.jetlabel(ax, algo, corr)
+    plotbase.axislabels(ax, 'z_pt_log', 'resolutionratio')
 
     plotbase.Save(f,plot_filename + "_ratio", opt)
+
 
 def resolution(fdata, fmc, opt):
 
