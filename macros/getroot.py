@@ -333,6 +333,8 @@ class Histo:
         text += "           yerr            ynormerr\n"
         if len(self.y) != len(self.x):
             print "This will fail because x and y have not the same length."
+        if self.xc == []:
+            self.xc = self.x
         for i in range(len(self.y)):
             text += '%4d %8.2f %8.2f %15.8f %15.8f %15.8f %15.8f\n' % (
                     i, self.x[i], self.xc[i], self.y[i], self.y[i] * self.norm(),
@@ -566,5 +568,6 @@ def getgraphratio(x, y, f1, f2, opt, changes={}, key='var', var=None, drop=True)
 
 # for compatibility
 def gethisto(name, rootfile, changes={}, rebin=1):
+    print "Please use getplot!"
     return getplot(name, rootfile, changes, rebin)
 

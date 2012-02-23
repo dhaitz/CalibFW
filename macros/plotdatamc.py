@@ -33,11 +33,11 @@ def datamcplot(quantity, fdata, fmc, opt, legloc='center right',
     fig, ax = plotbase.newplot()
     ax.bar(hmc.x, hmc.y, (hmc.x[2] - hmc.x[1]),
            bottom=numpy.ones(len(hmc.x)) * 1e-6, fill=True,
-           facecolor=opt.mc_color, edgecolor=opt.mc_color)
+           facecolor=opt.colors[1], edgecolor=opt.colors[1])
     ax.errorbar(hmc.xc, hmc.y, hmc.yerr, drawstyle='steps-mid',
-        color=opt.mc_color, fmt='-', capsize=0, label=opt.mc_label)
+        color=opt.colors[1], fmt='-', capsize=0, label=opt.labels[1])
     ax.errorbar(hdata.xc, hdata.y, hdata.yerr, drawstyle='steps-mid',
-        color=opt.data_color, fmt='o', capsize=0, label=opt.data_label)
+        color=opt.colors[0], fmt='o', capsize=0, label=opt.labels[0])
     plotbase.labels(ax, opt, legloc=legloc, frame=True)
     ax.set_ylim(top=hmc.ymax() * 1.2)
     if 'cut_' in quantity and '_npv' in quantity:
@@ -243,10 +243,10 @@ def plotany(x, y, fdata, fmc, opt):
     fig, ax = plotbase.newplot() #ratio=True?
     plot = getroot.getgraph(x, y, fdata, opt, root=False)
     ax.errorbar(plot.x, plot.y, plot.yerr,
-        color=opt.data_color, fmt='o', capsize=0, label=opt.data_label)
+        color=opt.colors[0], fmt='o', capsize=0, label=opt.labels[0])
     plot = getroot.getgraph(x, y, fmc, opt, root=False)
     ax.errorbar(plot.x, plot.y, plot.yerr,
-        color='FireBrick', fmt='s', capsize=0, label=opt.mc_label)
+        color='FireBrick', fmt='s', capsize=0, label=opt.labels[1])
 
     plotbase.labels(ax, opt, jet=True)
     plotbase.axislabels(ax, x, y)

@@ -67,12 +67,15 @@ def options(
             author=None,
             date=None,
             out="out",
+            labels=["data", "MC"],
+            colors=['black', '#CBDBF9'],
             formats=['png', 'pdf'],
             layout='generic',
             files=None,
             plots=None,
             npv=[(0, 2), (3, 5), (6, 11), (12, 100)],
             cut=[0.1, 0.15, 0.2, 0.3],
+            eta=[0.0, 1.3, 2.8, 5.0],
             bins=None):
     """Set standard options and read command line arguments
 
@@ -81,19 +84,23 @@ def options(
     parser = argparse.ArgumentParser(
         description="%(prog)s does all the plotting.",
         epilog="Have fun.")
-    # input files
+
+    # input files with colors and labels
     parser.add_argument('files', metavar='file', type=str, nargs='*',
-        default=files,  # type=argparse.FileType('r'), nargs='+',
+        default=files,
         help="data and Monte Carlo input root file(s). One data file and at " +
              "least one Monte Carlo file is assumed.")
-    parser.add_argument('-D', '--data-label', type=str, nargs='+',
-        default="data",
-        help="pile-up distributions")
-    parser.add_argument('-M', '--mc-label', type=str, nargs='+',
-        default="MC",
-        help="pile-up distributions")
+    parser.add_argument('-C', '--colors', type=str, nargs='+',
+        default=colors,
+        help="colors for the plots in the order of the files. Default is: "+
+             ", ".join(colors))
+    parser.add_argument('-k', '--labels', type=str, nargs='+',
+        default=labels,
+        help="labels for the plots in the order of the files. Default is: "+
+             ", ".join(labels))
     parser.add_argument('-p', '--pudist', type=str, nargs='+',
         help="pile-up distributions")
+
     # lumi and energy settings
     parser.add_argument('-a', '--algorithm', type=str,
         default=algorithm,
@@ -108,6 +115,8 @@ def options(
     parser.add_argument('-e', '--energy', type=int,
         default=energy,
         help="centre-of-mass energy for the given samples in TeV")
+
+    # plot decoration
     parser.add_argument('-s', '--status', type=str,
         default=status,
         help="status of the plot (e.g. CMS preliminary)")
@@ -132,7 +141,8 @@ def options(
              "This is not implemented yet.")
     parser.add_argument('-P', '--plots', type=str, nargs='+',
         default=plots,
-        help="do only this plot/these plots")
+        help="do only this plot/these plots. " +
+             "The function names are required here.")
     parser.add_argument('-n', '--normalize', action='store_true',
         help="normalize Monte Carlo samples to the event count in data and " +
              "regardless of the given luminosity. This is only applied to " +
@@ -143,13 +153,12 @@ def options(
     # to be substituted by commandline arguments (perhaps changed,
     # no formatting options here? but for multiple MC,
     # colors (predefined sequence?) and labels are needed)
-    opt.mc_color = '#CBDBF9'
-    opt.data_color = 'black'
     opt.factor = 1.0
     opt.bins = bins
     opt.brackets = False
     opt.npv = npv
     opt.cut = cut
+    opt.eta = eta
     if opt.verbose:
         showoptions(opt)
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
