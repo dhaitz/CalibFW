@@ -5,8 +5,8 @@ using namespace CalibFW;
 /*
 bool ZJetEventData::IsValidEvent() const
 {
-		return (! IsCutInBitmask( JsonCut::CudId ) &&
-				! IsCutInBitmask( HltCut::CudId));
+		return (! IsCutInBitmask( JsonCut::CutId ) &&
+				! IsCutInBitmask( HltCut::CutId));
 }*/
 
 unsigned long g_lTempNameAppend = 0;

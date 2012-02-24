@@ -6,7 +6,8 @@
 namespace CalibFW
 {
 
-const double g_kZmass = 91.19;
+// PDG: http://pdg.lbl.gov/2011/tables/rpp2011-sum-gauge-higgs-bosons.pdf
+const double g_kZmass = 91.1876;
 
 class ZJetCutBase : public MetaDataProducerBase<ZJetEventData , ZJetMetaData,  ZJetPipelineSettings >
 {
@@ -41,7 +42,7 @@ public:
 
 	unsigned long GetId()
 	{
-		return JsonCut::CudId;
+		return JsonCut::CutId;
 	}
 	std::string GetCutName()
 	{
@@ -51,7 +52,7 @@ public:
 	{
 		return "json";
 	}
-	static const long CudId = 1;
+	static const long CutId = 1;
 
 	Json_wrapper * m_jsonFile;
 };*/
@@ -147,7 +148,7 @@ public:
 
 	unsigned long GetId() const
 	{
-		return LeadingJetEtaCut::CudId;
+		return LeadingJetEtaCut::CutId;
 	}
 	std::string GetCutName()
 	{
@@ -157,7 +158,7 @@ public:
 	{
 		return "leadingjet_eta";
 	}
-	static const long CudId = 8;
+	static const long CutId = 8;
 };
 
 class SecondLeadingToZPtCut: public ZJetCutBase
@@ -189,7 +190,7 @@ public:
 
 	unsigned long GetId() const
 	{
-		return SecondLeadingToZPtCut::CudId;
+		return SecondLeadingToZPtCut::CutId;
 	}
 	std::string GetCutName()
 	{
@@ -199,7 +200,7 @@ public:
 	{
 		return "secondleading_to_zpt";
 	}
-	static const long CudId = 16;
+	static const long CutId = 16;
 };
 
 
@@ -233,7 +234,7 @@ public:
 
 	unsigned long GetId() const
 	{
-		return SecondLeadingToZPtRegionCut::CudId;
+		return SecondLeadingToZPtRegionCut::CutId;
 	}
 	std::string GetCutName()
 	{
@@ -243,7 +244,7 @@ public:
 	{
 		return "secondleading_to_zpt_region";
 	}
-	static const long CudId = 2048;
+	static const long CutId = 2048;
 };
 
 /* 31.5.2011, Thomas: commented for now, as it is not used any more
@@ -275,13 +276,13 @@ public:
 
  unsigned long GetId()
  {
- return SecondLeadingToZPtCutDir::CudId;
+ return SecondLeadingToZPtCutDir::CutId;
  }
  std::string GetCutShortName()
  {
  return "secondleading_to_zpt_dir";
  }
- static const long CudId = 2048;
+ static const long CutId = 2048;
  double m_f2ndJetRatio;
  double m_fDeltaR;
  double m_f2ndJetThreshold;
@@ -312,7 +313,7 @@ public:
 
  unsigned long GetId()
  {
- return SecondLeadingToZPtGeomCut::CudId;
+ return SecondLeadingToZPtGeomCut::CutId;
  }
  std::string GetCutName()
  {
@@ -322,7 +323,7 @@ public:
  {
  return "secondleading_to_zpt_geom";
  }
- static const long CudId = 1024;
+ static const long CutId = 1024;
 
  double m_f2ndJetRatio;
  double m_f2ndJetThreshold;
@@ -356,7 +357,7 @@ public:
 
 	unsigned long GetId() const
 	{
-		return BackToBackCut::CudId;
+		return BackToBackCut::CutId;
 	}
 	std::string GetCutName()
 	{
@@ -366,7 +367,7 @@ public:
 	{
 		return "back_to_back";
 	}
-	static const long CudId = 32;
+	static const long CutId = 32;
 };
 
 class ZMassWindowCut: public ZJetCutBase
@@ -388,7 +389,7 @@ public:
 
 	unsigned long GetId() const
 	{
-		return ZMassWindowCut::CudId;
+		return ZMassWindowCut::CutId;
 	}
 	std::string GetCutName()
 	{
@@ -398,7 +399,7 @@ public:
 	{
 		return "zmass_window";
 	}
-	static const long CudId = 64;
+	static const long CutId = 64;
 };
 
 class ZPtCut: public ZJetCutBase
@@ -424,7 +425,7 @@ public:
 
 	unsigned long GetId() const
 	{
-		return ZPtCut::CudId;
+		return ZPtCut::CutId;
 	}
 	std::string GetCutName()
 	{
@@ -434,7 +435,7 @@ public:
 	{
 		return "zpt";
 	}
-	static const long CudId = 128;
+	static const long CutId = 128;
 };
 
 
@@ -488,7 +489,7 @@ public:
 
 	unsigned long GetId() const
 	{
-		return HltCut::CudId;
+		return HltCut::CutId;
 	}
 	std::string GetCutName()
 	{
@@ -498,7 +499,7 @@ public:
 	{
 		return "hlt";
 	}
-	static const long CudId = 512;
+	static const long CutId = 512;
 };
 
 //VBF Cuts
@@ -546,7 +547,7 @@ public:
 
 	unsigned long GetId() const
 	{
-		return RapidityGapCut::CudId;
+		return RapidityGapCut::CutId;
 	}
 	std::string GetCutName()
 	{
@@ -556,7 +557,7 @@ public:
 	{
 		return "rapidiy_gap";
 	}
-	static const long CudId = 128;
+	static const long CutId = 4096;
 };
 
 class InvariantMassCut: public ZJetCutBase
@@ -584,7 +585,7 @@ public:
 
 	unsigned long GetId() const
 	{
-		return InvariantMassCut::CudId;
+		return InvariantMassCut::CutId;
 	}
 	std::string GetCutName()
 	{
@@ -594,7 +595,7 @@ public:
 	{
 		return "jetmass";
 	}
-	static const long CudId = 128;
+	static const long CutId = 8192;
 };
 
 class LeadingJetEnergyCut: public ZJetCutBase
@@ -621,7 +622,7 @@ public:
 
 	unsigned long GetId() const
 	{
-		return LeadingJetEnergyCut::CudId;
+		return LeadingJetEnergyCut::CutId;
 	}
 	std::string GetCutName()
 	{
@@ -631,7 +632,7 @@ public:
 	{
 		return "leadingjetenergy";
 	}
-	static const long CudId = 128;
+	static const long CutId = 16384;
 };
 
 class SecondJetEnergyCut: public ZJetCutBase
@@ -658,7 +659,7 @@ public:
 
 	unsigned long GetId() const
 	{
-		return SecondJetEnergyCut::CudId;
+		return SecondJetEnergyCut::CutId;
 	}
 	std::string GetCutName()
 	{
@@ -668,7 +669,7 @@ public:
 	{
 		return "secondjetenergy";
 	}
-	static const long CudId = 128;
+	static const long CutId = 32768;
 };
 
 

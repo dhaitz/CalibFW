@@ -38,19 +38,19 @@ BOOST_AUTO_TEST_CASE( test_cut_jet_eta )
 	evtData.m_jets[0].p4.SetEta( 0.3f);
 	ecut.PopulateMetaData( evtData, metData, pSettings );
 /*
-	BOOST_CHECK( metData.IsCutPassed( LeadingJetEtaCut::CudId ) );
+	BOOST_CHECK( metData.IsCutPassed( LeadingJetEtaCut::CutId ) );
 
 	evtData.m_jets[0].p4.SetEta( 1.3f);
     ecut.PopulateMetaData( evtData, metData, pSettings );
-    BOOST_CHECK(! metData.IsCutPassed( LeadingJetEtaCut::CudId ) );
+    BOOST_CHECK(! metData.IsCutPassed( LeadingJetEtaCut::CutId ) );
 
 	evtData.m_jets[0].p4.SetEta( -0.3f);
     ecut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( metData.IsCutPassed( LeadingJetEtaCut::CudId ) );
+	BOOST_CHECK( metData.IsCutPassed( LeadingJetEtaCut::CutId ) );
 
 	evtData.m_jets[0].p4.SetEta( -1.3f);
 	ecut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK(! metData.IsCutPassed( LeadingJetEtaCut::CudId ) );*/
+	BOOST_CHECK(! metData.IsCutPassed( LeadingJetEtaCut::CutId ) );*/
 }
 
 BOOST_AUTO_TEST_CASE( test_cut_muon_eta )
@@ -140,29 +140,29 @@ BOOST_AUTO_TEST_CASE( test_cut_back2back )
 	metData.SetZ( v );
 
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( metData.IsCutPassed( BackToBackCut::CudId ) );
+	BOOST_CHECK( metData.IsCutPassed( BackToBackCut::CutId ) );
 
 	v.p4.SetPhi(1.5f);
 	metData.SetZ( v );
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK(! metData.IsCutPassed( BackToBackCut::CudId ) );
+	BOOST_CHECK(! metData.IsCutPassed( BackToBackCut::CutId ) );
 
 	v.p4.SetPhi(-.3f);
 	metData.SetZ( v );
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( metData.IsCutPassed( BackToBackCut::CudId ) );
+	BOOST_CHECK( metData.IsCutPassed( BackToBackCut::CutId ) );
 
 	evtData.m_jets[0].p4.SetPhi( 1.7f);
 	v.p4.SetPhi(-1.7f);
 	metData.SetZ( v );
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( metData.IsCutPassed( BackToBackCut::CudId ) );
+	BOOST_CHECK( metData.IsCutPassed( BackToBackCut::CutId ) );
 
 	evtData.m_jets[0].p4.SetPhi( 3.1f);
 	v.p4.SetPhi(3.1f);
 	metData.SetZ( v );
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK(! metData.IsCutPassed( BackToBackCut::CudId ) );
+	BOOST_CHECK(! metData.IsCutPassed( BackToBackCut::CutId ) );
 }
 
 
@@ -183,17 +183,17 @@ BOOST_AUTO_TEST_CASE( test_cut_zmass )
 	pSettings.CacheJetAlgorithm.SetCache("AK5PFJets");
 
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( metData.IsCutPassed( ZMassWindowCut::CudId ) );
+	BOOST_CHECK( metData.IsCutPassed( ZMassWindowCut::CutId ) );
 
 	v.p4.SetM(69.0f);
 	metData.SetZ( v );
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( !metData.IsCutPassed( ZMassWindowCut::CudId ) );
+	BOOST_CHECK( !metData.IsCutPassed( ZMassWindowCut::CutId ) );
 
 	v.p4.SetM(113.0f);
 	metData.SetZ( v );
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( !metData.IsCutPassed( ZMassWindowCut::CudId ) );
+	BOOST_CHECK( !metData.IsCutPassed( ZMassWindowCut::CutId ) );
 }
 
 BOOST_AUTO_TEST_CASE( test_cut_zpt )
@@ -213,12 +213,12 @@ BOOST_AUTO_TEST_CASE( test_cut_zpt )
 	pSettings.CacheJetAlgorithm.SetCache("AK5PFJets");
 
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( metData.IsCutPassed( ZPtCut::CudId ) );
+	BOOST_CHECK( metData.IsCutPassed( ZPtCut::CutId ) );
 
 	v.p4.SetPt(10.0f);
 	metData.SetZ( v );
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( !metData.IsCutPassed( ZPtCut::CudId ) );
+	BOOST_CHECK( !metData.IsCutPassed( ZPtCut::CutId ) );
 
 }
 
@@ -246,11 +246,11 @@ BOOST_AUTO_TEST_CASE( test_cut_second_jet )
 
 
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( metData.IsCutPassed( SecondLeadingToZPtCut::CudId ) );
+	BOOST_CHECK( metData.IsCutPassed( SecondLeadingToZPtCut::CutId ) );
 
 	evtData.m_jets[1].p4.SetPt( 24.f);
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( ! metData.IsCutPassed( SecondLeadingToZPtCut::CudId ) );
+	BOOST_CHECK( ! metData.IsCutPassed( SecondLeadingToZPtCut::CutId ) );
 
 	// no second jet will also let the event pass
 	while ( metData.m_listValidJets[pSettings.GetJetAlgorithm()].size() > 1)
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE( test_cut_second_jet )
 	}
 
 	cut.PopulateMetaData( evtData, metData, pSettings );
-	BOOST_CHECK( metData.IsCutPassed( SecondLeadingToZPtCut::CudId ) );
+	BOOST_CHECK( metData.IsCutPassed( SecondLeadingToZPtCut::CutId ) );
 
 }
 
