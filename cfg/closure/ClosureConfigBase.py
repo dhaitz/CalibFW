@@ -13,13 +13,13 @@ def CreateFileList(wildcardExpression, args=None):
     inputfiles = glob.glob(wildcardExpression)
 
     if args is not None and len(args) > 1 and args[1] == "fast":
-         inputfiles = inputfiles[:2]
+        inputfiles = inputfiles[:2]
     return inputfiles
 
 
 def ApplyFast(inputfiles, args):
     if len(args) > 1 and args[1] == "fast":
-         return inputfiles[:2]
+        return inputfiles[:2]
     return inputfiles
 
 
@@ -43,7 +43,7 @@ def GetDataPath():
         return "/storage/5/hauth/zpj/"
     else:
         print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
-	exit(0)
+        exit(0)
 
 
 def GetCMSSWPath():
@@ -62,7 +62,7 @@ def GetCMSSWPath():
         return "/storage/5/hauth/zpj/CMSSW_4_2_8/"
     else:
         print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
-	exit(0)
+        exit(0)
 
 
 def GetBasePath():
@@ -81,7 +81,7 @@ def GetBasePath():
         return "/storage/5/hauth/zpj/CalibFW/"
     else:
         print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
-	exit(0)
+        exit(0)
 
 
 def getDefaultCorrectionL2(data_path):
@@ -98,7 +98,7 @@ def GetBaseConfig():
     d = dict()
 
     # the order of this producers is important
-    d["GlobalProducer"] = ["valid_muon_producer" , "z_producer",
+    d["GlobalProducer"] = ["valid_muon_producer", "z_producer",
                            "pu_reweighting_producer", "valid_jet_producer",
                            "corr_jet_producer", "jet_sorter_producer"]
 
@@ -107,7 +107,7 @@ def GetBaseConfig():
             "Level": 1,
             "JetAlgorithm" : "to_set",
             "RootFileFolder": "",
-            
+
             "CutMuonEta": 2.3,
             "CutMuonPt": 15,
             "CutZMassWindow": 20,
@@ -263,14 +263,14 @@ def ApplyReweightingFall11Powheg44ReReco(conf):
     conf["GlobalXSection"] = 1614.0
     conf["EnablePuReweighting"] = 1
     conf["RecovertWeight"] = [0.000000000, 0.012551516, 0.097125787,
-          0.418369998, 1.543558371, 2.229494388, 2.208659603, 1.811148716,
-          1.430131706, 1.396937416, 1.277667863, 1.478302489, 1.132100091,
-          0.995296396, 0.593207930, 0.307680210, 0.143832551, 0.049982105,
-          0.012307892, 0.004696431, 0.001361569, 0.000071058, 0.000000000,
-          0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-          0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-          0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-          0.000000000, 0.000000000]
+        0.418369998, 1.543558371, 2.229494388, 2.208659603, 1.811148716,
+        1.430131706, 1.396937416, 1.277667863, 1.478302489, 1.132100091,
+        0.995296396, 0.593207930, 0.307680210, 0.143832551, 0.049982105,
+        0.012307892, 0.004696431, 0.001361569, 0.000071058, 0.000000000,
+        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
+        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
+        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
+        0.000000000, 0.000000000]
 
 
 def ApplyReweightingFall11Powheg44ReRecoAonly(conf):
@@ -280,14 +280,14 @@ def ApplyReweightingFall11Powheg44ReRecoAonly(conf):
     conf["GlobalXSection"] = 1614.0
     conf["EnablePuReweighting"] = 1
     conf["RecovertWeight"] = [0.000032327, 0.016933242, 0.140898504,
-          0.629069375, 2.614368873, 3.824628201, 3.538645332, 2.239583929,
-          1.291569194, 0.922577502, 0.424008228, 0.136883735, 0.014369096,
-          0.001474956, 0.000080075, 0.000000000, 0.000000000, 0.000000000,
-          0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-          0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-          0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-          0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-          0.000000000, 0.000000000]
+        0.629069375, 2.614368873, 3.824628201, 3.538645332, 2.239583929,
+        1.291569194, 0.922577502, 0.424008228, 0.136883735, 0.014369096,
+        0.001474956, 0.000080075, 0.000000000, 0.000000000, 0.000000000,
+        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
+        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
+        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
+        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
+        0.000000000, 0.000000000]
 
 
 def GetMcBaseConfig(analysis='zjet'):
@@ -332,7 +332,7 @@ def GetDataBaseConfig(analysis='zjet'):
     # Mu13_Mu8 Trigger
     "HLT_Mu13_Mu8_v1", "HLT_Mu13_Mu8_v2", "HLT_Mu13_Mu8_v3", "HLT_Mu13_Mu8_v4", "HLT_Mu13_Mu8_v5",
     "HLT_Mu13_Mu8_v6", "HLT_Mu13_Mu8_v7", "HLT_Mu13_Mu8_v8", "HLT_Mu13_Mu8_v9", "HLT_Mu13_Mu8_v10",
-    "HLT_Mu13_Mu8_v11", 
+    "HLT_Mu13_Mu8_v11",
     # Mu17_Mu8 Trigger
     "HLT_Mu17_Mu8_v1", "HLT_Mu17_Mu8_v2", "HLT_Mu17_Mu8_v3", "HLT_Mu17_Mu8_v4", "HLT_Mu17_Mu8_v5",
     "HLT_Mu17_Mu8_v6", "HLT_Mu17_Mu8_v7", "HLT_Mu17_Mu8_v8", "HLT_Mu17_Mu8_v9", "HLT_Mu17_Mu8_v10",
@@ -364,10 +364,10 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, also
             for v in vals:
                 newPipe = copy.deepcopy(elem)
                 newPipe[ varName ] = v
-                
+
                 #only do basic plots
                 if onlyBasicQuantities:
-		    ReplaceWithQuantitiesBasic( newPipe )
+                    ReplaceWithQuantitiesBasic( newPipe )
 
                 varadd = "_var_" + varName + "_" + str(v).replace(".", "_")
 
@@ -388,7 +388,7 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, also
 def ExpandRange2(pipelines, filtername, low, high=None,
                  foldername="var_{name}_{low}to{high}",
                  includeSource=True, onlyOnIncut=True,
-		 onlyBasicQuantities = True):
+                 onlyBasicQuantities = True):
     """Add pipelines with values between low and high for filtername
 
     This only works if the filter is lowercase and it uses two variables
@@ -402,7 +402,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
             for l, h in zip(low, high):
                 # copy existing pipeline (subdict) and modify it
                 newpipe = copy.deepcopy(subdict)
-                
+
                 #only do basic plots
                 if onlyBasicQuantities:
                     ReplaceWithQuantitiesBasic( newpipe )
@@ -422,13 +422,13 @@ def ExpandRange2(pipelines, filtername, low, high=None,
     if includeSource:
         return dict(pipelines.items() +  newDict.items())
     else:
-        return newDict   
+        return newDict
 
 
 def ExpandRange2Cut(pipelines, cutname, low, high=None,
-                 foldername="var_{name}_{low}to{high}",
-                 includeSource=True, onlyOnIncut=True,
-		 onlyBasicQuantities = True):
+                foldername="var_{name}_{low}to{high}",
+                includeSource=True, onlyOnIncut=True,
+                onlyBasicQuantities = True):
     """Add pipelines with values between low and high for filtername
 
     This only works if the filter is lowercase and it uses two variables
@@ -442,7 +442,7 @@ def ExpandRange2Cut(pipelines, cutname, low, high=None,
             for l, h in zip(low, high):
                 # copy existing pipeline (subdict) and modify it
                 newpipe = copy.deepcopy(subdict)
-                
+
                 #only do basic plots
                 if onlyBasicQuantities:
                     ReplaceWithQuantitiesBasic( newpipe )
@@ -461,7 +461,7 @@ def ExpandRange2Cut(pipelines, cutname, low, high=None,
     if includeSource:
         return dict(pipelines.items() +  newDict.items())
     else:
-        return newDict       
+        return newDict
 
 
 def AddConsumer( pline, name, config):
@@ -613,21 +613,21 @@ def AddHltConsumer( pipelineDict, algoNames, hlt_names):
                                                   "ProductName" : "hlt_" + hname + "_prescale_lumi_" + algo})
     # plot the selcted hlt
     for algo in algoNames:
-	for p, pval in pipelineDict["Pipelines"].items():
-	    #print p
-	    if p == "default_" + algo + "nocuts":
-		AddConsumer(pval, "hlt_selected_prescale_lumi" + algo,
-					    { "Name" : "generic_profile_consumer",
-					      "YSource" : "selectedhltprescale",
-					      "YSourceConfig" : hname,
-					      "XSource" : "intlumi",
-					      "ProductName" : "hlt_selected_prescale_lumi" + algo})
-		AddConsumer(pval, "hlt_selected_prescale_run" + algo,
-					    { "Name" : "generic_profile_consumer",
-					      "YSource" : "selectedhltprescale",
-					      "YSourceConfig" : hname,
-					      "XSource" : "runnumber",
-					      "ProductName" : "hlt_selected_prescale_run" + algo})
+        for p, pval in pipelineDict["Pipelines"].items():
+            #print p
+            if p == "default_" + algo + "nocuts":
+                AddConsumer(pval, "hlt_selected_prescale_lumi" + algo,
+                                            { "Name" : "generic_profile_consumer",
+                                              "YSource" : "selectedhltprescale",
+                                              "YSourceConfig" : hname,
+                                              "XSource" : "intlumi",
+                                              "ProductName" : "hlt_selected_prescale_lumi" + algo})
+                AddConsumer(pval, "hlt_selected_prescale_run" + algo,
+                                            { "Name" : "generic_profile_consumer",
+                                              "YSource" : "selectedhltprescale",
+                                              "YSourceConfig" : hname,
+                                              "XSource" : "runnumber",
+                                              "ProductName" : "hlt_selected_prescale_run" + algo})
 
 
 def ExpandPtBins( pipelineDict, ptbins, includeSource):
@@ -824,14 +824,14 @@ def StoreGCDataset( settings, nickname, filename ):
     cfile.write ("nickname = " +  nickname + "\n" )
     cfile.write ("events = " +  str ( - len ( settings["InputFiles"] ))  + "\n" )
 
-    path = os.path.split(  settings["InputFiles"][0] ) [0] 
+    path = os.path.split(  settings["InputFiles"][0] ) [0]
     cfile.write ("prefix = " + path + "\n" )
 
     for f in settings["InputFiles"]:
         cfile.write ( os.path.split(f)[1] +  ' = -1\n' )
 
     cfile.close()
-    
+
 def StoreGCConfig ( settings, nickname, filename ):
     print "Generating " + filename
 
@@ -848,7 +848,7 @@ def StoreGCConfig ( settings, nickname, filename ):
     cfile = open(filename, 'wb')
     config.write(cfile)
     cfile.close()
-        
+
 def StoreGCCommon ( settings, nickname, filename, output_folder ):
     print "Generating " + filename
 
@@ -858,7 +858,7 @@ def StoreGCCommon ( settings, nickname, filename, output_folder ):
     config.add_section("global")
     config.set("global", "module", "UserMod")
     config.set("global", "backend", "local")
-    
+
     config.add_section("jobs")
     config.set("jobs", "in queue", 50)
     config.set("jobs", "shuffle", True)
@@ -867,55 +867,55 @@ def StoreGCCommon ( settings, nickname, filename, output_folder ):
 
     config.add_section("local")
     config.set("local", "queue", "short")
-    
+
     config.add_section("UserMod")
-    
-    # we can run more data files with one MC job as they don't contain that many 
+
+    # we can run more data files with one MC job as they don't contain that many
     # events
     if settings["InputType"] == "mc":
-	config.set("UserMod", "files per job", 3 )
+        config.set("UserMod", "files per job", 3 )
     else:
-	config.set("UserMod", "files per job", 20 )
-	
+        config.set("UserMod", "files per job", 20 )
+
     config.set("UserMod", "executable", "gc-run-closure.sh" )
     config.set("UserMod", "subst files", "gc-run-closure.sh" )
     #config.set("UserMod", "input files", "/usr/lib64/libboost_regex.so.2" )
     config.set("UserMod", "input files", "/wlcg/sw/cms/experimental/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_2_8/external/slc5_amd64_gcc434/lib/libboost_regex.so.1.44.0" )
- 
-    
+
+
     config.add_section("storage")
     config.set("storage", "se path", "dir://" + output_folder )
     config.set("storage", "se output files", settings["OutputPath"] + ".root" )
     config.set("storage", "se output pattern", "@NICK@_job_@MY_JOBID@.root" )
-    
+
     # Writing our configuration file to 'example.cfg'
     cfile = open(filename, 'wb')
     config.write(cfile)
-    cfile.close()    
-    
+    cfile.close()
+
 def StoreMergeScript ( settings, nickname, filename, output_folder ):
     print "Generating " + filename
 
     cfile = open(filename, 'wb')
     cfile.write("hadd " + output_folder + settings["OutputPath"] + ".root " + output_folder + nickname + "_job_*.root\n" )
     cfile.close()
-    os.chmod ( filename, stat.S_IRWXU )	
-    
+    os.chmod(filename, stat.S_IRWXU)
+
 def StoreShellRunner ( settings, nickname, filename ):
     print "Generating " + filename
     cfile = open(filename, 'wb')
-    cfile.write("echo $FILE_NAMES\n" )
-    cfile.write("cd " + GetCMSSWPath() +"\n" )
-    cfile.write("source /wlcg/sw/cms/experimental/cmsset_default.sh\n" )
-    cfile.write("eval `scramv1 runtime -sh`\n" )
-    cfile.write("cd -\n" )
-    cfile.write("source "+ GetBasePath() + "/scripts/CalibFWenv.sh\n" )
+    cfile.write("echo $FILE_NAMES\n")
+    cfile.write("cd " + GetCMSSWPath() +"\n")
+    cfile.write("source /wlcg/sw/cms/experimental/cmsset_default.sh\n")
+    cfile.write("eval `scramv1 runtime -sh`\n")
+    cfile.write("cd -\n")
+    cfile.write("source "+ GetBasePath() + "/scripts/CalibFWenv.sh\n")
     cfile.write( GetBasePath() + "closure " + GetBasePath() + "cfg/closure/" + nickname + ".py.json" )
     cfile.close()
-    os.chmod ( filename, stat.S_IRWXU )	
+    os.chmod(filename, stat.S_IRWXU)
 
-    
-def Run( settings, arguments):
+
+def Run(settings, arguments):
 
     # parser = argparse.ArgumentParser(description='Run the ROCED scheduler')
     #parser.add_argument('--batch',  help="Generate all Grid-Control configs", action='store_true' )
@@ -931,32 +931,32 @@ def Run( settings, arguments):
     base_path = GetBasePath()
     print "BASEPATH", base_path
     batch = False
-    if len ( arguments ) > 1 :
+    if len(arguments) > 1 :
         batch = arguments[1] == "batch"
-   
+
     if not batch:
         subprocess.call(["./closure",filename])
     else:
-	nickname = os.path.split( filename )[1]
-	nickname = nickname.split ( "." )[0]
-	print "Generating GC configs with nickname " + nickname + " ..."
+        nickname = os.path.split(filename)[1]
+        nickname = nickname.split(".")[0]
+        print "Generating GC configs with nickname " + nickname + " ..."
         # store the input files in gc format
         if not os.path.exists( base_path + "work/" ) :
-	    os.mkdir( base_path + "work/" )
+            os.mkdir( base_path + "work/" )
         if not os.path.exists( base_path + "work/" + nickname ) :
-	    os.mkdir( base_path + "work/" + nickname )
-	if not os.path.exists( base_path + "work/" + nickname + "/out/" ) :
-	    os.mkdir( base_path + "work/" + nickname + "/out/" )
-	
-        
+            os.mkdir( base_path + "work/" + nickname )
+        if not os.path.exists( base_path + "work/" + nickname + "/out/" ) :
+            os.mkdir( base_path + "work/" + nickname + "/out/" )
+
+
         StoreGCDataset( settings, nickname, base_path + "work/" + nickname + "/" + nickname + ".dbs")
         StoreGCConfig( settings,  nickname, base_path + "work/" + nickname + "/" + nickname + ".conf")
         StoreGCCommon( settings,  nickname, base_path + "work/" + nickname + "/gc_common.conf", base_path + "work/" + nickname + "/out/" )
         StoreMergeScript( settings,  nickname, base_path + "work/" + nickname + "/merge.sh", base_path + "work/" + nickname + "/out/" )
         StoreShellRunner( settings,  nickname, base_path + "work/" + nickname + "/gc-run-closure.sh" )
 
-        # generate merge script 
-	print "done"
+        # generate merge script
+        print "done"
 
     try:
         import pynotify
