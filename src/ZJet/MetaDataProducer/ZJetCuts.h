@@ -228,7 +228,7 @@ public:
 		KDataLV * Jet2 = metaData.GetValidJet( m_pipelineSettings, event, 1 );
 
 		metaData.SetCutResult(this->GetId(),
-			(metaData.GetBalance(Jet2) >= m_pipelineSettings.GetCutSecondLeadingToZPtRegionLow() ) && 
+			(metaData.GetBalance(Jet2) >= m_pipelineSettings.GetCutSecondLeadingToZPtRegionLow() ) &&
 			(metaData.GetBalance(Jet2) < m_pipelineSettings.GetCutSecondLeadingToZPtRegionHigh() )
 		);
 	}
@@ -504,14 +504,89 @@ public:
 };
 
 //VBF Cuts
-/*
-	1.) Jet ET cuts
-	2.) Rapidity gap cuts
-	3.) Jet Mass cut
-	4.) No b tags
-	5.) central jet veto
-	6.)
+/*    order name                bit
+	1.) Jet pT cut		11
+	2.) 2nd jet pT cut	12
+	4.) Jet eta cut		 3
+	3.) 2nd jet eta cut	13
+	5.) Rapidity gap cuts	14
+	6.) Jet Mass cut	15
+	7.) No b tags		16
+	8.) central jet veto	17
+	9.)			18
 */
+
+class LeadingJetPtCut: public ZJetCutBase
+// pT_jet1 > 50 GeV
+{
+public:
+	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData& metaData,
+		ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		if (!metaData.HasValidJet(m_pipelineSettings, event))
+		{
+			// is not ok, there seems to be no jet in the event
+			return;
+		}
+
+		KDataLV* jet = metaData.GetValidPrimaryJet(m_pipelineSettings, event);
+		metaData.SetCutResult(this->GetId(),
+			jet->p4.Pt() > m_pipelineSettings.GetCutLeadingJetPt()
+		);
+	}
+
+	unsigned long GetId() const { return LeadingJetPtCut::CutId; }
+	std::string GetCutName() { return "1) Leading Jet Pt Cut"; }
+	std::string GetCutShortName() const { return "leadingjet_pt"; }
+	static const long CutId = 1 << 11;
+};
+
+class SecondJetPtCut: public ZJetCutBase
+// pT_jet2 > 30 GeV
+{
+public:
+	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData& metaData,
+		ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		if (metaData.GetValidJetCount(m_pipelineSettings, event) < 2)
+		{
+			// is not ok, there seems to be no 2nd jet in the event
+			return;
+		}
+		KDataLV* jet = metaData.GetValidJet(m_pipelineSettings, event, 1);
+		metaData.SetCutResult(this->GetId(),
+			jet->p4.Pt() > m_pipelineSettings.GetCutSecondJetPt()
+		);
+	}
+
+	unsigned long GetId() const { return SecondJetPtCut::CutId; }
+	std::string GetCutName() { return "2) Second Jet Pt Cut"; }
+	std::string GetCutShortName() const { return "secondjet_pt"; }
+	static const long CutId = 1 << 12;
+};
+
+class SecondJetEtaCut: public ZJetCutBase
+{
+public:
+	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData& metaData,
+		ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		if (metaData.GetValidJetCount(m_pipelineSettings, event) < 2)
+		{
+			// is not ok, there seems to be no 2nd jet in the event
+			return;
+		}
+		KDataLV* jet = metaData.GetValidJet(m_pipelineSettings, event, 1);
+		metaData.SetCutResult(this->GetId(),
+			TMath::Abs(jet->p4.Eta()) < m_pipelineSettings.GetCutSecondJetEta()
+		);
+	}
+
+	unsigned long GetId() const { return SecondJetEtaCut::CutId; }
+	std::string GetCutName() { return "3) second jet eta cut"; }
+	std::string GetCutShortName() const { return "secondjet_eta"; }
+	static const long CutId = 1 << 13;
+};
 
 class RapidityGapCut: public ZJetCutBase
 // | eta_jet1 - eta_jet2 | > 4.2 && eta_jet1 * eta_jet2 < 0
@@ -533,55 +608,42 @@ public:
 			return;
 		}
 
-
 		KDataLV * jet1 = metaData.GetValidPrimaryJet(m_pipelineSettings, event);
 		KDataLV * jet2 = metaData.GetValidJet(m_pipelineSettings, event, 1);
 
-		metaData.SetCutResult ( this->GetId(), (
+		metaData.SetCutResult(this->GetId(), (
 			(TMath::Abs(jet1->p4.Eta() - jet2->p4.Eta())
-						> m_pipelineSettings.GetCutRapidityGap() )
+				> m_pipelineSettings.GetCutRapidityGap())
 			&& (jet1->p4.Eta() * jet2->p4.Eta() < 0.0)
-			)
-		);
-
+		));
 	}
 
-	unsigned long GetId() const
-	{
-		return RapidityGapCut::CutId;
-	}
-	std::string GetCutName()
-	{
-		return "a) Rapidity Gap Cut";
-	}
-	std::string GetCutShortName() const
-	{
-		return "rapidiy_gap";
-	}
-	static const long CutId = 4096;
+	unsigned long GetId() const { return RapidityGapCut::CutId; }
+	std::string GetCutName() { return "5) Rapidity Gap Cut"; }
+	std::string GetCutShortName() const { return "rapidity_gap"; }
+	static const long CutId = 1 << 14;
 };
 
 class InvariantMassCut: public ZJetCutBase
 // m_jetjet > 600 GeV
 {
 public:
-	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData & metaData,
+	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData& metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 
-		if (metaData.GetValidJetCount( m_pipelineSettings, event) < 2)
+		if (metaData.GetValidJetCount(m_pipelineSettings, event) < 2)
 		{
 			// is not ok, there seems to be no 2nd Jet in the event
 			return;
 		}
 
-		KDataLV * jet1 = metaData.GetValidPrimaryJet(m_pipelineSettings, event);
-		KDataLV * jet2 = metaData.GetValidJet(m_pipelineSettings, event, 1);
+		KDataLV* jet1 = metaData.GetValidPrimaryJet(m_pipelineSettings, event);
+		KDataLV* jet2 = metaData.GetValidJet(m_pipelineSettings, event, 1);
 
-		metaData.SetCutResult ( this->GetId(), (
-			(jet1->p4 + jet2->p4).M() > m_pipelineSettings.GetCutInvariantMass() )
+		metaData.SetCutResult(this->GetId(),
+			(jet1->p4 + jet2->p4).M() > m_pipelineSettings.GetCutInvariantMass()
 		);
-
 	}
 
 	unsigned long GetId() const { return InvariantMassCut::CutId; }
@@ -590,26 +652,14 @@ public:
 	static const long CutId = 1 << 15;
 };
 
-class LeadingJetEnergyCut: public ZJetCutBase
-// E_T,jet1 > 50 GeV
+class BtagCut: public ZJetCutBase
+// no b tags
 {
 public:
-	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData & metaData,
+	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData& metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-
-		if (metaData.GetValidJetCount( m_pipelineSettings, event) < 1)
-		{
-			// is not ok, there seems to be no jet in the event
-			return;
-		}
-
-		KDataLV * jet = metaData.GetValidPrimaryJet(m_pipelineSettings, event);
-
-		metaData.SetCutResult ( this->GetId(), (
-			jet->p4.Et() > m_pipelineSettings.GetCutLeadingJetEnergy() )
-		);
-
+		return;
 	}
 
 	unsigned long GetId() const { return BtagCut::CutId; }
@@ -618,26 +668,52 @@ public:
 	static const long CutId = 1 << 16;
 };
 
-class SecondJetEnergyCut: public ZJetCutBase
-// E_T,jet2 > 30 GeV
+/* not in header!
+double zeppenfeld(double y1, double y2, double y3, bool reduced=false)
+{
+	double
+	if (reduced)
+		return y
+	return y;
+}
+*/
+
+class CentralJetVeto: public ZJetCutBase
+// no 3rd jet in between
 {
 public:
-	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData & metaData,
+	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData& metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-
-		if (metaData.GetValidJetCount( m_pipelineSettings, event) < 2)
+		if (metaData.GetValidJetCount(m_pipelineSettings, event) < 2)
 		{
-			// is not ok, there seems to be no 2nd jet in the event
+			// this is no vbf event, 2nd jet is missing
 			return;
 		}
 
-		KDataLV * jet = metaData.GetValidJet(m_pipelineSettings, event, 1);
+		if (metaData.GetValidJetCount(m_pipelineSettings, event) < 3)
+		{
+			// is ok, there seems to be no 3rd Jet in the event
+			metaData.SetCutResult(this->GetId(), true);
+			return;
+		}
 
-		metaData.SetCutResult ( this->GetId(), (
-			jet->p4.Et() > m_pipelineSettings.GetCutLeadingJetEnergy() )
+
+		KDataLV* jet1 = metaData.GetValidPrimaryJet(m_pipelineSettings, event);
+		KDataLV* jet2 = metaData.GetValidJet(m_pipelineSettings, event, 1);
+		KDataLV* jet3 = metaData.GetValidJet(m_pipelineSettings, event, 2);
+
+		if (jet3->p4.Pt() <= m_pipelineSettings.GetCutThirdJetPt())
+		{
+			// is ok, the 3rd jet is very soft
+			metaData.SetCutResult(this->GetId(), true);
+			return;
+		}
+
+		metaData.SetCutResult(this->GetId(),
+			//TMath::Abs(zeppenfeld(eta1, eta2, eta3, true)) > 0.5
+			TMath::Abs((2.0 * jet3->p4.Eta() - jet1->p4.Eta() - jet2->p4.Eta()) / (jet1->p4.Eta() - jet2->p4.Eta())) < 1.0
 		);
-
 	}
 
 	unsigned long GetId() const { return CentralJetVeto::CutId; }
