@@ -659,7 +659,19 @@ public:
 	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData& metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		return;
+		if (metaData.GetValidJetCount(m_pipelineSettings, event) < 2)
+		{
+			// is not ok, there seems to be no 2nd Jet in the event
+			return;
+		}
+
+		KDataLV* jet1 = metaData.GetValidPrimaryJet(m_pipelineSettings, event);
+		KDataLV* jet2 = metaData.GetValidJet(m_pipelineSettings, event, 1);
+
+		metaData.SetCutResult(this->GetId(),
+			!false && !false
+			//!jet1->btag && !jet2->btag
+		);
 	}
 
 	unsigned long GetId() const { return BtagCut::CutId; }
