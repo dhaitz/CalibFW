@@ -131,6 +131,51 @@ def GetBaseConfig():
 
     return d
 
+def GetVBFBaseConfig():
+    d = {}
+
+    # the order of this producers is important
+    d["GlobalProducer"] = ["valid_muon_producer" , "z_producer",
+                           "pu_reweighting_producer", "valid_jet_producer",
+                           "corr_jet_producer", "jet_sorter_producer"]
+
+    d["ThreadCount"] = 1
+    d["Pipelines"] = { "default": {
+            "Level": 1,
+            "JetAlgorithm": "to_set",
+            "RootFileFolder": "",
+
+            "CutMuonEta": 2.4,
+            "CutMuonPt": 15,
+            "CutZMassWindow": 20,
+
+            "CutLeadingJetPt": 30,
+            "CutSecondJetPt": 30,
+            "CutLeadingJetEta": 5.0,
+            "CutSecondJetEta": 5.0,
+
+            "CutRapidityGap": 4.0,
+            "CutInvariantMass": 500,
+
+
+            "Cuts": ["leadingjet_pt",
+                     "secondjet_pt",
+                     "leadingjet_eta",
+                     "secondjet_eta",
+                     "rapidity_gap",
+                     "jet_mass",
+                     "muon_pt",
+                     "muon_eta",
+                     "zmass_window",
+                     ],
+            "Filter":["valid_z", "valid_jet"],
+            "Consumer": {}
+                      }
+            }
+    AddConsumerNoConfig( d["Pipelines"]["default"], "quantities_all")
+
+    return d
+
 
 def ApplyReweightingSummer11May10ReReco(conf):
 
@@ -245,8 +290,11 @@ def ApplyReweightingFall11Powheg44ReRecoAonly(conf):
           0.000000000, 0.000000000]
 
 
-def GetMcBaseConfig():
-    d = GetBaseConfig()
+def GetMcBaseConfig(analysis='zjet'):
+    if analysis == 'vbf':
+        d = GetVBFBaseConfig()
+    else:
+        d = GetBaseConfig()
 
     d["UseWeighting"] = 1
     d["UseEventWeight"] = 0
@@ -267,8 +315,11 @@ def GetDefaultDataPipeline():
 
     return pline
 
-def GetDataBaseConfig():
-    d = GetBaseConfig()
+def GetDataBaseConfig(analysis='zjet'):
+    if analysis == 'vbf':
+        d = GetVBFBaseConfig()
+    else:
+        d = GetBaseConfig()
 
     d["JsonFile"] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
