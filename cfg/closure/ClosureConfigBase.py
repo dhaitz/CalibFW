@@ -8,18 +8,24 @@ import os.path
 import stat
 import getpass
 
-def CreateFileList( wildcardExpression):
-    flist = []
-
+def CreateFileList(wildcardExpression, args=None):
     print "Creating file list from " + wildcardExpression
+    inputfiles = glob.glob(wildcardExpression)
 
-    for name in glob.glob(wildcardExpression):
-        flist.append(name)
+    if args is not None and len(args) > 1 and args[1] == "fast":
+         inputfiles = inputfiles[:2]
+    return inputfiles
 
-    return flist
+
+def ApplyFast(inputfiles, args):
+    if len(args) > 1 and args[1] == "fast":
+         return inputfiles[:2]
+    return inputfiles
+
 
 def GetDefaultBinning():
     return [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]
+
 
 def GetDataPath():
 
@@ -38,6 +44,7 @@ def GetDataPath():
     else:
         print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
 	exit(0)
+
 
 def GetCMSSWPath():
 
@@ -77,31 +84,14 @@ def GetBasePath():
 	exit(0)
 
 
-# only leaves the first 5 root files, for a faster processing while testing
-def ApplyFast( inputfiles, args ):
-    if len(args) > 1:
-        if args[1] == "fast":
-            #inputfiles = inputfiles[:1]
-            inputfiles = [  inputfiles[4] ]
+def getDefaultCorrectionL2(data_path):
+    globalTag = "GR_R_44_V13_"
 
-    return inputfiles
+    names = ["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo", "iterativeCone5PF", "iterativeCone5Calo"]
+    algos = ["AK5PF", "AK7PF", "KT4PF", "KT6PF", "AK5Calo", "AK7Calo", "KT4Calo", "KT6Calo", "IC5PF", "IC5Calo"]
+    g_l2_correction_data = [n + "Jets:" + data_path + "jec_data/" + globalTag + a + "_L2Relative.txt" for n, a in zip(names, algos)]
 
-
-def getDefaultCorrectionL2( data_path ):
-  globalTag = "GR_R_311_V2_"
-
-  g_l2_correction_data=["ak5PFJets:" + data_path + "jec_data/" + globalTag + "AK5PF_L2Relative.txt",
-      "ak7PFJets:" + data_path + "jec_data/" + globalTag + "AK7PF_L2Relative.txt",
-      "kt4PFJets:" + data_path + "jec_data/" + globalTag + "KT4PF_L2Relative.txt",
-      "kt6PFJets:" + data_path + "jec_data/" + globalTag + "KT6PF_L2Relative.txt",
-      "ak5CaloJetst:" + data_path + "jec_data/" + globalTag + "AK5Calo_L2Relative.txt",
-      "ak7CaloJets:" + data_path + "jec_data/" + globalTag + "AK7Calo_L2Relative.txt",
-      "kt4CaloJets:" + data_path + "jec_data/" + globalTag + "KT4Calo_L2Relative.txt",
-      "kt6CaloJets:" + data_path + "jec_data/" + globalTag + "KT6Calo_L2Relative.txt",
-    "iterativeCone5PFJets:" + data_path + "jec_data/" + globalTag + "IC5PF_L2Relative.txt",
-    "iterativeCone5CaloJets:" + data_path + "jec_data/" + globalTag + "IC5PF_L2Relative.txt"]
-
-  return g_l2_correction_data
+    return g_l2_correction_data
 
 
 def GetBaseConfig():
@@ -343,6 +333,7 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, also
     else:
         return newDict
 
+
 def ExpandRange2(pipelines, filtername, low, high=None,
                  foldername="var_{name}_{low}to{high}",
                  includeSource=True, onlyOnIncut=True,
@@ -382,6 +373,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
     else:
         return newDict   
 
+
 def ExpandRange2Cut(pipelines, cutname, low, high=None,
                  foldername="var_{name}_{low}to{high}",
                  includeSource=True, onlyOnIncut=True,
@@ -419,7 +411,8 @@ def ExpandRange2Cut(pipelines, cutname, low, high=None,
         return dict(pipelines.items() +  newDict.items())
     else:
         return newDict       
-        
+
+
 def AddConsumer( pline, name, config):
     pline["Consumer"][name] = config
 
