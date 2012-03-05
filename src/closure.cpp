@@ -8,7 +8,7 @@
 
  - DrawBase.h
  1) Use the IMPL_HIST2D_MOD1 to generate a Consumer class which plots a histogramm. If your plotting requirement is
- more complex, derive from the class  DrawHist1dConsumerBase<EventResult> ( for 1d Histo ) and implement
+ more complex, derive from the class DrawHist1dConsumerBase<EventResult> (for 1d Histo) and implement
  ProcessFilteredEvent.
 
  - resp_cuts.h: CreateDefaultPipeline
@@ -158,30 +158,30 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 }
 /* did not work
 void handler(int sig) {
-  void *array[10];
-  size_t size;
+	void *array[10];
+	size_t size;
 
-  // get void*'s for all entries on the stack
-  size = backtrace(array, 10);
+	// get void*'s for all entries on the stack
+	size = backtrace(array, 10);
 
-  // print out all the frames to stderr
-  fprintf(stderr, "Error: signal %d:\n", sig);
-  backtrace_symbols_fd(array, size, 2);
-  exit(1);
+	// print out all the frames to stderr
+	fprintf(stderr, "Error: signal %d:\n", sig);
+	backtrace_symbols_fd(array, size, 2);
+	exit(1);
 }*/
 
 
 int main(int argc, char** argv)
 {
-    // install signal 
-    // did not work
-    //signal(SIGSEGV, handler);   // install our handler
+	// install signal
+	// did not work
+	//signal(SIGSEGV, handler);   // install our handler
 
 
 	if (argc < 2)
 	{
 		std::cerr << "Usage: " << argv[0]
-		                               << " json_config_file.json [VerboseLevel]\n";
+			  << " json_config_file.json [VerboseLevel]\n";
 		return 1;
 	}
 
@@ -195,26 +195,29 @@ int main(int argc, char** argv)
 	// input files
 
 	// hast GC the file list ?
-	  char * pPath;
-    pPath = getenv ("FILE_NAMES");
-    if (pPath!=NULL)
-    {
-        boost::split( g_sourcefiles, pPath, boost::is_any_of(" "), boost::token_compress_on ); // SplitVec == { "hello abc","ABC","aBc goodbye" }
-    }
-    else{
-        CALIB_LOG_FILE("Getting file list from env-variable FILE_NAMES" )
-                g_sourcefiles = PropertyTreeSupport::GetAsStringList(&g_propTree,
-                        "InputFiles");
+	char * pPath;
+	pPath = getenv ("FILE_NAMES");
+	if (pPath!=NULL)
+	{
+		boost::split( g_sourcefiles, pPath, boost::is_any_of(" "), boost::token_compress_on );
+		// SplitVec == { "hello abc","ABC","aBc goodbye" }
+	}
+	else
+	{
+		CALIB_LOG_FILE("Getting file list from env-variable FILE_NAMES" )
+		g_sourcefiles = PropertyTreeSupport::GetAsStringList(&g_propTree,
+			"InputFiles");
 
-        if (g_sourcefiles.size() == 0)
-        {
-            CALIB_LOG_FATAL("No Kappa input files specified")
-        }
+		if (g_sourcefiles.size() == 0)
+		{
+			CALIB_LOG_FATAL("No Kappa input files specified")
+		}
 
-        BOOST_FOREACH( std::string s, g_sourcefiles)
-        {	CALIB_LOG_FILE("Input File " << s)
-        }
-    }
+		BOOST_FOREACH(std::string s, g_sourcefiles)
+		{
+			CALIB_LOG_FILE("Input File " << s)
+		}
+	}
 	FileInterface finterface(g_sourcefiles);
 
 
@@ -310,7 +313,7 @@ int main(int argc, char** argv)
 		for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
 			== g_pipeSettings.end()); it++)
 	{
-	    delete (*it);
+		delete (*it);
 	}
 
 	// weighting settings
@@ -335,7 +338,7 @@ int main(int argc, char** argv)
 #endif
 	//HeapProfilerStart( "resp_cuts.heap");
 
-    pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings >( evtProvider, settings );
+	pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings >( evtProvider, settings );
 
 	//HeapProfilerStop();
 #ifdef USE_PERFTOOLS
