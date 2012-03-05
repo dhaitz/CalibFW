@@ -52,7 +52,7 @@ public:
 	{
 		return "json";
 	}
-	static const long CutId = 1;
+	static const long CutId = 1 << 0;
 
 	Json_wrapper * m_jsonFile;
 };*/
@@ -89,7 +89,7 @@ public:
 	{
 		return "muon_pt";
 	}
-	static const long CutId = 2;
+	static const long CutId = 1 << 1;
 };
 
 class MuonEtaCut: public ZJetCutBase
@@ -123,7 +123,7 @@ public:
 	{
 		return "muon_eta";
 	}
-	static const long CutId = 4;
+	static const long CutId = 1 << 2;
 };
 
 class LeadingJetEtaCut: public ZJetCutBase
@@ -158,7 +158,7 @@ public:
 	{
 		return "leadingjet_eta";
 	}
-	static const long CutId = 8;
+	static const long CutId = 1 << 3;
 };
 
 class SecondLeadingToZPtCut: public ZJetCutBase
@@ -184,8 +184,8 @@ public:
 		KDataLV * Jet2 = metaData.GetValidJet( m_pipelineSettings, event, 1 );
 
 		metaData.SetCutResult ( this->GetId(),
-				 metaData.GetBalance(Jet2)
-  				 < m_pipelineSettings.GetCutSecondLeadingToZPt());
+				metaData.GetBalance(Jet2)
+				< m_pipelineSettings.GetCutSecondLeadingToZPt());
 	}
 
 	unsigned long GetId() const
@@ -200,7 +200,7 @@ public:
 	{
 		return "secondleading_to_zpt";
 	}
-	static const long CutId = 16;
+	static const long CutId = 1 << 4;
 };
 
 
@@ -227,9 +227,10 @@ public:
 
 		KDataLV * Jet2 = metaData.GetValidJet( m_pipelineSettings, event, 1 );
 
-		metaData.SetCutResult ( this->GetId(),
-				 ( metaData.GetBalance(Jet2) >= m_pipelineSettings.GetCutSecondLeadingToZPtRegionLow() ) && 
-                 ( metaData.GetBalance(Jet2) < m_pipelineSettings.GetCutSecondLeadingToZPtRegionHigh() ));
+		metaData.SetCutResult(this->GetId(),
+			(metaData.GetBalance(Jet2) >= m_pipelineSettings.GetCutSecondLeadingToZPtRegionLow() ) && 
+			(metaData.GetBalance(Jet2) < m_pipelineSettings.GetCutSecondLeadingToZPtRegionHigh() )
+		);
 	}
 
 	unsigned long GetId() const
@@ -244,7 +245,7 @@ public:
 	{
 		return "secondleading_to_zpt_region";
 	}
-	static const long CutId = 2048;
+	static const long CutId = 1 << 10;
 };
 
 /* 31.5.2011, Thomas: commented for now, as it is not used any more
@@ -367,7 +368,7 @@ public:
 	{
 		return "back_to_back";
 	}
-	static const long CutId = 32;
+	static const long CutId = 1 << 5;
 };
 
 class ZMassWindowCut: public ZJetCutBase
@@ -399,7 +400,7 @@ public:
 	{
 		return "zmass_window";
 	}
-	static const long CutId = 64;
+	static const long CutId = 1 << 6;
 };
 
 class ZPtCut: public ZJetCutBase
@@ -435,7 +436,7 @@ public:
 	{
 		return "zpt";
 	}
-	static const long CutId = 128;
+	static const long CutId = 1 << 7;
 };
 
 
@@ -499,7 +500,7 @@ public:
 	{
 		return "hlt";
 	}
-	static const long CutId = 512;
+	static const long CutId = 1 << 9;
 };
 
 //VBF Cuts
@@ -513,19 +514,19 @@ public:
 */
 
 class RapidityGapCut: public ZJetCutBase
-// | eta_jet1 - eta_jet2 | > 4.2 && eta_jet1*eta_jet2 < 0
+// | eta_jet1 - eta_jet2 | > 4.2 && eta_jet1 * eta_jet2 < 0
 {
 public:
-	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData & metaData,
-			ZJetPipelineSettings const& m_pipelineSettings) const
+	virtual void PopulateMetaData(ZJetEventData const& event, ZJetMetaData& metaData,
+		ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		if( !metaData.HasValidJet( m_pipelineSettings,event ) )
+		if (!metaData.HasValidJet(m_pipelineSettings, event))
 		{
 			// no decision possible for this event
 			// redundant?
 			return;
 		}
-		if (metaData.GetValidJetCount( m_pipelineSettings, event) < 2)
+		if (metaData.GetValidJetCount(m_pipelineSettings, event) < 2)
 		{
 			// is not ok, there seems to be no 2nd Jet in the event
 			//metaData.SetCutResult ( this->GetId(), true );
@@ -583,19 +584,10 @@ public:
 
 	}
 
-	unsigned long GetId() const
-	{
-		return InvariantMassCut::CutId;
-	}
-	std::string GetCutName()
-	{
-		return "a) Invariant Jet Mass Cut";
-	}
-	std::string GetCutShortName() const
-	{
-		return "jetmass";
-	}
-	static const long CutId = 8192;
+	unsigned long GetId() const { return InvariantMassCut::CutId; }
+	std::string GetCutName() { return "6) Invariant Jet Mass Cut"; }
+	std::string GetCutShortName() const { return "jet_mass"; }
+	static const long CutId = 1 << 15;
 };
 
 class LeadingJetEnergyCut: public ZJetCutBase
@@ -620,19 +612,10 @@ public:
 
 	}
 
-	unsigned long GetId() const
-	{
-		return LeadingJetEnergyCut::CutId;
-	}
-	std::string GetCutName()
-	{
-		return "Leading Jet Energy Cut";
-	}
-	std::string GetCutShortName() const
-	{
-		return "leadingjetenergy";
-	}
-	static const long CutId = 16384;
+	unsigned long GetId() const { return BtagCut::CutId; }
+	std::string GetCutName() { return "7) No b tag"; }
+	std::string GetCutShortName() const { return "no_btag"; }
+	static const long CutId = 1 << 16;
 };
 
 class SecondJetEnergyCut: public ZJetCutBase
@@ -657,20 +640,10 @@ public:
 
 	}
 
-	unsigned long GetId() const
-	{
-		return SecondJetEnergyCut::CutId;
-	}
-	std::string GetCutName()
-	{
-		return "Second Jet Energy Cut";
-	}
-	std::string GetCutShortName() const
-	{
-		return "secondjetenergy";
-	}
-	static const long CutId = 32768;
+	unsigned long GetId() const { return CentralJetVeto::CutId; }
+	std::string GetCutName() { return "8) Central Jet Veto"; }
+	std::string GetCutShortName() const { return "jetveto"; }
+	static const long CutId = 1 << 17;
 };
-
 
 }
