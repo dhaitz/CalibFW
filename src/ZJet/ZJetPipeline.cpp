@@ -75,7 +75,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 			else if ( sid == HltFilter().GetFilterId())
 				pLine->AddFilter( new HltFilter);
-            else if ( sid == RunRangeFilter().GetFilterId())
+			else if ( sid == RunRangeFilter().GetFilterId())
 				pLine->AddFilter( new RunRangeFilter);
 			else
 				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
@@ -85,7 +85,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		fvec = pset.GetCuts();
 		BOOST_FOREACH( std::string sid, fvec )
 		{		// make this more beautiful :)
-			if ( sid ==  LeadingJetEtaCut().GetCutShortName())
+			if ( sid == LeadingJetEtaCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new LeadingJetEtaCut() );
 
 			else if ( sid == SecondLeadingToZPtCut().GetCutShortName())
@@ -173,7 +173,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 /*
 			if ( pset.IsMC() && ( pset.GetJetAlgorithm() == "AK5PFJetsL1L2L3" ))
 			{
-			    std::string genName = JetType::GetGenName( pset.GetJetAlgorithm() );
+				std::string genName = JetType::GetGenName( pset.GetJetAlgorithm() );
 
 				// add gen jets plots
 				pLine->AddConsumer( new DataGenJetConsumer( genName, 0,
@@ -187,7 +187,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
 
-			if (  pset.IsMC() )
+			if (pset.IsMC())
 			{
 				pLine->AddConsumer( new GenMetadataConsumer( ) );
 				// rate the matching
@@ -215,23 +215,23 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		// optional 1st Level Producer
 		else if (sName == BinResponseConsumer::GetName())
 		{
-		    BinResponseConsumer * resp = new BinResponseConsumer( pset.GetPropTree(), consPath );
-		    pLine->AddConsumer( resp );
-		    if ( pset.IsMC() && (resp->m_jetnum == 0) )
-		    {
-		      // do gen gesponse to z.pt
-    	      BinResponseConsumer * gen = new BinResponseConsumer( pset.GetPropTree(), consPath );
-		      gen->m_useGenJet = true;
-		      gen->m_name += "Gen";
-		      pLine->AddConsumer( gen );
+			BinResponseConsumer * resp = new BinResponseConsumer( pset.GetPropTree(), consPath );
+			pLine->AddConsumer( resp );
+			if ( pset.IsMC() && (resp->m_jetnum == 0) )
+			{
+				// do gen gesponse to z.pt
+				BinResponseConsumer * gen = new BinResponseConsumer(pset.GetPropTree(), consPath);
+				gen->m_useGenJet = true;
+				gen->m_name += "Gen";
+				pLine->AddConsumer(gen);
 
-		      // do Reco To Gen response
-		      BinResponseConsumer * reco_to_gen = new BinResponseConsumer( pset.GetPropTree(), consPath );
-		      reco_to_gen->m_useGenJetAsReference = true;
-		      reco_to_gen->m_name += "RecoToGen";
-		      pLine->AddConsumer( reco_to_gen );
+				// do Reco To Gen response
+				BinResponseConsumer * reco_to_gen = new BinResponseConsumer(pset.GetPropTree(), consPath);
+				reco_to_gen->m_useGenJetAsReference = true;
+				reco_to_gen->m_name += "RecoToGen";
+				pLine->AddConsumer(reco_to_gen);
 
-		    }
+			}
 		}
 
 		else if (sName == GenericProfileConsumer::GetName())
