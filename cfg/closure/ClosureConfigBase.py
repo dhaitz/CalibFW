@@ -406,6 +406,8 @@ def ExpandRange2(pipelines, filtername, low, high=None,
                 #only do basic plots
                 if onlyBasicQuantities:
                     ReplaceWithQuantitiesBasic( newpipe )
+                if filtername == "JetEta":
+                    newpipe["CutLeadingJetEta"] = 5.0
 
                 #print(new_pipe)
                 newpipe["Filter"].append(filtername.lower())
@@ -415,7 +417,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
                 f = "_" + f.replace(".", "_")
 
                 newName = pipeline + f
-                newRootFileFolder =  newpipe["RootFileFolder"] + f
+                newRootFileFolder = newpipe["RootFileFolder"] + f
                 newDict[newName] = newpipe
                 if foldername is not None:
                     newDict[newName]["RootFileFolder"] = newRootFileFolder

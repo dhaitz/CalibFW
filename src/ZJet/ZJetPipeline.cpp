@@ -24,6 +24,7 @@
 #include "ZJet/Filter/HltFilter.h"
 #include "ZJet/Filter/RunRangeFilter.h"
 #include "ZJet/Filter/NpvFilter.h"
+#include "ZJet/Filter/JetEtaFilter.h"
 
 using namespace CalibFW;
 
@@ -71,8 +72,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddFilter( new ValidJetFilter);
 			else if ( sid == NpvFilter().GetFilterId())
 				pLine->AddFilter( new NpvFilter() );
-
-
+			else if ( sid == JetEtaFilter().GetFilterId())
+				pLine->AddFilter(new JetEtaFilter());
 			else if ( sid == HltFilter().GetFilterId())
 				pLine->AddFilter( new HltFilter);
 			else if ( sid == RunRangeFilter().GetFilterId())
