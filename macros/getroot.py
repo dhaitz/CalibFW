@@ -39,7 +39,7 @@ def npvstrings(npv):
 
 def etastrings(eta):
     etastr = map(lambda x: str(x).replace(".", "_"), eta)
-    return ["var_eta_%sto%s" % h for h in zip(etastr[:-1], etastr[1:]) ]
+    return ["var_JetEta_%sto%s" % h for h in zip(etastr[:-1], etastr[1:]) ]
 
 
 def cutstrings(cuts):
@@ -266,9 +266,9 @@ class Histo:
         res = Histo()
         res.x = [0.5*(a+b) for a, b in zip(self.x, other.x)]
         res.xc = [0.5*(a+b) for a, b in zip(self.xc, other.xc)]
-        res.y = [a / b for a,b in zip(self.y, other.y)]
+        res.y = [a / b if b != 0 else 0. for a,b in zip(self.y, other.y)]
         res.xerr = [0.5*(abs(da)+abs(db)) for da, db in zip(self.xerr, other.xerr)]
-        res.yerr = [abs(da/b)+abs(db*a/b/b) for a, da, b, db in zip(self.y, self.yerr, other.y, other.yerr)]
+        res.yerr = [abs(da/b)+abs(db*a/b/b) if b != 0 else 0. for a, da, b, db in zip(self.y, self.yerr, other.y, other.yerr)]
 
 
     def read(self, filename):
@@ -445,7 +445,7 @@ class Fitfunction:
 
 
 def fitline(rootgraph):
-    fitf = TF1("fit1", "1*[0]", 1.0, 1000.0)
+    fitf = ROOT.TF1("fit1", "1*[0]", 1.0, 1000.0)
     fitres = rootgraph.Fit(fitf,"SQN")
     return (fitf.GetParameter(0), fitf.GetParError(0), fitres.Chi2(), fitres.Ndf())
 
@@ -461,10 +461,10 @@ def dividegraphs(graph1, graph2):
         x2, y2, dx2, dy2 = getgraphpoint(graph2, i)
         if dy2 == 0:
             print "Division by zero!"
-            return exit(1)
-        result.SetPoint(i, 0.5 * (x1 + x2), y1 / y2)
-        result.SetPointError(i, 0.5 * (abs(dx1) + abs(dx2)),
-                             abs(dy1 / y2) + abs(dy2 * y1 / y2 / y2))
+        else:
+            result.SetPoint(i, 0.5 * (x1 + x2), y1 / y2)
+            result.SetPointError(i, 0.5 * (abs(dx1) + abs(dx2)),
+                                 abs(dy1 / y2) + abs(dy2 * y1 / y2 / y2))
     return result
 
 def getgraphpoint(graph, i):
