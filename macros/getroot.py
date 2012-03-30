@@ -49,9 +49,15 @@ def cutstrings(cuts):
 def openfile(filename, verbose=False, exitonfail=True):
     """Open a root file"""
     f = ROOT.TFile(filename)
-    if not f:
+    try:
+        if not f or not f.IsOpen():
+            print "Can't open file:", filename
+            if exitonfail:
+                exit(1)
+    except:
         print "Can't open file:", filename
-        assert not exitonfail
+        if exitonfail:
+            exit(1)
     if verbose:
         print " * Inputfile:", filename
     return f
@@ -109,10 +115,11 @@ def getobject(name, rootfile, changes={}, exact=True):
     not the MC version without 'Res' but it is not at the moment (strict version)
     """
     oj = rootfile.Get(name)
+    if not oj and "Res" in name: # and not exact
+        oj = rootfile.Get(name.replace("Res", ""))
     if not oj:
         print "Can't load object", name, "from root file", rootfile.GetName()
         exit(0)
-    assert oj
     return oj
 
 
