@@ -86,7 +86,6 @@ unsigned int ZJetMetaData::GetValidJetCount(
 		ZJetEventData const& evtData, std::string algoName) const
 {
 	//std::cout << "IsgenJet " << JetType::IsGen( algoName ) << std::endl;
-  
 	if (IsMetaJetAlgo(algoName))
 	{
 		return SafeMap<std::string, std::vector<KDataPFJet> >::Get( algoName,  m_validPFJets).size();
@@ -103,17 +102,18 @@ unsigned int ZJetMetaData::GetValidJetCount(
 
 double ZJetMetaData::GetMPF(KDataLV * met) const
 {
-	double scalPtEt = GetRefZ().p4.Px() * met->p4.Px() + GetRefZ().p4.Py()
-			* met->p4.Py();
+	double scalPtEt = GetRefZ().p4.Px() * met->p4.Px()
+			+ GetRefZ().p4.Py() * met->p4.Py();
 
-	double scalPtSq = GetRefZ().p4.Px() * GetRefZ().p4.Px() + GetRefZ().p4.Py()
-			* GetRefZ().p4.Py();
+	double scalPtSq = GetRefZ().p4.Px() * GetRefZ().p4.Px()
+			+ GetRefZ().p4.Py() * GetRefZ().p4.Py();
 
-	return 1.0f + (scalPtEt / scalPtSq);
+	return 1.0f + scalPtEt / scalPtSq;
 }
 
 bool cmpPFJetPt (KDataPFJet i,KDataPFJet j)
-{ return (i.p4.Pt()<j.p4.Pt());
+{
+	return (i.p4.Pt()<j.p4.Pt());
 }
 
 
