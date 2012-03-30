@@ -40,7 +40,7 @@ void ZJetPipeline::GetSupportedCuts(ZJetPipeline::MetaDataProducerVector & cuts)
 
 	cuts.push_back( new SecondLeadingToZPtCut() );
 	cuts.push_back( new BackToBackCut() );
-	//cuts.push_back( new ZPtCut() );
+	cuts.push_back( new ZPtCut() );
 
 	cuts.push_back(new LeadingJetPtCut());
 	cuts.push_back(new SecondJetPtCut());
