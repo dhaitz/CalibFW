@@ -6,7 +6,7 @@
 #include "ZJetMetaDataProducer.h"
 
 #define USE_JEC
-#include <KappaTools/RootTools/JECTools.h>
+#include "../../Misc/JECTools.h"
 
 namespace CalibFW
 {
