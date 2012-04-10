@@ -225,6 +225,7 @@ int main(int argc, char** argv)
 	ZJetGlobalSettings gset;
 
 	gset.SetEnablePuReweighting( g_propTree.get<bool> ("EnablePuReweighting", false) );
+	gset.SetEnable2ndJetReweighting( g_propTree.get<bool> ("Enable2ndJetReweighting", false) );
 
 	//std::vector<std::string> sJetNames = fi.GetNames<KDataJet> (true);
 
@@ -237,6 +238,7 @@ int main(int argc, char** argv)
 	else
 	{
 		gset.m_recovertWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
+		gset.m_2ndJetWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "2ndJetWeight");
 
 		g_inputType = McInput;
 	}

@@ -19,13 +19,20 @@ public:
 		return m_recovertWeight;
 	}
 
+	doublevector const& Get2ndJetReweighting() const
+	{
+		return m_2ndJetWeight;
+	}
+
 	IMPL_PROPERTY(bool, EnablePuReweighting)
+	IMPL_PROPERTY(bool, Enable2ndJetReweighting)
 	IMPL_PROPERTY(std::string, JsonFile)
 
 
 	IMPL_PROPERTY( InputTypeEnum, InputType )
 
 	doublevector m_recovertWeight;
+	doublevector m_2ndJetWeight;
 };
 
 
@@ -66,6 +73,7 @@ IMPL_PROPERTY(unsigned long, OverallNumberOfProcessedEvents )
 
 IMPL_SETTING( bool, EnableCaloMatching)
 IMPL_SETTING( bool, EnableReweighting)
+//IMPL_SETTING( bool, Enable2ndReweighting)
 
 	// Filter Settings
 IMPL_SETTING(double, FilterPtBinLow)
@@ -104,7 +112,6 @@ std::string GetCorrespondingGenJetAlgorithm()
 	boost::algorithm::replace_first( s, "L1", "");
 	boost::algorithm::replace_first( s, "L2", "");
 	boost::algorithm::replace_first( s, "L3", "");
-
 
 	return s;
 }
@@ -206,6 +213,13 @@ IMPL_PROPERTY(TFile *, RootOutFile)
 		}
 
 		return bins;
+	}
+
+	VarCache<doublevector> m_2ndJetWeight;
+
+	doublevector Get2ndJetWeight()
+	{
+		RETURN_CACHED( m_2ndJetWeight, PropertyTreeSupport::GetAsDoubleList(GetPropTree(), GetSettingsRoot() + ".2ndJetWeight") )
 	}
 
 	VarCache<doublevector> m_recovertWeight;
