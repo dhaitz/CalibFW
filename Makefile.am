@@ -11,17 +11,16 @@ LIB_PATH  = -L../KappaTools/lib/ -L../Kappa/lib/
 
 KAPPA_PATH 	  = $(top_srcdir)/../Kappa
 KAPPATOOLS_PATH = $(top_srcdir)/../KappaTools
+KAPPATOOLS_BOOST_PATH = $(top_srcdir)/../KappaTools/external
 KAPPA_ROOT_PATH = $(top_srcdir)/..
 
 CMSSW_PATH 	  = external/OfflineCorrection
 
 
-AM_CXXFLAGS = -pedantic -Wall -Wfatal-errors -std=c++0x \
+AM_CXXFLAGS = -pedantic -Wfatal-errors -std=c++0x \
               -O2 -g -fPIC -DSTANDALONE \
-              -Wclobbered -Wempty-body  -Wignored-qualifiers -Wmissing-field-initializers \
-               -Wsign-compare -Wtype-limits  -Wuninitialized \
-				-I$(top_srcdir)/external -I$(top_srcdir)/src $(ROOTCFLAGS) -I$(KAPPA_PATH) -I$(CMSSW_PATH) \
-				-I$(KAPPATOOLS_PATH) -I$(KAPPA_ROOT_PATH)
+		-I$(top_srcdir)/external -I$(top_srcdir)/src $(ROOTCFLAGS) -I$(KAPPA_PATH) -I$(CMSSW_PATH) \
+		-I$(KAPPATOOLS_PATH) -I$(KAPPATOOLS_BOOST_PATH) -I$(KAPPA_ROOT_PATH)
 
 PERFTOOLS_FLAGS = -l profiler -l tcmalloc
 AM_LDFLAGS 	= $(ROOTLDFLAGS) $(ROOTLIBS)  -l Kappa -l KRootTools -l KToolbox \
