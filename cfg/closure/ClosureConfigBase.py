@@ -270,7 +270,7 @@ def ApplyReweightingFall11Powheg44ReReco(conf):
         0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
         0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
         0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-        0.000000000, 0.000000000]
+        0.000000000, 0.000000000] + [0.0] * 60
 
 
 def ApplyReweightingFall11Powheg44ReRecoAonly(conf):
@@ -331,13 +331,21 @@ def GetDefaultDataPipeline():
 
     return pline
 
-def GetDataBaseConfig(analysis='zjet'):
+def GetDataBaseConfig(analysis='zjet',run='2011'):
     if analysis == 'vbf':
         d = GetVBFBaseConfig()
     else:
         d = GetBaseConfig()
+    if run == '2011':
+        d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_44_V13_"
+        d["JsonFile"] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON.txt"
+    elif run == '2012':
+        d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_44_V13_"
+        d["JsonFile"] = GetBasePath() + "data/json/Cert_190456-190688_8TeV_PromptReco_Collisions12_JSON.txt"
+    else:
+        print "Run period", run, "is undefined. No json and jet corrections known."
+        exit(0)
 
-    d["JsonFile"] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON.txt"
     d["UseWeighting"] = 0
     d["UseEventWeight"] = 0
     d["UseGlobalWeightBin"] = 0
@@ -345,21 +353,22 @@ def GetDataBaseConfig(analysis='zjet'):
     d["HltPaths"] = [
     # Mu7 Trigger
     "HLT_DoubleMu7_v1", "HLT_DoubleMu7_v2", "HLT_DoubleMu7_v3", "HLT_DoubleMu7_v4", "HLT_DoubleMu7_v5",
+    # Mu8 Trigger
+    "HTL_Mu8_v16",
     # Mu13_Mu8 Trigger
     "HLT_Mu13_Mu8_v1", "HLT_Mu13_Mu8_v2", "HLT_Mu13_Mu8_v3", "HLT_Mu13_Mu8_v4", "HLT_Mu13_Mu8_v5",
     "HLT_Mu13_Mu8_v6", "HLT_Mu13_Mu8_v7", "HLT_Mu13_Mu8_v8", "HLT_Mu13_Mu8_v9", "HLT_Mu13_Mu8_v10",
-    "HLT_Mu13_Mu8_v11",
+    "HLT_Mu13_Mu8_v11", "HLT_Mu13_Mu8_v12", "HLT_Mu13_Mu8_v13", "HLT_Mu13_Mu8_v14", "HLT_Mu13_Mu8_v15",
     # Mu17_Mu8 Trigger
     "HLT_Mu17_Mu8_v1", "HLT_Mu17_Mu8_v2", "HLT_Mu17_Mu8_v3", "HLT_Mu17_Mu8_v4", "HLT_Mu17_Mu8_v5",
     "HLT_Mu17_Mu8_v6", "HLT_Mu17_Mu8_v7", "HLT_Mu17_Mu8_v8", "HLT_Mu17_Mu8_v9", "HLT_Mu17_Mu8_v10",
-    "HLT_Mu17_Mu8_v11"
+    "HLT_Mu17_Mu8_v11", "HLT_Mu17_Mu8_v12", "HLT_Mu17_Mu8_v13", "HLT_Mu17_Mu8_v14", "HLT_Mu17_Mu8_v15",
+    "HLT_Mu17_Mu8_v16", "HLT_Mu17_Mu8_v17", "HLT_Mu17_Mu8_v18"
     ]
 
     d["InputType"] = "data"
     d["Pipelines"]["default"]["Filter"].append ("json")
     d["Pipelines"]["default"]["Filter"].append ("hlt")
-
-    d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_44_V13_"
 
     d["GlobalProducer"]+= ["hlt_selector"]
 
@@ -806,9 +815,8 @@ def ExpandDefaultMcConfig(  algoNames, conf_template, useFolders, FolderPrefix =
 
 def ExpandDefaultDataConfig( conf_template, useFolders, FolderPrefix = ""):
     conf = ExpandDefaultMcConfig( conf_template, useFolders, FolderPrefix)
-
-
     return conf
+
 
 def StoreSettings( settings, filename):
     f = open(filename, "w")
@@ -822,16 +830,13 @@ def StoreSettings( settings, filename):
         # dont display config on console, it is annyoing
         #print json.dumps( settings, sort_keys=True, indent=4 )
         json.dump( settings, f, sort_keys=True, indent=4 )
-
     except BaseException:
-
         f.write ( jsonOut )
-
         print "No json Module found. Using fallback method ..."
 
     f.close()
+    print "Configured", len(settings["Pipelines"]), "Pipelines"
 
-    print ( "Configured " + str( len( settings["Pipelines"] )) + " Pipelines" )
 
 def StoreGCDataset( settings, nickname, filename ):
     print "Generating " + filename
@@ -867,7 +872,7 @@ def StoreGCConfig ( settings, nickname, filename ):
     config.write(cfile)
     cfile.close()
 
-def StoreGCCommon ( settings, nickname, filename, output_folder ):
+def StoreGCCommon(settings, nickname, filename, output_folder):
     print "Generating " + filename
 
     config = ConfigParser.RawConfigParser()
@@ -898,8 +903,13 @@ def StoreGCCommon ( settings, nickname, filename, output_folder ):
     config.set("UserMod", "executable", "gc-run-closure.sh" )
     config.set("UserMod", "subst files", "gc-run-closure.sh" )
     #config.set("UserMod", "input files", "/usr/lib64/libboost_regex.so.2" )
-    config.set("UserMod", "input files", "/wlcg/sw/cms/experimental/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_2_8/external/slc5_amd64_gcc434/lib/libboost_regex.so.1.44.0" )
-
+    if "CMSSW_4_" in GetCMSSWPath():
+        config.set("UserMod", "input files", "/wlcg/sw/cms/experimental/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_2_8/external/slc5_amd64_gcc434/lib/libboost_regex.so.1.44.0")
+    elif "CMSSW_5_" in GetCMSSWPath():
+        config.set("UserMod", "input files", "/wlcg/sw/cms/slc5_amd64_gcc462/cms/cmssw/CMSSW_5_2_1/external/slc5_amd64_gcc462/lib/libboost_regex.so.1.47.0")
+    else:
+        print "I try to use boost 1.44 as before. This could fail if linked against newer CMSSW versions."
+        config.set("UserMod", "input files", "/wlcg/sw/cms/experimental/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_2_8/external/slc5_amd64_gcc434/lib/libboost_regex.so.1.44.0")
 
     config.add_section("storage")
     config.set("storage", "se path", "dir://" + output_folder )
@@ -924,8 +934,12 @@ def StoreShellRunner ( settings, nickname, filename ):
     cfile = open(filename, 'wb')
     cfile.write("echo $FILE_NAMES\n")
     cfile.write("cd " + GetCMSSWPath() +"\n")
-    cfile.write("source /wlcg/sw/cms/experimental/cmsset_default.sh\n")
-    cfile.write("eval `scramv1 runtime -sh`\n")
+    if "CMSSW_5_" in GetCMSSWPath():
+        cfile.write("export SCRAM_ARCH=slc5_amd64_gcc462\n")
+        cfile.write("source /wlcg/sw/cms/cmsset_default.sh\n")
+    else:
+        cfile.write("source /wlcg/sw/cms/experimental/cmsset_default.sh\n")
+    cfile.write("eval `scram runtime -sh`\n")
     cfile.write("cd -\n")
     cfile.write("source "+ GetBasePath() + "/scripts/CalibFWenv.sh\n")
     cfile.write( GetBasePath() + "closure " + GetBasePath() + "cfg/closure/" + nickname + ".py.json" )
