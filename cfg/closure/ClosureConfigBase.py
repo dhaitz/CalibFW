@@ -12,7 +12,7 @@ def CreateFileList(wildcardExpression, args=None):
     print "Creating file list from " + wildcardExpression
     inputfiles = glob.glob(wildcardExpression)
 
-    if args is not None and len(args) > 1 and args[1] == "fast":
+    if args is not None and len(args) > 1 and "fast" in args[1]:  # both 'fast' and '--fast' usable
         inputfiles = inputfiles[:2]
     return inputfiles
 
@@ -28,7 +28,6 @@ def GetDefaultBinning():
 
 
 def GetDataPath():
-
     hname = socket.gethostname()
     username = getpass.getuser()
     # feel free to insert your machine here !
@@ -47,7 +46,6 @@ def GetDataPath():
 
 
 def GetCMSSWPath():
-
     hname = socket.gethostname()
     username = getpass.getuser()
     # feel free to insert your machine here !
@@ -66,7 +64,6 @@ def GetCMSSWPath():
 
 
 def GetBasePath():
-
     hname = socket.gethostname()
     # feel free to insert your machine here !
     username = getpass.getuser()
@@ -962,11 +959,8 @@ def Run(settings, arguments):
 
     base_path = GetBasePath()
     print "BASEPATH", base_path
-    batch = False
-    if len(arguments) > 1 :
-        batch = arguments[1] == "batch"
 
-    if not batch:
+    if len(arguments) <= 1 or "batch" not in arguments[1]:  # both 'batch' and '--batch' usable
         subprocess.call(["./closure",filename])
     else:
         nickname = os.path.split(filename)[1]
@@ -980,12 +974,11 @@ def Run(settings, arguments):
         if not os.path.exists( base_path + "work/" + nickname + "/out/" ) :
             os.mkdir( base_path + "work/" + nickname + "/out/" )
 
-
-        StoreGCDataset( settings, nickname, base_path + "work/" + nickname + "/" + nickname + ".dbs")
-        StoreGCConfig( settings,  nickname, base_path + "work/" + nickname + "/" + nickname + ".conf")
-        StoreGCCommon( settings,  nickname, base_path + "work/" + nickname + "/gc_common.conf", base_path + "work/" + nickname + "/out/" )
-        StoreMergeScript( settings,  nickname, base_path + "work/" + nickname + "/merge.sh", base_path + "work/" + nickname + "/out/" )
-        StoreShellRunner( settings,  nickname, base_path + "work/" + nickname + "/gc-run-closure.sh" )
+        StoreGCDataset(settings, nickname, base_path + "work/" + nickname + "/" + nickname + ".dbs")
+        StoreGCConfig(settings, nickname, base_path + "work/" + nickname + "/" + nickname + ".conf")
+        StoreGCCommon(settings, nickname, base_path + "work/" + nickname + "/gc_common.conf", base_path + "work/" + nickname + "/out/")
+        StoreMergeScript(settings, nickname, base_path + "work/" + nickname + "/merge.sh", base_path + "work/" + nickname + "/out/")
+        StoreShellRunner(settings, nickname, base_path + "work/" + nickname + "/gc-run-closure.sh")
 
         # generate merge script
         print "done"
