@@ -75,7 +75,7 @@ def options(
             plots=None,
             npv=[(0, 2), (3, 5), (6, 11), (12, 100)],
             cut=[0.1, 0.15, 0.2, 0.3],
-            eta=[0.0, 1.3, 2.8, 5.0],
+            eta=[0, 0.522, 1.305, 1.930, 2.411, 2.853, 3.139, 5.0],
             bins=None):
     """Set standard options and read command line arguments
 
@@ -433,6 +433,8 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
                             minor=True)
     elif x in ['z_pt', 'jet1_pt', 'jet2_pt']:
         setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-3].title(), "GeV")
+    elif x in ['abs_z_eta', 'abs_jet1_eta', 'abs_jet2_eta']:
+        setxaxis((0.0, 3.5), r"$|\eta^\mathrm{%s}|$" % x[4:-4].title())
     elif x in ['z_eta', 'jet1_eta', 'jet2_eta']:
         setxaxis((-5, 5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
         #if obj == 'Z': ax.legend(loc='lower center', numpoints=1, frameon=True)
@@ -443,9 +445,9 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
     elif x in ['z_mass']:
         setxaxis((70, 110), r"$m^\mathrm{%s}$" % x[:-5].title(), "GeV")
     elif x == 'balresp':
-        setxaxis((0.0, 1.8), r"$p_\mathrm{T}$ balance")
+        setxaxis((0.3, 1.8), r"$p_\mathrm{T}$ balance")
     elif x == 'mpfresp':
-        setxaxis((0.0, 1.8), r"$R_\mathrm{MPF}$")
+        setxaxis((0.3, 1.8), r"$R_\mathrm{MPF}$")
     elif 'numputruth' == x:
         setxaxis((0, 35), r"Pile-up Truth (Poisson mean)")
     elif 'numpu' == x:
@@ -480,7 +482,9 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
     elif 'mpfresp' in y:
         setyaxis((0.75, 1.00), r"MPF"+ratio)
     elif 'response' in y:
-        setyaxis((0.88, 1.10), r"Response"+ratio)
+        setyaxis((0.85, 1.11), r"Response"+ratio)
+    elif 'kfsr' in y:
+        setyaxis((0.90, 1.101), r"$k_\mathrm{FSR}$"+ratio)
     elif y == 'resolution':
         setyaxis((0.0, 0.3), "Jet Resolution Ratio")
     elif y == 'resolutionratio':

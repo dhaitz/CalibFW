@@ -62,7 +62,7 @@ def datamcplot(quantity, fdata, fmc, opt, legloc='center right',
     if log:
         ax.set_ylim(bottom=1.0)
         ax.set_yscale('log')
-        plotbase.Save(fig, quantity + '_log', opt)
+        plotbase.Save(fig, file_name + '_log', opt)
 
 
 def getPUindata(version=''):
