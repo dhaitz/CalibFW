@@ -35,16 +35,17 @@ def plot():
     # settings (1):
     op = plotbase.options(
         files=[
-            "work/data_2011A/out/closure_data_2011A_only.root",
-            "work/mc_DY2011_44A/out/closure_mc_DY2011_Aonly.root",
+            "work/data_2011AB/out/closure_data_2011AB.root",
+            "work/mc_DY2011/out/closure_mc_DY2011.root",
         ],
         algorithm="AK5PFJetsCHS",
-        correction="L1L2L3",
-        lumi=2179.0,#4749.9,
+        correction="L1L2L3Res",
+        lumi=5051.0,  # lumi=4740 without pixelLumiCalc
         plots=plotdatamc.plots +
               plotresponse.plots +
               plotfractions.plots +
-              plot_resolution.plots
+              plot_resolution.plots,
+        eta=[0, 0.522, 1.305, 1.930, 2.411, 2.853, 3.139]
         )
     module_list = [plotdatamc, plotresponse, plot_resolution, plotfractions]
 
