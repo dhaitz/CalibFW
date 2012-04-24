@@ -91,6 +91,10 @@ def getDefaultCorrectionL2(data_path):
     return g_l2_correction_data
 
 
+def addCHS(algorithms):
+    algorithms += [a.replace("PFJets", "PFJetsCHS") for a in algorithms]
+    return algorithms
+
 def GetBaseConfig():
     d = dict()
 
@@ -377,7 +381,7 @@ def GetDataBaseConfig(analysis='zjet',run='2011'):
     return d
 
 
-def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, alsoForNoCuts = False, correction = "L1L2L3", onlyBasicQuantities = True):
+def ExpandRange(pipelineDict, varName, vals, setRootFolder=True, includeSource=True, alsoForNoCuts=False, correction="L1L2L3", onlyBasicQuantities=True):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
@@ -409,7 +413,7 @@ def ExpandRange( pipelineDict, varName, vals, setRootFolder, includeSource, also
 
 def ExpandRange2(pipelines, filtername, low, high=None,
                  foldername="var_{name}_{low}to{high}",
-                 includeSource=True, onlyOnIncut=True,
+                 includeSource=False, onlyOnIncut=True,
                  onlyBasicQuantities = True):
     """Add pipelines with values between low and high for filtername
 
