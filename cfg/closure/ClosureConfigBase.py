@@ -307,7 +307,7 @@ def Apply2ndJetReweighting(conf, MC='Fall11_powheg44'):
         print "2nd jet reweighting for", MC, "not found. Disabled."
 
 
-def GetMcBaseConfig(analysis='zjet'):
+def GetMcBaseConfig(analysis='zjet', run='2011'):
     if analysis == 'vbf':
         d = GetVBFBaseConfig()
     else:
@@ -319,7 +319,13 @@ def GetMcBaseConfig(analysis='zjet'):
 
     d["InputType"] = "mc"
 
-    d["JecBase"] = GetBasePath() + "data/jec_data/START44_V12_"
+    if run == '2011':
+        d["JecBase"] = GetBasePath() + "data/jec_data/START44_V12_"
+    elif run == '2012':
+        d["JecBase"] = GetBasePath() + "data/jec_data/START44_V12_"
+    else:
+        print "MC period", run, "is undefined. No jet corrections known."
+        exit(0)
 
     d["GlobalProducer"] += ["jet_matcher"]
     return d
