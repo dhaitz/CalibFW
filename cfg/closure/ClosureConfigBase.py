@@ -738,7 +738,8 @@ def ReplaceWithQuantitiesBasic(pline):
     RemoveConsumer( pline, "quantities_all" )
     AddConsumerNoConfig(pline, "quantities_basic")
 
-def ExpandDefaultMcConfig(  algoNames, conf_template, useFolders, FolderPrefix = "", binning = GetDefaultBinning() ):
+
+def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning() ):
     conf = copy.deepcopy(conf_template)
 
     # generate folder names
@@ -820,8 +821,8 @@ def ExpandDefaultMcConfig(  algoNames, conf_template, useFolders, FolderPrefix =
 
 
 
-def ExpandDefaultDataConfig( conf_template, useFolders, FolderPrefix = ""):
-    conf = ExpandDefaultMcConfig( conf_template, useFolders, FolderPrefix)
+def ExpandDefaultDataConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning()):
+    conf = ExpandDefaultMcConfig(algoNames, conf_template, useFolders, FolderPrefix, binning)
     return conf
 
 
