@@ -7,7 +7,7 @@ ROOTLIBS      = $(shell root-config --libs --glibs)
 ROOTGLIBS     = $(shell root-config --glibs)
 ROOTLDFLAGS   = $(shell root-config --ldflags)
 
-LIB_PATH  = -L../KappaTools/lib/ -L../Kappa/lib/
+LIB_PATH  = -L../KappaTools/lib/ -L../KappaTools/external/lib/ -L../Kappa/lib/
 
 KAPPA_PATH 	  = $(top_srcdir)/../Kappa
 KAPPATOOLS_PATH = $(top_srcdir)/../KappaTools
@@ -23,7 +23,7 @@ AM_CXXFLAGS = -pedantic -Wfatal-errors -std=c++0x \
 		-I$(KAPPATOOLS_PATH) -I$(KAPPATOOLS_BOOST_PATH) -I$(KAPPA_ROOT_PATH)
 
 PERFTOOLS_FLAGS = -l profiler -l tcmalloc
-AM_LDFLAGS 	= $(ROOTLDFLAGS) $(ROOTLIBS)  -l Kappa -l KRootTools -l KToolbox \
+AM_LDFLAGS 	= $(ROOTLDFLAGS) $(ROOTLIBS) -lboost_regex -lGenVector -l Kappa -l KRootTools -l KToolbox \
 			  $(LIB_PATH)
 
 
