@@ -7,6 +7,7 @@ import ConfigParser
 import os.path
 import stat
 import getpass
+import json
 
 def CreateFileList(wildcardExpression, args=None):
     print "Creating file list from " + wildcardExpression
@@ -188,117 +189,39 @@ def GetVBFBaseConfig():
     return d
 
 
-def ApplyReweightingSummer11May10ReReco(conf):
+def ApplyPUReweighting(conf, dataset="kappa50_MC12_madgraph_190456-191859_8TeV_PromptReco", weightfile="data/pileup/puweights.json"):
+    """Use pile-up reweighting
 
-    conf["GlobalXSection"] = 1614.0
+       This function turns the pile-up reweighting on and sets the corresponding
+       entries in the configuration. The cross sections and weight factors are
+       calculated via macros/weightCalc.py and stored in the following
+       dictionary.
+    """
+    # The following dictionary stores the weights per dataset
+    try:
+        f = open(weightfile)
+    except:
+        print weightfile, "does not exist."
+        print "Please provide this file or do not use ApplyPUReweighting."
+        exit(0)
+    try:
+        d = json.load(f)
+    except:
+        print weightfile, "is no json file."
+        print "Please provide a correct file or do not use ApplyPUReweighting."
+        exit(0)
+    f.close()
+
+    if dataset not in d:
+        print "No PU weights for this dataset:", dataset
+        print "Weights are available for:", ", ".join(d.keys())
+        print "Please add them with the weightCalc macro or do not use ApplyPUReweighting."
+        exit(0)
+
     conf["EnablePuReweighting"] = 1
-    conf["RecovertWeight"] = [0.2634339699, 0.4068300319, 1.0258412624,
-        1.5039872842, 2.1501353803, 1.9674930073, 1.7357207863, 1.5885466557,
-        1.2814939016, 0.8379304030, 0.5751357475, 0.3933389880, 0.2618616395,
-        0.1928669420, 0.1178827060, 0.0989967695, 0.0707225141, 0.0494813344,
-        0.0630199599, 0.0275894575, 0.0189547094, 0.0708500595, 0.0581618600,
-        0.0115549447, 0.0094252128]
+    conf["GlobalXSection"] = d[dataset]["xsection"]
+    conf["RecovertWeight"] = d[dataset]["weights"] + [0.0]*(60 - len(d[dataset]["weights"]))
     return conf
-
-
-def ApplyReweightingSummer11For2011A(conf):
-
-    conf["GlobalXSection"] = 1614.0
-    conf["EnablePuReweighting"] = 1
-    conf["RecovertWeight"] = [
-        0.084106610999999998,
-        0.35995739599999999,
-        0.91852761699999996,
-        1.3510727730000001,
-        1.9583181540000001,
-        1.8208386409999999,
-        1.6526294479999999,
-        1.5880086179999999,
-        1.3640806400000001,
-        0.97649600000000003,
-        0.73847579500000005,
-        0.56429364000000004,
-        0.42385982700000002,
-        0.35508907899999997,
-        0.247419634,
-        0.236049025,
-        0.190887375,
-        0.14981613199999999,
-        0.21162260099999999,
-        0.10273360300000001,
-        0.078282562,
-        0.30758960899999999,
-        0.0,
-        0.059026296999999998,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0]
-    return conf
-
-def ApplyReweightingSummer11PythiaFor2011B(conf):
-
-    conf["GlobalXSection"] = 1614.0
-    conf["EnablePuReweighting"] = 1
-    conf["RecovertWeight"] = [0.002712577, 0.018001883, 0.071435893, 0.161448262, 0.355056839,
-        0.495727342, 0.670242012, 0.953704864, 1.207948554, 1.271257731, 1.410592217, 1.579694902,
-        1.738174347, 2.133419647, 2.179429160, 3.052038203, 3.628524409, 4.194740456, 8.746647742,
-        6.282709624, 7.101274671, 41.495799505, 0.000000000, 17.753695667, 0.000000000, 0.000000000,
-        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-        0.000000000, 0.000000000]
-
-
-def ApplyReweightingSummer11PythiaForFull2011(conf):
-
-    conf["GlobalXSection"] = 1614.0
-    conf["EnablePuReweighting"] = 1
-    conf["RecovertWeight"] = [0.040559158, 0.177004281, 0.465316465, 0.714599626, 1.100540908, 1.111877291,
-        1.127032308, 1.248643299, 1.280546791, 1.134199460, 1.098071727, 1.107553851, 1.127044685, 1.306531880,
-        1.281083775, 1.742660185, 2.030092592, 2.313932251, 4.778033545, 3.409145611, 3.835725171, 22.344115312,
-        0.000000000, 9.526032169, 0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000]
-
-
-def ApplyReweightingFall11Powheg44ReReco(conf):
-    # Reweighting for this combination:
-    # MC:   Fall11 powheg-pythia sample (fall11powheg)
-    # Data: 2011A+B, 44ReReco, official PU-truth distributions (v2)
-    conf["GlobalXSection"] = 1614.0
-    conf["EnablePuReweighting"] = 1
-    conf["RecovertWeight"] = [0.000000000, 0.012551516, 0.097125787,
-        0.418369998, 1.543558371, 2.229494388, 2.208659603, 1.811148716,
-        1.430131706, 1.396937416, 1.277667863, 1.478302489, 1.132100091,
-        0.995296396, 0.593207930, 0.307680210, 0.143832551, 0.049982105,
-        0.012307892, 0.004696431, 0.001361569, 0.000071058, 0.000000000,
-        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-        0.000000000, 0.000000000] + [0.0] * 60
-
-
-def ApplyReweightingFall11Powheg44ReRecoAonly(conf):
-    # Reweighting for this combination:
-    # MC:   Fall11 powheg-pythia sample (fall11powheg)
-    # Data: 2011A, 44ReReco, official PU-truth distributions (v2)
-    conf["GlobalXSection"] = 1614.0
-    conf["EnablePuReweighting"] = 1
-    conf["RecovertWeight"] = [0.000032327, 0.016933242, 0.140898504,
-        0.629069375, 2.614368873, 3.824628201, 3.538645332, 2.239583929,
-        1.291569194, 0.922577502, 0.424008228, 0.136883735, 0.014369096,
-        0.001474956, 0.000080075, 0.000000000, 0.000000000, 0.000000000,
-        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-        0.000000000, 0.000000000, 0.000000000, 0.000000000, 0.000000000,
-        0.000000000, 0.000000000]
 
 
 def Apply2ndJetReweighting(conf, MC='Fall11_powheg44'):

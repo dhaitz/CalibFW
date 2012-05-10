@@ -1,22 +1,44 @@
 # -*- coding: utf-8 -*-
 import argparse
-import getroot
+import ROOT
+import subprocess
+import json
+import os
+"""This is a tool for pile-up reweighting.
+
+   It requires: python, ROOT, CMSSW 5.2 (pileupCalc).
+   It calculates the pu distribution in data with the official tool.
+   Then it calculates the pu distribution from a skim.
+   From these distributions it calculates the weights and saves them to a json
+   file. Data and MC distributions are saved to root files.
+   Pleas use --help or read the options function for further information.
+"""
+ROOT.gROOT.SetBatch(True)
+ROOT.gErrorIgnoreLevel = ROOT.kError
 
 
 def main():
     op = options()
-    data = getDataDistribution(op.files, op.data_histo, op.verbose)
-    mc = getMCDistribution(op.mc, op.mc_histo, op.verbose)
+
+    data, datakey = getDataDistribution(op.datainput, op.inputLumiJSON, op.minBiasXsec, op.numPileupBins, op.data_histo, op.dataoutput, op.verbose)
+    print "Data:", data
+    mc, mckey = getMCDistribution(op.mcinput, op.mc_histo, op.mcoutput, op.verbose)
+    print "MC:", mc
     weights = calcWeights(data, mc, op.verbose, not op.no_warning)
     printWeights(weights, op.breaklines)
     if op.check:
         print("Normalization: before ({0:.5f}) and after ({1:.5f}) "
               "reweighting.".format(sum(mc),
                   sum(map(lambda a, b: a * b, mc, weights))))
+    if not op.key:
+        op.key = mckey[7:-5]+"_"+datakey[7:-5]
+    addWeightsToFile(op.key, weights, op.mcXsec, op.output)
 
 
 def calcWeights(dataDistribution, mcDistribution, verbose=False, warn=True):
     result = []
+    print "____________________________________________"
+    print "Weight calculation ..."
     # check length and add zeros
     ldiff = len(dataDistribution) - len(mcDistribution)
     dataDistribution += [0.0] * (-ldiff)
@@ -54,91 +76,185 @@ def printWeights(weights, nice=False):
         print s
 
 
-def getDataDistribution(files, histo="pileup", verbose=False):
-    result = []
-    for f in files:
-        rootfile = getroot.openfile(f, verbose)
-        dist = getroot.getplot(histo, rootfile).y
-        if verbose:
-            print getroot.getplot(histo, rootfile).xc
-        dist.pop(-1)
-        result += [0.0] * (len(dist) - len(result))
-        dist += [0.0] * (len(result) - len(dist))
-        assert len(dist) == len(result)
-        result = map(lambda a, b: a + b, result, dist)
+def getDataDistribution(files, lumijson, xsec=62.46, numpu=50, histo="pileup", outfile=None,  verbose=False):
+    """Get the true Data PU from the official PU-json
+
+       The "true" (or "observed") PU in data is estimated using this method:
+       https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJSONFileforData
+       1. pileupCalc is run (if json is given)
+       2. the distribution is read from a rootfile
+    """
+    if lumijson is None and files[-5:] == ".root":
+        print "Data pile-up distribution from", files
+        outfile = files
+    elif files[-4:] == ".txt":
+        print "Data pile-up distribution is estimated from official files:"
+        try:
+            fnull = open(os.devnull, 'w')
+            subprocess.call("pileupCalc.py", stdout=fnull, stderr=fnull)
+            fnull.close()
+        except:
+            print "pileupCalc.py is not availabe. Probably CMSSW 5.2 is not sourced."
+            exit(1)
+        if not outfile:
+            # take the core part of the json file name
+            outfile = "pileup_" + files.split('/')[-1][5:-22] + ".root"
+        cmd=["pileupCalc.py", "-i", files, "--inputLumiJSON", lumijson, "--calcMode", "true", "--minBiasXsec", str(int(xsec*1000)), "--maxPileupBin", str(numpu+1), "--numPileupBins", str(numpu+1), outfile]
+        print " ".join([str(s) for s in cmd])
+        subprocess.call(cmd)
+
+    result = getDistributionFromFile(outfile, histo)
     for i in range(len(result)):
         if result[i] > 0.0:
             mx=i
     result = result[0:mx+1]
-    print "INFO: There are up to", mx, "vertices in Data."
-    return result
+    print "INFO: There are 0.."+str(mx+1), "vertices calculated in Data."
+    return result, outfile
 
 
-def getMCDistribution(source, histo="pu", verbose=False):
+def getMCDistribution(source, histo="pu", outfile=None, verbose=False):
+    """Get the true MC PU from the MC files
+
+       The "true" PU in MC is determined from either:
+       https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJSONFileforData
+       1. the kappa skim (source="/path/to/skim/*.root")
+       2. a root file containing the distribution (source="pilup.root")
+       3. the key of a precalculated MC sample (source="madgraphFall11")
+    """
     result = []
-    #    3 cases for source: .py file, .root file, key from dict below
-    if source[-3:] == ".py":
-        with open(source) as f:
-            for line in f:
-                if "probValue" in line:
-                    result = line[line.find("(") + 1:line.find(")")].split(",")
-        if not result:
-            print "No values found in this .py file!"
-            assert False
-        result = [float(s) for s in result]
-    elif source[-5:] == ".root":
-        rootfile = getroot.openfile(source, verbose)
-        result = getroot.getplot(histo, rootfile).y
-        if verbose:
-            print getroot.getplot(histo, rootfile).xc
-        result.pop(-1)
-    elif source in std_values:
-        result = std_values[source]
+    # 3 cases for source: skim location, .root file, key from dict below
+    if type(source) == list and len(source) >= 1 and "kappa_" in source[0]:
+        result, outfile = getDistributionFromSkim(source)
+    elif len(source) == 1 and source[0][-5:] == ".root":
+        print "____________________________________________"
+        print "MC pile-up distribution from", source[0]
+        result = getDistributionFromFile(source[0], histo, outfile)
+        outfile = outfile or source[0]
     else:
         print "This MC distribution could not be found!"
         assert False
+    mx=0
     for i in range(len(result)):
         if result[i] > 0.0:
             mx=i
     result = result[0:mx+1]
     s = sum(result)
-    print "INFO: There are up to", mx, "vertices in MC."
-    return [w / s for w in result]
+    print "INFO: There are 0.."+str(mx+1), "vertices calculated in MC."
+    result = [w / s for w in result]
+    return result, outfile
+
+
+def getDistributionFromSkim(filelist, outputfile=None, numpu=50, save=True, step=1.0, histo="pileup"):
+    print "____________________________________________"
+    print "MC pile-up distribution from skim ("+str(len(filelist))+" file(s)):", filelist[0], "etc."
+    chain = ROOT.TChain("Events");
+    for f in filelist:
+        chain.Add(f)
+
+    npu = ROOT.TH1D(histo, "Number of Pile-Up", int(step*numpu)+1, 0.0, numpu+1)
+    chain.Draw("KEventMetadata.numPUInteractionsTruth >> "+histo)
+    result = [npu.GetBinContent(i) for i in range(1, npu.GetNbinsX())]
+    print result
+    if not outputfile:
+        outputfile = "pileup_" + filelist[0].split("/")[-2] + ".root"
+    if save:
+        print "Distribution is written to:", outputfile
+        f = ROOT.TFile.Open(outputfile, "RECREATE")
+        npu.Write()
+        f.Write()
+        f.Close()
+    return result, outputfile
+
+
+def getDistributionFromFile(filename, histoname="npu"):
+    """Convention according to official files: bin 1 has LowEdge at 0"""
+    rootfile = ROOT.TFile(filename)
+    if not rootfile.IsOpen():
+        print "The file", filename, "could not be opened."
+        exit(0)
+    histo = rootfile.Get(histoname)
+    if not histo:
+        print "The histogram", histoname, "could not be found in", filename + "."
+        exit(0)
+    return [histo.GetBinContent(i) for i in range(1, ROOT.TH1D(histo).GetNbinsX())]
+
+
+def addWeightsToFile(key, weights, xsec, filename, warnOnOverwrite=False):
+    assert type(key) == str
+    assert type(weights) == list
+    d = os.path.dirname(filename)
+    if not os.path.exists(d):
+        print "Directory", d, "is created"
+        os.makedirs(d)
+    try:
+        f = open(filename, 'r')
+        dic = json.load(f)
+        f.close()
+    except:
+        print filename, "does not exist and will be created."
+        dic = {}
+    if warnOnOverwrite and key in dic:
+        print "There are already weights for", key+". Do you wan to overwrite these [Y/n]:"
+        print dic[key]
+        print "with"
+        print {"weights": weights, "xsection": xsec}
+        if "n" not in raw_input():
+            dic[key] = {"weights": weights, "xsection": xsec, "step": 1}
+    else:
+        dic[key] = {"weights": weights, "xsection": xsec, "step": 1}
+    f = open(filename, 'w')
+    json.dump(dic, f, sort_keys=True, indent=2)
+    f.close()
+    print "Weights written to", filename, "as", key
 
 
 def options():
     parser = argparse.ArgumentParser(
         description="%(prog)s calculates the weights for MC reweighting "
-            "according to the number of pile-up interactions. It needs at "
-            "least a root file with the estimated pile-up distribution in "
-            "data. The Monte-Carlo simulated distribution of the number of "
-            "pile-up interactions should be provided, too. This is done via "
-            "the -m option.")
-    parser.add_argument('files', metavar='file', type=str, nargs='+',
-        help="root file(s) containing the estimated number of pile-up "
-            "interactions in data. The name of the contained histogram is "
+            "according to the number of pile-up interactions. Use cases: "
+            "%(prog)s /path/to/skim/*.root Cert_JSON.txt pileup_JSON.txt or"
+            "%(prog)s mcdist.root datadist.root")
+    parser.add_argument('datainput', metavar='datainput', type=str,
+        help="root file containing the estimated true number of pile-up "
+            "interactions in data or the used json file and the official "
+            "pile-up json. The name of the contained histogram is "
             "specified with -D.")
-    parser.add_argument('-m', '--mc', type=str, default="summer11pythia",
-        help="source of the MC pile-up distribution. You can either use a "
-            "CMSSW mixing module config file from http://cmssw.cvs.cern.ch/"
-            "cgi-bin/cmssw.cgi/CMSSW/SimGeneral/MixingModule/python/, a "
-            "resp_cuts or any other root file containing a histogram with the "
-            "pile-up distribution in MC or a production name from this "
-            "list: " + str(std_values.keys()) + ". In case you use a root "
-            "file, you can specify the name of the pile-up histogram with -M. "
-            "Default is 'summer11'.")
-    parser.add_argument('-M', '--mc-histo', type=str,
-        default="NoBinning_allevents/pu_ak5PFJetsCHSL1L2L3",
-        help="histogram name in the Monte-Carlo pile-up distribution files")
+    parser.add_argument('mcinput', metavar='mcinput', type=str, nargs='+',
+        help="either a skim location or a rootfile with the MC distribution "
+            "of pile-up. The name of the contained histogram is "
+            "specified with -M.")
+
+    parser.add_argument('-M', '--mc-histo', type=str, default="pileup",
+        help="histogram name of the pile-up distribution in the MC file")
     parser.add_argument('-D', '--data-histo', type=str, default="pileup",
-        help="histogram name in the file(s) containing pile-up distributions "
-            "estimated in data")
+        help="histogram name of the pile-up distribution in the data file")
+    parser.add_argument('-d', '--dataoutput', type=str, default="",
+        help="Output file for the data distribution. Determined automatically "
+            "if not specified.")
+    parser.add_argument('-m', '--mcoutput', type=str, default="",
+        help="Output file for the MC distribution. Determined automatically "
+            "if not specified.")
+    parser.add_argument('-o', '--output', type=str, default="data/pileup/puweights.json",
+        help="Output file for the calculated weights.")
+    parser.add_argument('-k', '--key', type=str, default=None,
+        help="Name for this set of weights in the output file. Determined "
+            "automatically if not specified.")
+
+    parser.add_argument('-l', '--inputLumiJSON', type=str, default=None,
+        help="Input Lumi JSON for pileupCalc.")
+    parser.add_argument('-x', '--minBiasXsec', type=float, default=62.46,
+        help="Minimum bias cross section in mb (NB: pileupCalc takes µb!)")
+    parser.add_argument('-n', '--numPileupBins', type=int, default=50,
+        help="Maximum number of pile-up bins (default: 50).")
+    parser.add_argument('-X', '--mcXsec', type=float, default=1614.0,
+        help="Cross section of the MC sample to be saved alongside the weights.")
+
     parser.add_argument('-v', '--verbose', action='store_true',
         help="verbosity")
     parser.add_argument('-b', '--breaklines', action='store_true',
         help="linebreak the output")
     parser.add_argument('-c', '--check', action='store_true',
-        help="check wether the weights are correctly normalized. If no MC "
+        help="check whether the weights are correctly normalized. If no MC "
             "events are availabe for some numbers of pile-up interactions, "
             "the distribution can not be correctly normalized and the weights "
             "do not exactly add up to unity.")
@@ -147,45 +263,6 @@ def options():
             "contain events for all numbers of pile-up interactions.")
     return parser.parse_args()
 
-
-std_values = {
-    'summer11pythia':
-    # /DYToMuMu_M-20_TuneZ2_7TeV-pythia6/Summer11-PU_S3_START42_V11-v2/AODSIM
-        [0.07049992413220632, 0.070960486267929349, 0.064393013022483639,
-        0.071806635307978608, 0.064487624624008144, 0.076255165704187014,
-        0.081153547488776026, 0.073620321857957638, 0.068720154948811549,
-        0.071779858439622618, 0.066843989039335222, 0.058434267250997436,
-        0.049538991583137716, 0.036023813561591261, 0.030207877754670331,
-        0.017778055463819987, 0.011880003927274025, 0.007883110044003321,
-        0.002804430679150638, 0.002804430679150638, 0.001728000571239858,
-        0.000199933950391389, 0.000000000000000000, 0.000196363701277257],
-    'summer11powheg':
-     # /DYToMuMu_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Summer11-PU_S4_START42_V11-v1/AODSIM
-        [0.10278166315726263, 0.061029119810069830, 0.068822525901295561,
-        0.069451315755540158, 0.070465203576788926, 0.070445020506373301,
-        0.069446332281363460, 0.067167514127214889, 0.064493132710291085,
-        0.060025323524028881, 0.054822825657267295, 0.048332348889538676,
-        0.041588960807342749, 0.035223195480885948, 0.028763616253052845,
-        0.022983658316066635, 0.017889675599502601, 0.013841101178354928,
-        0.010082689541145369, 0.007409553992765740, 0.005231152843277586,
-        0.003750064317963593, 0.002488996177550720, 0.001668591741212173,
-        0.001082410591178329, 0.000714007262666091],
-   'fall11powheg':
-    # /DYToMuMu_M-20_CT10_TuneZ2_7TeV-powheg-pythia/Fall11-PU_S6_START44_V12-v1/AODSIM
-        [0.00126617296561117, 0.006288304392236976, 0.017151855635001701,
-        0.033441862444671434, 0.048093292475314950, 0.065064266258086478,
-        0.070448161389172620, 0.073384831460674163, 0.074385001702417436,
-        0.066394279877425938, 0.058435478379298605, 0.042443394620360911,
-        0.046773918964930203, 0.041453864487572351, 0.044582056520258768,
-        0.042188032005447733, 0.032814096016343205, 0.029249659516513447,
-        0.033495062989445011, 0.027174838270343889, 0.019982124616956077,
-        0.025610742254000680, 0.021748382703438884, 0.015332397003745318,
-        0.017024174327545116, 0.012768130745658836, 0.007479996595165134,
-        0.007522557030983998, 0.003500595846101464, 0.005266853932584270,
-        0.002989870616275111, 0.003202672795369425, 0.001425774599931903,
-        0.000617126319373510, 0.000393684031324481, 0.000351123595505618,
-        0.000000000000000000, 0.000234082397003745, 0.000021280217909431],
-}
 
 if __name__ == "__main__":
     main()

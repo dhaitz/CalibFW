@@ -35,5 +35,6 @@ closure_test
 /work
 
 /cfg/SkimmingCalibFW/work.*
+/data/pileup/pileup_*.txt
 /external/boost
 /external/lib
