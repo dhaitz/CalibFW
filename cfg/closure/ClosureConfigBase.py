@@ -92,8 +92,18 @@ def getDefaultCorrectionL2(data_path):
 
 
 def addCHS(algorithms):
-    algorithms += [a.replace("PFJets", "PFJetsCHS") for a in algorithms]
+    """can be used as [algos =] addCHS(algos) or algos = addCHS([AK5, etc.])"""
+    algorithms += [a.replace("PFJets", "PFJetsCHS") for a in algorithms
+        if "PFJets" in a and "PFJetsCHS" not in a and a.replace("PFJets", "PFJetsCHS") not in algorithms]
     return algorithms
+
+
+def getNewestJson(variant="PromptReco_Collisions12"):
+    jsons = glob.glob('data/json/Cert*'+variant+'*.txt')
+    jsons.sort()
+    print "JSON:", jsons[-1]
+    return jsons[-1]
+
 
 def GetBaseConfig():
     d = dict()
