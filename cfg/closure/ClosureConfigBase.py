@@ -16,7 +16,7 @@ def CreateFileList(wildcardExpression, args=None):
         inputfiles = inputfiles[:2]
     return inputfiles
 
-
+# Deprecated (CreateFileList does this)
 def ApplyFast(inputfiles, args):
     if len(args) > 1 and args[1] == "fast":
         return inputfiles[:2]
@@ -970,6 +970,10 @@ def Run(settings, arguments):
 
     base_path = GetBasePath()
     print "BASEPATH", base_path
+
+    if len(arguments) > 1 and "--storeonly" in arguments:
+        "The settings were stored to", filename
+        exit(0)
 
     if len(arguments) <= 1 or "batch" not in arguments[1]:  # both 'batch' and '--batch' usable
         subprocess.call(["./closure",filename])
