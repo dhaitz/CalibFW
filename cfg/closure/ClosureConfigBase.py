@@ -224,20 +224,33 @@ def ApplyPUReweighting(conf, dataset="kappa50_MC12_madgraph_190456-191859_8TeV_P
     return conf
 
 
-def Apply2ndJetReweighting(conf, MC='Fall11_powheg44'):
-    if MC == 'Fall11_powheg44':
-        # Reweighting for this combination (Reco to Reco):
-        # MC:   Fall11 powheg-pythia sample (fall11powheg)
-        # Data: 2011AB, 44ReReco
-        conf["Enable2ndJetReweighting"] = 1
-        conf["2ndJetWeight"] = [0.94013708768322046, 1.0872057389048659, 1.2883899118274091, 1.6068069592731553, 1.9302523984743645,
-            2.3857633027365277, 2.7869538306043107, 3.1658824351383972, 3.8561226658583632, 4.291719589310695,
-            4.7269368243243024, 5.2598615654867942, 6.9768230936916105, 6.7531299888311063, 8.9562002814026886,
-            8.7356122007689567, 9.2307553311261277, 13.843057610013933, 7.9442369537341841, 11.640054008688802,
-            10.805019194535516, 14.737719727217311, 18.548717839779822, 20.0, 20.0] + [0.0]*25
-    else:
-        conf["Enable2ndJetReweighting"] = 0
-        print "2nd jet reweighting for", MC, "not found. Disabled."
+def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
+    """Use 2nd jet reweighting
+
+       This function turns the 2nd jet reweighting on and sets the corresponding
+       entries in the configuration. It is intended for powheg samples which
+       need it. The weight factors are calculated via macros/weightCalc.py and
+       stored in the following dictionary.
+    """
+    dataset += method
+    d = {
+        "powhegFall11reco" : #
+            [0.940137088, 1.087205739, 1.288389912, 1.606806959, 1.930252398,
+             2.385763303, 2.786953831, 3.165882435, 3.856122666, 4.291719589,
+             4.726936824, 5.259861565, 6.976823094, 6.753129989, 8.956200281,
+             8.735612201, 9.230755331, 13.84305761, 7.944236954, 11.64005401,
+             10.80501920, 14.73771973, 18.54871784, 20.00000000, 20.00000000],
+        }
+
+    if dataset not in d:
+        print "No 2nd jet weights for this dataset:", dataset
+        print "Weights are available for:", ", ".join(d.keys())
+        print "Please add them in ClosureConfigBase or do not use Apply2ndJetReweighting."
+        exit(0)
+
+    conf["Enable2ndJetReweighting"] = 1
+    conf["2ndJetWeight"] = d[dataset] + [0.0]*(60 - len(d[dataset]))
+    return conf
 
 
 def GetMcBaseConfig(analysis='zjet', run='2011'):
