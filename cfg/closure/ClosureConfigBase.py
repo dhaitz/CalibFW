@@ -35,6 +35,9 @@ def GetDataPath():
     if username == 'berger':
         if 'ekpcms' in hname or 'ekpplus' in hname:
             return "/storage/6/berger/zpj/"
+    elif username == 'dhaitz':
+        if 'ekpcms' in hname or 'ekpplus' in hname:
+            return "/storage/6/berger/zpj/"
     elif hname == "saturn":
         return "/home/poseidon/uni/data/Kappa/"
     elif "ekpcms" in hname:
@@ -53,6 +56,9 @@ def GetCMSSWPath():
     if username == 'berger':
         if 'ekpcms' in hname or 'ekpplus' in hname:
             return "/storage/6/berger/CMSSW_4_2_8_patch1/"
+    elif username == 'dhaitz':
+        if 'ekpcms' in hname or 'ekpplus' in hname:
+            return "/portal/ekpcms5/home/dhaitz/CMSSW_5_2_1/"
     elif hname == "saturn":
         return "/home/poseidon/uni/data/Kappa/"
     elif "ekpcms" in hname:
@@ -71,6 +77,9 @@ def GetBasePath():
     if username == 'berger':
         if 'ekpcms' in hname or 'ekpplus' in hname:
             return "/storage/6/berger/zpj/CalibFW/"
+    elif username == 'dhaitz':
+        if 'ekpcms' in hname or 'ekpplus' in hname:
+            return "/portal/ekpcms5/home/dhaitz/git/CalibFW/"    
     elif hname == "saturn":
         return "/home/poseidon/uni/data/Kappa/"
     elif hname == "ekpcms5":
@@ -943,7 +952,6 @@ def Run(settings, arguments):
 
         # generate merge script
         print "done"
-
     try:
         import pynotify
         if pynotify.init("CalibFW resp_cuts"):
