@@ -24,6 +24,7 @@ def datamcplot(quantity, fdata, fmc, opt, legloc='center right',
         hdata = getroot.getplotfromnick(quantity, fdata, change, rebin)
     hmc = getroot.getplotfromnick(quantity, fmc, change, rebin)
     print hdata.ysum()
+    print "MC events:", hmc.ysum()
     if opt.normalize and 'cut_' not in quantity:
         hmc.scale(hdata.ysum() / hmc.ysum())
     elif 'cut_' not in quantity:
@@ -280,7 +281,7 @@ if __name__ == "__main__":
     """Unit test: doing the plots standalone (not as a module)."""
     import sys
     if len(sys.argv) < 2:
-        print "Usage: python macros/plotfractions.py data_file.root mc_file.root"
+        print "Usage: python macros/plotdatamc.py data_file.root mc_file.root"
         exit(0)
     fdata = getroot.openfile(sys.argv[1])
     fmc = getroot.openfile(sys.argv[2])

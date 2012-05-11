@@ -359,7 +359,7 @@ def kfsr(fdata, fmc, opt):
 
 
 
-plots = ['response']
+plots = ['response', 'respratio']
 
 if __name__ == "__main__":
     """Unit test: doing the plots standalone (not as a module)."""
