@@ -171,7 +171,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 1));
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 2));
 			}
-/*
+
 			if ( pset.IsMC() && ( pset.GetJetAlgorithm() == "AK5PFJetsL1L2L3" ))
 			{
 				std::string genName = JetType::GetGenName( pset.GetJetAlgorithm() );
@@ -184,7 +184,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddConsumer( new DataGenJetConsumer( genName, 2,
 									    genName));
 
-			}*/
+			}
 
 			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
 

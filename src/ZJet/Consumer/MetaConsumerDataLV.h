@@ -208,6 +208,12 @@ public:
 			// no valid entry for us here !
 			return;
 
+		if ( (m_algorithm != "" )&& ( GetProductIndex() >= ( metaData.GetValidJetCount( this->GetPipelineSettings(), event, m_algorithm)) )){
+			// no valid entry for us here !
+			std::cout << "No valid GenJet!" <<std::endl;
+			return;}
+		
+
 		KDataLV * lv;
 
 		if( m_algorithm == "" )
