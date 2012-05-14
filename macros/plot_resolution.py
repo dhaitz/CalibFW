@@ -286,7 +286,7 @@ def plot_resolution ( file,
     return plot
 
 # plots all resolutions ( MC Truth, MC Reco and Data Reco ) in one plot
-def combined_resolution( fdata, fmc, opt,
+def combined_resolution( files, opt,
                         folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
                         algo = "AK5PFJets",
                         corr = "L1L2L3",
@@ -310,7 +310,7 @@ def combined_resolution( fdata, fmc, opt,
     hist_z = "YYY_incut/z_pt_" + algo + corr
 
 
-    plot_resolution_truth( fmc, hist_truth_name + "RecoToGen",
+    plot_resolution_truth( files[1], hist_truth_name + "RecoToGen",
                     "MC Truth",
                      opt,
                      algo,
@@ -320,7 +320,7 @@ def combined_resolution( fdata, fmc, opt,
                     drop_first_bin = drop_first, drop_last_bin = drop_last )
 
     # get the gen addition
-    gen_res = plot_resolution( fmc, hist_name + "Gen",
+    gen_res = plot_resolution( files[1], hist_name + "Gen",
                     "MC Instrinsic",
                      opt,
                      algo,
@@ -335,7 +335,7 @@ def combined_resolution( fdata, fmc, opt,
         gen_res = None
         title_postfix = "Total"
 
-    mc_res = plot_resolution( fmc, hist_name,
+    mc_res = plot_resolution( files[1], hist_name,
                     "MC " + title_postfix,
                      opt,
                      algo,
@@ -346,7 +346,7 @@ def combined_resolution( fdata, fmc, opt,
                     draw_ax = ax,
                     drop_first_bin = drop_first, drop_last_bin = drop_last )
 
-    data_res = plot_resolution( fdata, hist_name,
+    data_res = plot_resolution( files[0], hist_name,
                     "Run 2011 " + title_postfix,
                      opt,
                      algo,
@@ -381,10 +381,10 @@ def combined_resolution( fdata, fmc, opt,
     plotbase.Save(f,plot_filename + "_ratio", opt)
 
 
-def resolution(fdata, fmc, opt):
+def resolution(files, opt):
 
     # balance
-    combined_resolution(fdata, fmc, opt,
+    combined_resolution(files, opt,
                         folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
                         algo = "AK5PFJets",
                         corr = "L1L2L3",
@@ -392,7 +392,7 @@ def resolution(fdata, fmc, opt):
                         filename_postfix = "_plus_gen",
                         subtract_gen = False )
 
-    combined_resolution(fdata, fmc, opt,
+    combined_resolution(files, opt,
                         folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
                         algo = "AK5PFJetsCHS",
                         corr = "L1L2L3",
@@ -400,7 +400,7 @@ def resolution(fdata, fmc, opt):
                         filename_postfix = "_plus_gen",
                         subtract_gen = False )
 
-    combined_resolution(fdata, fmc, opt,
+    combined_resolution(files, opt,
                         folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
                         algo = "AK5PFJets",
                         corr = "L1L2L3",
@@ -409,7 +409,7 @@ def resolution(fdata, fmc, opt):
                         subtract_gen = True,
                         drop_first = 2, drop_last = 1)
 
-    combined_resolution(fdata, fmc, opt,
+    combined_resolution(files, opt,
                         folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
                         algo = "AK5PFJetsCHS",
                         corr = "L1L2L3",
@@ -419,7 +419,7 @@ def resolution(fdata, fmc, opt):
                         drop_first = 1, drop_last = 1)
 
     # mpf >> not in gen right now
-    #    combined_resolution( fdata, fmc, opt,
+    #    combined_resolution( files, opt,
     #                    folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
     #                    algo = "AK5PFJets",
     #                    corr = "L1L2L3",
@@ -428,21 +428,21 @@ def resolution(fdata, fmc, opt):
     #                    subtract_gen = False )
 
     # PU related -- problematic due to low statistics
-    #combined_resolution( fdata, fmc, opt,
+    #combined_resolution( files, opt,
     #                    folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX_var_Npv_0to2",
     #                    algo = "AK5PFJets",
     #                    corr = "L1L2L3",
     #                    method_name = "balresp",
     #                    filename_postfix = "npv_0_2" )
 
-    #combined_resolution( fdata, fmc, opt,
+    #combined_resolution( files, opt,
     #                    folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX_var_Npv_3to5",
     #                    algo = "AK5PFJets",
     #                    corr = "L1L2L3",
     #                    method_name = "balresp",
     #                    filename_postfix = "npv_3_5" )
 
-    #combined_resolution( fdata, fmc, opt,
+    #combined_resolution( files, opt,
     #                    folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX_var_Npv_6to11",
     #                    algo = "AK5PFJets",
     #                    corr = "L1L2L3",

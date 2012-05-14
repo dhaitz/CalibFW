@@ -247,7 +247,7 @@ def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw
     return graph
 
 
-def responseplot(fdata, fmc, opt, types, labels=None,
+def responseplot(files, opt, types, labels=None,
                  colors=["FireBrick", 'red', 'green', 'blue']*7,
                  markers=['o', '*', 's']*8,
                  over='z_pt',
@@ -265,11 +265,11 @@ def responseplot(fdata, fmc, opt, types, labels=None,
             t = t[:3]
         if extrapolation in ['ex', 'data', 'mc', 'datamc']:
             extrapolation = 'data'
-        plot = getroot.root2histo(getresponse(t+'resp', over, opt, fdata, None, {}, extrapolation))
+        plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[0], None, {}, extrapolation))
         ax.errorbar(plot.x, plot.y, plot.yerr, color='black', fmt=m, label=l+' (data)')
         if extrapolation == 'data':
             extrapolation = 'mc'
-        plot = getroot.root2histo(getresponse(t+'resp', over, opt, fmc, None, {}, extrapolation))
+        plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[1], None, {}, extrapolation))
         ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l+' (MC)')
 
     # format plot
@@ -283,7 +283,7 @@ def responseplot(fdata, fmc, opt, types, labels=None,
     plotbase.Save(fig, file_name, opt)
 
 
-def ratioplot(fdata, fmc, opt, types, labels=None,
+def ratioplot(files, opt, types, labels=None,
                  colors=["FireBrick", 'red', 'green', 'blue']*7,
                  markers=['o', '*', 's']*8,
                  over='z_pt',
@@ -300,7 +300,7 @@ def ratioplot(fdata, fmc, opt, types, labels=None,
             ax.axvline(x, color='gray')
 
     for t, l, m, c in zip(types, labels, markers, colors):
-        plot = getroot.root2histo(getresponse(t[:3]+'resp', over, opt, fdata, fmc, {}, extrapol=t[3:]))
+        plot = getroot.root2histo(getresponse(t[:3]+'resp', over, opt, files[0], files[1], {}, extrapol=t[3:]))
         ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
 
     # format plot
@@ -327,34 +327,34 @@ def labelformat(label):
 
 
 # responses
-def response(fdata, fmc, opt):
-    responseplot(fdata, fmc, opt, ['bal', 'balex', 'mpf'])
+def response(files, opt):
+    responseplot(files, opt, ['bal', 'balex', 'mpf'])
     for key in k_fsr:
         print key, k_fsr[key]
 
 
-def response_npv(fdata, fmc, opt):
-    responseplot(fdata, fmc, opt, ['bal', 'balex', 'mpf'], over='npv')
+def response_npv(files, opt):
+    responseplot(files, opt, ['bal', 'balex', 'mpf'], over='npv')
 
 
 # ratios
-def balratio(fdata, fmc, opt):
-    ratioplot(fdata, fmc, opt, ['bal', 'balratio', 'balseperate'])
+def balratio(files, opt):
+    ratioplot(files, opt, ['bal', 'balratio', 'balseperate'])
 
 
-def mpfratio(fdata, fmc, opt):
-    ratioplot(fdata, fmc, opt, ['mpf', 'mpfratio', 'mpfseperate'])
+def mpfratio(files, opt):
+    ratioplot(files, opt, ['mpf', 'mpfratio', 'mpfseperate'])
 
 
-def respratio(fdata, fmc, opt):
-    ratioplot(fdata, fmc, opt, ['bal', 'balratio', 'mpf'], drawextrapolation=True, binborders=True)
+def respratio(files, opt):
+    ratioplot(files, opt, ['bal', 'balratio', 'mpf'], drawextrapolation=True, binborders=True)
 
 
-def respratio_npv(fdata, fmc, opt):
-    ratioplot(fdata, fmc, opt, ['bal', 'balratio', 'balseperate', 'mpf'], over='npv')
+def respratio_npv(files, opt):
+    ratioplot(files, opt, ['bal', 'balratio', 'balseperate', 'mpf'], over='npv')
 
 
-def kfsr(fdata, fmc, opt):
+def kfsr(files, opt):
     pass
 
 
@@ -371,7 +371,7 @@ if __name__ == "__main__":
     fmc = getroot.openfile(sys.argv[2])
     bins = getroot.getbins(fdata, [])
     test_getvalues(bins, fdata)
-#   fractions(fdata, fmc, opt=plotbase.options(bins=bins))
+#   fractions(files, opt=plotbase.options(bins=bins))
 
 
 ###############################################################################
@@ -387,7 +387,7 @@ def get_errerr(roothisto):
     return roothisto.GetRMSError() / sqrt_nminus1
 
 
-def extrapolateRatio(fdata, fmc,
+def extrapolateRatio(files,
                     folder,  # ="Pt100to140_incut_var_CutSecondLeadingToZPt_XXX", where XXX is replaced by the cut variation
                     histo,  # ="jetresp_ak5PFJetsL1L2L3CHS_hist",
                     # zpt,  # ="z_pt_ak5PFJetsL1L2L3_hist",
@@ -403,10 +403,10 @@ def extrapolateRatio(fdata, fmc,
         folder_var = folder.replace( "XXX", "0_2")
 
         hist_zpt = getroot.getobject( folder_var +
-                                 "/z_pt_AK5PFJetsL1L2L3", fdata)
+                                 "/z_pt_AK5PFJetsL1L2L3", files[0])
         zpt = hist_zpt.GetMean()
-        hist_respdata = getroot.getobject( folder_var + "/" + histo, fdata)
-        hist_respmc = getroot.getobject( folder_var + "/" + histo, fmc)
+        hist_respdata = getroot.getobject( folder_var + "/" + histo, files[0])
+        hist_respmc = getroot.getobject( folder_var + "/" + histo, files[1])
         # read the ratio and error (propagated)
         print "Skipping extrapolation"
         y = hist_respdata.GetMean() / hist_respmc.GetMean()
@@ -426,14 +426,14 @@ def extrapolateRatio(fdata, fmc,
 
     print "Extrapolated response: R = %1.4f +- %1.4f" % (func.f(0), func.ferr(0))
 
-    hist_zpt = getroot.getobject( folder_var + "/z_pt_AK5PFJetsL1L2L3", fdata)
+    hist_zpt = getroot.getobject( folder_var + "/z_pt_AK5PFJetsL1L2L3", files[0])
     zpt = hist_zpt.GetMean()
     return func, zpt
 
 
 
 
-def extrapolate_ratio( fig, method, fdata, fmc, opt, tag,
+def extrapolate_ratio( fig, method, files, opt, tag,
                       folder_prefix="", folder_postfix = "_incut_var_CutSecondLeadingToZPt_XXX" ,
                       file_name_prefix = "",
                       plot_result = True,
@@ -454,7 +454,7 @@ def extrapolate_ratio( fig, method, fdata, fmc, opt, tag,
     # loop over bins
     for s in str_bins:
         # extrapolate ratio
-        yex, yex_err, x = extrapolateRatio(fdata, fmc,
+        yex, yex_err, x = extrapolateRatio(files,
             folder_prefix + s  + folder_postfix,
             method + "_" + opt.algorithm + opt.correction , doExtrapolation = extrapolation,
             drawPlot = store_tmp_files)
@@ -540,7 +540,7 @@ def extrapolate_ratio( fig, method, fdata, fmc, opt, tag,
 
     return ( const_fit_res , const_fit_res_err )
 
-def getResponseRatioOverNPV(fdata, fmc,  opt, method, do_extrapolation):
+def getResponseRatioOverNPV(files,  opt, method, do_extrapolation):
     hst = getroot.Histo()
 
     for n, m in opt.npv:
@@ -551,7 +551,7 @@ def getResponseRatioOverNPV(fdata, fmc,  opt, method, do_extrapolation):
 
         the_folder_postfix = "_incut_var_CutSecondLeadingToZPt_XXX_var_" + npvname
 
-        extr_res = extrapolate_ratio(None, method, fdata, fmc, opt, "extrapol",
+        extr_res = extrapolate_ratio(None, method, files, opt, "extrapol",
                           folder_postfix = the_folder_postfix,
                           file_name_prefix = npvname,
                           extrapolation = do_extrapolation,
@@ -563,8 +563,8 @@ def getResponseRatioOverNPV(fdata, fmc,  opt, method, do_extrapolation):
 
     return hst
 
-def plolResponseRatioOverNPV( fdata, fmc,  opt, method, use_extrapolation, the_label ):
-    hst = getResponseRatioOverNPV( fdata, fmc, opt, method, do_extrapolation = use_extrapolation )
+def plolResponseRatioOverNPV( files,  opt, method, use_extrapolation, the_label ):
+    hst = getResponseRatioOverNPV( files, opt, method, do_extrapolation = use_extrapolation )
 
     # in relation to NPV for the constant factor
     fig, ax = plotbase.newplot()
@@ -593,34 +593,34 @@ def plolResponseRatioOverNPV( fdata, fmc,  opt, method, use_extrapolation, the_l
 
 
 # Balance with various dependencies
-def balanceex(fdata, fmc, opt):
+def balanceex(files, opt):
     print "Balex"
     # regular
     fig, ax = plotbase.newplot()
-    extrapolate_ratio( fig , "balresp", fdata, fmc, opt, "extrapol", store_tmp_files = True)
+    extrapolate_ratio( fig , "balresp", files, opt, "extrapol", store_tmp_files = True)
     file_name = "balresp_ratio_" + opt.algorithm + opt.correction
     plotbase.Save( fig, file_name, opt)
 
     fig, ax = plotbase.newplot()
-    extrapolate_ratio( fig , "balresp", fdata, fmc, opt, "no extrapol", extrapolation = False)
+    extrapolate_ratio( fig , "balresp", files, opt, "no extrapol", extrapolation = False)
     file_name = "balresp_ratio_noextr_" + opt.algorithm + opt.correction
     plotbase.Save( fig, file_name, opt )
 
-    plolResponseRatioOverNPV( fdata, fmc, opt, "balresp", use_extrapolation = True, the_label = "Balance extr." )
-    plolResponseRatioOverNPV( fdata, fmc, opt, "balresp", use_extrapolation = False, the_label = "Balance")
+    plolResponseRatioOverNPV( files, opt, "balresp", use_extrapolation = True, the_label = "Balance extr." )
+    plolResponseRatioOverNPV( files, opt, "balresp", use_extrapolation = False, the_label = "Balance")
 
 
 
 
 
 # MPF
-def mpfex(fdata, fmc, opt):
+def mpfex(files, opt):
     print "MPF ex"
     fig, ax = plotbase.newplot()
-    extrapolate_ratio(fig, "mpfresp", fdata, fmc, opt, "no_extrapol", extrapolation = False,  store_tmp_files = True)
+    extrapolate_ratio(fig, "mpfresp", files, opt, "no_extrapol", extrapolation = False,  store_tmp_files = True)
     file_name = "mpfresp_ratio_" + opt.algorithm + opt.correction
 
-    plolResponseRatioOverNPV( fdata, fmc, opt, "mpfresp", use_extrapolation = False, the_label = "MPF" )
+    plolResponseRatioOverNPV( files, opt, "mpfresp", use_extrapolation = False, the_label = "MPF" )
 
 
     plotbase.Save( fig, file_name, opt )

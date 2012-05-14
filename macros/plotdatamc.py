@@ -6,41 +6,57 @@
 """
 import numpy
 import math
-
 import getroot
 import plotbase
 
-def datamcplot(quantity, fdata, fmc, opt, legloc='center right',
+def datamcplot(quantity, files, opt, legloc='center right',
                change={}, log=False, rebin=5, file_name = ""):
     """Template for all data/MC comparison plots for basic quantities."""
     # read the values
     if opt.verbose:
         print quantity
-
+    
     change = plotbase.createchanges(opt, change)
     if quantity in ['numpu', 'numputruth']:
         hdata = getPUindata(quantity)
     else:
-        hdata = getroot.getplotfromnick(quantity, fdata, change, rebin)
-    hmc = getroot.getplotfromnick(quantity, fmc, change, rebin)
-    print hdata.ysum()
-    print "MC events:", hmc.ysum()
-    if opt.normalize and 'cut_' not in quantity:
-        hmc.scale(hdata.ysum() / hmc.ysum())
-    elif 'cut_' not in quantity:
-        hmc.scale(opt.lumi)
+        hdata = getroot.getplotfromnick(quantity, files[0], change, rebin)
+    print "Data Events:",hdata.ysum()
+    
+    #create emply lists hmc (to be normalized) + hmc1, fill with MC Root files
+    hmc = []
+    hmc1=[]
+    for f in files[1:]:
+	i = files[1:].index(f)
+        hmc += [getroot.getplotfromnick(quantity, files[1:][i], change, rebin)]
+        hmc1 += [getroot.getplotfromnick(quantity, files[1:][i], change, rebin)]
+        if opt.normalize and 'cut_' not in quantity:
+            hmc[i].scale(hdata.ysum() / hmc[i].ysum())
+        elif 'cut_' not in quantity:
+            hmc[i].scale(opt.lumi)
+
+    datamc=[hdata]+hmc
 
     # create the plot
     fig, ax = plotbase.newplot()
-    ax.bar(hmc.x, hmc.y, (hmc.x[2] - hmc.x[1]),
-           bottom=numpy.ones(len(hmc.x)) * 1e-6, fill=True,
-           facecolor=opt.colors[1], edgecolor=opt.colors[1])
-    ax.errorbar(hmc.xc, hmc.y, hmc.yerr, drawstyle='steps-mid',
-        color=opt.colors[1], fmt='-', capsize=0, label=opt.labels[1])
-    ax.errorbar(hdata.xc, hdata.y, hdata.yerr, drawstyle='steps-mid',
-        color=opt.colors[0], fmt='o', capsize=0, label=opt.labels[0])
+
+    #plot loop over MCs 
+    for f in datamc:
+        i = datamc.index(f)
+        #print "Index: ", i, " Labels: ", opt.labels[i], " Style: ", opt.style[i], " Fill: ", opt.fill[i]
+        ax.errorbar(datamc[i].xc, datamc[i].y, datamc[i].yerr, drawstyle='steps-mid', 
+           color=opt.colors[i], fmt=opt.style[i], capsize=0 ,label=opt.labels[i])
+
+        if opt.fill[i]==1:
+            ax.bar(datamc[i].x, datamc[i].y, (datamc[i].x[2] - datamc[i].x[1]),
+           bottom=numpy.ones(len(datamc[i].x)) * 1e-6, fill=True,
+           facecolor=opt.colors[i], edgecolor=opt.colors[i])
+
+
     plotbase.labels(ax, opt, legloc=legloc, frame=True)
-    ax.set_ylim(top=hmc.ymax() * 1.2)
+    plotbase.eventnumberlabel(ax, opt, hdata, hmc1)
+
+    ax.set_ylim(top=datamc[0].ymax() * 1.2)
     if 'cut_' in quantity and '_npv' in quantity:
         ax = plotbase.axislabels(ax, 'npv', quantity)
     elif 'cut_' in quantity and '_zpt' in quantity:
@@ -91,161 +107,161 @@ def getPUindata(version=''):
     return result
 
 # NPV
-def npv(fdata, fmc, opt):
-    datamcplot('npv', fdata, fmc, opt, 'center right', rebin = 1)
+def npv(datamc, opt):
+    datamcplot('npv', datamc, opt, 'center right', rebin = 1)
 
 
-def npv_nocuts(fdata, fmc, opt):
-    datamcplot('npv', fdata, fmc, opt, 'center right', {'incut': 'allevents'}, rebin = 1)
+def npv_nocuts(datamc, opt):
+    datamcplot('npv', datamc, opt, 'center right', {'incut': 'allevents'}, rebin = 1)
 
 
-def numpu(fdata, fmc, opt):
-    datamcplot('numpu', fdata, fmc, opt, 'center right', rebin = 1)
+def numpu(datamc, opt):
+    datamcplot('numpu', datamc, opt, 'center right', rebin = 1)
 
 
-def numpu_nocuts(fdata, fmc, opt):
-    datamcplot('numpu', fdata, fmc, opt, 'center right', {'incut': 'allevents'}, rebin = 1)
+def numpu_nocuts(datamc, opt):
+    datamcplot('numpu', datamc, opt, 'center right', {'incut': 'allevents'}, rebin = 1)
 
 
-def numputruth(fdata, fmc, opt):
-    datamcplot('numputruth', fdata, fmc, opt, 'center right', rebin = 1)
+def numputruth(datamc, opt):
+    datamcplot('numputruth', datamc, opt, 'center right', rebin = 1)
 
 
-def numputruth_nocuts(fdata, fmc, opt):
-    datamcplot('numputruth', fdata, fmc, opt, 'center right', {'incut': 'allevents'}, rebin = 1)
+def numputruth_nocuts(datamc, opt):
+    datamcplot('numputruth', datamc, opt, 'center right', {'incut': 'allevents'}, rebin = 1)
 
 
 # Z boson
-def zpt(fdata, fmc, opt):
-    datamcplot('z_pt', fdata, fmc, opt, 'center right', log=True)
+def zpt(datamc, opt):
+    datamcplot('z_pt', datamc, opt, 'center right', log=True)
 
 
-def zpt_nocuts(fdata, fmc, opt):
-    datamcplot('z_pt', fdata, fmc, opt, 'center right', {'incut': 'allevents'})
+def zpt_nocuts(datamc, opt):
+    datamcplot('z_pt', datamc, opt, 'center right', {'incut': 'allevents'})
 
 
-def zeta(fdata, fmc, opt):
-    datamcplot('z_eta', fdata, fmc, opt, 'lower center')
+def zeta(datamc, opt):
+    datamcplot('z_eta', datamc, opt, 'lower center')
 
 
-def zeta_nocuts(fdata, fmc, opt):
-    datamcplot('z_eta', fdata, fmc, opt, 'lower center', {'incut': 'allevents'})
+def zeta_nocuts(datamc, opt):
+    datamcplot('z_eta', datamc, opt, 'lower center', {'incut': 'allevents'})
 
 
-def zphi(fdata, fmc, opt):
-    datamcplot('z_phi', fdata, fmc, opt, 'lower center')
+def zphi(datamc, opt):
+    datamcplot('z_phi', datamc, opt, 'lower center')
 
 
-def zmass(fdata, fmc, opt):
-    datamcplot('z_mass', fdata, fmc, opt, rebin=2)
+def zmass(datamc, opt):
+    datamcplot('z_mass', datamc, opt, rebin=2)
 
 
-def zmass_nocuts(fdata, fmc, opt):
-    datamcplot('z_mass', fdata, fmc, opt, 'center right', {'incut': 'allevents'},
+def zmass_nocuts(datamc, opt):
+    datamcplot('z_mass', datamc, opt, 'center right', {'incut': 'allevents'},
                rebin=2, log=True)
 
 
 # Leading jet
-def jetpt(fdata, fmc, opt):
-    datamcplot('jet1_pt', fdata, fmc, opt, 'center right',
+def jetpt(datamc, opt):
+    datamcplot('jet1_pt', datamc, opt, 'center right',
                log=True)
 
 
-def jetpt_nocuts(fdata, fmc, opt):
-    datamcplot('jet1_pt', fdata, fmc, opt, 'center right', {'incut': 'allevents'},
+def jetpt_nocuts(datamc, opt):
+    datamcplot('jet1_pt', datamc, opt, 'center right', {'incut': 'allevents'},
                log=True)
 
 
-def jeteta(fdata, fmc, opt):
-    datamcplot('jet1_eta', fdata, fmc, opt, 'lower center')
+def jeteta(datamc, opt):
+    datamcplot('jet1_eta', datamc, opt, 'lower center')
 
 
-def jetphi(fdata, fmc, opt):
-    datamcplot('jet1_phi', fdata, fmc, opt, 'lower center')
+def jetphi(datamc, opt):
+    datamcplot('jet1_phi', datamc, opt, 'lower center')
 
 
 # Second leading jet
-def jet2pt(fdata, fmc, opt):
-    datamcplot('jet2_pt', fdata, fmc, opt)
+def jet2pt(datamc, opt):
+    datamcplot('jet2_pt', datamc, opt)
 
 
-def jet2pt_nocuts(fdata, fmc, opt):
-    datamcplot('jet2_pt', fdata, fmc, opt, 'center right',
+def jet2pt_nocuts(datamc, opt):
+    datamcplot('jet2_pt', datamc, opt, 'center right',
                {'incut': 'allevents'}, log=True)
 
 
-def jet2eta(fdata, fmc, opt):
-    datamcplot('jet2_eta', fdata, fmc, opt, 'lower center')
+def jet2eta(datamc, opt):
+    datamcplot('jet2_eta', datamc, opt, 'lower center')
 
 
-def jet2phi(fdata, fmc, opt):
-    datamcplot('jet2_phi', fdata, fmc, opt, 'lower center')
+def jet2phi(datamc, opt):
+    datamcplot('jet2_phi', datamc, opt, 'lower center')
 
 
 # cut efficiencies
-def cut_all_npv(fdata, fmc, opt):
-    datamcplot('cut_all_npv', fdata, fmc, opt, rebin=1)
+def cut_all_npv(datamc, opt):
+    datamcplot('cut_all_npv', datamc, opt, rebin=1)
 
 
-def cut_backtoback_npv(fdata, fmc, opt):
-    datamcplot('cut_backtoback_npv', fdata, fmc, opt)
+def cut_backtoback_npv(datamc, opt):
+    datamcplot('cut_backtoback_npv', datamc, opt)
 
 
-def cut_jet2pt_npv(fdata, fmc, opt):
-    datamcplot('cut_jet2pt_npv', fdata, fmc, opt)
+def cut_jet2pt_npv(datamc, opt):
+    datamcplot('cut_jet2pt_npv', datamc, opt)
 
 
-def cut_muon_npv(fdata, fmc, opt):
-    datamcplot('cut_muonpt_npv', fdata, fmc, opt)
+def cut_muon_npv(datamc, opt):
+    datamcplot('cut_muonpt_npv', datamc, opt)
 
 
-def cut_zmass_npv(fdata, fmc, opt):
-    datamcplot('cut_zmass_npv', fdata, fmc, opt)
+def cut_zmass_npv(datamc, opt):
+    datamcplot('cut_zmass_npv', datamc, opt)
 
 
-def cut_backtoback_zpt(fdata, fmc, opt):
-    datamcplot('cut_backtoback_zpt', fdata, fmc, opt)
+def cut_backtoback_zpt(datamc, opt):
+    datamcplot('cut_backtoback_zpt', datamc, opt)
 
 
-def cut_jet2pt_zpt(fdata, fmc, opt):
-    datamcplot('cut_jet2pt_zpt', fdata, fmc, opt)
+def cut_jet2pt_zpt(datamc, opt):
+    datamcplot('cut_jet2pt_zpt', datamc, opt)
 
 
-def cut_muon_npv(fdata, fmc, opt):
-    datamcplot('cut_muonpt_zpt', fdata, fmc, opt)
+def cut_muon_npv(datamc, opt):
+    datamcplot('cut_muonpt_zpt', datamc, opt)
 
 
-def cut_zmass_npv(fdata, fmc, opt):
-    datamcplot('cut_zmass_zpt', fdata, fmc, opt)
+def cut_zmass_npv(datamc, opt):
+    datamcplot('cut_zmass_zpt', datamc, opt)
 
 
-def balresp(fdata, fmc, opt):
-    datamcplot('balresp', fdata, fmc, opt)
+def balresp(datamc, opt):
+    datamcplot('balresp', datamc, opt)
 
 
-def mpfresp(fdata, fmc, opt):
-    datamcplot('mpfresp', fdata, fmc, opt)
+def mpfresp(datamc, opt):
+    datamcplot('mpfresp', datamc, opt)
 
 
-def balresp_bins(fdata, fmc, opt):
+def balresp_bins(datamc, opt):
     for bin in getroot.binstrings(opt.bins):
-        datamcplot('balresp', fdata, fmc, opt, 'upper right', {'bin': bin})
+        datamcplot('balresp', datamc, opt, 'upper right', {'bin': bin})
 
-def balresp_fornpv(fdata, fmc, opt):
+def balresp_fornpv(datamc, opt):
     for npv in getroot.npvstrings(opt.npv):
-        datamcplot('balresp', fdata, fmc, opt, 'upper right', {'var': npv}, file_name=npv + "_balresp")
+        datamcplot('balresp', datamc, opt, 'upper right', {'var': npv}, file_name=npv + "_balresp")
 
-def mpfresp_bins(fdata, fmc, opt):
+def mpfresp_bins(datamc, opt):
     for bin in getroot.binstrings(opt.bins):
-        datamcplot('mpfresp', fdata, fmc, opt, 'upper right', {'bin': bin})
+        datamcplot('mpfresp', datamc, opt, 'upper right', {'bin': bin})
 
 
-def plotany(x, y, fdata, fmc, opt):
+def plotany(x, y, datamc, opt):
     fig, ax = plotbase.newplot() #ratio=True?
-    plot = getroot.getgraph(x, y, fdata, opt, root=False)
+    plot = getroot.getgraph(x, y, datamc[0], opt, root=False)
     ax.errorbar(plot.x, plot.y, plot.yerr,
         color=opt.colors[0], fmt='o', capsize=0, label=opt.labels[0])
-    plot = getroot.getgraph(x, y, fmc, opt, root=False)
+    plot = getroot.getgraph(x, y, datamc[1], opt, root=False)
     ax.errorbar(plot.x, plot.y, plot.yerr,
         color='FireBrick', fmt='s', capsize=0, label=opt.labels[1])
 
@@ -255,15 +271,14 @@ def plotany(x, y, fdata, fmc, opt):
 
 
 #plotanys
-def basic_npv(fdata, fmc, opt):
+def basic_npv(datamc, opt):
     for y in ['z_mass', 'z_pt', 'jet1_pt']:
-        plotany('npv', y, fdata, fmc, opt)
+        plotany('npv', y, datamc, opt)
 
 
-def basic_zpt(fdata, fmc, opt):
+def basic_zpt(datamc, opt):
     for y in ['z_mass', 'jet1_pt']:
-        plotany('z_pt', y, fdata, fmc, opt)
-
+        plotany('z_pt', y, datamc, opt)
 
 
 plots = [
@@ -276,6 +291,13 @@ plots = [
     'basic_npv', 'basic_zpt',
     ]
 
+genplots = [
+ #   'jetpt', 'jeteta', 'jetphi',
+ #   'jet2pt',  'jet2eta', 'jet2phi',
+    'jet2pt_nocuts',
+    ]
+
+
 
 if __name__ == "__main__":
     """Unit test: doing the plots standalone (not as a module)."""
@@ -283,9 +305,9 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Usage: python macros/plotdatamc.py data_file.root mc_file.root"
         exit(0)
-    fdata = getroot.openfile(sys.argv[1])
+    datamc[0] = getroot.openfile(sys.argv[1])
     fmc = getroot.openfile(sys.argv[2])
-    bins = getroot.getbins(fdata, [])
-    zpt(fdata, fmc, opt=plotbase.options(bins=bins))
-    jeteta(fdata, fmc, opt=plotbase.options(bins=bins))
-    cut_all_npv(fdata, fmc, opt=plotbase.options(bins=bins))
+    bins = getroot.getbins(datamc[0], [])
+    zpt(datamc, opt=plotbase.options(bins=bins))
+    jeteta(datamc, opt=plotbase.options(bins=bins))
+    cut_all_npv(datamc, opt=plotbase.options(bins=bins))

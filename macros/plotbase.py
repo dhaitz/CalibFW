@@ -24,7 +24,7 @@ import getroot
 import plotrc
 
 
-def plot(modules, plots, fdata, mc, op):
+def plot(modules, plots, datamc, op):
     """Search for plots in the module and run them."""
     # dont display any graphics
     gROOT.SetBatch(True)
@@ -39,8 +39,8 @@ def plot(modules, plots, fdata, mc, op):
             plots = []
         for p in plots:
             if hasattr(module, p):
-                print "New plot:",
-                getattr(module, p)(fdata, mc, op)
+                print "New plot:", p, 
+                getattr(module, p)(datamc, op)
                 if op != startop:
                     whichfunctions += [p+" in "+module.__name__]
         if op.verbose:
@@ -61,21 +61,25 @@ def options(
             # standard values go here:
             algorithm="AK5PFJets",
             correction="L1L2L3",
-            lumi=0.0,
-            energy=7,
+            lumi=None,
+            energy=None,
             status=None,
             author=None,
             date=None,
             out="out",
             labels=["data", "MC"],
             colors=['black', '#CBDBF9'],
+            style=["o","-"],
+            fill=[0, 0, 0, 0, 0, 0, 0],
             formats=['png', 'pdf'],
             layout='generic',
             files=None,
+            eventnumberlabel=None,
             plots=None,
             npv=[(0, 2), (3, 5), (6, 11), (12, 100)],
             cut=[0.1, 0.15, 0.2, 0.3],
-            eta=[0, 0.522, 1.305, 1.930, 2.411, 2.853, 3.139, 5.0],
+            eta=[0.0, 1.3, 2.8, 5.0],
+            gen=None,
             bins=None):
     """Set standard options and read command line arguments
 
@@ -98,6 +102,10 @@ def options(
         default=labels,
         help="labels for the plots in the order of the files. Default is: "+
              ", ".join(labels))
+    parser.add_argument('-st', '--style', type=str, nargs='+',
+        default=style,
+        help="style for the plot in the order of the files. Default is: "+
+             ", ".join(style))
     parser.add_argument('-p', '--pudist', type=str, nargs='+',
         help="pile-up distributions")
 
@@ -149,6 +157,15 @@ def options(
              "data/MC comparisons")
     parser.add_argument('-v', '--verbose', action='store_true',
         help="verbosity")
+    parser.add_argument('-enl', '--eventnumberlabel', action='store_true',
+        help="add event number label")
+    parser.add_argument('-gen', '--gen', action='store_true',
+        help="for GenJet plots")
+    parser.add_argument('-fi', '--fill', type=int, nargs='+',
+        default=fill,
+        help="fill option for the plot in the order of the files. 1=fill, 0=blank.")
+
+
     opt = parser.parse_args()
     # to be substituted by commandline arguments (perhaps changed,
     # no formatting options here? but for multiple MC,
@@ -259,9 +276,11 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper ri
 
     Several functions are called for each type of label.
     """
-    lumilabel(ax, opt.lumi)    # always (if given) pure MC plots?
+    if opt.lumi is not None:
+        lumilabel(ax, opt.lumi)    # always (if given) pure MC plots?
     statuslabel(ax, opt.status)
-    energylabel(ax, opt.energy)
+    if opt.energy is not None:
+        energylabel(ax, opt.energy)
     if jet:
         jetlabel(ax, opt.algorithm, opt.correction)    # on demand
     binlabel(ax, bin)
@@ -271,6 +290,15 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper ri
     ax.legend(loc=legloc, numpoints=1, frameon=frame)
     return ax
 
+
+
+def eventnumberlabel(ax, opt, hdata, hmc1):
+    if opt.eventnumberlabel is True:
+        text = opt.labels[0] + " Events: " + str("%1.1e"%  hdata.ysum())
+        for f in hmc1:
+            text += "\n" + opt.labels[hmc1.index(f)+1] + " Events: " + str("%1.1e"% f.ysum())
+        ax.text(0.7,1.01, text, size='xx-small', va='bottom', ha='right',transform=ax.transAxes)
+        
 
 def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
     if lumi >= 1000.0:
@@ -282,9 +310,10 @@ def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
     return ax
 
 
-def energylabel(ax, energy=7, xpos=1.00, ypos=1.01):
-    ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
-        va='bottom', ha='right', transform=ax.transAxes)
+def energylabel(ax, energy, xpos=1.00, ypos=1.01):
+    if energy is not None:
+        ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
+            va='bottom', ha='right', transform=ax.transAxes)
 
 def jetlabel_string( algorithm, correction):
     if "L1L2L3Res" in correction:

@@ -35,7 +35,7 @@ def getvalues(nickname, f, opt):
     return result
 
 
-def fractions(fdata, fmc, opt):
+def fractions(files, opt):
     """Plot the components of the leading jet"""
     # Name everything you want and take only the first <nbr> entries of them
     nbr = 5
@@ -53,11 +53,11 @@ def fractions(fdata, fmc, opt):
     # Get list of graphs from inputfiles
     if opt.verbose:
         print "Loading MC Plots"
-    mcG = [getvalues(graphname, fmc, opt) for graphname in graphnames]
+    mcG = [getvalues(graphname, files[1], opt) for graphname in graphnames]
     if opt.verbose:
         print mcG[0]
         print "Loading Data Plots"
-    dataG = [getvalues(graphname, fdata, opt) for graphname in graphnames]
+    dataG = [getvalues(graphname, files[0], opt) for graphname in graphnames]
     if opt.verbose:
         print "Loading done"
 

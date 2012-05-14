@@ -59,7 +59,7 @@ def plot():
     op.bins = getroot.getbins(fdata,
             [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
 
-    plotbase.plot(module_list, op.plots, fdata, fmc, op)
+    plotbase.plot(module_list, op.plots, [fdata, fmc], op)
 
 
 if __name__ == "__main__":
