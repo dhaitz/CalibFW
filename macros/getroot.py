@@ -149,7 +149,7 @@ def getobjectname(quantity='z_mass', change={}):
     # make a prototype name and correct it
     for k in keys:
         hst += selection[k] + '_'
-    hst = hst[:-1].replace('Jets_', 'Jets').replace('__', '_').replace('_L1', 'L1')
+    hst = hst.replace('Jets_', 'Jets').replace('__', '_').replace('_L1', 'L1')[:-1]
     hst = hst.replace('_<quantity>', '/' + quantity)
     return hst
 
@@ -481,7 +481,32 @@ def getgraphpoint(graph, i):
         return float(a), float(b), graph.GetErrorX(i), graph.GetErrorY(i)
 
 
-def getgraph(x, y, f, opt, changes={}, key='var', var=None, drop=True, root=True):
+def histo2root(plot):
+    """Convert a Histo object to a root histogram (TH1D)"""
+    title = plot.title + ";" + plot.xlabel() + ";" + plot.ylabel()
+    print len(plot), title
+    print min(plot.x), max(plot.y)
+    th1d = ROOT.TH1D(plot.name, title, min(plot.x), max(plot.x), len(plot))
+
+    if not hasattr(plot, 'dropbin'):
+        print histo, "is no Histo. It could not be converted."
+        exit(0)
+    for i in range(0, len(plot)):
+            th1d.SetBinContent(i, plot.y)
+            hst.x.append(histo.GetBinLowEdge(i))
+            hst.xc.append(histo.GetBinCenter(i))
+            hst.y.append(histo.GetBinContent(i))
+            hst.xerr.append(histo.GetBinWidth(i) / 2.0)
+            hst.yerr.append(histo.GetBinError(i))
+    return th1d
+
+
+def writePlotToRootfile(plot, filename, plotname=None):
+    if hasattr(plot, 'dropbin'):
+        plot = histo2root(plot)
+
+
+def getgraph(x, y, f, opt, changes={}, key='var', var=None, drop=True, root=True, median=False, absmean=False):
     """get a Histo easily composed from different folders
 
        x ['z_pt', 'npv', 'alpha', 'jet1_eta', 'var'(list), 'custom'(custom)]
@@ -540,8 +565,7 @@ def getgraph(x, y, f, opt, changes={}, key='var', var=None, drop=True, root=True
 
     # loop over variation (x-axis)
     ch = copy.deepcopy(changes)
-    if 'var' in ch:
-        var = [v + "_" + ch['var'] for v in var]
+
     graph = ROOT.TGraphErrors()
     for i in range(len(var)):
         # read the values from folders
@@ -549,7 +573,10 @@ def getgraph(x, y, f, opt, changes={}, key='var', var=None, drop=True, root=True
         # get x (histogram mean or from list)
         if type(x) == str:
             ojx = getobjectfromnick(x, f1, ch)
-            xi = ojx.GetMean()
+            if absmean:
+                xi = histoabsmean(ojx)
+            else:
+                xi = ojx.GetMean()
             xerri = ojx.GetMeanError()
         else:
             xi = x[i]
@@ -558,20 +585,48 @@ def getgraph(x, y, f, opt, changes={}, key='var', var=None, drop=True, root=True
         ojy = getobjectfromnick(y, f1, ch)
 
         # store them in a root graph
-        graph.SetPoint(i, xi, ojy.GetMean())
+        if median:
+            graph.SetPoint(i, xi, histomedian(ojy))
+        else:
+            graph.SetPoint(i, xi, ojy.GetMean())
         graph.SetPointError(i, xerri, ojy.GetMeanError())
     if not root:
         return root2histo(graph)
     return graph
 
 
-def getgraphratio(x, y, f1, f2, opt, changes={}, key='var', var=None, drop=True):
+def getgraphratio(x, y, f1, f2, opt, changes={}, key='var', var=None, drop=True, median=False, absmean=False):
     if f2 is None:
-        return getgraph(x, y, f1, opt, changes, key, var, drop)
-    graph1 = getgraph(x, y, f1, opt, changes, key, var, drop)
-    graph2 = getgraph(x, y, f2, opt, changes, key, var, drop)
+        return getgraph(x, y, f1, opt, changes, key, var, drop, True, median, absmean)
+    graph1 = getgraph(x, y, f1, opt, changes, key, var, drop, True, median, absmean)
+    graph2 = getgraph(x, y, f2, opt, changes, key, var, drop, True, median, absmean)
     return dividegraphs(graph1, graph2)
 
+
+def histomedian(histo):
+
+    import array
+    nBins = histo.GetXaxis().GetNbins()
+    x = []
+    y = []
+    for i in range(nBins):
+        x += [ROOT.Double(histo.GetBinCenter(i))]
+        y += [ROOT.Double(histo.GetBinContent(i))]
+    assert len(x) == len(y)
+    assert len(x) == nBins
+    x=array.array('d', x)
+    y=array.array('d', y)
+
+    return ROOT.TMath.Median(nBins, x, y)
+
+def histoabsmean(histo):
+    absEta = histo.Clone()
+    n = absEta.GetNbinsX()       # 200
+    assert n % 2 == 0
+    for i in range(1, n/2+1):    # 1..100 : 200..101
+        absEta.SetBinContent(n+1-i, histo.GetBinContent(i) + histo.GetBinContent(n - i + 1))
+        absEta.SetBinContent(i, 0)
+    return absEta.GetMean();
 
 # for compatibility
 def gethisto(name, rootfile, changes={}, rebin=1):

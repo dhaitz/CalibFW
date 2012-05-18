@@ -32,7 +32,8 @@ extrapolation_is_done = False
 
 
 def fillgraph(method, changes, file_numerator, file_denominator=None, #extrapolateRatio=True,
-        var=[0.1, 0.15, 0.2, 0.3], varstr = "var_CutSecondLeadingToZPt_%s"):
+        var=[0.1, 0.15, 0.2, 0.3], varstr = "var_CutSecondLeadingToZPt_%s",
+        median=False):
     """Fill a TGraphErrors with the cut variation values for extrapolation
 
        var: variation values (list)
@@ -52,18 +53,28 @@ def fillgraph(method, changes, file_numerator, file_denominator=None, #extrapola
                     "_" + changes['var'] if 'var' in changes else "")
 
         oj = getroot.getobjectfromnick(method, file_numerator, ch)
-        y = oj.GetMean()
+        if median:
+            y = getroot.histomedian(oj)
+        else:
+            y = oj.GetMean()
         yerr = oj.GetMeanError()
         if y < 0.000001:
-            plotbase.fail("No valid response in %s (cut = %1.2f)!" % (ch['bin'], x) )
+            print "No valid response in %s (cut = %1.2f)!" % (ch, x)
+            continue
+            plotbase.fail("No valid response in %s (cut = %1.2f)!" % (ch, x) )
 
         # take the ratio (including error propagation):
         if file_denominator is not None:
             oj = getroot.getobjectfromnick(method, file_denominator, ch)
-            y /= oj.GetMean()
+            if median:
+                y /= getroot.histomedian(oj)
+            else:
+                y /= oj.GetMean()
             yerr =  (yerr + y * oj.GetMeanError()) / oj.GetMean()
             if y < 0.000001:
-                plotbase.fail("No valid response in %s (cut = %1.2f)!" % (ch['bin'], x) )
+                print "No valid response in %s (cut = %1.2f)!" % (ch, x)
+                continue
+                #plotbase.fail("No valid response in %s (cut = %1.2f)!" % (ch, x) )
 
         print "   %1.2f | %1.4f +- %1.4f" % (x, y, yerr),
 
@@ -169,13 +180,13 @@ def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ra
         ch['var'] = bin
     print "extrapolate", source, "...", ch
     if f2 is None or source == 'ratio':
-        graph = fillgraph(method, ch, f1, f2)
+        graph = fillgraph(method, ch, f1, f2, median=False)
         fit = fitextrapolation(graph)
         if draw:
             graph = getroot.root2histo(graph)
             graph.ylabel = method + "_" + source
             graph.name = "%s_%s_extrapolation_%s_%s%s" % (bin, method, source, opt.algorithm, opt.correction)
-            draw_extrapolation(graph, fit, ptbin, opt)
+            draw_extrapolation(graph, fit, bin, opt)
         print "k(%s) =" % bin, fit.f(0) / fit.f(0.2)
         global k_fsr
         if str(changes)+method+source not in k_fsr:
@@ -183,8 +194,8 @@ def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ra
         k_fsr[str(changes)+method+source].append(10, True, fit.f(0) / fit.f(0.2), fit.ferr(0) / fit.f(0.2) + fit.ferr(0.2) * fit.f(0) / fit.f(0.2) / fit.f(0.2) )
         return fit.f(0), fit.ferr(0)
     else: # 'seperate'
-        graphd = fillgraph(method, ch, f1)
-        graphm = fillgraph(method, ch, f2)
+        graphd = fillgraph(method, ch, f1, median=False)
+        graphm = fillgraph(method, ch, f2, median=False)
         fitd = fitextrapolation(graphd)
         fitm = fitextrapolation(graphm)
         if draw:
@@ -204,7 +215,7 @@ def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ra
         return fitd.f(0) / fitm.f(0), fitd.ferr(0) / fitm.f(0) + fitm.ferr(0) * fitd.f(0) / fitm.f(0) / fitm.f(0)
 
 
-def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw=False):
+def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw=True):
     """
        If 2 files are given the response ratio is returned!
        This is using fillgraph, fitextrapolation and draw_extra
@@ -226,8 +237,9 @@ def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw
     print "Get response ratio", method, over, changes, extrapol
     defaultchanges = plotbase.createchanges(opt)
     defaultchanges.update(changes)
-
-    graph = getroot.getgraphratio(over, method, f1, f2, opt, defaultchanges)
+    print "getresp", changes, defaultchanges
+    
+    graph = getroot.getgraphratio(over, method, f1, f2, opt, defaultchanges, absmean=(over=='jet1_eta'))
     if extrapol:
         if over == 'z_pt':
             bins = getroot.binstrings(opt.bins)
@@ -288,7 +300,8 @@ def ratioplot(files, opt, types, labels=None,
                  markers=['o', '*', 's']*8,
                  over='z_pt',
                  binborders=False,
-                 drawextrapolation=False):
+                 drawextrapolation=False,
+                 fit=True):
     """type: bal|mpf[ratio|seperate]
     """
     fig, ax = plotbase.newplot()
@@ -297,18 +310,77 @@ def ratioplot(files, opt, types, labels=None,
     ax.axhline(1.0, color="black", linestyle='--')
     if binborders:
         for x in opt.bins:
-            ax.axvline(x, color='gray')
+            pass #ax.axvline(x, color='gray')
 
     for t, l, m, c in zip(types, labels, markers, colors):
-        plot = getroot.root2histo(getresponse(t[:3]+'resp', over, opt, files[0], files[1], {}, extrapol=t[3:]))
+        rgraph = getresponse(t[:3]+'resp', over, opt, fdata, fmc, {}, extrapol=t[3:])
+        if fit:
+            line, err, chi2, ndf = getroot.fitline(rgraph)
+            ax.text(0.95, 0.65+0.07*colors.index(c), r"$R = {0:.3f} \pm {1:.3f}$ ".format(line, err),
+                va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=16)
+            ax.text(0.95, 0.2+0.07*colors.index(c), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
+                va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=16)
+            ax.axhline(line, color=c)
+            ax.axhspan(line-err, line+err, color=c, alpha=0.2)
+        plot = getroot.root2histo(rgraph)
         ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
+        print t
+        print plot.x
+        print plot.y
+        print plot.yerr
+ 
 
     # format plot
-
-    plotbase.labels(ax, opt, jet=True)
-    plotbase.axislabels(ax, over, 'response')
+    if over == 'jet1_eta':
+        pre = "abs_"
+    else:
+        pre = ""
+    plotbase.labels(ax, opt, jet=True, legloc='lower right')
+    plotbase.axislabels(ax, pre+over, 'responseratio')
 
     file_name = "_".join(types)
+    file_name += "_"+over+"_" + opt.algorithm + opt.correction
+
+    plotbase.Save(fig, file_name, opt)
+    
+
+def plotkfsr(files, opt, method='balresp', label=None,
+                 colors=["FireBrick", 'blue', 'green', 'orange']*7,
+                 markers=['o', 'D', 's']*8,
+                 over='z_pt',
+                 binborders=False,
+                 drawextrapolation=False,
+                 fit=True):
+    """type: bal|mpf[ratio|seperate]
+    """
+    fig, ax = plotbase.newplot()
+    label = label or labelformat(method)
+
+    grExt = getresponse(method, over, opt, files[0], files[1], {}, extrapol='seperate')
+    grStd = getresponse(method, over, opt, files[0], files[1], {}, extrapol=False)
+    grK = getroot.dividegraphs(grExt, grStd)
+    if fit:
+            line, err, chi2, ndf = getroot.fitline(grK)
+            ax.text(0.1, 0.27+0.07*0, r"$k_\mathrm{{FSR}} = {0:.3f} \pm {1:.3f}$ ".format(line, err),
+                va='bottom', ha='left', color=colors[0], transform=ax.transAxes, fontsize=16)
+            ax.text(0.1, 0.2+0.07*0, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
+                va='bottom', ha='left', color=colors[0], transform=ax.transAxes, fontsize=16)
+            ax.axhline(line, color=colors[0])
+            ax.axhspan(line-err, line+err, color=colors[0], alpha=0.2)
+    plot = getroot.root2histo(grK)
+    ax.axhline(1.0, color="black", linestyle='--')
+    ax.errorbar(plot.x, plot.y, plot.yerr, color=colors[0], fmt=markers[0], label=label)
+
+
+    # format plot
+    if over == 'jet1_eta':
+        pre = "abs_"
+    else:
+        pre = ""
+    plotbase.labels(ax, opt, jet=True, legloc='lower left')
+    plotbase.axislabels(ax, pre+over, 'kfsrratio')
+
+    file_name = "kfsr_" + "_".join([method])
     file_name += "_"+over+"_" + opt.algorithm + opt.correction
 
     plotbase.Save(fig, file_name, opt)
@@ -320,7 +392,7 @@ def labelformat(label):
     elif 'mpf' in label:
         result = "MPF"
     if 'ratio' in label:
-        result += " (ratio extrapolated)"
+        result += " (ratio extrapol.)"
     elif 'seperate' in label:
         result += " (extrapolated)"
     return result
@@ -354,12 +426,17 @@ def respratio_npv(files, opt):
     ratioplot(files, opt, ['bal', 'balratio', 'balseperate', 'mpf'], over='npv')
 
 
+def respratio_eta(fdata, fmc, opt):
+    ratioplot(fdata, fmc, opt, ['bal', 'balratio', 'balseperate', 'mpf'], drawextrapolation=True, over='jet1_eta', fit=False)
+
 def kfsr(files, opt):
-    pass
+    plotkfsr(files, opt)
+
+def kfsr_eta(files, opt):
+    plotkfsr(files, opt, over='jet1_eta')
 
 
-
-plots = ['response', 'respratio']
+plots = ['response', 'respratio', 'respratio_npv', 'respratio_eta']
 
 if __name__ == "__main__":
     """Unit test: doing the plots standalone (not as a module)."""
@@ -608,10 +685,6 @@ def balanceex(files, opt):
 
     plolResponseRatioOverNPV( files, opt, "balresp", use_extrapolation = True, the_label = "Balance extr." )
     plolResponseRatioOverNPV( files, opt, "balresp", use_extrapolation = False, the_label = "Balance")
-
-
-
-
 
 # MPF
 def mpfex(files, opt):
