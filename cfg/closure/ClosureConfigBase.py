@@ -303,7 +303,7 @@ def GetDataBaseConfig(analysis='zjet',run='2011'):
         d["JsonFile"] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON.txt"
     elif run == '2012':
         d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_44_V13_"
-        d["JsonFile"] = GetBasePath() + "data/json/Cert_190456-193336_8TeV_PromptReco_Collisions12_JSON.txt"
+        d["JsonFile"] = GetBasePath() + "data/json/Cert_190456-194076_8TeV_PromptReco_Collisions12_JSON.txt"
     else:
         print "Run period", run, "is undefined. No json and jet corrections known."
         exit(0)
