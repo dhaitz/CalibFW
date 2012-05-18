@@ -10,42 +10,37 @@ process = cms.Process("jectxt")
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 # define your favorite global tag and a list of algorithms
-globaltag = 'GR_R_44_V13'
-algorithms = ['AK5PF']
-jecversion = "JetCorrectorParametersCollection_Jec11_V12"
+globaltag = 'GR_R_44_V12' #'Jec12_V7'
+sqlitefile = 'Jec12_V7.db'
+use_gt = True
+algorithms = ['AK5PFchs', "AK5PF"]
+jecversion = "JetCorrectorParametersCollection_Jec11_V7"
 
 # if you want to load custom corrections
-process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
-    connect = cms.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
-    toGet = cms.VPSet(
-        cms.PSet(
-            record = cms.string("JetCorrectionsRecord"),
-            tag = cms.string(jecversion + "_KT6PF"),
-            label = cms.untracked.string("KT6PF")),
-        cms.PSet(
-            record = cms.string("JetCorrectionsRecord"),
-            tag = cms.string(jecversion + "_AK5PF"),
-            label = cms.untracked.string("AK5PF")),
-        cms.PSet(
-            record = cms.string("JetCorrectionsRecord"),
-            tag = cms.string(jecversion + "_AK5PFchs"),
-            label = cms.untracked.string("AK5PFchs")),
-        cms.PSet(
-            record = cms.string("JetCorrectionsRecord"),
-            tag = cms.string(jecversion + "_AK5Calo"),
-            label = cms.untracked.string("AK5Calo")),
-        cms.PSet(
-            record = cms.string("JetCorrectionsRecord"),
-            tag = cms.string(jecversion + "_AK5JPT"),
-            label = cms.untracked.string("AK5JPT")),
+thelist = cms.VPSet()
+for algo in algorithms:
+    thelist.append(cms.PSet(
+        record = cms.string("JetCorrectionsRecord"),
+        tag = cms.string(jecversion + "_" + algo),
+        label = cms.untracked.string(algo)
+    ))
+if use_gt:
+    process.jec = cms.ESSource("PoolDBESSource", CondDBSetup,
+        connect = cms.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
+        toGet = thelist,
     )
+    process.load('Configuration.StandardSequences.Services_cff')
+    process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+    process.GlobalTag.globaltag = globaltag + '::All'
+else:
+    process.jec = cms.ESSource("PoolDBESSource",
+        DBParameters = cms.PSet(messageLevel = cms.untracked.int32(0)),
+        timetype = cms.string('runnumber'),
+        connect = cms.string('sqlite:'+sqlitefile),
+        toGet = thelist
 )
+
 process.es_prefer_jec = cms.ESPrefer("PoolDBESSource", "jec")
-
-
-process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = globaltag + '::All'
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 process.source = cms.Source("EmptySource")
