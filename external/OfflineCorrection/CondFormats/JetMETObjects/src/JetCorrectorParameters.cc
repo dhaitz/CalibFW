@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.19 2011/01/27 12:14:13 kkousour Exp $
+// $Id: JetCorrectorParameters.cc,v 1.20 2012/03/01 18:24:53 srappocc Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -343,7 +343,23 @@ JetCorrectorParametersCollection::labelsArray_[JetCorrectorParametersCollection:
     "L1JPTOffset",
     "L2L3Residual",
     "Uncertainty",
-    "L1FastJet" 
+    "L1FastJet",
+    "UncertaintyAbsolute", 
+    "UncertaintyHighPtExtra", 
+    "UncertaintySinglePion", 
+    "UncertaintyFlavor", 
+    "UncertaintyTime",
+    "UncertaintyRelativeJEREC1", 
+    "UncertaintyRelativeJEREC2", 
+    "UncertaintyRelativeJERHF",
+    "UncertaintyRelativeStatEC2", 
+    "UncertaintyRelativeStatHF", 
+    "UncertaintyRelativeFSR",
+    "UncertaintyPileUpDataMC", 
+    "UncertaintyPileUpOOT", 
+    "UncertaintyPileUpPt", 
+    "UncertaintyPileUpBias", 
+    "UncertaintyPileUpJetRate"
   }; 
 
 const char *
@@ -448,7 +464,8 @@ JetCorrectorParameters const & JetCorrectorParametersCollection::operator[]( key
   for ( ; i != iend; ++i ) {
     if ( k == i->first ) return i->second;
   }
-  std::cout << " cannot find key " << static_cast<int>(k) << std::endl;
+  std::cout << "cannot find key " << static_cast<int>(k)
+      << " in the JEC payload, this usually means you have to change the global tag" << std::endl;
   assert(false);
 }
 
@@ -530,8 +547,8 @@ JetCorrectorParametersCollection::findKey( std::string const & label ) const {
   } 
 
   // Didn't find default corrections, throw exception
+  std::cout << "Cannot find label " << label << std::endl;
   assert(false);
-  std::cout << " Cannot find label " << label << std::endl;
 
 }
 

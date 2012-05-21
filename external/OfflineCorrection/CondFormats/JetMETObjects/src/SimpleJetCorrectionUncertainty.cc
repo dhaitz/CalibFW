@@ -31,30 +31,22 @@ float SimpleJetCorrectionUncertainty::uncertainty(std::vector<float> fX, float f
 {
   float result = 1.;
   int bin = mParameters->binIndex(fX);
-  if (bin<0) 
-  {
-	  assert ( false);
-   //[ hrow cms::Exception("SimpleJetCorrectionUncertainty")<<" bin variables out of range";
-  }
+  if (bin<0)
+    std::cout << "SimpleJetCorrectionUncertainty: bin variables out of range";
+  assert(bin >= 0);
   result = uncertaintyBin((unsigned)bin,fY,fDirection);
   return result;
 }
 /////////////////////////////////////////////////////////////////////////
 float SimpleJetCorrectionUncertainty::uncertaintyBin(unsigned fBin, float fY, bool fDirection) const 
 {
-  if (fBin >= mParameters->size())
-  {
-	  assert ( false);
-   //[ hrow cms::Exception("SimpleJetCorrectionUncertainty")<<" bin variables out of range";
-  }
-   // throw cms::Exception("SimpleJetCorrectionUncertainty")<<" wrong bin: "<<fBin<<": only "<<mParameters->size()<<" are available";
+  if (fBin >= mParameters->size()) 
+    std::cout << "SimpleJetCorrectionUncertainty: wrong bin: " << fBin << ": only " << mParameters->size() << " are available";
+  assert(fBin < mParameters->size());
   const std::vector<float>& p = mParameters->record(fBin).parameters();
-  if  ((p.size() % 3) != 0)
-  {
-	  assert ( false);
-   //[ hrow cms::Exception("SimpleJetCorrectionUncertainty")<<" bin variables out of range";
-  }
-   // throw cms::Exception ("SimpleJetCorrectionUncertainty")<<"wrong # of parameters: multiple of 3 expected, "<<p.size()<< " got";
+  if ((p.size() % 3) != 0)
+    std::cout << "SimpleJetCorrectionUncertainty: wrong # of parameters: multiple of 3 expected, " << p.size() << " got";
+  assert((p.size() % 3) == 0);
   std::vector<float> yGrid,value;
   unsigned int N = p.size()/3;
   float result = -1.0;
@@ -96,10 +88,9 @@ float SimpleJetCorrectionUncertainty::linearInterpolation(float fZ, const float 
         r = fY[0];
       else
       {
-    	  assert ( false);
-       //[ hrow cms::Exception("SimpleJetCorrectionUncertainty")<<" bin variables out of range";
+        std::cout << "SimpleJetCorrectionUncertainty: interpolation error";
+        assert(false);
       }
-       // throw cms::Exception("SimpleJetCorrectionUncertainty")<<" interpolation error";
     } 
   else   
     {

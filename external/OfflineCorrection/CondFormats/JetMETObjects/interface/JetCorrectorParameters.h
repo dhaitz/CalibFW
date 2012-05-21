@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.h,v 1.14 2011/01/27 12:14:13 kkousour Exp $
+// $Id: JetCorrectorParameters.h,v 1.15 2012/03/01 18:24:52 srappocc Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -113,7 +113,23 @@ class JetCorrectorParametersCollection {
 		 L6UE=5,
 		 L7Parton=6,
 		 Uncertainty=9,
-                N_LEVELS=11
+		 UncertaintyAbsolute=11, 
+		 UncertaintyHighPtExtra=12, 
+		 UncertaintySinglePion=13, 
+		 UncertaintyFlavor=14, 
+		 UncertaintyTime=15,
+		 UncertaintyRelativeJEREC1=16, 
+		 UncertaintyRelativeJEREC2=17, 
+		 UncertaintyRelativeJERHF=18,
+		 UncertaintyRelativeStatEC2=19, 
+		 UncertaintyRelativeStatHF=20, 
+		 UncertaintyRelativeFSR=21,
+		 UncertaintyPileUpDataMC=22, 
+		 UncertaintyPileUpOOT=23, 
+		 UncertaintyPileUpPt=24, 
+		 UncertaintyPileUpBias=25, 
+		 UncertaintyPileUpJetRate=26,
+		 N_LEVELS=27
   };
 
 
