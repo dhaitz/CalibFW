@@ -186,6 +186,18 @@ def fail(fail_message):
     exit(0)
 
 
+def printfiles(filelist):
+    if len(filelist) > 0:
+        print "Data file:", filelist[0]
+    else:
+        print "No input files given!"
+        exit(0)
+    if len(filelist) == 2:
+        print "MC file:", filelist[1]
+    elif len(filelist) > 2:
+        print "MC files:", ", ".join(filelist[1:])
+
+
 def createchanges(opt, change={}):
     change["correction"] = opt.correction
     change["algorithm"] = opt.algorithm
