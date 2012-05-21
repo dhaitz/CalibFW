@@ -31,18 +31,8 @@ void CorrJetProducer::InitCorrection( std::string algoName,
 
 	std::vector<std::string> corLevel;
 
-	if ( prefix == "")
-	{
-	   // if ( boost::algorithm::ends_with( algoName, "chs" ))
-	   /* {
-            prefix = m_corectionFileBase + algoName + "chs_";
-	    }
-	    else*/
-	    {
-            prefix = m_corectionFileBase + algoName + "_";
-	    }
-
-	}
+	if (prefix == "")
+		prefix = m_corectionFileBase;
 
 	corLevel.push_back("L1FastJet");
 	//corLevel.push_back("L1Offset");
@@ -51,7 +41,7 @@ void CorrJetProducer::InitCorrection( std::string algoName,
     m_corrService.insert( algoCorrectionAlias ,new JecCorrSet() );
 
 	m_corrService[ algoCorrectionAlias ].m_l1.reset( new JECService(
-            event.m_vertexSummary, event.m_jetArea, prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
+            event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName, 0) // -1.0 takes the area of the jet from FastJet calculation
 			);
 
 	// only apply one correction step in a round !
@@ -59,7 +49,7 @@ void CorrJetProducer::InitCorrection( std::string algoName,
 	corLevel.push_back("L2Relative");
 
 	m_corrService[ algoCorrectionAlias ].m_l2.reset( new JECService(
-			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
+			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName, 0) // -1.0 takes the area of the jet from FastJet calculation
 			);
 
 	// only apply one correction step in a round !
@@ -67,7 +57,7 @@ void CorrJetProducer::InitCorrection( std::string algoName,
 	corLevel.push_back("L3Absolute");
 
 	m_corrService[ algoCorrectionAlias ].m_l3.reset( new JECService(
-			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
+			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName, 0) // -1.0 takes the area of the jet from FastJet calculation
 		);
 
 	// only used for data
@@ -75,7 +65,7 @@ void CorrJetProducer::InitCorrection( std::string algoName,
 	corLevel.push_back("L2L3Residual");
 
 	m_corrService[ algoCorrectionAlias ].m_l2l3res.reset( new JECService(
-			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, 0) // -1.0 takes the area of the jet from FastJet calculation
+			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName, 0) // -1.0 takes the area of the jet from FastJet calculation
 			);
 }
 

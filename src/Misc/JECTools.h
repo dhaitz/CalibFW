@@ -102,9 +102,9 @@ inline void correctJets(std::vector<T> *jets,
 		T &jet = jets->at(idx);
 		if (area > 0)
 		{
-            std::cout << "SETTING FIXED AREA! FAIL !" << std::endl;
-            assert(false);
-            jet.area = area;
+			std::cout << "SETTING FIXED AREA! FAIL !" << std::endl;
+			assert(false);
+			jet.area = area;
 		}
 		
 		//std::cout << "JetA: " << jet.area << std::endl;
@@ -119,21 +119,24 @@ inline void correctJets(std::vector<T> *jets,
 class JECService
 {
 public:
-	JECService(FileInterface &fi, const std::string prefix, const std::vector<std::string> &level, const double R, const int jeuDir = 0)
+	JECService(FileInterface &fi, const std::string prefix,
+			const std::vector<std::string> &level, const std::string algo,
+			const double R, const int jeuDir = 0)
 		: area(-1), jeuType(jec_center), JEC(0), JEU(0),
 			vs(fi.Get<KVertexSummary>("offlinePrimaryVerticesSummary", false)),
 			ja(fi.Get<KJetArea>("KT6Area", true, true))
 	{
-        init( level, jeuDir, prefix );
+        init(level, jeuDir, prefix, algo);
 	}
 
 	JECService(KVertexSummary * vertexSummary,  KJetArea * jetArea, const std::string prefix,
-            const std::vector<std::string> &level, const double R, const int jeuDir = 0)
+			const std::vector<std::string> &level, const std::string algo,
+			const double R, const int jeuDir = 0)
 		: area(-1), jeuType(jec_center), JEC(0), JEU(0),
 			vs( vertexSummary ),
 			ja( jetArea)
     {
-        init( level, jeuDir, prefix );
+        init(level, jeuDir, prefix , algo);
     }
 
 	~JECService()
@@ -149,20 +152,20 @@ public:
 	}
 
 private:
-    void init(const std::vector<std::string> &level, const int jeuDir, const std::string prefix  )
+    void init(const std::vector<std::string> &level, const int jeuDir, const std::string prefix, const std::string algo)
     {
         std::cout << yellow << " * Loading jet energy corrections..." << reset << std::endl << "\t";
 		std::vector<JetCorrectorParameters> jecVec;
 		for (size_t i = 0; i < level.size(); ++i)
 		{
 			std::cout << level[i] << " ";
-			jecVec.push_back(JetCorrectorParameters(prefix + level[i] + ".txt"));
+			jecVec.push_back(JetCorrectorParameters(prefix + "_" + level[i] + "_" + algo + ".txt"));
 		}
 		JEC = new FactorizedJetCorrector(jecVec);
 		std::cout << std::endl;
 
 		std::cout << yellow << " * Loading jet energy uncertainties..." << reset << std::endl;
-		JEU = new JetCorrectionUncertainty(prefix + "Uncertainty.txt");
+		JEU = new JetCorrectionUncertainty(prefix + "_" + "Uncertainty" + "_" + algo + ".txt");
 		if (jeuDir > 0)
 			jeuType = jec_up;
 		else if (jeuDir < 0)
