@@ -1,9 +1,9 @@
 import sys
 import ClosureConfigBase as cbase
 
-conf = cbase.GetDataBaseConfig(run='2012')
-conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa52_Data12/*.root", sys.argv)
-conf["OutputPath"] = "closure_data_2012A"
+conf = cbase.GetDataBaseConfig()
+conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa44_Data11/*.root", sys.argv)
+conf["OutputPath"] = "closure_data_2011"
 
 algorithms = ["AK5PFJets", "AK5PFJetsL1L2L3", "AK5PFJetsL1L2L3Res"]
 cbase.addCHS(algorithms)
@@ -26,4 +26,3 @@ for v in variations:
     conf["Pipelines"].update(v)
 
 cbase.Run(conf, sys.argv)
-

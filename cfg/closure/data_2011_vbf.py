@@ -3,7 +3,7 @@ import ClosureConfigBase as cbase
 
 conf = cbase.GetDataBaseConfig('vbf')
 conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa44_Data11/*.root", sys.argv)
-conf["OutputPath"] = "closure_data_2011AB"
+conf["OutputPath"] = "closure_data_2011_vbf"
 
 algorithms = ["AK5PFJets", "AK5PFJetsL1L2L3", "AK5PFJetsL1L2L3Res"]
 cbase.addCHS(algorithms)
