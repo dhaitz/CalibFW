@@ -215,7 +215,7 @@ public:
 
 		m_run = new Hist1D( "run_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetNoModifier() );
+				Hist1D::GetRunModifier() );
 		AddPlot ( m_run );
 	}
 

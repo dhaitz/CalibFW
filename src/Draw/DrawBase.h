@@ -365,6 +365,7 @@ public:
 	static ModifierList GetMassModifier();
 	static ModifierList GetAreaModifier();
 	static ModifierList GetJetMatchingModifier();
+	static ModifierList GetRunModifier();
 
 	Hist1D( std::string sName, std::string sFolder, Hist1D::ModifierList l ) :
 		HistBase< Hist1D>(sName, sFolder),
