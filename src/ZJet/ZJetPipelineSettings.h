@@ -91,7 +91,8 @@ IMPL_SETTING(unsigned int, FilterRunRangeLumiHigh)
 IMPL_SETTING(unsigned int, FilterRunRangeEventLow)
 IMPL_SETTING(unsigned int, FilterRunRangeEventHigh)
 
-
+IMPL_SETTING(double, FilterResponseLow)
+IMPL_SETTING(double, FilterResponseHigh)
 IMPL_SETTING(double, FilterSecondJetRatioLow)
 IMPL_SETTING(double, FilterSecondJetRatioHigh)
 IMPL_SETTING(unsigned long, FilterInCutIgnored)

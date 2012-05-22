@@ -25,6 +25,7 @@
 #include "ZJet/Filter/RunRangeFilter.h"
 #include "ZJet/Filter/NpvFilter.h"
 #include "ZJet/Filter/JetEtaFilter.h"
+#include "ZJet/Filter/ResponseWindowFilter.h"
 
 using namespace CalibFW;
 
@@ -78,6 +79,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddFilter( new HltFilter);
 			else if ( sid == RunRangeFilter().GetFilterId())
 				pLine->AddFilter( new RunRangeFilter);
+			else if ( sid == ResponseWindowFilter().GetFilterId())
+				pLine->AddFilter( new ResponseWindowFilter);
 			else
 				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 		}
