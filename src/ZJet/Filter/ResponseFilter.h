@@ -5,19 +5,19 @@
 namespace CalibFW
 {
 
-class ResponseWindowFilter: public ZJetFilterBase
+class ResponseFilter: public ZJetFilterBase
 {
 public:
 
 	enum RespType {Balance, MPF};
 	RespType m_respType;
 
-	ResponseWindowFilter() :
+	ResponseFilter() :
 		ZJetFilterBase(), m_respType(Balance)
 	{
 	}
 
-	ResponseWindowFilter(RespType method) :
+	ResponseFilter(RespType method) :
 		ZJetFilterBase(), m_respType(method)
 	{
 	}
@@ -41,7 +41,7 @@ public:
 		        response < settings.GetFilterResponseHigh());
 	}
 
-	virtual std::string GetFilterId() { return "responsewindow"; }
+	virtual std::string GetFilterId() { return "response"; }
 
 };
 }
