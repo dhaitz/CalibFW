@@ -10,11 +10,11 @@ process = cms.Process("jectxt")
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 # define your favorite global tag and a list of algorithms
-globaltag = 'GR_R_44_V12' #'Jec12_V7'
+globaltag = 'GR_R_52_V9'
 sqlitefile = 'Jec12_V7.db'
 use_gt = True
 algorithms = ['AK5PFchs', "AK5PF"]
-jecversion = "JetCorrectorParametersCollection_Jec11_V7"
+jecversion = "JetCorrectorParametersCollection_Jec11_V12"
 
 # if you want to load custom corrections
 thelist = cms.VPSet()

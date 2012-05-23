@@ -213,7 +213,7 @@ def GetVBFBaseConfig():
     return d
 
 
-def ApplyPUReweighting(conf, dataset="kappa50_MC12_madgraph_190456-191859_8TeV_PromptReco", weightfile="data/pileup/puweights.json"):
+def ApplyPUReweighting(conf, dataset, weightfile="data/pileup/puweights.json"):
     """Use pile-up reweighting
 
        This function turns the pile-up reweighting on and sets the corresponding
@@ -287,9 +287,9 @@ def GetMcBaseConfig(analysis='zjet', run='2011'):
     d["InputType"] = "mc"
 
     if run == '2011':
-        d["JecBase"] = GetBasePath() + "data/jec_data/START44_V12_"
+        d["JecBase"] = GetBasePath() + "data/jec_data/START44_V12"
     elif run == '2012':
-        d["JecBase"] = GetBasePath() + "data/jec_data/START44_V12_"
+        d["JecBase"] = GetBasePath() + "data/jec_data/START52_V7"
     else:
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
@@ -314,7 +314,7 @@ def GetDataBaseConfig(analysis='zjet',run='2011'):
         d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_44_V13"
         d["JsonFile"] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON_v2.txt"
     elif run == '2012':
-        d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_44_V13"
+        d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_52_V9"
         d["JsonFile"] = GetBasePath() + "data/json/Cert_190456-194076_8TeV_PromptReco_Collisions12_JSON.txt"
     else:
         print "Run period", run, "is undefined. No json and jet corrections known."
