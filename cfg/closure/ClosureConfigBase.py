@@ -904,8 +904,8 @@ def StoreMergeScript ( settings, nickname, filename, output_folder, merge_folder
     os.chmod(filename, stat.S_IRWXU)
     print "Generating", filename.replace("merge", "parallelmerge")
     mfile = open(filename.replace("merge","parallelmerge"), 'wb')
-    mfile.write("mkdir -p " + output_folder.replace("out", merge_folder) + "\n")
-    mfile.write("../../scripts/parallelmerge.sh " + output_folder + " " + output_folder.replace("out", merge_folder) + " 10")
+    #mfile.write("mkdir -p " + output_folder.replace("out", merge_folder) + "\n")
+    mfile.write(GetBasePath()+"scripts/parallelmerge.sh " + output_folder + " 10")
     os.chmod(filename.replace("merge","parallelmerge"), stat.S_IRWXU)
 
 def StoreShellRunner ( settings, nickname, filename ):
