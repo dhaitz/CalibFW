@@ -865,7 +865,7 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
     config.add_section("jobs")
     config.set("jobs", "in queue", 50)
     config.set("jobs", "shuffle", True)
-    config.set("jobs", "wall time", "0:30:00" )
+    config.set("jobs", "wall time", "1:50:00" )
     config.set("jobs", "monitor", "scripts" )
 
     config.add_section("local")
@@ -876,9 +876,9 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
     # we can run more data files with one MC job as they don't contain that many
     # events
     if settings["InputType"] == "mc":
-        config.set("UserMod", "files per job", 3 )
+        config.set("UserMod", "files per job", 15 )
     else:
-        config.set("UserMod", "files per job", 20 )
+        config.set("UserMod", "files per job", 25 )
 
     config.set("UserMod", "executable", "gc-run-closure.sh" )
     config.set("UserMod", "subst files", "gc-run-closure.sh" )
