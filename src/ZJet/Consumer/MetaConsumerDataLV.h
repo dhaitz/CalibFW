@@ -204,14 +204,13 @@ public:
 		//CALIB_LOG( m_source->size() )
 		// call sub plots
 
-		if ( GetProductIndex() >= ( metaData.GetValidJetCount( this->GetPipelineSettings(), event)) )
+		if (GetProductIndex() >= metaData.GetValidJetCount(this->GetPipelineSettings(), event) )
 			// no valid entry for us here !
 			return;
 
-		if ( (m_algorithm != "" )&& ( GetProductIndex() >= ( metaData.GetValidJetCount( this->GetPipelineSettings(), event, m_algorithm)) )){
-			// no valid entry for us here !
-			std::cout << "No valid GenJet!" <<std::endl;
-			return;}
+		if ( (m_algorithm != "") && (GetProductIndex() >= metaData.GetValidJetCount(this->GetPipelineSettings(), event, m_algorithm)) )
+			// no valid GenJet!
+			return;
 		
 
 		KDataLV * lv;
