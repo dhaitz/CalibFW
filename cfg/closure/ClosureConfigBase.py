@@ -141,29 +141,34 @@ def GetBaseConfig():
     d["ThreadCount"] = 1
     d["Pipelines"] = { "default": {
             "Level": 1,
-            "JetAlgorithm" : "to_set",
+            "JetAlgorithm": "to_set",
             "RootFileFolder": "",
 
             "CutMuonEta": 2.3,
-            "CutMuonPt": 15,
-            "CutZMassWindow": 20,
+            "CutMuonPt": 20.0,
+            "CutZMassWindow": 20.0,
             "CutLeadingJetEta": 1.3,
 
             "CutSecondLeadingToZPt": 0.2,
             "CutBack2Back": 0.34,
 
+            "CutZPt": 15.0,
+            "CutLeadingJetPt": 8.0,
 
             "Cuts": ["muon_pt",
                      "muon_eta",
                      "leadingjet_eta",
                      "secondleading_to_zpt",
                      "back_to_back",
-                     "zmass_window"],
-            "Filter":["valid_z", "valid_jet"],
+                     "zmass_window",
+                     "zpt",
+                     "leadingjet_pt",
+                     ],
+            "Filter": ["valid_z", "valid_jet"],
             "Consumer": {}
                       }
             }
-    AddConsumerNoConfig( d["Pipelines"]["default"], "quantities_all")
+    AddConsumerNoConfig(d["Pipelines"]["default"], "quantities_all")
 
     return d
 
