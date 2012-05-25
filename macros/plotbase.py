@@ -70,7 +70,6 @@ def options(
             labels=["data", "MC"],
             colors=['black', '#CBDBF9'],
             style=["o","-"],
-            fill=[0, 0, 0, 0, 0, 0, 0],
             formats=['png', 'pdf'],
             layout='generic',
             files=None,
@@ -102,9 +101,9 @@ def options(
         default=labels,
         help="labels for the plots in the order of the files. Default is: "+
              ", ".join(labels))
-    parser.add_argument('-st', '--style', type=str, nargs='+',
+    parser.add_argument('-S', '--style', type=str, nargs='+',
         default=style,
-        help="style for the plot in the order of the files. Default is: "+
+        help="style for the plot in the order of the files. 'o' for points, '-' for lines, 'f' for fill. Default is: "+
              ", ".join(style))
     parser.add_argument('-p', '--pudist', type=str, nargs='+',
         help="pile-up distributions")
@@ -157,13 +156,10 @@ def options(
              "data/MC comparisons")
     parser.add_argument('-v', '--verbose', action='store_true',
         help="verbosity")
-    parser.add_argument('-enl', '--eventnumberlabel', action='store_true',
+    parser.add_argument('-E', '--eventnumberlabel', action='store_true',
         help="add event number label")
-    parser.add_argument('-gen', '--gen', action='store_true',
+    parser.add_argument('-g', '--gen', action='store_true',
         help="for GenJet plots")
-    parser.add_argument('-fi', '--fill', type=int, nargs='+',
-        default=fill,
-        help="fill option for the plot in the order of the files. 1=fill, 0=blank.")
 
 
     opt = parser.parse_args()
@@ -304,11 +300,11 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper ri
 
 
 
-def eventnumberlabel(ax, opt, hdata, hmc1):
+def eventnumberlabel(ax, opt, events):
     if opt.eventnumberlabel is True:
-        text = opt.labels[0] + " Events: " + str("%1.1e"%  hdata.ysum())
-        for f in hmc1:
-            text += "\n" + opt.labels[hmc1.index(f)+1] + " Events: " + str("%1.1e"% f.ysum())
+        text=""
+        for f, l in zip(events, opt.labels):
+            text += "\n" + l + " Events: " + str("%1.1e"% f)
         ax.text(0.7,1.01, text, size='xx-small', va='bottom', ha='right',transform=ax.transAxes)
         
 
@@ -486,7 +482,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
     elif x in ['z_mass']:
         setxaxis((70, 110), r"$m^\mathrm{%s}$" % x[:-5].title(), "GeV")
     elif x == 'balresp':
-        setxaxis((0.3, 1.8), r"$p_\mathrm{T}$ balance")
+        setxaxis((0.0, 1.8), r"$p_\mathrm{T}$ balance")
     elif x == 'mpfresp':
         setxaxis((0.3, 1.8), r"$R_\mathrm{MPF}$")
     elif 'numputruth' == x:

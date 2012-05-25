@@ -17,44 +17,35 @@ def datamcplot(quantity, files, opt, legloc='center right',
         print quantity
     
     change = plotbase.createchanges(opt, change)
-    if quantity in ['numpu', 'numputruth']:
-        hdata = getPUindata(quantity)
-    else:
-        hdata = getroot.getplotfromnick(quantity, files[0], change, rebin)
-    print "Data Events:",hdata.ysum()
-    
-    #create emply lists hmc (to be normalized) + hmc1, fill with MC Root files
-    hmc = []
-    hmc1=[]
-    for f in files[1:]:
-	i = files[1:].index(f)
-        hmc += [getroot.getplotfromnick(quantity, files[1:][i], change, rebin)]
-        hmc1 += [getroot.getplotfromnick(quantity, files[1:][i], change, rebin)]
-        if opt.normalize and 'cut_' not in quantity:
-            hmc[i].scale(hdata.ysum() / hmc[i].ysum())
-        elif 'cut_' not in quantity:
-            hmc[i].scale(opt.lumi)
 
-    datamc=[hdata]+hmc
+    datamc=[]
+    events=[]
+
+    #create list with histograms
+    datamc = [getroot.getplotfromnick(quantity, f, change, rebin) for f in files]
+    if quantity in ['numpu', 'numputruth']:
+        datamc[0] = getPUindata(quantity)
 
     # create the plot
     fig, ax = plotbase.newplot()
 
-    #plot loop over MCs 
-    for f in datamc:
-        i = datamc.index(f)
-        #print "Index: ", i, " Labels: ", opt.labels[i], " Style: ", opt.style[i], " Fill: ", opt.fill[i]
-        ax.errorbar(datamc[i].xc, datamc[i].y, datamc[i].yerr, drawstyle='steps-mid', 
-           color=opt.colors[i], fmt=opt.style[i], capsize=0 ,label=opt.labels[i])
+    #loop over histograms: scale and plot 
+    for f, l, c, s in reversed(zip(datamc, opt.labels, opt.colors, opt.style)):
+        events.insert(0,f.ysum())
+        if opt.normalize and 'cut_' not in quantity:
+            f.scale(datamc[0].ysum() / f.ysum())
+        elif 'cut_' not in quantity:
+            f.scale(opt.lumi)
 
-        if opt.fill[i]==1:
-            ax.bar(datamc[i].x, datamc[i].y, (datamc[i].x[2] - datamc[i].x[1]),
-           bottom=numpy.ones(len(datamc[i].x)) * 1e-6, fill=True,
-           facecolor=opt.colors[i], edgecolor=opt.colors[i])
+        if s=='f':
+            ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, fmt='-', capsize=0 ,label=l)
+            ax.bar(f.x, f.y, (f.x[2] - f.x[1]), bottom=numpy.ones(len(f.x)) * 1e-6, fill=True, facecolor=c, edgecolor=c)
+        else:
+            ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, fmt=s, capsize=0 ,label=l)
 
 
     plotbase.labels(ax, opt, legloc=legloc, frame=True)
-    plotbase.eventnumberlabel(ax, opt, hdata, hmc1)
+    plotbase.eventnumberlabel(ax, opt, events)
 
     ax.set_ylim(top=datamc[0].ymax() * 1.2)
     if 'cut_' in quantity and '_npv' in quantity:
@@ -292,8 +283,8 @@ plots = [
     ]
 
 genplots = [
- #   'jetpt', 'jeteta', 'jetphi',
- #   'jet2pt',  'jet2eta', 'jet2phi',
+    'jetpt', 'jeteta', 'jetphi',
+    'jet2pt',  'jet2eta', 'jet2phi',
     'jet2pt_nocuts',
     ]
 
