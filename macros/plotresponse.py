@@ -313,7 +313,7 @@ def ratioplot(files, opt, types, labels=None,
             pass #ax.axvline(x, color='gray')
 
     for t, l, m, c in zip(types, labels, markers, colors):
-        rgraph = getresponse(t[:3]+'resp', over, opt, fdata, fmc, {}, extrapol=t[3:])
+        rgraph = getresponse(t[:3]+'resp', over, opt, files[0], files[1], {}, extrapol=t[3:])
         if fit:
             line, err, chi2, ndf = getroot.fitline(rgraph)
             ax.text(0.95, 0.65+0.07*colors.index(c), r"$R = {0:.3f} \pm {1:.3f}$ ".format(line, err),
@@ -426,8 +426,8 @@ def respratio_npv(files, opt):
     ratioplot(files, opt, ['bal', 'balratio', 'balseperate', 'mpf'], over='npv')
 
 
-def respratio_eta(fdata, fmc, opt):
-    ratioplot(fdata, fmc, opt, ['bal', 'balratio', 'balseperate', 'mpf'], drawextrapolation=True, over='jet1_eta', fit=False)
+def respratio_eta(files, opt):
+    ratioplot(files, opt, ['bal', 'balratio', 'balseperate', 'mpf'], drawextrapolation=True, over='jet1_eta', fit=False)
 
 def kfsr(files, opt):
     plotkfsr(files, opt)
@@ -436,7 +436,9 @@ def kfsr_eta(files, opt):
     plotkfsr(files, opt, over='jet1_eta')
 
 
-plots = ['response', 'respratio', 'respratio_npv', 'respratio_eta']
+plots = ['response', 'respratio', 'respratio_npv'
+#, 'respratio_eta'
+]
 
 if __name__ == "__main__":
     """Unit test: doing the plots standalone (not as a module)."""
