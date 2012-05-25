@@ -48,9 +48,9 @@ public:
 
 		KDataLV * jet2 = metaData.GetValidJet(m_pipelineSettings, data, 1, "AK5PFJetsCHSL1L2L3");
 		// apply a new weight for 10 GeV pt bins
-		if ( m_pipelineSettings.Global()->Get2ndJetReweighting().size() > int(jet2->p4.Pt() / 10.0))
+		if ( m_pipelineSettings.Global()->Get2ndJetReweighting().size() > int(jet2->p4.Pt() / 2.0))
 		fact = m_pipelineSettings.Global()->Get2ndJetReweighting().at(
-			int(jet2->p4.Pt() / 10.0) );
+			int(jet2->p4.Pt() / 2.0) );
 		else fact = 0.0f;
 		metaData.SetWeight(metaData.GetWeight() * fact);
 
