@@ -93,6 +93,19 @@ def GetBasePath():
         exit(0)
 
 
+def GetWorkPath():
+    hname = socket.gethostname()
+    # feel free to insert your machine here !
+    username = getpass.getuser()
+   if username == 'dhaitz':
+        if 'ekpcms' in hname or 'ekpplus' in hname:
+            return "/storage/8/dhaitz/CalibFW/"    
+    else:
+        GetBasePath()
+        exit(0)
+
+
+
 def getDefaultCorrectionL2(data_path):
     globalTag = "GR_R_44_V13_"
 
@@ -907,7 +920,7 @@ def StoreShellRunner ( settings, nickname, filename ):
         cfile.write("source /wlcg/sw/cms/experimental/cmsset_default.sh\n")
     cfile.write("eval `scram runtime -sh`\n")
     cfile.write("cd -\n")
-    cfile.write("source "+ GetBasePath() + "/scripts/CalibFWenv.sh\n")
+    cfile.write("source "+ GetBasePath() + "scripts/CalibFWenv.sh\n")
     cfile.write( GetBasePath() + "closure " + GetBasePath() + "cfg/closure/" + nickname + ".py.json" )
     cfile.close()
     os.chmod(filename, stat.S_IRWXU)
@@ -927,7 +940,9 @@ def Run(settings, arguments):
     StoreSettings( settings, filename)
 
     base_path = GetBasePath()
+    work_path = GetWorkPath()
     print "BASEPATH", base_path
+    print "WORKPATH", work_path
 
     if len(arguments) > 1 and "--storeonly" in arguments:
         "The settings were stored to", filename
@@ -940,18 +955,18 @@ def Run(settings, arguments):
         nickname = nickname.split(".")[0]
         print "Generating GC configs with nickname " + nickname + " ..."
         # store the input files in gc format
-        if not os.path.exists( base_path + "work/" ) :
-            os.mkdir( base_path + "work/" )
-        if not os.path.exists( base_path + "work/" + nickname ) :
-            os.mkdir( base_path + "work/" + nickname )
-        if not os.path.exists( base_path + "work/" + nickname + "/out/" ) :
-            os.mkdir( base_path + "work/" + nickname + "/out/" )
+        if not os.path.exists( work_path + "work/" ) :
+            os.mkdir( work_path + "work/" )
+        if not os.path.exists( work_path + "work/" + nickname ) :
+            os.mkdir( work_path + "work/" + nickname )
+        if not os.path.exists( work_path + "work/" + nickname + "/out/" ) :
+            os.mkdir( work_path + "work/" + nickname + "/out/" )
 
-        StoreGCDataset(settings, nickname, base_path + "work/" + nickname + "/" + nickname + ".dbs")
-        StoreGCConfig(settings, nickname, base_path + "work/" + nickname + "/" + nickname + ".conf")
-        StoreGCCommon(settings, nickname, base_path + "work/" + nickname + "/gc_common.conf", base_path + "work/" + nickname + "/out/")
-        StoreMergeScript(settings, nickname, base_path + "work/" + nickname + "/merge.sh", base_path + "work/" + nickname + "/out/")
-        StoreShellRunner(settings, nickname, base_path + "work/" + nickname + "/gc-run-closure.sh")
+        StoreGCDataset(settings, nickname, work_path + "work/" + nickname + "/" + nickname + ".dbs")
+        StoreGCConfig(settings, nickname, work_path + "work/" + nickname + "/" + nickname + ".conf")
+        StoreGCCommon(settings, nickname, work_path + "work/" + nickname + "/gc_common.conf", work_path + "work/" + nickname + "/out/")
+        StoreMergeScript(settings, nickname, work_path + "work/" + nickname + "/merge.sh", work_path + "work/" + nickname + "/out/")
+        StoreShellRunner(settings, nickname, work_path + "work/" + nickname + "/gc-run-closure.sh")
 
         # generate merge script
         print "done"
