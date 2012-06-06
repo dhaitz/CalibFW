@@ -37,10 +37,6 @@ def plot():
         files=[     # First file must be data, other files MC
             "work/data_2012_52/out/closure_data_2011_52.root",
             "work/data_2011A/out/closure_data_2011A_only.root",
-            #"work/mc_DY2012_52/out/closure_mc_DY2011_52.root",
-            #"work/mc_DY2012_50/out/closure_mc_DY2011_50.root",
-            #"work/mc_DY2011/out/closure_mc_DY2011_one.root",
-            #"work/mc_DY2011_madgraph/out/closure_mc_DY2011_madgraph_one.root"
         ],
         #specify output path
         out="out/8_TeV_vs_7_TeV/",
@@ -54,7 +50,9 @@ def plot():
         #lumi=264.5
 
         algorithm="AK5PFJetsCHS",
-        correction="L1L2L3",
+        correction="L1L2L3Res",
+
+        eta=[0, 0.522, 1.305, 1.930, 2.411, 2.853, 3.139],
 
         plots= plotdatamc.plots 
                +plotresponse.plots
@@ -73,17 +71,12 @@ def plot():
     # override commandline (3):
     op.normalize = True
 
-    #print info about used data/mc files:
-    print "\n","Using Data file " + op.files[0]
-    print "Number of additional files:", len(op.files)-1
+    print "Number of files:", len(op.files)
+    files=[]
     for f in op.files:
-        if op.files.index(f) > 0:
-            print "Using as file", 1+op.files.index(f) ,":" , f
-    
-    files = []
-    #fill files with data and MC files:
-    for f in op.files:
-        files.append(getroot.openfile(f, op.verbose))
+        print "Using as file", 1+op.files.index(f) ,":" , f
+        files += [getroot.openfile(f, op.verbose)]
+
     op.bins = getroot.getbins(files[0],
             [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
 

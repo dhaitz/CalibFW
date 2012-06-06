@@ -100,7 +100,7 @@ def getDataDistribution(files, lumijson, xsec=69.4, numpu=50, histo="pileup", ou
         if not outfile:
             # take the core part of the json file name
             outfile = "pileup_" + files.split('/')[-1][5:-22] + ".root"
-        cmd=["pileupCalc.py", "-i", files, "--inputLumiJSON", lumijson, "--calcMode", "true", "--minBiasXsec", str(int(xsec*1000)), "--maxPileupBin", str(numpu+1), "--numPileupBins", str(numpu+1), outfile]
+        cmd=["/home/dhaitz/CMSSW_5_2_5/src/RecoLuminosity/LumiDB/scripts/pileupCalc.py", "-i", files, "--inputLumiJSON", lumijson, "--calcMode", "true", "--minBiasXsec", str(int(xsec*1000)), "--maxPileupBin", str(numpu+1), "--numPileupBins", str(numpu+1), outfile]
         print " ".join([str(s) for s in cmd])
         subprocess.call(cmd)
 

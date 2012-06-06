@@ -24,6 +24,7 @@ import ROOT
 import cPickle as pickle
 import time
 import copy
+import plotbase
 
 
 
@@ -137,8 +138,8 @@ def getobjectname(quantity='z_mass', change={}):
     # Set default values
     keys = ['bin', 'incut', 'var', 'quantity', 'algorithm', 'correction']
     selection = {'bin': 'NoBinning', 'incut': 'incut', 'var': '',
-                 'quantity': '<quantity>', 'algorithm': 'AK5PFJets',
-                 'correction': 'L1L2L3' }
+                 'quantity': '<quantity>', 'algorithm': 'AK5PFJetsCHS',
+                 'correction': 'L1L2L3Res' }
     hst = ''
     for k in change:
         if k not in selection:
@@ -318,7 +319,7 @@ class Histo:
     def write(self, filename='.txt'):
         """Write the histogram to a text file"""
         if filename == '.txt':
-            filename = 'out/dat/' + self.name + '.txt'
+            filename = 'out/' + self.name + '.txt'
         f = file(filename, 'w')
         f.write(str(self))
         f.close()
@@ -506,7 +507,7 @@ def writePlotToRootfile(plot, filename, plotname=None):
         plot = histo2root(plot)
 
 
-def getgraph(x, y, f, opt, changes={}, key='var', var=None, drop=True, root=True, median=False, absmean=False):
+def getgraph(x, y, f, opt, change={}, key='var', var=None, drop=True, root=True, median=False, absmean=False):
     """get a Histo easily composed from different folders
 
        x ['z_pt', 'npv', 'alpha', 'jet1_eta', 'var'(list), 'custom'(custom)]
@@ -521,6 +522,8 @@ def getgraph(x, y, f, opt, changes={}, key='var', var=None, drop=True, root=True
        If var is Pt-bins, the first datapoint can be dropped (default).
        x,y,var(x)
     """
+    changes = plotbase.createchanges(opt)
+    changes.update(change)
     print "Get a", y, "over", x, "plot from file:", f.GetName()
     try:
         f1 = f[0]
@@ -538,7 +541,6 @@ def getgraph(x, y, f, opt, changes={}, key='var', var=None, drop=True, root=True
     elif x == 'npv':
         # x = mitte(npvbin) from opt, var = var_Npv_0to1
         var = npvstrings(opt.npv)
-        print opt.npv, var
         x = [0.5 * (a + min(b, 35)) for a, b in opt.npv]
         xerr = [0.5 * (b - a) for a, b in opt.npv]
     elif x == 'alpha':

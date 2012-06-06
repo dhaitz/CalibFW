@@ -47,12 +47,22 @@ def plot():
         )
     module_list = [plotdatamc, plotresponse, plotfractions, plot_resolution]
 
+    # check if GenJet Plot
+    if op.gen:
+        op.algorithm = "AK5GenJets"
+        op.correction = ""
+        op.plots = plotdatamc.genplots
+        
+
     # override commandline (3):
     op.normalize = True
 
-    plotbase.printfiles(op.files)
+    files=[]
+    print "Number of files:", len(op.files)
+    for f in op.files:
+        print "Using as file", 1+op.files.index(f) ,":" , f
+        files += [getroot.openfile(f, op.verbose)]
 
-    files = [getroot.openfile(f, op.verbose) for f in op.files]
     op.bins = getroot.getbins(files[0],
             [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
 

@@ -97,7 +97,7 @@ def GetWorkPath():
     hname = socket.gethostname()
     # feel free to insert your machine here !
     username = getpass.getuser()
-   if username == 'dhaitz':
+    if username == 'dhaitz':
         if 'ekpcms' in hname or 'ekpplus' in hname:
             return "/storage/8/dhaitz/CalibFW/"    
     else:

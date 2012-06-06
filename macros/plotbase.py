@@ -70,7 +70,7 @@ def options(
             labels=["data", "MC"],
             colors=['black', '#CBDBF9'],
             style=["o","-"],
-            formats=['png', 'pdf'],
+            formats=['png'],
             layout='generic',
             files=None,
             eventnumberlabel=None,
@@ -521,14 +521,19 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
         setyaxis((0.75, 1.00), r"MPF"+ratio)
     elif 'response' in y:
         setyaxis((0.85, 1.11), r"Response"+ratio)
+        if x == 'jet1_eta' : setyaxis((0.75, 1.11), r"Response"+ratio)
     elif 'kfsr' in y:
         setyaxis((0.90, 1.101), r"$k_\mathrm{FSR}$"+ratio)
     elif y == 'resolution':
         setyaxis((0.0, 0.3), "Jet Resolution Ratio")
     elif y == 'resolutionratio':
         setyaxis((-0.5, 2.5), "Jet Resolution Ratio")
+    elif 'npv' == y:
+        setyaxis((0, 35), r"Number of Reconstructed Vertices $n$")
     elif 'z_pt' == y:
         setyaxis((50, 150), "$p_\mathrm{T}^\mathrm{Z}$")
+    elif 'jet1_pt' == y:
+        setyaxis((0, 150), "$p_\mathrm{T}^\mathrm{Jet1}$")
     elif 'z_mass' == y:
         setyaxis((90, 93), "$m_\mathrm{Z}$")
     elif 'z_eta' == y:
@@ -706,7 +711,6 @@ def _internal_Save(figure, name, opt, crop=True):
     The standard data formats are png and pdf.
     Available graphics formats are: pdf, png, ps, eps and svg
     """
-
     EnsurePathExists( opt.out )
     
     name = opt.out + '/' + name
