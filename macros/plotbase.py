@@ -468,14 +468,15 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
         ax.set_xticklabels([r"$20$", r"$30$", r"$40$", r"$50$", r"$60$", r"",
                             r"$80$", r"", r"$200$", r"$300$", r"$400$"],
                             minor=True)
-    elif x in ['z_pt', 'jet1_pt', 'jet2_pt']:
+    elif x in ['z_pt', 'jet1_pt', 'jet2_pt', 'jet3_pt']:
         setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-3].title(), "GeV")
-    elif x in ['abs_z_eta', 'abs_jet1_eta', 'abs_jet2_eta']:
+    elif x in ['abs_z_eta', 'abs_jet1_eta', 'abs_jet2_eta', 'abs_jet3_eta']:
         setxaxis((0.0, 3.5), r"$|\eta^\mathrm{%s}|$" % x[4:-4].title())
-    elif x in ['z_eta', 'jet1_eta', 'jet2_eta']:
+    elif x in ['z_eta', 'jet1_eta', 'jet2_eta', 'jet3_eta']:
         setxaxis((-5, 5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
+        if 'response' in y: setxaxis((0, 3.5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
         #if obj == 'Z': ax.legend(loc='lower center', numpoints=1, frameon=True)
-    elif x in ['z_phi', 'jet1_phi', 'jet2_phi']:
+    elif x in ['z_phi', 'jet1_phi', 'jet2_phi', 'jet3_phi']:
         setxaxis((-3.5, 3.5), r"$\phi^\mathrm{%s}$" % x[:-4].title())
         ax.set_xticks([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
         ax.set_xticklabels([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])

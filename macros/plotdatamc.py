@@ -189,6 +189,23 @@ def jet2phi(datamc, opt):
     datamcplot('jet2_phi', datamc, opt, 'lower center')
 
 
+def jet3pt(datamc, opt):
+    datamcplot('jet3_pt', datamc, opt)
+
+
+def jet3pt_nocuts(datamc, opt):
+    datamcplot('jet3_pt', datamc, opt, 'center right',
+               {'incut': 'allevents'}, log=True)
+
+
+def jet3eta(datamc, opt):
+    datamcplot('jet3_eta', datamc, opt, 'lower center')
+
+
+def jet3phi(datamc, opt):
+    datamcplot('jet3_phi', datamc, opt, 'lower center')
+
+
 # cut efficiencies
 def cut_all_npv(datamc, opt):
     datamcplot('cut_all_npv', datamc, opt, rebin=1)
@@ -268,7 +285,8 @@ def basic_npv(datamc, opt):
 
 
 def basic_zpt(datamc, opt):
-    for y in ['z_mass', 'jet1_pt']:
+    for y in ['npv', 'z_mass', 'jet1_pt'
+    ]:
         plotany('z_pt', y, datamc, opt)
 
 
@@ -277,6 +295,7 @@ plots = [
     'zpt', 'zeta', 'zphi', 'zmass',
     'jetpt', 'jeteta', 'jetphi',
     'jet2pt',  'jet2eta', 'jet2phi', 'jet2pt_nocuts',
+    'jet3pt',  'jet3eta', 'jet3phi', 'jet3pt_nocuts',
     'cut_all_npv',
     'balresp', 'mpfresp',
     'basic_npv', 'basic_zpt',
