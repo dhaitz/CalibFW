@@ -99,8 +99,12 @@ def getDataDistribution(files, lumijson, xsec=69.4, numpu=50, histo="pileup", ou
             exit(1)
         if not outfile:
             # take the core part of the json file name
-            outfile = "pileup_" + files.split('/')[-1][5:-22] + ".root"
-        cmd=["/home/dhaitz/CMSSW_5_2_5/src/RecoLuminosity/LumiDB/scripts/pileupCalc.py", "-i", files, "--inputLumiJSON", lumijson, "--calcMode", "true", "--minBiasXsec", str(int(xsec*1000)), "--maxPileupBin", str(numpu+1), "--numPileupBins", str(numpu+1), outfile]
+            outfile = files.split('/')[-1]
+            if "_v" in outfile:
+                outfile = "pileup_" + outfile[5:-25] + outfile[-7:-4] + ".root"
+            else:
+                outfile = "pileup_" + outfile[5:-22] + ".root"
+        cmd=["pileupCalc.py", "-i", files, "--inputLumiJSON", lumijson, "--calcMode", "true", "--minBiasXsec", str(int(xsec*1000)), "--maxPileupBin", str(numpu+1), "--numPileupBins", str(numpu+1), outfile]
         print " ".join([str(s) for s in cmd])
         subprocess.call(cmd)
 
@@ -129,7 +133,7 @@ def getMCDistribution(source, histo="pu", outfile=None, verbose=False):
     elif len(source) == 1 and source[0][-5:] == ".root":
         print "____________________________________________"
         print "MC pile-up distribution from", source[0]
-        result = getDistributionFromFile(source[0], histo, outfile)
+        result = getDistributionFromFile(source[0], histo)
         outfile = outfile or source[0]
     else:
         print "This MC distribution could not be found!"

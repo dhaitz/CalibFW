@@ -14,7 +14,7 @@ if [ ${#1} -gt 2 ]; then
   variant=$1
 fi
 
-afsjson=$(ls $afspath/Prompt/Cert_*_${variant}.txt | tail -n 1)
+afsjson=$(ls $afspath/Prompt/Cert_*_${variant}{_v*.txt,.txt} | tail -n 1)
 locjson=${jsondestination}/${afsjson##*/}
 afspu=$(ls $afspath/PileUp/pileup_JSON_*.txt | tail -n 1)
 locpu=${pudestination}/${afspu##*/}
