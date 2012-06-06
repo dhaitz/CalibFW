@@ -1,6 +1,7 @@
 #!/bin/bash
 STARTM=`date -u "+%s"`
 
+
 function fmerge {
 DIR="$1"
 OUT="${1}/temp"
@@ -43,7 +44,6 @@ for (( i=0; i<${tLen};)); do
     let i+=$INC
     let JOBS+=1
 done
-#echo "All jobs are submitted. Please use qstat to watch them."
 }
 
 ############
@@ -51,44 +51,38 @@ done
 ############
 
 OUT0="$1"
+OUT="$1"
+INC="$2"
+JOBS=10000
 
-# start fmerge for the first time
-fmerge "$1" "$2"
 
-#check if there was more than 1 job = more than 1 output file...
+#check if there was more than 1 job 
 while (($JOBS > 1)); do
 
-    # NF = number of qstat output lines minus 2 -> number of unfinished jobs
-    NF=`qstat | wc -l`
-    let NF-=2
+    #start fmerge
+    echo -e "\nSubmitting jobs: "
+    fmerge $OUT $INC
+
+    # NF = number of qstat output lines for Jobs STDIN / 23 -> number of unfinished jobs
+    NF=`qstat -j STDIN| wc -l`
+    let NF/=23
+
         
     #check if there are still jobs running
     while (($NF > 0)); do
         echo "Waiting for $NF jobs to finish..."
         sleep 5 
        
-        NF=`qstat | wc -l`
-        let NF-=2
+        NF=`qstat -j STDIN| wc -l`
+        let NF/=23
     done
-    
-    #start fmerge again
-    echo -e "\nRepeat merging process:"
-    fmerge $OUT $INC
+
+    if [ $JOBS = 1 ]; then
+        break
+    fi
+        
 
 done
-
-
-NF=`qstat | wc -l`
-let NF-=2
-
-while (($NF > 0)); do
-    echo "Waiting for last job to finish..."
-    sleep 3
-     
-    NF=`qstat | wc -l`
-    let NF-=2
-done
-
 
 #copy closure file to original output dir and delete temp
 echo "Creating closure file: "${OUT0}"/closure.root"
@@ -109,4 +103,3 @@ fi
 
 echo "Done!"
 echo "Merging took: $TTIMEM"
-
