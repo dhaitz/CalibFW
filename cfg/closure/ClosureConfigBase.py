@@ -101,9 +101,8 @@ def GetWorkPath():
         if 'ekpcms' in hname or 'ekpplus' in hname:
             return "/storage/8/dhaitz/CalibFW/"    
     else:
-        GetBasePath()
-        exit(0)
-
+        print "WorkPath is not set. BasePath is used instead."
+        return GetBasePath()
 
 
 def getDefaultCorrectionL2(data_path):
