@@ -1,4 +1,4 @@
-{1         JetEta              1          JetPt               [0]     Correction   L2L3Residual}
+{1         JetEta              1          JetPt               [0]     Correction     L2Relative}
 -5.191         -2.964              3              3           3500        1.11198              
 -2.964         -2.853              3              3           3500         1.0856              
 -2.853           -2.5              3              3           3500        1.07083              
