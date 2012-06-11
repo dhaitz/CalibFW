@@ -77,7 +77,7 @@ def printWeights(weights, nice=False):
         print s
 
 
-def getDataDistribution(files, lumijson, xsec=69.4, numpu=50, histo="pileup", outfile=None,  verbose=False):
+def getDataDistribution(files, lumijson, xsec=69.3, numpu=50, histo="pileup", outfile=None,  verbose=False):
     """Get the true Data PU from the official PU-json
 
        The "true" (or "observed") PU in data is estimated using this method:
@@ -247,7 +247,7 @@ def options():
 
     parser.add_argument('-l', '--inputLumiJSON', type=str, default=None,
         help="Input Lumi JSON for pileupCalc.")
-    parser.add_argument('-x', '--minBiasXsec', type=float, default=69.4,
+    parser.add_argument('-x', '--minBiasXsec', type=float, default=69.3,
         help="Minimum bias cross section in mb (NB: pileupCalc takes µb!)")
     parser.add_argument('-n', '--numPileupBins', type=int, default=50,
         help="Maximum number of pile-up bins (default: 50).")
