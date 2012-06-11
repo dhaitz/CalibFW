@@ -115,7 +115,7 @@ public:
 
 				lastpt = itjet->p4.Pt();
 
-				// barrel
+				// PFJets, all eta
 				bool good_jet = (itjet->neutralHadFraction < 0.99)
                                 &&
                                 (itjet->neutralEMFraction < 0.99)
@@ -127,8 +127,8 @@ public:
                                 &&
                                 (dr2 > 0.5);
 
-				//Add criteria for PF jets with eta > 2.4 according to https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
-				if (TMath::Abs(itjet->p4.eta()) >= 2.4)
+				// PFJets, |eta| < 2.4 (tracker)
+				if (TMath::Abs(itjet->p4.eta()) < 2.4)
 				{
 					good_jet = good_jet && (itjet->chargedHadFraction > 0)
 							&& (itjet->nCharged > 0)
