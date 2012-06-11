@@ -87,9 +87,11 @@ public:
 			for (KDataPFJets::iterator itjet = italgo->second->begin(); itjet
 					!= italgo->second->end(); ++itjet)
 			{
+				bool good_jet = true;
 				// implement calo ...
-				float dr1, dr2;
 
+				// Muon isolation DeltaR > 0.5
+				float dr1, dr2;
 				dr1 = 99999.0f;
 				dr2 = 99999.0f;
 
@@ -100,44 +102,32 @@ public:
 					dr2 = ROOT::Math::VectorUtil::DeltaR(itjet->p4,
 							metaData.GetValidMuons().at(1).p4);
 				}
-				// JetID: acoording to https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
-				///Neutral Hadron Fraction 	<0.99
-				///Neutral EM Fraction 	<0.99
-				//Number of Constituents 	>1
+				good_jet = good_jet && (dr1 > 0.5) && (dr2 > 0.5);
 
-				// ensure the jets are ordered by pt !
-				if (lastpt > 0.0f)
-				{
-					if (lastpt < itjet->p4.Pt())
-						std::cout << "Jet pt unsorted " << lastpt << " to "
-								<< itjet->p4.Pt() << std::endl;
-				}
+				// Ensure the jets are ordered by pt!
+				if ((lastpt > 0.0f) && (lastpt < itjet->p4.Pt()))
+					std::cout << "Jet pt unsorted " << lastpt << " to "
+							<< itjet->p4.Pt() << std::endl;
 
 				lastpt = itjet->p4.Pt();
 
+				// JetID: acoording to https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
 				// PFJets, all eta
-				bool good_jet = (itjet->neutralHadFraction < 0.99)
-                                &&
-                                (itjet->neutralEMFraction < 0.99)
-                                &&
-                                (itjet->nConst > 1)
-                                // to be sure to exclude the PF Jets originating from muons.
-                                &&
-                                (dr1 > 0.5)
-                                &&
-                                (dr2 > 0.5);
-
+				good_jet = good_jet
+					&& (itjet->neutralHadFraction < 0.99)
+					&& (itjet->neutralEMFraction < 0.99)
+					&& (itjet->nConst > 1);
 				// PFJets, |eta| < 2.4 (tracker)
 				if (TMath::Abs(itjet->p4.eta()) < 2.4)
 				{
-					good_jet = good_jet && (itjet->chargedHadFraction > 0)
-							&& (itjet->nCharged > 0)
-							&& (itjet->chargedEMFraction < 0.99);
+					good_jet = good_jet
+						&& (itjet->chargedHadFraction > 0.0)
+						&& (itjet->nCharged > 0)
+						&& (itjet->chargedEMFraction < 0.99);
 				}
 
 				if (good_jet)
 				{
-					//is valid
 					metaData.m_listValidJets[italgo->first].push_back(i);
 				}
 				else
