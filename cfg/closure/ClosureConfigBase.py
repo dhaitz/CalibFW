@@ -293,7 +293,7 @@ def GetMcBaseConfig(analysis='zjet', run='2011'):
     if run == '2011':
         d["JecBase"] = GetBasePath() + "data/jec_data/START44_V12"
     elif run == '2012':
-        d["JecBase"] = GetBasePath() + "data/jec_data/Summer12_V7_MC"
+        d["JecBase"] = GetBasePath() + "data/jec_data/START52_V11"
     else:
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
@@ -318,7 +318,7 @@ def GetDataBaseConfig(analysis='zjet',run='2011'):
         d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_44_V13"
         d["JsonFile"] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON_v2.txt"
     elif run == '2012':
-        d["JecBase"] = GetBasePath() +  "data/jec_data/Summer12_V7_DATA"
+        d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_52_V9"
         d["JsonFile"] = GetBasePath() + "data/json/Cert_190456-195396_8TeV_PromptReco_Collisions12_JSON_v2.txt"
     else:
         print "Run period", run, "is undefined. No json and jet corrections known."
