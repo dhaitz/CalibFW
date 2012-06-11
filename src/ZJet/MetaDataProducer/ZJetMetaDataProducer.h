@@ -114,7 +114,7 @@ public:
 				// JetID: acoording to https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
 				// PFJets, all eta
 				good_jet = good_jet
-					&& (itjet->neutralHadFraction < 0.99)
+					&& (itjet->neutralHadFraction + itjet->HFHadFraction < 0.99)
 					&& (itjet->neutralEMFraction < 0.99)
 					&& (itjet->nConst > 1);
 				// PFJets, |eta| < 2.4 (tracker)

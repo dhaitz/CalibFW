@@ -123,7 +123,7 @@ public:
 			const std::vector<std::string> &level, const std::string algo,
 			const double R, const int jeuDir = 0)
 		: area(-1), jeuType(jec_center), JEC(0), JEU(0),
-			vs(fi.Get<KVertexSummary>("offlinePrimaryVerticesSummary", false)),
+			vs(fi.Get<KVertexSummary>("goodOfflinePrimaryVerticesSummary", false)),
 			ja(fi.Get<KJetArea>("KT6Area", true, true))
 	{
         init(level, jeuDir, prefix, algo);

@@ -16,7 +16,7 @@ void KappaEventProvider< ZJetEventData >::WireEvent()
 {
 		// open Kappa issue, disable the check and it will work
 		m_event.m_vertexSummary = m_fi.Get<KVertexSummary> (
-				"offlinePrimaryVerticesSummary", false);
+				"goodOfflinePrimaryVerticesSummary", false);
 		m_event.m_jetArea = m_fi.Get<KJetArea> ("KT6Area");
 
 		//InitPFJets(m_event, "AK5PFJets");
@@ -36,7 +36,7 @@ void KappaEventProvider< ZJetEventData >::WireEvent()
 		}
 
 		m_event.m_muons = m_fi.Get<KDataMuons> ("muons");
-		m_event.m_pfMet = m_fi.Get<KDataPFMET> ("PFMET");
+		m_event.m_pfMet = m_fi.Get<KDataPFMET> ("PFMET", false);
 
 }
 

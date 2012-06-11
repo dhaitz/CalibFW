@@ -80,7 +80,7 @@ public:
 	}
 
 	// return Calo or PF , depending on which jets we are looking at right now
-	virtual KDataMET * GetMet(ZJetPipelineSettings const& psettings) const
+	virtual KDataPFMET * GetMet(ZJetPipelineSettings const& psettings) const
 	{
 		return m_pfMet;
 	}
