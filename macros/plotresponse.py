@@ -66,11 +66,11 @@ def fillgraph(method, changes, file_numerator, file_denominator=None, #extrapola
         # take the ratio (including error propagation):
         if file_denominator is not None:
             oj = getroot.getobjectfromnick(method, file_denominator, ch)
+            yerr =  abs(y / oj.GetMean()) * math.sqrt((yerr / y)**2 + (oj.GetMeanError() / oj.GetMean())**2)
             if median:
                 y /= getroot.histomedian(oj)
             else:
                 y /= oj.GetMean()
-            yerr =  (yerr + y * oj.GetMeanError()) / oj.GetMean()
             if y < 0.000001:
                 print "No valid response in %s (cut = %1.2f)!" % (ch, x)
                 continue

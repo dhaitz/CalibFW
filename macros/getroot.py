@@ -511,12 +511,12 @@ def dividegraphs(graph1, graph2):
     for i in range(graph1.GetN()):
         x1, y1, dx1, dy1 = getgraphpoint(graph1, i)
         x2, y2, dx2, dy2 = getgraphpoint(graph2, i)
-        if dy2 == 0:
+        if y2 == 0 or y1 == 0:
             print "Division by zero!"
         else:
             result.SetPoint(i, 0.5 * (x1 + x2), y1 / y2)
             result.SetPointError(i, 0.5 * (abs(dx1) + abs(dx2)),
-                                 abs(dy1 / y2) + abs(dy2 * y1 / y2 / y2))
+                abs(y1 / y2) * math.sqrt((dy1 / y1)**2 + (dy2 / y2)**2)
     return result
 
 def getgraphpoint(graph, i):
