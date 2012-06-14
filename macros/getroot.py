@@ -673,9 +673,3 @@ def histoabsmean(histo):
         absEta.SetBinContent(n+1-i, histo.GetBinContent(i) + histo.GetBinContent(n - i + 1))
         absEta.SetBinContent(i, 0)
     return absEta.GetMean();
-
-# for compatibility
-def gethisto(name, rootfile, changes={}, rebin=1):
-    print "Please use getplot!"
-    return getplot(name, rootfile, changes, rebin)
-

@@ -211,8 +211,8 @@ def showoptions(opt):
 
 def getfactor(lumi, fdata, fmc, quantity='z_phi', change={}):
     """Get the normalization factor for the f_data file w.r.t. f_mc."""
-    histo_data = getroot.gethisto(quantity, fdata, change)
-    histo_mc = getroot.gethisto(quantity, fmc, change)
+    histo_data = getroot.getplot(quantity, fdata, change)
+    histo_mc = getroot.getplot(quantity, fmc, change)
     histo_mc.scale(lumi)
     print "    >>> The additional scaling factor is:", (
         histo_data.ysum() / histo_mc.ysum())
