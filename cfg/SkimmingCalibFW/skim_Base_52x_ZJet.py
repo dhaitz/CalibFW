@@ -40,7 +40,19 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
     process.pfmuIsoDepositPFCandidates = isoDepositReplace('muons', 'particleFlow')
     process.pfMuonIso = cms.Path(process.pfmuIsoDepositPFCandidates)
 
+    # Create good primary vertices to be used for PF association --------------
+    from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
+    process.goodOfflinePrimaryVertices = cms.EDFilter(
+        "PrimaryVertexObjectFilter",
+        filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
+        src=cms.InputTag('offlinePrimaryVertices')
     )
+    process.ak5PFJets.srcPVs = cms.InputTag('goodOfflinePrimaryVertices')
+    process.ak7PFJets.srcPVs = cms.InputTag('goodOfflinePrimaryVertices')
+    process.kt4PFJets.srcPVs = cms.InputTag('goodOfflinePrimaryVertices')
+    process.kt6PFJets.srcPVs = cms.InputTag('goodOfflinePrimaryVertices')
+    process.pfPileUp.Vertices = cms.InputTag("goodOfflinePrimaryVertices")
+    process.pfPileUp.checkClosestZVertex = cms.bool(False)
 
     # CHS Jets with the NoPU sequence -----------------------------------------
     process.load('CommonTools.ParticleFlow.pfParticleSelection_cff')
@@ -50,7 +62,7 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
     # cf. CommonTools/ParticleFlow/python/PF2PAT_cff.py
     process.pfPileUp.PFCandidates = cms.InputTag('particleFlow')
     process.pfNoPileUp.bottomCollection = cms.InputTag('particleFlow')
-    process.pfCHS = cms.Path(process.pfNoPileUpSequence)
+    process.pfCHS = cms.Path(process.goodOfflinePrimaryVertices * process.pfNoPileUpSequence)
 
     process.ak5PFJetsCHS = process.ak5PFJets.clone( src = cms.InputTag('pfNoPileUp') )
     process.ak7PFJetsCHS = process.ak7PFJets.clone( src = cms.InputTag('pfNoPileUp') )
