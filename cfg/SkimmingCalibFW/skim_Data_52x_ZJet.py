@@ -6,5 +6,6 @@ process = base.getBaseConfig(
     globaltag,
     'file:/storage/6/berger/testfiles/data_DoubleMu_ReReco_AOD.root',
     ['DataMetadata', 'TriggerObjects'],
-    maxevents=100
+    maxevents=100,
+    residual=True
 )

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
+def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, residual=False):
     """Default config for Z+jet skims with Kappa
 
        This is used in a cmssw config file via:
@@ -68,6 +68,54 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
         process.ak5PFJetsCHS * process.ak7PFJetsCHS * process.kt4PFJetsCHS * process.kt6PFJetsCHS
     )
 
+    # MET correction (only for ak5PFJets) -------------------------------------
+    process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
+    process.pfJetMETcorrAK5PFL2L3Res = process.pfJetMETcorr.clone(
+        jetCorrLabel = cms.string("ak5PFL1FastL2L3Residual")
+    )
+    process.pfJetMETcorrAK5PFL2L3 = process.pfJetMETcorr.clone(
+        jetCorrLabel = cms.string("ak5PFL1FastL2L3")
+    )
+    process.pfJetMETcorrAK5PFL1L2L3 = process.pfJetMETcorrAK5PFL2L3.clone(
+        offsetCorrLabel = cms.string("")
+    )
+    process.pfJetMETcorrAK5PFL1 = process.pfJetMETcorrAK5PFL1L2L3.clone(
+        jetCorrLabel = cms.string("ak5PFL1Fastjet")
+    )
+    # Type-0+I
+    process.pfMETCHS = process.pfType1CorrectedMet.clone(
+        applyType1Corrections = cms.bool(False)
+    )
+    process.ak5PFMETCHSL1 = process.pfType1CorrectedMet.clone(
+        srcType1Corrections = cms.VInputTag(cms.InputTag('pfJetMETcorrAK5PFL1', 'type1'))
+    )
+    process.ak5PFMETCHSL2L3 = process.pfType1CorrectedMet.clone(
+        srcType1Corrections = cms.VInputTag(cms.InputTag('pfJetMETcorrAK5PFL2L3', 'type1'))
+    )
+    process.ak5PFMETCHSL1L2L3 = process.pfType1CorrectedMet.clone(
+        srcType1Corrections = cms.VInputTag(cms.InputTag('pfJetMETcorrAK5PFL1L2L3', 'type1'))
+    )
+    process.ak5PFMETCHSL2L3Res = process.pfType1CorrectedMet.clone(
+        srcType1Corrections = cms.VInputTag(cms.InputTag('pfJetMETcorrAK5PFL2L3Res', 'type1'))
+    )
+    # Type-I only
+    process.ak5PFMETL1 = process.ak5PFMETCHSL1.clone(applyType0Corrections = cms.bool(False))
+    process.ak5PFMETL2L3 = process.ak5PFMETCHSL2L3.clone(applyType0Corrections = cms.bool(False))
+    process.ak5PFMETL1L2L3 = process.ak5PFMETCHSL1L2L3.clone(applyType0Corrections = cms.bool(False))
+    process.ak5PFMETL2L3Res = process.ak5PFMETCHSL2L3Res.clone(applyType0Corrections = cms.bool(False))
+    # MET Path
+    process.metCorrections = cms.Path(process.producePFMETCorrections)
+    process.metRedo = cms.Path(
+            process.pfJetMETcorrAK5PFL2L3Res * process.pfJetMETcorrAK5PFL2L3 *
+            process.pfJetMETcorrAK5PFL1L2L3 * process.pfJetMETcorrAK5PFL1 *
+            process.pfMETCHS *
+            process.ak5PFMETL1  * process.ak5PFMETCHSL1 *
+            process.ak5PFMETL1L2L3 * process.ak5PFMETCHSL1L2L3 *
+            process.ak5PFMETL2L3 * process.ak5PFMETCHSL2L3
+        )
+    if True:
+        process.metRedo *= process.ak5PFMETL2L3Res
+        process.metRedo *= process.ak5PFMETCHSL2L3Res
 
     # Require one good muon --------------------------------------------------------
     process.goodMuons = cms.EDFilter('CandViewSelector',
@@ -110,6 +158,8 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
             process.pfCHS,
             process.jetsRedo,
             process.pfMuonIso,
+            process.metCorrections,
+            process.metRedo,
             process.pathKappa,
     )
 
