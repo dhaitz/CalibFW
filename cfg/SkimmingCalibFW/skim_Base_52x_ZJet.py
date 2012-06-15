@@ -40,20 +40,7 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
     process.pfmuIsoDepositPFCandidates = isoDepositReplace('muons', 'particleFlow')
     process.pfMuonIso = cms.Path(process.pfmuIsoDepositPFCandidates)
 
-    # Produce rho distribution-------------------------------------------------
-    process.load('RecoJets.JetProducers.kt4PFJets_cfi')
-    process.kt6PFJetsRho = process.kt4PFJets.clone(
-        rParam = cms.double(0.6),
-        doRhoFastjet = cms.bool(True)
     )
-    process.kt6PFJetsRho.Rho_EtaMax = cms.double(5.0)
-    process.jetArea = cms.Path(process.kt6PFJetsRho)
-
-    # enable area calculation for all algos used ------------------------------
-    process.ak5PFJets.doAreaFastjet = cms.bool(True)
-    process.ak7PFJets.doAreaFastjet = cms.bool(True)
-    process.kt4PFJets.doAreaFastjet = cms.bool(True)
-    process.kt6PFJets.doAreaFastjet = cms.bool(True)
 
     # CHS Jets with the NoPU sequence -----------------------------------------
     process.load('CommonTools.ParticleFlow.pfParticleSelection_cff')
@@ -116,7 +103,6 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
     # Process schedule --------------------------------------------------------
     process.schedule = cms.Schedule(
             process.pfCHS,
-            process.jetArea,
             process.jetsRedo,
             process.pfMuonIso,
             process.pathKappa,
