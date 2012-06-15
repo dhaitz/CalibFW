@@ -4,8 +4,8 @@ globaltag = 'START52_V11'
 
 process = base.getBaseConfig(
     globaltag,
-    'file:/storage/6/berger/testfiles/mc_Fall11_DY_M-20_TuneZ2_pythia_AODSIM.root',
+    'file:/storage/6/berger/testfiles/mc_madgraphV9_AOD.root',
     ['GenMetadata', 'Partons'],
-    maxevents=100
+    maxevents=500
 )
     

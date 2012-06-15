@@ -144,7 +144,7 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
     # custom whitelist, otherwise the HLT trigger bits are not sufficient !
     process.kappatuple.Metadata.hltWhitelist = cms.vstring(
         # matches 'HLT_Mu17_Mu8_v7' etc.
-        "^HLT_(L[123])?(Iso|Double)?Mu([0-9]+)_(L[123])?(Iso|Double)?Mu([0-9]+)(_v[[:digit:]]+)?$",
+        "^HLT_(L[123])?(Iso|Double)?Mu([0-9]+)_(L[123])?(Double)?Mu([0-9]+)(_v[[:digit:]]+)?$",
         # matches 'HLT_DoubleMu7_v8' etc.
         "^HLT_(L[123])?(Iso|Double)?Mu([0-9]+)(_v[[:digit:]]+)?$",
     )

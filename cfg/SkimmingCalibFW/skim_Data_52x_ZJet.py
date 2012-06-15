@@ -4,8 +4,8 @@ globaltag = 'GR_R_52_V9'
 
 process = base.getBaseConfig(
     globaltag,
-    'file:/storage/6/berger/testfiles/data_DoubleMu_ReReco_AOD.root',
+    'file:/storage/6/berger/testfiles/data_2012A_AOD.root',
     ['DataMetadata', 'TriggerObjects'],
-    maxevents=100,
+    maxevents=2000,
     residual=True
 )
