@@ -55,15 +55,8 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
     process.pfPileUp.checkClosestZVertex = cms.bool(False)
 
     # CHS Jets with the NoPU sequence -----------------------------------------
-    process.load('CommonTools.ParticleFlow.pfParticleSelection_cff')
-    process.load('CommonTools.ParticleFlow.pfNoPileUp_cff')
-    # switching back to the regular PF input in 44x as PF2PAT does
-    # 'PF2PAT+PAT is probably doing the same workaround' (Colin Bernet)
-    # cf. CommonTools/ParticleFlow/python/PF2PAT_cff.py
-    process.pfPileUp.PFCandidates = cms.InputTag('particleFlow')
-    process.pfNoPileUp.bottomCollection = cms.InputTag('particleFlow')
-    process.pfCHS = cms.Path(process.goodOfflinePrimaryVertices * process.pfNoPileUpSequence)
-
+    process.load('CommonTools.ParticleFlow.PFBRECO_cff')
+    process.pfCHS = cms.Path(process.goodOfflinePrimaryVertices * process.PFBRECO)
     process.ak5PFJetsCHS = process.ak5PFJets.clone( src = cms.InputTag('pfNoPileUp') )
     process.ak7PFJetsCHS = process.ak7PFJets.clone( src = cms.InputTag('pfNoPileUp') )
     process.kt4PFJetsCHS = process.kt4PFJets.clone( src = cms.InputTag('pfNoPileUp') )
