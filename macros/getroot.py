@@ -109,6 +109,50 @@ def getbins(rootfile, fallbackbins):
     return result
 
 
+def getetabins(rootfile, fallbackbins):
+    """ guess the eta binning from the folders in a rootfile"""
+    result = []
+    try:
+        for key in rootfile.GetListOfKeys():
+            name = key.GetName()
+            name = name.replace("_",".")
+            if name.find("NoBinning.incut.var.JetEta.") == 0 and "to" in name:
+                low, high = [float(x) for x in name[27:].split("to")]
+                if low  not in result:
+                    if low == 0.0: 
+                        low = int(0)
+                    result.append(low)
+                if high not in result:
+                    result.append(high)
+        assert result != [], "No eta bins found in " + rootfile.GetName()
+    except AssertionError:
+        print "Eta bins could not be determined from root file."
+        print "Fall-back binning used:", fallbackbins
+        result = fallbackbins
+        assert result != []
+    result.sort()
+    return result
+
+
+def getnpvbins(rootfile, fallbackbins):
+    """ guess the NPV binning from the folders in a rootfile"""
+    result = []
+    try:
+        for key in rootfile.GetListOfKeys():
+            name = key.GetName()
+            if name.find("NoBinning_incut_var_Npv_") == 0 and "to" in name:
+                low, high = [int(x) for x in name[24:].split("to")]
+                if [low, high]  not in result:
+                    result.append((low, high))
+        assert result != [], "No NPV bins found in " + rootfile.GetName()
+    except AssertionError:
+        print "NPV bins could not be determined from root file."
+        print "Fall-back binning used:", fallbackbins
+        result = fallbackbins
+        assert result != []
+    result.sort()
+    return result
+
 def getobject(name, rootfile, changes={}, exact=True):
     """get a root object by knowing the exact name
 
