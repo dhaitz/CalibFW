@@ -82,40 +82,40 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
     process.pfJetMETcorrAK5PFL1 = process.pfJetMETcorrAK5PFL1L2L3.clone(
         jetCorrLabel = cms.string("ak5PFL1Fastjet")
     )
-    # Type-0+I
-    process.pfMETCHS = process.pfType1CorrectedMet.clone(
-        applyType1Corrections = cms.bool(False)
-    )
-    process.ak5PFMETCHSL1 = process.pfType1CorrectedMet.clone(
+    # Type-I
+    process.ak5PFMETL1 = process.pfType1CorrectedMet.clone(
         srcType1Corrections = cms.VInputTag(cms.InputTag('pfJetMETcorrAK5PFL1', 'type1'))
     )
-    process.ak5PFMETCHSL2L3 = process.pfType1CorrectedMet.clone(
+    process.ak5PFMETL2L3 = process.pfType1CorrectedMet.clone(
         srcType1Corrections = cms.VInputTag(cms.InputTag('pfJetMETcorrAK5PFL2L3', 'type1'))
     )
-    process.ak5PFMETCHSL1L2L3 = process.pfType1CorrectedMet.clone(
+    process.ak5PFMETL1L2L3 = process.pfType1CorrectedMet.clone(
         srcType1Corrections = cms.VInputTag(cms.InputTag('pfJetMETcorrAK5PFL1L2L3', 'type1'))
     )
-    process.ak5PFMETCHSL2L3Res = process.pfType1CorrectedMet.clone(
+    process.ak5PFMETL2L3Res = process.pfType1CorrectedMet.clone(
         srcType1Corrections = cms.VInputTag(cms.InputTag('pfJetMETcorrAK5PFL2L3Res', 'type1'))
     )
-    # Type-I only
-    process.ak5PFMETL1 = process.ak5PFMETCHSL1.clone(applyType0Corrections = cms.bool(False))
-    process.ak5PFMETL2L3 = process.ak5PFMETCHSL2L3.clone(applyType0Corrections = cms.bool(False))
-    process.ak5PFMETL1L2L3 = process.ak5PFMETCHSL1L2L3.clone(applyType0Corrections = cms.bool(False))
-    process.ak5PFMETL2L3Res = process.ak5PFMETCHSL2L3Res.clone(applyType0Corrections = cms.bool(False))
+    # Type-0+I
+    process.pfMETCHS = process.pfType1CorrectedMet.clone(
+        applyType1Corrections = cms.bool(False),
+        applyType0Corrections = cms.bool(True)
+    )
+    process.ak5PFMETCHSL1 = process.ak5PFMETL1.clone(applyType0Corrections = cms.bool(True))
+    process.ak5PFMETCHSL2L3 = process.ak5PFMETL2L3.clone(applyType0Corrections = cms.bool(True))
+    process.ak5PFMETCHSL1L2L3 = process.ak5PFMETL1L2L3.clone(applyType0Corrections = cms.bool(True))
+    process.ak5PFMETCHSL2L3Res = process.ak5PFMETL2L3Res.clone(applyType0Corrections = cms.bool(True))
     # MET Path
-    process.metCorrections = cms.Path(process.producePFMETCorrections)
-    process.metRedo = cms.Path(
+    process.metCorrections = cms.Path(process.producePFMETCorrections *
             process.pfJetMETcorrAK5PFL2L3Res * process.pfJetMETcorrAK5PFL2L3 *
             process.pfJetMETcorrAK5PFL1L2L3 * process.pfJetMETcorrAK5PFL1 *
             process.pfMETCHS *
-            process.ak5PFMETL1  * process.ak5PFMETCHSL1 *
+            process.ak5PFMETL1 * process.ak5PFMETCHSL1 *
             process.ak5PFMETL1L2L3 * process.ak5PFMETCHSL1L2L3 *
             process.ak5PFMETL2L3 * process.ak5PFMETCHSL2L3
         )
-    if True:
-        process.metRedo *= process.ak5PFMETL2L3Res
-        process.metRedo *= process.ak5PFMETCHSL2L3Res
+    if residual:
+        process.metCorrections *= process.ak5PFMETL2L3Res
+        process.metCorrections *= process.ak5PFMETCHSL2L3Res
 
     # Require one good muon --------------------------------------------------------
     process.goodMuons = cms.EDFilter('CandViewSelector',
@@ -159,7 +159,6 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
             process.jetsRedo,
             process.pfMuonIso,
             process.metCorrections,
-            process.metRedo,
             process.pathKappa,
     )
 
