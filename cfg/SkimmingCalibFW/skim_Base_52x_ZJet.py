@@ -122,7 +122,7 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
         src = cms.InputTag('muons'),
         cut = cms.string("pt > 12.0 & abs(eta) < 8.0 & isGlobalMuon()"),
     )
-    process.oneGoodMuon = cms.EDFilter('CandViewCountFilter',
+    process.twoGoodMuons = cms.EDFilter('CandViewCountFilter',
         src = cms.InputTag('goodMuons'),
         minNumber = cms.uint32(2),
     )
@@ -148,10 +148,13 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
         # matches 'HLT_DoubleMu7_v8' etc.
         "^HLT_(L[123])?(Iso|Double)?Mu([0-9]+)(_v[[:digit:]]+)?$",
     )
+    process.kappatuple.Metadata.tauDiscrProcessName = cms.untracked.string("XXXXXXXXX")
 
     # use the jets created during the kappa skim and not the RECO Jet
     process.kappatuple.PFJets.whitelist = cms.vstring("recoPFJets.*kappaSkim")
-    process.pathKappa = cms.Path(process.goodMuons*process.oneGoodMuon*process.kappatuple)
+    process.pathKappa = cms.Path(
+        process.goodMuons * process.twoGoodMuons * process.kappatuple
+    )
 
     # Process schedule --------------------------------------------------------
     process.schedule = cms.Schedule(
