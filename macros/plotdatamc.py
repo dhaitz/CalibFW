@@ -274,7 +274,11 @@ def plotany(x, y, datamc, opt):
         color='FireBrick', fmt='s', capsize=0, label=opt.labels[1])
 
     plotbase.labels(ax, opt, jet=True)
-    plotbase.axislabels(ax, x, y)
+    if over == 'jet1_eta':
+        pre = "abs_"
+    else:
+        pre = ""
+    plotbase.axislabels(ax, pre+x, y)
     plotbase.Save(fig, "_".join(['plot', x, y, opt.algorithm]) + opt.correction, opt)
 
 
@@ -290,6 +294,14 @@ def basic_zpt(datamc, opt):
         plotany('z_pt', y, datamc, opt)
 
 
+def basic_jet1eta(datamc, opt):
+    for y in ['z_pt', 'npv', 'jet1_pt'
+    ]:
+        plotany('jet1_eta', y, datamc, opt)
+
+
+
+
 plots = [
     'npv', 'npv_nocuts',
     'zpt', 'zeta', 'zphi', 'zmass',
@@ -298,7 +310,7 @@ plots = [
     'jet3pt',  'jet3eta', 'jet3phi', 'jet3pt_nocuts',
     'cut_all_npv',
     'balresp', 'mpfresp',
-    'basic_npv', 'basic_zpt',
+    'basic_npv', 'basic_zpt', 'basic_jet1eta',
     ]
 
 genplots = [
