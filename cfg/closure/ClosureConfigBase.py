@@ -27,8 +27,8 @@ def ApplyFast(inputfiles, args):
 
 
 def GetDefaultBinning():
-    return [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]
-
+    return [30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]
+    
 
 def GetDataPath():
     hname = socket.gethostname()

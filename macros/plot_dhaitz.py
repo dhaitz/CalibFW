@@ -52,8 +52,6 @@ def plot():
         algorithm="AK5PFJetsCHS",
         correction="L1L2L3Res",
 
-        eta=[0, 0.522, 1.305, 1.930, 2.411, 2.853, 3.139],
-
         plots= plotdatamc.plots 
                +plotresponse.plots
                +plotfractions.plots
@@ -77,8 +75,11 @@ def plot():
         print "Using as file", 1+op.files.index(f) ,":" , f
         files += [getroot.openfile(f, op.verbose)]
 
-    op.bins = getroot.getbins(files[0],
-            [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
+    op.bins = getroot.getbins(files[0], op.bins)
+    op.eta = getroot.getetabins(files[0], op.eta)
+    op.npv = getroot.getnpvbins(files[0], op.npv)
+
+
 
     plotbase.plot(module_list, op.plots, files, op)
 
