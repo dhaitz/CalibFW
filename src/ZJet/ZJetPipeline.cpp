@@ -226,13 +226,13 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				// do gen gesponse to z.pt
 				BinResponseConsumer * gen = new BinResponseConsumer(pset.GetPropTree(), consPath);
 				gen->m_useGenJet = true;
-				gen->m_name += "Gen";
+				gen->m_name.insert(0,"Gen_");
 				pLine->AddConsumer(gen);
 
 				// do Reco To Gen response
 				BinResponseConsumer * reco_to_gen = new BinResponseConsumer(pset.GetPropTree(), consPath);
 				reco_to_gen->m_useGenJetAsReference = true;
-				reco_to_gen->m_name += "RecoToGen";
+				reco_to_gen->m_name.insert(0,"RecoToGen_");
 				pLine->AddConsumer(reco_to_gen);
 
 			}
