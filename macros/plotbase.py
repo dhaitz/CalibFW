@@ -265,9 +265,13 @@ def getpath():
     return datapath
 
 
-def newplot(ratio=False):
+def newplot(ratio=False, subplots=1):
     fig = plt.figure(figsize=[7, 7])
-    if ratio:
+    if subplots == 8:
+        fig = plt.figure(figsize=[28, 14])
+        ax = [fig.add_subplot(2,4,n+1) for n in range(8)]
+        return fig, ax
+    elif ratio: 
         ax = fig.add_subplot(111, position=[0.13, 0.35, 0.83, 0.58])
         ratio = fig.add_subplot(111, position=[0.13, 0.12, 0.83, 0.22], sharex=ax)
         ratio.axhline(1.0, color='black', lw=1)
