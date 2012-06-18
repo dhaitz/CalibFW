@@ -77,9 +77,9 @@ def options(
             plots=None,
             npv=[(0, 2), (3, 5), (6, 11), (12, 100)],
             cut=[0.1, 0.15, 0.2, 0.3],
-            eta=[0.0, 1.3, 2.8, 5.0],
-            gen=None,
-            bins=None):
+            eta=[0, 0.783, 1.305, 1.93, 2.5, 2.964, 5.191],
+            bins=[0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000],
+            gen=None):
     """Set standard options and read command line arguments
 
     To be turned into a class with str method and init
@@ -442,7 +442,7 @@ def unitformat(quantity="", unit="", brackets=False):
     return quantity
 
 
-def axislabels(ax, x='z_pt', y='events', brackets=False):
+def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
     """same as the old version, but can handle and and y axis indpendetly
 
        new idea: improve automatic scaling:
@@ -512,7 +512,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
     # set y labelling
     ratio = ""
     if 'ratio' in y:
-        ratio = " (data/MC ratio)"
+        ratio = " ("+opt.labels[0]+"/"+opt.labels[1]+" ratio)"
     if 'arb' == y:
         setyaxis(bottom=0.0, quantity="arb. u.")
     elif 'events' == y:
@@ -547,7 +547,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False):
     elif 'datamc_ratio' == y:
         setyaxis((0.80, 1.10), ratio)
     elif 'cut' in y:
-        setyaxis(quantity="Cut Infficiency")
+        setyaxis(quantity="Cut Inefficiency")
     elif 'components' == y or 'fraction' in y:
         setyaxis((0, 1), r"Leading Jet Component Fraction")
     elif 'components_diff' == y:

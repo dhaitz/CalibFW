@@ -315,7 +315,7 @@ def GetDataBaseConfig(analysis='zjet',run='2011'):
     else:
         d = GetBaseConfig()
     if run == '2011':
-        d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_44_V13"
+        d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_44_V13_"
         d["JsonFile"] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON_v2.txt"
     elif run == '2012':
         d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_52_V9"
