@@ -4,6 +4,6 @@ process = base.getBaseConfig(
     'GR_R_52_V9',
     'file:/storage/6/berger/testfiles/data_2012A_AOD.root',
     ['DataMetadata', 'TriggerObjects'],
-    maxevents=20000,
+    maxevents=2000,
     residual=True
 )
