@@ -55,10 +55,10 @@ public:
 	JetMap m_jets;
 	GenJetMap m_genJets;
 
-    virtual KDataLVs * GetGenJetCollection ( std::string const& name ) const
-    {
-        return SafeMap<std::string, KDataLVs *>::Get( name, m_genJets );
-    }
+	virtual KDataLVs * GetGenJetCollection (std::string const& name) const
+	{
+		return SafeMap<std::string, KDataLVs *>::Get(name, m_genJets);
+	}
 
 	// May return null, if no primary jet is available
 	virtual KDataLV * GetPrimaryJet(ZJetPipelineSettings const& psettings) const
@@ -76,15 +76,15 @@ public:
 	{
 		if (JetType::IsPF(algoName))
 		{
-			return SafeMap<std::string, KDataPFJets *>::Get( algoName, m_pfJets )->size();
+			return SafeMap<std::string, KDataPFJets *>::Get(algoName, m_pfJets)->size();
 		}
-		if ( JetType::IsGen(algoName))
+		if (JetType::IsGen(algoName))
 		{
-			return SafeMap<std::string, KDataLVs *>::Get( algoName, m_genJets )->size();
+			return SafeMap<std::string, KDataLVs *>::Get(algoName, m_genJets)->size();
 		}
 		else
 		{
-			return SafeMap<std::string, KDataJets *>::Get( algoName, m_jets )->size();
+			return SafeMap<std::string, KDataJets *>::Get(algoName, m_jets)->size();
 		}
 	}
 
@@ -114,7 +114,7 @@ public:
 	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
 			unsigned int index) const
 	{
-		return GetJet( psettings, index, psettings.GetJetAlgorithm());
+		return GetJet(psettings, index, psettings.GetJetAlgorithm());
 	}
 
 	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
@@ -123,9 +123,7 @@ public:
 		if (JetType::IsPF(algoName))
 		{
 			KDataPFJets * pfJets =
-			SafeMap<std::string, KDataPFJets *>::Get( algoName, m_pfJets );
-
-			//KDataPFJets * pfJets = m_pfJets.at(algoName);
+				SafeMap<std::string, KDataPFJets *>::Get(algoName, m_pfJets);
 
 			if (pfJets->size() <= index)
 				return NULL;
@@ -135,15 +133,13 @@ public:
 		else if (JetType::IsGen(algoName))
 		{
 			KDataLVs * genJets =
-			SafeMap<std::string, KDataLVs *>::Get( algoName, m_genJets );
-
+				SafeMap<std::string, KDataLVs *>::Get(algoName, m_genJets);
 
 			if (genJets->size() <= index)
 				return NULL;
 
 			return &genJets->at(index);
 		}
-
 		else
 		{
 			CALIB_LOG_FATAL("not implmented")
@@ -156,32 +152,29 @@ public:
 		}
 	}
 
-	virtual std::string GetContent(	ZJetPipelineSettings const& settings  ) const
+	virtual std::string GetContent(ZJetPipelineSettings const& settings) const
 	{
 		std::stringstream s;
-
 		s << "EventMetadada " << std::endl;
-		s << "Run: " << m_eventmetadata->nRun << " LumiSec: " <<  m_eventmetadata->nLumi << " EventNum: " <<  m_eventmetadata->nEvent << std::endl;
-		
-		if ( settings.IsData() )
-		{		  
-		    s << "KDataLumiMetadata: " << std::endl;
-		    s << "CurLumi: " << GetDataLumiMetadata()->getLumi() << std::endl;
+		s << "Run: " << m_eventmetadata->nRun;
+		s << " LumiSec: " << m_eventmetadata->nLumi;
+		s << " EventNum: " << m_eventmetadata->nEvent << std::endl;
+
+		if (settings.IsData())
+		{
+			s << "KDataLumiMetadata: " << std::endl;
+			s << "CurLumi: " << GetDataLumiMetadata()->getLumi() << std::endl;
 		}
-/*
-		if ( settings.IsMC() )
-		{		  
-		    s << GetGenLumiMetadata() << std::endl;
-		}*/
+
 		s << "PF Jets collection:" << std::endl;
 		for (PfMapIterator it = m_pfJets.begin(); it != m_pfJets.end(); ++it)
 		{
 			s << it->first << " count " << it->second->size() <<  std::endl;
-			
+
 			KDataPFJets * pfJets = it->second;
-			for ( unsigned int i = 0; i < pfJets->size(); ++ i )
+			for (unsigned int i = 0; i < pfJets->size(); ++ i)
 			{
-			    s << "Jet " << i << ":" << std::endl << pfJets->at(i) << std::endl; 
+				s << "Jet " << i << ":" << std::endl << pfJets->at(i) << std::endl; 
 			}
 		}
 
@@ -191,12 +184,12 @@ public:
 			s << it->first << " count " << it->second->size() <<  std::endl;
 			
 			KDataLVs * genJets = it->second;
-			for ( unsigned int i = 0; i < genJets->size(); ++ i )
+			for (unsigned int i = 0; i < genJets->size(); ++ i)
 			{
-			    s << "Jet " << i << ":" << std::endl << genJets->at(i) << std::endl; 
+				s << "Jet " << i << ":" << std::endl << genJets->at(i) << std::endl; 
 			}
-		}		
-		
+		}
+
 		return s.str();
 	}
 
