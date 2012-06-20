@@ -28,6 +28,15 @@ public:
 	KDataPFJets * m_primaryJetCollection;
 	KDataMuons * m_muons;
 	KDataPFMET * m_pfMet;
+	KDataPFMET * m_pfMetL1;
+	KDataPFMET * m_pfMetL2L3;
+	KDataPFMET * m_pfMetL1L2L3;
+	KDataPFMET * m_pfMetL2L3Res;
+	KDataPFMET * m_pfMetChs;
+	KDataPFMET * m_pfMetChsL1;
+	KDataPFMET * m_pfMetChsL2L3;
+	KDataPFMET * m_pfMetChsL1L2L3;
+	KDataPFMET * m_pfMetChsL2L3Res;
 
 	// only use directly if there is no other way
 	//FileInterface * m_fi;
@@ -79,10 +88,26 @@ public:
 		}
 	}
 
-	// return Calo or PF , depending on which jets we are looking at right now
+	// return MET, depending on which correction level we are looking at right now
 	virtual KDataPFMET * GetMet(ZJetPipelineSettings const& psettings) const
 	{
-		return m_pfMet;
+		std::string corr = psettings.GetJetAlgorithm();
+		size_t pos = corr.find("JetsCHS");	// -1 oder 5
+		if (pos == std::string::npos)		// if not CHS
+			pos = corr.find("Jets") + 4;
+		else
+			pos += 7;
+		corr = corr.substr(pos);
+
+		if (corr == "" || corr == "L1")
+			return m_pfMet;
+		else if (corr == "L1L2" || corr == "L1L2L3") // || (corr == "L1L2L3Res" && psettings.IsMC())
+			return m_pfMetL2L3;
+		else if (corr == "L1L2L3Res") // && psettings.IsData())
+			return m_pfMetL2L3Res;
+
+		CALIB_LOG_FATAL("The correction level \"" << corr << "\" for MET is unknown.");
+		return NULL;
 	}
 
 
