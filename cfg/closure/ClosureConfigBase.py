@@ -16,13 +16,7 @@ def CreateFileList(wildcardExpression, args=None):
     inputfiles = glob.glob(wildcardExpression)
 
     if args is not None and len(args) > 1 and "fast" in args[1]:  # both 'fast' and '--fast' usable
-        inputfiles = inputfiles[:2]
-    return inputfiles
-
-# Deprecated (CreateFileList does this)
-def ApplyFast(inputfiles, args):
-    if len(args) > 1 and args[1] == "fast":
-        return inputfiles[:2]
+        inputfiles = inputfiles[-3:]
     return inputfiles
 
 
