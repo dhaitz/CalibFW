@@ -21,9 +21,7 @@ public:
 	ZJetMetaData();
 
 	~ZJetMetaData(){
-
 		ClearContent();
-
 	}
 
 	void ClearContent();
@@ -68,12 +66,7 @@ public:
 			std::string algoName) const;
 
 	void AddValidJet( KDataPFJet const& jet, std::string algoName)
-	{/*
-		if (m_validPFJets.find(algoName ) == m_validPFJets.end())
-		{
-			m_validPFJets[algoName] = new std::vector<KDataPFJet>();
-		}*/
-
+	{
 		m_validPFJets[algoName].push_back( jet );
 	}
 
@@ -133,15 +126,15 @@ public:
 
 	double GetMPF(KDataLV * met) const;
 
-IMPL_PROPERTY_READONLY(long, CutBitmask)
+    IMPL_PROPERTY_READONLY(long, CutBitmask)
 
-IMPL_PROPERTY(bool, ValidZ)
+    IMPL_PROPERTY(bool, ValidZ)
 
-IMPL_PROPERTY(KDataLV, Z)
+    IMPL_PROPERTY(KDataLV, Z)
 
-IMPL_PROPERTY(double, Weight)
+    IMPL_PROPERTY(double, Weight)
 
-IMPL_PROPERTY(std::string, SelectedHlt)
+    IMPL_PROPERTY(std::string, SelectedHlt)
 
 	KDataMuons const& GetValidMuons() const
 	{
@@ -157,29 +150,9 @@ IMPL_PROPERTY(std::string, SelectedHlt)
 	{
 		m_validPFJets[ algoname ] = std::vector< KDataPFJet >();
 	}
-/*
-	MatchingResult & GetMatchingResults( std::string matchingName )
-	{
-		return m_matchingResults[ matchingName ];
-	}
-
-	MatchingResult const& GetMatchingResults( std::string matchingName ) const
-	{
-		return m_matchingResults.at( matchingName );
-	}*/
 
 	void SortJetCollections();
 
-
-	//std::shared_ptr< HLTTools > m_hlt;
-
-
-/*
-	std::list<unsigned int> const& GetValidJets() const
-	{
-		return m_listValidJets;
-	}
-*/
 	KDataMuons m_listValidMuons;
 	KDataMuons m_listInvalidMuons;
 
@@ -190,12 +163,9 @@ IMPL_PROPERTY(std::string, SelectedHlt)
 	mutable JetMapping m_listValidJets;
 	mutable JetMapping m_listInvalidJets;
 
-
-
 	// create a complete copy of the jet collections ??
 	typedef std::map < std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
 	mutable MetaPFJetContainer m_validPFJets;
-
 
     // Jet Matching Result
 	typedef std::map< std::string , std::vector<int> > MatchingResults;
@@ -203,7 +173,5 @@ IMPL_PROPERTY(std::string, SelectedHlt)
 
 	HLTTools * m_hltInfo;
 };
-
-
 
 }

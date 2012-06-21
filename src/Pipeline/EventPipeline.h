@@ -200,6 +200,7 @@ public:
 	virtual void RunEvent(TData const& evt, TMetaData const& globalMetaData)
 	{
 		// copy global meta data and use as input for the local meta producers
+        // fixme: this copy is quite time consuming: ~ 30% of the runtime
 		TMetaData metaData = globalMetaData;
 
 		// run MetaDataProducers

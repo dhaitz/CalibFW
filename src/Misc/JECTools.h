@@ -126,6 +126,7 @@ public:
 			vs(fi.Get<KVertexSummary>("goodOfflinePrimaryVerticesSummary", false)),
 			ja(fi.Get<KJetArea>("KT6Area", true, true))
 	{
+
         init(level, jeuDir, prefix, algo);
 	}
 
@@ -154,6 +155,9 @@ public:
 private:
     void init(const std::vector<std::string> &level, const int jeuDir, const std::string prefix, const std::string algo)
     {
+        assert( vs != NULL );
+        assert( ja != NULL );
+
         std::cout << yellow << " * Loading jet energy corrections..." << reset << std::endl << "\t";
 		std::vector<JetCorrectorParameters> jecVec;
 		for (size_t i = 0; i < level.size(); ++i)
@@ -172,7 +176,6 @@ private:
 			jeuType = jec_down;
 		else
 			jeuType = jec_center;
-
     }
 
 	double area;
