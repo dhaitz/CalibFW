@@ -22,7 +22,7 @@ struct JecCorrSet
 };
 
 // takes the jets contained in an event and applies the necessary corrections
-class CorrJetProducer: public ZJetMetaDataProducerBase
+class CorrJetProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
 

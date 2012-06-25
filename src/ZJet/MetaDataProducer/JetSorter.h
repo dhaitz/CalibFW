@@ -9,7 +9,7 @@ namespace CalibFW
  * Sorts the Jets in the Globalb Meta Data by Transverse Momentum
  */
 
-class JetSorter: public ZJetMetaDataProducerBase
+class JetSorter: public ZJetGlobalMetaDataProducerBase
 {
 public:
 	virtual void PopulateMetaData(ZJetEventData const& data,

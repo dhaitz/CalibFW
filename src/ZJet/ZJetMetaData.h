@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
@@ -15,18 +16,13 @@
 namespace CalibFW
 {
 
-class ZJetMetaData: public CalibFW::EventMetaDataBase
+
+class ZJetLocalMetaData : public boost::noncopyable
 {
-public:
-	ZJetMetaData();
-
-	~ZJetMetaData(){
-		ClearContent();
-	}
-
-	void ClearContent();
-
-	virtual std::string GetContent() const;
+public: 
+    ZJetLocalMetaData() : m_CutBitmask ( 0 )
+    {
+    }    
 
 	// cutPassed is true, if the event was not dropped by the cut
 	void SetCutResult(long cutId, bool cutPassed)
@@ -35,6 +31,53 @@ public:
 		this->SetCutBitmask(((!cutPassed) * cutId) | (GetCutBitmask()
 				& (~cutId)));
 	}
+
+    void SetCutBitmask ( long val )
+    {
+        m_CutBitmask = val;
+    }
+
+    long GetCutBitmask () const 
+    {
+        return m_CutBitmask;
+    }
+
+private: 
+    long m_CutBitmask;
+
+
+};
+
+
+class ZJetMetaData : public boost::noncopyable
+{
+public:
+	ZJetMetaData();
+
+	~ZJetMetaData(){
+		ClearContent();
+	}
+
+    typedef ZJetLocalMetaData LocalMetaDataType; 
+
+	void ClearContent();
+
+    void SetLocalMetaData( LocalMetaDataType * pipelineMetaData )
+    {
+        assert ( pipelineMetaData != NULL );
+        m_pipelineMetaData = pipelineMetaData;
+    }
+    
+    // holds pipeline specific metadata
+    LocalMetaDataType * GetLocalMetaData() const
+    {
+        assert ( m_pipelineMetaData != NULL );
+        return m_pipelineMetaData;
+    }
+
+	std::string GetContent() const;
+
+
 
 	KDataLV * GetValidPrimaryJet( ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData) const
@@ -109,6 +152,14 @@ public:
 		return (this->GetCutBitmask() == 0);
 	}
 
+
+
+    long GetCutBitmask ( ) const
+    {
+	 	return GetLocalMetaData()->GetCutBitmask();
+    }
+
+
 	bool IsCutPassed(long cutId) const
 	{
 		return (this->GetCutBitmask() & cutId) == 0;
@@ -125,8 +176,6 @@ public:
 	}
 
 	double GetMPF(KDataLV * met) const;
-
-    IMPL_PROPERTY_READONLY(long, CutBitmask)
 
     IMPL_PROPERTY(bool, ValidZ)
 
@@ -172,6 +221,9 @@ public:
 	MatchingResults m_matchingResults;
 
 	HLTTools * m_hltInfo;
+
+    // holds pipeline specific metadata of the current pipeline
+    LocalMetaDataType * m_pipelineMetaData;
 };
 
 }

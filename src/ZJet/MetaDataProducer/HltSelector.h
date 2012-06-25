@@ -5,7 +5,7 @@
 namespace CalibFW
 {
 
-class HltSelector: public ZJetMetaDataProducerBase
+class HltSelector: public ZJetGlobalMetaDataProducerBase
 {
 public:
 

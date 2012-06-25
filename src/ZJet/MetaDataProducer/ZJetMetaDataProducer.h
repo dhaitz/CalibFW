@@ -10,21 +10,15 @@ namespace CalibFW
 
 //const double g_kZmass = 91.19;
 
-typedef MetaDataProducerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
-		ZJetMetaDataProducerBase;
+typedef GlobalMetaDataProducerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
+		ZJetGlobalMetaDataProducerBase;
 //typedef CutHandler<ZJetEventData , ZJetPipelineSettings > ZJetCutHandler;
 
 //typedef EventConsumerBase<EventResult, ZJetPipelineSettings> ZJetConsumerBase;
 
-class ValidMuonProducer: public ZJetMetaDataProducerBase
+class ValidMuonProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
-	virtual void PopulateMetaData(ZJetEventData const& data,
-			ZJetMetaData & metaData,
-			ZJetPipelineSettings const& m_pipelineSettings) const
-	{
-		// nothing to do here
-	}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
@@ -57,7 +51,7 @@ public:
 	static std::string Name() { return "valid_muon_producer"; }
 };
 
-class ValidJetProducer: public ZJetMetaDataProducerBase
+class ValidJetProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
 
@@ -148,25 +142,18 @@ public:
 };
 
 // need the ValidMuonProducer before
-class ZProducer: public ZJetMetaDataProducerBase
+class ZProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
     const double zmassRangeMin;
     const double zmassRangeMax;
 
-    ZProducer() : ZJetMetaDataProducerBase(),
+    ZProducer() : ZJetGlobalMetaDataProducerBase(),
         zmassRangeMin( 68.0), zmassRangeMax ( 112.0 )
         {
 
 
         }
-
-	virtual void PopulateMetaData(ZJetEventData const& data,
-			ZJetMetaData & metaData,
-			ZJetPipelineSettings const& m_pipelineSettings) const
-	{
-		// nothing to do here
-	}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const

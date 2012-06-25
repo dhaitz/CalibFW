@@ -79,19 +79,20 @@ BOOST_AUTO_TEST_CASE( test_filter_incut )
 {
 	TestZJetEventData evt;
 	ZJetMetaData mData;
+    typename ZJetMetaData::LocalMetaDataType localData;
 	ZJetPipelineSettings set;
 
 	InCutFilter filter;
 
 	set.CacheFilterInCutIgnored.SetCache(0);
-
+    mData.SetLocalMetaData ( &localData );
 
 	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), true );
 
-	mData.SetCutResult(8, false);
+	localData.SetCutResult(8, false);
 	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), false );
 
-	mData.SetCutResult(8, true);
+	localData.SetCutResult(8, true);
 	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), true );
 
 }

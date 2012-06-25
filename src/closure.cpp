@@ -128,7 +128,7 @@ PipelineSettingsVector g_pipeSettings;
 
 
 void AddGlobalMetaProducer( std::vector< std::string > const& producer,
-		EventPipelineRunner<ZJetPipeline, ZJetMetaDataProducerBase> & runner,
+		EventPipelineRunner<ZJetPipeline, ZJetGlobalMetaDataProducerBase> & runner,
 		boost::property_tree::ptree & globalSettings)
 {
 	// extend here, if you want to provide a new global meta producer
@@ -265,7 +265,7 @@ int main(int argc, char** argv)
 
 	ZJetPipelineSettings * pset = NULL;
 
-	EventPipelineRunner<ZJetPipeline, ZJetMetaDataProducerBase> pRunner;
+	EventPipelineRunner<ZJetPipeline, ZJetGlobalMetaDataProducerBase> pRunner;
 
 	BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
 			g_propTree.get_child("Pipelines") )

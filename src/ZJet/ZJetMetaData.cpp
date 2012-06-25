@@ -9,7 +9,6 @@ namespace CalibFW
 
 ZJetMetaData::ZJetMetaData()
 {
-	SetCutBitmask(0);
 	SetWeight(1.0f);
 	SetValidZ(false);
 }
@@ -85,6 +84,8 @@ unsigned int ZJetMetaData::GetValidJetCount(
 		ZJetPipelineSettings const& psettings,
 		ZJetEventData const& evtData, std::string algoName) const
 {
+    // fixme:: SafeMap stuff needs a lot of memcpy's
+
 	//std::cout << "IsgenJet " << JetType::IsGen( algoName ) << std::endl;
 	if (IsMetaJetAlgo(algoName))
 	{

@@ -7,7 +7,7 @@ namespace CalibFW
 
 CorrJetProducer::CorrJetProducer( std::string corBase) :
 		 //"data/jec_data/MC_42_V13_";
-	ZJetMetaDataProducerBase(),
+	ZJetGlobalMetaDataProducerBase(),
 			m_corectionFileBase ( corBase )
 {
 	CALIB_LOG( "Loading JEC from " + m_corectionFileBase)

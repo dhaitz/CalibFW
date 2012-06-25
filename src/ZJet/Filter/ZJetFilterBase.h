@@ -14,7 +14,7 @@
 namespace CalibFW
 {
 
-typedef FilterBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
+typedef FilterBase<ZJetEventData, ZJetMetaData , ZJetPipelineSettings>
 		ZJetFilterBase;
 
 }
