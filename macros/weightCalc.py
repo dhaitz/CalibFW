@@ -20,6 +20,18 @@ ROOT.gErrorIgnoreLevel = ROOT.kError
 
 def main():
     op = options()
+    # catch special use cases: list or remove weights
+    if op.list:
+        listWeightsInFile(op.output)
+        exit(0)
+    elif op.remove:
+        removeWeightsFromFile(op.datainput, op.output)
+        exit(0)
+    elif not op.datainput or not op.mcinput:
+        print "Usage: weightCalc.py [options] datainput mcinput [...]"
+        print "Use -h for detailed help."
+        exit(0)
+    # else: default use case: calculate and add weights
 
     data, datakey = getDataDistribution(op.datainput, op.inputLumiJSON, op.minBiasXsec, op.numPileupBins, op.data_histo, op.dataoutput, op.verbose)
     print "Data:", data
@@ -213,18 +225,47 @@ def addWeightsToFile(key, weights, xsec, filename, warnOnOverwrite=False):
     print "Weights written to", filename, "as", key
 
 
+def removeWeightsFromFile(key, filename):
+    try:
+        with open(filename, 'r') as f:
+            dic = json.load(f)
+    except:
+        print filename, "does not exist."
+        exit(1)
+    if key in dic.keys():
+        del dic[key]
+    else:
+        print "Weights for", key, "do not exist in", filename
+        exit(1)
+    with open(filename, 'w') as f:
+        json.dump(dic, f, sort_keys=True, indent=2)
+    print "Weights for", key, "have been removed."
+
+
+def listWeightsInFile(filename):
+    try:
+        with open(filename, 'r') as f:
+            dic = json.load(f)
+    except:
+        print filename, "does not exist."
+        exit(1)
+    print "The file", filename, "stores these weights:"
+    for key in sorted(dic.keys()):
+        print "  * ", key
+
+
 def options():
     parser = argparse.ArgumentParser(
         description="%(prog)s calculates the weights for MC reweighting "
             "according to the number of pile-up interactions. Use cases: "
             "%(prog)s /path/to/skim/*.root Cert_JSON.txt pileup_JSON.txt or"
             "%(prog)s mcdist.root datadist.root")
-    parser.add_argument('datainput', metavar='datainput', type=str,
+    parser.add_argument('datainput', metavar='datainput', type=str, nargs='?',
         help="root file containing the estimated true number of pile-up "
             "interactions in data or the used json file and the official "
             "pile-up json. The name of the contained histogram is "
             "specified with -D.")
-    parser.add_argument('mcinput', metavar='mcinput', type=str, nargs='+',
+    parser.add_argument('mcinput', metavar='mcinput', type=str, nargs='*',
         help="either a skim location or a rootfile with the MC distribution "
             "of pile-up. The name of the contained histogram is "
             "specified with -M.")
@@ -245,7 +286,7 @@ def options():
         help="Name for this set of weights in the output file. Determined "
             "automatically if not specified.")
 
-    parser.add_argument('-l', '--inputLumiJSON', type=str, default=None,
+    parser.add_argument('-i', '--inputLumiJSON', type=str, default=None,
         help="Input Lumi JSON for pileupCalc.")
     parser.add_argument('-x', '--minBiasXsec', type=float, default=69.3,
         help="Minimum bias cross section in mb (NB: pileupCalc takes µb!)")
@@ -266,6 +307,10 @@ def options():
     parser.add_argument('-q', '--no-warning', action='store_true',
         help="Do not print warnings if the Monte Carlo sample does not "
             "contain events for all numbers of pile-up interactions.")
+    parser.add_argument('-l', '--list', action='store_true',
+        help="Print a list of stored weights.")
+    parser.add_argument('-r', '--remove', action='store_true',
+        help="Remove weights from the weight file.")
     return parser.parse_args()
 
 

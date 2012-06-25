@@ -18,7 +18,7 @@ afsjson=$(ls $afspath/Prompt/Cert_*_${variant}{_v*.txt,.txt} | tail -n 1)
 locjson=${jsondestination}/${afsjson##*/}
 afspu=$(ls $afspath/PileUp/pileup_JSON_*.txt | tail -n 1)
 locpu=${pudestination}/${afspu##*/}
-cmd="macros/weightCalc.py -l $locpu $locjson /path/to/skim/*.root"
+cmd="macros/weightCalc.py -i $locpu $locjson /path/to/skim/*.root"
 
 check_json() {
   if [ ! -e $2 ]; then
