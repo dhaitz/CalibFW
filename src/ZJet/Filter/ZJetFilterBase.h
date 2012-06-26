@@ -7,10 +7,6 @@
 #include "../ZJetMetaData.h"
 #include "../ZJetPipelineSettings.h"
 
-//#include "ValidZFilter.h"
-//#include "InCutFilter.h"
-//#include "PtWindowFilter.h"
-
 namespace CalibFW
 {
 

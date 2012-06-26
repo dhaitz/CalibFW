@@ -81,6 +81,32 @@ KDataLV * ZJetMetaData::GetValidJet(ZJetPipelineSettings const& psettings,
 	}
 }
 
+
+KDataLV * ZJetMetaData::GetInvalidJet(ZJetPipelineSettings const& psettings,
+		ZJetEventData const& evtData, unsigned int index, std::string algoName) const
+{
+	backtrace_assert( GetInvalidJetCount(psettings, evtData, algoName) > index );
+
+	if (IsMetaJetAlgo(algoName))
+	{
+        CALIB_LOG_FATAL("Invalid jets are not provided for corrected algorithm " + algoName ) 
+		return NULL;
+	}
+	else if ( JetType::IsGen( algoName ) )
+	{
+        CALIB_LOG_FATAL("Invalid jets are not provided for GenJets algorithm " + algoName ) 
+		return NULL;
+	}
+	else
+	{
+		KDataLV * j = evtData.GetJet(psettings, m_listInvalidJets[algoName].at(
+				index), algoName);
+		assert( j != NULL);
+
+		return j;
+	}
+}
+
 unsigned int ZJetMetaData::GetValidJetCount(
 		ZJetPipelineSettings const& psettings,
 		ZJetEventData const& evtData, std::string algoName) const

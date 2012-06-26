@@ -169,15 +169,18 @@ public:
 	DataLVsConsumer(
 			std::string productName,
 			unsigned int productIndex,
-			std::string algorithm) :
+			std::string algorithm, 
+            bool useValidJets,
+            std::string namePrefix = "") :
 				MetaConsumerDataLV(),
 				m_algorithm( algorithm )
 				{
+        SetUseValidJets( useValidJets );
 		SetProductIndex( productIndex );
 		SetProductName( productName );
 
 		std::stringstream jetName;
-		jetName << "jet" << (GetProductIndex() + 1) << "%quant%"
+		jetName << namePrefix << "jet" << (GetProductIndex() + 1) << "%quant%"
 				<< GetProductName();
 
 		SetPhysicsObjectName( jetName.str() );
@@ -215,15 +218,35 @@ public:
 
 		KDataLV * lv;
 
-		if( m_algorithm == "" )
-			lv = metaData.GetValidJet( GetPipelineSettings(), event, GetProductIndex());
-		else
-			lv = metaData.GetValidJet( GetPipelineSettings(), event, GetProductIndex(), m_algorithm);
+    
+        if ( GetUseValidJets() )
+        {
+    		if( m_algorithm == "" )
+    			lv = metaData.GetValidJet( GetPipelineSettings(), event, GetProductIndex());
+    		else
+    			lv = metaData.GetValidJet( GetPipelineSettings(), event, GetProductIndex(), m_algorithm);
 
-		assert (lv != NULL);
+    		assert (lv != NULL);
 
-		PlotDataLVQuantities(lv, metaData);
-		ProcessFilteredEvent_specific( event, metaData, lv);
+    		PlotDataLVQuantities(lv, metaData);
+    		ProcessFilteredEvent_specific( event, metaData, lv);
+
+        }
+        else
+        {
+            // plot all invalid jet quantities at once !
+    		if( m_algorithm == "" ) { CALIB_LOG_FATAL( "not implemented, please provide jet name") }
+
+            unsigned int invalidJetCount =  metaData.GetInvalidJetCount( GetPipelineSettings(), event, m_algorithm);
+            for ( unsigned int i = 0; i < invalidJetCount; ++i )
+            {
+    			lv = metaData.GetInvalidJet( GetPipelineSettings(), event, GetProductIndex(), m_algorithm);
+                assert ( lv != NULL );
+        		PlotDataLVQuantities(lv, metaData);
+        		ProcessFilteredEvent_specific( event, metaData, lv);                
+            }
+        }
+
 	}
 
 	virtual void ProcessFilteredEvent_specific( ZJetEventData const& event,
@@ -240,6 +263,7 @@ public:
 
 	IMPL_PROPERTY_READONLY( std::string, ProductName )
 	IMPL_PROPERTY_READONLY( unsigned int, ProductIndex )
+    IMPL_PROPERTY_READONLY( bool, UseValidJets )
 
 	std::string m_algorithm;
 };
@@ -251,7 +275,7 @@ class DataGenJetConsumer: public DataLVsConsumer
 public:
 	DataGenJetConsumer(   std::string productName,
 			unsigned int productIndex, std::string algoName ) :
-					DataLVsConsumer( productName, productIndex, algoName)
+					DataLVsConsumer( productName, productIndex, algoName, true)
 	{
 	}
 };
@@ -264,8 +288,10 @@ public:
 	DataPFJetsConsumer( std::string productName,
 			unsigned int productIndex,
 			std::string algoName = "",
-			bool onlyBasic = false) :
-				DataLVsConsumer( productName, productIndex, algoName),
+			bool onlyBasic = false,
+            bool useValidJets = true, 
+            std::string namePrefix = "" ) :
+				DataLVsConsumer( productName, productIndex, algoName, useValidJets, namePrefix),
 				m_onlyBasic( onlyBasic )
 				{
 

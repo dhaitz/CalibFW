@@ -28,6 +28,19 @@ public:
 	  CALIB_LOG_FATAL ( "Cant convert algoname " << algoname << " to Gen " );
 	}
 
+    // jet algo ( AK5PF ) without any correction applied ??
+    static bool IsRaw( std::string algoname )
+    {
+		return ( algoname == "AK5PFJets") ||
+				( algoname == "AK7PFJets") ||
+				( algoname == "KT4PFJets") ||
+				( algoname == "KT6PFJets") ||
+                ( algoname == "AK5PFJetsCHS") ||
+				( algoname == "AK7PFJetsCHS") ||
+				( algoname == "KT4PFJetsCHS") ||
+				( algoname == "KT6PFJetsCHS");
+    }
+
 	static bool IsPF(std::string algoname)
 	{
 		return boost::algorithm::starts_with( algoname, "AK5PF") ||

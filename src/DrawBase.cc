@@ -70,6 +70,16 @@ Hist1D::ModifierList Hist1D::GetEtaModifier()
 }
 
 
+Hist1D::ModifierList Hist1D::GetCountModifier( unsigned int max)
+{
+	Hist1D::ModifierList modList;
+
+	modList.push_back(new ModHistBinRange(-0.5f,  float(max) +0.5f));
+	modList.push_back(new ModHistBinCount(max + 1));
+
+	return modList;
+}
+
 Hist1D::ModifierList Hist1D::GetNRVModifier()
 {
 	Hist1D::ModifierList modList;

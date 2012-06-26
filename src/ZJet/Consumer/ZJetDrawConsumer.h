@@ -182,13 +182,21 @@ public:
 
 		m_valid = new Hist1D( "jets_valid_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetNRVModifier() );
+				Hist1D::GetCountModifier( 50 ) );
 		AddPlot ( m_valid );
 
-		m_invalid = new Hist1D( "jets_invalid_" + this->GetPipelineSettings().GetJetAlgorithm(),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetNRVModifier() );
-		AddPlot ( m_invalid );
+        // only plot the invalid jets for the initial algos ( AK5PFJets )
+        if ( JetType :: IsRaw ( this->GetPipelineSettings().GetJetAlgorithm() ))
+        {
+    		m_invalid = new Hist1D( "jets_invalid_" + this->GetPipelineSettings().GetJetAlgorithm(),
+    				GetPipelineSettings().GetRootFileFolder(),
+    				Hist1D::GetCountModifier( 50 ) );
+    		AddPlot ( m_invalid );
+        }
+        else
+        {
+            m_invalid = NULL;
+        }
 	}
 
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
@@ -196,7 +204,9 @@ public:
 	{
 		ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
 		m_valid->Fill( metaData.GetValidJetCount( this->GetPipelineSettings(), event ), metaData.GetWeight());
-		m_invalid->Fill( metaData.GetInvalidJetCount( this->GetPipelineSettings(), event), metaData.GetWeight());
+
+        if ( m_invalid != NULL )
+    		m_invalid->Fill( metaData.GetInvalidJetCount( this->GetPipelineSettings(), event), metaData.GetWeight());
 	}
 
 private:

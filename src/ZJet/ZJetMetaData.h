@@ -36,6 +36,45 @@ public:
 				& (~cutId)));
 	}
 
+
+
+	KEventMetadata * GetKappaMetaData( ZJetEventData const& evtData, ZJetPipelineSettings const& psettings )
+			const;
+
+	bool IsMetaJetAlgo ( std::string const& algoName ) const
+	{
+		return ( m_validPFJets.find( algoName ) != m_validPFJets.end() );
+	}
+
+
+	void AddValidJet( KDataPFJet const& jet, std::string algoName)
+	{
+		m_validPFJets[algoName].push_back( jet );
+	}
+
+
+	std::vector< KDataPFJet > & GetPFValidJetCollection( std::string const& algoName )
+	{
+        return m_validPFJets.at( algoName );
+	}
+
+    // ## ACCESS TO VALID JETS
+	unsigned int GetValidJetCount(
+			ZJetPipelineSettings const& psettings,
+			ZJetEventData const& evtData, std::string algoName) const;
+
+	unsigned int GetValidJetCount(
+			ZJetPipelineSettings const& psettings,
+			ZJetEventData const& evtData) const
+	{
+		return GetValidJetCount( psettings, evtData, psettings.GetJetAlgorithm());
+	}
+
+	KDataLV * GetValidJet( ZJetPipelineSettings const& psettings,
+			ZJetEventData const& evtData,
+			unsigned int index,
+			std::string algoName) const;
+
 	KDataLV * GetValidPrimaryJet( ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData) const
 	{
@@ -52,47 +91,36 @@ public:
 				psettings.GetJetAlgorithm()) ;
 	}
 
-	KEventMetadata * GetKappaMetaData( ZJetEventData const& evtData, ZJetPipelineSettings const& psettings )
-			const;
+    // ## ACCESS TO INVALID JETS
 
-	bool IsMetaJetAlgo ( std::string const& algoName ) const
-	{
-		return ( m_validPFJets.find( algoName ) != m_validPFJets.end() );
-	}
-
-	KDataLV * GetValidJet( ZJetPipelineSettings const& psettings,
+	KDataLV * GetInvalidJet( ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData,
 			unsigned int index,
 			std::string algoName) const;
 
-	void AddValidJet( KDataPFJet const& jet, std::string algoName)
+	KDataLV * GetInvalidJet( ZJetPipelineSettings const& psettings,
+			ZJetEventData const& evtData,
+			unsigned int index) const
 	{
-		m_validPFJets[algoName].push_back( jet );
+		return GetInvalidJet( psettings,
+				evtData,
+				index,
+				psettings.GetJetAlgorithm()) ;
 	}
-
-
-	std::vector< KDataPFJet > & GetPFValidJetCollection( std::string const& algoName )
-	{
-        return m_validPFJets.at( algoName );
-	}
-
-
-	unsigned int GetValidJetCount(
-			ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData) const
-	{
-		return GetValidJetCount( psettings, evtData, psettings.GetJetAlgorithm());
-	}
-
-	unsigned int GetValidJetCount(
-			ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData, std::string algoName) const;
 
 	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData) const
+			ZJetEventData const& evtData, std::string algoName) const
 	{
-		return this->m_listInvalidJets[ psettings.GetJetAlgorithm() ].size();
+		return this->m_listInvalidJets[ algoName ].size();
 	}
+
+	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings,
+			ZJetEventData const& evtData ) const
+	{
+		return GetInvalidJetCount( psettings, evtData, psettings.GetJetAlgorithm() );
+	}
+
+
 
 	bool HasValidZ() const
 	{
