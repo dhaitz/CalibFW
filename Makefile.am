@@ -39,6 +39,7 @@ CALIB_SRC = src/DrawBase.cc src/EventData.cc \
 			src/EventPipelineRunner.cc \
 			src/GlobalInclude.cc \
 			src/ZJet/ZJetPipeline.cpp  \
+            src/ZJet/ZJetPipelineInitializer.cpp  \
 			src/ZJet/MetaDataProducer/CorrJetProducer.cpp  \
 			src/ZJet/MetaDataProducer/JetMatcher.cpp  \
 			src/Pipeline/ProfileConsumerBase.cpp \
