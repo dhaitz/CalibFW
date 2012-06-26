@@ -73,8 +73,9 @@ public:
 				!= event.m_pfJets.end(); ++italgo)
 		{
 			//init collections for this algorithm
-			metaData.m_listValidJets[italgo->first];
-			metaData.m_listInvalidJets[italgo->first];
+            std::string sAlgoName =  italgo->first;
+			metaData.m_listValidJets.insert( sAlgoName, new std::vector<unsigned int> () );
+			metaData.m_listInvalidJets.insert( sAlgoName, new std::vector<unsigned int> () );
 
 			int i = 0;
 			float lastpt = -1.0f;

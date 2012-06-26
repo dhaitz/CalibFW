@@ -206,18 +206,18 @@ public:
 	KDataMuons m_listInvalidMuons;
 
 
-	typedef  std::map< std::string , std::vector<unsigned int> >  JetMapping ;
+	typedef  boost::ptr_map < std::string , std::vector<unsigned int> >  JetMapping ;
 	typedef  JetMapping::iterator  JetMappingIterator ;
 
 	mutable JetMapping m_listValidJets;
 	mutable JetMapping m_listInvalidJets;
 
 	// create a complete copy of the jet collections ??
-	typedef std::map < std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
+	typedef boost::ptr_map < std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
 	mutable MetaPFJetContainer m_validPFJets;
 
     // Jet Matching Result
-	typedef std::map< std::string , std::vector<int> > MatchingResults;
+	typedef boost::ptr_map< std::string , std::vector<int> > MatchingResults;
 	MatchingResults m_matchingResults;
 
 	HLTTools * m_hltInfo;
