@@ -25,27 +25,29 @@ namespace CalibFW
 BOOST_AUTO_TEST_CASE( test_zjet_metadata )
 {
 	ZJetMetaData mdata;
+    typename ZJetMetaData::LocalMetaDataType localData;
+    mdata.SetLocalMetaData( & localData );
 
 	BOOST_CHECK_EQUAL( mdata.GetCutBitmask(), 0);
 	BOOST_CHECK( mdata.IsAllCutsPassed());
 
-	mdata.SetCutResult(8, false);
+	localData.SetCutResult(8, false);
 	BOOST_CHECK_EQUAL( mdata.GetCutBitmask(), 8);
 	BOOST_CHECK( ! mdata.IsCutPassed(8));
 	BOOST_CHECK( ! mdata.IsAllCutsPassed());
 
-	mdata.SetCutResult(16, false);
+	localData.SetCutResult(16, false);
 	BOOST_CHECK_EQUAL( mdata.GetCutBitmask(), 24);
 	BOOST_CHECK( !mdata.IsCutPassed(16));
 	BOOST_CHECK( !mdata.IsAllCutsPassed());
 	BOOST_CHECK( mdata.IsCutPassed(32));
 
-	mdata.SetCutResult(16, true);
+	localData.SetCutResult(16, true);
 	BOOST_CHECK_EQUAL( mdata.GetCutBitmask(), 8);
 	BOOST_CHECK( mdata.IsCutPassed(16));
 	BOOST_CHECK(! mdata.IsAllCutsPassed());
 
-	mdata.SetCutResult(8, true);
+	localData.SetCutResult(8, true);
 	BOOST_CHECK_EQUAL( mdata.GetCutBitmask(), 0);
 	BOOST_CHECK( mdata.IsCutPassed(8));
 	BOOST_CHECK( mdata.IsAllCutsPassed());
@@ -86,7 +88,6 @@ BOOST_AUTO_TEST_CASE( test_producer_z )
 	z.PopulateGlobalMetaData( evtData, mdata, set );
 	BOOST_CHECK( mdata.HasValidZ() );
 
-    std::cout << std::endl << mdata.GetZ().p4.Pt();
     BOOST_CHECK( ( mdata.GetZ().p4.Pt() > 5.0f ) && ( mdata.GetZ().p4.Pt() < 7.0f ));
 /*
 	BOOST_CHECK( mdata.GetZ().p4.Phi() < .1f );

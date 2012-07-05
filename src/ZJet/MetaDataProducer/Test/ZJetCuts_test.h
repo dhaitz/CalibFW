@@ -32,24 +32,28 @@ BOOST_AUTO_TEST_CASE( test_cut_jet_eta )
 	pSettings.CacheJetAlgorithm.SetCache("AK5PFJets");
 
 	ZJetMetaData metData;
+    
 	metData.m_listValidJets[pSettings.GetJetAlgorithm()].push_back( 0);
 	metData.m_listValidJets[pSettings.GetJetAlgorithm()].push_back( 1);
 
+    typename ZJetMetaData::LocalMetaDataType localData;
+    metData.SetLocalMetaData ( & localData );
+
 	evtData.m_jets[0].p4.SetEta( 0.3f);
-	ecut.PopulateMetaData( evtData, metData, pSettings );
+	ecut.PopulateLocal( evtData, metData, localData, pSettings );
 /*
 	BOOST_CHECK( metData.IsCutPassed( LeadingJetEtaCut::CutId ) );
 
 	evtData.m_jets[0].p4.SetEta( 1.3f);
-    ecut.PopulateMetaData( evtData, metData, pSettings );
+    ecut.PopulateMetaData( evtData, metData, localData, pSettings );
     BOOST_CHECK(! metData.IsCutPassed( LeadingJetEtaCut::CutId ) );
 
 	evtData.m_jets[0].p4.SetEta( -0.3f);
-    ecut.PopulateMetaData( evtData, metData, pSettings );
+    ecut.PopulateMetaData( evtData, metData, localData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( LeadingJetEtaCut::CutId ) );
 
 	evtData.m_jets[0].p4.SetEta( -1.3f);
-	ecut.PopulateMetaData( evtData, metData, pSettings );
+	ecut.PopulateMetaData( evtData, metData, localData, pSettings );
 	BOOST_CHECK(! metData.IsCutPassed( LeadingJetEtaCut::CutId ) );*/
 }
 
@@ -66,11 +70,13 @@ BOOST_AUTO_TEST_CASE( test_cut_muon_eta )
 	km2.p4.SetEta(4.23f);
 	metData.m_listValidMuons.push_back(km2);
 
+    typename ZJetMetaData::LocalMetaDataType localData;
+    metData.SetLocalMetaData ( & localData );
 
 	ZJetPipelineSettings pSettings;
 	pSettings.CacheCutMuonEta.SetCache( 1.3f );
 
-	ecut.PopulateMetaData( evtData, metData, pSettings );
+	ecut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK(! metData.IsCutPassed( MuonEtaCut::CutId ) );
 
 
@@ -80,8 +86,8 @@ BOOST_AUTO_TEST_CASE( test_cut_muon_eta )
 	km2.p4.SetEta(-1.23f);
 	metData.m_listValidMuons.push_back(km2);
 
-	metData.SetCutResult( MuonEtaCut::CutId, false );
-	ecut.PopulateMetaData( evtData, metData, pSettings );
+	localData.SetCutResult( MuonEtaCut::CutId, false );
+	ecut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( MuonEtaCut::CutId ) );
 
 }
@@ -99,17 +105,19 @@ BOOST_AUTO_TEST_CASE( test_cut_muon_pt )
 	km2.p4.SetPt(30.0f);
 	metData.m_listValidMuons.push_back(km2);
 
+    typename ZJetMetaData::LocalMetaDataType localData;
+    metData.SetLocalMetaData ( & localData );
 
 	ZJetPipelineSettings pSettings;
 	pSettings.CacheCutMuonPt.SetCache( 15.0f );
 
-	ecut.PopulateMetaData( evtData, metData, pSettings );
+	ecut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK(! metData.IsCutPassed( MuonPtCut::CutId ) );
 
 	metData.m_listValidMuons[0].p4.SetPt( 50.0 );
 
-	metData.SetCutResult( MuonPtCut::CutId, false );
-	ecut.PopulateMetaData( evtData, metData, pSettings );
+	localData.SetCutResult( MuonPtCut::CutId, false );
+	ecut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( MuonPtCut::CutId ) );
 
 }
@@ -134,34 +142,37 @@ BOOST_AUTO_TEST_CASE( test_cut_back2back )
 	metData.m_listValidJets[pSettings.GetJetAlgorithm()].push_back( 0);
 	metData.m_listValidJets[pSettings.GetJetAlgorithm()].push_back( 1);
 
+    typename ZJetMetaData::LocalMetaDataType localData;
+    metData.SetLocalMetaData ( & localData );
+
 	KDataLV v = metData.GetZ();
 	metData.SetValidZ(true);
 	v.p4.SetPhi(0.0f);
 	metData.SetZ( v );
 
-	cut.PopulateMetaData( evtData, metData, pSettings );
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( BackToBackCut::CutId ) );
 
 	v.p4.SetPhi(1.5f);
 	metData.SetZ( v );
-	cut.PopulateMetaData( evtData, metData, pSettings );
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK(! metData.IsCutPassed( BackToBackCut::CutId ) );
 
 	v.p4.SetPhi(-.3f);
 	metData.SetZ( v );
-	cut.PopulateMetaData( evtData, metData, pSettings );
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( BackToBackCut::CutId ) );
 
 	evtData.m_jets[0].p4.SetPhi( 1.7f);
 	v.p4.SetPhi(-1.7f);
 	metData.SetZ( v );
-	cut.PopulateMetaData( evtData, metData, pSettings );
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( BackToBackCut::CutId ) );
 
 	evtData.m_jets[0].p4.SetPhi( 3.1f);
 	v.p4.SetPhi(3.1f);
 	metData.SetZ( v );
-	cut.PopulateMetaData( evtData, metData, pSettings );
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK(! metData.IsCutPassed( BackToBackCut::CutId ) );
 }
 
@@ -182,17 +193,20 @@ BOOST_AUTO_TEST_CASE( test_cut_zmass )
 	pSettings.CacheCutZMassWindow.SetCache(20.0f);
 	pSettings.CacheJetAlgorithm.SetCache("AK5PFJets");
 
-	cut.PopulateMetaData( evtData, metData, pSettings );
+    typename ZJetMetaData::LocalMetaDataType localData;
+    metData.SetLocalMetaData ( & localData );
+
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( ZMassWindowCut::CutId ) );
 
 	v.p4.SetM(69.0f);
 	metData.SetZ( v );
-	cut.PopulateMetaData( evtData, metData, pSettings );
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( !metData.IsCutPassed( ZMassWindowCut::CutId ) );
 
 	v.p4.SetM(113.0f);
 	metData.SetZ( v );
-	cut.PopulateMetaData( evtData, metData, pSettings );
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( !metData.IsCutPassed( ZMassWindowCut::CutId ) );
 }
 
@@ -212,12 +226,15 @@ BOOST_AUTO_TEST_CASE( test_cut_zpt )
 	pSettings.CacheCutZPt.SetCache(15.0f);
 	pSettings.CacheJetAlgorithm.SetCache("AK5PFJets");
 
-	cut.PopulateMetaData( evtData, metData, pSettings );
+    typename ZJetMetaData::LocalMetaDataType localData;
+    metData.SetLocalMetaData ( & localData );
+
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( ZPtCut::CutId ) );
 
 	v.p4.SetPt(10.0f);
 	metData.SetZ( v );
-	cut.PopulateMetaData( evtData, metData, pSettings );
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( !metData.IsCutPassed( ZPtCut::CutId ) );
 
 }
@@ -244,12 +261,14 @@ BOOST_AUTO_TEST_CASE( test_cut_second_jet )
 	v.p4.SetPt(100.0f);
 	metData.SetZ( v );
 
+    typename ZJetMetaData::LocalMetaDataType localData;
+    metData.SetLocalMetaData ( & localData );
 
-	cut.PopulateMetaData( evtData, metData, pSettings );
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( SecondLeadingToZPtCut::CutId ) );
 
 	evtData.m_jets[1].p4.SetPt( 24.f);
-	cut.PopulateMetaData( evtData, metData, pSettings );
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( ! metData.IsCutPassed( SecondLeadingToZPtCut::CutId ) );
 
 	// no second jet will also let the event pass
@@ -258,7 +277,7 @@ BOOST_AUTO_TEST_CASE( test_cut_second_jet )
 		metData.m_listValidJets[pSettings.GetJetAlgorithm()].pop_back();
 	}
 
-	cut.PopulateMetaData( evtData, metData, pSettings );
+	cut.PopulateLocal( evtData, metData, localData, pSettings );
 	BOOST_CHECK( metData.IsCutPassed( SecondLeadingToZPtCut::CutId ) );
 
 }

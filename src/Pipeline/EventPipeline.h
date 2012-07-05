@@ -5,7 +5,6 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
-
 #include "PipelineSettings.h"
 #include "FilterBase.h"
 #include "EventConsumerBase.h"
@@ -16,25 +15,6 @@ namespace CalibFW
 
 template<class TData, class TMetaData, class TSettings>
 class EventPipeline;
-
-
-/*
- * Draft for your own meta data.
- */
-
-class EventMetaDataBase
-{
-public:
-	virtual ~EventMetaDataBase()
-	{
-	}
-
-	virtual std::string GetContent()
-	{
-		return "";
-	}
-};
-
 
 /*
 
@@ -104,10 +84,10 @@ public:
 			FilterVector;
 	typedef typename FilterVector::iterator FilterVectorIterator;
 
-	typedef MetaDataProducerBase<TData, TMetaData, TSettings>
+	typedef LocalMetaDataProducerBase<TData, TMetaData, TSettings>
 			MetaDataProducerForThisPipeline;
 
-	typedef boost::ptr_vector<MetaDataProducerBase<TData, TMetaData, TSettings> >
+	typedef boost::ptr_vector< MetaDataProducerForThisPipeline >
 			MetaDataProducerVector;
 	typedef typename MetaDataProducerVector::iterator MetaDataVectorIterator;
 
@@ -199,15 +179,17 @@ public:
 	 */
 	virtual void RunEvent(TData const& evt, TMetaData const& globalMetaData)
 	{
-		// copy global meta data and use as input for the local meta producers
-        // fixme: this copy is quite time consuming: ~ 30% of the runtime
-		TMetaData metaData = globalMetaData;
+		// create the pipeline local data and set the pointer to the localMetaData
+        TMetaData & nonconst_metaData = const_cast< TMetaData &>( globalMetaData );
+        typename TMetaData::LocalMetaDataType localMetaData;
+        nonconst_metaData.SetLocalMetaData ( & localMetaData );
 
 		// run MetaDataProducers
+        // Pipeline private MetaDataProducers not supported at the momemnt
 		for (MetaDataVectorIterator it = m_producer.begin(); !(it
 				== m_producer.end()); it++)
 		{
-			(it)->PopulateMetaData(evt, metaData, m_pipelineSettings);
+			(it)->PopulateLocal(evt, globalMetaData, localMetaData,  m_pipelineSettings);
 		}
 
 
@@ -218,7 +200,7 @@ public:
 				== m_filter.end()); itfilter++)
 		{
 			fres.SetFilterDecisions( itfilter->GetFilterId() ,
-					itfilter->DoesEventPass(evt, metaData, m_pipelineSettings));
+					itfilter->DoesEventPass(evt, globalMetaData, m_pipelineSettings));
 		}
 
 
@@ -228,10 +210,10 @@ public:
 		{
 			if (fres.HasPassed())
 			{
-				itcons->ProcessFilteredEvent(evt, metaData);
+				itcons->ProcessFilteredEvent(evt, globalMetaData);
 			}
 
-			itcons->ProcessEvent(evt, metaData, fres);
+			itcons->ProcessEvent(evt, globalMetaData, fres);
 		}
 	}
 

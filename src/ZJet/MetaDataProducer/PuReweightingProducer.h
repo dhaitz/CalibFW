@@ -12,7 +12,7 @@ namespace CalibFW
 // modifies the event weight depending on the number of reco vertices to fit the distribution in
 // data
 // can only be used on MC
-class PuReweightingProducer: public ZJetMetaDataProducerBase
+class PuReweightingProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
 

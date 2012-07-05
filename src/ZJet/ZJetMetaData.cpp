@@ -9,7 +9,6 @@ namespace CalibFW
 
 ZJetMetaData::ZJetMetaData()
 {
-	SetCutBitmask(0);
 	SetWeight(1.0f);
 	SetValidZ(false);
 }
@@ -36,7 +35,7 @@ std::string ZJetMetaData::GetContent() const
 	for (JetMappingIterator it = m_listValidJets.begin(); it
 			!= m_listValidJets.end(); ++it)
 	{
-		s << it->first << " count " << it->second.size() << std::endl;
+		s << it->first << " count " << it->second->size() << std::endl;
 
 	}
 
@@ -45,7 +44,7 @@ std::string ZJetMetaData::GetContent() const
 	for (MetaPFJetContainer::iterator it = m_validPFJets.begin(); it
 			!= m_validPFJets.end(); ++it)
 	{
-		s << it->first << " count " << it->second.size() << std::endl;
+		s << it->first << " count " << it->second->size() << std::endl;
 
 	}
 
@@ -55,8 +54,6 @@ std::string ZJetMetaData::GetContent() const
 KDataLV * ZJetMetaData::GetValidJet(ZJetPipelineSettings const& psettings,
 		ZJetEventData const& evtData, unsigned int index, std::string algoName) const
 {
-	//s44td::cout << algoName << " index: " << index << std::endl;
-  
 	backtrace_assert( GetValidJetCount(psettings, evtData, algoName) > index );
 
 	if (IsMetaJetAlgo(algoName))
@@ -111,10 +108,9 @@ unsigned int ZJetMetaData::GetValidJetCount(
 		ZJetPipelineSettings const& psettings,
 		ZJetEventData const& evtData, std::string algoName) const
 {
-	//std::cout << "IsgenJet " << JetType::IsGen( algoName ) << std::endl;
 	if (IsMetaJetAlgo(algoName))
 	{
-		return SafeMap<std::string, std::vector<KDataPFJet> >::Get( algoName,  m_validPFJets).size();
+		return SafeMap<std::string, std::vector<KDataPFJet> >::GetPtrMap( algoName,  m_validPFJets).size();
 	}
 	else if ( JetType::IsGen( algoName ) )
 	{
@@ -122,7 +118,7 @@ unsigned int ZJetMetaData::GetValidJetCount(
 	}
 	else
 	{
-		return SafeMap<std::string, std::vector<unsigned int> >::Get( algoName,  m_listValidJets).size();
+		return SafeMap<std::string, std::vector<unsigned int> >::GetPtrMap( algoName,  m_listValidJets).size();
 	}
 }
 
@@ -145,17 +141,14 @@ bool cmpPFJetPt (KDataPFJet i,KDataPFJet j)
 
 void ZJetMetaData::SortJetCollections()
 {
-    //CALIB_LOG("Sorting jets")
-
-
 	for ( MetaPFJetContainer::iterator it = m_validPFJets.begin();
 			it != m_validPFJets.end();
 			++ it)
 	{
-		std::vector<KDataPFJet> & jet_vect = it->second;
+		std::vector<KDataPFJet> * jet_vect = it->second;
 
-		std::sort( jet_vect.begin(), jet_vect.end(), cmpPFJetPt);
-		std::reverse( jet_vect.begin(), jet_vect.end() );
+		std::sort( jet_vect->begin(), jet_vect->end(), cmpPFJetPt);
+		std::reverse( jet_vect->begin(), jet_vect->end() );
 	}
 /*
     for testing purpses, to ensure the jets are ordered

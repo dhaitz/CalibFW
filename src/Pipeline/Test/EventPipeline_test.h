@@ -15,11 +15,37 @@ namespace CalibFW
 class TestMetaData
 {
 public:
-	TestMetaData() : iMetaData(0), iGlobalMetaData(0) {}
+	TestMetaData() :  iGlobalMetaData(0) {}
+
+    struct LocalData 
+    {
+        LocalData () : iMetaData( 0 ) {} 
+
+        int iMetaData;
+    };
+
+	
+    typedef LocalData  LocalMetaDataType; 
+
+
+    void SetLocalMetaData( LocalMetaDataType * pipelineMetaData ) 
+    {
+        m_localData = pipelineMetaData;
+    }
 
 	void ClearContent(){}
 
-	int iMetaData, iGlobalMetaData;
+    LocalMetaDataType * GetLocalMetaData () const
+    {
+        assert( m_localData != NULL );
+        return m_localData;
+    }
+	int iGlobalMetaData;
+
+
+private:
+
+    LocalMetaDataType  * m_localData;
 };
 
 
@@ -76,24 +102,29 @@ public:
 	}
 };
 
-typedef MetaDataProducerBase<TestData, TestMetaData,TestSettings> TestMetaDataProducerBase;
 
-class TestMetaDataProducer : public TestMetaDataProducerBase
+class TestLocalMetaDataProducer : public LocalMetaDataProducerBase<TestData, TestMetaData,TestSettings>
 {
 public:
 
 	// for each pipeline
-	virtual void PopulateMetaData(TestData const& data, TestMetaData & metaData,
-			TestSettings const& m_pipelineSettings) const
+	virtual void PopulateLocal(TestData const& data, TestMetaData const& metaData,
+            typename TestMetaData::LocalMetaDataType & localMetaData,	
+			TestSettings const& m_pipelineSettings) const 
 	{
-		metaData.iMetaData = data.iVal + 1;
+		localMetaData.iMetaData =  data.iVal + 1;
 	}
+};
+
+class TestGlobalMetaDataProducer : public GlobalMetaDataProducerBase<TestData, TestMetaData,TestSettings>
+{
+public:
 
 	// for the global metadata producer
 	virtual bool  PopulateGlobalMetaData(TestData const& data, TestMetaData & metaData,
 			TestSettings const& m_pipelineSettings) const
 	{
-		metaData.iGlobalMetaData += 1;
+		metaData.iGlobalMetaData = data.iVal + 5;
         return true;
 	}
 
@@ -131,7 +162,8 @@ public:
 			FilterResult & result)
 	{
 		// did metaData work ?
-		BOOST_CHECK_EQUAL(event.iVal + 1, metaData.iMetaData);
+		BOOST_CHECK_EQUAL(event.iVal + 1, metaData.GetLocalMetaData()->iMetaData);
+        BOOST_CHECK_EQUAL(event.iVal + 5, metaData.iGlobalMetaData);
 
 		iProcessEvent++;
 		fres = result;
@@ -172,17 +204,26 @@ BOOST_AUTO_TEST_CASE( test_event_pipeline )
 	pline.AddConsumer( pCons1 );
 	pline.AddConsumer( pCons2 );
 
-	pline.AddMetaDataProducer( new TestMetaDataProducer() );
+    pline.AddMetaDataProducer( new TestLocalMetaDataProducer() );
 
 	TestPipelineInitilizer init;
 
-	pline.InitPipeline( TestSettings(), init  );
+    TestSettings settings; 
+	pline.InitPipeline( settings, init  );
 
+    TestGlobalMetaDataProducer globalProducer;
 	TestMetaData global;
 	TestData td;
+    td.iVal = 23;
 
+    // run global meta data
+    globalProducer.PopulateGlobalMetaData( td, global, settings );
 	pline.RunEvent( td, global );
+
+    globalProducer.PopulateGlobalMetaData( td, global, settings );
 	pline.RunEvent( td, global );
+
+    globalProducer.PopulateGlobalMetaData( td, global, settings );
 	pline.RunEvent( td, global );
 
 	pline.FinishPipeline();
@@ -190,7 +231,6 @@ BOOST_AUTO_TEST_CASE( test_event_pipeline )
 	pCons1->CheckCalls(3, 3);
 	pCons2->CheckCalls(3, 3);
 }
-
 
 BOOST_AUTO_TEST_CASE( test_add_one_filter2times )
 {
@@ -214,19 +254,24 @@ BOOST_AUTO_TEST_CASE( test_event_filter )
 	pline.AddConsumer( pCons2 );
 
 	pline.AddFilter( new TestFilter() );
-	pline.AddMetaDataProducer( new TestMetaDataProducer() );
+    pline.AddMetaDataProducer( new TestLocalMetaDataProducer() );
 
 	TestPipelineInitilizer init;
 
-	pline.InitPipeline( TestSettings(), init  );
+    TestSettings settings;
+	pline.InitPipeline( settings, init  );
 
 	TestData td;
 	TestMetaData global;
+    TestGlobalMetaDataProducer globalProducer;
 
+    globalProducer.PopulateGlobalMetaData( td, global, settings );
 	pline.RunEvent( td, global );
 	td.iVal++;
+    globalProducer.PopulateGlobalMetaData( td, global, settings );
 	pline.RunEvent( td, global );
 	td.iVal++;
+    globalProducer.PopulateGlobalMetaData( td, global, settings );
 	pline.RunEvent( td, global );
 
 	pline.FinishPipeline();
@@ -240,6 +285,7 @@ BOOST_AUTO_TEST_CASE( test_event_multiplefilter )
 {
 	TestEventConsumer * pCons1 = new TestEventConsumer();
 
+    TestGlobalMetaDataProducer globalProducer;  
 	EventPipeline<TestData, TestMetaData, TestSettings> pline;
 
 	pline.AddConsumer( pCons1 );
@@ -247,15 +293,17 @@ BOOST_AUTO_TEST_CASE( test_event_multiplefilter )
 	pline.AddFilter( new TestFilter2() );
 	pline.AddFilter( new TestFilter() );
 
-	pline.AddMetaDataProducer( new TestMetaDataProducer() );
+	pline.AddMetaDataProducer( new TestLocalMetaDataProducer() );
 
 	TestPipelineInitilizer init;
-	pline.InitPipeline( TestSettings(), init  );
+    TestSettings settings;
+	pline.InitPipeline( settings, init  );
 
 	TestData td;
-	TestMetaData tm;
+	TestMetaData global;
 
-	pline.RunEvent( td,tm );
+    globalProducer.PopulateGlobalMetaData( td, global, settings );
+	pline.RunEvent( td,global );
 
 	pline.FinishPipeline();
 
@@ -275,7 +323,6 @@ BOOST_AUTO_TEST_CASE( test_event_multiplefilter )
 		std::cout << it->first << " : " << it->second << std::endl;
 	}*/
 }
-
 
 }
 
