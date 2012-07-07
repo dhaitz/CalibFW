@@ -51,7 +51,7 @@ def GetCMSSWPath():
     # feel free to insert your machine here !
     if username == 'berger':
         if 'ekpcms' in hname or 'ekpplus' in hname:
-            return "/storage/6/berger/CMSSW_4_2_8_patch1/"
+            return "/portal/ekpcms5/home/berger/CMSSW_5_2_5/"
     elif username == 'dhaitz':
         if 'ekpcms' in hname or 'ekpplus' in hname:
             return "/portal/ekpcms5/home/dhaitz/CMSSW_5_2_1/"
@@ -72,7 +72,7 @@ def GetBasePath():
     username = getpass.getuser()
     if username == 'berger':
         if 'ekpcms' in hname or 'ekpplus' in hname:
-            return "/storage/6/berger/zpj/CalibFW/"
+            return "/portal/ekpcms5/home/berger/CalibFW/"
     elif username == 'dhaitz':
         if 'ekpcms' in hname or 'ekpplus' in hname:
             return "/portal/ekpcms5/home/dhaitz/git/CalibFW/"    
