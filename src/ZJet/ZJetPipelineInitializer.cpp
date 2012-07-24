@@ -153,12 +153,12 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 1));
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 2));
 
-                if ( JetType::IsRaw ( pset.GetJetAlgorithm() ))
-                {
-                    // plot the invalid jet 0
-    				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 
-                                        0, pset.GetJetAlgorithm(), false, false, "jets_invalid_" ));                    
-                }
+				if ( JetType::IsRaw ( pset.GetJetAlgorithm() ))
+				{
+					// plot the invalid jet 0
+					pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(),
+							0, pset.GetJetAlgorithm(), false, false, "jets_invalid_" ));
+				}
 			}
 
 			if ( pset.IsMC() && ( pset.GetJetAlgorithm() == "AK5PFJetsL1L2L3" ))

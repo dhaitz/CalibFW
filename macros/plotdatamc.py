@@ -274,7 +274,7 @@ def plotany(x, y, datamc, opt):
         color='FireBrick', fmt='s', capsize=0, label=opt.labels[1])
 
     plotbase.labels(ax, opt, jet=True)
-    if over == 'jet1_eta':
+    if x == 'jet1_eta':
         pre = "abs_"
     else:
         pre = ""

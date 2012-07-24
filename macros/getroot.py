@@ -516,7 +516,7 @@ def dividegraphs(graph1, graph2):
         else:
             result.SetPoint(i, 0.5 * (x1 + x2), y1 / y2)
             result.SetPointError(i, 0.5 * (abs(dx1) + abs(dx2)),
-                abs(y1 / y2) * math.sqrt((dy1 / y1)**2 + (dy2 / y2)**2)
+                abs(y1 / y2) * math.sqrt((dy1 / y1)**2 + (dy2 / y2)**2))
     return result
 
 def getgraphpoint(graph, i):
