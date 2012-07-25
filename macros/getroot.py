@@ -24,8 +24,6 @@ import ROOT
 import cPickle as pickle
 import time
 import copy
-import plotbase
-
 
 
 # converts a integer list of bins [1, 30, 70] to a
@@ -566,7 +564,7 @@ def getgraph(x, y, f, opt, change={}, key='var', var=None, drop=True, root=True,
        If var is Pt-bins, the first datapoint can be dropped (default).
        x,y,var(x)
     """
-    changes = plotbase.createchanges(opt)
+    changes = {"correction": opt.correction, "algorithm": opt.algorithm}
     changes.update(change)
     print "Get a", y, "over", x, "plot from file:", f.GetName()
     try:
