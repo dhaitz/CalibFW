@@ -313,7 +313,7 @@ def GetDataBaseConfig(analysis='zjet',run='2011'):
         d["JsonFile"] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON_v2.txt"
     elif run == '2012':
         d["JecBase"] = GetBasePath() +  "data/jec_data/GR_R_52_V9"
-        d["JsonFile"] = GetBasePath() + "data/json/Cert_190456-195775_8TeV_PromptReco_Collisions12_JSON.txt"
+        d["JsonFile"] = GetBasePath() + "data/json/Cert_190456-199011_8TeV_PromptReco_Collisions12_JSON.txt"
     else:
         print "Run period", run, "is undefined. No json and jet corrections known."
         exit(0)
@@ -737,7 +737,7 @@ def ReplaceWithQuantitiesBasic(pline):
     AddConsumerNoConfig(pline, "quantities_basic")
 
 
-def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning() ):
+def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning(), onlyBasicQuantities=True ):
     conf = copy.deepcopy(conf_template)
 
     # generate folder names
@@ -769,13 +769,13 @@ def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefi
 
         if "ptbin" in pval["Filter"]:
             ptVal = "Pt" + str(pval["FilterPtBinLow"]) + "to" + str(pval["FilterPtBinHigh"])
-            ReplaceWithQuantitiesBasic ( pval )
+            if onlyBasicQuantities: ReplaceWithQuantitiesBasic ( pval )
 
         if "incut" in pval["Filter"]:
             ptVal = ptVal + "_incut"
 
             if not ptVal == "NoBinning_incut":
-                ReplaceWithQuantitiesBasic ( pval )
+                if onlyBasicQuantities: ReplaceWithQuantitiesBasic ( pval )
         else:
             ptVal = ptVal + "_allevents"
 
@@ -819,8 +819,8 @@ def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefi
 
 
 
-def ExpandDefaultDataConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning()):
-    conf = ExpandDefaultMcConfig(algoNames, conf_template, useFolders, FolderPrefix, binning)
+def ExpandDefaultDataConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning(), onlyBasicQuantities=True):
+    conf = ExpandDefaultMcConfig(algoNames, conf_template, useFolders, FolderPrefix, binning, onlyBasicQuantities)
     return conf
 
 
