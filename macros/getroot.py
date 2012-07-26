@@ -246,6 +246,8 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.y.append(0.0)
         hst.xerr.append(0.0)
         hst.yerr.append(0.0)
+        hst.mean = histo.GetMean()
+        hst.meanerr = histo.GetMeanError()
     elif histo.ClassName() == 'TGraphErrors':
         # histo is a graph, read it
         hst.source = rootfile
@@ -290,6 +292,8 @@ class Histo:
         self.y = []
         self.xerr = []
         self.yerr = []  # TODO yel, yeh wenn unterschiedlich...
+        self.mean = 0.0
+        self.meanerr = 0.0
 
     def __len__(self):
         return len(self.y)
