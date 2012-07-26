@@ -387,11 +387,10 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper ri
 
 
 def eventnumberlabel(ax, opt, events):
-    if opt.eventnumberlabel is True:
-        text=""
-        for f, l in zip(events, opt.labels):
-            text += "\n" + l + " Events: " + str("%1.1e"% f)
-        ax.text(0.7,1.01, text, size='xx-small', va='bottom', ha='right',transform=ax.transAxes)
+    text=""
+    for f, l in zip(events, opt.labels):
+        text += "\n" + l + " Events: " + str("%1.1e"% f)
+    ax.text(0.7,1.01, text, size='xx-small', va='bottom', ha='right',transform=ax.transAxes)
         
 
 def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
