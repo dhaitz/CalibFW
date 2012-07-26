@@ -577,18 +577,38 @@ def AddCutConsumer( pipelineDict, algos):
 def AddLumiConsumer( pipelineDict, algos):
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
-            if p == "default_" + algo:
+            #if p == "default_" + algo:
+            if "default_" + algo +"_" in p:
                 AddConsumerEasy(pval,
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "eventcount",
                               "XSource" : "intlumi",
                               "ProductName" : "eventcount_lumi_" + algo})
-
                 AddConsumerEasy(pval,
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "eventcount",
                               "XSource" : "runnumber",
                               "ProductName" : "eventcount_run_" + algo})
+                AddConsumerEasy(pval,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetpt",
+                              "XSource" : "runnumber",
+                              "ProductName" : "jetpt_run_" + algo})
+                AddConsumerEasy(pval,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "zpt",
+                              "XSource" : "runnumber",
+                              "ProductName" : "zpt_run_" + algo})
+                AddConsumerEasy(pval,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "ptbalance",
+                              "XSource" : "runnumber",
+                              "ProductName" : "balresp_run_" + algo})
+                AddConsumerEasy(pval,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "mpf",
+                              "XSource" : "runnumber",
+                              "ProductName" : "mpfresp_run_" + algo})
 
 
 def AddHltConsumer( pipelineDict, algoNames, hlt_names):
