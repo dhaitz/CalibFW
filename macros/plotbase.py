@@ -255,6 +255,30 @@ def getfactor(lumi, fdata, fmc, quantity='z_phi', change={}):
         histo_data.ysum() / histo_mc.ysum())
     return histo_data.ysum() / histo_mc.ysum()
 
+def getalgorithms(algorithm):
+    if "AK7" in algorithm: algorithms = ['AK7PFJets', 'AK7PFJetsCHS']
+    else: algorithms = ['AK5PFJets', 'AK5PFJetsCHS']
+    return algorithms
+
+def getgenname(opt):
+    if "AK7" in opt.algorithm: gen = 'AK7GenJets'
+    else: gen = 'AK5GenJets'
+    return gen
+
+def nicetext(s):
+    if s in ['z_pt', 'zpt']: return r"$p_\mathrm{T}^\mathrm{Z}$"
+    elif s in ['jet1_pt', 'jet1pt']: return r"$p_\mathrm{T}^\mathrm{Jet 1}$"
+    elif s in ['jet2_pt', 'jet2pt']: return r"$p_\mathrm{T}^\mathrm{Jet 2}$"
+    elif s == 'npv': return 'NPV'
+    elif s in ['jet1_eta', 'eta']: return r"$\eta^\mathrm{Jet1}$"
+    elif s == 'alpha': return r"$\alpha$"
+    elif s == 'balresp': return r"$p_\mathrm{T}$ balance"
+    elif s == 'mpfresp': return "MPF response"
+    elif s == 'jetpt_run': return r"Time dependence for $p_\mathrm{T}^\mathrm{Jet 1}$"
+    elif s == 'zpt_run': return r"Time dependence for $p_\mathrm{T}^\mathrm{Z}$"
+    elif s == 'balresp_run': return r"Time dependence for $p_\mathrm{T}$ balance"
+    elif s == 'mpfresp_run': return r"Time dependence for MPF response"
+    return s
 
 def getreweighting(datahisto, mchisto, drop=True):
     if drop:
