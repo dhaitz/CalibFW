@@ -575,7 +575,13 @@ def histo2root(plot):
 
 def writePlotToRootfile(plot, filename, plotname=None):
     if hasattr(plot, 'dropbin'):
-        plot = histo2root(plot)
+        histo = histo2root(plot)
+        print "File", filename
+        print "plot", plotname
+        f = ROOT.TFile("file.root", "RECREATE")
+        histo.Write()
+        f.Close()
+        
 
 
 def getgraph(x, y, f, opt, change={}, key='var', var=None, drop=True, root=True, median=False, absmean=False):
