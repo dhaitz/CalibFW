@@ -326,17 +326,39 @@ def getpath():
     return datapath
 
 
-def newplot(ratio=False, subplots=1):
+def newplot(ratio=False, run=False, subplots=1, opt=options()):
     fig = plt.figure(figsize=[7, 7])
-    if subplots == 8:
-        fig = plt.figure(figsize=[28, 14])
-        ax = [fig.add_subplot(2,4,n+1) for n in range(8)]
+    fig.suptitle(opt.title, size='xx-large')
+    if subplots is not 1: #Get 4 config numbers: FigXsize, FigYsize, NaxesY, NaxesX
+        if subplots == 16: a = [56, 14, 2, 8]
+        elif subplots == 9:
+            if run==True: a = [30,25,5,2]
+            else: a = [35,14,2,5]
+        elif subplots == 8:
+            if run==True: a = [30,21,4,2]
+            else: a = [28,14,2,4]
+        elif subplots == 7:
+            if run==True: a = [30,21,4,2]
+            else: a = [28,14,2,4]
+        elif subplots == 6: a = [22,14,2,3]
+        elif subplots == 5: a = [22, 14, 2, 3]
+        elif subplots == 4:
+            if run==True: a = [24,10,2,2]
+            else: a = [15, 14, 2, 2]
+        elif subplots == 2: a = [15, 7 ,1, 2]
+        else: a = [14,7,1,1]
+        fig = plt.figure(figsize=[a[0], a[1]]) #apply config numbers
+        ax = [fig.add_subplot(a[2],a[3],n+1) for n in range(subplots)]
         return fig, ax
     elif ratio: 
         ax = fig.add_subplot(111, position=[0.13, 0.35, 0.83, 0.58])
         ratio = fig.add_subplot(111, position=[0.13, 0.12, 0.83, 0.22], sharex=ax)
         ratio.axhline(1.0, color='black', lw=1)
         return fig, ax, ratio
+    elif run:
+        fig = plt.figure(figsize=[14, 7])
+        ax = fig.add_subplot(111)
+        return fig, ax
     else:
         ax = fig.add_subplot(111)
         return fig, ax
