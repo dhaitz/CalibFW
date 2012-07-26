@@ -8,19 +8,21 @@ import math
 import copy
 from ROOT import TF1, TGraphErrors
 
+import ROOT
 import getroot
 import plotbase
 
-def getvalues(nickname, f, opt, over = 'z_pt', ch={}):
+def getvalues(nickname, f, opt, over = 'z_pt', changes={}):
     graph = TGraphErrors()
-    fitf = TF1("fit1", "1*[0]", 1.0, 1000.0)
-    ch = plotbase.createchanges(opt, {})
-
+    ch = plotbase.getchanges(opt, {})
+    
     # Get list of bin names
     if over == 'z_pt':
         bins = getroot.binstrings(opt.bins)
+        fitf = TF1("fit1", "1*[0]", 0.0, 1000.0)
     elif over == 'jet1_eta':
         bins = getroot.etastrings(opt.eta)
+        fitf = TF1("fit1", "[0]", opt.eta[0], opt.eta[-2])
 
     # read the values from bin folders & store them in a root graph
     for i in range(len(bins)):
@@ -38,7 +40,7 @@ def getvalues(nickname, f, opt, over = 'z_pt', ch={}):
                 graph.SetPoint(i, 0.5*(opt.eta[i+1]+opt.eta[i]), ojy.GetMean())
             else:
                 graph.SetPoint(i, ojx.GetRMS(), ojy.GetMean())
-            graph.SetPointError(i, ojx.GetRMS(), ojy.GetMeanError())
+            graph.SetPointError(i, ojx.GetMeanError(), ojy.GetMeanError())
 
     # fit a horizontal line
     graph.Fit(fitf,"QN")
@@ -52,30 +54,30 @@ def getvalues(nickname, f, opt, over = 'z_pt', ch={}):
     return result
 
 
-def fractions(files, opt, over='jet1_eta'):
+def fractions(files, opt, over='jet1_eta', fa=() , subplot=False, changes={}, subtext=""):
     """Plot the components of the leading jet"""
     # Name everything you want and take only the first <nbr> entries of them
-    nbr = 5
-    labels =     ["CHF", "NEF", "NHF", "CEF", r"MF $\,$", "PF", "EF"][:nbr]
+    if over == 'z_pt': nbr=5
+    else: nbr = 7
+    labels =     ["CHF", "NEF", "NHF", "CEF", r"MF $\,$", "HFhad", "HFem"][:nbr]
     colours =    ['Orange', 'LightSkyBlue', 'YellowGreen', 'MediumBlue',
-                  'Darkred', 'yellow', 'Blue'][:nbr]
+                  'Darkred', 'yellow', 'grey'][:nbr]
     markers =    ['o','x','*','^','d','D','>'][:nbr]
     components = ["charged_had", "neutral_em", "neutral_had", "charged_em", 
-                  "muon", "photon", "electron"][:nbr]
+                  "muon", "HF_em", "HF_had"][:nbr]
     graphnames = ["jet1_" + component + "_fraction"
         for component in components]
 
     algoname = opt.algorithm + opt.correction
 
-
     # Get list of graphs from inputfiles
     if opt.verbose:
         print "Loading MC Plots"
-    mcG = [getvalues(graphname, files[1], opt, over) for graphname in graphnames]
+    mcG = [getvalues(graphname, files[1], opt, over, changes) for graphname in graphnames]
     if opt.verbose:
         print mcG[0]
         print "Loading Data Plots"
-    dataG = [getvalues(graphname, files[0], opt, over) for graphname in graphnames]
+    dataG = [getvalues(graphname, files[0], opt, over, changes) for graphname in graphnames]
     if opt.verbose:
         print "Loading done"
 
@@ -92,7 +94,6 @@ def fractions(files, opt, over='jet1_eta'):
         barWidth = []
         for i in range(len(bins)-1):
             barWidth.append(bins[i+1] - bins[i])
-
 
     # separate fit values, stored in the last entry (see getvalues)
     fitd = []
@@ -137,7 +138,8 @@ def fractions(files, opt, over='jet1_eta'):
         print len(mcG), len(mcG[0].y), len(bins), len(x), len(barWidth)
         print diff
 
-    fig, ax = plotbase.newplot()
+   
+
     # MC histograms (begin with the last one)
     """print "\nlen(mcG[0]):  ",len(mcG[0])
     print "len(DataG[0]):  ",len(dataG[0])
@@ -151,11 +153,21 @@ def fractions(files, opt, over='jet1_eta'):
     else:
         pre = ""
 
+    if subplot is not True:
+        fig, ax = plotbase.newplot()
+    else:
+        fig = fa[0]
+        ax = fa[1]
+
+
+    if subtext is not 'None':
+        ax.text(-0.04, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
+
 
     for i in range(len(mcG)-1,-1,-1):
         if over == 'z_pt':
             ax.bar(x, mcG[i].y, width=barWidth, color=colours[i], edgecolor = None, linewidth=0,
-            label=r"%s: $%1.3f(%d)\, %1.3f(%d)$" % (labels[i],fitd[i],math.ceil(1000*fitderr[i]),fitm[i], math.ceil(1000*fitmerr[i])))
+         label=r"%s: $%1.3f(%d)\, %1.3f(%d)$" % (labels[i],fitd[i],math.ceil(1000*fitderr[i]),fitm[i], math.ceil(1000*fitmerr[i])))
         else:
             ax.bar(x, mcG[i].y, width=barWidth, color=colours[i], edgecolor = None, linewidth=0,label=labels[i])
         ax.plot(bins, mcG[i].y+[mcG[i].y[-1]], drawstyle='steps-post', color='black',linewidth=1)
@@ -167,12 +179,17 @@ def fractions(files, opt, over='jet1_eta'):
     for i in range(len(mcG)-1,-1,-1):
         ax.errorbar(dataG[i].x, dataG[i].y, dataG[i].yerr, elinewidth=1,
             marker=markers[i], ms=3, color="black", lw=0, ecolor=None)
-    plotbase.labels(ax, opt, legloc='lower left', frame=True)
+    plotbase.labels(ax, opt, legloc='lower left', frame=True, jet=subplot, sub_plot=subplot, changes=changes)
     plotbase.axislabels(ax, pre+over, 'components')
-    plotbase.Save(fig, "fractions_" + over+ "_" + algoname, opt, False)
 
+    if subplot is not True:
+        plotbase.Save(fig, "fractions_" + over+ "_" + algoname, opt, False)
+
+    if subplot is not True:
+        fig, ax = plotbase.newplot()
+    else:
+        ax=fa[2]
     #plot the difference (with MC error neglected)
-    fig, ax = plotbase.newplot()
     fig.subplots_adjust(left=0.15)
     ax.tick_params(which='both')
     ax.grid(True,which="both", ls='-',color='0.75', zorder=0)
@@ -182,11 +199,10 @@ def fractions(files, opt, over='jet1_eta'):
         ax.errorbar( mcG[i].x, diff[i], dataG[i].yerr,
             label=r"%s: $%+1.3f(%d)$" % (labels[i],fitd[i]-fitm[i],math.ceil(1000*(fitderr[i]+fitmerr[i]))),
             fmt="o", capsize=2, color=colours[i], zorder=15+i)
-        if over == 'z_pt':
-            ax.plot([1.0,1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
-    ax = plotbase.labels(ax, opt, legloc='lower left', frame=True)
+        ax.plot([30.0,1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
+    ax = plotbase.labels(ax, opt, legloc='lower center', frame=True, sub_plot=subplot, jet=subplot, changes=changes)
     ax = plotbase.axislabels(ax, pre+over, 'components_diff')
-    plotbase.Save(fig, "fractions_diff_" + over+ "_" + algoname, opt, False)
+    if subplot is not True: plotbase.Save(fig, "fractions_diff_" + over+ "_" + algoname, opt, False)
 
 
 def fractions_zpt (files, opt):
@@ -195,9 +211,7 @@ def fractions_zpt (files, opt):
 def fractions_jet1eta (files, opt):
     fractions(files, opt, over='jet1_eta')
 
-
-plots = ['fractions_zpt', 
-    'fractions_jet1eta']
+plots = ['fractions_zpt', 'fractions_jet1eta']
 
 
 if __name__ == "__main__":
