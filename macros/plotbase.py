@@ -111,11 +111,11 @@ def options(
     # lumi and energy settings
     parser.add_argument('-a', '--algorithm', type=str,
         default=algorithm,
-        help="output directory for plots")
+        help="jet algorithm")
 
     parser.add_argument('-c', '--correction', type=str,
         default=correction,
-        help="output directory for plots")
+        help="jet energy correction")
     parser.add_argument('-l', '--lumi', type=float,
         default=lumi,
         help="luminosity for the given data in /pb")
@@ -150,16 +150,17 @@ def options(
         default=plots,
         help="do only this plot/these plots. " +
              "The function names are required here.")
-    parser.add_argument('-n', '--normalize', action='store_true',
-        help="normalize Monte Carlo samples to the event count in data and " +
-             "regardless of the given luminosity. This is only applied to " +
-             "data/MC comparisons")
+    parser.add_argument('-n', '--normalize', action='store_false',
+        help="don't normalize Monte Carlo samples to the event count in data " +
+             "and regardless of the given luminosity. This is only applied " +
+             "to data/MC comparisons")
     parser.add_argument('-v', '--verbose', action='store_true',
         help="verbosity")
     parser.add_argument('-E', '--eventnumberlabel', action='store_true',
         help="add event number label")
-    parser.add_argument('-g', '--gen', action='store_true',
-        help="for GenJet plots")
+    parser.add_argument('-t', '--title', type=str,
+        default=title,
+        help="plot title")
 
 
     opt = parser.parse_args()
@@ -180,7 +181,6 @@ def options(
 def fail(fail_message):
     print fail_message
     exit(0)
-
 
 def printfiles(filelist):
     if len(filelist) > 0:
