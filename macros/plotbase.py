@@ -837,7 +837,9 @@ def _internal_Save(figure, name, opt, crop=True):
     EnsurePathExists( opt.out )
     
     name = opt.out + '/' + name
+    name = name.replace("PFJets", "PF")
     print ' -> Saving as',
+    if opt.title is not "": figure.suptitle(opt.title, size='xx-large')
     # this helps not to crop labels
     if crop:
         title = figure.suptitle("I", color='white')
