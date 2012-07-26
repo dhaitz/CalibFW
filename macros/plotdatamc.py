@@ -49,14 +49,63 @@ def datamcplot(quantity, files, opt, legloc='center right',
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, fmt=s, capsize=0 ,label=l)
 
 
-    plotbase.labels(ax, opt, legloc=legloc, frame=True)
-    plotbase.eventnumberlabel(ax, opt, events)
+        # add fits for time dependence plots
+        if 'run' in quantity:
+            # add a horizontal line at unity for jet response plots
+            if 'resp' in quantity: ax.axhline(1.0, color="black", linestyle='--')
 
-    ax.set_ylim(top=datamc[0].ymax() * 1.2)
-    if 'cut_' in quantity and '_npv' in quantity:
-        ax = plotbase.axislabels(ax, 'npv', quantity)
-    elif 'cut_' in quantity and '_zpt' in quantity:
-        ax = plotbase.axislabels(ax, 'z_pt', quantity)
+            # add a vertical line to confirm a possible drop after run 195530
+            ax.axvline(195535.0, color="black", linestyle=':')
+
+            # fit line and display slope
+            intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, files[0], change, rebin))
+            ax.plot([190000, 200000],[intercept+190000*slope, intercept+200000*slope], color = c)
+            ax.plot([190000, 200000],[intercept+ierr+190000*(slope-serr), intercept+ierr+200000*(slope-serr)], alpha=0.3, color = c)
+            ax.plot([190000, 200000],[intercept-ierr+190000*(slope+serr), intercept-ierr+200000*(slope+serr)], alpha=0.3, color = c)
+            ax.text(0.97, 0.97, r"$Fit\/slope = %1.2f\pm%1.2f \times 10^{-4}$" % (slope*10000, serr*10000),
+               va='top', ha='right', transform=ax.transAxes, color=c,
+               size='x-large')
+
+            # fit a horizontal line and display chi^2
+            #intercept, ierr, chi2, ndf = getroot.fitline(getroot.getobjectfromnick(quantity, files[0], change, rebin))
+            #ax.axhline(intercept, color='blue', linestyle='--')
+            #ax.axhspan(intercept+ierr, intercept-ierr, color='blue', alpha=0.2)
+            #ax.text(0.97, 0.17, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
+            #   va='top', ha='right', transform=ax.transAxes, color='blue',
+            #   size='x-large')
+            
+
+    # Jet response plots: add vertical lines for mean and mean error to see data/MC agreement
+    if quantity in ['balresp', 'mpfresp'] and 'Gen' not in change['algorithm']:
+        ax.axvline(datamc[0].mean, color='black', linestyle='-')
+        ax.axvspan(datamc[0].mean-datamc[0].meanerr, datamc[0].mean+datamc[0].meanerr, color='black', alpha=0.1)
+        ax.text(0.97, 0.97, r"$%s = %1.3f\pm%1.3f$" % (opt.labels[0], datamc[0].mean, datamc[0].meanerr),
+               va='top', ha='right', transform=ax.transAxes, color='black')
+        ax.axvline(datamc[1].mean, color='blue', linestyle='-')
+        ax.axvspan(datamc[1].mean-datamc[1].meanerr, datamc[1].mean+datamc[1].meanerr, color='blue', alpha=0.1)
+        ax.text(0.97, 0.92, r"$%s = %1.3f\pm%1.3f$" % (opt.labels[1],datamc[1].mean,datamc[1].meanerr),
+               va='top', ha='right', transform=ax.transAxes, color='blue')
+
+        if (datamc[1].mean != 0.0): R = datamc[0].mean/datamc[1].mean
+        else: R =0
+        if (R != 0.0):
+            Rerr=abs(datamc[0].mean / datamc[1].mean)*math.sqrt((datamc[0].meanerr / datamc[0].mean)**2 + (datamc[1].meanerr / datamc[1].mean)**2)
+        else: Rerr=0
+        ax.text(0.97, 0.87, r"$%s/%s = %1.3f\pm%1.3f$" %(opt.labels[0], opt.labels[1], R, Rerr),
+               va='top', ha='right', transform=ax.transAxes, color='maroon')
+
+
+    plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot)
+    if opt.eventnumberlabel is True: plotbase.eventnumberlabel(ax, opt, events)
+
+    ax.set_ylim(top=max(d.ymax() for d in datamc) * 1.2)
+    if 'cut_' in quantity:
+        if '_npv' in quantity: 
+            ax = plotbase.axislabels(ax, 'npv', quantity)
+        elif '_zpt' in quantity:
+            ax = plotbase.axislabels(ax, 'z_pt', quantity)
+    elif '_run' in quantity:
+        ax = plotbase.axislabels(ax, 'runs', quantity[:-4])
     else:
         ax = plotbase.axislabels(ax, quantity)
 
