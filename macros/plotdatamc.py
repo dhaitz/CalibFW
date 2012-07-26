@@ -33,12 +33,16 @@ def datamcplot(quantity, files, opt, legloc='center right',
     #loop over histograms: scale and plot 
     for f, l, c, s in reversed(zip(datamc, opt.labels, opt.colors, opt.style)):
         events.insert(0,f.ysum())
-        if opt.normalize and 'cut_' not in quantity:
-            f.scale(datamc[0].ysum() / f.ysum())
-        elif 'cut_' not in quantity:
-            f.scale(opt.lumi)
-
-        if s=='f':
+        if opt.normalize and "L1" not in quantity:
+            if 'cut_' not in quantity and f.ysum()!=0:
+                f.scale(datamc[0].ysum() / f.ysum())
+            elif 'cut_' not in quantity:
+                f.scale(opt.lumi)
+        if 'L1' in quantity: s='o'
+        if change.has_key('algorithm') and 'GenJets' in change['algorithm']:
+            ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=opt.colors[1], fmt='-', capsize=0 ,label=opt.labels[1])
+            ax.bar(f.x, f.y, (f.x[2] - f.x[1]), bottom=numpy.ones(len(f.x)) * 1e-6, fill=True, facecolor=opt.colors[1], edgecolor=opt.colors[1])
+        elif s=='f':
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, fmt='-', capsize=0 ,label=l)
             ax.bar(f.x, f.y, (f.x[2] - f.x[1]), bottom=numpy.ones(len(f.x)) * 1e-6, fill=True, facecolor=c, edgecolor=c)
         else:
