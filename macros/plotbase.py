@@ -60,7 +60,7 @@ def plot(modules, plots, datamc, op):
 def options(
             # standard values go here:
             algorithm="AK5PFJets",
-            correction="L1L2L3",
+            correction="L1L2L3Res",
             lumi=None,
             energy=None,
             status=None,
@@ -73,13 +73,13 @@ def options(
             formats=['png'],
             layout='generic',
             files=None,
+            title="",
             eventnumberlabel=None,
             plots=None,
-            npv=[(0, 2), (3, 5), (6, 11), (12, 100)],
+            npv=[(0, 4), (5, 8), (9, 15), (16, 21), (22, 100)],
             cut=[0.1, 0.15, 0.2, 0.3],
-            eta=[0, 0.783, 1.305, 1.93, 2.5, 2.964, 5.191],
-            bins=[0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000],
-            gen=None):
+            eta=[0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
+            bins=[30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]):
     """Set standard options and read command line arguments
 
     To be turned into a class with str method and init
