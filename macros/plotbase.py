@@ -193,12 +193,49 @@ def printfiles(filelist):
     elif len(filelist) > 2:
         print "MC files:", ", ".join(filelist[1:])
 
-
 def createchanges(opt, change={}):
     change["correction"] = opt.correction
     change["algorithm"] = opt.algorithm
     return change
 
+def getchanges(opt, change={}):
+    if 'algorithm' not in change: change['algorithm'] = opt.algorithm
+    if 'correction' not in change: change['correction'] = opt.correction
+    return change
+
+def getvariationlist (quantity, opt):
+    # returns a list with 'changes'-dictionaries, to be used
+    # to vary over a certain quantity in the closure root file
+    if quantity == 'z_pt':
+        key = 'bin'
+        var=getroot.binstrings(opt.bins)
+    elif quantity == 'npv':
+        key = 'var'
+        var=getroot.npvstrings(opt.npv)
+    elif quantity == 'alpha':
+        key = 'var'
+        var=getroot.cutstrings(opt.cut)
+    elif quantity == 'eta':
+        key = 'var'
+        var=getroot.etastrings(opt.eta)
+    ch_list = [{key:v} for v in var]
+    return ch_list
+
+def getcorralgovariations():
+    # returns a list with 'changes'-dictionaries, to be used
+    # to vary over a all agorithms / correction levels in the closure root file
+    list_ac = []
+    for a in ['AK5PFJets','AK5PFJetsCHS']:
+        for c in ["", "L1", "L1L2L3", "L1L2L3Res"]:
+            ch={}
+            ch['algorithm'] = a
+            ch['correction'] = c
+            list_ac.append(ch)
+    return list_ac
+
+def getdefaultsubtexts():
+    subtexts = ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)"]
+    return subtexts
 
 def showoptions(opt):
     print "Options:"
