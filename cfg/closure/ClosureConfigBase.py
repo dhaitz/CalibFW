@@ -896,6 +896,7 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
 
     config.add_section("local")
     config.set("local", "queue", "short")
+    config.set("local", "delay output", "True")
 
     config.add_section("UserMod")
 
