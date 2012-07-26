@@ -366,7 +366,7 @@ def newplot(ratio=False, run=False, subplots=1, opt=options()):
 
 
 def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper right',
-           frame=True):
+           frame=True, sub_plot=False, changes={}):
     """This function prints all labels and captions in a plot.
 
     Several functions are called for each type of label.
@@ -376,9 +376,8 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper ri
     statuslabel(ax, opt.status)
     if opt.energy is not None:
         energylabel(ax, opt.energy)
-    if jet:
-        jetlabel(ax, opt.algorithm, opt.correction)    # on demand
-    binlabel(ax, bin)
+    if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
+    if changes.has_key('var') or changes.has_key('bin'): binlabel(ax, bin, changes=changes)
     resultlabel(ax, result)
     authorlabel(ax, opt.author)
     datelabel(ax, opt.date)
@@ -410,7 +409,11 @@ def energylabel(ax, energy, xpos=1.00, ypos=1.01):
         ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
             va='bottom', ha='right', transform=ax.transAxes)
 
-def jetlabel_string( algorithm, correction):
+def jetlabel_string( changes, opt):
+    if changes.has_key('algorithm'): algorithm = changes['algorithm']
+    else: algorithm = opt.algorithm
+    if changes.has_key('correction'): correction = changes['correction']
+    else: correction = opt.correction
     if "L1L2L3Res" in correction:
         corr = r"L1L2L3 Residual corrected"
     elif "L1L2L3" in correction:
@@ -430,17 +433,24 @@ def jetlabel_string( algorithm, correction):
         corr = ""
     return ( jet , corr )
 
-def jetlabel(ax, algorithm="", correction="", posx=0.05, posy=0.95):
-  
-    res = jetlabel_string( algorithm, correction)
+def jetlabel(ax, changes={}, sub_plot=False, posx=0.05, posy=0.95, opt=options()):
+    res = jetlabel_string(changes,opt)
     
-    ax.text(posx, posy, res[0], va='top', ha='left', transform=ax.transAxes)
-    ax.text(posx, posy - 0.07, res[1], va='top', ha='left',
-            transform=ax.transAxes)
+    if sub_plot == True: col = 'red'
+    else: col='black'
+    
+    #if "AK5" not in opt.algorithm: ax.text(posx, posy, res[0], va='top', ha='left', transform=ax.transAxes)
+    #else: 
+    posy=posy+0.07
+    if changes.has_key('correction'):
+        ax.text(posx, posy-0.07, res[1], va='top', ha='left', transform=ax.transAxes, color=col)
             
-    if "CHS" in correction or "CHS" in algorithm:
-        ax.text(posx, posy - 0.14, r"CHS applied",
-            va='top', ha='left', transform=ax.transAxes)
+    if changes.has_key('algorithm'):
+        if "CHS" in changes['algorithm']:
+            ax.text(posx, posy - 0.14, r"CHS applied", va='top', ha='left', transform=ax.transAxes, color=col)
+        #if "CHS" not in changes['algorithm']:
+        #    ax.text(posx, posy - 0.07, r"CHS not applied", va='top', ha='left', transform=ax.transAxes, color=col)
+
     return ax
 
 
@@ -468,7 +478,7 @@ def datelabel(ax, date='iso', xpos=0.99, ypos=1.10):
     return ax
 
 
-def binlabel(ax, bin=None, low=0, high=0, xpos=0.05, ypos=0.05):
+def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.97, changes={}):
     if bin is None:
         return ax
     if bin == 'ptz':
@@ -477,12 +487,19 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.05, ypos=0.05):
         text = r"$%u < \hat{p}_\mathrm{T} / \mathrm{GeV} < %u$" % (low, high)
     elif bin == 'eta':
         if low == 0:
-            text = r"$|\eta_\mathrm{jet}| < %u$" % (high)
+            text = r"$|\eta_\mathrm{jet}| < %1.3f$" % (high)
         else:
-            text = r"$%u < |\eta_\mathrm{jet}| < %u$" % (low, high)
+            text = r"$%1.3f < |\eta_\mathrm{jet}| < %1.3f$" % (low, high)
+    elif bin == 'alpha':
+        text = r"$ \alpha < %1.2f$" % (low)
+    elif bin == 'Npv':
+        if low == 0:
+            text = r"$ NPV \leq %u$" % (high)
+        else:
+            text = r"$%u \leq NPV \leq %u$" % (low, high)
     else:
         text = bin
-    ax.text(xpos, ypos, text, va='top', ha='left', transform=ax.transAxes)
+    ax.text(xpos, ypos, text, va='top', ha='left', size='x-large', transform=ax.transAxes)
 
 
 def statuslabel(ax, status=None, xpos=0.25, ypos=1.018):
@@ -544,7 +561,6 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
             ax.set_ylim(bottom=bottom)
         else:
             ax.set_ylim(limits)
-
     #ax.set_ymargin(0.6)
     #ax.set_ylim( bottom =0 )
     # set x labelling
