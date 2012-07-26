@@ -29,7 +29,7 @@ public:
 	static std::string Name() { return "corr_jet_producer"; }
 
 
-	CorrJetProducer( std::string corBase );
+	CorrJetProducer( std::string corBase, std::string l1cor, stringvector baseAlgos );
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData,
@@ -60,6 +60,9 @@ public:
 private:
 	mutable boost::ptr_map< std::string, JecCorrSet> m_corrService;
 	std::string m_corectionFileBase;
+	std::string m_l1correction;
+	std::vector<std::string> m_basealgorithms;
+
 };
 
 }

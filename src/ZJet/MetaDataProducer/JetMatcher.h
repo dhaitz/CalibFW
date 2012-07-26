@@ -18,7 +18,8 @@ public:
 				m_jets1 ( input_jets1 ),
 				m_jets2 ( input_jets2) ,
 				m_matching_name( matching_name)	{ }
-	JetMatcher () {}
+
+	JetMatcher (stringvector baseAlgos):m_basealgorithms ( baseAlgos ) {}
 
 	virtual ~JetMatcher() {}
 
@@ -28,6 +29,7 @@ public:
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const;
 private:
 	std::string m_jets1, m_jets2, m_matching_name;
+        std::vector<std::string> m_basealgorithms;
 };
 
 

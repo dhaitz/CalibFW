@@ -5,10 +5,12 @@
 namespace CalibFW
 {
 
-CorrJetProducer::CorrJetProducer( std::string corBase) :
+CorrJetProducer::CorrJetProducer( std::string corBase, std::string l1cor, std::vector<std::string> baseAlgos ) :
 		 //"data/jec_data/MC_42_V13_";
 	ZJetGlobalMetaDataProducerBase(),
-			m_corectionFileBase ( corBase )
+			m_corectionFileBase ( corBase ),
+			m_l1correction ( l1cor ),
+			m_basealgorithms ( baseAlgos )
 {
 	CALIB_LOG( "Loading JEC from " + m_corectionFileBase)
 }
@@ -30,12 +32,10 @@ void CorrJetProducer::InitCorrection( std::string algoName,
 		return;
 
 	std::vector<std::string> corLevel;
-
 	if (prefix == "")
 		prefix = m_corectionFileBase;
 
-	corLevel.push_back("L1FastJet");
-	//corLevel.push_back("L1Offset");
+	corLevel.push_back(m_l1correction);
 
 	//FileInterface & fi = *( const_cast< FileInterface*> ( event.m_fi ))
     m_corrService.insert( algoCorrectionAlias ,new JecCorrSet() );
@@ -118,17 +118,23 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 bool CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
 		ZJetMetaData & metaData, ZJetPipelineSettings const& settings) const
 {
-    InitCorrection( "AK5PF", "AK5PF", event);
+for (int i = 0; i < m_basealgorithms.size(); i++){
+    if (m_basealgorithms[i].find("chs") == std::string::npos)
+    {
+    	InitCorrection( m_basealgorithms[i], m_basealgorithms[i], event);
+    	CreateCorrections( m_basealgorithms[i], "Jets", event, metaData, settings, m_basealgorithms[i] );
+    }
+    else
+    {
+    	InitCorrection( m_basealgorithms[i], m_basealgorithms[i], event);
+    	CreateCorrections( m_basealgorithms[i].substr(0,5), "JetsCHS", event, metaData, settings, m_basealgorithms[i] );
+    }
+}
+    /*InitCorrection( "AK5PF", "AK5PF", event);
     InitCorrection( "AK5PFchs", "AK5PFchs", event);
-
-    //InitCorrection( "AK5PFchs", event );
-    //InitCorrection( "AK7PF", event );
     
-    CreateCorrections( "AK5PF", "Jets", event, metaData, settings, "AK5PF" );	
-    // for now, use no special CHS
-    CreateCorrections( "AK5PF", "JetsCHS", event, metaData, settings, "AK5PFchs" );
-
-	//CreateCorrections( "AK7PF", "Jets",event, metaData, settings );
+    CreateCorrections( "AK5PF", "Jets", event, metaData, settings, "AK5PF" );
+    CreateCorrections( "AK5PF", "JetsCHS", event, metaData, settings, "AK5PFchs" );*/
     return true;
 }
 

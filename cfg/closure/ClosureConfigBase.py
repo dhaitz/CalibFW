@@ -132,6 +132,8 @@ def GetBaseConfig():
                            "jet_sorter_producer","pu_reweighting_producer"]
 
     d["ThreadCount"] = 1
+    d["L1Correction"] = "L1FastJet"
+    d["GlobalAlgorithms"] = ["AK5PF", "AK5PFchs"]
     d["Pipelines"] = { "default": {
             "Level": 1,
             "JetAlgorithm": "to_set",

@@ -132,7 +132,6 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 		boost::property_tree::ptree & globalSettings)
 {
 	// extend here, if you want to provide a new global meta producer
-
 	for ( std::vector< std::string >::const_iterator it = producer.begin();
 			it != producer.end(); ++ it )
 	{
@@ -145,13 +144,15 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 		else if ( ValidJetProducer::Name() == (*it) )
 			runner.AddGlobalMetaProducer( new ValidJetProducer());
 		else if ( CorrJetProducer::Name() == (*it) )
-			runner.AddGlobalMetaProducer( new CorrJetProducer( globalSettings.get<std::string> ("JecBase") ));
+			runner.AddGlobalMetaProducer( new CorrJetProducer( globalSettings.get<std::string> ("JecBase"),
+                                     globalSettings.get<std::string> ("L1Correction"),
+                                     PropertyTreeSupport::GetAsStringList(&globalSettings,"GlobalAlgorithms")));
 		else if ( JetSorter::Name() == (*it))
 			runner.AddGlobalMetaProducer( new JetSorter());
 		else if ( HltSelector::Name() == (*it))
 			runner.AddGlobalMetaProducer( new HltSelector( PropertyTreeSupport::GetAsStringList( &globalSettings, "HltPaths", true ) ));
 		else if ( JetMatcher::Name() == (*it))
-			runner.AddGlobalMetaProducer( new JetMatcher() );
+                         runner.AddGlobalMetaProducer( new JetMatcher(PropertyTreeSupport::GetAsStringList(&globalSettings,"GlobalAlgorithms")) );
 		else
 			CALIB_LOG_FATAL( "Global MetaData producer of name " << (*it) << " not found")
 	}
@@ -244,7 +245,6 @@ int main(int argc, char** argv)
 	}
 
 	gset.SetInputType ( g_inputType );
-
 	//sJetNames = fi.GetNames<KVertexSummary>(true);
 
 	ZJetEventProvider evtProvider( finterface, g_inputType );
@@ -339,7 +339,6 @@ int main(int argc, char** argv)
 	ProfilerStart( "closure.prof");
 #endif
 	//HeapProfilerStart( "resp_cuts.heap");
-
 	pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings >( evtProvider, settings );
 
 	//HeapProfilerStop();

@@ -26,12 +26,12 @@ void KappaEventProvider<ZJetEventData>::WireEvent()
 		m_event.m_pfMetChsL1 = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL1", false);
 		m_event.m_pfMetL1L2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETL1L2L3", false);
 		m_event.m_pfMetChsL1L2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL1L2L3", false);
-
+		
 		InitPFJets(m_event, "AK5PFJets");
 		InitPFJets(m_event, "AK5PFJetsCHS");
-/*
+
 		InitPFJets(m_event, "AK7PFJets");
-		InitPFJets(m_event, "AK7PFJetsCHS");*/
+		InitPFJets(m_event, "AK7PFJetsCHS");
 
 		if (m_fi.isMC())
 		{
