@@ -145,7 +145,7 @@ def draw_extrapolation(graph, fit, ptbin, opt):
     ax.errorbar(graph.xc, graph.y, graph.yerr, color='FireBrick', fmt='o',
                 capsize=2, label='correlated')
     # Legend and labels
-    ax = plotbase.labels(ax, opt, legloc='upper right')
+    ax = plotbase.labels(ax, op, legloc='upper right')
     ax = plotbase.axislabels(ax, "jet2ratio", graph.ylabel)
     ax.text(0.04, 0.17, r"$k_\mathrm{{FSR}} = {0:.3f} \pm {1:.3f}$".format(fit.k(), fit.kerr()),
             va='bottom', ha='left', transform=ax.transAxes, fontsize=18)
@@ -157,11 +157,10 @@ def draw_extrapolation(graph, fit, ptbin, opt):
     ax.text(0.96, 0.05, (r"${0} < p_\mathrm{{T}}^\mathrm{{Z}} / \mathrm{{GeV}}"
                      r" < {1}$").format(ptbin[0], ptbin[1]),
             va='bottom', ha='right', transform=ax.transAxes, fontsize=18)
-
     plotbase.Save(fig, graph.name, opt, False)
 
 
-def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=False, source='ratio', over='z_pt'):
+def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ratio', over='z_pt'):
     """The extrapolation
 
        This is using fillgraph, fitextrapolation and draw_extra
@@ -170,7 +169,7 @@ def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=False, source='r
        1     'data'    => response (extrapolated from data file)
        1     'mc'      => response (extrapolated from mc file)
        2     'ratio'   => ratio (first ratio, then extrapolate)
-       2     'seperate'=> ratio (first extrapolate, then ratio)
+       2     'separate'=> ratio (first extrapolate, then ratio)
         TODO: for npv, eta etc.
     """
     ch = copy.deepcopy(changes)
@@ -226,34 +225,33 @@ def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw
        1     'mc'      => response (extrapolated from mc file)
        2     False     => ratio (without extrapolation)
        2     'ratio'   => ratio (first ratio, then extrapolate)
-       2     'seperate'=> ratio (first extrapolate, then ratio)
+       2     'separate'=> ratio (first extrapolate, then ratio)
 
        TODO: for npv, eta etc.
     """
     assert method in ['balresp', 'mpfresp', 'RecoToGen_balresp']
     assert type(changes) == dict
-    assert extrapol in [False, '', 'data', 'mc', 'ratio', 'seperate']
-    # override default changes from options with changes argument
-    print "Get response ratio", method, over, changes, extrapol
-    defaultchanges = plotbase.createchanges(opt)
-    defaultchanges.update(changes)
-    print "getresp", changes, defaultchanges
+    assert extrapol in [False, '', 'data', 'mc', 'ratio', 'separate']
+    #print "getresp", changes
     
-    graph = getroot.getgraphratio(over, method, f1, f2, opt, defaultchanges, absmean=(over=='jet1_eta'))
+    graph = getroot.getgraphratio(over, method, f1, f2, opt, changes, absmean=(over=='jet1_eta'))
     if extrapol:
         if over == 'z_pt':
             bins = getroot.binstrings(opt.bins)
-            bins.pop(0)
+            #bins.pop(0)
         elif over == 'jet1_eta':
             bins = getroot.etastrings(opt.eta)
         elif over == 'npv':
             bins = getroot.npvstrings(opt.npv)
+        elif over == 'alpha':
+            bins = getroot.cutstrings(opt.cut)
         else:
             print "The 'over' value", repr(over), "is not known."
             exit(0)
         for i in range(len(bins)):
             x, y, dx, dy = getroot.getgraphpoint(graph, i)
-            y, dy = extrapolatebin(method, bins[i], defaultchanges, opt, f1, f2, source=extrapol, draw=draw, over=over)
+            print x
+            y, dy = extrapolatebin(method, bins[i], changes, opt, f1, f2, source=extrapol, draw=draw, over=over)
             graph.SetPoint(i, x, y)
             graph.SetPointError(i, dx, dy)
     return graph
@@ -264,12 +262,15 @@ def responseplot(files, opt, types, labels=None,
                  markers=['o', '*', 's']*8,
                  over='z_pt',
                  binborders=False,
-                 fa = plotbase.newplot(),
-                 drawextrapolation=False):
+                 figaxes = plotbase.newplot(),
+                 drawextrapolation=False,
+                 changes = {},
+                 subtext = "",
+                 subplot = False):
     """type: bal|mpf[:ratio,seperate,data,mc,ex]
     """
-    fig =fa[0]
-    ax=fa[1]
+    fig =figaxes[0]
+    ax=figaxes[1]
     if labels is None:
         labels = types
     for t, l, m, c in zip(types, labels, markers, colors):
@@ -282,21 +283,44 @@ def responseplot(files, opt, types, labels=None,
         if extrapolation in ['ex', 'data', 'mc', 'datamc']:
             extrapolation = 'data'
         if 'Gen' not in t:
-            plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[0], None, {}, extrapolation))
-            ax.errorbar(plot.x, plot.y, plot.yerr, color='black', fmt=m, label=l+' (data)')
+            plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[0], None, changes, extrapolation))
+            ax.errorbar(plot.x, plot.y, plot.yerr, color='black', fmt=m, label=l+' (190645-191859)')
         if extrapolation == 'data':
             extrapolation = 'mc'
-        plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[1], None, {}, extrapolation))
-        ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l+' (MC)')
+        plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[1], None, changes, extrapolation))
+        if l == 'RecoGen': l = "Reco/Gen"
+        #else: l = l+" (193093-193621)"
+        ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
+        #plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[2], None, changes, extrapolation))
+        #ax.errorbar(plot.x, plot.y, plot.yerr, color="green", fmt=m, label=l+" (193834-195530)")
+        #plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[3], None, changes, extrapolation))
+        #ax.errorbar(plot.x, plot.y, plot.yerr, color="red", fmt=m, label=l+" (195540-198272)")
 
     # format plot
     ax.axhline(1.0, color="black", linestyle='--')
-    plotbase.labels(ax, opt, jet=True)
+    plotbase.labels(ax, opt, jet=True, sub_plot=subplot, changes=changes)
     plotbase.axislabels(ax, over, 'response')
+    if subtext is not 'None':
+        ax.text(-0.04, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
+    
+    if subplot == True:
+        return fig
 
-    if opt.correction == 'L1L2L3Res' and opt.algorithm == 'AK5PFJetsCHS':
-        file_name = "Response_"+"_".join(types)
-        file_name += "_"+over+"_" + opt.algorithm + opt.correction
+    if 'algorithm' in changes:
+        a = changes['algorithm']
+    else:
+        a = opt.algorithm
+    if 'correction' in changes:
+        c = changes['correction']
+    else:
+        c = opt.correction
+
+    if subplot == True: prefix ="All_" 
+    else: prefix=""
+
+    if c == opt.correction and a == opt.algorithm:
+        file_name = prefix+"Response_"+"_".join(types)+"_"+over
+        if subplot is not True: file_name += "_" + a + c
         plotbase.Save(fig, file_name, opt)
 
 
@@ -306,12 +330,15 @@ def ratioplot(files, opt, types, labels=None,
                  over='z_pt',
                  binborders=False,
                  drawextrapolation=False,
-                 fa = plotbase.newplot(),
-                 fit=True):
+                 figaxes = plotbase.newplot(),
+                 fit=True,
+                 changes = {},
+                 subtext = "",
+                 subplot = False):
     """type: bal|mpf[ratio|seperate]
     """
-    fig =fa[0]
-    ax=fa[1]
+    fig =figaxes[0]
+    ax=figaxes[1]
     if labels is None:
         labels = [labelformat(t) for t in types]
     ax.axhline(1.0, color="black", linestyle='--')
@@ -320,7 +347,7 @@ def ratioplot(files, opt, types, labels=None,
             pass #ax.axvline(x, color='gray')
 
     for t, l, m, c in zip(types, labels, markers, colors):
-        rgraph = getresponse(t[:3]+'resp', over, opt, files[0], files[1], {}, extrapol=t[3:])
+        rgraph = getresponse(t[:3]+'resp', over, opt, files[0], files[1], changes, extrapol=t[3:], draw=False)
         if fit:
             line, err, chi2, ndf = getroot.fitline(rgraph)
             ax.text(0.95, 0.65+0.07*colors.index(c), r"$R = {0:.3f} \pm {1:.3f}$ ".format(line, err),
@@ -330,20 +357,42 @@ def ratioplot(files, opt, types, labels=None,
             ax.axhline(line, color=c)
             ax.axhspan(line-err, line+err, color=c, alpha=0.2)
         plot = getroot.root2histo(rgraph)
-        ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l) 
+        ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
+
+        f = ROOT.TFile("/home/dhaitz/git/CalibFW/rootfiles/"+t+".root", "RECREATE")
+        rgraph.Write()
+        f.Close()
 
     # format plot
     if over == 'jet1_eta':
-        pre = "abs_"
+        plotbase.labels(ax, opt, jet=True, legloc='lower left', sub_plot=subplot, changes=changes)
+        plotbase.axislabels(ax, "abs_"+over, 'responseratio')
     else:
-        pre = ""
-    plotbase.labels(ax, opt, jet=True, legloc='lower right')
-    plotbase.axislabels(ax, pre+over, 'responseratio')
+        plotbase.labels(ax, opt, jet=True, legloc='lower right', sub_plot=subplot, changes=changes)
+        plotbase.axislabels(ax, over, 'responseratio')
 
+    if subtext is not 'None':
+        ax.text(-0.04, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
 
-    if opt.correction == 'L1L2L3Res' and opt.algorithm == 'AK5PFJetsCHS': 
-        file_name = "Ratio_"+"_".join(types)
-        file_name += "_"+over+"_" + opt.algorithm + opt.correction
+    
+    if subplot == True:
+        return fig
+
+    if 'algorithm' in changes:
+        a = changes['algorithm']
+    else:
+        a = opt.algorithm
+    if 'correction' in changes:
+        c = changes['correction']
+    else:
+        c = opt.correction
+
+    if subplot == True: prefix ="All_" 
+    else: prefix=""
+    
+    if c == opt.correction and a == opt.algorithm:
+        file_name = prefix+"Ratio_"+"_".join(types)+"_"+over
+        if subplot is not True: file_name += "_" + a + c
         plotbase.Save(fig, file_name, opt)
 
 
@@ -354,8 +403,8 @@ def plotkfsr(files, opt, method='balresp', label=None,
                  binborders=False,
                  drawextrapolation=False,
                  fit=True):
-    """type: bal|mpf[ratio|seperate]
-    """
+    """"""type: bal|mpf[ratio|seperate]
+    """"""
     fig, ax = plotbase.newplot()
     label = label or labelformat(method)
 
@@ -400,39 +449,49 @@ def labelformat(label):
         result += " (extrapolated)"
     return result
 
+def plot_all(files, opt, plottype='response'):
+    """Create a number of plots over different quantities.
+       plottype can either be response or ratio
+       Each plot contains several subplots for the different algorithms/ correction levels."""
+
+    over = ['z_pt', 'npv', 'jet1_eta', 'alpha']
+    types = ['bal', 'mpf']
+    subtexts = ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)"]
+    
+    # create list_ac with all variation combinations from the alg/corr lists
+    list_ac = plotbase.getcorralgovariations()
+
+    for o in over:
+        fig_axes = plotbase.newplot(subplots=len(list_ac))
+        for ch, subtext, ax in zip(list_ac, subtexts, fig_axes[1]):    # iterate over subplots in figure figaxes
+            if plottype == 'ratio':
+                if o == 'jet1_eta': fit=False
+                else: fit=True
+                ratioplot(files, opt, types, drawextrapolation=True, binborders=True, over=o, subplot=True, changes=ch, fit=fit,
+                    figaxes=(fig_axes[0],ax), subtext = subtext)
+                strings = ["Jet response data/MC ratio", "Ratio"]
+
+            elif plottype == 'response':
+                responseplot(files, opt, types, over=o, figaxes=(fig_axes[0],ax), subtext = subtext, subplot = True, changes=ch)
+                strings = ["Jet response", "Response"]
+
+        title = strings[0]+ "over %s for different correction levels / CHS" % plotbase.nicetext(o)
+        fig_axes[0].suptitle(title, size='xx-large')
+
+        file_name = strings[1]+"_all_"+o+"_"+"_".join(types)+"_"+opt.algorithm
+        plotbase.Save(fig_axes[0], file_name, opt)
 
 # responses
 def response(files, opt):
-    responseplot(files, opt, ['mpf', 'bal'])
+    responseplot(files, opt, ['bal', 'mpf'])
     for key in k_fsr:
         print key, k_fsr[key]
 
 def response_npv(files, opt):
-    responseplot(files, opt, ['mpf', 'bal'], over='npv')
+    responseplot(files, opt, ['bal', 'mpf'], over='npv')
 
 def response_eta(files, opt):
-    responseplot(files, opt, ['mpf', 'bal'], over='jet1_eta')
-
-def response_all(files, opt):
-    al = getroot.copy.deepcopy(opt.algorithm)
-    co = getroot.copy.deepcopy(opt.correction)
-    corr = ["", "L1", "L1L2L3", "L1L2L3Res"]
-    alg = ["AK5PFJets", "AK5PFJetsCHS"]
-
-    #create 3 plots for zpt, npv, eta
-    f = plotbase.newplot(subplots=8)
-    g = plotbase.newplot(subplots=8)
-    h = plotbase.newplot(subplots=8)
-
-    for a in alg:
-        opt.algorithm = a
-        for c in corr:
-            opt.correction = c
-            responseplot(files, opt, ['mpf', 'bal', 'RecoGen'], fa=[f[0],f[1][(len (corr)*alg.index(a) + corr.index(c))]])
-            responseplot(files, opt, ['mpf', 'bal', 'RecoGen'], over='npv', fa=[g[0],g[1][(len (corr)*alg.index(a) + corr.index(c))]])
-            responseplot(files, opt, ['mpf', 'bal', 'RecoGen'], over='jet1_eta', fa=[h[0],h[1][(len (corr)*alg.index(a) + corr.index(c))]])
-    opt.algorithm = al
-    opt.correction = co
+    responseplot(files, opt, ['bal', 'mpf'], over='jet1_eta')
 
 
 # ratios
@@ -442,29 +501,6 @@ def balratio(files, opt):
 def mpfratio(files, opt):
     ratioplot(files, opt, ['mpf', 'mpfratio', 'mpfseperate'])
 
-def ratio_all(files, opt):
-    al = getroot.copy.deepcopy(opt.algorithm)
-    co = getroot.copy.deepcopy(opt.correction)
-    corr = ["", "L1", "L1L2L3", "L1L2L3Res"]
-    alg = ["AK5PFJets", "AK5PFJetsCHS"]
-
-    #create 3 plots for zpt, npv, eta
-    f = plotbase.newplot(subplots=8)
-    g = plotbase.newplot(subplots=8)
-    h = plotbase.newplot(subplots=8)
-   
-    for a in alg:
-        opt.algorithm = a
-        for c in corr:
-            opt.correction = c
-            ratioplot(files, opt, ['bal', 'mpf'], drawextrapolation=True, binborders=True, 
-                fa=[f[0],f[1][(len (corr)*alg.index(a) + corr.index(c))]])
-            ratioplot(files, opt, ['bal', 'mpf'], drawextrapolation=True, binborders=True, over='npv', 
-                fa=[g[0],g[1][(len (corr)*alg.index(a) + corr.index(c))]])
-            ratioplot(files, opt, ['bal', 'mpf'], drawextrapolation=True, binborders=True, over='jet1_eta', fit=False, 
-                fa=[h[0],h[1][(len (corr)*alg.index(a) + corr.index(c))]])
-    opt.algorithm = al
-    opt.correction = co
 
 def ratio(files, opt):
     ratioplot(files, opt, ['bal', 'mpf'], drawextrapolation=True, binborders=True)
@@ -475,10 +511,7 @@ def ratio_npv(files, opt):
 def ratio_eta(files, opt):
     ratioplot(files, opt, ['bal', 'mpf'], drawextrapolation=True, binborders=True, over='jet1_eta', fit=False)
 
-def respratio(files, opt):
-    ratioplot(files, opt, ['bal', 'balratio', 'mpf'], drawextrapolation=True, binborders=True)
-
-
+#kfsr
 def kfsr(files, opt):
     plotkfsr(files, opt)
 
@@ -486,7 +519,16 @@ def kfsr_eta(files, opt):
     plotkfsr(files, opt, over='jet1_eta')
 
 
-plots = ['response', 'response_npv', 'response_eta',
+# subplots
+def ratio_all(files, opt):
+    plot_all(files, opt, plottype='ratio')
+
+def response_all(files, opt):
+    plot_all(files, opt)
+
+
+plots = [
+'response', 'response_npv', 'response_eta',
 'response_all',
 'ratio',  'ratio_npv', 'ratio_eta', 
 'ratio_all'
