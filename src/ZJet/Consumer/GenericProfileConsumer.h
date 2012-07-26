@@ -57,6 +57,22 @@ public:
 
 			this->SetYSource ( new SourceJetPtRatio( jet1Name, jet2Name, 0,0) );
 		}
+		else if ( ref == "jetpt" )
+		{
+			this->SetYSource ( new SourceJetPt() );
+		}
+		else if ( ref == "zpt" )
+		{
+			this->SetYSource ( new SourceZPt() );
+		}
+		else if ( ref == "ptbalance" )
+		{
+			this->SetYSource ( new SourcePtBalance() );
+		}
+		else if ( ref == "mpf" )
+		{
+			this->SetYSource ( new SourceMPFresponse() );
+		}
 		else
 		{
 			CALIB_LOG_FATAL( "Source " << ref << " not supported" )

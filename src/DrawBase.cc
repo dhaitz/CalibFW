@@ -130,8 +130,8 @@ Hist1D::ModifierList Hist1D::GetRunModifier()
 {
 	Hist1D::ModifierList modList;
 
-	modList.push_back(new ModHistBinRange(160000, 200000));
-	modList.push_back(new ModHistBinCount(40000));
+	modList.push_back(new ModHistBinRange(190000, 200000));
+	modList.push_back(new ModHistBinCount(10000));
 	return modList;
 }
 

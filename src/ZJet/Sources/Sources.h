@@ -101,6 +101,61 @@ public:
 	}
 };
 
+class SourcePtBalance: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = metaData.GetValidPrimaryJet(settings, event)->p4.Pt()/metaData.GetRefZ().p4.Pt();
+		return true;
+	}
+/*
+	virtual bool HasDefaultBinCount() const	{ return true;	}
+	virtual double HasDefaultBins() const { return true; }*/
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 2.0;
+	}
+};
+
+class SourceMPFresponse: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = metaData.GetMPF(event.GetMet(settings));
+		return true;
+	}
+/*
+	virtual bool HasDefaultBinCount() const	{ return true;	}
+	virtual double HasDefaultBins() const { return true; }*/
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 2.0;
+	}
+};
+
+
 class SourceRunNumber: public ZJetSourceBase
 {
 public:
@@ -117,16 +172,16 @@ public:
 	// hardcoded for now ...
 	virtual unsigned int GetDefaultBinCount() const
 	{
-		return 19848;
+		return 10000;
 	}
 	virtual double GetDefaultLowBin() const
 	{
 	  
-		return 160404.0;
+		return 190000.0;
 	}
 	virtual double GetDefaultHighBin() const
 	{
-		return 180252.0;
+		return 200000.0;
 	}
 };
 
