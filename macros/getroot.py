@@ -556,21 +556,20 @@ def getgraphpoint(graph, i):
 
 def histo2root(plot):
     """Convert a Histo object to a root histogram (TH1D)"""
-    title = plot.title + ";" + plot.xlabel() + ";" + plot.ylabel()
+    title = plot.title + ";" #+ plot.xlabel() + ";" + plot.ylabel()
     print len(plot), title
-    print min(plot.x), max(plot.y)
-    th1d = ROOT.TH1D(plot.name, title, min(plot.x), max(plot.x), len(plot))
+    print min(plot.x), max(plot.x)
+    th1d = ROOT.TH1D(plot.name, title, len(plot), min(plot.x), max(plot.x))
 
     if not hasattr(plot, 'dropbin'):
         print histo, "is no Histo. It could not be converted."
         exit(0)
     for i in range(0, len(plot)):
-            th1d.SetBinContent(i, plot.y)
-            hst.x.append(histo.GetBinLowEdge(i))
-            hst.xc.append(histo.GetBinCenter(i))
-            hst.y.append(histo.GetBinContent(i))
-            hst.xerr.append(histo.GetBinWidth(i) / 2.0)
-            hst.yerr.append(histo.GetBinError(i))
+            th1d.SetBinContent(i+1, plot.y[i])
+            th1d.SetBinError(i+1, plot.yerr[i])
+            #th1d.SetBin(i, plot.x[i])
+            #th1d.SetBinWidth(i, plot.xerr[i]/2)
+            #th1d.SetBinCenter(i, plot.xc[i])
     return th1d
 
 
