@@ -570,14 +570,20 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         ax.set_xticklabels([r"$20$", r"$30$", r"$40$", r"$50$", r"$60$", r"",
                             r"$80$", r"", r"$200$", r"$300$", r"$400$"],
                             minor=True)
-    elif x in ['z_pt', 'jet1_pt', 'jet2_pt', 'jet3_pt']:
-        setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-3].title(), "GeV")
+    elif x in ['z_pt', 'zpt', 'jetpt', 'jet1_pt']:
+        setxaxis((0, 400), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-3].title(), "GeV")
+    elif x in [ 'jet2_pt', 'jet3_pt']:
+        setxaxis((0, 100), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-3].title(), "GeV")
+    elif x in ['L1_zpt']:
+        setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % "z".title(), "GeV")
     elif x in ['abs_z_eta', 'abs_jet1_eta', 'abs_jet2_eta', 'abs_jet3_eta']:
-        setxaxis((0.0, 3.5), r"$|\eta^\mathrm{%s}|$" % x[4:-4].title())
+        setxaxis((0.0, 3.6), r"$|\eta^\mathrm{%s}|$" % x[4:-4].title())
     elif x in ['z_eta', 'jet1_eta', 'jet2_eta', 'jet3_eta']:
         setxaxis((-5, 5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
         if 'response' in y: setxaxis((0, 3.5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
         #if obj == 'Z': ax.legend(loc='lower center', numpoints=1, frameon=True)
+    elif x in ['L1_jeteta']:
+        setxaxis((-2, 2), r"$\eta^\mathrm{%s}$" % "Jet1".title())
     elif x in ['z_phi', 'jet1_phi', 'jet2_phi', 'jet3_phi']:
         setxaxis((-3.5, 3.5), r"$\phi^\mathrm{%s}$" % x[:-4].title())
         ax.set_xticks([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
@@ -592,16 +598,18 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         setxaxis((0, 35), r"Pile-up Truth (Poisson mean)")
     elif 'numpu' == x:
         setxaxis((0, 35), r"Number of Primary Vertices")
-    elif 'npv' == x:
+    elif x in ['npv', 'L1_npv']:
         setxaxis((0, 35), r"Number of Reconstructed Vertices $n$")
+    elif 'alpha' == x:
+        setxaxis((0, .5), r"$\alpha$ cut")
     elif x == 'rho':
         setxaxis((0, 50), r"$\rho$")
     elif 'constituents' == x:
         setxaxis((0, 60), r"Number of Jet Constituents")
     elif 'jet2ratio' == x:
         setxaxis((0, 0.4), r"$p_\mathrm{T}^\mathrm{Jet_2}/p_\mathrm{T}^{Z}$")
-    elif 'runs' == x:
-        setxaxis((160404, 190000), r"Run")
+    elif 'run' in x:
+        setxaxis((190000, 200000), r"Run")
     else:
         print "x = " + x + " is not defined and therefore directly written to x-label."
         setxaxis(quantity=x)
@@ -613,17 +621,22 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         ratio = " ("+opt.labels[0]+"/"+opt.labels[1]+" ratio)"
     if 'arb' == y:
         setyaxis(bottom=0.0, quantity="arb. u.")
+    elif x in ['L1_npv', 'L1_zpt', 'L1_jeteta']:
+        setyaxis((0.89, 1.02), "Correction factor")
+        ax.axhline(1.0, color="black", linestyle='--')
     elif 'events' == y:
         setyaxis(bottom=0.0, quantity="Events")
     elif 'fracevents' == y:
         setyaxis(bottom=0.0, quantity="Fraction of Events")
     elif 'balresp' in y:
-        setyaxis((0.75, 1.00), r"$p_\mathrm{T}$ balance"+ratio)
+        setyaxis((0.73, 1.11), r"$p_\mathrm{T}$ balance"+ratio)
     elif 'mpfresp' in y:
-        setyaxis((0.75, 1.00), r"MPF"+ratio)
+        setyaxis((0.80, 1.20), r"MPF"+ratio)
     elif 'response' in y:
-        setyaxis((0.85, 1.11), r"Response"+ratio)
-        if x == 'jet1_eta' : setyaxis((0.75, 1.11), r"Response"+ratio)
+        setyaxis((0.78, 1.16), r"Response"+ratio)
+        #if x == 'jet1_eta' : setyaxis((0.75, 1.11), r"Response"+ratio)
+        if x == 'alpha' : setyaxis((0.95, 1.04), r"Response"+ratio)
+        if x == 'abs_jet1_eta' : setyaxis((0.88, 1.05), r"Response"+ratio)
     elif 'kfsr' in y:
         setyaxis((0.90, 1.101), r"$k_\mathrm{FSR}$"+ratio)
     elif y == 'resolution':
@@ -632,10 +645,10 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         setyaxis((-0.5, 2.5), "Jet Resolution Ratio")
     elif 'npv' == y:
         setyaxis((0, 35), r"Number of Reconstructed Vertices $n$")
-    elif 'z_pt' == y:
-        setyaxis((50, 150), "$p_\mathrm{T}^\mathrm{Z}$")
-    elif 'jet1_pt' == y:
-        setyaxis((0, 150), "$p_\mathrm{T}^\mathrm{Jet1}$")
+    elif y in ['z_pt', 'zpt']:
+        setyaxis((0, 120), "$p_\mathrm{T}^\mathrm{Z}$")
+    elif y in ['jet1_pt', 'jet1pt', 'jetpt']:
+        setyaxis((0, 120), "$p_\mathrm{T}^\mathrm{Jet1}$")
     elif 'z_mass' == y:
         setyaxis((90, 93), "$m_\mathrm{Z}$")
     elif 'z_eta' == y:
@@ -772,8 +785,16 @@ def axislabel(ax, q='pt', obj='Z', brackets=False):
         ax.set_xlabel(r"run", ha="right", x=1)
         ax.set_ylabel(r"n_\mathrm{Events} / $\mathcal{L} \; [\mathrm{pb}]$",
                       va="top", y=1)
-        ax.set_xlim(160404, 173692)
+        ax.set_xlim(190000, 200000)
         ax.set_ylim(0.0, 20.0)
+    elif q == 'jetpt_run':
+        ax.set_xlabel(r"run", ha="right", x=1)
+        ax.set_ylabel(r"n_\mathrm{Events} / $\mathcal{L} \; [\mathrm{pb}]$",
+                      va="top", y=1)
+        ax.set_xlim(190000, 198000)
+        ax.set_ylim(0.0, 20.0)
+
+
     elif q == 'runlist':
         ax.set_xlabel(r"run range", ha="right", x=1)
         ax.set_ylabel(r"$n_\mathrm{Events} / \mathcal{L} \; [\mathrm{pb}]$",
