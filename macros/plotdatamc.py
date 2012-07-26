@@ -179,6 +179,87 @@ def getPUindata(version=''):
     assert len(result) > 10
     return result
 
+
+#Some additional submodules ...
+
+def plotany(x, y, datamc, opt, changes={}, save=True, fig_axes=(), sub_plot=False):
+    if fig_axes == ():
+        fig_axes = plotbase.newplot()
+    fig = fig_axes[0]
+    ax = fig_axes[1]
+    plot = getroot.getgraph(x, y, datamc[0], opt, change=changes, root=False)
+    ax.errorbar(plot.x, plot.y, plot.yerr,
+        color=opt.colors[0], fmt='o', capsize=0, label=opt.labels[0])
+    plot = getroot.getgraph(x, y, datamc[1], opt, change=changes, root=False)
+    ax.errorbar(plot.x, plot.y, plot.yerr,
+        color='FireBrick', fmt='s', capsize=0, label=opt.labels[1])
+    plotbase.labels(ax, opt, jet=True, changes=changes, sub_plot=sub_plot)
+    if x == 'jet1_eta':
+        pre = "abs_"
+    else:
+        pre = ""
+    
+    plotbase.axislabels(ax, pre+x, y)
+    if sub_plot==True:
+        prefix="chs_"
+    else:
+        prefix=""
+    if save: plotbase.Save(fig,prefix+"_".join(['plot', x, y, opt.algorithm]) + opt.correction, opt)
+
+# Plot the L1 correction factors. Plot contains two subplots for correction with/without CHS
+def L1(datamc, opt, quantity, rebin=5):
+    fig_axes=plotbase.newplot(subplots=2)
+    for alg, a in zip(plotbase.getalgorithms(opt), fig_axes[1]):
+        datamcplot(quantity, datamc, opt, 'lower right', changes={'algorithm':alg, 'correction':''}, fig_axes=(fig_axes[0],a),
+                    rebin=rebin, subplot=True, subtext="L1")
+    filename = quantity+"__"+opt.algorithm
+    plotbase.Save(fig_axes[0], filename, opt)
+
+# Plot GenJets
+def genjets(datamc, opt):
+    for quantity in ['jet1_pt', 'jet1_eta', 'jet1_phi', 'jet2_pt',  'jet2_eta', 'jet2_phi']:
+        datamcplot(quantity, datamc, opt, changes={'algorithm': plotbase.getgenname(opt), 'correction':''})
+        datamcplot(quantity, datamc, opt, changes={'algorithm': plotbase.getgenname(opt), 'correction':'', 'incut': 'allevents'})
+
+
+def datamc_all(datamc, opt, quantity='balresp', rebin=5, log=False, run=False):
+    """Plot subplots of one quantity in bins of different variation.
+       Loop over the different variations and the different alpha cut values.
+
+       plotbase.getvariationlist gets a list of 'changes' dictionaries, one for each variation bin: 
+         ch_list = [{'var': 'var_JetEta_0to0_783'}, {'var': 'var_JetEta_0_783to1_305'}, ...]
+
+       fig_axes = plotbase.newplot(subplots=n) creates a plot figure (fig_axes[0]) with a list fig_axes[1]
+         of n 'axes' elements (=subplots), where fig_axes[1][n] is the n-th subplot
+    """
+    if 'run' in quantity: 
+        variations = ['eta', 'z_pt']
+        datamc = [datamc[0]] # Use only data file for run plots!
+    else:
+        variations = ['npv', 'eta', 'z_pt', 'alpha']
+
+    subtexts = ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)"]
+
+    if quantity in variations: variations.remove(quantity)
+    for variation in variations:
+        for cut, cut_string in zip(opt.cut, getroot.cutstrings(opt.cut)):
+            ch_list = plotbase.getvariationlist(variation, opt)
+            fig_axes = plotbase.newplot(subplots=len(ch_list), run=run)
+            for ch, ax, subtext in zip(ch_list, fig_axes[1], subtexts):
+                if variation == 'z_pt':
+                    ch['var'] = cut_string
+                elif variation is not 'alpha':
+                    ch['var'] = cut_string+"_"+ch['var']
+
+                datamcplot(quantity, datamc, opt, changes=ch,fig_axes=(fig_axes[0],ax),subplot=True, log=log, subtext=subtext, rebin=rebin)
+
+            title= plotbase.nicetext(quantity)+" in "+plotbase.nicetext(variation)+" bins for "+r"$\alpha$ "+str(cut)+"  "+opt.algorithm+" "+opt.correction
+            fig_axes[0].suptitle(title, size='x-large')
+
+            filename = quantity+"/"+quantity+"_in_"+variation+"_bins__alpha_"+str(cut).replace('.','_')+"__"+opt.algorithm+opt.correction
+            plotbase.EnsurePathExists(opt.out+"/"+quantity)
+            plotbase.Save(fig_axes[0], filename, opt)
+
 # NPV
 def npv(datamc, opt):
     datamcplot('npv', datamc, opt, 'center right', rebin = 1)
@@ -239,14 +320,18 @@ def jetpt(datamc, opt):
     datamcplot('jet1_pt', datamc, opt, 'center right',
                log=True)
 
-
 def jetpt_nocuts(datamc, opt):
     datamcplot('jet1_pt', datamc, opt, 'center right', {'incut': 'allevents'},
                log=True)
 
-
 def jeteta(datamc, opt):
     datamcplot('jet1_eta', datamc, opt, 'lower center')
+
+def jeteta_nocuts(datamc, opt):
+    datamcplot('jet1_eta', datamc, opt, 'lower center', {'incut': 'allevents'})
+
+def jeteta_nocuts(datamc, opt):
+    datamcplot('jet1_eta', datamc, opt, 'center right', {'incut': 'allevents'})
 
 
 def jetphi(datamc, opt):
@@ -255,7 +340,7 @@ def jetphi(datamc, opt):
 
 # Second leading jet
 def jet2pt(datamc, opt):
-    datamcplot('jet2_pt', datamc, opt)
+    datamcplot('jet2_pt', datamc, opt, log=True)
 
 
 def jet2pt_nocuts(datamc, opt):
@@ -279,13 +364,38 @@ def jet3pt_nocuts(datamc, opt):
     datamcplot('jet3_pt', datamc, opt, 'center right',
                {'incut': 'allevents'}, log=True)
 
-
 def jet3eta(datamc, opt):
     datamcplot('jet3_eta', datamc, opt, 'lower center')
 
 
 def jet3phi(datamc, opt):
     datamcplot('jet3_phi', datamc, opt, 'lower center')
+
+
+#correction factors
+
+def L1_npv(datamc, opt):
+    L1(datamc, opt, 'L1_npv', rebin=1)
+
+def L1_eta(datamc, opt):
+    L1(datamc, opt, 'L1_jeteta')
+
+def L1_zpt(datamc, opt):
+    L1(datamc, opt, 'L1_zpt')
+
+
+# Run plots
+def balresp_run(datamc, opt):
+    datamc_all (datamc, opt, 'balresp_run', rebin=500, run=True)
+
+def mpfresp_run(datamc, opt):
+    datamc_all (datamc, opt, 'mpfresp_run', rebin=500, run=True)
+
+def jetpt_run(datamc, opt):
+    datamc_all (datamc, opt, 'jetpt_run', rebin=500, run=True)
+
+def zpt_run(datamc, opt):
+    datamc_all (datamc, opt, 'zpt_run', rebin=500, run=True)
 
 
 # cut efficiencies
@@ -371,34 +481,60 @@ def basic_npv(datamc, opt):
 
 
 def basic_zpt(datamc, opt):
-    for y in ['npv', 'z_mass', 'jet1_pt'
-    ]:
+    for y in ['npv', 'z_mass']:
         plotany('z_pt', y, datamc, opt)
 
 
 def basic_jet1eta(datamc, opt):
-    for y in ['z_pt', 'npv', 'jet1_pt'
-    ]:
+    for y in ['z_pt', 'npv', 'jet1_pt']:
         plotany('jet1_eta', y, datamc, opt)
 
 
+def basic_alpha(datamc, opt):
+    for y in ['jet1_pt', 'z_pt', 'npv']:
+        plotany('alpha', y, datamc, opt)
 
+# allplots
+def balresp_all(datamc, opt):
+    datamc_all(datamc, opt, 'balresp')
+
+def mpfresp_all(datamc, opt):
+    datamc_all(datamc, opt, 'mpfresp')
+
+def npv_all(datamc, opt):
+    datamc_all(datamc, opt, 'npv', rebin=1)
+
+def jet1eta_all(datamc, opt):
+    datamc_all(datamc, opt, 'jet1_eta')
+
+def jet2eta_all(datamc, opt):
+    datamc_all(datamc, opt, 'jet2_eta')
+
+def zpt_all(datamc, opt):
+    datamc_all(datamc, opt, 'z_pt')
+
+def jet1pt_all(datamc, opt):
+    datamc_all(datamc, opt, 'jet1_pt')
+
+def jet2pt_all(datamc, opt):
+    datamc_all(datamc, opt, 'jet2_pt', log=True, rebin=2)
+
+def jet2eta_all(datamc, opt):
+    datamc_all(datamc, opt, 'jet2_eta')
 
 plots = [
     'npv', 'npv_nocuts',
     'zpt', 'zeta', 'zphi', 'zmass',
-    'jetpt', 'jeteta', 'jetphi',
+    'jetpt', 'jeteta', 'jetphi', 'jeteta_nocuts',
     'jet2pt',  'jet2eta', 'jet2phi', 'jet2pt_nocuts',
     'jet3pt',  'jet3eta', 'jet3phi', 'jet3pt_nocuts',
     'cut_all_npv',
     'balresp', 'mpfresp',
-    'basic_npv', 'basic_zpt', 'basic_jet1eta',
-    ]
-
-genplots = [
-    'jetpt', 'jeteta', 'jetphi',
-    'jet2pt',  'jet2eta', 'jet2phi',
-    'jet2pt_nocuts',
+    'basic_npv', 'basic_zpt', 'basic_jet1eta', 'basic_alpha',
+    'L1_npv', 'L1_zpt',
+    'genjets',
+    'balresp_all', 'npv_all', 'mpfresp_all', 'jet1pt_all',
+    'balresp_run', 'mpfresp_run', 'jetpt_run', 'zpt_run'
     ]
 
 
