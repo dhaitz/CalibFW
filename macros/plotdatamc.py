@@ -10,24 +10,25 @@ import getroot
 import plotbase
 
 def datamcplot(quantity, files, opt, legloc='center right',
-               change={}, log=False, rebin=5, file_name = ""):
+               changes={}, log=False, rebin=5, file_name = "", subplot=False, subtext="", fig_axes=()):
     """Template for all data/MC comparison plots for basic quantities."""
     # read the values
     if opt.verbose:
         print quantity
-    
-    change = plotbase.createchanges(opt, change)
-
+    change= plotbase.getchanges(opt, changes)
     datamc=[]
     events=[]
 
     #create list with histograms
-    datamc = [getroot.getplotfromnick(quantity, f, change, rebin) for f in files]
+    if change.has_key('algorithm') and 'Gen' in change['algorithm']:
+        datamc = [getroot.getplotfromnick(quantity, files[1], change, rebin)]
+    else: 
+        datamc = [getroot.getplotfromnick(quantity, f, change, rebin) for f in files]
     if quantity in ['numpu', 'numputruth']:
         datamc[0] = getPUindata(quantity)
-
     # create the plot
-    fig, ax = plotbase.newplot()
+    if subplot==True: fig, ax = fig_axes
+    else: fig, ax = plotbase.newplot()
 
     #loop over histograms: scale and plot 
     for f, l, c, s in reversed(zip(datamc, opt.labels, opt.colors, opt.style)):
@@ -55,22 +56,50 @@ def datamcplot(quantity, files, opt, legloc='center right',
     else:
         ax = plotbase.axislabels(ax, quantity)
 
+
+    if 'var' in change and 'Cut' in change['var'] and len(change['var']) > 35:
+        change['var'] = 'var'+change['var'].split('var')[2]
+    if 'bin' in change:
+        file_name = change['bin'] + "_" + quantity
+        ranges = change['bin'][2:].split('to')
+        plotbase.binlabel(ax, 'ptz', int(ranges[0]), int(ranges[1]))
+    elif 'var' in change and 'Eta' in change['var']:
+        ranges = change['var'][11:].replace('_','.').split('to')
+        plotbase.binlabel(ax, 'eta', float(ranges[0]), float(ranges[1]))        
+    elif 'var' in change and 'Npv' in change['var']:
+        ranges = change['var'][8:].split('to')
+        plotbase.binlabel(ax, 'Npv', int(ranges[0]), int(ranges[1]))
+    elif 'var' in change and 'Cut' in change['var']:
+        ranges = change['var'][27:].replace('_','.')
+        plotbase.binlabel(ax, 'alpha', float(ranges))
+
     if not file_name:
         if 'incut' in change and change['incut'] == 'allevents':
             file_name = quantity + "_nocuts"
-        elif 'bin' in change:
-            file_name = change['bin'] + "_" + quantity
-            ranges = change['bin'][2:].split('to')
-            plotbase.binlabel(ax, 'ptz', int(ranges[0]), int(ranges[1]))
         else:
             file_name = quantity
 
+    if subtext is not 'None':
+        ax.text(-0.05, 1.02, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
+
     # save it
-    plotbase.Save(fig, file_name, opt)
+    if change.has_key('bin'):file_name += "_"+change['bin']
+    elif change.has_key('var'):file_name += "_"+change['var']
+
+    if 'algorithm' in change:
+        file_name += "__"+change['algorithm']
+    else:
+        file_name += "__"+opt.algorithm
+    if 'correction' in change:
+        file_name += change['correction']
+    else:
+        file_name += opt.correction
+
+    if subplot is not True: plotbase.Save(fig, file_name, opt)
     if log:
-        ax.set_ylim(bottom=1.0)
+        ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in datamc) * 2)
         ax.set_yscale('log')
-        plotbase.Save(fig, file_name + '_log', opt)
+        if subplot is not True: plotbase.Save(fig, file_name + '_log', opt)
 
 
 def getPUindata(version=''):
@@ -242,7 +271,7 @@ def cut_muon_npv(datamc, opt):
 def cut_zmass_npv(datamc, opt):
     datamcplot('cut_zmass_zpt', datamc, opt)
 
-
+#Response
 def balresp(datamc, opt):
     datamcplot('balresp', datamc, opt)
 
