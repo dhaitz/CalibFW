@@ -681,40 +681,53 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
                 AddConsumer(pval, "L1_npv_" + algo,
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
-                              "Jet1Ratio" : algo,
-                              "Jet2Ratio" : algo + "L1",
+                              "Jet1Ratio" : algo + "L1",
+                              "Jet2Ratio" : algo,
                               "XSource" : "reco",
                               "ProductName" : "L1_npv_" + algo})
+                AddConsumer(pval, "L1_zpt_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptratio",
+                              "Jet1Ratio" : algo + "L1",
+                              "Jet2Ratio" : algo,
+                              "XSource" : "zpt",
+                              "ProductName" : "L1_zpt_" + algo})
+                AddConsumer(pval, "L1_eta_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptratio",
+                              "Jet1Ratio" : algo + "L1",
+                              "Jet2Ratio" : algo,
+                              "XSource" : "jeteta",
+                              "ProductName" : "L1_jeteta_" + algo})
                 if level > 1:
                     AddConsumer(pval, "L2_jeteta_" + algo,
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
-                              "Jet1Ratio" : algo + "L1",
-                              "Jet2Ratio" : algo + "L1L2",
+                              "Jet1Ratio" : algo + "L1L2",
+                              "Jet2Ratio" : algo + "L1",
                               "XSource" : "jeteta",
                               "ProductName" : "L2_jeteta_" + algo})
-                if level > 2:
-                    AddConsumer(pval, "L3_jetpt_" + algo,
+                    AddConsumer(pval, "L2_jetpt_" + algo,
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
                               "Jet1Ratio" : algo + "L1L2",
-                              "Jet2Ratio" : algo + "L1L2L3",
+                              "Jet2Ratio" : algo + "L1",
                               "XSource" : "jetpt",
-                              "ProductName" : "L3_jetpt_" + algo})
+                              "ProductName" : "L2_jetpt_" + algo})
 
                 if l3residual:
                     AddConsumer(pval, "L3Res_jetpt_" + algo,
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
-                              "Jet1Ratio" : algo + "L1L2L3",
-                              "Jet2Ratio" : algo + "L1L2L3Res",
+                              "Jet1Ratio" : algo + "L1L2L3Res",
+                              "Jet2Ratio" : algo + "L1L2L3",
                               "XSource" : "jetpt",
                               "ProductName" : "L3Res_jetpt_" + algo})
                     AddConsumer(pval, "L3Res_jeteta_" + algo,
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
-                              "Jet1Ratio" : algo + "L1L2L3",
-                              "Jet2Ratio" : algo + "L1L2L3Res",
+                              "Jet1Ratio" : algo + "L1L2L3Res",
+                              "Jet2Ratio" : algo + "L1L2L3",
                               "XSource" : "jeteta",
                               "ProductName" : "L3Res_jeteta_" + algo})
 
