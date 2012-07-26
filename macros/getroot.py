@@ -24,7 +24,7 @@ import ROOT
 import cPickle as pickle
 import time
 import copy
-
+import math
 
 # converts a integer list of bins [1, 30, 70] to a
 # string representation ["Pt1to30", "Pt30to70"]
@@ -40,9 +40,73 @@ def etastrings(eta):
     etastr = map(lambda x: str(x).replace(".", "_"), eta)
     return ["var_JetEta_%sto%s" % h for h in zip(etastr[:-1], etastr[1:]) ]
 
-
 def cutstrings(cuts):
     return ["var_CutSecondLeadingToZPt__%s" % str(c).replace(".", "_") for c in cuts]
+
+def getetabins(rootfile, fallbackbins):
+    """ guess the eta binning from the folders in a rootfile"""
+    result = []
+    try:
+        for key in rootfile.GetListOfKeys():
+            name = key.GetName()
+            name = name.replace("_",".")
+            if name.find("NoBinning.incut.var.JetEta.") == 0 and "to" in name:
+                low, high = [float(x) for x in name[27:].split("to")]
+                if low  not in result:
+                    if low == 0.0: 
+                        low = int(0)
+                    result.append(low)
+                if high not in result:
+                    result.append(high)
+        assert result != [], "No eta bins found in " + rootfile.GetName()
+    except AssertionError:
+        print "Eta bins could not be determined from root file."
+        print "Fall-back binning used:", fallbackbins
+        result = fallbackbins
+        assert result != []
+    result.sort()
+    return result
+
+def getcutbins(rootfile, fallbackbins):
+    """ guess the 2nd jet cut binning from the folders in a rootfile"""
+    result = []
+    try:
+        for key in rootfile.GetListOfKeys():
+            name = key.GetName()
+            name = name.replace("_",".")
+            if name.find("NoBinning.incut.var.CutSecondLeadingToZPt.") == 0 and len(name) < 47:
+                print name,"  X  ", name[42:]
+                #low  = [float(name[42:])] Floating point error! for now, save as string:
+                low  = [(name[42:])]
+                result.append(low)
+                print low
+        assert result != [], "No cut bins found in " + rootfile.GetName()
+    except AssertionError:
+        print "cut bins could not be determined from root file."
+        print "Fall-back binning used:", fallbackbins
+        result = fallbackbins
+        assert result != []
+    result.sort()
+    return result
+
+def getnpvbins(rootfile, fallbackbins):
+    """ guess the NPV binning from the folders in a rootfile"""
+    result = []
+    try:
+        for key in rootfile.GetListOfKeys():
+            name = key.GetName()
+            if name.find("NoBinning_incut_var_Npv_") == 0 and "to" in name:
+                low, high = [int(x) for x in name[24:].split("to")]
+                if [low, high]  not in result:
+                    result.append((low, high))
+        assert result != [], "No NPV bins found in " + rootfile.GetName()
+    except AssertionError:
+        print "NPV bins could not be determined from root file."
+        print "Fall-back binning used:", fallbackbins
+        result = fallbackbins
+        assert result != []
+    result.sort()
+    return result
 
 
 def openfile(filename, verbose=False, exitonfail=True):
@@ -107,50 +171,6 @@ def getbins(rootfile, fallbackbins):
     return result
 
 
-def getetabins(rootfile, fallbackbins):
-    """ guess the eta binning from the folders in a rootfile"""
-    result = []
-    try:
-        for key in rootfile.GetListOfKeys():
-            name = key.GetName()
-            name = name.replace("_",".")
-            if name.find("NoBinning.incut.var.JetEta.") == 0 and "to" in name:
-                low, high = [float(x) for x in name[27:].split("to")]
-                if low  not in result:
-                    if low == 0.0: 
-                        low = int(0)
-                    result.append(low)
-                if high not in result:
-                    result.append(high)
-        assert result != [], "No eta bins found in " + rootfile.GetName()
-    except AssertionError:
-        print "Eta bins could not be determined from root file."
-        print "Fall-back binning used:", fallbackbins
-        result = fallbackbins
-        assert result != []
-    result.sort()
-    return result
-
-
-def getnpvbins(rootfile, fallbackbins):
-    """ guess the NPV binning from the folders in a rootfile"""
-    result = []
-    try:
-        for key in rootfile.GetListOfKeys():
-            name = key.GetName()
-            if name.find("NoBinning_incut_var_Npv_") == 0 and "to" in name:
-                low, high = [int(x) for x in name[24:].split("to")]
-                if [low, high]  not in result:
-                    result.append((low, high))
-        assert result != [], "No NPV bins found in " + rootfile.GetName()
-    except AssertionError:
-        print "NPV bins could not be determined from root file."
-        print "Fall-back binning used:", fallbackbins
-        result = fallbackbins
-        assert result != []
-    result.sort()
-    return result
-
 def getobject(name, rootfile, changes={}, exact=True):
     """get a root object by knowing the exact name
 
@@ -182,6 +202,7 @@ def getobjectname(quantity='z_mass', change={}):
     selection = {'bin': 'NoBinning', 'incut': 'incut', 'var': '',
                  'quantity': '<quantity>', 'algorithm': 'AK5PFJetsCHS',
                  'correction': 'L1L2L3Res' }
+
     hst = ''
     for k in change:
         if k not in selection:
