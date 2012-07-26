@@ -328,6 +328,18 @@ public:
 
 			AddPlot( m_neutralHadFraction );
 
+			m_HFEMFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_HF_em_fraction_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetFractionModifier());
+
+			AddPlot( m_HFEMFraction );
+
+			m_HFHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_HF_had_fraction_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetFractionModifier());
+
+			AddPlot( m_HFHadFraction );
+
 			m_muonFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_muon_fraction_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetFractionModifier());
@@ -371,6 +383,8 @@ public:
 			m_neutralEmFraction->Fill( pfJet->neutralEMFraction, metaData.GetWeight() );
 			m_chargedEMFraction->Fill( pfJet->chargedEMFraction, metaData.GetWeight() );
 			m_chargedHadFraction->Fill( pfJet->chargedHadFraction, metaData.GetWeight() );
+			m_HFEMFraction->Fill( pfJet->HFEMFraction, metaData.GetWeight() );
+			m_HFHadFraction->Fill( pfJet->HFHadFraction, metaData.GetWeight() );
 			m_neutralHadFraction->Fill( pfJet->neutralHadFraction, metaData.GetWeight() );
 			m_muonFraction->Fill( pfJet->muonFraction, metaData.GetWeight() );
 
@@ -380,6 +394,7 @@ public:
 
 			m_summedFraction->Fill( pfJet->neutralEMFraction + pfJet->chargedEMFraction +
 					pfJet->chargedHadFraction + pfJet->neutralHadFraction +
+					pfJet->HFHadFraction + pfJet->HFEMFraction +                                 
 					pfJet->muonFraction ,
 					metaData.GetWeight() );
 		}
@@ -390,6 +405,8 @@ public:
 	Hist1D * m_neutralEmFraction;
 	Hist1D * m_chargedEMFraction;
 	Hist1D * m_chargedHadFraction;
+	Hist1D * m_HFEMFraction;
+	Hist1D * m_HFHadFraction;
 	Hist1D * m_neutralHadFraction;
 	Hist1D * m_muonFraction;
 	Hist1D * m_const;
