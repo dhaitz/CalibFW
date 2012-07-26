@@ -524,6 +524,11 @@ def fitline(rootgraph):
     fitres = rootgraph.Fit(fitf,"SQN")
     return (fitf.GetParameter(0), fitf.GetParError(0), fitres.Chi2(), fitres.Ndf())
 
+def fitline2(rootgraph):
+    fitf = ROOT.TF1("fit1", "1*[0]+x*[1]", 1.0, 1000.0)
+    fitres = rootgraph.Fit(fitf,"SQN")
+    return (fitf.GetParameter(0), fitf.GetParError(0), fitf.GetParameter(1), fitf.GetParError(1), fitres.Chi2(), fitres.Ndf())
+
 
 def dividegraphs(graph1, graph2):
     assert graph1.ClassName() == 'TGraphErrors'
