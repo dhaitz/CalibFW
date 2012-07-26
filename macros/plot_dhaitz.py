@@ -27,6 +27,7 @@ import plotdatamc
 import plotfractions
 import plotresponse
 import plot_resolution
+import plot_mikko
 
 
 def plot():
@@ -35,39 +36,30 @@ def plot():
     # settings (1):
     op = plotbase.options(
         files=[     # First file must be data, other files MC
-            "work/data_2012_52/out/closure_data_2011_52.root",
-            "work/data_2011A/out/closure_data_2011A_only.root",
+            "/storage/8/dhaitz/CalibFW/work/data_2012/out/closure.root",
+            "/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12/out/closure.root",
         ],
         #specify output path
-        out="out/8_TeV_vs_7_TeV/",
+        out="out/8_TeV_data_mc/",
 
         #extend colors, labels, styles:
-        labels=["data 8 TeV", "data 7 TeV", "MC 5.0" , "MC 7 TeV (powheg)" , "MC 7 TeV (madgraph)"],
-        colors=['#800000', 'blue','#800000', 'blue', '#00FFFF'],
-        style=["o","o","-","-","-"],
+        labels=["data", "MC", "MC 5.0" , "MC 7 TeV (powheg)" , "MC 7 TeV (madgraph)"],
+        colors=['black', '#CBDBF9','#800000', 'blue', '#00FFFF'],
+        style=["o","f","-","-","-"],
         
-        #energy=8,
-        #lumi=264.5
+        energy=8,
+        lumi=5100,
 
         algorithm="AK5PFJetsCHS",
         correction="L1L2L3Res",
 
-        plots= plotdatamc.plots 
+        plots= plotdatamc.plots
                +plotresponse.plots
-               +plotfractions.plots
-               +plot_resolution.plots
+               #+plotfractions.plots
+               #+plot_resolution.plots
+               #+plot_mikko.plots
         )
-    module_list = [plotdatamc, plotresponse, plotfractions, plot_resolution]
-
-    # check if GenJet Plot
-    if op.gen:
-        op.algorithm = "AK5GenJets"
-        op.correction = ""
-        op.plots = plotdatamc.genplots
-    
-
-    # override commandline (3):
-    op.normalize = True
+    module_list = [plotdatamc, plotresponse, plotfractions, plot_resolution, plot_mikko]
 
     print "Number of files:", len(op.files)
     files=[]
@@ -75,11 +67,10 @@ def plot():
         print "Using as file", 1+op.files.index(f) ,":" , f
         files += [getroot.openfile(f, op.verbose)]
 
-    op.bins = getroot.getbins(files[0], op.bins)
-    op.eta = getroot.getetabins(files[0], op.eta)
-    op.npv = getroot.getnpvbins(files[0], op.npv)
-
-
+    #op.bins = getroot.getbins(files[0], op.bins)
+    #op.eta = getroot.getetabins(files[0], op.eta)
+    #op.npv = getroot.getnpvbins(files[0], op.npv)
+    #op.cut = getroot.getcutbins(files[0], op.cut)
 
     plotbase.plot(module_list, op.plots, files, op)
 
