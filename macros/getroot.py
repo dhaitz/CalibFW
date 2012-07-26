@@ -613,8 +613,8 @@ def getgraph(x, y, f, opt, change={}, key='var', var=None, drop=True, root=True,
         # x = mean(z_pt), var = Pt0to30
         key = 'bin'
         var = binstrings(opt.bins)
-        if drop:
-            var.pop(0)
+        #if drop:
+        #    var.pop(0)
     elif x == 'npv':
         # x = mitte(npvbin) from opt, var = var_Npv_0to1
         var = npvstrings(opt.npv)
@@ -627,6 +627,10 @@ def getgraph(x, y, f, opt, change={}, key='var', var=None, drop=True, root=True,
         xerr = [0 for a in x]
     elif x == 'jet1_eta':
         var = etastrings(opt.eta)
+        # Get list of eta bins and their means
+        etabins = [(a, b) for a, b in zip(opt.eta[:-1], opt.eta[1:])]
+        x = [0.5 * (a + min(b, 3.5)) for a, b in etabins]
+        xerr = [0.5 * (b - a) for a, b in etabins]
     elif type(var) == list:
         # x is a list of variations in the var key
         print "Plot", x, "over this list:", var
