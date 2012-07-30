@@ -132,8 +132,8 @@ def GetBaseConfig():
                            "jet_sorter_producer","pu_reweighting_producer"]
 
     d["ThreadCount"] = 1
+    d["GlobalAlgorithms"] = []
     d["L1Correction"] = "L1FastJet"
-    d["GlobalAlgorithms"] = ["AK5PF", "AK5PFchs"]
     d["Pipelines"] = { "default": {
             "Level": 1,
             "JetAlgorithm": "to_set",
@@ -743,8 +743,15 @@ def ReplaceWithQuantitiesBasic(pline):
     AddConsumerNoConfig(pline, "quantities_basic")
 
 
-def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning(), onlyBasicQuantities=True ):
+def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning(), onlyBasicQuantities=False ):
     conf = copy.deepcopy(conf_template)
+
+    # get globalalgorithms
+    for algo in algoNames:
+        if "AK5PF" not in conf["GlobalAlgorithms"] and "AK5PF" in algo:
+            conf["GlobalAlgorithms"] += ["AK5PF", "AK5PFchs"]
+        elif "AK7PF" not in conf["GlobalAlgorithms"] and "AK7PF" in algo:
+            conf["GlobalAlgorithms"] += ["AK7PF", "AK7PFchs"]
 
     # generate folder names
     srcFolder = []
@@ -825,7 +832,7 @@ def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefi
 
 
 
-def ExpandDefaultDataConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning(), onlyBasicQuantities=True):
+def ExpandDefaultDataConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning(), onlyBasicQuantities=False):
     conf = ExpandDefaultMcConfig(algoNames, conf_template, useFolders, FolderPrefix, binning, onlyBasicQuantities)
     return conf
 

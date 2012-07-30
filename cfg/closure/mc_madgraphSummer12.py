@@ -9,14 +9,12 @@ algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2L3", "AK7PFJets", "AK7PF
 cbase.addCHS(algorithms)
 base_algorithms = ["AK5PFJets", "AK5PFJetsCHS", "AK7PFJets", "AK7PFJetsCHS"]
 
-conf["GlobalAlgorithms"] += ["AK7PF", "AK7PFchs"]
-
 conf = cbase.ExpandDefaultMcConfig(algorithms, conf)
 cbase.ApplyPUReweighting(conf, "kappa52_MC12_190456-196531_8TeV_PromptReco")
 
 # create various variations ...
 variations = []
-variations += [ cbase.ExpandRange(conf["Pipelines"], "CutSecondLeadingToZPt", [0.1, 0.15, 0.2, 0.3, 04], onlyBasicQuantities=False) ]
+variations += [ cbase.ExpandRange(conf["Pipelines"], "CutSecondLeadingToZPt", [0.1, 0.15, 0.2, 0.3, 0.4], onlyBasicQuantities=False) ]
 variations += [ cbase.ExpandRange2(variations[0], "Npv", [0, 5, 9, 16, 22], [4, 8, 15, 21, 100], onlyBasicQuantities=False, alsoForPtBins=False) ]
 variations += [ cbase.ExpandRange2(variations[0], "JetEta", [0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139], [0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191], onlyBasicQuantities=False, alsoForPtBins=False) ]
 

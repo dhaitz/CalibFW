@@ -7,9 +7,7 @@ conf["OutputPath"] = "closure_data_2012"
 
 algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2L3", "AK5PFJetsL1L2L3Res", "AK7PFJets", "AK7PFJetsL1", "AK7PFJetsL1L2L3", "AK7PFJetsL1L2L3Res"]
 cbase.addCHS(algorithms)
-base_algorithms = ["AK7PFJets","AK7PFJetsCHS"]
-
-#conf["GlobalAlgorithms"] += ["AK7PF", "AK7PFchs"]
+base_algorithms = ["AK5PFJets", "AK5PFJetsCHS", "AK7PFJets", "AK7PFJetsCHS"]
 
 conf = cbase.ExpandDefaultDataConfig(algorithms, conf)
 
