@@ -284,17 +284,13 @@ def responseplot(files, opt, types, labels=None,
             extrapolation = 'data'
         if 'Gen' not in t:
             plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[0], None, changes, extrapolation))
-            ax.errorbar(plot.x, plot.y, plot.yerr, color='black', fmt=m, label=l+' (190645-191859)')
+            ax.errorbar(plot.x, plot.y, plot.yerr, color='black', fmt=m, label=l+" ("+opt.labels[0]+")")
         if extrapolation == 'data':
             extrapolation = 'mc'
         plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[1], None, changes, extrapolation))
         if l == 'RecoGen': l = "Reco/Gen"
-        #else: l = l+" (193093-193621)"
+        else: l = l+" ("+opt.labels[1]+")"
         ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
-        #plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[2], None, changes, extrapolation))
-        #ax.errorbar(plot.x, plot.y, plot.yerr, color="green", fmt=m, label=l+" (193834-195530)")
-        #plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[3], None, changes, extrapolation))
-        #ax.errorbar(plot.x, plot.y, plot.yerr, color="red", fmt=m, label=l+" (195540-198272)")
 
     # format plot
     ax.axhline(1.0, color="black", linestyle='--')
@@ -359,10 +355,6 @@ def ratioplot(files, opt, types, labels=None,
         plot = getroot.root2histo(rgraph)
         ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
 
-        f = ROOT.TFile("/home/dhaitz/git/CalibFW/rootfiles/"+t+".root", "RECREATE")
-        rgraph.Write()
-        f.Close()
-
     # format plot
     if over == 'jet1_eta':
         plotbase.labels(ax, opt, jet=True, legloc='lower left', sub_plot=subplot, changes=changes)
@@ -403,8 +395,8 @@ def plotkfsr(files, opt, method='balresp', label=None,
                  binborders=False,
                  drawextrapolation=False,
                  fit=True):
-    """"""type: bal|mpf[ratio|seperate]
-    """"""
+    """type: bal|mpf[ratio|seperate]
+    """
     fig, ax = plotbase.newplot()
     label = label or labelformat(method)
 
@@ -462,6 +454,10 @@ def plot_all(files, opt, plottype='response'):
     list_ac = plotbase.getcorralgovariations()
 
     for o in over:
+
+        if o == 'alpha':
+            list_ac = [ac for ac in list_ac if 'L1L2L3' in ac['correction']]
+
         fig_axes = plotbase.newplot(subplots=len(list_ac))
         for ch, subtext, ax in zip(list_ac, subtexts, fig_axes[1]):    # iterate over subplots in figure figaxes
             if plottype == 'ratio':
@@ -469,13 +465,13 @@ def plot_all(files, opt, plottype='response'):
                 else: fit=True
                 ratioplot(files, opt, types, drawextrapolation=True, binborders=True, over=o, subplot=True, changes=ch, fit=fit,
                     figaxes=(fig_axes[0],ax), subtext = subtext)
-                strings = ["Jet response data/MC ratio", "Ratio"]
+                strings = ["Jet response "+opt.labels[0]+"/"+opt.labels[1]+" ratio", "Ratio"]
 
             elif plottype == 'response':
                 responseplot(files, opt, types, over=o, figaxes=(fig_axes[0],ax), subtext = subtext, subplot = True, changes=ch)
                 strings = ["Jet response", "Response"]
 
-        title = strings[0]+ "over %s for different correction levels / CHS" % plotbase.nicetext(o)
+        title = strings[0]+ " over %s for different correction levels / CHS" % plotbase.nicetext(o)
         fig_axes[0].suptitle(title, size='xx-large')
 
         file_name = strings[1]+"_all_"+o+"_"+"_".join(types)+"_"+opt.algorithm
