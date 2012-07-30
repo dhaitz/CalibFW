@@ -371,6 +371,19 @@ def jet3eta(datamc, opt):
 def jet3phi(datamc, opt):
     datamcplot('jet3_phi', datamc, opt, 'lower center')
 
+# MET
+
+def METeta(datamc, opt):
+    datamcplot('MET_eta', datamc, opt, 'lower center')
+
+def METpt(datamc, opt):
+    datamcplot('MET_pt', datamc, opt, 'center right', log=True)
+
+def METphi(datamc, opt):
+    datamcplot('MET_phi', datamc, opt, 'lower center')
+
+def sumEt(datamc, opt):
+    datamcplot('MET_sumEt', datamc, opt, 'center right', rebin=10)
 
 #correction factors
 
@@ -397,6 +410,11 @@ def jetpt_run(datamc, opt):
 def zpt_run(datamc, opt):
     datamc_all (datamc, opt, 'zpt_run', rebin=500, run=True)
 
+def sumEt_run(datamc, opt):
+    datamc_all (datamc, opt, 'sumEt_run', rebin=500, run=True)
+
+def METpt_run(datamc, opt):
+    datamc_all (datamc, opt, 'METpt_run', rebin=500, run=True)
 
 # cut efficiencies
 def cut_all_npv(datamc, opt):
@@ -522,12 +540,23 @@ def jet2pt_all(datamc, opt):
 def jet2eta_all(datamc, opt):
     datamc_all(datamc, opt, 'jet2_eta')
 
+def METpt_all(datamc, opt):
+    datamc_all(datamc, opt, 'MET_pt')
+
+def METphi_all(datamc, opt):
+    datamc_all(datamc, opt, 'MET_phi')
+
+def sumEt_all(datamc, opt):
+    datamc_all(datamc, opt, 'MET_sumEt', rebin=5)
+
+
 plots = [
     'npv', 'npv_nocuts',
     'zpt', 'zeta', 'zphi', 'zmass',
     'jetpt', 'jeteta', 'jetphi', 'jeteta_nocuts',
     'jet2pt',  'jet2eta', 'jet2phi', 'jet2pt_nocuts',
     'jet3pt',  'jet3eta', 'jet3phi', 'jet3pt_nocuts',
+    'METpt', 'METphi', 'sumEt',
     'cut_all_npv',
     'balresp', 'mpfresp',
     'basic_npv', 'basic_zpt', 'basic_jet1eta', 'basic_alpha',
