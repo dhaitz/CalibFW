@@ -147,6 +147,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			pLine->AddConsumer( new ValidMuonsConsumer());
 			pLine->AddConsumer( new ValidJetsConsumer());
 
+			pLine->AddConsumer( new DataMETConsumer( pset.GetJetAlgorithm() ));
+
 			if ( JetType::IsPF( pset.GetJetAlgorithm() ))
 			{
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 0));
@@ -161,7 +163,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				}
 			}
 
-			if ( pset.IsMC() && ( pset.GetJetAlgorithm() == "AK5PFJetsL1L2L3" ))
+			if ( pset.IsMC() && (( pset.GetJetAlgorithm() == "AK5PFJetsL1L2L3" ) || ( pset.GetJetAlgorithm() == "AK7PFJetsL1L2L3" ) ) )
 			{
 				std::string genName = JetType::GetGenName( pset.GetJetAlgorithm() );
 

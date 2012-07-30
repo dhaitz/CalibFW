@@ -365,6 +365,8 @@ public:
 	static ModifierList GetResponseModifier();
 	static ModifierList GetMassModifier();
 	static ModifierList GetAreaModifier();
+	static ModifierList GetMETModifier();
+	static ModifierList GetMETFractionModifier();
 	static ModifierList GetJetMatchingModifier();
 	static ModifierList GetRunModifier();
 

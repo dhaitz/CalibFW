@@ -129,6 +129,45 @@ public:
 };
 
 
+class DataMETConsumer: public MetaConsumerDataLV
+{
+public:
+	DataMETConsumer( std::string algoName)
+	{
+		SetPhysicsObjectName("MET%quant%" + algoName);
+		m_plotMass = false;
+	}
+
+	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+			ZJetPipelineSettings> * pset)
+	{
+		MetaConsumerDataLV::Init(pset);
+
+		m_sumEt = new Hist1D( GenName(GetPhysicsObjectName(), "_sumEt_"),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetMETModifier());
+
+		AddPlot( m_sumEt);
+
+		m_fraction = new Hist1D( GenName(GetPhysicsObjectName(), "_fraction_"),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetMETFractionModifier());
+
+		AddPlot( m_fraction);
+	}
+
+	virtual void ProcessFilteredEvent(ZJetEventData const& event,
+			ZJetMetaData const& metaData)
+	{
+		PlotDataLVQuantities( event.GetMet(GetPipelineSettings()), metaData );
+		m_sumEt->Fill( event.GetMet(GetPipelineSettings())->sumEt, metaData.GetWeight());
+		m_fraction->Fill(event.GetMet(GetPipelineSettings())->p4.Pt() / event.GetMet(GetPipelineSettings())->sumEt, metaData.GetWeight());
+	}
+
+	Hist1D * m_sumEt;
+	Hist1D * m_fraction;
+};
+
 
 class DataMuonConsumer: public MetaConsumerDataLV
 {

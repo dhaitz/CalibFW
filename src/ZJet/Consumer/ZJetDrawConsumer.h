@@ -182,7 +182,7 @@ public:
 
 		m_valid = new Hist1D( "jets_valid_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetCountModifier( 50 ) );
+				Hist1D::GetCountModifier( 200 ) );
 		AddPlot ( m_valid );
 
         // only plot the invalid jets for the initial algos ( AK5PFJets )
