@@ -354,12 +354,15 @@ def GetDataBaseConfig(analysis='zjet',run='2011'):
     return d
 
 
-def ExpandRange(pipelineDict, varName, vals, setRootFolder=True, includeSource=True, alsoForNoCuts=False, correction="L1L2L3", onlyBasicQuantities=True):
+def ExpandRange(pipelineDict, varName, vals, 
+                setRootFolder=True, includeSource=True,
+                alsoForNoCuts=False, alsoForPtBins=True,
+                correction="L1L2L3", onlyBasicQuantities=True):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
 
-        if (elem["Level"] == 1 )and ( ( not "nocuts" in name) or alsoForNoCuts ) and ( correction in name):
+        if (elem["Level"] == 1 )and ( ( not "nocuts" in name) or alsoForNoCuts ) and  ( correction in name) and (alsoForPtBins or "NoBinning_" in elem["RootFileFolder"]):
             for v in vals:
                 newPipe = copy.deepcopy(elem)
                 newPipe[ varName ] = v
@@ -387,6 +390,7 @@ def ExpandRange(pipelineDict, varName, vals, setRootFolder=True, includeSource=T
 def ExpandRange2(pipelines, filtername, low, high=None,
                  foldername="var_{name}_{low}to{high}",
                  includeSource=False, onlyOnIncut=True,
+                 alsoForPtBins=True,
                  onlyBasicQuantities = True):
     """Add pipelines with values between low and high for filtername
 
@@ -397,7 +401,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
     newDict = {}
     for pipeline, subdict in pipelines.items():
         if subdict["Level"] == 1 and (not onlyOnIncut or
-                "incut" in subdict["RootFileFolder"]):
+                "incut" in subdict["RootFileFolder"] and (alsoForPtBins or "NoBinning_" in subdict["RootFileFolder"])):
             for l, h in zip(low, high):
                 # copy existing pipeline (subdict) and modify it
                 newpipe = copy.deepcopy(subdict)
