@@ -73,6 +73,18 @@ public:
 		{
 			this->SetYSource ( new SourceMPFresponse() );
 		}
+		else if ( ref == "METpt" )
+		{
+			this->SetYSource ( new SourceMETPt() );
+		}
+		else if ( ref == "sumEt" )
+		{
+			this->SetYSource ( new SourceSumEt() );
+		}
+		else if ( ref == "METfraction" )
+		{
+			this->SetYSource ( new SourceMETFraction() );
+		}
 		else
 		{
 			CALIB_LOG_FATAL( "Source " << ref << " not supported" )

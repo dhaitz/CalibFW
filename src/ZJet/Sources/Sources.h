@@ -155,6 +155,87 @@ public:
 	}
 };
 
+class SourceSumEt: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = event.GetMet(settings)->sumEt;
+		return true;
+	}
+/*
+	virtual bool HasDefaultBinCount() const	{ return true;	}
+	virtual double HasDefaultBins() const { return true; }*/
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 250;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 2500.0;
+	}
+};
+
+class SourceMETPt: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = event.GetMet(settings)->p4.Pt();
+		return true;
+	}
+/*
+	virtual bool HasDefaultBinCount() const	{ return true;	}
+	virtual double HasDefaultBins() const { return true; }*/
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 1000.0;
+	}
+};
+
+class SourceMETFraction: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = event.GetMet(settings)->p4.Pt() / event.GetMet(settings)->sumEt;
+		return true;
+	}
+/*
+	virtual bool HasDefaultBinCount() const	{ return true;	}
+	virtual double HasDefaultBins() const { return true; }*/
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 0.5;
+	}
+};
+
 
 class SourceRunNumber: public ZJetSourceBase
 {
@@ -251,7 +332,8 @@ public:
 	}
 	virtual double GetDefaultHighBin() const
 	{
-		return 0.06; // lumi of year 2011 in atto barn
+		//return 0.06; // lumi of year 2011 in atto barn
+		return 0.01;
 	}
 };
 
