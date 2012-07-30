@@ -152,8 +152,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			if ( JetType::IsPF( pset.GetJetAlgorithm() ))
 			{
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 0));
-				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 1));
-				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 2));
+				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 1, pset.GetJetAlgorithm(), true));
+				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 2, pset.GetJetAlgorithm(), true));
 
 				if ( JetType::IsRaw ( pset.GetJetAlgorithm() ))
 				{
