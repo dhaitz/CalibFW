@@ -213,16 +213,15 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
     return process
 
 
-def getOutputModule(process):
-    process.RECOSIMoutput = cms.OutputModule('PoolOutputModule',
-        splitLevel = cms.untracked.int32(0),
-        eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-        outputCommands = process.RECOSIMEventContent.outputCommands,
-        fileName = cms.untracked.string('step3_RELVAL_RAW2DIGI_L1Reco_RECO_VALIDATION_RECO.root'),
-        dataset = cms.untracked.PSet(
-            filterName = cms.untracked.string(''),
-            dataTier = cms.untracked.string('GEN-SIM-RECO'),
-        )
+def addOutputModule(process, filename="test_out.root"):
+    """Additional output file for testing.
+
+       Do not use for a full skim, only for a few 100 events.
+       Usage in cmssw config: process = base.addOutputModule(process)
+    """
+    process.Out = cms.OutputModule("PoolOutputModule",
+         fileName = cms.untracked.string(filename)
     )
-    # and add this to the end step
-    process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
+    process.end = cms.EndPath(process.Out)
+    process.schedule.append(process.end)
+    return process
