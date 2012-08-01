@@ -723,6 +723,13 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
                               "Jet2Ratio" : algo,
                               "XSource" : "zpt",
                               "ProductName" : "L1_zpt_" + algo})
+                AddConsumer(pval, "L1_jetpt_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptratio",
+                              "Jet1Ratio" : algo + "L1",
+                              "Jet2Ratio" : algo,
+                              "XSource" : "jetpt",
+                              "ProductName" : "L1_jetpt_" + algo})
                 AddConsumer(pval, "L1_eta_" + algo,
                             { "Name" : "generic_profile_consumer",
                               "YSource" : "jetptratio",
@@ -730,6 +737,30 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
                               "Jet2Ratio" : algo,
                               "XSource" : "jeteta",
                               "ProductName" : "L1_jeteta_" + algo})
+
+
+                AddConsumer(pval, "L1abs_npv_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptabsdiff",
+                              "Jet1Diff" : algo,
+                              "Jet2Diff" : algo + "L1",
+                              "XSource" : "reco",
+                              "ProductName" : "L1abs_npv_" + algo})
+                AddConsumer(pval, "L1abs_jetpt_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptabsdiff",
+                              "Jet1Diff" : algo,
+                              "Jet2Diff" : algo + "L1",
+                              "XSource" : "jetpt",
+                              "ProductName" : "L1abs_jetpt_" + algo})
+                AddConsumer(pval, "L1abs_zpt_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptabsdiff",
+                              "Jet1Diff" : algo,
+                              "Jet2Diff" : algo + "L1",
+                              "XSource" : "zpt",
+                              "ProductName" : "L1abs_zpt_" + algo})
+
                 if level > 1:
                     AddConsumer(pval, "L2_jeteta_" + algo,
                             { "Name" : "generic_profile_consumer",

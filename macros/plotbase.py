@@ -577,15 +577,17 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-3].title(), "GeV")
     elif x in [ 'jet2_pt', 'jet3_pt']:
         setxaxis((0, 100), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-3].title(), "GeV")
-    elif x in ['L1_zpt']:
+    elif x in ['L1_zpt', 'L1abs_zpt']:
         setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % "z".title(), "GeV")
+    elif x in ['L1_jetpt', 'L1abs_jetpt']:
+        setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % "Jet1", "GeV")
     elif x in ['abs_z_eta', 'abs_jet1_eta', 'abs_jet2_eta', 'abs_jet3_eta']:
         setxaxis((0.0, 3.6), r"$|\eta^\mathrm{%s}|$" % x[4:-4].title())
     elif x in ['z_eta', 'jet1_eta', 'jet2_eta', 'jet3_eta', 'MET_eta']:
         setxaxis((-5, 5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
         if 'response' in y: setxaxis((0, 3.5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
         #if obj == 'Z': ax.legend(loc='lower center', numpoints=1, frameon=True)
-    elif x in ['L1_jeteta']:
+    elif x in ['L1_jeteta', 'L1abs_jeteta']:
         setxaxis((-2, 2), r"$\eta^\mathrm{%s}$" % "Jet1".title())
     elif x in ['z_phi', 'jet1_phi', 'jet2_phi', 'jet3_phi', 'MET_phi']:
         setxaxis((-3.5, 3.5), r"$\phi^\mathrm{%s}$" % x[:-4].title())
@@ -603,7 +605,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         setxaxis((0, 35), r"Pile-up Truth (Poisson mean)")
     elif 'numpu' == x:
         setxaxis((0, 35), r"Number of Primary Vertices")
-    elif x in ['npv', 'L1_npv']:
+    elif x in ['npv', 'L1_npv', 'L1abs_npv']:
         setxaxis((0, 35), r"Number of Reconstructed Vertices $n$")
     elif x == 'jets_valid':
         setxaxis((0, 105), nicetext(x))
@@ -628,9 +630,13 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         ratio = " ("+opt.labels[0]+"/"+opt.labels[1]+" ratio)"
     if 'arb' == y:
         setyaxis(bottom=0.0, quantity="arb. u.")
-    elif x in ['L1_npv', 'L1_zpt', 'L1_jeteta']:
-        setyaxis((0.89, 1.02), "Correction factor")
+    elif x in ['L1_npv', 'L1_zpt', 'L1_jeteta', 'L1_jetpt']:
+        setyaxis((0.85, 1.02), "Correction factor")
         ax.axhline(1.0, color="black", linestyle='--')
+    elif x in ['L1abs_zpt', 'L1abs_jeteta', 'L1abs_jetpt']:
+        setyaxis((0., 20), "Absolute pt correction", "GeV")
+    elif x in ['L1abs_npv']:
+        setyaxis((0., 50), "Absolute pt correction", "GeV")
     elif 'events' == y:
         setyaxis(bottom=0.0, quantity="Events")
     elif 'fracevents' == y:

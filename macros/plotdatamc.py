@@ -33,12 +33,12 @@ def datamcplot(quantity, files, opt, legloc='center right',
     #loop over histograms: scale and plot 
     for f, l, c, s in reversed(zip(datamc, opt.labels, opt.colors, opt.style)):
         events.insert(0,f.ysum())
-        if opt.normalize and "L1" not in quantity:
+        if opt.normalize and "L1" not in quantity and "run" not in quantity:
             if 'cut_' not in quantity and f.ysum()!=0:
                 f.scale(datamc[0].ysum() / f.ysum())
             elif 'cut_' not in quantity:
                 f.scale(opt.lumi)
-        if 'L1' in quantity: s='o'
+        #if 'L1' in quantity: s='o'
         if change.has_key('algorithm') and 'GenJets' in change['algorithm']:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=opt.colors[1], fmt='-', capsize=0 ,label=opt.labels[1])
             ax.bar(f.x, f.y, (f.x[2] - f.x[1]), bottom=numpy.ones(len(f.x)) * 1e-6, fill=True, facecolor=opt.colors[1], edgecolor=opt.colors[1])
@@ -54,25 +54,25 @@ def datamcplot(quantity, files, opt, legloc='center right',
             # add a horizontal line at unity for jet response plots
             if 'resp' in quantity: ax.axhline(1.0, color="black", linestyle='--')
 
-            # add a vertical line to confirm a possible drop after run 195530
+            # add a vertical line at run 195530 (end of ReReco)
             ax.axvline(195535.0, color="black", linestyle=':')
 
             # fit line and display slope
-            intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, files[0], change, rebin))
+            intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
             ax.plot([190000, 200000],[intercept+190000*slope, intercept+200000*slope], color = c)
-            ax.plot([190000, 200000],[intercept+ierr+190000*(slope-serr), intercept+ierr+200000*(slope-serr)], alpha=0.3, color = c)
-            ax.plot([190000, 200000],[intercept-ierr+190000*(slope+serr), intercept-ierr+200000*(slope+serr)], alpha=0.3, color = c)
-            ax.text(0.97, 0.97, r"$Fit\/slope = %1.2f\pm%1.2f \times 10^{-4}$" % (slope*10000, serr*10000),
+            if len(datamc) > 1:
+                ax.plot([190000, 200000],[intercept+ierr+190000*(slope-serr), intercept+ierr+200000*(slope-serr)], alpha=0.3, color = c)
+                ax.plot([190000, 200000],[intercept-ierr+190000*(slope+serr), intercept-ierr+200000*(slope+serr)], alpha=0.3, color = c)
+            ax.text(0.97, 0.97-(datamc.index(f)/10.), r"$Fit\/slope = %1.2f\pm%1.2f \times 10^{-4}$" % (slope*10000, serr*10000),
                va='top', ha='right', transform=ax.transAxes, color=c,
                size='x-large')
 
             # fit a horizontal line and display chi^2
-            #intercept, ierr, chi2, ndf = getroot.fitline(getroot.getobjectfromnick(quantity, files[0], change, rebin))
-            #ax.axhline(intercept, color='blue', linestyle='--')
-            #ax.axhspan(intercept+ierr, intercept-ierr, color='blue', alpha=0.2)
-            #ax.text(0.97, 0.17, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
-            #   va='top', ha='right', transform=ax.transAxes, color='blue',
-            #   size='x-large')
+            """intercept, ierr, chi2, ndf = getroot.fitline(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
+            ax.axhline(intercept, color=c, linestyle='--')
+            ax.axhspan(intercept+ierr, intercept-ierr, color=c, alpha=0.2)
+            ax.text(0.97, 0.17+(datamc.index(f)/10.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
+               va='top', ha='right', transform=ax.transAxes, color=c, size='x-large')"""
             
 
     # Jet response plots: add vertical lines for mean and mean error to see data/MC agreement
@@ -209,9 +209,10 @@ def plotany(x, y, datamc, opt, changes={}, save=True, fig_axes=(), sub_plot=Fals
 # Plot the L1 correction factors. Plot contains two subplots for correction with/without CHS
 def L1(datamc, opt, quantity, rebin=5):
     fig_axes=plotbase.newplot(subplots=2)
-    for alg, a in zip(plotbase.getalgorithms(opt), fig_axes[1]):
-        datamcplot(quantity, datamc, opt, 'lower right', changes={'algorithm':alg, 'correction':''}, fig_axes=(fig_axes[0],a),
-                    rebin=rebin, subplot=True, subtext="L1")
+    for alg, a in zip(plotbase.getalgorithms(opt.algorithm), fig_axes[1]):
+        datamcplot(quantity, datamc, opt, 'upper center', changes={'algorithm':alg, 'correction':''}, fig_axes=(fig_axes[0],a),
+                    rebin=rebin, subplot=True, subtext="")
+    fig_axes[1][1].text(0.03, 0.97, r"CHS applied", va='top', ha='left', transform=fig_axes[1][1].transAxes, color='red')
     filename = quantity+"__"+opt.algorithm
     plotbase.Save(fig_axes[0], filename, opt)
 
@@ -234,7 +235,7 @@ def datamc_all(datamc, opt, quantity='balresp', rebin=5, log=False, run=False):
     """
     if 'run' in quantity: 
         variations = ['eta', 'z_pt']
-        datamc = [datamc[0]] # Use only data file for run plots!
+        datamc = [d for d, name in zip(datamc, opt.files) if "data" in name] # Use only data file for run plots! Disable to compare several data files
     else:
         variations = ['npv', 'eta', 'z_pt', 'alpha']
 
@@ -253,12 +254,17 @@ def datamc_all(datamc, opt, quantity='balresp', rebin=5, log=False, run=False):
 
                 datamcplot(quantity, datamc, opt, changes=ch,fig_axes=(fig_axes[0],ax),subplot=True, log=log, subtext=subtext, rebin=rebin)
 
-            title= plotbase.nicetext(quantity)+" in "+plotbase.nicetext(variation)+" bins for "+r"$\alpha$ "+str(cut)+"  "+opt.algorithm+" "+opt.correction
+            if variation == 'alpha': text = " for different "+plotbase.nicetext(variation)+" values "
+            else: text = " in "+plotbase.nicetext(variation)+" bins for "+r"$\alpha$ "+str(cut)+"  "
+            title=plotbase.nicetext(quantity)+text+opt.algorithm+" "+opt.correction
             fig_axes[0].suptitle(title, size='x-large')
 
-            filename = quantity+"/"+quantity+"_in_"+variation+"_bins__alpha_"+str(cut).replace('.','_')+"__"+opt.algorithm+opt.correction
+            if variation == 'alpha': text = "_bins__"
+            else: text = "_bins__alpha_"+str(cut).replace('.','_')+"__"
+            filename = quantity+"/"+quantity+"_in_"+variation+text+opt.algorithm+opt.correction
             plotbase.EnsurePathExists(opt.out+"/"+quantity)
             plotbase.Save(fig_axes[0], filename, opt)
+            if variation == 'alpha': break
 
 # NPV
 def npv(datamc, opt):
@@ -399,6 +405,20 @@ def L1_eta(datamc, opt):
 def L1_zpt(datamc, opt):
     L1(datamc, opt, 'L1_zpt')
 
+def L1_jetpt(datamc, opt):
+    L1(datamc, opt, 'L1_jetpt')
+
+def L1abs_npv(datamc, opt):
+    L1(datamc, opt, 'L1abs_npv', rebin=1)
+
+def L1abs_eta(datamc, opt):
+    L1(datamc, opt, 'L1abs_jeteta')
+
+def L1abs_zpt(datamc, opt):
+    L1(datamc, opt, 'L1abs_zpt')
+
+def L1abs_jetpt(datamc, opt):
+    L1(datamc, opt, 'L1abs_jetpt')
 
 # Run plots
 def balresp_run(datamc, opt):
@@ -568,7 +588,7 @@ plots = [
     'cut_all_npv',
     'balresp', 'mpfresp',
     'basic_npv', 'basic_zpt', 'basic_jet1eta', 'basic_alpha',
-    'L1_npv', 'L1_zpt',
+    'L1_npv', 'L1_zpt', 'L1_jetpt', 'L1abs_npv', 'L1abs_zpt', 'L1abs_jetpt',
     'genjets',
     'balresp_all', 'npv_all', 'mpfresp_all', 'jet1pt_all', 'zpt_all'
     'balresp_run', 'mpfresp_run', 'jetpt_run', 'zpt_run', 'sumEt_run', 'METpt_run', 'jetsvalid_run'

@@ -561,7 +561,49 @@ public:
 	{
 		return 100.0;
 	}
+private:
+	std::string m_jetAlgo1, m_jetAlgo2;
+	unsigned int m_jet1Num, m_jet2Num;
+};
 
+class SourceJetPtAbsDiff: public ZJetSourceBase
+{
+public:
+
+	// jet1->Pt / jet2->Pt
+	SourceJetPtAbsDiff(std::string jetAlgo1, std::string jetAlgo2,
+			unsigned int jet1Num, unsigned int jet2Num) :
+		m_jetAlgo1(jetAlgo1), m_jetAlgo2(jetAlgo2), m_jet1Num(jet1Num),
+				m_jet2Num(jet2Num)
+	{
+
+	}
+
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		KDataLV * jet1 = metaData.GetValidJet(settings, event, m_jet1Num,
+				m_jetAlgo1);
+		KDataLV * jet2 = metaData.GetValidJet(settings, event, m_jet2Num,
+				m_jetAlgo2);
+		val = (jet1->p4.Pt() - jet2->p4.Pt());
+
+		return true;
+	}
+
+	
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 100.0;
+	}
 private:
 	std::string m_jetAlgo1, m_jetAlgo2;
 	unsigned int m_jet1Num, m_jet2Num;

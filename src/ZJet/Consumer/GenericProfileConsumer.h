@@ -57,6 +57,14 @@ public:
 
 			this->SetYSource ( new SourceJetPtRatio( jet1Name, jet2Name, 0,0) );
 		}
+		else if ( ref == "jetptabsdiff" )
+		{
+
+			std::string jet1Name = ptree->get<std::string>( configPath + ".Jet1Diff");
+			std::string jet2Name = ptree->get<std::string>( configPath + ".Jet2Diff");
+
+			this->SetYSource ( new SourceJetPtAbsDiff( jet1Name, jet2Name, 0,0) );
+		}
 		else if ( ref == "jetpt" )
 		{
 			this->SetYSource ( new SourceJetPt() );
