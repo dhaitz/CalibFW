@@ -154,6 +154,32 @@ public:
 		return 2.0;
 	}
 };
+class SourceValidJets: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = metaData.GetValidJetCount(settings, event, settings.GetJetAlgorithm());
+		return true;
+	}
+/*
+	virtual bool HasDefaultBinCount() const	{ return true;	}
+	virtual double HasDefaultBins() const { return true; }*/
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 201;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return -0.5f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 200.5;
+	}
+};
 
 class SourceSumEt: public ZJetSourceBase
 {

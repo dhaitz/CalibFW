@@ -85,6 +85,10 @@ public:
 		{
 			this->SetYSource ( new SourceMETFraction() );
 		}
+		else if ( ref == "jets_valid" )
+		{
+			this->SetYSource ( new SourceValidJets() );
+		}
 		else
 		{
 			CALIB_LOG_FATAL( "Source " << ref << " not supported" )

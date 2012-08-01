@@ -635,6 +635,11 @@ def AddLumiConsumer( pipelineDict, algos):
                               "YSource" : "METfraction",
                               "XSource" : "runnumber",
                               "ProductName" : "METfraction_run_" + algo})
+                AddConsumerEasy(pval,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jets_valid",
+                              "XSource" : "runnumber",
+                              "ProductName" : "jetsvalid_run_" + algo})
 
 
 def AddHltConsumer( pipelineDict, algoNames, hlt_names):

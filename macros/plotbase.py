@@ -266,21 +266,18 @@ def getgenname(opt):
     return gen
 
 def nicetext(s):
-    if s in ['z_pt', 'zpt']: return r"$p_\mathrm{T}^\mathrm{Z}$"
+    if "_run" in s:
+        return r"Time dependence for "+nicetext(s[:-4])
+    elif s in ['z_pt', 'zpt']: return r"$p_\mathrm{T}^\mathrm{Z}$"
     elif s in ['jet1_pt', 'jet1pt']: return r"$p_\mathrm{T}^\mathrm{Jet 1}$"
     elif s in ['jet2_pt', 'jet2pt']: return r"$p_\mathrm{T}^\mathrm{Jet 2}$"
-    elif s == 'npv': return 'NPV'
     elif s in ['jet1_eta', 'eta']: return r"$\eta^\mathrm{Jet1}$"
+    elif s in ['jets_valid', 'jetsvalid']: return r"Number of valid jets"
+    elif s == 'npv': return 'NPV'
     elif s == 'alpha': return r"$\alpha$"
     elif s == 'balresp': return r"$p_\mathrm{T}$ balance"
     elif s == 'mpfresp': return "MPF response"
-    elif s == 'jetpt_run': return r"Time dependence for $p_\mathrm{T}^\mathrm{Jet 1}$"
-    elif s == 'zpt_run': return r"Time dependence for $p_\mathrm{T}^\mathrm{Z}$"
-    elif s == 'balresp_run': return r"Time dependence for $p_\mathrm{T}$ balance"
-    elif s == 'mpfresp_run': return r"Time dependence for MPF response"
-    elif s == 'sumEt_run': return r"Time dependence for total transverse energy $\sum E^\mathrm{T}$"
     elif s == 'sumEt': return r"$\sum E^\mathrm{T}$"
-    elif s == 'METpt_run': return r"Time dependence for $p_\mathrm{T}^\mathrm{MET}$"
     elif s == 'MET_sumEt': return r"Total transverse energy $\sum E^\mathrm{T}$"
     elif s == 'MET_pt': return r"$p_\mathrm{T}^\mathrm{MET}$"
     elif s == 'MET_phi': return r"$\phi^\mathrm{MET}$"
@@ -608,6 +605,8 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         setxaxis((0, 35), r"Number of Primary Vertices")
     elif x in ['npv', 'L1_npv']:
         setxaxis((0, 35), r"Number of Reconstructed Vertices $n$")
+    elif x == 'jets_valid':
+        setxaxis((0, 105), nicetext(x))
     elif 'alpha' == x:
         setxaxis((0, .5), r"$\alpha$ cut")
     elif x == 'rho':
@@ -653,6 +652,8 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         setyaxis((-0.5, 2.5), "Jet Resolution Ratio")
     elif 'npv' == y:
         setyaxis((0, 35), r"Number of Reconstructed Vertices $n$")
+    elif 'jetsvalid' == y:
+        setyaxis((0, 105), nicetext(y))
     elif y == 'sumEt':
         setyaxis((0, 1500), nicetext(y), "GeV")
     elif y in ['z_pt', 'zpt']:
