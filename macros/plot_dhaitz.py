@@ -55,7 +55,7 @@ def plot():
 
         plots= plotdatamc.plots
                +plotresponse.plots
-               #+plotfractions.plots
+               +plotfractions.plots
                #+plot_resolution.plots
                #+plot_mikko.plots
         )

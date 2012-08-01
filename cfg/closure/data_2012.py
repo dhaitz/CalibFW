@@ -18,7 +18,7 @@ variations += [ cbase.ExpandRange2(variations[0], "Npv", [0, 5, 9, 16, 22], [4, 
 variations += [ cbase.ExpandRange2(variations[0], "JetEta", [0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139], [ 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191], onlyBasicQuantities=False, alsoForPtBins=False) ]
 
 cbase.AddCorrectionPlots(conf, base_algorithms, l3residual = True)
-cbase.AddCutConsumer(conf, ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3", "AK5PFJetsL1L2L3Res", "AK5PFJetsCHSL1L2L3Res", "AK7PFJets", "AK7PFJetsL1", "AK7PFJetsL1L2L3", "AK7PFJetsCHSL1L2L3", "AK7PFJetsL1L2L3Res", "AK7PFJetsCHSL1L2L3Res"])
+cbase.AddCutConsumer(conf, algorithms)
 cbase.AddHltConsumer(conf, base_algorithms, ["HLT_Mu17_Mu8", "HLT_Mu13_Mu8", "HLT_DoubleMu7", "HLT_DoubleMu5"])
 
 
