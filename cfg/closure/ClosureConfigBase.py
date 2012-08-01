@@ -148,7 +148,7 @@ def GetBaseConfig():
             "CutBack2Back": 0.34,
 
             "CutZPt": 30.0,
-            "CutLeadingJetPt": 8.0,
+            "CutLeadingJetPt": 12.0,
 
             "Cuts": ["muon_pt",
                      "muon_eta",
