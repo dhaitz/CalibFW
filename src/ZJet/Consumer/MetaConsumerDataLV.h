@@ -184,9 +184,8 @@ public:
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
 			ZJetMetaData const& metaData)
 	{
-		//todo: somehow filter the good muons
-		for ( KDataMuons::iterator it = event.m_muons->begin();
-				it != event.m_muons->end(); it ++ )
+		for ( KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				it != metaData.m_listValidMuons.end(); it ++ )
 		{
 			if ( it->charge == m_charge)
 			{
