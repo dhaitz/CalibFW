@@ -38,7 +38,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
                 f.scale(datamc[0].ysum() / f.ysum())
             elif 'cut_' not in quantity:
                 f.scale(opt.lumi)
-        #if 'L1' in quantity: s='o'
+        if 'L1' in quantity: s='o'
         if change.has_key('algorithm') and 'GenJets' in change['algorithm']:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=opt.colors[1], fmt='-', capsize=0 ,label=opt.labels[1])
             ax.bar(f.x, f.y, (f.x[2] - f.x[1]), bottom=numpy.ones(len(f.x)) * 1e-6, fill=True, facecolor=opt.colors[1], edgecolor=opt.colors[1])
@@ -320,6 +320,32 @@ def zmass_nocuts(datamc, opt):
     datamcplot('z_mass', datamc, opt, 'center right', {'incut': 'allevents'},
                rebin=2, log=True)
 
+# Muons
+def mu_plus_pt(datamc, opt):
+    datamcplot('mu_plus_pt', datamc, opt, 'center right')
+
+def mu_plus_eta(datamc, opt):
+    datamcplot('mu_plus_eta', datamc, opt, 'lower center')
+
+def mu_plus_phi(datamc, opt):
+    datamcplot('mu_plus_phi', datamc, opt, 'lower center')
+
+
+def mu_minus_pt(datamc, opt):
+    datamcplot('mu_minus_pt', datamc, opt, 'center right')
+
+def mu_minus_eta(datamc, opt):
+    datamcplot('mu_minus_eta', datamc, opt, 'lower center')
+
+def mu_minus_phi(datamc, opt):
+    datamcplot('mu_minus_phi', datamc, opt, 'lower center')
+
+
+def muons_valid(datamc, opt):
+    datamcplot('muons_valid', datamc, opt, 'lower center', rebin=1)
+
+def muons_invalid(datamc, opt):
+    datamcplot('muons_invalid', datamc, opt, 'lower center', rebin=1)
 
 # Leading jet
 def jetpt(datamc, opt):
@@ -343,18 +369,21 @@ def jeteta_nocuts(datamc, opt):
 def jetphi(datamc, opt):
     datamcplot('jet1_phi', datamc, opt, 'lower center')
 
+def jetphi_nocuts(datamc, opt):
+    datamcplot('jet1_phi', datamc, opt, 'lower center', {'incut': 'allevents'})
+
 def jetsvalid(datamc, opt):
     datamcplot('jets_valid', datamc, opt, 'lower center')
 
 
 # Second leading jet
 def jet2pt(datamc, opt):
-    datamcplot('jet2_pt', datamc, opt, log=True)
+    datamcplot('jet2_pt', datamc, opt, log=True, rebin=2)
 
 
 def jet2pt_nocuts(datamc, opt):
     datamcplot('jet2_pt', datamc, opt, 'center right',
-               {'incut': 'allevents'}, log=True)
+               {'incut': 'allevents'}, log=True, rebin=2)
 
 
 def jet2eta(datamc, opt):
@@ -364,14 +393,16 @@ def jet2eta(datamc, opt):
 def jet2phi(datamc, opt):
     datamcplot('jet2_phi', datamc, opt, 'lower center')
 
+def jet2phi_nocuts(datamc, opt):
+    datamcplot('jet2_phi', datamc, opt, 'lower center', {'incut': 'allevents'})
 
 def jet3pt(datamc, opt):
-    datamcplot('jet3_pt', datamc, opt)
+    datamcplot('jet3_pt', datamc, opt, rebin=2)
 
 
 def jet3pt_nocuts(datamc, opt):
     datamcplot('jet3_pt', datamc, opt, 'center right',
-               {'incut': 'allevents'}, log=True)
+               {'incut': 'allevents'}, log=True, rebin=2)
 
 def jet3eta(datamc, opt):
     datamcplot('jet3_eta', datamc, opt, 'lower center')
@@ -379,6 +410,10 @@ def jet3eta(datamc, opt):
 
 def jet3phi(datamc, opt):
     datamcplot('jet3_phi', datamc, opt, 'lower center')
+
+def jet3phi_nocuts(datamc, opt):
+    datamcplot('jet3_phi', datamc, opt, 'lower center', {'incut': 'allevents'})
+
 
 # MET
 
@@ -391,8 +426,14 @@ def METpt(datamc, opt):
 def METphi(datamc, opt):
     datamcplot('MET_phi', datamc, opt, 'lower center')
 
+def METphi_nocuts(datamc, opt):
+    datamcplot('MET_phi', datamc, opt, 'lower center', {'incut': 'allevents'})
+
 def sumEt(datamc, opt):
     datamcplot('MET_sumEt', datamc, opt, 'center right', rebin=10)
+
+def METfraction(datamc, opt):
+    datamcplot('MET_fraction', datamc, opt, 'center right', rebin=2)
 
 #correction factors
 
@@ -578,20 +619,44 @@ def sumEt_all(datamc, opt):
 def jetsvalid_all(datamc, opt):
     datamc_all(datamc, opt, 'jets_valid')
 
+
+	#muons
+def mu_plus_pt_all(datamc, opt):
+    datamc_all(datamc, opt, 'mu_plus_pt')
+def mu_plus_eta_all(datamc, opt):
+    datamc_all(datamc, opt, 'mu_plus_eta')
+def mu_plus_phi_all(datamc, opt):
+    datamc_all(datamc, opt, 'mu_plus_phi')
+
+def mu_minus_pt_all(datamc, opt):
+    datamc_all(datamc, opt, 'mu_minus_pt')
+def mu_minus_eta_all(datamc, opt):
+    datamc_all(datamc, opt, 'mu_minus_eta')
+def mu_minus_phi_all(datamc, opt):
+    datamc_all(datamc, opt, 'mu_minus_phi')
+
+
+
+
 plots = [
     'npv', 'npv_nocuts',
     'zpt', 'zeta', 'zphi', 'zmass',
-    'jetpt', 'jeteta', 'jetphi', 'jeteta_nocuts', 'jetsvalid',
-    'jet2pt',  'jet2eta', 'jet2phi', 'jet2pt_nocuts',
-    'jet3pt',  'jet3eta', 'jet3phi', 'jet3pt_nocuts',
-    'METpt', 'METphi', 'sumEt',
+    'mu_plus_pt', 'mu_plus_eta', 'mu_plus_phi', 'mu_minus_pt', 'mu_minus_eta', 'mu_minus_phi', 'muons_valid', 'muons_invalid',
+    'jetpt', 'jetpt_nocuts', 'jeteta', 'jetphi', 'jetphi_nocuts' 'jeteta_nocuts', 'jetsvalid',
+    'jet2pt',  'jet2eta', 'jet2phi', 'jet2phi_nocuts', 'jet2pt_nocuts',
+    'jet3pt',  'jet3eta', 'jet3phi', 'jet3phi_nocuts', 'jet3pt_nocuts',
+    'METpt', 'METphi', 'METphi_nocuts', 'sumEt', 'METfraction',
     'cut_all_npv',
     'balresp', 'mpfresp',
     'basic_npv', 'basic_zpt', 'basic_jet1eta', 'basic_alpha',
     'L1_npv', 'L1_zpt', 'L1_jetpt', 'L1abs_npv', 'L1abs_zpt', 'L1abs_jetpt',
     'genjets',
-    'balresp_all', 'npv_all', 'mpfresp_all', 'jet1pt_all', 'zpt_all'
-    'balresp_run', 'mpfresp_run', 'jetpt_run', 'zpt_run', 'sumEt_run', 'METpt_run', 'jetsvalid_run'
+
+    'balresp_all', 'npv_all', 'mpfresp_all', 'jet1pt_all', 'zpt_all', 'jetsvalid_all',
+    'METpt_all', 'sumEt_all', 'METphi_all',
+
+    'balresp_run', 'mpfresp_run', 'jetpt_run', 'zpt_run', 'sumEt_run', 'METpt_run', 'jetsvalid_run',
+    'mu_plus_pt_all', 'mu_plus_eta_all', 'mu_plus_phi_all', 'mu_minus_pt_all', 'mu_minus_eta_all', 'mu_minus_phi_all'
     ]
 
 

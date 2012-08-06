@@ -281,6 +281,8 @@ def nicetext(s):
     elif s == 'MET_sumEt': return r"Total transverse energy $\sum E^\mathrm{T}$"
     elif s == 'MET_pt': return r"$p_\mathrm{T}^\mathrm{MET}$"
     elif s == 'MET_phi': return r"$\phi^\mathrm{MET}$"
+    elif s == 'muons_valid': return "Number of valid muons"
+    elif s == 'muons_invalid': return "Number of invalid muons"
     return s
 
 def getreweighting(datahisto, mchisto, drop=True):
@@ -573,7 +575,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         ax.set_xticklabels([r"$20$", r"$30$", r"$40$", r"$50$", r"$60$", r"",
                             r"$80$", r"", r"$200$", r"$300$", r"$400$"],
                             minor=True)
-    elif x in ['z_pt', 'zpt', 'jetpt', 'jet1_pt', 'MET_pt']:
+    elif x in ['z_pt', 'zpt', 'jetpt', 'jet1_pt', 'MET_pt', 'mu_plus_pt', 'mu_minus_pt']:
         setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-3].title(), "GeV")
     elif x in [ 'jet2_pt', 'jet3_pt']:
         setxaxis((0, 100), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-3].title(), "GeV")
@@ -583,18 +585,22 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % "Jet1", "GeV")
     elif x in ['abs_z_eta', 'abs_jet1_eta', 'abs_jet2_eta', 'abs_jet3_eta']:
         setxaxis((0.0, 3.6), r"$|\eta^\mathrm{%s}|$" % x[4:-4].title())
-    elif x in ['z_eta', 'jet1_eta', 'jet2_eta', 'jet3_eta', 'MET_eta']:
+    elif x in ['z_eta', 'jet1_eta', 'jet2_eta', 'jet3_eta', 'MET_eta', 'mu_minus_eta', 'mu_plus_eta']:
         setxaxis((-5, 5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
         if 'response' in y: setxaxis((0, 3.5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
         #if obj == 'Z': ax.legend(loc='lower center', numpoints=1, frameon=True)
     elif x in ['L1_jeteta', 'L1abs_jeteta']:
         setxaxis((-2, 2), r"$\eta^\mathrm{%s}$" % "Jet1".title())
-    elif x in ['z_phi', 'jet1_phi', 'jet2_phi', 'jet3_phi', 'MET_phi']:
+    elif x in ['z_phi', 'jet1_phi', 'jet2_phi', 'jet3_phi', 'MET_phi', 'mu_minus_phi', 'mu_plus_phi']:
         setxaxis((-3.5, 3.5), r"$\phi^\mathrm{%s}$" % x[:-4].title())
         ax.set_xticks([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
         ax.set_xticklabels([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])
     elif x in ['z_mass']:
         setxaxis((70, 110), r"$m^\mathrm{%s}$" % x[:-5].title(), "GeV")
+    elif x in ['muons_valid']:
+        setxaxis((0, 5), nicetext(x))
+    elif x in ['muons_invalid']:
+        setxaxis((0, 5), nicetext(x))
     elif x in ['MET_sumEt', 'sumEt']:
         setxaxis((0, 2500), r"$\sum E^\mathrm{T}$", "GeV")
     elif x == 'balresp':
