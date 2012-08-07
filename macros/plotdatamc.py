@@ -311,6 +311,8 @@ def zeta_nocuts(datamc, opt):
 def zphi(datamc, opt):
     datamcplot('z_phi', datamc, opt, 'lower center')
 
+def zphi_nocuts(datamc, opt):
+    datamcplot('z_phi', datamc, opt, 'lower center', {'incut': 'allevents'})
 
 def zmass(datamc, opt):
     datamcplot('z_mass', datamc, opt, rebin=2)
@@ -329,7 +331,8 @@ def mu_plus_eta(datamc, opt):
 
 def mu_plus_phi(datamc, opt):
     datamcplot('mu_plus_phi', datamc, opt, 'lower center')
-
+def mu_plus_phi_nocuts(datamc, opt):
+    datamcplot('mu_plus_phi', datamc, opt, 'lower center', {'incut': 'allevents'})
 
 def mu_minus_pt(datamc, opt):
     datamcplot('mu_minus_pt', datamc, opt, 'center right')
@@ -339,6 +342,8 @@ def mu_minus_eta(datamc, opt):
 
 def mu_minus_phi(datamc, opt):
     datamcplot('mu_minus_phi', datamc, opt, 'lower center')
+def mu_minus_phi_nocuts(datamc, opt):
+    datamcplot('mu_minus_phi', datamc, opt, 'lower center', {'incut': 'allevents'})
 
 
 def muons_valid(datamc, opt):
@@ -379,12 +384,9 @@ def jetsvalid(datamc, opt):
 # Second leading jet
 def jet2pt(datamc, opt):
     datamcplot('jet2_pt', datamc, opt, log=True, rebin=2)
-
-
 def jet2pt_nocuts(datamc, opt):
     datamcplot('jet2_pt', datamc, opt, 'center right',
                {'incut': 'allevents'}, log=True, rebin=2)
-
 
 def jet2eta(datamc, opt):
     datamcplot('jet2_eta', datamc, opt, 'lower center')
@@ -597,6 +599,9 @@ def jet2eta_all(datamc, opt):
 
 def zpt_all(datamc, opt):
     datamc_all(datamc, opt, 'z_pt')
+
+def zphi_all(datamc, opt):
+    datamc_all(datamc, opt, 'z_phi')
 
 def jet1pt_all(datamc, opt):
     datamc_all(datamc, opt, 'jet1_pt')
