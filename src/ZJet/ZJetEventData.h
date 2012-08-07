@@ -91,13 +91,9 @@ public:
 	// return MET, depending on which correction level we are looking at right now
 	virtual KDataPFMET * GetMet(ZJetPipelineSettings const& psettings) const
 	{
-		std::string corr = psettings.GetJetAlgorithm();
-		size_t pos = corr.find("JetsCHS");	// -1 oder 5
-		if (pos == std::string::npos)		// if not CHS
-			pos = corr.find("Jets") + 4;
-		else
-			pos += 7;
-		corr = corr.substr(pos);
+		std::string corr = psettings.GetJetAlgorithm().substr(9); //remove the "AKxPFJets"
+
+		//to do: implement AK7 MET and phi-corrected MET while ensuring backwards-compatibility
 
 		if (corr == "" || corr == "L1")
 			return m_pfMet;
@@ -105,6 +101,13 @@ public:
 			return m_pfMetL2L3;
 		else if (corr == "L1L2L3Res") // && psettings.IsData())
 			return m_pfMetL2L3Res;
+
+		else if (corr == "CHS" || corr == "CHSL1")
+			return m_pfMetChs;
+		else if (corr == "CHSL1L2" || corr == "CHSL1L2L3")
+			return m_pfMetChsL2L3;
+		else if (corr == "CHSL1L2L3Res")
+			return m_pfMetChsL2L3Res;
 
 		CALIB_LOG_FATAL("The correction level \"" << corr << "\" for MET is unknown.");
 		return NULL;
