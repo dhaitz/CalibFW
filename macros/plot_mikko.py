@@ -51,11 +51,10 @@ def responseplot_mikko(files, opt, types, labels=None,
                  binborders=False,
                  drawextrapolation=False):
     
-    fig, ax = plotbase.newplot()
     if labels is None:
         labels = types
 
-    et_strings = ["_eta00_13", "_eta00_08","_eta08_13", "_eta13_19", "_eta19_25", "_eta25_30", "_eta30_52"
+    et_strings = ["_eta00_13", "_eta00_08","_eta08_13", "_eta13_19", "_eta19_25", "_eta25_30", "_eta30_32", "_eta32_52"
                   ]
     cu_strings = ["_a10", "_a15", "_a20", "_a30"
                    ]
@@ -88,7 +87,6 @@ def responseplot_mikko(files, opt, types, labels=None,
                     f = ROOT.TFile("/home/dhaitz/git/CalibFW/rootfiles/"+string+".root", "RECREATE")
                     rgraph.Write()
                     f.Close()
-                    #ax.errorbar(plot.x, plot.y, plot.yerr, color='black', fmt=m, label=l+' (data)')
                 if extrapolation == 'data':
                     extrapolation = 'mc'
                 rgraph = plotresponse.getresponse(t+'resp', over, opt, files[1], None, {'var': cu+"_"+et}, extrapolation)
@@ -107,7 +105,6 @@ def responseplot_mikko(files, opt, types, labels=None,
                 f = ROOT.TFile("/home/dhaitz/git/CalibFW/rootfiles/"+string+".root", "RECREATE")
                 rgraph.Write()
                 f.Close()
-                #ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l+' (MC)')
 
 def ratioplot_mikko(files, opt, types, labels=None,
                  colors=["FireBrick", 'blue', 'green', 'red']*7,
@@ -117,11 +114,6 @@ def ratioplot_mikko(files, opt, types, labels=None,
                  drawextrapolation=False,
                  fit=True):
     #type: bal|mpf[ratio|seperate]
-    
-    fig, ax = plotbase.newplot()
-    #if labels is None:
-    #    labels = [labelformat(t) for t in types]
-    ax.axhline(1.0, color="black", linestyle='--')
     if binborders:
         for x in opt.bins:
             pass #ax.axvline(x, color='gray')
@@ -129,7 +121,7 @@ def ratioplot_mikko(files, opt, types, labels=None,
     if labels is None:
         labels = types
 
-    et_strings = ["_eta00_13", "_eta00_08","_eta08_13", "_eta13_19", "_eta19_25", "_eta25_30", "_eta30_52"
+    et_strings = ["_eta00_13", "_eta00_08","_eta08_13", "_eta13_19", "_eta19_25", "_eta25_30", "_eta30_32", "_eta32_52"
                        ]
     cu_strings = ["_a10", "_a15", "_a20", "_a30"
                    ]
@@ -143,12 +135,6 @@ def ratioplot_mikko(files, opt, types, labels=None,
                 rgraph = plotresponse.getresponse(t[:3]+'resp', over, opt, files[0], files[1], {'var': cu+"_"+et}, extrapol=t[3:])
                 if fit:
                     line, err, chi2, ndf = getroot.fitline(rgraph)
-                    ax.text(0.95, 0.65+0.07*colors.index(c), r"$R = {0:.3f} \pm {1:.3f}$ ".format(line, err),
-                        va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=16)
-                    ax.text(0.95, 0.2+0.07*colors.index(c), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
-                        va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=16)
-                    ax.axhline(line, color=c)
-                    ax.axhspan(line-err, line+err, color=c, alpha=0.2)
 
                 plot = getroot.root2histo(rgraph)
                 if t == 'bal':
@@ -165,9 +151,7 @@ def ratioplot_mikko(files, opt, types, labels=None,
                 rgraph.Write()
                 f.Close()
 
-                #ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
 
-                # format plot
             if over == 'jet1_eta':
                 pre = "abs_"
             else:
