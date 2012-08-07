@@ -262,13 +262,14 @@ def responseplot(files, opt, types, labels=None,
                  markers=['o', '*', 's']*8,
                  over='z_pt',
                  binborders=False,
-                 figaxes = plotbase.newplot(),
+                 figaxes = None,
                  drawextrapolation=False,
                  changes = {},
                  subtext = "",
                  subplot = False):
     """type: bal|mpf[:ratio,seperate,data,mc,ex]
     """
+    if figaxes == None: figaxes = plotbase.newplot()
     fig =figaxes[0]
     ax=figaxes[1]
     if labels is None:
@@ -295,7 +296,10 @@ def responseplot(files, opt, types, labels=None,
     # format plot
     ax.axhline(1.0, color="black", linestyle='--')
     plotbase.labels(ax, opt, jet=True, sub_plot=subplot, changes=changes)
-    plotbase.axislabels(ax, over, 'response')
+    if over == 'jet1_eta':
+        plotbase.axislabels(ax, "abs_"+over, 'response')
+    else:
+        plotbase.axislabels(ax, over, 'response')
     if subtext is not 'None':
         ax.text(-0.04, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
     
@@ -326,13 +330,14 @@ def ratioplot(files, opt, types, labels=None,
                  over='z_pt',
                  binborders=False,
                  drawextrapolation=False,
-                 figaxes = plotbase.newplot(),
+                 figaxes = None,
                  fit=True,
                  changes = {},
                  subtext = "",
                  subplot = False):
     """type: bal|mpf[ratio|seperate]
     """
+    if figaxes == None: figaxes = plotbase.newplot()
     fig =figaxes[0]
     ax=figaxes[1]
     if labels is None:
@@ -356,11 +361,10 @@ def ratioplot(files, opt, types, labels=None,
         ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
 
     # format plot
+    plotbase.labels(ax, opt, jet=True, legloc='lower left', sub_plot=subplot, changes=changes)
     if over == 'jet1_eta':
-        plotbase.labels(ax, opt, jet=True, legloc='lower left', sub_plot=subplot, changes=changes)
         plotbase.axislabels(ax, "abs_"+over, 'responseratio')
     else:
-        plotbase.labels(ax, opt, jet=True, legloc='lower right', sub_plot=subplot, changes=changes)
         plotbase.axislabels(ax, over, 'responseratio')
 
     if subtext is not 'None':
@@ -525,9 +529,9 @@ def response_all(files, opt):
 
 plots = [
 'response', 'response_npv', 'response_eta',
-'response_all',
+#'response_all',
 'ratio',  'ratio_npv', 'ratio_eta', 
-'ratio_all'
+#'ratio_all'
 #,'balratio', 'mpfratio', 'kfsr'
 ]
 
