@@ -288,7 +288,7 @@ def options():
 
     parser.add_argument('-i', '--inputLumiJSON', type=str, default=None,
         help="Input Lumi JSON for pileupCalc.")
-    parser.add_argument('-x', '--minBiasXsec', type=float, default=69.3,
+    parser.add_argument('-x', '--minBiasXsec', type=float, default=69.4,
         help="Minimum bias cross section in mb (NB: pileupCalc takes µb!)")
     parser.add_argument('-n', '--numPileupBins', type=int, default=50,
         help="Maximum number of pile-up bins (default: 50).")
