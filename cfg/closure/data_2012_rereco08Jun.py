@@ -2,7 +2,7 @@ import sys
 import ClosureConfigBase as cbase
 
 conf = cbase.GetDataBaseConfig(run='2012')
-conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa52_Data12_Prompt/*Prompt*.root", sys.argv)
+conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa52_Data12_08Jun/*.root", sys.argv)
 conf["OutputPath"] = "closure_data_2012"
 
 algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2L3", "AK5PFJetsL1L2L3Res"]

@@ -25,5 +25,5 @@ for v in variations:
     conf["Pipelines"].update(v)
 
 cbase.AddQuantityPlots(conf, algorithms)
-
+conf["L1Correction"] = "L1Offset"
 cbase.Run(conf, sys.argv)
