@@ -584,7 +584,6 @@ def AddCutConsumer( pipelineDict, algos):
 def AddLumiConsumer( pipelineDict, algos):
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
-            #if p == "default_" + algo:
             if ("default_" + algo +"_" in p) or (p == "default_" + algo):
                 AddConsumerEasy(pval,
                             { "Name" : "generic_profile_consumer",
@@ -638,7 +637,7 @@ def AddLumiConsumer( pipelineDict, algos):
                               "ProductName" : "METfraction_run_" + algo})
                 AddConsumerEasy(pval,
                             { "Name" : "generic_profile_consumer",
-                              "YSource" : "jets_valid",
+                              "YSource" : "jetsvalid",
                               "XSource" : "runnumber",
                               "ProductName" : "jetsvalid_run_" + algo})
 
@@ -794,6 +793,64 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
                               "XSource" : "jeteta",
                               "ProductName" : "L3Res_jeteta_" + algo})
 
+def AddQuantityPlots( pipelineDict, algos):
+    for algo in algos:
+       for p, pval in pipelineDict["Pipelines"].items():
+            if ("default_" + algo +"_" in p) or (p == "default_" + algo) or (p == "default_" + algo + "nocuts"):
+
+		#jet vs. Z
+                AddGenericProfileConsumer("jetphi", "zphi")
+                AddGenericProfileConsumer("jeteta", "zeta")
+
+		#eta vs. phi
+                AddGenericProfileConsumer("jetphi", "jeteta")
+                AddGenericProfileConsumer("jet2phi", "jet2eta")
+
+		#phi vs. eta
+                AddGenericProfileConsumer("jeteta", "jetphi")
+                AddGenericProfileConsumer("jet2eta", "jet2phi")
+
+		#pt vs. phi
+                AddGenericProfileConsumer("zphi", "zpt")
+                AddGenericProfileConsumer("jetphi", "jetpt")
+                AddGenericProfileConsumer("jet2phi", "jet2pt")
+                AddGenericProfileConsumer("METphi", "METpt")
+
+		#pt vs. eta
+                AddGenericProfileConsumer("zeta", "zpt")
+                AddGenericProfileConsumer("jeteta", "jetpt")
+                AddGenericProfileConsumer("jeteta", "jet2pt")
+
+		# ... vs. npv
+                AddGenericProfileConsumer("reco", "zpt")
+                AddGenericProfileConsumer("reco", "jetpt")
+                AddGenericProfileConsumer("reco", "METpt")
+                AddGenericProfileConsumer("reco", "sumEt")
+                AddGenericProfileConsumer("reco", "jetsvalid")
+
+                # ... vs. sumEt
+                AddGenericProfileConsumer("sumEt", "jetsvalid")
+                AddGenericProfileConsumer("sumEt", "METpt")
+
+		#jet  vs. Z
+                AddGenericProfileConsumer("zpt", "jetpt")
+
+		#pt balance vs. ...
+                AddGenericProfileConsumer("jetpt", "ptbalance")
+                AddGenericProfileConsumer("jeteta", "ptbalance")
+                AddGenericProfileConsumer("jetphi", "ptbalance")
+                AddGenericProfileConsumer("zpt", "ptbalance")
+                AddGenericProfileConsumer("reco", "ptbalance")
+
+		#mpf vs. ...
+                AddGenericProfileConsumer("jetpt", "mpf")
+                AddGenericProfileConsumer("jeteta", "mpf")
+                AddGenericProfileConsumer("jetphi", "mpf")
+                AddGenericProfileConsumer("zpt", "mpf")
+                AddGenericProfileConsumer("reco", "mpf")
+
+            def AddGenericProfileConsumer(x, y):
+                AddConsumerEasy(pval, { "Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x, "ProductName" : "_".join([y,x,algo]) } )
 
 def ReplaceWithQuantitiesBasic(pline):
     RemoveConsumer( pline, "quantities_all" )

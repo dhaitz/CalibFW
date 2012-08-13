@@ -10,7 +10,7 @@ import getroot
 import plotbase
 
 def datamcplot(quantity, files, opt, legloc='center right',
-               changes={}, log=False, rebin=5, file_name = "", subplot=False, subtext="", fig_axes=()):
+               changes={}, log=False, rebin=5, file_name = "", subplot=False, subtext="", fig_axes=(), xy_names=None, normalize=True):
     """Template for all data/MC comparison plots for basic quantities."""
     # read the values
     if opt.verbose:
@@ -33,10 +33,10 @@ def datamcplot(quantity, files, opt, legloc='center right',
     #loop over histograms: scale and plot 
     for f, l, c, s in reversed(zip(datamc, opt.labels, opt.colors, opt.style)):
         events.insert(0,f.ysum())
-        if opt.normalize and "L1" not in quantity and "run" not in quantity:
+        if opt.normalize and normalize and "L1" not in quantity and "run" not in quantity:
             if 'cut_' not in quantity and f.ysum()!=0:
                 f.scale(datamc[0].ysum() / f.ysum())
-            elif 'cut_' not in quantity:
+            elif 'cut_' not in quantity and opt.lumi !=None:
                 f.scale(opt.lumi)
         if 'L1' in quantity: s='o'
         if change.has_key('algorithm') and 'GenJets' in change['algorithm']:
@@ -60,9 +60,8 @@ def datamcplot(quantity, files, opt, legloc='center right',
             # fit line and display slope
             intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
             ax.plot([190000, 200000],[intercept+190000*slope, intercept+200000*slope], color = c)
-            if len(datamc) > 1:
-                ax.plot([190000, 200000],[intercept+ierr+190000*(slope-serr), intercept+ierr+200000*(slope-serr)], alpha=0.3, color = c)
-                ax.plot([190000, 200000],[intercept-ierr+190000*(slope+serr), intercept-ierr+200000*(slope+serr)], alpha=0.3, color = c)
+            ax.plot([190000, 200000],[intercept+ierr+190000*(slope-serr), intercept+ierr+200000*(slope-serr)], alpha=0.2, color = c)
+            ax.plot([190000, 200000],[intercept-ierr+190000*(slope+serr), intercept-ierr+200000*(slope+serr)], alpha=0.2, color = c)
             ax.text(0.97, 0.97-(datamc.index(f)/10.), r"$Fit\/slope = %1.2f\pm%1.2f \times 10^{-4}$" % (slope*10000, serr*10000),
                va='top', ha='right', transform=ax.transAxes, color=c,
                size='x-large')
@@ -106,6 +105,9 @@ def datamcplot(quantity, files, opt, legloc='center right',
             ax = plotbase.axislabels(ax, 'z_pt', quantity)
     elif '_run' in quantity:
         ax = plotbase.axislabels(ax, 'runs', quantity[:-4])
+    elif xy_names is not None:
+        ax = plotbase.axislabels(ax, x=xy_names[0], y=xy_names[1])
+        ax.set_ylim(top=max(d.ymax() for d in datamc) * 1.2)
     else:
         ax = plotbase.axislabels(ax, quantity)
 
@@ -624,8 +626,7 @@ def sumEt_all(datamc, opt):
 def jetsvalid_all(datamc, opt):
     datamc_all(datamc, opt, 'jets_valid')
 
-
-	#muons
+#muons
 def mu_plus_pt_all(datamc, opt):
     datamc_all(datamc, opt, 'mu_plus_pt')
 def mu_plus_eta_all(datamc, opt):
@@ -639,6 +640,172 @@ def mu_minus_eta_all(datamc, opt):
     datamc_all(datamc, opt, 'mu_minus_eta')
 def mu_minus_phi_all(datamc, opt):
     datamc_all(datamc, opt, 'mu_minus_phi')
+
+
+# Z vs jet
+def zphi_jetphi(datamc, opt):
+    datamcplot('zphi_jetphi', datamc, opt, xy_names=['jetphi','zphi'], rebin=5, normalize=False)
+def zphi_jetphi_nocuts(datamc, opt):
+    datamcplot('zphi_jetphi', datamc, opt, changes={'incut': 'allevents'}, xy_names=['jetphi','zphi'], rebin=5, normalize=False)
+
+def zeta_jeteta(datamc, opt):
+    datamcplot('zeta_jeteta', datamc, opt, xy_names=['jeteta','zeta'], rebin=2, normalize=False)
+def zeta_jeteta_nocuts(datamc, opt):
+    datamcplot('zeta_jeteta', datamc, opt, changes={'incut': 'allevents'}, xy_names=['jeteta','zeta'], rebin=2, normalize=False)
+
+# eta vs. phi
+def jeteta_jetphi(datamc, opt):
+    datamcplot('jeteta_jetphi', datamc, opt, xy_names=['jetphi','jeteta'], rebin=2, normalize=False)
+def jeteta_jetphi_nocuts(datamc, opt):
+    datamcplot('jeteta_jetphi', datamc, opt, changes={'incut': 'allevents'}, xy_names=['jetphi','jeteta'], rebin=2, normalize=False)
+
+def jet2eta_jet2phi(datamc, opt):
+    datamcplot('jet2eta_jet2phi', datamc, opt, xy_names=['jet2phi','jet2eta'], rebin=2, normalize=False)
+def jet2eta_jet2phi_nocuts(datamc, opt):
+    datamcplot('jet2eta_jet2phi', datamc, opt, changes={'incut': 'allevents'}, xy_names=['jet2phi','jet2eta'], rebin=2, normalize=False)
+
+#phi vs. eta
+def jeteta_jetphi(datamc, opt):
+    datamcplot('jeteta_jetphi', datamc, opt, xy_names=['jetphi','jeteta'], rebin=2, normalize=False)
+def jeteta_jetphi_nocuts(datamc, opt):
+    datamcplot('jeteta_jetphi', datamc, opt, changes={'incut': 'allevents'}, xy_names=['jetphi','jeteta'], rebin=2, normalize=False)
+
+def jet2eta_jet2phi(datamc, opt):
+    datamcplot('jet2eta_jet2phi', datamc, opt, xy_names=['jet2phi','jet2eta'], rebin=2, normalize=False)
+def jet2eta_jet2phi_nocuts(datamc, opt):
+    datamcplot('jet2eta_jet2phi', datamc, opt, changes={'incut': 'allevents'}, xy_names=['jet2phi','jet2eta'], rebin=2, normalize=False)
+
+# pt vs. phi
+def zpt_zphi(datamc, opt):
+    datamcplot('zpt_zphi', datamc, opt, xy_names=['zphi','zpt'], rebin=5, normalize=False)
+def zpt_zphi_nocuts(datamc, opt):
+    datamcplot('zpt_zphi', datamc, opt, changes={'incut': 'allevents'}, xy_names=['zphi','zpt'], rebin=5, normalize=False)
+
+def jetpt_jetphi(datamc, opt):
+    datamcplot('jetpt_jetphi', datamc, opt, xy_names=['jetphi','jetpt'], rebin=5, normalize=False)
+def jetpt_jetphi_nocuts(datamc, opt):
+    datamcplot('jetpt_jetphi', datamc, opt, changes={'incut': 'allevents'}, xy_names=['jetphi','jetpt'], rebin=5, normalize=False)
+
+def jet2pt_jet2phi(datamc, opt):
+    datamcplot('jet2pt_jet2phi', datamc, opt, xy_names=['jet2phi','jet2pt'], rebin=5, normalize=False)
+def jet2pt_jet2phi_nocuts(datamc, opt):
+    datamcplot('jet2pt_jet2phi', datamc, opt, changes={'incut': 'allevents'}, xy_names=['jet2phi','jet2pt'], rebin=5, normalize=False)
+
+def METpt_METphi(datamc, opt):
+    datamcplot('METpt_METphi', datamc, opt, xy_names=['METphi','METpt'], rebin=5, normalize=False)
+def METpt_METphi_nocuts(datamc, opt):
+    datamcplot('METpt_METphi', datamc, opt, changes={'incut': 'allevents'}, xy_names=['METphi','METpt'], rebin=5, normalize=False)
+
+# pt vs. eta
+def zpt_zeta(datamc, opt):
+    datamcplot('zpt_zeta', datamc, opt, xy_names=['zeta','zpt'], rebin=2, normalize=False)
+def zpt_zeta_nocuts(datamc, opt):
+    datamcplot('zpt_zeta', datamc, opt, changes={'incut': 'allevents'}, xy_names=['zeta','zpt'], rebin=2, normalize=False)
+
+def jetpt_jeteta(datamc, opt):
+    datamcplot('jetpt_jeteta', datamc, opt, legloc='lower center', xy_names=['jeteta','jetpt'], rebin=2, normalize=False)
+def jetpt_jeteta_nocuts(datamc, opt):
+    datamcplot('jetpt_jeteta', datamc, opt, changes={'incut': 'allevents'}, legloc='lower center', xy_names=['jeteta','jetpt'], rebin=2, normalize=False)
+
+def jet2pt_jeteta(datamc, opt):
+    datamcplot('jet2pt_jeteta', datamc, opt, xy_names=['jeteta','jet2pt'], rebin=2, normalize=False)
+def jet2pt_jeteta_nocuts(datamc, opt):
+    datamcplot('jet2pt_jeteta', datamc, opt, changes={'incut': 'allevents'}, xy_names=['jeteta','jet2pt'], rebin=2, normalize=False)
+
+# .. vs. npv
+def zpt_npv(datamc, opt):
+    datamcplot('zpt_reco', datamc, opt, xy_names=['npv','zpt'], rebin=1, normalize=False)
+def zpt_npv_nocuts(datamc, opt):
+    datamcplot('zpt_reco', datamc, opt, changes={'incut': 'allevents'}, xy_names=['npv','zpt'], rebin=1, normalize=False)
+
+def jetpt_npv(datamc, opt):
+    datamcplot('jetpt_reco', datamc, opt, xy_names=['npv','jetpt'], rebin=1, normalize=False)
+def jetpt_npv_nocuts(datamc, opt):
+    datamcplot('jetpt_reco', datamc, opt, changes={'incut': 'allevents'}, xy_names=['npv','jetpt'], rebin=1, normalize=False)
+
+def METpt_npv(datamc, opt):
+    datamcplot('METpt_reco', datamc, opt, 'upper center', xy_names=['npv','METpt'], rebin=1, normalize=False)
+def METpt_npv_nocuts(datamc, opt):
+    datamcplot('METpt_reco', datamc, opt, 'upper center', changes={'incut': 'allevents'}, xy_names=['npv','METpt'], rebin=1, normalize=False)
+
+def sumEt_npv(datamc, opt):
+    datamcplot('sumEt_reco', datamc, opt, 'upper center', xy_names=['npv','sumEt'], rebin=1, normalize=False)
+def sumEt_npv_nocuts(datamc, opt):
+    datamcplot('sumEt_reco', datamc, opt, 'upper center', changes={'incut': 'allevents'}, xy_names=['npv','sumEt'], rebin=1, normalize=False)
+
+def jetsvalid_npv(datamc, opt):
+    datamcplot('jetsvalid_reco', datamc, opt, xy_names=['npv','jetsvalid'], rebin=1, normalize=False)
+def jetsvalid_npv_nocuts(datamc, opt):
+    datamcplot('jetsvalid_reco', datamc, opt, changes={'incut': 'allevents'}, xy_names=['npv','jetsvalid'], rebin=1, normalize=False)
+
+# ... vs. sumEt
+def jetsvalid_sumEt(datamc, opt):
+    datamcplot('jetsvalid_sumEt', datamc, opt, xy_names=['sumEt','jetsvalid'], rebin=10, normalize=False)
+def jetsvalid_sumEt_nocuts(datamc, opt):
+    datamcplot('jetsvalid_sumEt', datamc, opt, changes={'incut': 'allevents'}, xy_names=['sumEt','jetsvalid'], rebin=10, normalize=False)
+
+def METpt_sumEt(datamc, opt):
+    datamcplot('METpt_sumEt', datamc, opt, xy_names=['sumEt','METpt'], rebin=10, normalize=False)
+def METpt_sumEt_nocuts(datamc, opt):
+    datamcplot('METpt_sumEt', datamc, opt, changes={'incut': 'allevents'}, xy_names=['sumEt','METpt'], rebin=10, normalize=False)
+
+# .. vs. Z pt
+def jetpt_zpt(datamc, opt):
+    datamcplot('jetpt_zpt', datamc, opt, xy_names=['zpt','jetpt'], rebin=5, normalize=False)
+def jetpt_zpt_nocuts(datamc, opt):
+    datamcplot('jetpt_zpt', datamc, opt, changes={'incut': 'allevents'}, xy_names=['zpt','jetpt'], rebin=5, normalize=False)
+
+#pt balance vs. ...
+def ptbalance_jetpt(datamc, opt):
+    datamcplot('ptbalance_jetpt', datamc, opt, xy_names=['jetpt','ptbalance'], rebin=5, normalize=False)
+def ptbalance_jetpt_nocuts(datamc, opt):
+    datamcplot('ptbalance_jetpt', datamc, opt, changes={'incut': 'allevents'}, xy_names=['jetpt','ptbalance'], rebin=5, normalize=False)
+
+def ptbalance_jeteta(datamc, opt):
+    datamcplot('ptbalance_jeteta', datamc, opt, xy_names=['jeteta','ptbalance'], rebin=2, normalize=False)
+def ptbalance_jeteta_nocuts(datamc, opt):
+    datamcplot('ptbalance_jeteta', datamc, opt, 'lower center', changes={'incut': 'allevents'}, xy_names=['jeteta','ptbalance'], rebin=2, normalize=False)
+
+def ptbalance_jetphi(datamc, opt):
+    datamcplot('ptbalance_jetphi', datamc, opt, xy_names=['jetphi','ptbalance'], rebin=5, normalize=False)
+def ptbalance_jetphi_nocuts(datamc, opt):
+    datamcplot('ptbalance_jetphi', datamc, opt, changes={'incut': 'allevents'}, xy_names=['jetphi','ptbalance'], rebin=5, normalize=False)
+
+def ptbalance_zpt(datamc, opt):
+    datamcplot('ptbalance_zpt', datamc, opt, 'lower center', xy_names=['zpt','ptbalance'], rebin=1, normalize=False)
+def ptbalance_zpt_nocuts(datamc, opt):
+    datamcplot('ptbalance_zpt', datamc, opt, changes={'incut': 'allevents'}, xy_names=['zpt','ptbalance'], rebin=1, normalize=False)
+
+def ptbalance_npv(datamc, opt):
+    datamcplot('ptbalance_reco', datamc, opt, 'lower center', xy_names=['npv','ptbalance'], rebin=1, normalize=False)
+def ptbalance_npv_nocuts(datamc, opt):
+    datamcplot('ptbalance_reco', datamc, opt, changes={'incut': 'allevents'}, xy_names=['npv','ptbalance'], rebin=1, normalize=False)
+
+# mpf vs. ...
+def mpf_jetpt(datamc, opt):
+    datamcplot('mpf_jetpt', datamc, opt, xy_names=['jetpt','mpfresp'], rebin=5, normalize=False)
+def mpf_jetpt_nocuts(datamc, opt):
+    datamcplot('mpf_jetpt', datamc, opt, 'lower center', changes={'incut': 'allevents'}, xy_names=['jetpt','mpfresp'], rebin=5, normalize=False)
+
+def mpf_jeteta(datamc, opt):
+    datamcplot('mpf_jeteta', datamc, opt, xy_names=['jeteta','mpfresp'], rebin=2, normalize=False)
+def mpf_jeteta_nocuts(datamc, opt):
+    datamcplot('mpf_jeteta', datamc, opt, 'lower center', changes={'incut': 'allevents'}, xy_names=['jeteta','mpfresp'], rebin=2, normalize=False)
+
+def mpf_jetphi(datamc, opt):
+    datamcplot('mpf_jetphi', datamc, opt, xy_names=['jetphi','mpfresp'], rebin=5, normalize=False)
+def mpf_jetphi_nocuts(datamc, opt):
+    datamcplot('mpf_jetphi', datamc, opt, changes={'incut': 'allevents'}, xy_names=['jetphi','mpfresp'], rebin=5, normalize=False)
+
+def mpf_zpt(datamc, opt):
+    datamcplot('mpf_zpt', datamc, opt, xy_names=['zpt','mpfresp'], rebin=5, normalize=False)
+def mpf_zpt_nocuts(datamc, opt):
+    datamcplot('mpf_zpt', datamc, opt, changes={'incut': 'allevents'}, xy_names=['zpt','mpfresp'], rebin=5, normalize=False)
+
+def mpf_npv(datamc, opt):
+    datamcplot('mpf_reco', datamc, opt, 'lower center', xy_names=['npv','mpfresp'], rebin=1, normalize=False)
+def mpf_npv_nocuts(datamc, opt):
+    datamcplot('mpf_reco', datamc, opt, changes={'incut': 'allevents'}, xy_names=['npv','mpfresp'], rebin=1, normalize=False)
 
 
 
@@ -661,7 +828,19 @@ plots = [
     'METpt_all', 'sumEt_all', 'METphi_all',
 
     'balresp_run', 'mpfresp_run', 'jetpt_run', 'zpt_run', 'sumEt_run', 'METpt_run', 'jetsvalid_run',
-    'mu_plus_pt_all', 'mu_plus_eta_all', 'mu_plus_phi_all', 'mu_minus_pt_all', 'mu_minus_eta_all', 'mu_minus_phi_all'
+    'mu_plus_pt_all', 'mu_plus_eta_all', 'mu_plus_phi_all', 'mu_minus_pt_all', 'mu_minus_eta_all', 'mu_minus_phi_all',
+
+
+    'zphi_jetphi', 'zphi_jetphi_nocuts',  'zeta_jeteta', 'zeta_jeteta_nocuts',  
+    'jeteta_jetphi', 'jeteta_jetphi_nocuts',  'jet2eta_jet2phi', 'jet2eta_jet2phi_nocuts',
+    'zphi_zeta', 'zphi_zeta_nocuts',  'jetphi_jeteta', 'jetphi_jeteta_nocuts',  'jet2phi_jet2eta_', 'jet2phi_jet2eta_nocuts',
+    'zpt_zphi', 'zpt_zphi_nocuts',  'jetpt_jetphi', 'jetpt_jetphi_nocuts',  'jet2pt_jet2phi', 'jet2pt_jet2phi_nocuts',  'METpt_METphi', 	'METpt_METphi_nocuts',
+    'zpt_zeta', 'zpt_zeta_nocuts',  'jetpt_jeteta', 'jetpt_jeteta_nocuts',  'jet2pt_jeteta', 'jet2pt_jeteta_nocuts',
+    'zpt_npv', 'zpt_npv_nocuts',  'jetpt_npv', 'jetpt_npv_nocuts',  'METpt_npv', 'METpt_npv_nocuts',  'sumEt_npv', 'sumEt_npv_nocuts',  	'jetsvalid_npv', 'jetsvalid_npv_nocuts',
+    'jetsvalid_sumEt', 'jetsvalid_sumEt_nocuts',  'METpt_sumEt', 'METpt_sumEt_nocuts',
+    'jetpt_zpt', 'jetpt_zpt_nocuts',
+    'ptbalance_jetpt', 'ptbalance_jetpt_nocuts',  'ptbalance_jeteta', 'ptbalance_jeteta_nocuts',  'ptbalance_jetphi', 'ptbalance_jetphi_nocuts',  		'ptbalance_zpt', 'ptbalance_zpt_nocuts',  'ptbalance_npv', 'ptbalance_npv_nocuts',
+    'mpf_jetpt', 'mpf_jetpt_nocuts',  'mpf_jeteta', 'mpf_jeteta_nocuts',  'mpf_jetphi', 'mpf_jetphi_nocuts',  'mpf_zpt', 'mpf_zpt_nocuts',  'mpf_npv', 	'mpf_npv_nocuts'
     ]
 
 

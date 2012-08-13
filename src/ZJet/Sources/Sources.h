@@ -77,6 +77,34 @@ public:
 	}
 };
 
+class SourceJet2Eta: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		if (metaData.GetValidJetCount(settings, event) < 2)
+		{
+			return false;
+		}
+		val = metaData.GetValidJet(settings, event, 1)->p4.Eta();
+		return false;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return -10.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 10.0;
+	}
+};
+
 class SourceJetPt: public ZJetSourceBase
 {
 public:
@@ -101,6 +129,89 @@ public:
 	}
 };
 
+class SourceJet2Pt: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		if (metaData.GetValidJetCount(settings, event) < 2)
+		{
+			return false;
+		}
+		val = metaData.GetValidJet(settings, event, 1)->p4.Pt();
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 1000.0;
+	}
+};
+
+class SourceJetPhi: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = metaData.GetValidPrimaryJet(settings, event)->p4.Phi();
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return -5.f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 5.f;
+	}
+};
+
+class SourceJet2Phi: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		
+		if (metaData.GetValidJetCount(settings, event) < 2)
+		{
+			return false;
+		}
+		val = metaData.GetValidJet(settings, event, 1)->p4.Phi();
+		
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return -5.f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 5.f;
+	}
+};
+
+
 class SourcePtBalance: public ZJetSourceBase
 {
 public:
@@ -110,9 +221,6 @@ public:
 		val = metaData.GetValidPrimaryJet(settings, event)->p4.Pt()/metaData.GetRefZ().p4.Pt();
 		return true;
 	}
-/*
-	virtual bool HasDefaultBinCount() const	{ return true;	}
-	virtual double HasDefaultBins() const { return true; }*/
 
 	virtual unsigned int GetDefaultBinCount() const
 	{
@@ -137,9 +245,6 @@ public:
 		val = metaData.GetMPF(event.GetMet(settings));
 		return true;
 	}
-/*
-	virtual bool HasDefaultBinCount() const	{ return true;	}
-	virtual double HasDefaultBins() const { return true; }*/
 
 	virtual unsigned int GetDefaultBinCount() const
 	{
@@ -163,13 +268,10 @@ public:
 		val = metaData.GetValidJetCount(settings, event, settings.GetJetAlgorithm());
 		return true;
 	}
-/*
-	virtual bool HasDefaultBinCount() const	{ return true;	}
-	virtual double HasDefaultBins() const { return true; }*/
 
 	virtual unsigned int GetDefaultBinCount() const
 	{
-		return 201;
+		return 101;
 	}
 	virtual double GetDefaultLowBin() const
 	{
@@ -177,7 +279,7 @@ public:
 	}
 	virtual double GetDefaultHighBin() const
 	{
-		return 200.5;
+		return 100.5;
 	}
 };
 
@@ -232,6 +334,55 @@ public:
 	virtual double GetDefaultHighBin() const
 	{
 		return 1000.0;
+	}
+};
+
+class SourceMETEta: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = event.GetMet(settings)->p4.Eta();
+		return false;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return -10.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 10.0;
+	}
+};
+
+
+class SourceMETPhi: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = event.GetMet(settings)->p4.Phi();
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return -5.f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 5.f;
 	}
 };
 
@@ -461,6 +612,53 @@ public:
 	virtual double GetDefaultHighBin() const
 	{
 		return 1000.0;
+	}
+};
+class SourceZEta: public ZJetSourceBase
+{
+public:
+
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = metaData.GetRefZ().p4.Eta();
+		return false;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return -10.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 10.0;
+	}
+};
+class SourceZPhi: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = metaData.GetRefZ().p4.Phi();
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return -5.f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 5.f;
 	}
 };
 

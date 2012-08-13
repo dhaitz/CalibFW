@@ -66,37 +66,42 @@ public:
 			this->SetYSource ( new SourceJetPtAbsDiff( jet1Name, jet2Name, 0,0) );
 		}
 		else if ( ref == "jetpt" )
-		{
 			this->SetYSource ( new SourceJetPt() );
-		}
+		else if ( ref == "jeteta" )
+			this->SetYSource ( new SourceJetEta() );
+		else if ( ref == "jetphi" )
+			this->SetYSource ( new SourceJetPhi() );
+
+		else if ( ref == "jet2pt" )
+			this->SetYSource ( new SourceJet2Pt() );
+		else if ( ref == "jet2eta" )
+			this->SetYSource ( new SourceJet2Eta() );
+		else if ( ref == "jet2phi" )
+			this->SetYSource ( new SourceJet2Phi() );
+
 		else if ( ref == "zpt" )
-		{
 			this->SetYSource ( new SourceZPt() );
-		}
+		else if ( ref == "zeta" )
+			this->SetYSource ( new SourceZEta() );
+		else if ( ref == "zphi" )
+			this->SetYSource ( new SourceZPhi() );
+
 		else if ( ref == "ptbalance" )
-		{
 			this->SetYSource ( new SourcePtBalance() );
-		}
 		else if ( ref == "mpf" )
-		{
 			this->SetYSource ( new SourceMPFresponse() );
-		}
+
 		else if ( ref == "METpt" )
-		{
 			this->SetYSource ( new SourceMETPt() );
-		}
+		else if ( ref == "METeta" )
+			this->SetYSource ( new SourceMETEta() );
 		else if ( ref == "sumEt" )
-		{
 			this->SetYSource ( new SourceSumEt() );
-		}
 		else if ( ref == "METfraction" )
-		{
 			this->SetYSource ( new SourceMETFraction() );
-		}
-		else if ( ref == "jets_valid" )
-		{
+
+		else if ( ref == "jetsvalid" )
 			this->SetYSource ( new SourceValidJets() );
-		}
 		else
 		{
 			CALIB_LOG_FATAL( "Source " << ref << " not supported" )
@@ -110,8 +115,33 @@ public:
 			this->SetXSource ( new SourceRecoVert());
 		else if ( ref == "jeteta")
 			this->SetXSource ( new SourceJetEta());
+		else if ( ref == "jetphi")
+			this->SetXSource ( new SourceJetPhi());
+
+		else if ( ref == "jet2pt" )
+			this->SetXSource ( new SourceJet2Pt() );
+		else if ( ref == "jet2eta" )
+			this->SetXSource ( new SourceJet2Eta() );
+		else if ( ref == "jet2phi" )
+			this->SetXSource ( new SourceJet2Phi() );
+
 		else if ( ref == "zpt")
 			this->SetXSource ( new SourceZPt());
+		else if ( ref == "zphi")
+			this->SetXSource ( new SourceZPhi());
+		else if ( ref == "zeta")
+			this->SetXSource ( new SourceZEta());
+
+		else if ( ref == "METeta" )
+			this->SetXSource ( new SourceMETEta() );
+		else if ( ref == "METphi" )
+			this->SetXSource ( new SourceMETPhi() );
+		else if ( ref == "sumEt" )
+			this->SetXSource ( new SourceSumEt() );
+
+		else if ( ref == "jetsvalid" )
+			this->SetXSource ( new SourceValidJets() );
+
 		else if ( ref == "runnumber")
 			this->SetXSource ( new SourceRunNumber());
 		else if ( ref == "intlumi")
