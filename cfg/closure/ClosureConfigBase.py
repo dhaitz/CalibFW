@@ -800,7 +800,7 @@ def ReplaceWithQuantitiesBasic(pline):
     AddConsumerNoConfig(pline, "quantities_basic")
 
 
-def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning(), onlyBasicQuantities=False ):
+def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning(), onlyBasicQuantities=False, 		expandptbins=True ):
     conf = copy.deepcopy(conf_template)
 
     # get globalalgorithms
@@ -831,7 +831,8 @@ def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefi
     conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )
 
     # create pipelines for all bins
-    conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], binning, True )
+    if expandptbins:
+        conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], binning, True )
 
     #set the folder name
     for p, pval in conf["Pipelines"].items():
@@ -889,8 +890,8 @@ def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefi
 
 
 
-def ExpandDefaultDataConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning(), onlyBasicQuantities=False):
-    conf = ExpandDefaultMcConfig(algoNames, conf_template, useFolders, FolderPrefix, binning, onlyBasicQuantities)
+def ExpandDefaultDataConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning(), onlyBasicQuantities=False, 	expandptbins=True):
+    conf = ExpandDefaultMcConfig(algoNames, conf_template, useFolders, FolderPrefix, binning, onlyBasicQuantities, expandptbins)
     return conf
 
 
