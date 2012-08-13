@@ -266,7 +266,7 @@ def getgenname(opt):
     return gen
 
 def nicetext(s):
-    if "_run" in s:
+    if "run" in s:
         return r"Time dependence for "+nicetext(s[:-4])
     elif s in ['z_pt', 'zpt']: return r"$p_\mathrm{T}^\mathrm{Z}$"
     elif s in ['jet1_pt', 'jet1pt']: return r"$p_\mathrm{T}^\mathrm{Jet 1}$"
@@ -278,11 +278,13 @@ def nicetext(s):
     elif s == 'balresp': return r"$p_\mathrm{T}$ balance"
     elif s == 'mpfresp': return "MPF response"
     elif s == 'sumEt': return r"$\sum E^\mathrm{T}$"
-    elif s == 'MET_sumEt': return r"Total transverse energy $\sum E^\mathrm{T}$"
-    elif s == 'MET_pt': return r"$p_\mathrm{T}^\mathrm{MET}$"
-    elif s == 'MET_phi': return r"$\phi^\mathrm{MET}$"
-    elif s == 'muons_valid': return "Number of valid muons"
-    elif s == 'muons_invalid': return "Number of invalid muons"
+    elif s == 'METsumEt': return r"Total transverse energy $\sum E^\mathrm{T}$"
+    elif s == 'METpt': return r"$p_\mathrm{T}^\mathrm{MET}$"
+    elif s == 'METphi': return r"$\phi^\mathrm{MET}$"
+    elif s == 'muonsvalid': return "Number of valid muons"
+    elif s == 'muonsinvalid': return "Number of invalid muons"
+    elif s == 'muplus': return "mu plus"
+    elif s == 'muminus': return "mu minus"
     return s
 
 def getreweighting(datahisto, mchisto, drop=True):
@@ -555,6 +557,51 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
        autoscaling
        dict = { quantity: axsetting}
     """
+    # put everything into one dictionary  key:[min, max, Name, unit]
+    d={ 	
+	'pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{%s}$", 'GeV'],	
+        'jet2pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{Jet2}$", 'GeV'],
+        'jet3pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{Jet3}$", 'GeV'],
+	'METpt':[ 0, 50, r"$p_\mathrm{T}^\mathrm{MET}$", 'GeV'],
+
+	'eta':[-5, 5, r"$\eta^\mathrm{%s}$", ""],
+	'METeta':[-0.1, 0.1, r"$\eta^\mathrm{MET}$", ""],
+	'METsumEt':[0, 2500, r"$\sum E^\mathrm{T}$", "GeV"],
+	'sumEt':[0, 2500, r"$\sum E^\mathrm{T}$", "GeV"],
+	'METfraction':[0, 0.2, r"MET / $E^T_Total$", ""],
+
+        'phi':[-3.5, 3.5, r"$\phi^\mathrm{%s}$", ""],
+
+        'zmass':[70, 110, r"$m^\mathrm{Z}$", "GeV"],
+
+	'npv':[0, 35, r"Number of Reconstructed Vertices $n$",""],
+	'L1npv':[0, 35, r"Number of Reconstructed Vertices $n$",""],
+	'L1absnpv':[0, 35, r"Number of Reconstructed Vertices $n$",""],
+	'jetsvalid':[0, 100, r"Number of valid jets $n$",""],
+	'muonsvalid':[0, 5, "Number of valid muons", ""],
+	'muonsinvalid':[0, 5, "Number of invalid muons", ""],
+
+	'correction':[0.85, 1.02, "Correction factor", ""],
+
+	'abseta':[0.0, 3.6, r"$|\eta^\mathrm{%s}|$", ""],
+	'balresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
+	'mpfresp':[0.3, 1.8, r"$R_\mathrm{MPF}$", ""],
+	'numputruth':[0, 35, r"Pile-up Truth (Poisson mean)", ""],
+	'numpu':[0, 35, r"Number of Primary Vertices", ""],
+	'alpha':[0, .5, r"$\alpha$ cut", ""],
+	'rho':[0, 50, r"$\rho$", ""],
+	'constituents':[0, 60, r"Number of Jet Constituents", ""],
+	'jet2ratio':[0, 0.4, r"$p_\mathrm{T}^\mathrm{Jet_2}/p_\mathrm{T}^{Z}$", ""],
+	'runs':[190000, 200000, r"Run", ""],
+
+
+	'componentsdiff':[-0.05, 0.05, r"Data-MC of Leading Jet Components", ""],
+	'extrapol':[0.86, 1.04, r"Response", ""],
+	'xsec':[0, 20, r"$n_\mathrm{Events} / \mathcal{L}$", "pb$^{-1}$"],
+	}
+    x = x.replace("_", "") #e.g. jet1_eta -> jet1eta
+    y = y.replace("_", "")
+
     def setxaxis(limits=(0, 200), quantity="x", unit=""):
         ax.set_xlabel(unitformat(quantity, unit, brackets), ha="right", x=1)
         ax.set_xlim(limits)
@@ -565,142 +612,99 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
             ax.set_ylim(bottom=bottom)
         else:
             ax.set_ylim(limits)
-    #ax.set_ymargin(0.6)
-    #ax.set_ylim( bottom =0 )
-    # set x labelling
-    if x == 'z_pt_log':
+
+    # special formatting options for some quantities
+    if 'phi' in x:
+        ax.set_xticks([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
+        ax.set_xticklabels([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])
+        setxaxis((d['phi'][0], d['phi'][1]), d['phi'][2] % nicetext(x.replace("phi","")).title() , d['phi'][3]) 
+    elif 'abs' in x and 'eta' in x:
+        setxaxis((d['abseta'][0], d['abseta'][1]), d['abseta'][2] % nicetext(x.replace("abs","").replace("eta","")).title() , d['abseta'][3]) 
+    elif 'eta' in x:
+        setxaxis((d['eta'][0], d['eta'][1]), d['eta'][2] % nicetext(x.replace("eta","")).title() , d['eta'][3]) 
+    elif 'pt' in x:
+        setxaxis((d['pt'][0], d['pt'][1]), d['pt'][2] % nicetext(x.replace("pt","")).title() , d['pt'][3])
+    elif x == 'correction':
+        ax.axhline(1.0, color="black", linestyle='--')
+    elif x == 'zptlog':
         setxaxis((25, 500), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-7].title(), "GeV")
         ax.semilogx()
         ax.set_xticklabels([r"$10$", r"$100$", r"$1000$"])
         ax.set_xticklabels([r"$20$", r"$30$", r"$40$", r"$50$", r"$60$", r"",
                             r"$80$", r"", r"$200$", r"$300$", r"$400$"],
                             minor=True)
-    elif x in ['z_pt', 'zpt', 'jetpt', 'jet1_pt', 'MET_pt', 'mu_plus_pt', 'mu_minus_pt']:
-        setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-3].title(), "GeV")
-    elif x in [ 'jet2_pt', 'jet3_pt']:
-        setxaxis((0, 100), r"$p_\mathrm{T}^\mathrm{%s}$" % x[:-3].title(), "GeV")
-    elif x in ['L1_zpt', 'L1abs_zpt']:
-        setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % "z".title(), "GeV")
-    elif x in ['L1_jetpt', 'L1abs_jetpt']:
-        setxaxis((0, 250), r"$p_\mathrm{T}^\mathrm{%s}$" % "Jet1", "GeV")
-    elif x in ['abs_z_eta', 'abs_jet1_eta', 'abs_jet2_eta', 'abs_jet3_eta']:
-        setxaxis((0.0, 3.6), r"$|\eta^\mathrm{%s}|$" % x[4:-4].title())
-    elif x in ['z_eta', 'jet1_eta', 'jet2_eta', 'jet3_eta', 'MET_eta', 'mu_minus_eta', 'mu_plus_eta']:
-        setxaxis((-5, 5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
-        if 'response' in y: setxaxis((0, 3.5), r"$\eta^\mathrm{%s}$" % x[:-4].title())
-        #if obj == 'Z': ax.legend(loc='lower center', numpoints=1, frameon=True)
-    elif x in ['L1_jeteta', 'L1abs_jeteta']:
+    elif x in ['L1jeteta', 'L1absjeteta']:
         setxaxis((-2, 2), r"$\eta^\mathrm{%s}$" % "Jet1".title())
-    elif x in ['z_phi', 'jet1_phi', 'jet2_phi', 'jet3_phi', 'MET_phi', 'mu_minus_phi', 'mu_plus_phi']:
-        setxaxis((-3.5, 3.5), r"$\phi^\mathrm{%s}$" % x[:-4].title())
-        ax.set_xticks([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
-        ax.set_xticklabels([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])
-    elif x in ['z_mass']:
-        setxaxis((70, 110), r"$m^\mathrm{%s}$" % x[:-5].title(), "GeV")
-    elif x in ['muons_valid']:
-        setxaxis((0, 5), nicetext(x))
-    elif x in ['muons_invalid']:
-        setxaxis((0, 5), nicetext(x))
-    elif x in ['MET_sumEt', 'sumEt']:
-        setxaxis((0, 2500), r"$\sum E^\mathrm{T}$", "GeV")
-    elif x == 'balresp':
-        setxaxis((0.0, 1.8), r"$p_\mathrm{T}$ balance")
-    elif x == 'mpfresp':
-        setxaxis((0.3, 1.8), r"$R_\mathrm{MPF}$")
-    elif 'numputruth' == x:
-        setxaxis((0, 35), r"Pile-up Truth (Poisson mean)")
-    elif 'numpu' == x:
-        setxaxis((0, 35), r"Number of Primary Vertices")
-    elif x in ['npv', 'L1_npv', 'L1abs_npv']:
-        setxaxis((0, 35), r"Number of Reconstructed Vertices $n$")
-    elif x == 'jets_valid':
-        setxaxis((0, 105), nicetext(x))
-    elif 'alpha' == x:
-        setxaxis((0, .5), r"$\alpha$ cut")
-    elif x == 'rho':
-        setxaxis((0, 50), r"$\rho$")
-    elif 'constituents' == x:
-        setxaxis((0, 60), r"Number of Jet Constituents")
-    elif 'jet2ratio' == x:
-        setxaxis((0, 0.4), r"$p_\mathrm{T}^\mathrm{Jet_2}/p_\mathrm{T}^{Z}$")
-    elif 'run' in x:
-        setxaxis((190000, 200000), r"Run")
+    elif x in d:
+        setxaxis((d[x][0], d[x][1]), d[x][2], d[x][3])
     else:
         print "x = " + x + " is not defined and therefore directly written to x-label."
         setxaxis(quantity=x)
-        #fail("x = " + x + " not supported. You could use e.g. 'z_pt' if appropriate.")
 
-    # set y labelling
     ratio = ""
     if 'ratio' in y:
         ratio = " ("+opt.labels[0]+"/"+opt.labels[1]+" ratio)"
-    if 'arb' == y:
+
+
+    if 'phi' in y:
+        ax.set_yticks([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
+        ax.set_yticklabels([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])
+        setyaxis((d['phi'][0], d['phi'][1]), d['phi'][2] % nicetext(y.replace("phi","")).title() , d['phi'][3]) 
+    elif 'abs' in y and 'eta' in y:
+        setyaxis((d['abseta'][0], d['abseta'][1]), d['abseta'][2] % nicetext(y.replace("abs","").replace("eta","")).title() , d['abseta'][3]) 
+    elif 'eta' in y:
+        setyaxis((d['eta'][0], d['eta'][1]), d['eta'][2] % nicetext(y.replace("eta","")).title() , d['eta'][3])
+        if 'phi' in x:
+            setyaxis((-0.2, 0.5), d['eta'][2] % nicetext(y.replace("eta","")).title() , d['eta'][3])
+    elif 'pt' in y:
+        setyaxis((d['pt'][0], d['pt'][1]), d['pt'][2] % nicetext(y.replace("pt","")).title() , d['pt'][3])
+    elif 'arb' == y:
         setyaxis(bottom=0.0, quantity="arb. u.")
-    elif x in ['L1_npv', 'L1_zpt', 'L1_jeteta', 'L1_jetpt']:
+    elif x in ['L1npv', 'L1zpt', 'L1jeteta', 'L1jetpt']:
         setyaxis((0.85, 1.02), "Correction factor")
         ax.axhline(1.0, color="black", linestyle='--')
-    elif x in ['L1abs_zpt', 'L1abs_jeteta', 'L1abs_jetpt']:
+    elif x in ['L1abszpt', 'L1absjeteta', 'L1absjetpt']:
         setyaxis((0., 20), "Absolute pt correction", "GeV")
-    elif x in ['L1abs_npv']:
+    elif x in ['L1absnpv']:
         setyaxis((0., 50), "Absolute pt correction", "GeV")
     elif 'events' == y:
         setyaxis(bottom=0.0, quantity="Events")
     elif 'fracevents' == y:
         setyaxis(bottom=0.0, quantity="Fraction of Events")
-    elif 'balresp' in y:
+    elif y in ['balresp', 'ptbalance']:
         setyaxis((0.73, 1.11), r"$p_\mathrm{T}$ balance"+ratio)
     elif 'mpfresp' in y:
         setyaxis((0.80, 1.20), r"MPF"+ratio)
     elif 'response' in y:
         setyaxis((0.78, 1.16), r"Response"+ratio)
-        #if x == 'jet1_eta' : setyaxis((0.75, 1.11), r"Response"+ratio)
         if x == 'alpha' : setyaxis((0.95, 1.04), r"Response"+ratio)
-        if x == 'abs_jet1_eta' : setyaxis((0.88, 1.05), r"Response"+ratio)
+        if x == 'absjet1eta' : setyaxis((0.88, 1.05), r"Response"+ratio)
     elif 'kfsr' in y:
         setyaxis((0.90, 1.101), r"$k_\mathrm{FSR}$"+ratio)
     elif y == 'resolution':
         setyaxis((0.0, 0.3), "Jet Resolution Ratio")
     elif y == 'resolutionratio':
         setyaxis((-0.5, 2.5), "Jet Resolution Ratio")
-    elif 'npv' == y:
-        setyaxis((0, 35), r"Number of Reconstructed Vertices $n$")
     elif 'jetsvalid' == y:
         setyaxis((0, 105), nicetext(y))
-    elif y == 'sumEt':
-        setyaxis((0, 1500), nicetext(y), "GeV")
-    elif y in ['z_pt', 'zpt']:
-        setyaxis((0, 120), "$p_\mathrm{T}^\mathrm{Z}$")
-    elif y == 'METpt':
-        setyaxis((0, 40), "$p_\mathrm{T}^\mathrm{MET}$", "GeV")
-    elif y in ['jet1_pt', 'jet1pt', 'jetpt']:
-        setyaxis((0, 120), "$p_\mathrm{T}^\mathrm{Jet1}$")
-    elif 'z_mass' == y:
-        setyaxis((90, 93), "$m_\mathrm{Z}$")
-    elif 'z_eta' == y:
-        setyaxis((-0.3, 0.3), "$\eta_\mathrm{Z}$")
-    elif 'z_mass_ratio' == y:
+    elif 'zmassratio' == y:
         setyaxis((0.98, 1.02), "$m_\mathrm{Z}$ ratio")
-    elif 'datamc_ratio' == y:
+    elif 'datamcratio' == y:
         setyaxis((0.80, 1.10), ratio)
     elif 'cut' in y:
         setyaxis(quantity="Cut Inefficiency")
     elif 'components' == y or 'fraction' in y:
         setyaxis((0, 1), r"Leading Jet Component Fraction")
-    elif 'components_diff' == y:
-        setyaxis((-0.05, 0.05), r"Data-MC of Leading Jet Components")
-    elif 'extrapol' == y:
-        setyaxis((0.86, 1.04), r"Response")
-    elif 'xsec' == y:
-        setyaxis((0, 20), r"$n_\mathrm{Events} / \mathcal{L}$", "pb$^{-1}$")
+    elif y in d:
+        setyaxis((d[y][0], d[y][1]), d[y][2], d[y][3])
     else:
         print "y = " + y + " is not defined and therefore directly written to y-label."
         setyaxis(quantity=y)
         #fail("y = " + y + " not supported. You could use e.g. 'events' if appropriate." )
-
     return ax
         
-def axislabel(ax, q='pt', obj='Z', brackets=False):
-    """label the axes according to the plotted quantity"""
+"""def axislabel(ax, q='pt', obj='Z', brackets=False):
+    #label the axes according to the plotted quantity
     print "plotbase.axislabel is deprecated! Use axislabels instead!"
     # according to quantity q
     def unit(s="", brackets=brackets):
@@ -715,7 +719,7 @@ def axislabel(ax, q='pt', obj='Z', brackets=False):
     def gev():
         return unit("GeV")
     
-        
+    
     # all labels va top ha right x=1 y =1,
     if q == 'pt':
         ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{" + obj + r"} / \mathrm{GeV}$",
@@ -834,7 +838,7 @@ def axislabel(ax, q='pt', obj='Z', brackets=False):
         ax.set_xlim(0, 350)
         ax.set_ylim(bottom=0.0)
         
-    return ax
+    return ax"""
 
 
 def Save(figure, name, opt, alsoInLogScale=False, crop=True):
