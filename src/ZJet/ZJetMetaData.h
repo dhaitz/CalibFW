@@ -182,10 +182,10 @@ public:
 
 
 
-    long GetCutBitmask ( ) const
-    {
-	 	return GetLocalMetaData()->GetCutBitmask();
-    }
+	long GetCutBitmask ( ) const
+	{
+		return GetLocalMetaData()->GetCutBitmask();
+	}
 
 
 	bool IsCutPassed(long cutId) const
@@ -204,6 +204,8 @@ public:
 	}
 
 	double GetMPF(KDataLV * met) const;
+
+	double GetTwoJetBalance(KDataLV * jet1, KDataLV * jet2) const;
 
     IMPL_PROPERTY(bool, ValidZ)
 
