@@ -4,7 +4,6 @@ import copy
 import subprocess
 import glob
 import socket
-#import argparse
 import ConfigParser
 import os.path
 import stat
@@ -22,7 +21,7 @@ def CreateFileList(wildcardExpression, args=None):
 
 def GetDefaultBinning():
     return [30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]
-    
+
 
 def GetDataPath():
     hname = socket.gethostname()

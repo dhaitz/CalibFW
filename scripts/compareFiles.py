@@ -126,6 +126,7 @@ def compareTree(directory1, directory2):
 			if not opt_all:
 				return False
 			result = False
+			continue
 		identified = False
 		if obj.IsA().GetName() == "TDirectoryFile":
 			identified = True
