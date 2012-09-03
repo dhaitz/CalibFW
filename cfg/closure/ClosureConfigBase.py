@@ -178,6 +178,8 @@ def GetVBFBaseConfig():
                            "corr_jet_producer", "jet_sorter_producer"]
 
     d["ThreadCount"] = 1
+    d["GlobalAlgorithms"] = []
+    d["L1Correction"] = "L1FastJet"
     d["Pipelines"] = { "default": {
             "Level": 1,
             "JetAlgorithm": "to_set",
