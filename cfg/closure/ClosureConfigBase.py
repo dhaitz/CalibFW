@@ -15,7 +15,10 @@ def CreateFileList(wildcardExpression, args=None):
     inputfiles = glob.glob(wildcardExpression)
 
     if args is not None and len(args) > 1 and "fast" in args[1]:  # both 'fast' and '--fast' usable
-        inputfiles = inputfiles[-3:]
+        try:
+            inputfiles = inputfiles[-int(args[2]):]
+        except:
+            inputfiles = inputfiles[-3:]
     return inputfiles
 
 
