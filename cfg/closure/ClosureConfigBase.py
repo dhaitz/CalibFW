@@ -491,7 +491,7 @@ def AddMetaDataProducerEasy( pline, producer_name):
     pline["MetaDataProducer"][ consumer["Name"] ] = producer_name
 
 
-def ExpandCutNoCut( pipelineDict):
+def ExpandCutNoCut(pipelineDict):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
@@ -857,7 +857,8 @@ def ReplaceWithQuantitiesBasic(pline):
     AddConsumerNoConfig(pline, "quantities_basic")
 
 
-def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning(), onlyBasicQuantities=False, 		expandptbins=True ):
+def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
+        binning=GetDefaultBinning(), onlyBasicQuantities=False, expandptbins=True):
     conf = copy.deepcopy(conf_template)
 
     # get globalalgorithms
@@ -877,19 +878,15 @@ def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefi
     # generate pipelines for all algorithms
     for algo in algoNames:
         for p, pval in conf["Pipelines"].items():
-
             pline = copy.deepcopy( pval )
             pline["JetAlgorithm"] = algo
-            algoPipelines[ p + "_" +  algo  ] = pline
+            algoPipelines[p + "_" + algo] = pline
 
-    conf["Pipelines"] = algoPipelines
-
-    #conf["Pipelines"]["default"]["CustomBins"] = ptBins
-    conf["Pipelines"] = ExpandCutNoCut( conf["Pipelines"] )
+    conf["Pipelines"] = ExpandCutNoCut(algoPipelines)
 
     # create pipelines for all bins
     if expandptbins:
-        conf["Pipelines"] = ExpandPtBins(  conf["Pipelines"], binning, True )
+        conf["Pipelines"] = ExpandPtBins(conf["Pipelines"], binning, True)
 
     #set the folder name
     for p, pval in conf["Pipelines"].items():
@@ -903,7 +900,7 @@ def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefi
             ptVal = ptVal + "_incut"
 
             if not ptVal == "NoBinning_incut":
-                if onlyBasicQuantities: ReplaceWithQuantitiesBasic ( pval )
+                if onlyBasicQuantities: ReplaceWithQuantitiesBasic(pval)
         else:
             ptVal = ptVal + "_allevents"
 
@@ -943,12 +940,6 @@ def ExpandDefaultMcConfig(algoNames, conf_template, useFolders=True, FolderPrefi
 
 #        conf["Pipelines"][pipename] =  secpline
 
-    return conf
-
-
-
-def ExpandDefaultDataConfig(algoNames, conf_template, useFolders=True, FolderPrefix="", binning=GetDefaultBinning(), onlyBasicQuantities=False, 	expandptbins=True):
-    conf = ExpandDefaultMcConfig(algoNames, conf_template, useFolders, FolderPrefix, binning, onlyBasicQuantities, expandptbins)
     return conf
 
 

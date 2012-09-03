@@ -9,7 +9,7 @@ algorithms = ["AK5PFJets", "AK5PFJetsL1L2L3"]
 cbase.addCHS(algorithms)
 base_algorithms = ["AK5PFJets", "AK5PFJetsCHS"]
 
-conf = cbase.ExpandDefaultMcConfig(algorithms, conf)
+conf = cbase.ExpandConfig(algorithms, conf)
 cbase.ApplyPUReweighting(conf, "kappa44_MC11_powheg_160404-180252_7TeV_ReRecoNov08")
 cbase.Apply2ndJetReweighting(conf)
 

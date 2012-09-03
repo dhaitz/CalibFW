@@ -9,7 +9,7 @@ algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2L3", "AK5PFJetsL1L2L3Res
 cbase.addCHS(algorithms)
 base_algorithms = ["AK5PFJets", "AK5PFJetsCHS"]
 
-conf = cbase.ExpandDefaultDataConfig(algorithms, conf)
+conf = cbase.ExpandConfig(algorithms, conf)
 
 # create various variations ...
 variations = []
