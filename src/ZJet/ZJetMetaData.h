@@ -18,8 +18,8 @@ namespace CalibFW
 
 class ZJetLocalMetaData : public boost::noncopyable
 {
-public: 
-	ZJetLocalMetaData() : m_CutBitmask(0) { }
+public:
+	ZJetLocalMetaData(): m_CutBitmask(0) {}
 
 	// cutPassed is true, if the event was not dropped by the cut
 	void SetCutResult(long cutId, bool cutPassed)
@@ -38,7 +38,7 @@ public:
 		return m_CutBitmask;
 	}
 
-private: 
+private:
 	long m_CutBitmask;
 
 };
@@ -53,45 +53,44 @@ public:
 		ClearContent();
 	}
 
-	typedef ZJetLocalMetaData LocalMetaDataType; 
+	typedef ZJetLocalMetaData LocalMetaDataType;
 
 	void ClearContent();
 
-	void SetLocalMetaData( LocalMetaDataType * pipelineMetaData )
+	void SetLocalMetaData(LocalMetaDataType * pipelineMetaData)
 	{
-		assert ( pipelineMetaData != NULL );
+		assert(pipelineMetaData != NULL);
 		m_pipelineMetaData = pipelineMetaData;
 	}
 
 	// holds pipeline specific metadata
 	LocalMetaDataType * GetLocalMetaData() const
 	{
-		assert ( m_pipelineMetaData != NULL );
+		assert(m_pipelineMetaData != NULL);
 		return m_pipelineMetaData;
 	}
 
 	std::string GetContent() const;
 
 
+	KEventMetadata * GetKappaMetaData(ZJetEventData const& evtData,
+			ZJetPipelineSettings const& psettings) const;
 
-	KEventMetadata * GetKappaMetaData( ZJetEventData const& evtData, ZJetPipelineSettings const& psettings )
-			const;
-
-	bool IsMetaJetAlgo ( std::string const& algoName ) const
+	bool IsMetaJetAlgo(std::string const& algoName) const
 	{
-		return ( m_validPFJets.find( algoName ) != m_validPFJets.end() );
+		return (m_validPFJets.find(algoName) != m_validPFJets.end());
 	}
 
 
-	void AddValidJet( KDataPFJet const& jet, std::string algoName)
+	void AddValidJet(KDataPFJet const& jet, std::string algoName)
 	{
-		m_validPFJets[algoName].push_back( jet );
+		m_validPFJets[algoName].push_back(jet);
 	}
 
 
-	std::vector< KDataPFJet > & GetPFValidJetCollection( std::string const& algoName )
+	std::vector<KDataPFJet> & GetPFValidJetCollection(std::string const& algoName)
 	{
-		return m_validPFJets.at( algoName );
+		return m_validPFJets.at(algoName);
 	}
 
 	// ## ACCESS TO VALID JETS
@@ -103,57 +102,57 @@ public:
 			ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData) const
 	{
-		return GetValidJetCount( psettings, evtData, psettings.GetJetAlgorithm());
+		return GetValidJetCount(psettings, evtData, psettings.GetJetAlgorithm());
 	}
 
-	KDataLV * GetValidJet( ZJetPipelineSettings const& psettings,
+	KDataLV * GetValidJet(ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData,
 			unsigned int index,
 			std::string algoName) const;
 
-	KDataLV * GetValidPrimaryJet( ZJetPipelineSettings const& psettings,
+	KDataLV * GetValidPrimaryJet(ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData) const
 	{
-		return GetValidJet( psettings, evtData, 0);
+		return GetValidJet(psettings, evtData, 0);
 	}
 
-	KDataLV * GetValidJet( ZJetPipelineSettings const& psettings,
+	KDataLV * GetValidJet(ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData,
 			unsigned int index) const
 	{
-		return GetValidJet( psettings,
+		return GetValidJet(psettings,
 				evtData,
 				index,
-				psettings.GetJetAlgorithm()) ;
+				psettings.GetJetAlgorithm());
 	}
 
 	// ## ACCESS TO INVALID JETS
 
-	KDataLV * GetInvalidJet( ZJetPipelineSettings const& psettings,
+	KDataLV * GetInvalidJet(ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData,
 			unsigned int index,
 			std::string algoName) const;
 
-	KDataLV * GetInvalidJet( ZJetPipelineSettings const& psettings,
+	KDataLV * GetInvalidJet(ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData,
 			unsigned int index) const
 	{
-		return GetInvalidJet( psettings,
+		return GetInvalidJet(psettings,
 				evtData,
 				index,
-				psettings.GetJetAlgorithm()) ;
+				psettings.GetJetAlgorithm());
 	}
 
 	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData, std::string algoName) const
 	{
-		return this->m_listInvalidJets[ algoName ].size();
+		return this->m_listInvalidJets[algoName].size();
 	}
 
 	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData ) const
+			ZJetEventData const& evtData) const
 	{
-		return GetInvalidJetCount( psettings, evtData, psettings.GetJetAlgorithm() );
+		return GetInvalidJetCount(psettings, evtData, psettings.GetJetAlgorithm());
 	}
 
 
@@ -163,9 +162,9 @@ public:
 		return this->GetValidZ();
 	}
 
-	bool HasValidJet(ZJetPipelineSettings const& psettings , ZJetEventData const& evtData) const
+	bool HasValidJet(ZJetPipelineSettings const& psettings, ZJetEventData const& evtData) const
 	{
-		return GetValidJetCount(psettings, evtData ) > 0;
+		return GetValidJetCount(psettings, evtData) > 0;
 	}
 
 	bool IsAllCutsPassed() const
@@ -175,7 +174,7 @@ public:
 
 
 
-	long GetCutBitmask ( ) const
+	long GetCutBitmask() const
 	{
 		return GetLocalMetaData()->GetCutBitmask();
 	}
@@ -220,9 +219,9 @@ public:
 		return m_listInvalidMuons;
 	}
 
-	void InitMetaJetCollection( std::string algoname)
+	void InitMetaJetCollection(std::string algoname)
 	{
-		m_validPFJets[ algoname ] = std::vector< KDataPFJet >();
+		m_validPFJets[algoname] = std::vector<KDataPFJet>();
 	}
 
 	void SortJetCollections();
@@ -231,25 +230,24 @@ public:
 	KDataMuons m_listInvalidMuons;
 
 
-	typedef  boost::ptr_map < std::string , std::vector<unsigned int> >  JetMapping ;
-	typedef  JetMapping::iterator  JetMappingIterator ;
+	typedef boost::ptr_map<std::string, std::vector<unsigned int> > JetMapping;
+	typedef JetMapping::iterator JetMappingIterator;
 
 	mutable JetMapping m_listValidJets;
 	mutable JetMapping m_listInvalidJets;
 
 	// create a complete copy of the jet collections ??
-	typedef boost::ptr_map < std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
+	typedef boost::ptr_map<std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
 	mutable MetaPFJetContainer m_validPFJets;
 
 	// Jet Matching Result
-	typedef boost::ptr_map< std::string , std::vector<int> > MatchingResults;
+	typedef boost::ptr_map<std::string, std::vector<int> > MatchingResults;
 	MatchingResults m_matchingResults;
 
 	HLTTools * m_hltInfo;
 
-    // holds pipeline specific metadata of the current pipeline
-    LocalMetaDataType * m_pipelineMetaData;
+	// holds pipeline specific metadata of the current pipeline
+	LocalMetaDataType * m_pipelineMetaData;
 };
-
 
 }

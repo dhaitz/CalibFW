@@ -1,35 +1,28 @@
-/*
+/** The main program Closure
 
- CalibFW resp_cuts.cpp:
+    HOWTO: Add a new Plot:
 
- HOWTO:
+    1. in DrawBase.h
+    Use the IMPL_HIST2D_MOD1 to generate a Consumer class which plots a
+    histogramm. If your plotting requirement is more complex, derive from the
+    class DrawHist1dConsumerBase<EventResult> (for 1d Histo) and implement
+    ProcessFilteredEvent.
 
- # Add a new Plot:
+    2. CreateDefaultPipeline
+    Use the PLOT_HIST2D macro to add your histogram the default plotting
+    pipeline and give a name which is used to store the histo in the root file.
 
- - DrawBase.h
- 1) Use the IMPL_HIST2D_MOD1 to generate a Consumer class which plots a histogramm. If your plotting requirement is
- more complex, derive from the class DrawHist1dConsumerBase<EventResult> (for 1d Histo) and implement
- ProcessFilteredEvent.
-
- - resp_cuts.h: CreateDefaultPipeline
- 2) Use the PLOT_HIST2D macro to add your histogram the default plotting pipeline and give a name which is used to store
- the histo in the root file.
-
- > done
- */
+    done
+*/
 
 
 #include "RootTools/RootIncludes.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <execinfo.h>
 #include <signal.h>
-
-
 #include <math.h>
-
 #include <vector>
 #include <set>
 #include <map>
@@ -42,37 +35,22 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/smart_ptr/scoped_ptr.hpp>
 #include <boost/algorithm/string.hpp>
-
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-
-
 
 
 #ifdef USE_PERFTOOLS
 #include <google/profiler.h>
 #endif
 //#include <google/heap-profiler.h>
-
-
 //#include "Toolbox/libToolbox.h"
 //#include "RootTools/libKRootTools.h"
 
 #include "Misc/OpenMP-Support.h"
 
-/*
- #include <iostream>
- #include <hash_map>
- */
-//#include "Json_wrapper.h"
-
 #include "Pipeline/JetTools.h"
-
 #include "ZJet/ZJetPipeline.h"
-
 #include "ZJet/ZJetEventProvider.h"
-
-
 #include "ZJet/Consumer/GenericProfileConsumer.h"
 #include "ZJet/Consumer/ZJetDrawConsumer.h"
 #include "ZJet/MetaDataProducer/ZJetMetaDataProducer.h"
@@ -82,11 +60,9 @@
 #include "ZJet/MetaDataProducer/JetSorter.h"
 #include "ZJet/MetaDataProducer/HltSelector.h"
 #include "ZJet/MetaDataProducer/JetMatcher.h"
-
+#include "ZJet/ZJetPipelineInitializer.h"
 
 #include "KappaTools/RootTools/HLTTools.h"
-
-#include "ZJet/ZJetPipelineInitializer.h"
 #include "Pipeline/EventPipelineRunner.h"
 
 using namespace CalibFW;
@@ -119,8 +95,8 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 		boost::property_tree::ptree & globalSettings)
 {
 	// extend here, if you want to provide a new global meta producer
-	for ( std::vector< std::string >::const_iterator it = producer.begin();
-			it != producer.end(); ++ it )
+	for (std::vector<std::string>::const_iterator it = producer.begin();
+			it != producer.end(); ++it)
 	{
 		if ( ValidMuonProducer::Name() == (*it) )
 			runner.AddGlobalMetaProducer( new ValidMuonProducer());
@@ -140,7 +116,7 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 		else if ( HltSelector::Name() == (*it))
 			runner.AddGlobalMetaProducer( new HltSelector( PropertyTreeSupport::GetAsStringList( &globalSettings, "HltPaths", true ) ));
 		else if ( JetMatcher::Name() == (*it))
-                         runner.AddGlobalMetaProducer( new JetMatcher(PropertyTreeSupport::GetAsStringList(&globalSettings,"GlobalAlgorithms")) );
+			runner.AddGlobalMetaProducer( new JetMatcher(PropertyTreeSupport::GetAsStringList(&globalSettings,"GlobalAlgorithms")) );
 		else
 			CALIB_LOG_FATAL( "Global MetaData producer of name " << (*it) << " not found")
 	}
@@ -166,11 +142,10 @@ int main(int argc, char** argv)
 	// did not work
 	//signal(SIGSEGV, handler);   // install our handler
 
-
 	if (argc < 2)
 	{
 		std::cerr << "Usage: " << argv[0]
-			  << " json_config_file.json [VerboseLevel]\n";
+			<< " json_config_file.json [VerboseLevel]\n";
 		return 1;
 	}
 
@@ -185,27 +160,24 @@ int main(int argc, char** argv)
 
 	// hast GC the file list ?
 	char * pPath;
-	pPath = getenv ("FILE_NAMES");
-	if (pPath!=NULL)
+	pPath = getenv("FILE_NAMES");
+	if (pPath != NULL)
 	{
-		boost::split( g_sourcefiles, pPath, boost::is_any_of(" "), boost::token_compress_on );
+		boost::split(g_sourcefiles, pPath, boost::is_any_of(" "), boost::token_compress_on);
 		// SplitVec == { "hello abc","ABC","aBc goodbye" }
 	}
 	else
 	{
-		CALIB_LOG_FILE("Getting file list from env-variable FILE_NAMES" )
-		g_sourcefiles = PropertyTreeSupport::GetAsStringList(&g_propTree,
-			"InputFiles");
+		g_sourcefiles = PropertyTreeSupport::GetAsStringList(&g_propTree, "InputFiles");
+		CALIB_LOG_FILE("Loading " << g_sourcefiles.size() << " input files.")
 
 		if (g_sourcefiles.size() == 0)
-		{
 			CALIB_LOG_FATAL("No Kappa input files specified")
-		}
 
-		BOOST_FOREACH(std::string s, g_sourcefiles)
-		{
-			CALIB_LOG_FILE("Input File " << s)
-		}
+//		BOOST_FOREACH(std::string s, g_sourcefiles)
+//		{
+//			CALIB_LOG_FILE("Input File " << s)
+//		}
 	}
 	FileInterface finterface(g_sourcefiles);
 
@@ -255,17 +227,17 @@ int main(int argc, char** argv)
 			g_propTree.get_child("Pipelines") )
 	{
 		pset = new ZJetPipelineSettings();
-		pset->SetPropTree( &g_propTree );
+		pset->SetPropTree(&g_propTree);
 
 		std::string sKeyName = v.first.data();
 		pset->SetSettingsRoot("Pipelines." + sKeyName);
 		pset->SetRootOutFile(g_resFile);
 
-		g_pipeSettings.push_back( pset );
+		g_pipeSettings.push_back(pset);
 	}
 
 	// get pointers to the interesting collections
-	typedef std::map<std::string, KDataPFJets * > PfMap;
+	typedef std::map<std::string, KDataPFJets*> PfMap;
 	PfMap pfJets;
 
 	stringvector globalProducer = PropertyTreeSupport::GetAsStringList(&g_propTree,
@@ -273,10 +245,10 @@ int main(int argc, char** argv)
 
 	AddGlobalMetaProducer( globalProducer, pRunner, g_propTree );
 
-	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
-			== g_pipeSettings.end()); it++)
+	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin();
+			it != g_pipeSettings.end(); it++)
 	{
-		(*it)->m_globalSettings = & gset;
+		(*it)->m_globalSettings = &gset;
 
 		if ((*it)->GetLevel() == 1)
 		{
@@ -325,7 +297,6 @@ int main(int argc, char** argv)
 
 	CALIB_LOG_FILE("Output file " << sRootOutputFilename << " closed.")
 
-	// todo this delete produces seg fault
 	delete g_logFile;
 
 	return 0;
