@@ -276,6 +276,7 @@ def nicetext(s):
     elif s == 'npv': return 'NPV'
     elif s == 'alpha': return r"$\alpha$"
     elif s == 'balresp': return r"$p_\mathrm{T}$ balance"
+    elif s == 'baltwojet': return r"$two-jet balance"
     elif s == 'mpfresp': return "MPF response"
     elif s == 'sumEt': return r"$\sum E^\mathrm{T}$"
     elif s == 'METsumEt': return r"Total transverse energy $\sum E^\mathrm{T}$"
@@ -585,6 +586,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
 
 	'abseta':[0.0, 3.6, r"$|\eta^\mathrm{%s}|$", ""],
 	'balresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
+	'baltwojet':[0.0, 2.0, r"two-jet balance", ""],
 	'mpfresp':[0.3, 1.8, r"$R_\mathrm{MPF}$", ""],
 	'numputruth':[0, 35, r"Pile-up Truth (Poisson mean)", ""],
 	'numpu':[0, 35, r"Number of Primary Vertices", ""],

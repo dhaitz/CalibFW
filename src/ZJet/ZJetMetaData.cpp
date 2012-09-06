@@ -135,7 +135,7 @@ double ZJetMetaData::GetMPF(KDataLV * met) const
 
 double ZJetMetaData::GetTwoJetBalance(KDataLV * jet1, KDataLV * jet2) const
 {
-	return (jet1->p4.Pt() + jet2->p4.Pt()) / GetRefZ().p4.Pt();
+	return (jet1->p4 + jet2->p4).Pt() / GetRefZ().p4.Pt();
 }
 
 bool cmpPFJetPt (KDataPFJet i,KDataPFJet j)

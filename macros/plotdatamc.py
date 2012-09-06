@@ -52,7 +52,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
         # add fits for time dependence plots
         if 'run' in quantity:
             # add a horizontal line at unity for jet response plots
-            if 'resp' in quantity: ax.axhline(1.0, color="black", linestyle='--')
+            if 'resp' or 'twojet' in quantity: ax.axhline(1.0, color="black", linestyle='--')
 
             # add a vertical line at run 195530 (end of ReReco)
             ax.axvline(195535.0, color="black", linestyle=':')
@@ -75,7 +75,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
             
 
     # Jet response plots: add vertical lines for mean and mean error to see data/MC agreement
-    if quantity in ['balresp', 'mpfresp'] and 'Gen' not in change['algorithm']:
+    if quantity in ['balresp', 'mpfresp', 'bal_twojet'] and 'Gen' not in change['algorithm']:
         ax.axvline(datamc[0].mean, color='black', linestyle='-')
         ax.axvspan(datamc[0].mean-datamc[0].meanerr, datamc[0].mean+datamc[0].meanerr, color='black', alpha=0.1)
         ax.text(0.97, 0.97, r"$%s = %1.3f\pm%1.3f$" % (opt.labels[0], datamc[0].mean, datamc[0].meanerr),
@@ -530,6 +530,10 @@ def balresp(datamc, opt):
 
 def mpfresp(datamc, opt):
     datamcplot('mpfresp', datamc, opt)
+
+
+def tworesp(datamc, opt):
+    datamcplot('bal_twojet', datamc, opt, 'lower right')
 
 
 def balresp_bins(datamc, opt):
