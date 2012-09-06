@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <boost/noncopyable.hpp>
@@ -20,31 +19,27 @@ namespace CalibFW
 class ZJetLocalMetaData : public boost::noncopyable
 {
 public: 
-    ZJetLocalMetaData() : m_CutBitmask ( 0 )
-    {
-    }    
+	ZJetLocalMetaData() : m_CutBitmask(0) { }
 
 	// cutPassed is true, if the event was not dropped by the cut
 	void SetCutResult(long cutId, bool cutPassed)
 	{
 		// ensure the bit is removed if it was set before
-		this->SetCutBitmask(((!cutPassed) * cutId) | (GetCutBitmask()
-				& (~cutId)));
+		this->SetCutBitmask((!cutPassed * cutId) | (GetCutBitmask() & ~cutId));
 	}
 
-    void SetCutBitmask ( long val )
-    {
-        m_CutBitmask = val;
-    }
+	void SetCutBitmask(long val)
+	{
+		m_CutBitmask = val;
+	}
 
-    long GetCutBitmask () const 
-    {
-        return m_CutBitmask;
-    }
+	long GetCutBitmask() const
+	{
+		return m_CutBitmask;
+	}
 
 private: 
-    long m_CutBitmask;
-
+	long m_CutBitmask;
 
 };
 
@@ -58,26 +53,24 @@ public:
 		ClearContent();
 	}
 
-    typedef ZJetLocalMetaData LocalMetaDataType; 
+	typedef ZJetLocalMetaData LocalMetaDataType; 
 
 	void ClearContent();
 
-    void SetLocalMetaData( LocalMetaDataType * pipelineMetaData )
-    {
-        assert ( pipelineMetaData != NULL );
-        m_pipelineMetaData = pipelineMetaData;
-    }
-    
-    // holds pipeline specific metadata
-    LocalMetaDataType * GetLocalMetaData() const
-    {
-        assert ( m_pipelineMetaData != NULL );
-        return m_pipelineMetaData;
-    }
+	void SetLocalMetaData( LocalMetaDataType * pipelineMetaData )
+	{
+		assert ( pipelineMetaData != NULL );
+		m_pipelineMetaData = pipelineMetaData;
+	}
+
+	// holds pipeline specific metadata
+	LocalMetaDataType * GetLocalMetaData() const
+	{
+		assert ( m_pipelineMetaData != NULL );
+		return m_pipelineMetaData;
+	}
 
 	std::string GetContent() const;
-
-
 
 
 
@@ -98,10 +91,10 @@ public:
 
 	std::vector< KDataPFJet > & GetPFValidJetCollection( std::string const& algoName )
 	{
-        return m_validPFJets.at( algoName );
+		return m_validPFJets.at( algoName );
 	}
 
-    // ## ACCESS TO VALID JETS
+	// ## ACCESS TO VALID JETS
 	unsigned int GetValidJetCount(
 			ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData, std::string algoName) const;
@@ -134,7 +127,7 @@ public:
 				psettings.GetJetAlgorithm()) ;
 	}
 
-    // ## ACCESS TO INVALID JETS
+	// ## ACCESS TO INVALID JETS
 
 	KDataLV * GetInvalidJet( ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData,
@@ -211,11 +204,11 @@ public:
 
 	IMPL_PROPERTY(bool, ValidZ)
 
-    IMPL_PROPERTY(KDataLV, Z)
+	IMPL_PROPERTY(KDataLV, Z)
 
-    IMPL_PROPERTY(double, Weight)
+	IMPL_PROPERTY(double, Weight)
 
-    IMPL_PROPERTY(std::string, SelectedHlt)
+	IMPL_PROPERTY(std::string, SelectedHlt)
 
 	KDataMuons const& GetValidMuons() const
 	{
@@ -248,7 +241,7 @@ public:
 	typedef boost::ptr_map < std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
 	mutable MetaPFJetContainer m_validPFJets;
 
-    // Jet Matching Result
+	// Jet Matching Result
 	typedef boost::ptr_map< std::string , std::vector<int> > MatchingResults;
 	MatchingResults m_matchingResults;
 
@@ -257,5 +250,6 @@ public:
     // holds pipeline specific metadata of the current pipeline
     LocalMetaDataType * m_pipelineMetaData;
 };
+
 
 }
