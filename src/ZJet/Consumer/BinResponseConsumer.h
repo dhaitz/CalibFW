@@ -37,7 +37,7 @@ namespace CalibFW
 class BinResponseConsumer: public ZJetMetaConsumer
 {
 public:
-	enum {MpfResponse, BalResponse, TwoJetResponse} m_respType;
+	enum {MpfResponse, BalResponse, TwoJetResponse, Zeppenfeld} m_respType;
 
 	BinResponseConsumer(boost::property_tree::ptree * ptree, std::string configPath):
 			ZJetMetaConsumer(), m_useGenJet(false), m_useGenJetAsReference(false)
@@ -45,7 +45,7 @@ public:
 	/*
 	"Name" : "response_balance",
 	"ProductName" : "binresp",
-	"ResponseType": "bal"|"mpf"|"two",
+	"ResponseType": "bal"|"mpf"|"two"|"z",
 	"JetNumber" : 1 to n
 	*/
 		m_jetnum = ptree->get<unsigned int>(configPath + ".JetNumber", 1) -1;
@@ -57,6 +57,8 @@ public:
 			m_respType = MpfResponse;
 		else if (ptree->get<std::string>(configPath + ".ResponseType") == "two")
 			m_respType = TwoJetResponse;
+		else if (ptree->get<std::string>(configPath + ".ResponseType") == "z")
+			m_respType = Zeppenfeld;
 		else
 		{
 			CALIB_LOG_FATAL("Unknown Response type " + ptree->get<std::string>(configPath + ".ResponseType"));
@@ -164,6 +166,21 @@ public:
 			assert(jet0 != NULL);
 			assert(jet1 != NULL);
 			m_resp->Fill(metaData.GetTwoJetBalance(jet0, jet1), metaData.GetWeight());
+		}
+
+		if (m_respType == Zeppenfeld)
+		{
+			// todo: get GenTwoJet
+			if (metaData.GetValidJetCount(this->GetPipelineSettings(), event) < 3)
+				// not enough jets for us here
+				return;
+			KDataLV * jet0 = metaData.GetValidJet(this->GetPipelineSettings(), event, 0);
+			KDataLV * jet1 = metaData.GetValidJet(this->GetPipelineSettings(), event, 1);
+			KDataLV * jet2 = metaData.GetValidJet(this->GetPipelineSettings(), event, 2);
+			assert(jet0 != NULL);
+			assert(jet1 != NULL);
+			assert(jet2 != NULL);
+			m_resp->Fill(metaData.GetZeppenfeld(jet0, jet1, jet2), metaData.GetWeight());
 		}
 	}
 

@@ -1,5 +1,6 @@
 #include <sstream>
 #include <algorithm>
+#include <cmath>
 
 #include "ZJetMetaData.h"
 #include "Pipeline/JetTools.h"
@@ -143,6 +144,13 @@ bool cmpPFJetPt (KDataPFJet i,KDataPFJet j)
 	return (i.p4.Pt()<j.p4.Pt());
 }
 
+double ZJetMetaData::GetZeppenfeld(KDataLV * jet1, KDataLV * jet2, KDataLV * jet3) const
+{
+	double eta1 = jet1->p4.Eta();
+	double eta2 = jet2->p4.Eta();
+	double eta3 = jet3->p4.Eta();
+	return std::abs((2.0 * eta3 - eta1 - eta2) / (eta1 - eta2));
+}
 
 void ZJetMetaData::SortJetCollections()
 {

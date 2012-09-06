@@ -207,7 +207,9 @@ public:
 
 	double GetTwoJetBalance(KDataLV * jet1, KDataLV * jet2) const;
 
-    IMPL_PROPERTY(bool, ValidZ)
+	double GetZeppenfeld(KDataLV * jet1, KDataLV * jet2, KDataLV * jet3) const;
+
+	IMPL_PROPERTY(bool, ValidZ)
 
     IMPL_PROPERTY(KDataLV, Z)
 
