@@ -160,7 +160,7 @@ def draw_extrapolation(graph, fit, ptbin, opt):
     plotbase.Save(fig, graph.name, opt, False)
 
 
-def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ratio', over='z_pt'):
+def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ratio', over='zpt'):
     """The extrapolation
 
        This is using fillgraph, fitextrapolation and draw_extra
@@ -173,9 +173,9 @@ def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ra
         TODO: for npv, eta etc.
     """
     ch = copy.deepcopy(changes)
-    if over == 'z_pt':
+    if over == 'zpt':
         ch['bin'] = bin
-    elif over in ['npv', 'jet1_eta']:
+    elif over in ['npv', 'jet1eta']:
         ch['var'] = bin
     print "extrapolate", source, "...", ch
     if f2 is None or source == 'ratio':
@@ -236,10 +236,10 @@ def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw
     
     graph = getroot.getgraphratio(over, method, f1, f2, opt, changes, absmean=(over=='jet1_eta'))
     if extrapol:
-        if over == 'z_pt':
+        if over == 'zpt':
             bins = getroot.binstrings(opt.bins)
             #bins.pop(0)
-        elif over == 'jet1_eta':
+        elif over == 'jet1eta':
             bins = getroot.etastrings(opt.eta)
         elif over == 'npv':
             bins = getroot.npvstrings(opt.npv)
@@ -250,20 +250,33 @@ def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw
             exit(0)
         for i in range(len(bins)):
             x, y, dx, dy = getroot.getgraphpoint(graph, i)
-            print x
             y, dy = extrapolatebin(method, bins[i], changes, opt, f1, f2, source=extrapol, draw=draw, over=over)
             graph.SetPoint(i, x, y)
             graph.SetPointError(i, dx, dy)
     return graph
 
 
+def plotbinborders(ax, quantity, y, opt):
+    if quantity == 'jet1eta':
+        l_borders = opt.eta[:-1]
+        r_borders = opt.eta[1:]
+    elif quantity == 'npv':
+        l_borders = [bin[0]-0.5 for bin in opt.npv]
+        r_borders = bins1 = [bin[1]+0.5 for bin in opt.npv]
+    else:
+        l_borders = opt.bins[:-1]
+        r_borders = opt.bins[1:]
+    for l_border, r_border, y in zip(l_borders, r_borders, y): 
+        ax.add_line(plotbase.matplotlib.lines.Line2D((l_border,r_border), (y,y), color='black', alpha=0.1))
+
 def responseplot(files, opt, types, labels=None,
-                 colors=["FireBrick", 'blue', 'green', 'red']*7,
-                 markers=['o', '*', 's']*8,
-                 over='z_pt',
+                 colors=['blue', 'maroon', 'green', 'red']*7,
+                 markers=['o', 'x', 'o']*8,
+                 over='zpt',
                  binborders=False,
                  figaxes = None,
                  drawextrapolation=False,
+                 legloc='lower left',
                  changes = {},
                  subtext = "",
                  subplot = False):
@@ -274,6 +287,7 @@ def responseplot(files, opt, types, labels=None,
     ax=figaxes[1]
     if labels is None:
         labels = types
+    labels = [string.replace("mpf", "MPF").replace("bal","Balance") for string in labels]
     for t, l, m, c in zip(types, labels, markers, colors):
         extrapolation = False
         if t == 'RecoGen':
@@ -286,18 +300,26 @@ def responseplot(files, opt, types, labels=None,
         if 'Gen' not in t:
             plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[0], None, changes, extrapolation))
             ax.errorbar(plot.x, plot.y, plot.yerr, color='black', fmt=m, label=l+" ("+opt.labels[0]+")")
+            plotbinborders(ax, over, plot.y, opt)
         if extrapolation == 'data':
             extrapolation = 'mc'
-        plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[1], None, changes, extrapolation))
-        if l == 'RecoGen': l = "Reco/Gen"
-        else: l = l+" ("+opt.labels[1]+")"
-        ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
+
+        if (len(files)>1 and len(types)<2):
+            for f, label, color, mark in zip(files[1:], opt.labels[1:], colors, markers[1:]):
+                plot = getroot.root2histo(getresponse(t+'resp', over, opt, f, None, changes, extrapolation))
+                ax.errorbar(plot.x, plot.y, plot.yerr, color=color, fmt=mark, label=l+" ("+label+")")
+        else:
+            plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[1], None, changes, extrapolation))
+            if l == 'RecoGen': l = "Reco/Gen"
+            else: l = l+" ("+opt.labels[1]+")"
+            ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
+            plotbinborders(ax, over, plot.y, opt)
 
     # format plot
     ax.axhline(1.0, color="black", linestyle='--')
-    plotbase.labels(ax, opt, jet=True, sub_plot=subplot, changes=changes)
-    if over == 'jet1_eta':
-        plotbase.axislabels(ax, "abs_"+over, 'response')
+    plotbase.labels(ax, opt, legloc=legloc, jet=True, sub_plot=subplot, changes=changes)
+    if over == 'jet1eta':
+        plotbase.axislabels(ax, 'jet1abseta', 'response')
     else:
         plotbase.axislabels(ax, over, 'response')
     if subtext is not 'None':
@@ -327,13 +349,15 @@ def responseplot(files, opt, types, labels=None,
 def ratioplot(files, opt, types, labels=None,
                  colors=["FireBrick", 'blue', 'green', 'red']*7,
                  markers=['o', '*', 's']*8,
-                 over='z_pt',
+                 over='zpt',
                  binborders=False,
                  drawextrapolation=False,
                  figaxes = None,
                  fit=True,
+                 legloc='lower left',
                  changes = {},
                  subtext = "",
+                 ratiosubplot=False,
                  subplot = False):
     """type: bal|mpf[ratio|seperate]
     """
@@ -351,21 +375,25 @@ def ratioplot(files, opt, types, labels=None,
         rgraph = getresponse(t[:3]+'resp', over, opt, files[0], files[1], changes, extrapol=t[3:], draw=False)
         if fit:
             line, err, chi2, ndf = getroot.fitline(rgraph)
-            ax.text(0.95, 0.65+0.07*colors.index(c), r"$R = {0:.3f} \pm {1:.3f}$ ".format(line, err),
-                va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=16)
-            ax.text(0.95, 0.2+0.07*colors.index(c), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
-                va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=16)
+            ax.text(0.97, 0.45+0.07*colors.index(c), r"R = {0:.3f} $\pm$ {1:.3f}".format(line, err),
+                va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=14)
+            ax.text(0.97, 0.2+0.07*colors.index(c), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f}".format(chi2, ndf),
+                va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=14)
             ax.axhline(line, color=c)
             ax.axhspan(line-err, line+err, color=c, alpha=0.2)
         plot = getroot.root2histo(rgraph)
         ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
+        plotbinborders(ax, over, plot.y, opt)
 
     # format plot
-    plotbase.labels(ax, opt, jet=True, legloc='lower left', sub_plot=subplot, changes=changes)
-    if over == 'jet1_eta':
-        plotbase.axislabels(ax, "abs_"+over, 'responseratio')
+    plotbase.labels(ax, opt, jet=True, legloc='lower left', sub_plot=subplot, changes=changes, ratiosubplot=ratiosubplot)
+    if ratiosubplot: label = 'datamcratio'
+    else: label = 'responseratio'
+
+    if over == 'jet1eta':
+        plotbase.axislabels(ax, 'jet1abseta', label)
     else:
-        plotbase.axislabels(ax, over, 'responseratio')
+        plotbase.axislabels(ax, over, label)
 
     if subtext is not 'None':
         ax.text(-0.04, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
@@ -395,7 +423,7 @@ def ratioplot(files, opt, types, labels=None,
 def plotkfsr(files, opt, method='balresp', label=None,
                  colors=["FireBrick", 'blue', 'green', 'orange']*7,
                  markers=['o', 'D', 's']*8,
-                 over='z_pt',
+                 over='zpt',
                  binborders=False,
                  drawextrapolation=False,
                  fit=True):
@@ -411,7 +439,7 @@ def plotkfsr(files, opt, method='balresp', label=None,
             line, err, chi2, ndf = getroot.fitline(grK)
             ax.text(0.1, 0.27+0.07*0, r"$k_\mathrm{{FSR}} = {0:.3f} \pm {1:.3f}$ ".format(line, err),
                 va='bottom', ha='left', color=colors[0], transform=ax.transAxes, fontsize=16)
-            ax.text(0.1, 0.2+0.07*0, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
+            ax.text(0.1, 0.2+0.07*0, r"$\mathrm{\chi^2}$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
                 va='bottom', ha='left', color=colors[0], transform=ax.transAxes, fontsize=16)
             ax.axhline(line, color=colors[0])
             ax.axhspan(line-err, line+err, color=colors[0], alpha=0.2)
@@ -421,12 +449,13 @@ def plotkfsr(files, opt, method='balresp', label=None,
 
 
     # format plot
-    if over == 'jet1_eta':
-        pre = "abs_"
+    if over == 'jet1eta':
+        over_name = "jet1abseta"
     else:
-        pre = ""
+        over_name=over
+
     plotbase.labels(ax, opt, jet=True, legloc='lower left')
-    plotbase.axislabels(ax, pre+over, 'kfsrratio')
+    plotbase.axislabels(ax, over_name, 'kfsrratio')
 
     file_name = "kfsr_" + "_".join([method])
     file_name += "_"+over+"_" + opt.algorithm + opt.correction
@@ -450,7 +479,7 @@ def plot_all(files, opt, plottype='response'):
        plottype can either be response or ratio
        Each plot contains several subplots for the different algorithms/ correction levels."""
 
-    over = ['z_pt', 'npv', 'jet1_eta', 'alpha']
+    over = ['zpt', 'npv', 'jet1eta', 'alpha']
     types = ['bal', 'mpf']
     subtexts = ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)"]
     
@@ -465,7 +494,7 @@ def plot_all(files, opt, plottype='response'):
         fig_axes = plotbase.newplot(subplots=len(list_ac))
         for ch, subtext, ax in zip(list_ac, subtexts, fig_axes[1]):    # iterate over subplots in figure figaxes
             if plottype == 'ratio':
-                if o == 'jet1_eta': fit=False
+                if o == 'jet1eta': fit=False
                 else: fit=True
                 ratioplot(files, opt, types, drawextrapolation=True, binborders=True, over=o, subplot=True, changes=ch, fit=fit,
                     figaxes=(fig_axes[0],ax), subtext = subtext)
@@ -486,12 +515,22 @@ def response(files, opt):
     responseplot(files, opt, ['bal', 'mpf'])
     for key in k_fsr:
         print key, k_fsr[key]
-
 def response_npv(files, opt):
     responseplot(files, opt, ['bal', 'mpf'], over='npv')
-
 def response_eta(files, opt):
-    responseplot(files, opt, ['bal', 'mpf'], over='jet1_eta')
+    responseplot(files, opt, ['bal', 'mpf'], over='jet1eta', legloc='lower left')
+
+def bal_eta(files, opt):
+    responseplot(files, opt, ['bal'], over='jet1eta', legloc='lower left')
+def bal_npv(files, opt):
+    responseplot(files, opt, ['bal'], over='npv')
+def bal_zpt(files, opt):
+    responseplot(files, opt, ['bal'], over='zpt')
+
+def mpf_eta(files, opt):
+    responseplot(files, opt, ['mpf'], over='jet1eta', legloc='lower left')
+
+
 
 
 # ratios
@@ -509,14 +548,14 @@ def ratio_npv(files, opt):
     ratioplot(files, opt, ['bal', 'mpf'], drawextrapolation=True, binborders=True, over='npv')
 
 def ratio_eta(files, opt):
-    ratioplot(files, opt, ['bal', 'mpf'], drawextrapolation=True, binborders=True, over='jet1_eta', fit=False)
+    ratioplot(files, opt, ['bal', 'mpf'], drawextrapolation=True, binborders=True, over='jet1eta', fit=False)
 
 #kfsr
 def kfsr(files, opt):
     plotkfsr(files, opt)
 
 def kfsr_eta(files, opt):
-    plotkfsr(files, opt, over='jet1_eta')
+    plotkfsr(files, opt, over='jet1eta')
 
 
 # subplots
@@ -527,10 +566,87 @@ def response_all(files, opt):
     plot_all(files, opt)
 
 
+
+# response + ratio
+def bal_responseratio_eta(files, opt):
+    responseratio(files, opt, over='jet1eta', fit=False, types=['bal'])
+
+def bal_responseratio_zpt(files, opt):
+    responseratio(files, opt, fit=True, types=['bal'])
+
+def bal_responseratio_npv(files, opt):
+    responseratio(files, opt, over='npv', fit=True, types=['bal'])
+
+
+def mpf_responseratio_eta(files, opt):
+    responseratio(files, opt, over='jet1eta', fit=False, types=['mpf'])
+
+def mpf_responseratio_zpt(files, opt):
+    responseratio(files, opt, fit=True, types=['mpf'])
+
+def mpf_responseratio_npv(files, opt):
+    responseratio(files, opt, over='npv', fit=True, types=['mpf'])
+
+
+
+def responseratio(files, opt, over='zpt', fit=False, types=['bal']):
+
+    fig = plotbase.plt.figure(figsize=[7, 7])
+    fig.suptitle(opt.title, size='xx-large')
+    ax1 = plotbase.plt.subplot2grid((3,1),(0,0), rowspan=2)
+    ax2 = plotbase.plt.subplot2grid((3,1),(2,0))
+    fig.add_axes(ax1)
+    fig.add_axes(ax2)
+
+    responseplot(files, opt, types, over=over, figaxes=(fig,ax1), subplot = True)
+    ratioplot(files, opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True)
+    fig.subplots_adjust(hspace=0.05)
+
+    ax1.set_xticks([])
+    ax1.set_xlabel("")
+    ax2.set_yticks([1.00, 0.95, 0.90, 0.85])
+
+    file_name = "responseratio_"+"_".join(types)+"_"+over+"_"+opt.algorithm
+    plotbase.Save(fig, file_name, opt)
+
+
+
+def responseratio_all(files, opt, types=['bal']):
+    
+    fig = plotbase.plt.figure(figsize=[21, 14])
+    fig.suptitle(opt.title, size='xx-large')
+    for typ, row in zip(['bal', 'mpf'], [0,4]):
+        for over, col, fit in zip(['zpt', 'npv', 'jet1eta'], [0,1,2], [False, True, True]):
+
+            ax1 = plotbase.plt.subplot2grid((7,3),(row,col), rowspan=2)
+            ax2 = plotbase.plt.subplot2grid((7,3),(row+2,col))
+            fig.add_axes(ax1)
+            fig.add_axes(ax2)
+            responseplot(files, opt, [typ], over=over, figaxes=(fig,ax1), subplot = True)
+            ratioplot(files, opt, [typ], binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True)
+            fig.subplots_adjust(hspace=0.05)
+            ax1.set_xticks([])
+            ax1.set_xlabel("")
+            ax2.set_yticks([1.00, 0.95, 0.90])
+            if col > 0:
+                ax1.set_ylabel("")
+                ax2.set_ylabel("")
+                
+    title="Jet Response ($p_T$ balance / MPF) vs. Z $p_T$, Number of vertices,  Jet $\eta$      ("  +opt.algorithm+" "+opt.correction+")"
+    fig.suptitle(title, size='x-large')
+
+    file_name = "responseratio_ALL_"+opt.algorithm+opt.correction
+    plotbase.Save(fig, file_name, opt)
+
+
 plots = [
-'response', 'response_npv', 'response_eta',
+'response', 'response_npv', 'response_eta', 'bal_eta', 'mpf_eta',
 #'response_all',
 'ratio',  'ratio_npv', 'ratio_eta', 
+
+'responseratio_all',
+'bal_responseratio_eta', 'bal_responseratio_zpt', 'bal_responseratio_npv', 
+'mpf_responseratio_eta', 'mpf_responseratio_zpt', 'mpf_responseratio_npv', 
 #'ratio_all'
 #,'balratio', 'mpfratio', 'kfsr'
 ]

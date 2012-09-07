@@ -51,31 +51,37 @@ public:
 		}
 		else if ( ref == "jetptratio" )
 		{
+			std::string jet1Name = ptree->get<std::string>( configPath + ".Jet1Name");
+			std::string jet2Name = ptree->get<std::string>( configPath + ".Jet2Name");
+			unsigned int jet1Num = ptree->get<unsigned int>( configPath + ".Jet1Num");
+			unsigned int jet2Num = ptree->get<unsigned int>( configPath + ".Jet2Num");
 
-			std::string jet1Name = ptree->get<std::string>( configPath + ".Jet1Ratio");
-			std::string jet2Name = ptree->get<std::string>( configPath + ".Jet2Ratio");
-
-			this->SetYSource ( new SourceJetPtRatio( jet1Name, jet2Name, 0,0) );
+			this->SetYSource ( new SourceJetPtRatio( jet1Name, jet2Name, jet1Num, jet2Num) );
 		}
 		else if ( ref == "jetptabsdiff" )
 		{
+			std::string jet1Name = ptree->get<std::string>( configPath + ".Jet1Name");
+			std::string jet2Name = ptree->get<std::string>( configPath + ".Jet2Name");
+			unsigned int jet1Num = ptree->get<unsigned int>( configPath + ".Jet1Num");
+			unsigned int jet2Num = ptree->get<unsigned int>( configPath + ".Jet2Num");
 
-			std::string jet1Name = ptree->get<std::string>( configPath + ".Jet1Diff");
-			std::string jet2Name = ptree->get<std::string>( configPath + ".Jet2Diff");
-
-			this->SetYSource ( new SourceJetPtAbsDiff( jet1Name, jet2Name, 0,0) );
+			this->SetYSource ( new SourceJetPtAbsDiff( jet1Name, jet2Name, jet1Num, jet2Num) );
 		}
-		else if ( ref == "jetpt" )
+		else if ( ref == "jet1pt" )
 			this->SetYSource ( new SourceJetPt() );
-		else if ( ref == "jeteta" )
+		else if ( ref == "jet1eta" )
 			this->SetYSource ( new SourceJetEta() );
-		else if ( ref == "jetphi" )
+		else if ( ref == "jet1abseta" )
+			this->SetYSource ( new SourceJetAbsEta() );
+		else if ( ref == "jet1phi" )
 			this->SetYSource ( new SourceJetPhi() );
 
 		else if ( ref == "jet2pt" )
 			this->SetYSource ( new SourceJet2Pt() );
 		else if ( ref == "jet2eta" )
 			this->SetYSource ( new SourceJet2Eta() );
+		else if ( ref == "jet2abseta" )
+			this->SetYSource ( new SourceJet2AbsEta() );
 		else if ( ref == "jet2phi" )
 			this->SetYSource ( new SourceJet2Phi() );
 
@@ -83,6 +89,8 @@ public:
 			this->SetYSource ( new SourceZPt() );
 		else if ( ref == "zeta" )
 			this->SetYSource ( new SourceZEta() );
+		else if ( ref == "zabseta" )
+			this->SetYSource ( new SourceZAbsEta() );
 		else if ( ref == "zphi" )
 			this->SetYSource ( new SourceZPhi() );
 
@@ -95,6 +103,9 @@ public:
 			this->SetYSource ( new SourceMETPt() );
 		else if ( ref == "METeta" )
 			this->SetYSource ( new SourceMETEta() );
+		else if ( ref == "METphi" )
+			this->SetYSource ( new SourceMETPhi() );
+
 		else if ( ref == "sumEt" )
 			this->SetYSource ( new SourceSumEt() );
 		else if ( ref == "METfraction" )
@@ -107,23 +118,54 @@ public:
 			CALIB_LOG_FATAL( "Source " << ref << " not supported" )
 		}
 
+
+
 		ref = ptree->get<std::string>( configPath + ".XSource");
 
-		if ( ref == "jetpt" )
+		if ( ref == "jet1pt" )
 			this->SetXSource ( new SourceJetPt() );
-		else if ( ref == "reco")
+		else if ( ref == "npv")
 			this->SetXSource ( new SourceRecoVert());
-		else if ( ref == "jeteta")
+		else if ( ref == "jet1eta")
 			this->SetXSource ( new SourceJetEta());
-		else if ( ref == "jetphi")
+		else if ( ref == "jet1phi")
 			this->SetXSource ( new SourceJetPhi());
-
 		else if ( ref == "jet2pt" )
 			this->SetXSource ( new SourceJet2Pt() );
 		else if ( ref == "jet2eta" )
 			this->SetXSource ( new SourceJet2Eta() );
 		else if ( ref == "jet2phi" )
 			this->SetXSource ( new SourceJet2Phi() );
+		else if ( ref == "jetptratio" )
+		{
+			std::string jet1Name = ptree->get<std::string>( configPath + ".Jet1Name");
+			std::string jet2Name = ptree->get<std::string>( configPath + ".Jet2Name");
+			unsigned int jet1Num = ptree->get<unsigned int>( configPath + ".Jet1Num");
+			unsigned int jet2Num = ptree->get<unsigned int>( configPath + ".Jet2Num");
+
+			this->SetXSource ( new SourceJetPtRatio( jet1Name, jet2Name, jet1Num, jet2Num) );
+		}
+		else if ( ref == "jetptabsdiff" )
+		{
+			std::string jet1Name = ptree->get<std::string>( configPath + ".Jet1Name");
+			std::string jet2Name = ptree->get<std::string>( configPath + ".Jet2Name");
+			unsigned int jet1Num = ptree->get<unsigned int>( configPath + ".Jet1Num");
+			unsigned int jet2Num = ptree->get<unsigned int>( configPath + ".Jet2Num");
+
+			this->SetXSource ( new SourceJetPtAbsDiff( jet1Name, jet2Name, jet1Num, jet2Num) );
+		}
+		else if ( ref == "etaabsdiff" )
+		{
+			std::string Name1 = ptree->get<std::string>( configPath + ".Name1");
+			std::string Name2 = ptree->get<std::string>( configPath + ".Name2");
+			this->SetXSource ( new SourceEtaAbsDiff( Name1, Name2) );
+		}
+		else if ( ref == "phiabsdiff" )
+		{
+			std::string Name1 = ptree->get<std::string>( configPath + ".Name1");
+			std::string Name2 = ptree->get<std::string>( configPath + ".Name2");
+			this->SetXSource ( new SourcePhiAbsDiff( Name1, Name2) );
+		}
 
 		else if ( ref == "zpt")
 			this->SetXSource ( new SourceZPt());
@@ -132,6 +174,8 @@ public:
 		else if ( ref == "zeta")
 			this->SetXSource ( new SourceZEta());
 
+		else if ( ref == "METpt" )
+			this->SetXSource ( new SourceMETPt() );
 		else if ( ref == "METeta" )
 			this->SetXSource ( new SourceMETEta() );
 		else if ( ref == "METphi" )
@@ -141,8 +185,15 @@ public:
 
 		else if ( ref == "jetsvalid" )
 			this->SetXSource ( new SourceValidJets() );
+		else if ( ref == "alpha" )
+			this->SetXSource ( new SourceAlpha() );
 
-		else if ( ref == "runnumber")
+		else if ( ref == "deltarsecondjettoz" )
+			this->SetXSource ( new SourceDeltaRSecondJetToZ() );
+		else if ( ref == "deltarsecondjettoleadingjet" )
+			this->SetXSource ( new SourceDeltaRSecondJetToLeadingJet() );
+
+		else if ( ref == "run")
 			this->SetXSource ( new SourceRunNumber());
 		else if ( ref == "intlumi")
 			this->SetXSource ( new SourceIntegratedLumi() );

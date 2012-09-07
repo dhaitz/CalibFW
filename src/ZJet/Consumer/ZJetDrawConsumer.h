@@ -138,6 +138,117 @@ private:
 
 };
 
+class DeltaConsumer: public ZJetMetaConsumer
+{
+public:
+
+	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+			ZJetPipelineSettings> * pset)
+	{
+		ZJetMetaConsumer::Init( pset );
+
+		m_deltaRsecondjettoZ = new Hist1D( "deltar-secondjet-z_"  + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetDeltaRModifier() );
+		m_deltaRsecondjettoleadingjet = new Hist1D( "deltar-secondjet-leadingjet_"  + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetDeltaRModifier() );
+
+		m_deltaPhiLeadingJetToZ = new Hist1D( "deltaphi-leadingjet-z_"  + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetDeltaPhiModifier() );
+		m_deltaPhiLeadingJetToSecondJet = new Hist1D( "deltaphi-leadingjet-secondjet_"  + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetDeltaPhiModifier() );
+		m_deltaPhiZToSecondJet = new Hist1D( "deltaphi-z-secondjet_"  + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetDeltaPhiModifier() );
+		m_deltaPhiLeadingJetToMET = new Hist1D( "deltaphi-leadingjet-MET_"  + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetDeltaPhiModifier() );
+		m_deltaPhiZToMET = new Hist1D( "deltaphi-z-MET_"  + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetDeltaPhiModifier() );
+
+		m_deltaEtaLeadingJetToZ = new Hist1D( "deltaeta-leadingjet-z_"  + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetDeltaEtaModifier() );
+		m_deltaEtaLeadingJetToSecondJet = new Hist1D( "deltaeta-leadingjet-secondjet_"  + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetDeltaEtaModifier() );
+		m_deltaEtaZToSecondJet = new Hist1D( "deltaeta-z-secondjet_"  + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetDeltaEtaModifier() );
+
+
+		AddPlot ( m_deltaRsecondjettoZ );
+		AddPlot ( m_deltaRsecondjettoleadingjet );
+
+		AddPlot ( m_deltaPhiLeadingJetToZ );
+		AddPlot ( m_deltaPhiLeadingJetToSecondJet );
+		AddPlot ( m_deltaPhiZToSecondJet );
+		AddPlot ( m_deltaPhiLeadingJetToMET );
+		AddPlot ( m_deltaPhiZToMET );
+
+		AddPlot ( m_deltaEtaLeadingJetToZ );
+		AddPlot ( m_deltaEtaLeadingJetToSecondJet );
+		AddPlot ( m_deltaEtaZToSecondJet );
+	}
+
+	virtual void ProcessFilteredEvent(ZJetEventData const& event,
+			ZJetMetaData const& metaData)
+	{
+		ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
+
+		if (metaData.GetValidJetCount(this->GetPipelineSettings(), event) > 1)
+		{
+			m_deltaRsecondjettoZ->Fill( ROOT::Math::VectorUtil::DeltaR(metaData.GetValidJet(this->GetPipelineSettings(),
+					 event, 1)->p4,metaData.GetRefZ().p4), metaData.GetWeight());
+
+			m_deltaRsecondjettoleadingjet->Fill( ROOT::Math::VectorUtil::DeltaR(metaData.GetValidJet(this->GetPipelineSettings(),
+					event, 1)->p4,metaData.GetValidPrimaryJet(this->GetPipelineSettings(), event)->p4), metaData.GetWeight());
+
+
+			m_deltaPhiLeadingJetToZ->Fill( TMath::Abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetValidPrimaryJet(this->GetPipelineSettings(),
+					event)->p4, metaData.GetRefZ().p4)), metaData.GetWeight());
+			m_deltaPhiLeadingJetToSecondJet->Fill( TMath::Abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetValidPrimaryJet(
+					this->GetPipelineSettings(), event)->p4, metaData.GetValidJet(
+					this->GetPipelineSettings(), event, 1)->p4)), metaData.GetWeight());
+			m_deltaPhiZToSecondJet->Fill( TMath::Abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetRefZ().p4, metaData.GetValidJet(
+					this->GetPipelineSettings(),	 event, 1)->p4)), metaData.GetWeight());
+			m_deltaPhiLeadingJetToMET->Fill( TMath::Abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetValidPrimaryJet(this->GetPipelineSettings(),
+					event)->p4, event.GetMet(GetPipelineSettings())->p4)), metaData.GetWeight());
+			m_deltaPhiZToMET->Fill( TMath::Abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetRefZ().p4, event.GetMet(GetPipelineSettings())->p4)),
+					metaData.GetWeight());
+
+
+			m_deltaEtaLeadingJetToZ->Fill( TMath::Abs(metaData.GetValidPrimaryJet(this->GetPipelineSettings(),
+					 event)->p4.Eta() - metaData.GetRefZ().p4.eta()), metaData.GetWeight());
+			m_deltaEtaLeadingJetToSecondJet->Fill( TMath::Abs(metaData.GetValidPrimaryJet(
+					this->GetPipelineSettings(), event)->p4.Eta() - metaData.GetValidJet(
+					this->GetPipelineSettings(), event, 1)->p4.Eta()), metaData.GetWeight());
+			m_deltaEtaZToSecondJet->Fill( TMath::Abs(metaData.GetRefZ().p4.Eta() - metaData.GetValidJet(
+					this->GetPipelineSettings(), event, 1)->p4.Eta()), metaData.GetWeight());
+
+		}
+	}
+
+private:
+	Hist1D * m_deltaRsecondjettoZ;
+	Hist1D * m_deltaRsecondjettoleadingjet;
+
+	Hist1D * m_deltaPhiLeadingJetToZ;
+	Hist1D * m_deltaPhiLeadingJetToSecondJet;
+	Hist1D * m_deltaPhiZToSecondJet;
+	Hist1D * m_deltaPhiLeadingJetToMET;
+	Hist1D * m_deltaPhiZToMET;
+
+	Hist1D * m_deltaEtaLeadingJetToZ;
+	Hist1D * m_deltaEtaLeadingJetToSecondJet;
+	Hist1D * m_deltaEtaZToSecondJet;
+
+};
+
 class ValidMuonsConsumer: public ZJetMetaConsumer
 {
 public:
@@ -147,11 +258,11 @@ public:
 	{
 		ZJetMetaConsumer::Init( pset );
 
-		m_valid = new Hist1D( "muons_valid_" + this->GetPipelineSettings().GetJetAlgorithm(),
+		m_valid = new Hist1D( "muonsvalid_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetNRVModifier() );
 		AddPlot ( m_valid );
-		m_invalid = new Hist1D( "muons_invalid_" + this->GetPipelineSettings().GetJetAlgorithm(),
+		m_invalid = new Hist1D( "muonsinvalid_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetNRVModifier() );
 		AddPlot ( m_invalid );
@@ -180,7 +291,7 @@ public:
 	{
 		ZJetMetaConsumer::Init( pset );
 
-		m_valid = new Hist1D( "jets_valid_" + this->GetPipelineSettings().GetJetAlgorithm(),
+		m_valid = new Hist1D( "jetsvalid_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetCountModifier( 199 ) );
 		AddPlot ( m_valid );
@@ -188,7 +299,7 @@ public:
         // only plot the invalid jets for the initial algos ( AK5PFJets )
         if ( JetType :: IsRaw ( this->GetPipelineSettings().GetJetAlgorithm() ))
         {
-    		m_invalid = new Hist1D( "jets_invalid_" + this->GetPipelineSettings().GetJetAlgorithm(),
+    		m_invalid = new Hist1D( "jetsinvalid_" + this->GetPipelineSettings().GetJetAlgorithm(),
     				GetPipelineSettings().GetRootFileFolder(),
     				Hist1D::GetCountModifier( 50 ) );
     		AddPlot ( m_invalid );

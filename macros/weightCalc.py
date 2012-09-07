@@ -89,7 +89,7 @@ def printWeights(weights, nice=False):
         print s
 
 
-def getDataDistribution(files, lumijson, xsec=69.3, numpu=50, histo="pileup", outfile=None,  verbose=False):
+def getDataDistribution(files, lumijson, xsec=69.3, numpu=70, histo="pileup", outfile=None,  verbose=False):
     """Get the true Data PU from the official PU-json
 
        The "true" (or "observed") PU in data is estimated using this method:
@@ -161,7 +161,7 @@ def getMCDistribution(source, histo="pu", outfile=None, verbose=False):
     return result, outfile
 
 
-def getDistributionFromSkim(filelist, outputfile=None, numpu=50, save=True, step=1.0, histo="pileup"):
+def getDistributionFromSkim(filelist, outputfile=None, numpu=70, save=True, step=1.0, histo="pileup"):
     print "____________________________________________"
     print "MC pile-up distribution from skim ("+str(len(filelist))+" file(s)):", filelist[0], "etc."
     chain = ROOT.TChain("Events");
@@ -290,8 +290,8 @@ def options():
         help="Input Lumi JSON for pileupCalc.")
     parser.add_argument('-x', '--minBiasXsec', type=float, default=69.4,
         help="Minimum bias cross section in mb (NB: pileupCalc takes µb!)")
-    parser.add_argument('-n', '--numPileupBins', type=int, default=50,
-        help="Maximum number of pile-up bins (default: 50).")
+    parser.add_argument('-n', '--numPileupBins', type=int, default=70,
+        help="Maximum number of pile-up bins (default: 70).")
     parser.add_argument('-X', '--mcXsec', type=float, default=1614.0,
         help="Cross section of the MC sample to be saved alongside the weights.")
 

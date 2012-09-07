@@ -26,6 +26,7 @@
 #include "ZJet/Filter/NpvFilter.h"
 #include "ZJet/Filter/JetEtaFilter.h"
 #include "ZJet/Filter/ResponseFilter.h"
+#include "ZJet/Filter/DeltaEtaFilter.h"
 
 using namespace CalibFW;
 
@@ -60,6 +61,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddFilter( new RunRangeFilter);
 			else if ( sid == ResponseFilter().GetFilterId())
 				pLine->AddFilter( new ResponseFilter);
+			else if ( sid == DeltaEtaFilter().GetFilterId())
+				pLine->AddFilter( new DeltaEtaFilter);
 			else
 				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 		}
@@ -107,9 +110,11 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			else if ( sid == InvariantMassCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new InvariantMassCut() );
 
+			else if ( sid == DeltaEtaCut().GetCutShortName())
+				pLine->AddMetaDataProducer( new DeltaEtaCut() );
+
 
 			else {
-				CALIB_LOG_FATAL( "MetaDataProducer " << sid << " not found." )
 			}
 		}
 
@@ -148,6 +153,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			pLine->AddConsumer( new ValidJetsConsumer());
 
 			pLine->AddConsumer( new DataMETConsumer( pset.GetJetAlgorithm() ));
+
+			pLine->AddConsumer( new DeltaConsumer());
 
 			if ( JetType::IsPF( pset.GetJetAlgorithm() ))
 			{

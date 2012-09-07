@@ -45,16 +45,10 @@ public:
 class SourceJetEta: public ZJetSourceBase
 {
 public:
-	SourceJetEta() // All Jets
+	SourceJetEta()
 	{
 
 	}
-	/*
-	 SourceJetEta( int JetNum ) : m_JetNum ( JetNum)
-	 {
-
-	 }
-	 */
 
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
@@ -70,6 +64,35 @@ public:
 	virtual double GetDefaultLowBin() const
 	{
 		return -10.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 10.0;
+	}
+};
+
+class SourceJetAbsEta: public ZJetSourceBase
+{
+public:
+	SourceJetAbsEta()
+	{
+
+	}
+
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = TMath::Abs(metaData.GetValidPrimaryJet(settings, event)->p4.Eta());
+		return false;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
 	}
 	virtual double GetDefaultHighBin() const
 	{
@@ -98,6 +121,34 @@ public:
 	virtual double GetDefaultLowBin() const
 	{
 		return -10.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 10.0;
+	}
+};
+
+class SourceJet2AbsEta: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		if (metaData.GetValidJetCount(settings, event) < 2)
+		{
+			return false;
+		}
+		val = TMath::Abs(metaData.GetValidJet(settings, event, 1)->p4.Eta());
+		return false;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
 	}
 	virtual double GetDefaultHighBin() const
 	{
@@ -233,6 +284,62 @@ public:
 	virtual double GetDefaultHighBin() const
 	{
 		return 2.0;
+	}
+};
+
+
+class SourceDeltaRSecondJetToZ: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		if (metaData.GetValidJetCount(settings, event) < 2) 
+			return false;
+
+		val = ROOT::Math::VectorUtil::DeltaR(metaData.GetValidJet(settings, event, 1)->p4,metaData.GetRefZ().p4);
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 100.0;
+	}
+};
+
+
+class SourceDeltaRSecondJetToLeadingJet: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		if (metaData.GetValidJetCount(settings, event) < 2) 
+			return false;
+
+		val = ROOT::Math::VectorUtil::DeltaR(metaData.GetValidJet(settings, event, 1)->p4,metaData.GetValidPrimaryJet(settings, event)->p4);
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 100.0;
 	}
 };
 
@@ -439,7 +546,7 @@ public:
 	}
 	virtual double GetDefaultHighBin() const
 	{
-		return 200000.0;
+		return 205000.0;
 	}
 };
 
@@ -474,6 +581,38 @@ public:
 	virtual double GetDefaultHighBin() const
 	{
 		return  1000000.0;
+	}	
+};
+
+class SourceAlpha: public ZJetSourceBase
+{
+public:
+	SourceAlpha(  )
+	{
+	}
+
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+
+		if (metaData.GetValidJetCount(settings, event) < 2) 
+			return false;
+
+		val = metaData.GetValidJet(settings, event, 1)->p4.Pt() / metaData.GetRefZ().p4.Pt();
+
+		return true;
+	}
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return  5.0;
 	}	
 };
 
@@ -638,6 +777,30 @@ public:
 		return 10.0;
 	}
 };
+class SourceZAbsEta: public ZJetSourceBase
+{
+public:
+
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = TMath::Abs(metaData.GetRefZ().p4.Eta());
+		return false;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 10.0;
+	}
+};
 class SourceZPhi: public ZJetSourceBase
 {
 public:
@@ -725,6 +888,10 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
+
+		if ((metaData.GetValidJetCount(settings, event) < (m_jet1Num+1)) || (metaData.GetValidJetCount(settings, event) < (m_jet2Num+1)))
+			return false;
+		
 		KDataLV * jet1 = metaData.GetValidJet(settings, event, m_jet1Num,
 				m_jetAlgo1);
 		KDataLV * jet2 = metaData.GetValidJet(settings, event, m_jet2Num,
@@ -780,6 +947,9 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
+		if ((metaData.GetValidJetCount(settings, event) < (m_jet1Num+1)) || (metaData.GetValidJetCount(settings, event) < (m_jet2Num+1)))
+			return false;
+		
 		KDataLV * jet1 = metaData.GetValidJet(settings, event, m_jet1Num,
 				m_jetAlgo1);
 		KDataLV * jet2 = metaData.GetValidJet(settings, event, m_jet2Num,
@@ -796,7 +966,7 @@ public:
 	}
 	virtual double GetDefaultLowBin() const
 	{
-		return 0.0f;
+		return -100.0f;
 	}
 	virtual double GetDefaultHighBin() const
 	{
@@ -805,6 +975,136 @@ public:
 private:
 	std::string m_jetAlgo1, m_jetAlgo2;
 	unsigned int m_jet1Num, m_jet2Num;
+};
+
+class SourcePhiAbsDiff: public ZJetSourceBase
+{
+public:
+
+	SourcePhiAbsDiff(std::string Name1, std::string Name2) :
+		m_name1(Name1), m_name2(Name2)
+	{
+
+	}
+
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+
+		float m_val1, m_val2;
+
+                if (m_name1 == "jet1")
+			m_val1 = metaData.GetValidPrimaryJet(settings, event)->p4.Phi();
+		else if (m_name1 == "jet2")
+			{
+				if (metaData.GetValidJetCount(settings, event) < 2)
+					return false;
+				m_val1 = metaData.GetValidJet(settings, event, 1)->p4.Phi();
+			}
+		else if (m_name1=="z")
+			m_val1 = metaData.GetRefZ().p4.Phi();
+		else if (m_name1=="MET")
+			m_val1 = event.GetMet(settings)->p4.Phi();
+		if (m_name2 == "jet1")
+			m_val2 = metaData.GetValidPrimaryJet(settings, event)->p4.Phi();
+		else if (m_name2 == "jet2")
+			{
+				if (metaData.GetValidJetCount(settings, event) < 2)
+				{
+					return false;
+				}
+				m_val2=metaData.GetValidJet(settings, event, 1)->p4.Phi();
+			}
+		else if (m_name2=="z")
+			m_val2 = metaData.GetRefZ().p4.Phi();
+		else if (m_name2=="MET")
+			m_val2 = event.GetMet(settings)->p4.Phi();
+
+                val = (TMath::Pi() - TMath::Abs(TMath::Pi() - (m_val1 - m_val2)));
+		return true;
+	}
+
+	
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 3.14159;
+	}
+private:
+	std::string m_name1, m_name2;
+};
+
+class SourceEtaAbsDiff: public ZJetSourceBase
+{
+public:
+
+	SourceEtaAbsDiff(std::string Name1, std::string Name2) :
+		m_name1(Name1), m_name2(Name2)
+	{
+
+	}
+
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+
+		float m_val1, m_val2;
+
+                if (m_name1 == "jet1")
+			m_val1 = metaData.GetValidPrimaryJet(settings, event)->p4.Eta();
+		else if (m_name1 == "jet2")
+			{
+				if (metaData.GetValidJetCount(settings, event) < 2)
+					return false;
+				m_val1=metaData.GetValidJet(settings, event, 1)->p4.Eta();
+			}
+		else if (m_name1=="z")
+			m_val1 = metaData.GetRefZ().p4.Eta();
+		else if (m_name1=="MET")
+			m_val1 = event.GetMet(settings)->p4.Eta();
+
+		if (m_name2 == "jet1")
+			m_val2 = metaData.GetValidPrimaryJet(settings, event)->p4.Eta();
+		else if (m_name2 == "jet2")
+			{
+				if (metaData.GetValidJetCount(settings, event) < 2)
+				{
+					return false;
+				}
+				m_val2=metaData.GetValidJet(settings, event, 1)->p4.Eta();
+			}
+		else if (m_name2=="z")
+			m_val2 = metaData.GetRefZ().p4.Eta();
+		else if (m_name2=="MET")
+			m_val2 = event.GetMet(settings)->p4.Eta();
+			
+		val = TMath::Abs(m_val1 - m_val2);
+
+		return true;
+	}
+
+	
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 20.0;
+	}
+private:
+	std::string m_name1, m_name2;
 };
 
 }

@@ -47,7 +47,7 @@ def ratio_mikko(files, opt):
 def responseplot_mikko(files, opt, types, labels=None,
                  colors=["FireBrick", 'blue', 'green', 'red']*7,
                  markers=['o', '*', 's']*8,
-                 over='z_pt',
+                 over='zpt',
                  binborders=False,
                  drawextrapolation=False):
     
@@ -109,7 +109,7 @@ def responseplot_mikko(files, opt, types, labels=None,
 def ratioplot_mikko(files, opt, types, labels=None,
                  colors=["FireBrick", 'blue', 'green', 'red']*7,
                  markers=['o', '*', 's']*8,
-                 over='z_pt',
+                 over='zpt',
                  binborders=False,
                  drawextrapolation=False,
                  fit=True):
@@ -152,7 +152,7 @@ def ratioplot_mikko(files, opt, types, labels=None,
                 f.Close()
 
 
-            if over == 'jet1_eta':
+            if over == 'jet1eta':
                 pre = "abs_"
             else:
                 pre = ""

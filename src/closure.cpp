@@ -247,7 +247,7 @@ int main(int argc, char** argv)
 	gset.SetInputType ( g_inputType );
 	//sJetNames = fi.GetNames<KVertexSummary>(true);
 
-	ZJetEventProvider evtProvider( finterface, g_inputType );
+	ZJetEventProvider evtProvider( finterface, g_inputType, g_propTree.get<bool> ("UseMETPhiCorrection") );
 
 	// removes the old file
 	std::string sRootOutputFilename = (g_sOutputPath + ".root");

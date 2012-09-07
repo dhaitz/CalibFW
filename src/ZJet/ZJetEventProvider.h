@@ -11,7 +11,7 @@ typedef KappaEventProvider<ZJetEventData> ZJetEventProvider;
  * Template specialization for the ZJet related event data
  */
 template<>
-void KappaEventProvider<ZJetEventData>::WireEvent()
+void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 {
 		// open Kappa issue, disable the check and it will work
 		m_event.m_vertexSummary = m_fi.Get<KVertexSummary> (
@@ -23,10 +23,12 @@ void KappaEventProvider<ZJetEventData>::WireEvent()
 		m_event.m_pfMetL1 = m_fi.Get<KDataPFMET> ("ak5PFMETL1", false);
 		m_event.m_pfMetChsL1 = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL1", false);
 		m_event.m_pfMetL2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETL2L3", false);
-		m_event.m_pfMetChsL2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3", false);
-		//m_event.m_pfMetChsL2L3phi = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3phi", false);
 		m_event.m_pfMetL1L2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETL1L2L3", false);
 		m_event.m_pfMetChsL1L2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL1L2L3", false);
+                if (phicorrection)
+			m_event.m_pfMetChsL2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3phi", false);  //phi-corrected
+		else
+			m_event.m_pfMetChsL2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3", false);
 		
 		InitPFJets(m_event, "AK5PFJets");
 		InitPFJets(m_event, "AK5PFJetsCHS");
@@ -44,8 +46,10 @@ void KappaEventProvider<ZJetEventData>::WireEvent()
 		{
 			// we need to read the residual MET corrections for data
 			m_event.m_pfMetL2L3Res = m_fi.Get<KDataPFMET> ("ak5PFMETL2L3Res", false);
-			m_event.m_pfMetChsL2L3Res = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3Res", false);
-			//m_event.m_pfMetChsL2L3Resphi = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3Resphi", false);
+            		if (phicorrection)
+				m_event.m_pfMetChsL2L3Res = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3Resphi", false); //phi-corrected
+			else
+				m_event.m_pfMetChsL2L3Res = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3Res", false);
 		}
 
 }

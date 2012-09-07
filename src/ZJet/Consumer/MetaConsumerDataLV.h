@@ -52,21 +52,25 @@ public:
 	{
 		ZJetMetaConsumer::Init( pset );
 
-		m_histPt = new Hist1D(GenName(GetPhysicsObjectName(), "_pt_"),
+		m_histPt = new Hist1D(GenName(GetPhysicsObjectName(), "pt_"),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetPtModifier());
 
-		m_histEta = new Hist1D(GenName(GetPhysicsObjectName(), "_eta_"),
+		m_histEta = new Hist1D(GenName(GetPhysicsObjectName(), "eta_"),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetEtaModifier());
 
-		m_histPhi = new Hist1D(GenName(GetPhysicsObjectName(), "_phi_"),
+		m_histAbsEta = new Hist1D(GenName(GetPhysicsObjectName(), "abseta_"),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetAbsEtaModifier());
+
+		m_histPhi = new Hist1D(GenName(GetPhysicsObjectName(), "phi_"),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetPhiModifier());
 
 		if ( m_plotMass )
 		{
-			m_histMass = new Hist1D(GenName(GetPhysicsObjectName(), "_mass_"),
+			m_histMass = new Hist1D(GenName(GetPhysicsObjectName(), "mass_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetMassModifier());
 			AddPlot( m_histMass );
@@ -74,6 +78,7 @@ public:
 
 		AddPlot(m_histPt);
 		AddPlot(m_histEta);
+		AddPlot(m_histAbsEta);
 		AddPlot(m_histPhi);
 	}
 
@@ -85,6 +90,7 @@ public:
 	{
 		m_histPt->Fill(dataLV->p4.Pt(), metaData.GetWeight());
 		m_histEta->Fill(dataLV->p4.Eta(), metaData.GetWeight());
+		m_histAbsEta->Fill(TMath::Abs(dataLV->p4.Eta()), metaData.GetWeight());
 		m_histPhi->Fill(dataLV->p4.Phi(), metaData.GetWeight());
 
 		if ( m_plotMass )
@@ -100,6 +106,7 @@ public:
 
 	Hist1D * m_histPt;
 	Hist1D * m_histEta;
+	Hist1D * m_histAbsEta;
 	Hist1D * m_histPhi;
 	Hist1D * m_histMass;
 
@@ -143,13 +150,13 @@ public:
 	{
 		MetaConsumerDataLV::Init(pset);
 
-		m_sumEt = new Hist1D( GenName(GetPhysicsObjectName(), "_sumEt_"),
+		m_sumEt = new Hist1D( GenName(GetPhysicsObjectName(), "sumEt_"),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetMETModifier());
 
 		AddPlot( m_sumEt);
 
-		m_fraction = new Hist1D( GenName(GetPhysicsObjectName(), "_fraction_"),
+		m_fraction = new Hist1D( GenName(GetPhysicsObjectName(), "fraction_"),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetMETFractionModifier());
 
@@ -175,10 +182,10 @@ public:
 	DataMuonConsumer( char charge, std::string algoName ) : m_charge( charge )
 	{
 		if ( m_charge > 0)
-			SetPhysicsObjectName("mu_plus%quant%" + algoName);
+			SetPhysicsObjectName("muplus%quant%" + algoName);
 
 		if ( m_charge < 0)
-			SetPhysicsObjectName("mu_minus%quant%" + algoName);
+			SetPhysicsObjectName("muminus%quant%" + algoName);
 	}
 
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
@@ -342,67 +349,67 @@ public:
 
 		if ( ! m_onlyBasic )
 			{
-			m_neutralEmFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_neutral_em_fraction_"),
+			m_neutralEmFraction = new Hist1D( GenName(GetPhysicsObjectName(), "neutralemfraction_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetFractionModifier());
 
 			AddPlot( m_neutralEmFraction );
 
-			m_chargedEMFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_charged_em_fraction_"),
+			m_chargedEMFraction = new Hist1D( GenName(GetPhysicsObjectName(), "chargedemfraction_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetFractionModifier());
 
 			AddPlot( m_chargedEMFraction );
 
-			m_chargedHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_charged_had_fraction_"),
+			m_chargedHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "chargedhadfraction_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetFractionModifier());
 
 			AddPlot( m_chargedHadFraction );
 
-			m_neutralHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_neutral_had_fraction_"),
+			m_neutralHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "neutralhadfraction_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetFractionModifier());
 
 			AddPlot( m_neutralHadFraction );
 
-			m_HFEMFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_HF_em_fraction_"),
+			m_HFEMFraction = new Hist1D( GenName(GetPhysicsObjectName(), "HFemfraction_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetFractionModifier());
 
 			AddPlot( m_HFEMFraction );
 
-			m_HFHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_HF_had_fraction_"),
+			m_HFHadFraction = new Hist1D( GenName(GetPhysicsObjectName(), "HFhadfraction_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetFractionModifier());
 
 			AddPlot( m_HFHadFraction );
 
-			m_muonFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_muon_fraction_"),
+			m_muonFraction = new Hist1D( GenName(GetPhysicsObjectName(), "muonfraction_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetFractionModifier());
 
 			AddPlot( m_muonFraction );
 
-			m_const = new Hist1D( GenName(GetPhysicsObjectName(), "_const_"),
+			m_const = new Hist1D( GenName(GetPhysicsObjectName(), "const_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetConstituentsModifier());
 
 			AddPlot( m_const );
 
-			m_charged = new Hist1D( GenName(GetPhysicsObjectName(), "_charged_"),
+			m_charged = new Hist1D( GenName(GetPhysicsObjectName(), "charged_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetConstituentsModifier());
 
 			AddPlot( m_charged );
 
-			m_summedFraction = new Hist1D( GenName(GetPhysicsObjectName(), "_summed_fractions_"),
+			m_summedFraction = new Hist1D( GenName(GetPhysicsObjectName(), "summedfractions_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetFractionModifier());
 
 			AddPlot( m_summedFraction );
 
-			m_area = new Hist1D( GenName(GetPhysicsObjectName(), "_area_"),
+			m_area = new Hist1D( GenName(GetPhysicsObjectName(), "area_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetAreaModifier());
 

@@ -136,6 +136,7 @@ def GetBaseConfig():
     d["ThreadCount"] = 1
     d["GlobalAlgorithms"] = []
     d["L1Correction"] = "L1FastJet"
+    d["UseMETPhiCorrection"] = 0
     d["Pipelines"] = { "default": {
             "Level": 1,
             "JetAlgorithm": "to_set",
@@ -180,6 +181,7 @@ def GetVBFBaseConfig():
     d["ThreadCount"] = 1
     d["GlobalAlgorithms"] = []
     d["L1Correction"] = "L1FastJet"
+    d["UseMETPhiCorrection"] = 0
     d["Pipelines"] = { "default": {
             "Level": 1,
             "JetAlgorithm": "to_set",
@@ -519,11 +521,11 @@ def ExpandCutNoCut(pipelineDict):
                                                         "JetNumber" : 1 }
         cutPipe["Consumer"]["bin_balance_response_2ndJet"] = { "Name" : "bin_response",
                                                               "ResponseType" : "bal",
-                                                        "ProductName" : "bal_jet2_z_" +  algoName,
+                                                        "ProductName" : "baljet2z_" +  algoName,
                                                         "JetNumber" : 2 }
         cutPipe["Consumer"]["bin_twojet_response"] = {"Name": "bin_response",
                                                       "ResponseType": "two",
-                                                      "ProductName": "bal_twojet_" + algoName,
+                                                      "ProductName": "baltwojet_" + algoName,
                                                       "JetNumber": 2}
 
         # only add the nocut pipeline for the default ( no binning )
@@ -556,8 +558,8 @@ def AddSingleCutConsumer( pline, cut_name, cut_id, algoname ):
                   "RunUnfiltered" : 1,
                   "YSource" : "cutvalue",
                   "CutId" : cut_id,
-                  "XSource" : "reco",
-                  "ProductName" : "cut_" + cut_name + "_npv_" + algoname })
+                  "XSource" : "npv",
+                  "ProductName" : "cut-" + cut_name + "_npv_" + algoname })
 
     AddConsumer(pline, "cut_" + cut_name + "_zpt_" + algoname,
                 { "Name" : "generic_profile_consumer",
@@ -565,7 +567,15 @@ def AddSingleCutConsumer( pline, cut_name, cut_id, algoname ):
                   "YSource" : "cutvalue",
                   "CutId" : cut_id,
                   "XSource" : "zpt",
-                  "ProductName" : "cut_" + cut_name + "_zpt_" + algoname})
+                  "ProductName" : "cut-" + cut_name + "_zpt_" + algoname})
+
+    AddConsumer(pline, "cut_" + cut_name + "_jet1eta_" + algoname,
+                { "Name" : "generic_profile_consumer",
+                  "RunUnfiltered" : 1,
+                  "YSource" : "cutvalue",
+                  "CutId" : cut_id,
+                  "XSource" : "jet1eta",
+                  "ProductName" : "cut-" + cut_name + "_jet1eta_" + algoname})
 
 def AddCutConsumer( pipelineDict, algos):
     for algo in algos:
@@ -576,77 +586,33 @@ def AddCutConsumer( pipelineDict, algos):
                 AddConsumer(pval, "filter_statistics",
                             { "Name": "filter_statistics" })
                 # for every intersting cut
-                AddConsumer(pval, "cut_all_npv_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "RunUnfiltered" : 1,
-                              "YSource" : "cutvalue",
-                              "CutId" : -1,
-                              "XSource" : "reco",
-                              "ProductName" : "cut_all_npv_" + algo})
-                AddSingleCutConsumer(pval, "jet2pt", 16, algo )
-                AddSingleCutConsumer(pval, "backtoback", 32, algo )
-                AddSingleCutConsumer(pval, "zmass", 64, algo )
-                AddSingleCutConsumer(pval, "muonpt", 2, algo )
+                AddSingleCutConsumer(pval, "all", -1, algo )
+                AddSingleCutConsumer(pval, "jet2toZpt", 16, algo )
+                #AddSingleCutConsumer(pval, "backtoback", 32, algo )
+                #AddSingleCutConsumer(pval, "zmass", 64, algo )
+                #AddSingleCutConsumer(pval, "muonpt", 2, algo )
+                #AddSingleCutConsumer(pval, "muoneta", 4, algo )
+                #AddSingleCutConsumer(pval, "jeteta", 8, algo )
 
 def AddLumiConsumer( pipelineDict, algos):
+    
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
             if ("default_" + algo +"_" in p) or (p == "default_" + algo):
-                AddConsumerEasy(pval,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "eventcount",
-                              "XSource" : "intlumi",
-                              "ProductName" : "eventcount_lumi_" + algo})
-                AddConsumerEasy(pval,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "eventcount",
-                              "XSource" : "runnumber",
-                              "ProductName" : "eventcount_run_" + algo})
-                AddConsumerEasy(pval,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetpt",
-                              "XSource" : "runnumber",
-                              "ProductName" : "jetpt_run_" + algo})
-                AddConsumerEasy(pval,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "zpt",
-                              "XSource" : "runnumber",
-                              "ProductName" : "zpt_run_" + algo})
-                AddConsumerEasy(pval,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "ptbalance",
-                              "XSource" : "runnumber",
-                              "ProductName" : "balresp_run_" + algo})
-                AddConsumerEasy(pval,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "ptbalance",
-                              "XSource" : "intlumi",
-                              "ProductName" : "balresp_lumi_" + algo})
-                AddConsumerEasy(pval,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "mpf",
-                              "XSource" : "runnumber",
-                              "ProductName" : "mpfresp_run_" + algo})
-                AddConsumerEasy(pval,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "sumEt",
-                              "XSource" : "runnumber",
-                              "ProductName" : "sumEt_run_" + algo})
-                AddConsumerEasy(pval,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "METpt",
-                              "XSource" : "runnumber",
-                              "ProductName" : "METpt_run_" + algo})
-                AddConsumerEasy(pval,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "METfraction",
-                              "XSource" : "runnumber",
-                              "ProductName" : "METfraction_run_" + algo})
-                AddConsumerEasy(pval,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetsvalid",
-                              "XSource" : "runnumber",
-                              "ProductName" : "jetsvalid_run_" + algo})
+                def AddLumiConsumerEasy(y,x):
+                    AddConsumerEasy(pval, { "Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x, "ProductName" : "_".join([y,x,algo])})
+
+                AddLumiConsumerEasy("eventcount", "intlumi")
+                AddLumiConsumerEasy("eventcount", "run")
+                AddLumiConsumerEasy("jet1pt", "run")
+                AddLumiConsumerEasy("zpt", "run",)
+                AddLumiConsumerEasy("ptbalance", "run")
+                AddLumiConsumerEasy("ptbalance", "intlumi")
+                AddLumiConsumerEasy("mpf", "run")
+                AddLumiConsumerEasy("sumEt", "run")
+                AddLumiConsumerEasy("METpt", "run")
+                AddLumiConsumerEasy("METfraction", "run")
+                AddLumiConsumerEasy("jetsvalid", "run")
 
 
 def AddHltConsumer( pipelineDict, algoNames, hlt_names):
@@ -660,14 +626,14 @@ def AddHltConsumer( pipelineDict, algoNames, hlt_names):
                                                 { "Name" : "generic_profile_consumer",
                                                   "YSource" : "hltprescale",
                                                   "YSourceConfig" : hname,
-                                                  "XSource" : "runnumber",
-                                                  "ProductName" : "hlt_" + hname + "_prescale_run_" + algo})
+                                                  "XSource" : "run",
+                                                  "ProductName" : "hlt-" + hname + "-prescale_run_" + algo})
                     AddConsumer(pval, "hlt_" + hname + "_prescale_lumi" + algo,
                                                 { "Name" : "generic_profile_consumer",
                                                   "YSource" : "hltprescale",
                                                   "YSourceConfig" : hname,
                                                   "XSource" : "intlumi",
-                                                  "ProductName" : "hlt_" + hname + "_prescale_lumi_" + algo})
+                                                  "ProductName" : "hlt-" + hname + "-prescale_lumi_" + algo})
     # plot the selcted hlt
     for algo in algoNames:
         for p, pval in pipelineDict["Pipelines"].items():
@@ -678,13 +644,13 @@ def AddHltConsumer( pipelineDict, algoNames, hlt_names):
                                               "YSource" : "selectedhltprescale",
                                               "YSourceConfig" : hname,
                                               "XSource" : "intlumi",
-                                              "ProductName" : "hlt_selected_prescale_lumi" + algo})
+                                              "ProductName" : "hltselectedprescale_lumi" + algo})
                 AddConsumer(pval, "hlt_selected_prescale_run" + algo,
                                             { "Name" : "generic_profile_consumer",
                                               "YSource" : "selectedhltprescale",
                                               "YSourceConfig" : hname,
-                                              "XSource" : "runnumber",
-                                              "ProductName" : "hlt_selected_prescale_run" + algo})
+                                              "XSource" : "run",
+                                              "ProductName" : "hltselectedprescale_run" + algo})
 
 
 def ExpandPtBins( pipelineDict, ptbins, includeSource):
@@ -713,151 +679,123 @@ def ExpandPtBins( pipelineDict, ptbins, includeSource):
         return newDict
 
 def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
+
+    def AddCorrectionConsumer(pval, algo, level0, level1):
+                name = level1.replace(level0,"")
+                AddConsumer(pval, name+"_npv_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptratio", "Jet1Num":0, "Jet2Num":0,
+                              "Jet1Name" : algo + level1,
+                              "Jet2Name" : algo + level0,
+                              "XSource" : "npv",
+                              "ProductName" : name+"_npv_" + algo})
+                AddConsumer(pval, name+"_zpt_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptratio", "Jet1Num":0, "Jet2Num":0,
+                              "Jet1Name" : algo + level1,
+                              "Jet2Name" : algo + level0,
+                              "XSource" : "zpt",
+                              "ProductName" : name+"_zpt_" + algo})
+                AddConsumer(pval, name+"_jet1pt_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptratio", "Jet1Num":0, "Jet2Num":0,
+                              "Jet1Name" : algo + level1,
+                              "Jet2Name" : algo + level0,
+                              "XSource" : "jet1pt",
+                              "ProductName" : name+"_jet1pt_" + algo})
+                AddConsumer(pval, name+"_eta_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptratio", "Jet1Num":0, "Jet2Num":0,
+                              "Jet1Name" : algo + level1,
+                              "Jet2Name" : algo + level0,
+                              "XSource" : "jet1eta",
+                              "ProductName" : name+"_jet1eta_" + algo})
+
+                AddConsumer(pval, name+"abs_npv_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptabsdiff", "Jet1Num":0, "Jet2Num":0,
+                              "Jet1Name" : algo + level0,
+                              "Jet2Name" : algo + level1,
+                              "XSource" : "npv",
+                              "ProductName" : name+"abs_npv_" + algo})
+                AddConsumer(pval, name+"abs_jet1pt_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptabsdiff", "Jet1Num":0, "Jet2Num":0,
+                              "Jet1Name" : algo + level0,
+                              "Jet2Name" : algo + level1,
+                              "XSource" : "jet1pt",
+                              "ProductName" : name+"abs_jet1pt_" + algo})
+                AddConsumer(pval, name+"abs_zpt_" + algo,
+                            { "Name" : "generic_profile_consumer",
+                              "YSource" : "jetptabsdiff", "Jet1Num":0, "Jet2Num":0,
+                              "Jet1Name" : algo + level0,
+                              "Jet2Name" : algo + level1,
+                              "XSource" : "zpt",
+                              "ProductName" : name+"abs_zpt_" + algo})
+
+
     for algo in algoNames:
         for p, pval in conf["Pipelines"].items():
             if p == "default_" + algo:
-                AddConsumer(pval, "L1_npv_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptratio",
-                              "Jet1Ratio" : algo + "L1",
-                              "Jet2Ratio" : algo,
-                              "XSource" : "reco",
-                              "ProductName" : "L1_npv_" + algo})
-                AddConsumer(pval, "L1_zpt_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptratio",
-                              "Jet1Ratio" : algo + "L1",
-                              "Jet2Ratio" : algo,
-                              "XSource" : "zpt",
-                              "ProductName" : "L1_zpt_" + algo})
-                AddConsumer(pval, "L1_jetpt_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptratio",
-                              "Jet1Ratio" : algo + "L1",
-                              "Jet2Ratio" : algo,
-                              "XSource" : "jetpt",
-                              "ProductName" : "L1_jetpt_" + algo})
-                AddConsumer(pval, "L1_eta_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptratio",
-                              "Jet1Ratio" : algo + "L1",
-                              "Jet2Ratio" : algo,
-                              "XSource" : "jeteta",
-                              "ProductName" : "L1_jeteta_" + algo})
 
-
-                AddConsumer(pval, "L1abs_npv_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptabsdiff",
-                              "Jet1Diff" : algo,
-                              "Jet2Diff" : algo + "L1",
-                              "XSource" : "reco",
-                              "ProductName" : "L1abs_npv_" + algo})
-                AddConsumer(pval, "L1abs_jetpt_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptabsdiff",
-                              "Jet1Diff" : algo,
-                              "Jet2Diff" : algo + "L1",
-                              "XSource" : "jetpt",
-                              "ProductName" : "L1abs_jetpt_" + algo})
-                AddConsumer(pval, "L1abs_zpt_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptabsdiff",
-                              "Jet1Diff" : algo,
-                              "Jet2Diff" : algo + "L1",
-                              "XSource" : "zpt",
-                              "ProductName" : "L1abs_zpt_" + algo})
+                AddCorrectionConsumer(pval, algo, "", "L1")
 
                 if level > 1:
-                    AddConsumer(pval, "L2_jeteta_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptratio",
-                              "Jet1Ratio" : algo + "L1L2",
-                              "Jet2Ratio" : algo + "L1",
-                              "XSource" : "jeteta",
-                              "ProductName" : "L2_jeteta_" + algo})
-                    AddConsumer(pval, "L2_jetpt_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptratio",
-                              "Jet1Ratio" : algo + "L1L2",
-                              "Jet2Ratio" : algo + "L1",
-                              "XSource" : "jetpt",
-                              "ProductName" : "L2_jetpt_" + algo})
+                    AddCorrectionConsumer(pval, algo, "L1", "L1L2")
+
+                if level > 2:
+                    AddCorrectionConsumer(pval, algo, "", "L1L2L3")
 
                 if l3residual:
-                    AddConsumer(pval, "L3Res_jetpt_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptratio",
-                              "Jet1Ratio" : algo + "L1L2L3Res",
-                              "Jet2Ratio" : algo + "L1L2L3",
-                              "XSource" : "jetpt",
-                              "ProductName" : "L3Res_jetpt_" + algo})
-                    AddConsumer(pval, "L3Res_jeteta_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptratio",
-                              "Jet1Ratio" : algo + "L1L2L3Res",
-                              "Jet2Ratio" : algo + "L1L2L3",
-                              "XSource" : "jeteta",
-                              "ProductName" : "L3Res_jeteta_" + algo})
+                    AddCorrectionConsumer(pval, algo, "L1L2L3", "L1L2L3Res")
 
 def AddQuantityPlots( pipelineDict, algos):
+
+    def AddGenericProfileConsumer(x, y, jets=None):
+        if jets is None:
+            AddConsumerEasy(pval, { "Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x, "ProductName" : "_".join([y,x,algo]) } )
+        else:
+            AddConsumerEasy(pval, { "Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x, "ProductName" : "_".join([y,x,algo]), 
+                                 "Jet1Name":jets[0], "Jet2Name":jets[1], "Jet1Num":jets[2], "Jet2Num":jets[3]  } )
+
+    def AddAbsDiff(x,y,obj1,obj2):
+        AddConsumerEasy(pval, {"Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x+"absdiff","Name1" : obj1,"Name2" : obj2,
+                         "ProductName" : "_".join([y,"-".join(["delta"+x,obj1,obj2]),algo]) } )
+        #print "YSource", y, "XSource", x+"absdiff", "Name1" , obj1,"Name2" , obj2, "ProductName", "_".join([y,"-".join(["delta"+x,obj1,obj2]),algo]) 
+
+    y_quantities = ['jet1pt', 'jet1abseta', 'jet2pt', 'jet2abseta', 'zpt', 'zabseta', 
+                         'ptbalance', 'mpf', 'METpt', 'sumEt', 'METfraction', 'jetsvalid', 'zphi', 'METphi']
+
+    x_quantities = ['jet1pt', 'npv', 'jet1eta', 'jet1phi', 'jet2pt', 'jet2eta', 'jet2phi', 'zpt', 'zeta', 'zphi', 
+                          'METpt', 'METphi', 'sumEt', 'jetsvalid']
+
+    objects = ['z', 'jet1', 'jet2', 'MET']
     for algo in algos:
-       for p, pval in pipelineDict["Pipelines"].items():
-            if ("default_" + algo +"_" in p) or (p == "default_" + algo) or (p == "default_" + algo + "nocuts"):
+        for p, pval in pipelineDict["Pipelines"].items():
+            # only apply to 'NoBinning_incut' and 'NoBinning_allevents' for L1L2L3(Res) algorithm:
+            #if ((p == "default_" + algo) or (p == "default_" + algo + "nocuts")) and 'L1L2L3' in algo:
+            if ("default_"+algo+"_" in p or (p == "default_" + algo) or (p == "default_" + algo + "nocuts")) and 'L1L2L3' in algo:
 
-		#jet vs. Z
-                AddGenericProfileConsumer("jetphi", "zphi")
-                AddGenericProfileConsumer("jeteta", "zeta")
+                  for x in x_quantities:
+                      for y in y_quantities:
+                          if x is not y:
+                              AddGenericProfileConsumer(x,y)
+                      AddGenericProfileConsumer(x, "jetptratio", jets=[algo,algo,0,1])
+                      AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo,algo,0,1])
 
-		#eta vs. phi
-                AddGenericProfileConsumer("jetphi", "jeteta")
-                AddGenericProfileConsumer("jet2phi", "jet2eta")
+                  for y in y_quantities:
+                      AddGenericProfileConsumer("jetptratio", y, jets=[algo,algo,0,1])
+                      AddGenericProfileConsumer("jetptabsdiff", y, jets=[algo,algo,0,1])
+                      AddAbsDiff("eta", y, 'jet1', 'z')
 
-		#phi vs. eta
-                AddGenericProfileConsumer("jeteta", "jetphi")
-                AddGenericProfileConsumer("jet2eta", "jet2phi")
+                  for obj1 in objects:
+                      for obj2 in objects:
+                          if obj1 is not obj2:
+                              AddAbsDiff("eta", 'ptbalance', obj1, obj2)
+                              for quantity  in ['ptbalance', 'mpf', 'zpt', 'METpt', 'jet1pt']:
+                                  AddAbsDiff("phi", quantity, obj1, obj2)
 
-		#pt vs. phi
-                AddGenericProfileConsumer("zphi", "zpt")
-                AddGenericProfileConsumer("jetphi", "jetpt")
-                AddGenericProfileConsumer("jet2phi", "jet2pt")
-                AddGenericProfileConsumer("METphi", "METpt")
 
-		#pt vs. eta
-                AddGenericProfileConsumer("zeta", "zpt")
-                AddGenericProfileConsumer("jeteta", "jetpt")
-                AddGenericProfileConsumer("jeteta", "jet2pt")
-
-		# ... vs. npv
-                AddGenericProfileConsumer("reco", "zpt")
-                AddGenericProfileConsumer("reco", "jetpt")
-                AddGenericProfileConsumer("reco", "METpt")
-                AddGenericProfileConsumer("reco", "sumEt")
-                AddGenericProfileConsumer("reco", "jetsvalid")
-
-                # ... vs. sumEt
-                AddGenericProfileConsumer("sumEt", "jetsvalid")
-                AddGenericProfileConsumer("sumEt", "METpt")
-
-		#jet  vs. Z
-                AddGenericProfileConsumer("zpt", "jetpt")
-
-		#pt balance vs. ...
-                AddGenericProfileConsumer("jetpt", "ptbalance")
-                AddGenericProfileConsumer("jeteta", "ptbalance")
-                AddGenericProfileConsumer("jetphi", "ptbalance")
-                AddGenericProfileConsumer("zpt", "ptbalance")
-                AddGenericProfileConsumer("reco", "ptbalance")
-
-		#mpf vs. ...
-                AddGenericProfileConsumer("jetpt", "mpf")
-                AddGenericProfileConsumer("jeteta", "mpf")
-                AddGenericProfileConsumer("jetphi", "mpf")
-                AddGenericProfileConsumer("zpt", "mpf")
-                AddGenericProfileConsumer("reco", "mpf")
-
-            def AddGenericProfileConsumer(x, y):
-                AddConsumerEasy(pval, { "Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x, "ProductName" : "_".join([y,x,algo]) } )
 
 def ReplaceWithQuantitiesBasic(pline):
     RemoveConsumer( pline, "quantities_all" )

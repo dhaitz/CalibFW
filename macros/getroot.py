@@ -125,6 +125,27 @@ def openfile(filename, verbose=False, exitonfail=True):
         print " * Inputfile:", filename
     return f
 
+def getplotlist(files, folder="NoBinning_incut"):
+    print "Getting plot list from files ..."
+    setlist = []
+
+    if folder == "all":    
+        folders = [key.GetName() for key in files[0].GetListOfKeys()]
+        folders.remove("NoBinning_incut")
+        folders.remove("NoBinning_allevents")
+    else: folders = [folder]
+
+    for folder in folders:
+        for rootfile in files:
+            plotlist = []
+            for plot in rootfile.Get(folder).GetListOfKeys():
+                plotname = str(plot.GetName())
+                plotname=plotname[:plotname.find("_AK")]
+                if plotname not in plotlist: plotlist.append(plotname)
+            setlist.append(set(plotlist))
+
+    plotlist = list(set.intersection(*setlist))
+    return plotlist
 
 def getplot(name, rootfile, changes={}, rebin=1):
     rootobject = getobject(name, rootfile, changes)
@@ -308,6 +329,9 @@ class Histo:
 
     def ymax(self):
         return max(self.y)
+
+    def ymin(self):
+        return min(self.y)
 
     def norm(self):
         return 1.0 / sum(self.y)
@@ -609,27 +633,28 @@ def getgraph(x, y, f, opt, change={}, key='var', var=None, drop=True, root=True,
         f1 = f
         f2 = None
     # Determine the value to be varied/to be looped over:
-    if x == 'z_pt':
+    if x == 'zpt':
         # x = mean(z_pt), var = Pt0to30
         key = 'bin'
         var = binstrings(opt.bins)
+        #x = [getobjectfromnick('zpt', f1, {'bin':v}).GetMean() for v in var] #TODO implement xerr
         #if drop:
         #    var.pop(0)
     elif x == 'npv':
         # x = mitte(npvbin) from opt, var = var_Npv_0to1
         var = npvstrings(opt.npv)
-        x = [0.5 * (a + min(b, 35)) for a, b in opt.npv]
+        x = [getobjectfromnick('npv', f1, {'var':v}).GetMean() for v in var]
         xerr = [0.5 * (b - a) for a, b in opt.npv]
     elif x == 'alpha':
         # x = alpha from opt, var mit
         var = cutstrings(opt.cut)
         x = opt.cut
         xerr = [0 for a in x]
-    elif x == 'jet1_eta':
+    elif x == 'jet1eta':
         var = etastrings(opt.eta)
         # Get list of eta bins and their means
         etabins = [(a, b) for a, b in zip(opt.eta[:-1], opt.eta[1:])]
-        x = [0.5 * (a + min(b, 3.5)) for a, b in etabins]
+        x = [getobjectfromnick('jet1abseta', f1, {'var':v}).GetMean() for v in var]
         xerr = [0.5 * (b - a) for a, b in etabins]
     elif type(var) == list:
         # x is a list of variations in the var key
@@ -666,7 +691,6 @@ def getgraph(x, y, f, opt, change={}, key='var', var=None, drop=True, root=True,
             xerri = xerr[i]
         # get y (single histogram mean or ratio)
         ojy = getobjectfromnick(y, f1, ch)
-
         # store them in a root graph
         if median:
             graph.SetPoint(i, xi, histomedian(ojy))

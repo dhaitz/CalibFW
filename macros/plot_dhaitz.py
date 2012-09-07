@@ -28,7 +28,7 @@ import plotfractions
 import plotresponse
 import plot_resolution
 import plot_mikko
-
+import random
 
 def plot():
     """Run all plots with the given settings"""
@@ -48,18 +48,18 @@ def plot():
         style=["o","f","-","-","-"],
         
         energy=8,
-        lumi=5100,
+        lumi=10363,
 
         algorithm="AK5PFJetsCHS",
         correction="L1L2L3Res",
 
-        plots= plotdatamc.plots
-               +plotresponse.plots
+        plots= plotresponse.plots
                +plotfractions.plots
+               +plotdatamc.plots
                #+plot_resolution.plots
-               #+plot_mikko.plots
+               #plot_mikko.plots
         )
-    module_list = [plotdatamc, plotresponse, plotfractions, plot_resolution, plot_mikko]
+    module_list = [plotresponse, plotfractions, plotdatamc, plot_resolution, plot_mikko]
 
     print "Number of files:", len(op.files)
     files=[]

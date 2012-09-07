@@ -282,6 +282,41 @@ public:
 	static const long CutId = 1 << 6;
 };
 
+class DeltaEtaCut: public ZJetCutBase
+{
+public:
+	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
+            ZJetMetaData::LocalMetaDataType & localMetaData,
+			ZJetPipelineSettings const& m_pipelineSettings) const
+	{		
+		if (!metaData.HasValidJet(m_pipelineSettings, data) || !metaData.HasValidZ())
+		{
+			//No valid objects found to apply this cut
+			return;
+		}
+
+		localMetaData.SetCutResult ( this->GetId(),
+			(TMath::Abs(metaData.GetValidPrimaryJet(m_pipelineSettings, data)->p4.Eta() - metaData.GetRefZ().p4.Eta()) > 			
+				m_pipelineSettings.GetCutDeltaEtaLow() && TMath::Abs(metaData.GetValidPrimaryJet(m_pipelineSettings, data)->p4.Eta() -
+				 metaData.GetRefZ().p4.Eta()) < m_pipelineSettings.GetCutDeltaEtaHigh()) );
+
+	}
+
+	unsigned long GetId() const
+	{
+		return DeltaEtaCut::CutId;
+	}
+	std::string GetCutName()
+	{
+		return "8) delta eta";
+	}
+	std::string GetCutShortName() const
+	{
+		return "deltaeta";
+	}
+	static const long CutId = 1 << 5;
+};
+
 class ZPtCut: public ZJetCutBase
 {
 public:

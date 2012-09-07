@@ -15,7 +15,7 @@ template < class TEventType >
 class KappaEventProvider: public EventProvider< TEventType >
 {
 public:
-	KappaEventProvider(FileInterface & fi, InputTypeEnum inpType) :
+	KappaEventProvider(FileInterface & fi, InputTypeEnum inpType, bool phicorrection) :
 		m_prevRun(-1), m_prevLumi(-1), m_inpType(inpType), m_fi(fi)
 	{
 		// setup pointer to collections
@@ -25,8 +25,7 @@ public:
 		{
 			m_event.m_geneventmetadata = fi.Get<KGenEventMetadata> ();
 		}
-
-		WireEvent();
+		WireEvent(phicorrection);
 		m_fi.SpeedupTree();
 
 		// auto-delete objects when moving to a new object. Not defult root behaviour
@@ -36,7 +35,7 @@ public:
 	}
 
 	// overwrite using template specialization
-	void WireEvent() {assert(false);}
+	void WireEvent(bool phicorrection) {assert(false);}
 
 	virtual bool GotoEvent(long long lEvent, HLTTools * hltInfo)
 	{
@@ -104,6 +103,7 @@ protected:
 	TEventType m_event;
 
 	InputTypeEnum m_inpType;
+        bool phicorrection;
 	boost::scoped_ptr<ProgressMonitor> m_mon;
 
 	FileInterface & m_fi;

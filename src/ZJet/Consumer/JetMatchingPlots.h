@@ -40,7 +40,7 @@ public:
 	{
 		ZJetMetaConsumer::Init( pset );
 
-		m_histJetMatch = new Hist1D("jet1_jet_matching_" + this->GetPipelineSettings().GetJetAlgorithm(),
+		m_histJetMatch = new Hist1D("jet1-jet-matching_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetJetMatchingModifier());
 
