@@ -2,15 +2,15 @@ import sys
 import ClosureConfigBase as cbase
 
 conf = cbase.GetMcBaseConfig(run='2012')
-conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa53_MC12_madgraph/*.root", sys.argv)
-conf["OutputPath"] = "closure_mc_madgraphSummer12_53X"
+conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa52_MC12/*.root", sys.argv)
+conf["OutputPath"] = "closure_mc_madgraphSummer12_52X"
 
 algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2L3"]
 cbase.addCHS(algorithms)
 base_algorithms = ["AK5PFJets", "AK5PFJetsCHS"]
 
-conf = cbase.ExpandConfig(algorithms, conf, expandptbins=True)
-cbase.ApplyPUReweighting(conf, "kappa53_MC12_madgraph_190456-201678_8TeV_CombinedReco")
+conf = cbase.ExpandConfig(algorithms, conf)
+cbase.ApplyPUReweighting(conf, "kappa52_MC12_190456-201678_8TeV_PromptReco")
 
 # create various variations ...
 variations = []
