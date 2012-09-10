@@ -218,6 +218,7 @@ public:
 	KGenEventMetadata * m_geneventmetadata;
 
 	KVertexSummary * m_vertexSummary;
+	KDataBeamSpot * m_beamSpot;
 	KJetArea * m_jetArea;
 
 };

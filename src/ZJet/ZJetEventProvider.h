@@ -16,6 +16,7 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 		// open Kappa issue, disable the check and it will work
 		m_event.m_vertexSummary = m_fi.Get<KVertexSummary> (
 				"goodOfflinePrimaryVerticesSummary", false);
+		m_event.m_beamSpot = m_fi.Get<KDataBeamSpot> ("offlineBeamSpot", false);
 		m_event.m_jetArea = m_fi.Get<KJetArea> ("KT6Area");
 		m_event.m_muons = m_fi.Get<KDataMuons> ("muons");
 		m_event.m_pfMet = m_fi.Get<KDataPFMET> ("PFMET", false);
