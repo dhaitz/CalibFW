@@ -23,26 +23,45 @@ public:
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
 	{
-		// appy muon isolation and fit quality
-		for (KDataMuons::iterator it = data.m_muons->begin(); it
-				!= data.m_muons->end(); it++)
+		// Apply muon isolation and MuonID
+		for (KDataMuons::iterator it = data.m_muons->begin();
+				it != data.m_muons->end(); it++)
 		{
-			// more on muon isolation here !!!
-			// apply cuts here
+			bool good_muon = true;
 
-            // this presection is important!
-            // otherwise the reconstructed Z will be trash !
-			if (it->isGlobalMuon()
-                    && ( it->p4.Pt() > 12.0f )
-                    && ( TMath::Abs( it->p4.Eta() ) < 8.0f)
-                    && (it->sumPtIso03 < 3.0f))
-			{
+			// Own loose cuts on muons
+			good_muon = good_muon
+				&& it->isGlobalMuon()
+				&& it->p4.Pt() > 12.0				// 20.0
+				&& std::abs(it->p4.Eta()) < 5.0		// 2.4
+				&& it->sumPtIso03 < 3.0;
+				// && (it->sumPtIso03 + it->hcalIso03 + it->ecalIso03) / it->p4.pt() < 0.15
+
+			// Tight MuonID 2012
+			// https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId#Tight_Muon
+			// comments as CMSSW treats a recoMu
+			good_muon = good_muon
+				&& it->isGlobalMuon()
+				// normalizedChi2
+				&& it->globalTrack.chi2 / it->globalTrack.nDOF < 10.
+				// hitPattern().numberOfValidMuonHits
+				&& it->globalTrack.nValidMuonHits > 0
+				// numberOfMatchedStations
+				&& it->numberOfMatches > 1
+				// fabs(muonBestTrack()->dxy(vertex->position))
+				// The BestTrack is not available in Kappa, innerTrack is used
+				&& std::abs(it->innerTrack.getDxy(data.m_beamSpot)) < 0.2
+				// fabs(muonBestTrack()->dz(vertex->position))
+				&& std::abs(it->innerTrack.getDz(data.m_beamSpot)) < 0.5
+				// hitPattern().numberOfValidPixelHits()
+				&& it->innerTrack.nValidPixelHits > 0
+				// hitPattern().trackerLayersWithMeasurement()
+				&& it->track.nPixelLayers + it->track.nStripLayers > 5;
+
+			if (good_muon)
 				metaData.m_listValidMuons.push_back(*it);
-			}
 			else
-			{
 				metaData.m_listInvalidMuons.push_back(*it);
-			}
 		}
 
 		return true;
