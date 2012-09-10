@@ -620,10 +620,8 @@ public:
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		if (metaData.GetValidJetCount(m_pipelineSettings, data) < 2)
-		{
 			// this is no vbf event, 2nd jet is missing
 			return;
-		}
 
 		if (metaData.GetValidJetCount(m_pipelineSettings, data) < 3)
 		{
@@ -645,8 +643,7 @@ public:
 		}
 
 		localMetaData.SetCutResult(this->GetId(),
-			//TMath::Abs(zeppenfeld(eta1, eta2, eta3, true)) > 0.5
-			TMath::Abs((2.0 * jet3->p4.Eta() - jet1->p4.Eta() - jet2->p4.Eta()) / (jet1->p4.Eta() - jet2->p4.Eta())) < 1.0
+			std::abs(metaData.GetZeppenfeld(jet1, jet2, jet3)) < 1.0
 		);
 	}
 
