@@ -91,18 +91,17 @@ public:
 		for (ZJetEventData::PfMapIterator italgo = event.m_pfJets.begin(); italgo
 				!= event.m_pfJets.end(); ++italgo)
 		{
-			//init collections for this algorithm
-            std::string sAlgoName =  italgo->first;
-			metaData.m_listValidJets.insert( sAlgoName, new std::vector<unsigned int> () );
-			metaData.m_listInvalidJets.insert( sAlgoName, new std::vector<unsigned int> () );
+			// init collections for this algorithm
+			std::string sAlgoName = italgo->first;
+			metaData.m_listValidJets.insert(sAlgoName, new std::vector<unsigned int> ());
+			metaData.m_listInvalidJets.insert(sAlgoName, new std::vector<unsigned int> ());
 
 			int i = 0;
 			float lastpt = -1.0f;
-			for (KDataPFJets::iterator itjet = italgo->second->begin(); itjet
-					!= italgo->second->end(); ++itjet)
+			for (KDataPFJets::iterator itjet = italgo->second->begin();
+					itjet != italgo->second->end(); ++itjet)
 			{
 				bool good_jet = true;
-				// implement calo ...
 
 				// Muon isolation DeltaR > 0.5
 				float dr1, dr2;
@@ -125,14 +124,15 @@ public:
 
 				lastpt = itjet->p4.Pt();
 
-				// JetID: acoording to https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
+				// JetID
+				// https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
 				// PFJets, all eta
 				good_jet = good_jet
 					&& (itjet->neutralHadFraction + itjet->HFHadFraction < 0.99)
 					&& (itjet->neutralEMFraction < 0.99)
 					&& (itjet->nConst > 1);
 				// PFJets, |eta| < 2.4 (tracker)
-				if (TMath::Abs(itjet->p4.eta()) < 2.4)
+				if (std::abs(itjet->p4.eta()) < 2.4)
 				{
 					good_jet = good_jet
 						&& (itjet->chargedHadFraction > 0.0)
@@ -141,14 +141,9 @@ public:
 				}
 
 				if (good_jet)
-				{
 					metaData.m_listValidJets[italgo->first].push_back(i);
-				}
 				else
-				{
 					metaData.m_listInvalidJets[italgo->first].push_back(i);
-				}
-
 				i++;
 			}
 
