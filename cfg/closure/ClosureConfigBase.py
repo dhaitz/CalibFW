@@ -5,7 +5,7 @@ import subprocess
 import glob
 import socket
 import ConfigParser
-import os.path
+import os
 import stat
 import getpass
 import json
@@ -26,77 +26,28 @@ def GetDefaultBinning():
     return [30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]
 
 
-def GetDataPath():
-    hname = socket.gethostname()
-    username = getpass.getuser()
-    # feel free to insert your machine here !
-    if username == 'berger':
-        if 'ekpcms' in hname or 'ekpplus' in hname:
-            return "/storage/6/berger/zpj/"
-    elif username == 'dhaitz':
-        if 'ekpcms' in hname or 'ekpplus' in hname:
-            return "/storage/6/berger/zpj/"
-    elif hname == "saturn":
-        return "/home/poseidon/uni/data/Kappa/"
-    elif "ekpcms" in hname:
-        return "/storage/5/hauth/zpj/"
-    elif "ekpplus" in hname:
-        return "/storage/5/hauth/zpj/"
-    else:
-        print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
-        exit(0)
+def GetCMSSWPath(variable='CMSSW_BASE'):
+    try:
+        return os.environ[variable] + "/"
+    except:
+        print variable, "is not in shell variables:", os.environ.keys()
+        print "Please source CMSSW!"
+        exit(1)
 
 
-def GetCMSSWPath():
-    hname = socket.gethostname()
-    username = getpass.getuser()
-    # feel free to insert your machine here !
-    if username == 'berger':
-        if 'ekpcms' in hname or 'ekpplus' in hname:
-            return "/portal/ekpcms5/home/berger/CMSSW_5_2_5/"
-    elif username == 'dhaitz':
-        if 'ekpcms' in hname or 'ekpplus' in hname:
-            return "/portal/ekpcms5/home/dhaitz/CMSSW_5_2_1/"
-    elif hname == "saturn":
-        return "/home/poseidon/uni/data/Kappa/"
-    elif "ekpcms" in hname:
-        return "/storage/5/hauth/zpj/CMSSW_4_2_8/"
-    elif "ekpplus" in hname:
-        return "/storage/5/hauth/zpj/CMSSW_4_2_8/"
-    else:
-        print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
-        exit(0)
-
-
-def GetBasePath():
-    hname = socket.gethostname()
-    # feel free to insert your machine here !
-    username = getpass.getuser()
-    if username == 'berger':
-        if 'ekpcms' in hname or 'ekpplus' in hname:
-            return "/portal/ekpcms5/home/berger/CalibFW/"
-    elif username == 'dhaitz':
-        if 'ekpcms' in hname or 'ekpplus' in hname:
-            return "/portal/ekpcms5/home/dhaitz/git/CalibFW/"    
-    elif hname == "saturn":
-        return "/home/poseidon/uni/data/Kappa/"
-    elif hname == "ekpcms5":
-        return "/storage/5/hauth/zpj/CalibFW/"
-    elif hname == "ekpcms4.physik.uni-karlsruhe.de":
-        return "/storage/5/hauth/zpj/CalibFW/"
-    else:
-        print "Machine " + hname + " not found in ClosureConfigBase. Please insert it."
-        exit(0)
+def GetBasePath(variable='CLOSURE_BASE'):
+    try:
+        return os.environ[variable] + "/"
+    except:
+        print variable, "is not in shell variables:", os.environ.keys()
+        print "Please source scripts/ClosureEnv.sh!"
+        exit(1)
 
 
 def GetWorkPath():
-    hname = socket.gethostname()
-    # feel free to insert your machine here !
-    username = getpass.getuser()
-    if username == 'dhaitz':
-        if 'ekpcms' in hname or 'ekpplus' in hname:
-            return "/storage/8/dhaitz/CalibFW/"    
-    else:
+    try:
+        return os.environ['CLOSURE_WORK'] + "/"
+    except:
         print "WorkPath is not set. BasePath is used instead."
         return GetBasePath()
 
@@ -1017,7 +968,7 @@ def StoreShellRunner ( settings, nickname, filename ):
         cfile.write("source /wlcg/sw/cms/experimental/cmsset_default.sh\n")
     cfile.write("eval `scram runtime -sh`\n")
     cfile.write("cd -\n")
-    cfile.write("source "+ GetBasePath() + "scripts/CalibFWenv.sh\n")
+    cfile.write("source "+ GetBasePath() + "scripts/ClosureEnv.sh\n")
     cfile.write( GetBasePath() + "closure " + GetBasePath() + "cfg/closure/" + nickname + ".py.json" )
     cfile.close()
     os.chmod(filename, stat.S_IRWXU)
