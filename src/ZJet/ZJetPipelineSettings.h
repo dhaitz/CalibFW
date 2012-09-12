@@ -26,6 +26,7 @@ public:
 
 	IMPL_PROPERTY(bool, EnablePuReweighting)
 	IMPL_PROPERTY(bool, Enable2ndJetReweighting)
+	IMPL_PROPERTY(bool, MuonID2011)
 	IMPL_PROPERTY(std::string, JsonFile)
 
 

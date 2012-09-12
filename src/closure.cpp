@@ -227,6 +227,7 @@ int main(int argc, char** argv)
 
 	gset.SetEnablePuReweighting( g_propTree.get<bool> ("EnablePuReweighting", false) );
 	gset.SetEnable2ndJetReweighting( g_propTree.get<bool> ("Enable2ndJetReweighting", false) );
+	gset.SetMuonID2011(g_propTree.get<bool>("MuonID2011", false));
 
 	//std::vector<std::string> sJetNames = fi.GetNames<KDataJet> (true);
 
