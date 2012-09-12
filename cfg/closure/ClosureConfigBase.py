@@ -52,16 +52,6 @@ def GetWorkPath():
         return GetBasePath()
 
 
-def getDefaultCorrectionL2(data_path):
-    globalTag = "GR_R_44_V13_"
-
-    names = ["ak5PF", "ak7PF", "kt4PF", "kt6PF", "ak5Calo", "ak7Calo", "kt4Calo", "kt6Calo", "iterativeCone5PF", "iterativeCone5Calo"]
-    algos = ["AK5PF", "AK7PF", "KT4PF", "KT6PF", "AK5Calo", "AK7Calo", "KT4Calo", "KT6Calo", "IC5PF", "IC5Calo"]
-    g_l2_correction_data = [n + "Jets:" + data_path + "jec_data/" + globalTag + a + "_L2Relative.txt" for n, a in zip(names, algos)]
-
-    return g_l2_correction_data
-
-
 def addCHS(algorithms):
     """can be used as [algos =] addCHS(algos) or algos = addCHS([AK5, etc.])"""
     algorithms += [a.replace("PFJets", "PFJetsCHS") for a in algorithms
@@ -293,14 +283,6 @@ def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
     conf["Enable2ndJetReweighting"] = 1
     conf["2ndJetWeight"] = d[dataset] + [1.0]*(300 - len(d[dataset]))
     return conf
-
-
-#def GetDefaultDataPipeline():
-#    # This is never used!
-#    pline = GetDataBaseConfig()["Pipelines"]["default"]
-#    pline["FilterInCutIgnored"] = 0
-#    pline["Filter"].append("incut")
-#    return pline
 
 
 def ExpandRange(pipelineDict, varName, vals, 
@@ -942,15 +924,13 @@ def Run(settings, arguments):
     #args = parser.parse_args(arguments)
     #print args
     filename = arguments[0] + ".json"
-    StoreSettings( settings, filename)
+    StoreSettings(settings, filename)
 
     base_path = GetBasePath()
     work_path = GetWorkPath()
-    print "BASEPATH", base_path
-    print "WORKPATH", work_path
 
     if len(arguments) > 1 and "--storeonly" in arguments:
-        "The settings were stored to", filename
+        print "The settings were stored to", filename
         exit(0)
 
     if len(arguments) <= 1 or "batch" not in arguments[1]:  # both 'batch' and '--batch' usable
@@ -974,7 +954,8 @@ def Run(settings, arguments):
         StoreShellRunner(settings, nickname, work_path + "work/" + nickname + "/gc-run-closure.sh")
 
         # generate merge script
-        print "done"
+        print "The config files are prepared in", work_path + "work/" + nickname
+        print "Go there and start grid-control with", nickname + ".conf!"
     try:
         import pynotify
         if pynotify.init("CalibFW resp_cuts"):
