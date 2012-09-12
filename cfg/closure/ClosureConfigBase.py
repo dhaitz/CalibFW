@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""ClosureConfigBase provides the tools to make a valid closure config.
+
+The most used functions are:
+  - BaseConfig to generate a default configuration
+  - CreateFileList to create a list of input files
+  - Run to acutally call closure and run it
+"""
 import copy
 import subprocess
 import glob
@@ -27,6 +34,7 @@ def GetDefaultBinning():
 
 
 def GetCMSSWPath(variable='CMSSW_BASE'):
+    """Return the path of the sourced CMSSW release."""
     try:
         return os.environ[variable] + "/"
     except:
@@ -36,6 +44,7 @@ def GetCMSSWPath(variable='CMSSW_BASE'):
 
 
 def GetBasePath(variable='CLOSURE_BASE'):
+    """Return the path of the closure repository (CalibFW)."""
     try:
         return os.environ[variable] + "/"
     except:
@@ -45,6 +54,7 @@ def GetBasePath(variable='CLOSURE_BASE'):
 
 
 def GetWorkPath():
+    """Return work path if the shell variable 'CLOSURE_WORK' is set."""
     try:
         return os.environ['CLOSURE_WORK'] + "/"
     except:
@@ -67,9 +77,13 @@ def getNewestJson(variant="PromptReco_Collisions12"):
 
 
 def BaseConfig(inputtype, run='2012', analysis='zjet'):
-    """Basic configuration for closure
+    """Basic configuration for closure.
 
-       This
+    Return a default configuration for closure depending on
+
+      - @param inputtype can be either 'data' or 'mc'. Default settings are adapted.
+      - @param run can be either '2011' or '2012'. Parameters are set accordingly.
+      - @param analysis can be either 'zjet' or 'vbf'. The cuts are set accordingly.
     """
     config = {
         'GlobalAlgorithms': [],
@@ -112,8 +126,13 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
 
 
 def SetMcSpecific(cfg, run='2012'):
-    """Set the
+    """Add Monte-Carlo specific settings to a config.
 
+    The MC settings include
+
+      - the set of Jet Energy Corrections
+      - pile-up reweighting factors
+      - additional producers
     """
     if run == '2011':
         cfg['Jec'] = GetBasePath() + "data/jec_data/START44_V12"
@@ -130,7 +149,15 @@ def SetMcSpecific(cfg, run='2012'):
 
 
 def SetDataSpecific(cfg, run='2012'):
-    """ """
+    """Add data specific settings to a config
+
+    The data settings include
+
+      - the set of Jet Energy Corrections
+      - json files
+      - HLT paths
+      - additional producers
+    """
     d = {}
     if run == '2011':
         cfg['Jec'] = GetBasePath() + "data/jec_data/GR_R_44_V13"
@@ -165,6 +192,7 @@ def SetDataSpecific(cfg, run='2012'):
 
 
 def GetCuts(analysis='zjet'):
+    """Return a set of default cuts for a given analysis."""
     cuts = {
         'zjet': {
             'Cuts': [
@@ -224,12 +252,12 @@ def GetCuts(analysis='zjet'):
 
 
 def ApplyPUReweighting(conf, dataset, weightfile="data/pileup/puweights.json"):
-    """Use pile-up reweighting
+    """Use pile-up reweighting.
 
-       This function turns the pile-up reweighting on and sets the corresponding
-       entries in the configuration. The cross sections and weight factors are
-       calculated via macros/weightCalc.py and stored in the following
-       dictionary.
+    This function turns the pile-up reweighting on and sets the corresponding
+    entries in the configuration. The cross sections and weight factors are
+    calculated via macros/weightCalc.py and stored in the following
+    dictionary.
     """
     # The following dictionary stores the weights per dataset
     try:
@@ -259,12 +287,12 @@ def ApplyPUReweighting(conf, dataset, weightfile="data/pileup/puweights.json"):
 
 
 def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
-    """Use 2nd jet reweighting
+    """Use 2nd jet reweighting.
 
-       This function turns the 2nd jet reweighting on and sets the corresponding
-       entries in the configuration. It is intended for powheg samples which
-       need it. The weight factors are calculated via macros/weightCalc.py and
-       stored in the following dictionary.
+    This function turns the 2nd jet reweighting on and sets the corresponding
+    entries in the configuration. It is intended for powheg samples which
+    need it. The weight factors are calculated via macros/weightCalc.py and
+    stored in the following dictionary.
     """
     dataset += method
     d = {
@@ -273,7 +301,7 @@ def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
         ],
         "powhegSummer12reco" : [],
     }
-    
+
     if dataset not in d:
         print "No 2nd jet weights for this dataset:", dataset
         print "Weights are available for:", ", ".join(d.keys())
@@ -285,7 +313,7 @@ def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
     return conf
 
 
-def ExpandRange(pipelineDict, varName, vals, 
+def ExpandRange(pipelineDict, varName, vals,
                 setRootFolder=True, includeSource=True,
                 alsoForNoCuts=False, alsoForPtBins=True,
                 correction="L1L2L3", onlyBasicQuantities=True):
@@ -365,11 +393,11 @@ def ExpandRange2Cut(pipelines, cutname, low, high=None,
                 foldername="var_{name}_{low}to{high}",
                 includeSource=True, onlyOnIncut=True,
                 onlyBasicQuantities = True):
-    """Add pipelines with values between low and high for filtername
+    """Add pipelines with values between low and high for filtername.
 
     This only works if the filter is lowercase and it uses two variables
-    called Filter<FilterName>Low/High
-    The foldername string can contain the variables {name}, {low} and {high}
+    called Filter<FilterName>Low/High.
+    The foldername string can contain the variables {name}, {low} and {high}.
     """
     newDict = {}
     for pipeline, subdict in pipelines.items():
@@ -524,7 +552,7 @@ def AddCutConsumer( pipelineDict, algos):
                 #AddSingleCutConsumer(pval, "jeteta", 8, algo )
 
 def AddLumiConsumer( pipelineDict, algos):
-    
+
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
             if ("default_" + algo +"_" in p) or (p == "default_" + algo):
@@ -684,7 +712,7 @@ def AddQuantityPlots( pipelineDict, algos):
         if jets is None:
             AddConsumerEasy(pval, { "Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x, "ProductName" : "_".join([y,x,algo]) } )
         else:
-            AddConsumerEasy(pval, { "Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x, "ProductName" : "_".join([y,x,algo]), 
+            AddConsumerEasy(pval, { "Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x, "ProductName" : "_".join([y,x,algo]),
                                  "Jet1Name":jets[0], "Jet2Name":jets[1], "Jet1Num":jets[2], "Jet2Num":jets[3]  } )
 
     def AddAbsDiff(x,y,obj1,obj2):
@@ -919,15 +947,13 @@ def StoreShellRunner ( settings, nickname, filename ):
 
 
 def Run(settings, arguments):
+    """Run this config with closure
 
-    # parser = argparse.ArgumentParser(description='Run the ROCED scheduler')
-    #parser.add_argument('--batch',  help="Generate all Grid-Control configs", action='store_true' )
-#    parser.add_argument('config', metavar='config file', nargs=1,
-#                        help='Run using config file')
-  #  parser.add_argument('--config', nargs=1, help="Run using config file" )
-
-    #args = parser.parse_args(arguments)
-    #print args
+    The options are:
+      --storeonly Just generate the json config file and exit
+      --fast      Run over a few files to see if it works
+      --batch     Split into jobs for processing on a cluster
+    """
     filename = arguments[0] + ".json"
     StoreSettings(settings, filename)
 

@@ -12,7 +12,13 @@ typedef GlobalMetaDataProducerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSett
 //typedef CutHandler<ZJetEventData , ZJetPipelineSettings > ZJetCutHandler;
 //typedef EventConsumerBase<EventResult, ZJetPipelineSettings> ZJetConsumerBase;
 
+/** Select only valid muons.
 
+    The muons are valid if the pass these criteria
+    1. soft cuts on muons
+    1. muon isolation
+    1. tight muonID
+*/
 class ValidMuonProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
@@ -68,6 +74,12 @@ public:
 };
 
 
+/** Select only valid jets.
+
+    The jets are valid if the pass these criteria
+    1. muon isolation
+    1. jetID
+*/
 class ValidJetProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
@@ -155,7 +167,11 @@ public:
 };
 
 
-// need the ValidMuonProducer before
+/** Combine valid muons to a Z boson.
+
+    There must be 2 or 3 valid muons that fullfil the Z requirements.
+    This requires the @see ValidMuonProducer before.
+*/
 class ZProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
