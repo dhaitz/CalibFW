@@ -1,7 +1,7 @@
 import sys
 import ClosureConfigBase as cbase
 
-conf = cbase.GetMcBaseConfig()
+conf = cbase.BaseConfig('mc', '2011')
 conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa44_MC11_powheg/*.root", sys.argv)
 conf["OutputPath"] = "closure_mc_powhegFall11"
 

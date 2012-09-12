@@ -1,7 +1,7 @@
 import sys
 import ClosureConfigBase as cbase
 
-conf = cbase.GetDataBaseConfig(run='2012')
+conf = cbase.BaseConfig('data', '2012')
 conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa53_Data12_Prompt/kappa_2012Cv*.root", sys.argv)
 conf["OutputPath"] = "closure_data_2012C"
 

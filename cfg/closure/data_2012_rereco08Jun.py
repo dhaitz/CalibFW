@@ -1,7 +1,7 @@
 import sys
 import ClosureConfigBase as cbase
 
-conf = cbase.GetDataBaseConfig(run='2012')
+conf = cbase.BaseConfig('data', '2012')
 conf["JsonFile"] = cbase.GetBasePath() + "data/json/Cert_190456-195530_8TeV_08Jun2012ReReco_Collisions12_JSON.txt"
 conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa52_Data12_08Jun/*.root", sys.argv)
 conf["OutputPath"] = "closure_data_2012_rereco08Jun"

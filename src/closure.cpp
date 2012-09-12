@@ -94,20 +94,7 @@ using namespace CalibFW;
 /* BASIC CONFIGURATION */
 
 // DP made the variables not const to set them by command line args
-
-
 stringvector g_sourcefiles;
-
-
-// weighting related settings
-bool g_useWeighting;
-bool g_useEventWeight;
-
-bool g_useGlobalWeightBin;
-double g_globalXSection;
-bool g_eventReweighting;
-
-//const TString g_sJsonFile("Cert_139779-140159_7TeV_July16thReReco_Collisions10_JSON.txt");
 std::string g_sJsonFile("not set");
 std::string g_sOutputPath = "default_zjetres";
 std::string g_sTrackedEventsFile;
@@ -122,7 +109,7 @@ std::map<std::string, std::string> g_l2CorrData;
 
 TFile * g_resFile;
 
-typedef std::vector<ZJetPipelineSettings *> PipelineSettingsVector;
+typedef std::vector<ZJetPipelineSettings*> PipelineSettingsVector;
 
 PipelineSettingsVector g_pipeSettings;
 
@@ -144,9 +131,10 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 		else if ( ValidJetProducer::Name() == (*it) )
 			runner.AddGlobalMetaProducer( new ValidJetProducer());
 		else if ( CorrJetProducer::Name() == (*it) )
-			runner.AddGlobalMetaProducer( new CorrJetProducer( globalSettings.get<std::string> ("JecBase"),
-                                     globalSettings.get<std::string> ("L1Correction"),
-                                     PropertyTreeSupport::GetAsStringList(&globalSettings,"GlobalAlgorithms")));
+			runner.AddGlobalMetaProducer( new CorrJetProducer(
+					globalSettings.get<std::string>("Jec"),
+					globalSettings.get<std::string>("L1Correction"),
+					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else if ( JetSorter::Name() == (*it))
 			runner.AddGlobalMetaProducer( new JetSorter());
 		else if ( HltSelector::Name() == (*it))
@@ -225,35 +213,30 @@ int main(int argc, char** argv)
 	// setup Global Settings
 	ZJetGlobalSettings gset;
 
-	gset.SetEnablePuReweighting( g_propTree.get<bool> ("EnablePuReweighting", false) );
-	gset.SetEnable2ndJetReweighting( g_propTree.get<bool> ("Enable2ndJetReweighting", false) );
+	gset.SetEnablePuReweighting(g_propTree.get<bool>("EnablePuReweighting", false));
+	gset.SetEnable2ndJetReweighting(g_propTree.get<bool>("Enable2ndJetReweighting", false));
 	gset.SetMuonID2011(g_propTree.get<bool>("MuonID2011", false));
 
-	//std::vector<std::string> sJetNames = fi.GetNames<KDataJet> (true);
-
-	if ( g_propTree.get<std::string> ("InputType", "mc") == "data")
+	if (g_propTree.get<std::string>("InputType", "mc") == "data")
 	{
-		gset.SetJsonFile( g_propTree.get< std::string > ("JsonFile") );
-
+		gset.SetJsonFile(g_propTree.get<std::string>("JsonFile"));
 		g_inputType = DataInput;
 	}
 	else
 	{
 		gset.m_recovertWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
 		gset.m_2ndJetWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "2ndJetWeight");
-
 		g_inputType = McInput;
 	}
 
-	gset.SetInputType ( g_inputType );
-	//sJetNames = fi.GetNames<KVertexSummary>(true);
+	gset.SetInputType(g_inputType);
 
-	ZJetEventProvider evtProvider( finterface, g_inputType, g_propTree.get<bool> ("UseMETPhiCorrection") );
+	ZJetEventProvider evtProvider(finterface, g_inputType, g_propTree.get<bool>("EnableMetPhiCorrection"));
 
 	// removes the old file
-	std::string sRootOutputFilename = (g_sOutputPath + ".root");
+	std::string sRootOutputFilename = g_sOutputPath + ".root";
 
-	//Todo: close file to free memory of already written histos
+	//TODO: close file to free memory of already written histos
 	g_resFile = new TFile(sRootOutputFilename.c_str(), "RECREATE");
 	CALIB_LOG_FILE("Writing to the root file " << sRootOutputFilename)
 
@@ -313,34 +296,24 @@ int main(int argc, char** argv)
 	}
 
 	// delete the pipeline settings
-		for (PipelineSettingsVector::iterator it = g_pipeSettings.begin(); !(it
-			== g_pipeSettings.end()); it++)
+	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin();
+			it != g_pipeSettings.end(); it++)
 	{
 		delete (*it);
 	}
 
-	// weighting settings
-	g_useEventWeight = g_propTree.get<bool> ("UseEventWeight", false);
-	g_useWeighting = g_propTree.get<bool> ("UseWeighting", false);
-
-	g_useGlobalWeightBin = g_propTree.get<bool> ("UseGlobalWeightBin", false);
-	g_globalXSection = g_propTree.get<double> ("GlobalXSection", 0.0f);
-
-	g_eventReweighting = g_propTree.get<bool> ("EventReweighting", false);
-
-
-	if (g_eventReweighting)
-		CALIB_LOG_FILE( "\n\n --------> reweightin events for # reco !!\n\n" )
+	if (g_propTree.get<bool>("EnablePuReweighting", false))
+		CALIB_LOG_FILE("\nPile-up reweighting enabled.\n")
 
 	ZJetPipelineSettings settings;
 	settings.m_globalSettings = &gset;
 
 
 #ifdef USE_PERFTOOLS
-	ProfilerStart( "closure.prof");
+	ProfilerStart("closure.prof");
 #endif
 	//HeapProfilerStart( "resp_cuts.heap");
-	pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings >( evtProvider, settings );
+	pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>(evtProvider, settings);
 
 	//HeapProfilerStop();
 #ifdef USE_PERFTOOLS

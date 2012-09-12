@@ -1,7 +1,7 @@
 import sys
 import ClosureConfigBase as cbase
 
-conf = cbase.GetMcBaseConfig(run='2012')
+conf = cbase.BaseConfig('mc', '2012')
 conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa52_MC12/*.root", sys.argv)
 conf["OutputPath"] = "closure_mc_madgraphSummer12"
 
