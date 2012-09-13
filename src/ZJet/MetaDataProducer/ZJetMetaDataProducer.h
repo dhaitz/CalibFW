@@ -54,10 +54,9 @@ public:
 				// numberOfMatchedStations
 				&& it->numberOfMatches > 1
 				// fabs(muonBestTrack()->dxy(vertex->position))
-				// The BestTrack is not available in Kappa, innerTrack is used
-				&& std::abs(it->innerTrack.getDxy(&data.m_vertexSummary->pv)) < 0.2
+				&& std::abs(it->bestTrack.getDxy(&data.m_vertexSummary->pv)) < 0.2
 				// fabs(muonBestTrack()->dz(vertex->position)) // not in 2011
-				&& std::abs(it->innerTrack.getDz(&data.m_vertexSummary->pv)) < 0.5 + 99999. * is2011
+				&& std::abs(it->bestTrack.getDz(&data.m_vertexSummary->pv)) < 0.5 + 99999. * is2011
 				// hitPattern().numberOfValidPixelHits()
 				&& it->innerTrack.nValidPixelHits > 0
 				// hitPattern().trackerLayersWithMeasurement() // 8 in 2011
