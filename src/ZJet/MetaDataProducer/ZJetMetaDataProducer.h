@@ -45,6 +45,8 @@ public:
 			bool is2011 = globalSettings.Global()->GetMuonID2011();
 			good_muon = good_muon
 				&& it->isGlobalMuon()
+				// use PF muons
+				&& it->isPFMuon()
 				// normalizedChi2
 				&& it->globalTrack.chi2 / it->globalTrack.nDOF < 10.
 				// hitPattern().numberOfValidMuonHits
