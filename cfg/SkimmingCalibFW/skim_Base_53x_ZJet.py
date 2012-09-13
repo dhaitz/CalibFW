@@ -42,8 +42,7 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
 
     # Create good primary vertices to be used for PF association --------------
     from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
-    process.goodOfflinePrimaryVertices = cms.EDFilter(
-        "PrimaryVertexObjectFilter",
+    process.goodOfflinePrimaryVertices = cms.EDFilter("PrimaryVertexObjectFilter",
         filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
         src=cms.InputTag('offlinePrimaryVertices')
     )
@@ -51,11 +50,11 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
     process.ak7PFJets.srcPVs = cms.InputTag('goodOfflinePrimaryVertices')
     process.kt4PFJets.srcPVs = cms.InputTag('goodOfflinePrimaryVertices')
     process.kt6PFJets.srcPVs = cms.InputTag('goodOfflinePrimaryVertices')
-    process.pfPileUp.Vertices = cms.InputTag("goodOfflinePrimaryVertices")
-    process.pfPileUp.checkClosestZVertex = cms.bool(False)
 
     # CHS Jets with the NoPU sequence -----------------------------------------
     process.load('CommonTools.ParticleFlow.PFBRECO_cff')
+    process.pfPileUp.Vertices = cms.InputTag('goodOfflinePrimaryVertices')
+    process.pfPileUp.checkClosestZVertex = cms.bool(False)
     process.pfCHS = cms.Path(process.goodOfflinePrimaryVertices * process.PFBRECO)
     process.ak5PFJetsCHS = process.ak5PFJets.clone( src = cms.InputTag('pfNoPileUp') )
     process.ak7PFJetsCHS = process.ak7PFJets.clone( src = cms.InputTag('pfNoPileUp') )
@@ -71,10 +70,11 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
     # MET correction for ak5PFJets and ak7PFJets (useful ones only) -----------
     process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
     process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
+    process.selectedVerticesForMEtCorr.src = cms.InputTag('goodOfflinePrimaryVertices')
     if residual: # residual == data
-        process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAvsNvtx_data
+        process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAplusBvsNvtx_data
     else:
-        process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAvsNvtx_mc
+        process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAplusBvsNvtx_mc
     # Add AK7 correction services
     process.ak7PFL1Fastjet = process.ak5PFL1Fastjet.clone(algorithm = cms.string('AK7PF'))
     process.ak7PFL1FastL2L3 = process.ak5PFL1FastL2L3.clone(algorithm = cms.string('AK7PF'))
