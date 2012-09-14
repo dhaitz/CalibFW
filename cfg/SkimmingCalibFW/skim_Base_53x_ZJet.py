@@ -141,13 +141,18 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
     process.ak7PFMETCHSL2L3 = process.ak7PFMETL2L3.clone(applyType0Corrections = cms.bool(True))
     process.ak7PFMETCHSL2L3Res = process.ak7PFMETL2L3Res.clone(applyType0Corrections = cms.bool(True))
     # MET phi corrections
-    process.ak5PFMETCHSL2L3phi = process.ak5PFMETCHSL2L3.clone(
+    process.pfMETCHSPhi = process.pfMETCHS.clone(
+        srcType1Corrections = cms.VInputTag(
+            cms.InputTag('pfMEtSysShiftCorr')
+        )
+    )
+    process.ak5PFMETCHSL2L3Phi = process.ak5PFMETCHSL2L3.clone(
         srcType1Corrections = cms.VInputTag(
             cms.InputTag('pfJetMETcorr', 'type1'),
             cms.InputTag('pfMEtSysShiftCorr')
         )
     )
-    process.ak5PFMETCHSL2L3Resphi = process.ak5PFMETCHSL2L3Res.clone(
+    process.ak5PFMETCHSL2L3ResPhi = process.ak5PFMETCHSL2L3Res.clone(
         srcType1Corrections = cms.VInputTag(
             cms.InputTag('pfJetMETcorr', 'type1'),
             cms.InputTag('pfMEtSysShiftCorr')
@@ -164,13 +169,13 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
             process.ak5PFMETL1 * process.ak5PFMETCHSL1 *
             process.ak5PFMETL1L2L3 * process.ak5PFMETCHSL1L2L3 *
             process.ak5PFMETL2L3 * process.ak5PFMETCHSL2L3 *
-            process.ak5PFMETCHSL2L3phi
+            process.pfMETCHSPhi * process.ak5PFMETCHSL2L3Phi
         )
     if residual:
         process.metCorrections *= process.ak5PFMETL2L3Res
         process.metCorrections *= process.ak5PFMETCHSL2L3Res
         process.metCorrections *= process.ak7PFMETCHSL2L3Res
-        process.metCorrections *= process.ak5PFMETCHSL2L3Resphi
+        process.metCorrections *= process.ak5PFMETCHSL2L3ResPhi
 
     # Require one good muon --------------------------------------------------------
     process.goodMuons = cms.EDFilter('CandViewSelector',

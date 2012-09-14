@@ -19,7 +19,10 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 		m_event.m_jetArea = m_fi.Get<KJetArea>("KT6Area");
 		m_event.m_muons = m_fi.Get<KDataMuons>("muons");
 		m_event.m_pfMet = m_fi.Get<KDataPFMET>("PFMET");
-		m_event.m_pfMetChs = m_fi.Get<KDataPFMET>("PFMETCHS");
+		if (phicorrection)
+			m_event.m_pfMetChs = m_fi.Get<KDataPFMET>("PFMETCHSPhi");
+		else
+			m_event.m_pfMetChs = m_fi.Get<KDataPFMET>("PFMETCHS");
 		m_event.m_pfMetL1 = m_fi.Get<KDataPFMET>("ak5PFMETL1");
 		m_event.m_pfMetChsL1 = m_fi.Get<KDataPFMET>("ak5PFMETCHSL1");
 		m_event.m_pfMetL2L3 = m_fi.Get<KDataPFMET>("ak5PFMETL2L3");
@@ -50,7 +53,7 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 			// we need to read the residual MET corrections for data
 			m_event.m_pfMetL2L3Res = m_fi.Get<KDataPFMET>("ak5PFMETL2L3Res");
 			if (phicorrection)
-				m_event.m_pfMetChsL2L3Res = m_fi.Get<KDataPFMET>("ak5PFMETCHSL2L3Resphi");
+				m_event.m_pfMetChsL2L3Res = m_fi.Get<KDataPFMET>("ak5PFMETCHSL2L3ResPhi");
 			else
 				m_event.m_pfMetChsL2L3Res = m_fi.Get<KDataPFMET>("ak5PFMETCHSL2L3Res");
 		}

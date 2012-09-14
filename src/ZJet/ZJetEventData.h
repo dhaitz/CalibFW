@@ -37,8 +37,6 @@ public:
 	KDataPFMET * m_pfMetChsL2L3;
 	KDataPFMET * m_pfMetChsL1L2L3;
 	KDataPFMET * m_pfMetChsL2L3Res;
-	KDataPFMET * m_pfMetChsL2L3phi;
-	KDataPFMET * m_pfMetChsL2L3Resphi;
 	KPartons * m_particles;
 
 	// only use directly if there is no other way
