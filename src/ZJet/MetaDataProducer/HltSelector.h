@@ -9,7 +9,7 @@ class HltSelector: public ZJetGlobalMetaDataProducerBase
 {
 public:
 
-	HltSelector(stringvector paths) : m_hltpaths(paths), m_verbose(false)
+	HltSelector(stringvector paths) : m_hltpaths(paths), m_verbose(true)
 	{
 	}
 
@@ -23,7 +23,7 @@ public:
 				if (m_verbose)
 				{
 					for (std::vector< std::string >::const_iterator it = data.GetDataLumiMetadata()->hltNames.begin();
-						it !=  data.GetDataLumiMetadata()->hltNames.end(); ++ it)
+						it != data.GetDataLumiMetadata()->hltNames.end(); ++it)
 					{
 						std::cout << *it << std::endl;
 					}
@@ -32,16 +32,16 @@ public:
 				bool unprescaledPathFound = false;
 				std::string bestHltName, curName;
 
-				if ( m_hltpaths.size() == 0)
+				if (m_hltpaths.size() == 0)
 				{
 					CALIB_LOG_FATAL("No Hlt Trigger path list configured")
 				}
 
 				for (stringvector::const_iterator it = m_hltpaths.begin();
 					it != m_hltpaths.end();
-					++ it )
+					++it)
 				{
-					curName = metaData.m_hltInfo->getHLTName( *it );
+					curName = metaData.m_hltInfo->getHLTName(*it);
 /*
 					if (curName.empty())
 					{
@@ -49,7 +49,7 @@ public:
 					}
 */
 
-					if ( m_verbose )
+					if (m_verbose)
 						std::cout << *it << " becomes " << curName << std::endl;
 
 					if (!curName.empty())
@@ -63,25 +63,25 @@ public:
 					}
 				}
 
-				if ( ! unprescaledPathFound )
+				if (!unprescaledPathFound)
 				{
-					CALIB_LOG( "Available Triggers:" )
+					CALIB_LOG("Available Triggers:")
 
 					for(std::vector< std::string >::const_iterator it = data.GetDataLumiMetadata()->hltNames.begin();
-						it !=  data.GetDataLumiMetadata()->hltNames.end(); ++ it)
+						it != data.GetDataLumiMetadata()->hltNames.end(); ++ it)
 					{
-						CALIB_LOG( (*it) << " prescale: " <<  metaData.m_hltInfo->getPrescale( *it ) )
+						CALIB_LOG( (*it) << " prescale: " << metaData.m_hltInfo->getPrescale(*it) )
 					}
 
-					CALIB_LOG_FATAL("No unprescaled trigger found for " << bestHltName << ", prescale: " << metaData.m_hltInfo->getPrescale( bestHltName ))
+					CALIB_LOG_FATAL("No unprescaled trigger found for " << bestHltName << ", prescale: " << metaData.m_hltInfo->getPrescale(bestHltName))
 				}
 
-				if ( m_verbose )
-					std::cout << "selected " << bestHltName << " as best HLT, prescale: " << metaData.m_hltInfo->getPrescale( bestHltName ) << std::endl;
+				if (m_verbose)
+					std::cout << "selected " << bestHltName << " as best HLT, prescale: " << metaData.m_hltInfo->getPrescale(bestHltName) << std::endl;
 
-				if ( bestHltName.empty() )
+				if (bestHltName.empty())
 				{
-					CALIB_LOG_FATAL("No Hlt Trigger path found at all!")
+					CALIB_LOG_FATAL("No HLT trigger path found at all!")
 				}
 
 				metaData.SetSelectedHlt(bestHltName);
@@ -98,6 +98,5 @@ public:
 	bool m_verbose;
 
 };
-
 
 }
