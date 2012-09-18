@@ -2,7 +2,7 @@ import sys
 import ClosureConfigBase as cbase
 
 conf = cbase.GetDataBaseConfig(run='2012')
-conf["JsonFile"] = cbase.GetBasePath() + "data/json/Cert_190456-202016_8TeV_CombinedReco_Collisions12_JSON.txt"
+conf["JsonFile"] = cbase.GetBasePath() + "data/json/Cert_190456-202305_8TeV_CombinedReco_Collisions12_JSON.txt"
 conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa53_Data12/*.root", sys.argv)
 conf["OutputPath"] = "closure_data_2012"
 conf["UseMETPhiCorrection"] = 0
