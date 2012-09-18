@@ -10,6 +10,8 @@ import getroot
 import plotbase
 import ROOT
 import sys
+import multiprocessing as mp
+import os
 
 def datamcplot(quantity, files, opt, legloc='center right',
                changes={}, log=False, rebin=5, file_name = "", subplot=False, subtext="", fig_axes=(), xy_names=None, normalize=True):
@@ -24,7 +26,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
 
     #create list with histograms
     if change.has_key('algorithm') and 'Gen' in change['algorithm']:
-        datamc = [getroot.getplotfromnick(quantity, files[1], change, rebin)]
+        datamc = [getroot.getplotfromnick(quantity, files[0], change, rebin)]
     elif '_run' in quantity:
         datamc = [getroot.getplotfromnick(quantity, f, change, rebin) for (f, name) in zip(files, opt.files) if "data" in name]
     else: 
@@ -239,7 +241,7 @@ def genjets(datamc, opt):
         datamcplot(quantity, datamc, opt, changes={'algorithm': plotbase.getgenname(opt), 'correction':'', 'incut': 'allevents'})
 
 
-def datamc_all(quantity, datamc, opt, rebin=5, log=False, run=False, legloc='best'):
+def datamc_all(quantity, datamc, opt, rebin=5, log=False, run=False, legloc='center right'):
     """Plot subplots of one quantity in bins of different variation.
        Loop over the different variations and the different alpha cut values.
 
@@ -283,38 +285,6 @@ def datamc_all(quantity, datamc, opt, rebin=5, log=False, run=False, legloc='bes
             plotbase.EnsurePathExists(opt.out+"/"+quantity)
             plotbase.Save(fig_axes[0], filename, opt)
             if variation == 'alpha': break
-
-
-# allplots
-"""def mpfresp_all(datamc, opt):
-    datamc_all(datamc, opt, 'mpfresp')
-
-def npv_all(datamc, opt):
-    datamc_all(datamc, opt, 'npv', rebin=1)
-
-def jet1eta_all(datamc, opt):
-    datamc_all(datamc, opt, 'jet1eta')
-
-def zpt_all(datamc, opt):
-    datamc_all(datamc, opt, 'zpt')
-
-def zphi_all(datamc, opt):
-    datamc_all(datamc, opt, 'zphi')
-
-def jet1pt_all(datamc, opt):
-    datamc_all(datamc, opt, 'jet1pt')
-
-def jet2pt_all(datamc, opt):
-    datamc_all(datamc, opt, 'jet2pt', log=True, rebin=2)
-
-def METphi_all(datamc, opt):
-    datamc_all(datamc, opt, 'METphi')
-
-def sumEt_all(datamc, opt):
-    datamc_all(datamc, opt, 'METsumEt', rebin=5)
-
-def jetsvalid_all(datamc, opt):
-    datamc_all(datamc, opt, 'jetsvalid')"""
 
 #Response
 def balresp_bins(datamc, opt):
@@ -364,45 +334,43 @@ def basic_alpha(datamc, opt):
     for y in ['jet1pt', 'zpt', 'npv']:
         plotany('alpha', y, datamc, opt)
 
-
 def ploteverything(datamc, opt):
     # idea: get a list with the available, plots, and try to plot them (1)from the dictionary (2)from a function (3)directly
-    plotlist = getroot.getplotlist(datamc)
+    plotlist = getroot.getplotlist(datamc, algorithm=opt.algorithm)
 
-    #apply filters here: 
-    #TODO: automate this
-    for filt in ['run', 'area', 'fraction', 'charged', 'const', 'invalid']:
-        plotlist = filter(lambda x : filt not in x, plotlist)
 
     #get a list of the plots which are NOT in 'allevents'
-    blacklist = list(set(plotlist)-set(getroot.getplotlist(datamc, "NoBinning_allevents")))
+    blacklist = list(set(plotlist)-set(getroot.getplotlist(datamc, "NoBinning_allevents", algorithm=opt.algorithm)))
     print "Blacklist: ", blacklist
 
-    plist=[]#fill this list with the plots in (3)
     for plotname in plotlist:
         if plotname in plotdictionary:                #(1) check if plot in the dictionary
-           print "plot from dictionary ",  
-           plotfromdict(datamc, opt, plotname, blacklist)
+           print "plot from dictionary ",  plotname
+           p = mp.Process(plotfromdict(datamc, opt, plotname, blacklist))
+           p.start()
+           p.join()
         elif plotname in dir(sys.modules[__name__]):  #(2) if not in dictionary, call function of the same name
            print "call function", 
-           eval(plotname)(datamc, opt)
+           p = mp.Process(eval(plotname)(datamc, opt))
+           p.start()
+           p.join()
         else:                                         #(3) if no function available, plot directly
            print "not in dict or function ",
-           datamcplot(plotname, datamc, opt)
-           if plotname not in blacklist: datamcplot(plotname, datamc, opt, changes={'incut':'allevents'})
+           p = mp.Process(datamcplot(plotname, datamc, opt))
+           p.start()
+           p.join()
+           if plotname not in blacklist:  
+               p = mp.Process(datamcplot(plotname, datamc, opt, 'center right', {'incut':'allevents'}))
+               p.start()
+               p.join()
            plist.append(plotname)
-    plist.sort()
-    for p in plist:
-        print "        '"+p+"'"+':[""],'
 
     #get allplots!
-    plotlist = getroot.getplotlist(datamc, 'all')
-    for filt in ['run', 'area', 'fraction', 'charged', 'const', 'invalid']:
-        plotlist = filter(lambda x : filt not in x, plotlist)
+    plotlist = getroot.getplotlist(datamc, 'all', algorithm=opt.algorithm)
     for plotname in plotlist:
-        datamc_all(plotname, datamc, opt)
-
-
+        p = mp.Process(datamc_all(plotname, datamc, opt))
+        p.start()
+        p.join()
 
 
 def plotfromdict(datamc, opt, name, blacklist=[]):
@@ -426,16 +394,13 @@ def plotfromdict(datamc, opt, name, blacklist=[]):
             eval(plotdictionary[name][1]+"('"+plotdictionary[name][2]+"', datamc, opt, "+plotdictionary[name][0]+", changes={'incut':'allevents'})")
 
 
+
 plotdictionary={ 
        # plot:[arguments, function, name]
         'npv':['rebin=1'],
         'npv_nocuts':['rebin=1, changes={"incut":"allevents"}', 'datamcplot', 'npv'],
         'jetpt_zeta':['rebin=5, legloc="upper left"'],
         'jetpt_zeta_nocuts':['changes={"incut":"allevents"}'],
-
-        # jet 1 vs jet 2
-        'jet2eta_jeteta':[],
-        'jet2phi_jetphi':[],
 
         # eta vs. phi
         'jeteta_jetphi':['rebin=2'],
@@ -463,8 +428,6 @@ plotdictionary={
         'L1abs_zpt':['','L1' ],
         'L1abs_jet1pt':['','L1' ],
 
-
-
         'L2_npv':['rebin=1','L1'],
         'L2abs_npv':['rebin=1','L1'],
         'L2_jet1eta':['','L1' ],
@@ -473,7 +436,6 @@ plotdictionary={
         'L2abs_jet1eta':['','L1' ],
         'L2abs_zpt':['','L1' ],
         'L2abs_jet1pt':['','L1' ],
-
 
         'L1L2L3_npv':['rebin=1','L1'],
         'L1L2L3abs_npv':['rebin=1','L1'],
@@ -487,9 +449,6 @@ plotdictionary={
         'sumEt_npv':['rebin=1'],
         'mpf_npv':['rebin=1'],
         'jetpt_npv':['rebin=1'],
-        'baltwojet':[],
-        'balresp':[],
-        'mpfresp':[],
 
         'ptbalance_deltaeta-jet1-jet2':[],
         'tworesp':['legloc="lower right"', datamcplot, 'bal_twojet'],
@@ -505,8 +464,6 @@ plotdictionary={
 
         'mpf_deltaphi-z-MET_all':["", 'datamc_all', 'mpf_deltaphi-z-MET'],
         'mpf_deltaphi-jet1-MET_all':["", 'datamc_all', 'mpf_deltaphi-jet1-MET'],
-        'mpf_deltaphi-jet1-MET':[],
-        'mpf_deltaphi-z-MET':[],
 
         #MET
         'METpt':["legloc='center right', log=True"],
@@ -533,22 +490,6 @@ plotdictionary={
         'jetsvalid_run':["rebin=500, run=True"],
         #'':[""],
 
-        'deltaphi-z-MET':[],
-        #'':[""],
-        #'':[""],
-        'deltaeta-leadingjet-secondjet_all':["", 'datamc_all', 'deltaeta-leadingjet-secondjet'],
-        'deltaeta-leadingjet-z_all':["", 'datamc_all', 'deltaeta-leadingjet-z'],
-        'deltaeta-z-secondjet_all':["", 'datamc_all', 'deltaeta-z-secondjet'],
-        'jet2eta_all':["", 'datamc_all', 'jet2eta'],
-        'jet1abseta_all':["", 'datamc_all', 'jet1abseta'],
-        'ptbalance_deltaeta-jet1-z_all':["", 'datamc_all', 'ptbalance_deltaeta-jet1-z'],
-        'jet1pt_deltaeta-jet1-z_all':["", 'datamc_all', 'jet1pt_deltaeta-jet1-z'],
-        'zpt_deltaeta-jet1-z_all':["", 'datamc_all', 'zpt_deltaeta-jet1-z'],
-        'jet1abseta_deltaeta-jet1-z_all':["", 'datamc_all', 'jet1abseta_deltaeta-jet1-z'],
-        'jetsvalid_deltaeta-jet1-z_all':["", 'datamc_all', 'jetsvalid_deltaeta-jet1-z'],
-        'zabseta_deltaeta-jet1-z_all':["", 'datamc_all', 'zabseta_deltaeta-jet1-z'],
-        'jet2abseta_deltaeta-jet1-z_all':["", 'datamc_all', 'jet2abseta_deltaeta-jet1-z'],
-        'jet2pt_deltaeta-jet1-z_all':["", 'datamc_all', 'jet2pt_deltaeta-jet1-z'],
 
         } 
 
@@ -559,8 +500,6 @@ plots = [
 
     'METpt_all', 'balresp_all', 'METphi_all', 'mpfresp_all', 'zpt_all',
     'deltaphi-leadingjet-z_all', 'deltaphi-leadingjet-MET_all', 'deltaphi-leadingjet-MET_all',
-    #'balresp_run', 'mpfresp_run', 'jetpt_run', 'zpt_run', 'sumEt_run', 'METpt_run', 'jetsvalid_run',
-    #'mu_plus_pt_all', 'mu_plus_eta_all', 'mu_plus_phi_all', 'mu_minus_pt_all', 'mu_minus_eta_all', 'mu_minus_phi_all',
     ]
 
 if __name__ == "__main__":

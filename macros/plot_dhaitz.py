@@ -28,9 +28,8 @@ import plotfractions
 import plotresponse
 import plot_resolution
 import plot_mikko
-import random
 
-def plot():
+def plot(cluster=False):
     """Run all plots with the given settings"""
 
     # settings (1):
@@ -48,7 +47,7 @@ def plot():
         style=["o","f","-","-","-"],
         
         energy=8,
-        lumi=10363,
+        lumi=11294,
 
         algorithm="AK5PFJetsCHS",
         correction="L1L2L3Res",
@@ -61,11 +60,15 @@ def plot():
         )
     module_list = [plotresponse, plotfractions, plotdatamc, plot_resolution, plot_mikko]
 
+    
+
     print "Number of files:", len(op.files)
     files=[]
     for f in op.files:
         print "Using as file", 1+op.files.index(f) ,":" , f
         files += [getroot.openfile(f, op.verbose)]
+
+    if cluster: return op, files
 
     #op.bins = getroot.getbins(files[0], op.bins)
     #op.eta = getroot.getetabins(files[0], op.eta)

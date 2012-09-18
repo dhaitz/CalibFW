@@ -22,6 +22,7 @@ from ROOT import gROOT
 
 import getroot
 import plotrc
+import plotdatamc
 
 
 def plot(modules, plots, datamc, op):
@@ -43,6 +44,11 @@ def plot(modules, plots, datamc, op):
             elif hasattr(module, "plotdictionary") and p in module.plotdictionary:        #if no function available
                 print "New plot: (from dictionary)", p, 
                 module.plotfromdict(datamc, op, p)
+            elif module == plotdatamc:	#if not in dictionary, plot directly
+                if "_all" in p:
+                    module.datamc_all(p[:-4], datamc, op)
+                else:
+                    module.datamcplot(p, datamc, op)
             if op != startop:
                 whichfunctions += [p+" in "+module.__name__]
         if op.verbose:
@@ -273,7 +279,7 @@ def nicetext(s):
     elif s in ['z_pt', 'zpt']: return r"$p_\mathrm{T}^\mathrm{Z}$"
     elif s in ['jet1_pt', 'jet1pt']: return r"$p_\mathrm{T}^\mathrm{Jet 1}$"
     elif s in ['jet2_pt', 'jet2pt']: return r"$p_\mathrm{T}^\mathrm{Jet 2}$"
-    elif s in ['jet1_eta', 'eta']: return r"$\eta^\mathrm{Jet1}$"
+    elif s in ['jet1eta', 'eta']: return r"$\eta^\mathrm{Jet1}$"
     elif s in ['jets_valid', 'jetsvalid']: return r"Number of valid jets"
     elif s == 'npv': return 'NPV'
     elif s == 'alpha': return r"$\alpha$"
@@ -937,6 +943,8 @@ def _internal_Save(figure, name, opt, crop=True):
                 figure.savefig(name + '.' + f,bbox_inches='tight', bbox_extra_artists=[title])
             else:
                 figure.savefig(name + '.' + f)
+            figure.clf()
+            plt.close()
 
         else:
             print f, "failed. Output type is unknown or not supported."

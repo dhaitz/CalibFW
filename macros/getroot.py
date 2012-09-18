@@ -125,8 +125,8 @@ def openfile(filename, verbose=False, exitonfail=True):
         print " * Inputfile:", filename
     return f
 
-def getplotlist(files, folder="NoBinning_incut"):
-    print "Getting plot list from files ..."
+def getplotlist(files, folder="NoBinning_incut", algorithm="AK5PFJets"):
+    print "Getting plot list from folder: ", folder
     setlist = []
 
     if folder == "all":    
@@ -140,11 +140,14 @@ def getplotlist(files, folder="NoBinning_incut"):
             plotlist = []
             for plot in rootfile.Get(folder).GetListOfKeys():
                 plotname = str(plot.GetName())
-                plotname=plotname[:plotname.find("_AK")]
-                if plotname not in plotlist: plotlist.append(plotname)
+                if plotname not in plotlist and algorithm in plotname: plotlist.append(plotname[:(plotname.find(algorithm)-1)])
             setlist.append(set(plotlist))
 
     plotlist = list(set.intersection(*setlist))
+
+    for filt in ['run', 'area', 'fraction', 'charged', 'const', 'invalid']:
+        plotlist = filter(lambda x : filt not in x, plotlist)
+
     return plotlist
 
 def getplot(name, rootfile, changes={}, rebin=1):

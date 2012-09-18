@@ -616,7 +616,7 @@ def responseratio_all(files, opt, types=['bal']):
     fig = plotbase.plt.figure(figsize=[21, 14])
     fig.suptitle(opt.title, size='xx-large')
     for typ, row in zip(['bal', 'mpf'], [0,4]):
-        for over, col, fit in zip(['zpt', 'npv', 'jet1eta'], [0,1,2], [False, True, True]):
+        for over, col, fit in zip(['zpt', 'npv', 'jet1eta'], [0,1,2], [True, True, True]):
 
             ax1 = plotbase.plt.subplot2grid((7,3),(row,col), rowspan=2)
             ax2 = plotbase.plt.subplot2grid((7,3),(row+2,col))
