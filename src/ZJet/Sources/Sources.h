@@ -889,7 +889,7 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 
-		if ((metaData.GetValidJetCount(settings, event) < (m_jet1Num+1)) || (metaData.GetValidJetCount(settings, event) < (m_jet2Num+1)))
+		if ((metaData.GetValidJetCount(settings, event, m_jetAlgo1) < (m_jet1Num+1)) || (metaData.GetValidJetCount(settings, event, m_jetAlgo2) < (m_jet2Num+1)))
 			return false;
 		
 		KDataLV * jet1 = metaData.GetValidJet(settings, event, m_jet1Num,
@@ -947,7 +947,7 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		if ((metaData.GetValidJetCount(settings, event) < (m_jet1Num+1)) || (metaData.GetValidJetCount(settings, event) < (m_jet2Num+1)))
+		if ((metaData.GetValidJetCount(settings, event, m_jetAlgo1) < (m_jet1Num+1)) || (metaData.GetValidJetCount(settings, event, m_jetAlgo2) < (m_jet2Num+1)))
 			return false;
 		
 		KDataLV * jet1 = metaData.GetValidJet(settings, event, m_jet1Num,

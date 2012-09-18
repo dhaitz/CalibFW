@@ -770,11 +770,14 @@ def AddQuantityPlots( pipelineDict, algos):
                           'METpt', 'METphi', 'sumEt', 'jetsvalid']
 
     objects = ['z', 'jet1', 'jet2', 'MET']
+
+    #if pipelineDict["InputType"] == 'mc': algos.append("AK5GenJets")
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
             # only apply to 'NoBinning_incut' and 'NoBinning_allevents' for L1L2L3(Res) algorithm:
             #if ((p == "default_" + algo) or (p == "default_" + algo + "nocuts")) and 'L1L2L3' in algo:
-            if ("default_"+algo+"_" in p or (p == "default_" + algo) or (p == "default_" + algo + "nocuts")) and 'L1L2L3' in algo:
+            if (("default_"+algo+"_" in p or (p == "default_" + algo) or (p == "default_" + algo + "nocuts")) 
+                and 'L1L2L3' in algo) or (algo == 'AK5GenJets' and (p == "default_AK5PFJets" or p=="default_AK5PFJetsnocuts")):
 
                   for x in x_quantities:
                       for y in y_quantities:
@@ -794,9 +797,7 @@ def AddQuantityPlots( pipelineDict, algos):
                               AddAbsDiff("eta", 'ptbalance', obj1, obj2)
                               for quantity  in ['ptbalance', 'mpf', 'zpt', 'METpt', 'jet1pt']:
                                   AddAbsDiff("phi", quantity, obj1, obj2)
-
-
-
+    
 def ReplaceWithQuantitiesBasic(pline):
     RemoveConsumer( pline, "quantities_all" )
     AddConsumerNoConfig(pline, "quantities_basic")

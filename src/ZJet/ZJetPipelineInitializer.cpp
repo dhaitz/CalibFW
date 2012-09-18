@@ -154,7 +154,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 			pLine->AddConsumer( new DataMETConsumer( pset.GetJetAlgorithm() ));
 
-			pLine->AddConsumer( new DeltaConsumer());
+			pLine->AddConsumer( new DeltaConsumer( pset.GetJetAlgorithm() ));
 
 			if ( JetType::IsPF( pset.GetJetAlgorithm() ))
 			{
@@ -181,6 +181,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 									    genName ));
 				pLine->AddConsumer( new DataGenJetConsumer( genName, 2,
 									    genName));
+
+				pLine->AddConsumer( new DeltaConsumer( genName ));
 
 			}
 

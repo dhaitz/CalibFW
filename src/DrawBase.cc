@@ -113,7 +113,7 @@ Hist1D::ModifierList Hist1D::GetPhiModifier()
 {
 	Hist1D::ModifierList modList;
 
-	modList.push_back(new ModHistBinRange(-5.f, +5.0f));
+	modList.push_back(new ModHistBinRange(-3.141459f, +3.141459f));
 	modList.push_back(new ModHistBinCount(100));
 	return modList;
 }
