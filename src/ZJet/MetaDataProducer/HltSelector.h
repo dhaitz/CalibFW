@@ -9,7 +9,7 @@ class HltSelector: public ZJetGlobalMetaDataProducerBase
 {
 public:
 
-	HltSelector(stringvector paths) : m_hltpaths(paths), m_verbose(true)
+	HltSelector(stringvector paths) : m_hltpaths(paths), m_verbose(false)
 	{
 	}
 
