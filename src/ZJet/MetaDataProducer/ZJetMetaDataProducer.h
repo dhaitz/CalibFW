@@ -50,9 +50,9 @@ public:
 				&& it->numberOfMatches > 1
 				// fabs(muonBestTrack()->dxy(vertex->position))
 				// The BestTrack is not available in Kappa, innerTrack is used
-				&& std::abs(it->innerTrack.getDxy(data.m_beamSpot)) < 0.2
+				&& std::abs(it->innerTrack.getDxy(&(data.m_vertexSummary->pv))) < 0.2
 				// fabs(muonBestTrack()->dz(vertex->position))
-				&& std::abs(it->innerTrack.getDz(data.m_beamSpot)) < 0.5
+				&& std::abs(it->innerTrack.getDz(&data.m_vertexSummary->pv)) < 0.5
 				// hitPattern().numberOfValidPixelHits()
 				&& it->innerTrack.nValidPixelHits > 0
 				// hitPattern().trackerLayersWithMeasurement()
