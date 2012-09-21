@@ -30,7 +30,7 @@ import plotresponse
 import plot_resolution
 
 
-def plot():
+def plot(cluster=False):
     """Run all plots with the given settings"""
 
     # settings (1):
@@ -62,6 +62,8 @@ def plot():
     for f in op.files:
         print "Using as file", 1+op.files.index(f) ,":" , f
         files += [getroot.openfile(f, op.verbose)]
+
+    if cluster: return op, files
 
     op.bins = getroot.getbins(files[0], op.bins)
     op.eta = getroot.getetabins(files[0], op.eta)

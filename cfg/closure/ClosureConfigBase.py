@@ -136,10 +136,10 @@ def SetMcSpecific(cfg, run='2012'):
     """
     if run == '2011':
         cfg['Jec'] = GetBasePath() + "data/jec_data/START44_V12"
-        ApplyPUReweighting(cfg, '...')
+        #ApplyPUReweighting(cfg, '...')
     elif run == '2012':
         cfg['Jec'] = GetBasePath() + "data/jec_data/START52_V11"
-        ApplyPUReweighting(cfg, '...')
+        #ApplyPUReweighting(cfg, '...')
     else:
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)

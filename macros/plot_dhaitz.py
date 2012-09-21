@@ -58,10 +58,8 @@ def plot(cluster=False):
                #+plot_resolution.plots
                #plot_mikko.plots
         )
-    module_list = [plotresponse, plotfractions, plotdatamc, plot_resolution, plot_mikko]
-
+    module_list = [plotresponse, plotfractions, plotdatamc]#, plot_resolution, plot_mikko]
     
-
     print "Number of files:", len(op.files)
     files=[]
     for f in op.files:

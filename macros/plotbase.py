@@ -31,6 +31,7 @@ def plot(modules, plots, datamc, op):
     gROOT.SetBatch(True)
     startop = copy.deepcopy(op)
     whichfunctions = []
+    remaining_plots = copy.deepcopy(plots)
     for module in modules:
         print "Doing plots in", module.__name__, "..."
         if op.verbose:
@@ -39,18 +40,18 @@ def plot(modules, plots, datamc, op):
             print "Nothing to do. Please list the plots you want!"
             plots = []
         for p in plots:
-            if hasattr(module, p):
+            if hasattr(module, p):                                                        #plot directly as a function
                 getattr(module, p)(datamc, op)
-            elif hasattr(module, "plotdictionary") and p in module.plotdictionary:        #if no function available
+                remaining_plots.remove(p)
+            elif hasattr(module, "plotdictionary") and p in module.plotdictionary:        #if no function available, try dictionary
                 print "New plot: (from dictionary)", p, 
                 module.plotfromdict(datamc, op, p)
-            elif module == plotdatamc:	#if not in dictionary, plot directly
-                if "_all" in p:
-                    module.datamc_all(p[:-4], datamc, op)
-                else:
-                    module.datamcplot(p, datamc, op)
-            if op != startop:
-                whichfunctions += [p+" in "+module.__name__]
+                remaining_plots.remove(p)
+        # remaining plots are given to the function_selector  
+        if module == plotdatamc:
+            module.function_selector(remaining_plots, datamc, op)
+        if op != startop:
+            whichfunctions += [p+" in "+module.__name__]
         if op.verbose:
             print "%1.2f | End" % clock()
     # check whether the options have changed and warn
@@ -367,7 +368,7 @@ def newplot(ratio=False, run=False, subplots=1, opt=options()):
             else: a = [28,14,2,4]
         elif subplots == 7:
             if run==True: a = [30,21,4,2]
-            else: a = [28,14,2,4]
+            else: a = [28,15,2,4]
         elif subplots == 6: a = [22,14,2,3]
         elif subplots == 5: a = [22, 14, 2, 3]
         elif subplots == 4:
@@ -587,7 +588,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         'jet1pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],        
         'jet2pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{Jet2}$", 'GeV'],
         'jet3pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{Jet3}$", 'GeV'],
-        'METpt':[ 0, 30, r"$E_\mathrm{T}^\mathrm{miss}$", 'GeV'],
+        'METpt':[ 0, 80, r"$E_\mathrm{T}^\mathrm{miss}$", 'GeV'],
         'muminuspt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{\mu-}$", 'GeV'],
         'mupluspt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{\mu+}$", 'GeV'],
 
@@ -600,7 +601,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
 
         'cut':[0, 1.1, r"Cut Inefficiency (%s)", ""],
 
-        'phi':[-3.5, 3.5, r"$\phi^\mathrm{%s}$", ""],
+        'phi':[-3.2, 3.2, r"$\phi^\mathrm{%s}$", ""],
         'deltaphi':[0, 3.2, r"$\Delta \phi(\mathrm{%s,\/%s})$", ""],
         'deltaeta':[0, 15, r"$\Delta \eta(\mathrm{%s,\/ %s})$", ""],
         'deltar':[0, 20, r"$\Delta \/R(\mathrm{%s,\/ %s})$", ""],
@@ -629,10 +630,10 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         'baltwojet':[0.0, 1.8, r"$p_\mathrm{T}$ balance for 2 jets", ""],
         'mpfresp':[0.3, 1.8, r"$MPF$ Response", ""],
         'bal':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
-        'ptbalance':[0.61, 1.09, r"$p_\mathrm{T}$ balance", ""],
+        'ptbalance':[0.61, 1.06, r"$p_\mathrm{T}$ balance", ""],
         'mpf':[0.3, 1.8, r"$MPF$ Response", ""],
-        'response':[0.81, 1.04, r"Jet Response", ""],
-        'ratio':[0.91, 1.01, r"Response (%s / %s) ratio", ""],
+        'response':[0.81, 1.05, r"Jet Response", ""],
+        'ratio':[0.89, 1.08, r"%s / %s ratio", ""],
         'datamcratio':[0.88, 1.03, r"data/MC ratio", ""],
 
         'numputruth':[0, 35, r"Pile-up Truth (Poisson mean)", ""],
@@ -643,6 +644,9 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         'constituents':[0, 60, r"Number of Jet Constituents", ""],
         'jet2ratio':[0, 0.4, r"$p_\mathrm{T}^\mathrm{Jet_2}/p_\mathrm{T}^{Z}$", ""],
         'run':[190000, 205000, r"Run", ""],
+
+        'jet1area':[0.6, 1, r"Leading Jet area", ""],
+        'jet2area':[0.6, 1, r"Second Jet area", ""],
 
         'jetptabsdiff':[0, 100, r"$p_\mathrm{T}^\mathrm{Jet 1} - p_\mathrm{T}^{Jet 2}$", "GeV"],
         'jetptratio':[0, 10, r"$p_\mathrm{T}^\mathrm{Jet 1} / p_\mathrm{T}^{Jet 2}$", ""],
@@ -698,206 +702,14 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
             function[0](bottom=0.0, quantity="Events")
         elif 'cut' in quantity:
             function[0]((d['cut'][0], d['cut'][1]), d['cut'][2] % nicetext(quantity.replace("cut-","")), d['cut'][3]) 
-        elif quantity == 'responseratio':
+        elif quantity == 'ratio':
             function[0]((d['ratio'][0], d['ratio'][1]), d['ratio'][2] % (opt.labels[0], opt.labels[1]), d['ratio'][3]) 
-        elif quantity in d: # if no special options, read from dictionary
+        elif quantity in d:     # if no special options, read from dictionary
             function[0]((d[quantity][0], d[quantity][1]), d[quantity][2], d[quantity][3])
         else:
             print '"'+quantity + '" is not defined and therefore directly written to label.'
             function[0](quantity=quantity)
-
-
-
-    """ratio = ""
-    if 'ratio' in y:
-        ratio = " ("+opt.labels[0]+"/"+opt.labels[1]+" ratio)"
-
-
-    if 'phi' in y:
-        ax.set_yticks([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
-        ax.set_yticklabels([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])
-        setyaxis((d['phi'][0], d['phi'][1]), d['phi'][2] % nicetext(y.replace("phi","")).title() , d['phi'][3]) 
-    elif 'abs' in y and 'eta' in y:
-        setyaxis((d['abseta'][0], d['abseta'][1]), d['abseta'][2] % nicetext(y.replace("abs","").replace("eta","")).title() , d['abseta'][3]) 
-    elif 'eta' in y:
-        setyaxis((d['eta'][0], d['eta'][1]), d['eta'][2] % nicetext(y.replace("eta","")).title() , d['eta'][3])
-        if 'phi' in x:
-            setyaxis((-0.2, 0.5), d['eta'][2] % nicetext(y.replace("eta","")).title() , d['eta'][3])
-    #elif 'pt' in y and y != 'ptbalance':
-    #    setyaxis((d['pt'][0], d['pt'][1]), d['pt'][2] % nicetext(y.replace("pt","")).title() , d['pt'][3])
-    elif 'arb' == y:
-        setyaxis(bottom=0.0, quantity="arb. u.")
-    elif x in ['L1npv', 'L1zpt', 'L1jeteta', 'L1jetpt']:
-        setyaxis((0.85, 1.02), "Correction factor")
-        ax.axhline(1.0, color="black", linestyle='--')
-    elif x in ['L1abszpt', 'L1absjeteta', 'L1absjetpt']:
-        setyaxis((0., 20), "Absolute pt correction", "GeV")
-    elif x in ['L1absnpv']:
-        setyaxis((0., 50), "Absolute pt correction", "GeV")
-    elif 'events' == y:
-        setyaxis(bottom=0.0, quantity="Events")
-    elif 'fracevents' == y:
-        setyaxis(bottom=0.0, quantity="Fraction of Events")
-    elif 'response' in y:
-        setyaxis((0.80, 1.05), r"Response"+ratio)
-        if x == 'alpha' : setyaxis((0.95, 1.04), r"Response"+ratio)
-        if x == 'absjet1eta' : setyaxis((0.80, 1.05), r"Response"+ratio)
-    elif 'kfsr' in y:
-        setyaxis((0.90, 1.101), r"$k_\mathrm{FSR}$"+ratio)
-    elif y == 'resolution':
-        setyaxis((0.0, 0.3), "Jet Resolution Ratio")
-    elif y == 'resolutionratio':
-        setyaxis((-0.5, 2.5), "Jet Resolution Ratio")
-    elif 'jetsvalid' == y:
-        setyaxis((0, 105), nicetext(y))
-    elif 'zmassratio' == y:
-        setyaxis((0.98, 1.02), "$m_\mathrm{Z}$ ratio")
-    elif 'datamcratio' == y:
-        setyaxis((0.80, 1.10), ratio)
-    elif y in d:
-        setyaxis((d[y][0], d[y][1]), d[y][2], d[y][3])
-    else:
-        print "y = " + y + " is not defined and therefore directly written to y-label."
-        setyaxis(quantity=y)
-        #fail("y = " + y + " not supported. You could use e.g. 'events' if appropriate." )"""
     return ax
-        
-"""def axislabel(ax, q='pt', obj='Z', brackets=False):
-    #label the axes according to the plotted quantity
-    print "plotbase.axislabel is deprecated! Use axislabels instead!"
-    # according to quantity q
-    def unit(s="", brackets=brackets):
-        if s != "":
-            if brackets:
-                return r"\;[\mathrm{%s}]" % s
-            else:
-                return r" / \mathrm{%s}" % s
-        else:
-            return s
-
-    def gev():
-        return unit("GeV")
-    
-    
-    # all labels va top ha right x=1 y =1,
-    if q == 'pt':
-        ax.set_xlabel(r"$p_\mathrm{T}^\mathrm{" + obj + r"} / \mathrm{GeV}$",
-                      ha="right", x=1)
-        ax.set_ylabel(r"Events", va="top", y=1)
-        ax.set_xlim(0, 200)
-        ax.set_ylim(bottom=0.0)
-    elif q == 'phi':
-        ax.set_xlabel(r"$\phi^\mathrm{" + obj + r"}$", ha="right", x=1)
-        ax.set_ylabel(r"Events", va="top", y=1)
-        ax.set_xlim(-3.5, 3.5)
-        ax.set_xticks([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
-        ax.set_xticklabels([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$",
-                            r"$\frac{\pi}{2}$", r"$\pi$"])
-        ax.set_ylim(bottom=0.0)
-        ax.legend(loc='lower center', numpoints=1, frameon=True)
-    elif q == 'eta':
-        ax.set_xlabel(r"$\eta^\mathrm{" + obj + "}$", ha="right", x=1)
-        ax.set_ylabel(r"Events", va="top", y=1)
-        ax.set_xlim(-5.0, 5.0)
-        ax.set_ylim(bottom=0.0)
-        if obj == 'Z':
-            ax.legend(loc='lower center', numpoints=1, frameon=True)
-    elif q == 'mass':
-        ax.set_xlabel(r"$m_\mathrm{" + obj + "} / \mathrm{GeV}$", ha="right",
-                      x=1)
-        ax.set_ylabel(r"Events", va="top", y=1)
-        ax.set_xlim(70, 110)
-        ax.set_ylim(bottom=0.0)
-    elif q == 'balresp':
-        ax.set_xlabel(r"$p_\mathrm{T}^{Z} %s$" % gev(), ha="right", x=1)
-        ax.set_ylabel(r"$p_\mathrm{T}$ balance", va="top", y=1)
-        ax.set_xlim(10, 240)
-        ax.set_ylim(0.75, 1.0)
-    elif q == 'mpfresp':
-        ax.set_xlabel(r"$p_\mathrm{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
-        ax.set_ylabel(r"MPF", va="top", y=1)
-        ax.set_xlim(10, 240)
-        ax.set_ylim(0.75, 1.0)
-    elif q == 'datamc_ratio':
-        ax.set_xlabel(r"$p_\mathrm{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
-        ax.set_ylabel(r"Data/MC", va="top", y=1)
-        ax.set_xlim(10, 240)
-        ax.set_ylim(0.8, 1.1)
-        ax.legend( loc='upper right',
-                  numpoints=1, frameon=True)
-    elif q == 'cutineff':
-        ax.set_ylabel(r"Cut Infficiency", y=1, va="top")
-        ax.set_xlabel(r"NRV", x=1)
-        ax.set_xlim(0, 25)
-        ax.set_ylim(0.0, 1.0)
-    elif q == 'recovert':
-        ax.set_xlabel(r"Number of reconstructed vertices $n$", ha="right", x=1)
-        ax.set_ylabel(r"Events", va="top", y=1)
-        ax.set_xlim(0, 25)
-        ax.set_ylim(bottom=0.0)
-    elif q == 'jetconstituents':
-        ax.set_xlabel(r"Jet Constituents", ha="right", x=1)
-        ax.set_ylabel(r"Events", va="top", y=1)
-        ax.set_xlim(1, 60)
-        #ax.set_xlim(0, 350)
-    elif q == 'components':
-        ax.set_xlabel(r"$p_\mathrm{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
-        ax.set_ylabel(r"Leading Jet Component Fraction", va="top", y=1)
-        ax.set_xlim(25, 500)
-        ax.set_ylim(0.0, 1.0)
-        ax.semilogx()
-        ax.set_xticklabels([r"$10$", r"$100$", r"$1000$"])
-        ax.set_xticklabels([r"$20$", r"$30$", r"$40$", r"$50$", r"$60$", r"",
-                            r"$80$", r"", r"$200$", r"$300$", r"$400$"],
-                            minor=True)
-    elif q == 'components_diff':
-        ax.set_xlabel(r"$p_\mathrm{T}^{Z} / \mathrm{GeV}$", ha="right", x=1)
-        ax.set_ylabel(r"Data$-$MC of Leading Jet Components", va="top", y=1)
-        ax.set_xlim(25, 500)
-        ax.set_ylim(-0.05, 0.05)
-        ax.semilogx()
-        ax.set_xticklabels([r"$10$", r"$100$", r"$1000$"])
-        ax.set_xticklabels([r"$20$", r"$30$", r"$40$", r"$50$", r"$60$", r"",
-                            r"$80$", r"", r"$200$", r"$300$", r"$400$"],
-                            minor=True)
-    elif q == 'extrapol':
-        if obj == 'jet2':
-            ax.set_xlabel(r"$p_\mathrm{T}^{\mathrm{" + obj +
-                          r"}}/p_\mathrm{T}^{Z}$", ha="right", x=1)
-        elif obj == 'deltaphi':
-            ax.set_xlabel(r"$\Delta\phi$", ha="right", x=1)
-        ax.set_ylabel(r"Response", va="top", y=1)
-        ax.set_xlim(0.0, 0.4)
-        ax.set_ylim(0.86, 1.04)
-    elif q == 'runs':
-        ax.set_xlabel(r"run", ha="right", x=1)
-        ax.set_ylabel(r"n_\mathrm{Events} / $\mathcal{L} \; [\mathrm{pb}]$",
-                      va="top", y=1)
-        ax.set_xlim(190000, 200000)
-        ax.set_ylim(0.0, 20.0)
-    elif q == 'jetpt_run':
-        ax.set_xlabel(r"run", ha="right", x=1)
-        ax.set_ylabel(r"n_\mathrm{Events} / $\mathcal{L} \; [\mathrm{pb}]$",
-                      va="top", y=1)
-        ax.set_xlim(190000, 198000)
-        ax.set_ylim(0.0, 20.0)
-
-
-    elif q == 'runlist':
-        ax.set_xlabel(r"run range", ha="right", x=1)
-        ax.set_ylabel(r"$n_\mathrm{Events} / \mathcal{L} \; [\mathrm{pb}]$",
-                      va="top", y=1)
-        ax.set_xlim(0, 300)
-        ax.set_ylim(0.0, 20.0)
-    else:
-        print "The quantity", q, "was not found.",
-        print "A default formatting of the axis labels is used."
-        ax.set_xlabel(r"$p_\mathrm{T} / \mathrm{GeV}$", ha="right", x=1)
-        ax.set_ylabel(r"arb. units", va="top", y=1)
-        ax.set_xlim(0, 350)
-        ax.set_ylim(bottom=0.0)
-        
-    return ax"""
 
 
 def Save(figure, name, opt, alsoInLogScale=False, crop=True):
@@ -943,8 +755,7 @@ def _internal_Save(figure, name, opt, crop=True):
                 figure.savefig(name + '.' + f,bbox_inches='tight', bbox_extra_artists=[title])
             else:
                 figure.savefig(name + '.' + f)
-            figure.clf()
-            plt.close()
+            plt.close(figure)
 
         else:
             print f, "failed. Output type is unknown or not supported."

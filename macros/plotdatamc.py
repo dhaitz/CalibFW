@@ -22,11 +22,11 @@ def datamcplot(quantity, files, opt, legloc='center right',
     change= plotbase.getchanges(opt, changes)
     datamc=[]
     events=[]
-    if 'npv' in quantity: rebin=1
+    if 'npv' in quantity or 'area' in quantity: rebin=1
 
     #create list with histograms
     if change.has_key('algorithm') and 'Gen' in change['algorithm']:
-        datamc = [getroot.getplotfromnick(quantity, files[0], change, rebin)]
+        datamc = [getroot.getplotfromnick(quantity, files[1], change, rebin)]
     elif '_run' in quantity:
         datamc = [getroot.getplotfromnick(quantity, f, change, rebin) for (f, name) in zip(files, opt.files) if "data" in name]
     else: 
@@ -82,15 +82,15 @@ def datamcplot(quantity, files, opt, legloc='center right',
 
     # Jet response plots: add vertical lines for mean and mean error to see data/MC agreement
     if quantity in ['balresp', 'mpfresp', 'baltwojet', 'response', 'METpt'] and 'Gen' not in change['algorithm']:
-        if quantity == 'METpt': unit = r'GeV'
+        if quantity == 'METpt': unit = r' \/ / \/ GeV'
         else: unit = ""
         ax.axvline(datamc[0].mean, color='black', linestyle='-')
         ax.axvspan(datamc[0].mean-datamc[0].meanerr, datamc[0].mean+datamc[0].meanerr, color='black', alpha=0.1)
-        ax.text(0.97, 0.97, r"$\langle \mathrm{%s} \rangle = %1.3f\pm%1.3f \/ / \/" % (opt.labels[0], datamc[0].mean, datamc[0].meanerr)+"\mathrm{%s}$" % unit,
+        ax.text(0.97, 0.97, r"$\langle \mathrm{%s} \rangle = %1.3f\pm%1.3f" % (opt.labels[0], datamc[0].mean, datamc[0].meanerr)+"\mathrm{%s}$" % unit,
                va='top', ha='right', transform=ax.transAxes, color='black')
         ax.axvline(datamc[1].mean, color='blue', linestyle='-')
         ax.axvspan(datamc[1].mean-datamc[1].meanerr, datamc[1].mean+datamc[1].meanerr, color='blue', alpha=0.1)
-        ax.text(0.97, 0.92, r"$\langle \mathrm{%s} \rangle = %1.3f\pm%1.3f \/ / \/" % (opt.labels[1],datamc[1].mean,datamc[1].meanerr)+" \mathrm{%s}$" % unit,
+        ax.text(0.97, 0.92, r"$\langle \mathrm{%s} \rangle = %1.3f\pm%1.3f" % (opt.labels[1],datamc[1].mean,datamc[1].meanerr)+" \mathrm{%s}$" % unit,
                va='top', ha='right', transform=ax.transAxes, color='blue')
 
         if (datamc[1].mean != 0.0): R = datamc[0].mean/datamc[1].mean
@@ -119,7 +119,6 @@ def datamcplot(quantity, files, opt, legloc='center right',
             ax.axhline(1.0, color='black', linestyle='--')
 
 
-
     # binlabels:
     if 'var' in change and 'Cut' in change['var'] and len(change['var']) > 35:
         change['var'] = 'var'+change['var'].split('var')[2]
@@ -145,7 +144,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
             file_name = quantity
 
     if subtext is not 'None':
-        ax.text(-0.05, 1.02, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
+        ax.text(-0.03, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
 
     # save it
     if change.has_key('bin'):file_name += "_"+change['bin']
@@ -196,6 +195,25 @@ def getPUindata(version=''):
     assert len(result) == len(result.yerr)
     assert len(result) > 10
     return result
+
+
+# function_selector: takes a list of plots and assigns them to the according funtion,
+# returns the list of remaining (not-plotted) plots
+def function_selector(plots, datamc, opt):
+
+    plotlist = getroot.getplotlist(datamc, algorithm=opt.algorithm, filenames=opt.files)
+    plotlist_nocuts = [i+"_nocuts" for i in getroot.getplotlist(datamc, folder="NoBinning_allevents", algorithm=opt.algorithm, filenames=opt.files)]
+    plotlist_all = [i+"_all" for i in getroot.getplotlist(datamc, 'all', algorithm=opt.algorithm, filenames=opt.files)]
+
+    for plot in plots:
+        if ('L1' in plot or 'L2' in plot) and plot in plotlist:
+            L1(plot, datamc, opt)
+        elif plot in plotlist:
+            datamcplot(plot, datamc, opt)
+        elif plot in plotlist_nocuts:
+            datamcplot(plot[:-7], datamc, opt, changes={'incut':'allevents'})
+        elif "_all" in plot and plot in plotlist_all:
+            datamc_all(plot[:-4], datamc, opt)
 
 
 #Some additional submodules ...
@@ -338,7 +356,6 @@ def ploteverything(datamc, opt):
     # idea: get a list with the available, plots, and try to plot them (1)from the dictionary (2)from a function (3)directly
     plotlist = getroot.getplotlist(datamc, algorithm=opt.algorithm)
 
-
     #get a list of the plots which are NOT in 'allevents'
     blacklist = list(set(plotlist)-set(getroot.getplotlist(datamc, "NoBinning_allevents", algorithm=opt.algorithm)))
     print "Blacklist: ", blacklist
@@ -363,7 +380,6 @@ def ploteverything(datamc, opt):
                p = mp.Process(datamcplot(plotname, datamc, opt, 'center right', {'incut':'allevents'}))
                p.start()
                p.join()
-           plist.append(plotname)
 
     #get allplots!
     plotlist = getroot.getplotlist(datamc, 'all', algorithm=opt.algorithm)
@@ -373,26 +389,20 @@ def ploteverything(datamc, opt):
         p.join()
 
 
+
+
 def plotfromdict(datamc, opt, name, blacklist=[]):
     if len(plotdictionary[name]) == 0: #emptylist
         datamcplot(name, datamc, opt)
-        if name not in blacklist: datamcplot(name, datamc, opt, changes={'incut':'allevents'})
 
     elif len(plotdictionary[name]) == 1: #list contains only arguments
         eval("datamcplot('"+name+"', datamc, opt, "+plotdictionary[name][0]+")")
-        if name not in blacklist: eval("datamcplot('"+name+"', datamc, opt, "+plotdictionary[name][0]+", changes={'incut':'allevents'})")
 
     elif len(plotdictionary[name]) == 2: #list contains arguments+function
         eval(plotdictionary[name][1]+"('"+name+"', datamc, opt, "+plotdictionary[name][0]+")")
-        if name not in blacklist and plotdictionary[name][1]=='datamcplot':
-            eval(plotdictionary[name][1]+"('"+name+"', datamc, opt, "+plotdictionary[name][0]+", changes={'incut':'allevents'})")
 
     elif len(plotdictionary[name]) == 3: #list contains arguments+function+name
-        print(plotdictionary[name][1]+"('"+plotdictionary[name][2]+"', datamc, opt, "+plotdictionary[name][0]+")")
         eval(plotdictionary[name][1]+"('"+plotdictionary[name][2]+"', datamc, opt, "+plotdictionary[name][0]+")")
-        if name not in blacklist and plotdictionary[name][1]=='datamcplot':
-            eval(plotdictionary[name][1]+"('"+plotdictionary[name][2]+"', datamc, opt, "+plotdictionary[name][0]+", changes={'incut':'allevents'})")
-
 
 
 plotdictionary={ 
@@ -421,30 +431,12 @@ plotdictionary={
         #correction factors
         'L1_npv':['rebin=1','L1'],
         'L1abs_npv':['rebin=1','L1'],
-        'L1_jet1eta':['','L1' ],
-        'L1_zpt':['','L1' ],
-        'L1_jet1pt':['','L1' ],
-        'L1abs_jet1eta':['','L1' ],
-        'L1abs_zpt':['','L1' ],
-        'L1abs_jet1pt':['','L1' ],
 
         'L2_npv':['rebin=1','L1'],
         'L2abs_npv':['rebin=1','L1'],
-        'L2_jet1eta':['','L1' ],
-        'L2_zpt':['','L1' ],
-        'L2_jet1pt':['','L1' ],
-        'L2abs_jet1eta':['','L1' ],
-        'L2abs_zpt':['','L1' ],
-        'L2abs_jet1pt':['','L1' ],
 
         'L1L2L3_npv':['rebin=1','L1'],
         'L1L2L3abs_npv':['rebin=1','L1'],
-        'L1L2L3_jet1eta':['','L1' ],
-        'L1L2L3_zpt':['','L1' ],
-        'L1L2L3_jet1pt':['','L1' ],
-        'L1L2L3abs_jet1eta':['','L1' ],
-        'L1L2L3abs_zpt':['','L1' ],
-        'L1L2L3abs_jet1pt':['','L1' ],
 
         'sumEt_npv':['rebin=1'],
         'mpf_npv':['rebin=1'],
@@ -457,7 +449,7 @@ plotdictionary={
         'mpfresp_all':["", 'datamc_all', 'mpfresp'],
         'METpt_all':["", 'datamc_all', 'METpt'],
         'METphi_all':["", 'datamc_all', 'METphi'],
-        'zpt_all':["", 'datamc_all', 'METpt'],
+        'zpt_all':["", 'datamc_all', 'zpt'],
         'deltaphi-leadingjet-z_all':["", 'datamc_all', 'deltaphi-leadingjet-z'],
         'deltaphi-leadingjet-MET_all':["", 'datamc_all', 'deltaphi-leadingjet-MET'],
         'deltaphi-z-MET_all':["legloc='lower left'", 'datamc_all', 'deltaphi-z-MET'],
@@ -472,7 +464,7 @@ plotdictionary={
         'METfraction':["'center right', rebin=2, log=True"],
         'METpt_METphi':["'lower right'"],
 
-        'zpt':["'center right', log=True"],
+        'zpt':["legloc='center right', log=True"],
         'zmass':["rebin=2, log=True"],
 
         'jet1pt':["log=True"],

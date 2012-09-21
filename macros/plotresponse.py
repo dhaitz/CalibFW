@@ -375,9 +375,9 @@ def ratioplot(files, opt, types, labels=None,
         rgraph = getresponse(t[:3]+'resp', over, opt, files[0], files[1], changes, extrapol=t[3:], draw=False)
         if fit:
             line, err, chi2, ndf = getroot.fitline(rgraph)
-            ax.text(0.97, 0.45+0.07*colors.index(c), r"R = {0:.3f} $\pm$ {1:.3f}".format(line, err),
+            ax.text(0.97, 0.85+0.07*colors.index(c), r"R = {0:.3f} $\pm$ {1:.3f}".format(line, err),
                 va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=14)
-            ax.text(0.97, 0.2+0.07*colors.index(c), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f}".format(chi2, ndf),
+            ax.text(0.97, 0.70+0.07*colors.index(c), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f}".format(chi2, ndf),
                 va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=14)
             ax.axhline(line, color=c)
             ax.axhspan(line-err, line+err, color=c, alpha=0.2)
@@ -387,7 +387,7 @@ def ratioplot(files, opt, types, labels=None,
 
     # format plot
     plotbase.labels(ax, opt, jet=True, legloc='lower left', sub_plot=subplot, changes=changes, ratiosubplot=ratiosubplot)
-    if ratiosubplot: label = 'datamcratio'
+    if ratiosubplot: label = 'ratio'
     else: label = 'responseratio'
 
     if over == 'jet1eta':
@@ -598,7 +598,10 @@ def responseratio(files, opt, over='zpt', fit=False, types=['bal']):
     fig.add_axes(ax1)
     fig.add_axes(ax2)
 
-    responseplot(files, opt, types, over=over, figaxes=(fig,ax1), subplot = True)
+    if over== 'jet1eta' and types == ['bal']: legloc = 'upper right'
+    else: legloc = 'lower left'
+
+    responseplot(files, opt, types, over=over, figaxes=(fig,ax1), legloc=legloc, subplot = True)
     ratioplot(files, opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True)
     fig.subplots_adjust(hspace=0.05)
 
@@ -622,7 +625,11 @@ def responseratio_all(files, opt, types=['bal']):
             ax2 = plotbase.plt.subplot2grid((7,3),(row+2,col))
             fig.add_axes(ax1)
             fig.add_axes(ax2)
-            responseplot(files, opt, [typ], over=over, figaxes=(fig,ax1), subplot = True)
+
+            if over== 'jet1eta' and typ == 'bal': legloc = 'upper right'
+            else: legloc = 'lower left'
+
+            responseplot(files, opt, [typ], over=over, figaxes=(fig,ax1), legloc=legloc, subplot = True)
             ratioplot(files, opt, [typ], binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True)
             fig.subplots_adjust(hspace=0.05)
             ax1.set_xticks([])
@@ -632,7 +639,7 @@ def responseratio_all(files, opt, types=['bal']):
                 ax1.set_ylabel("")
                 ax2.set_ylabel("")
                 
-    title="Jet Response ($p_T$ balance / MPF) vs. Z $p_T$, Number of vertices,  Jet $\eta$      ("  +opt.algorithm+" "+opt.correction+")"
+    title="                               Jet Response ($p_T$ balance / MPF) vs. Z $p_T$, $N_{vtx}$ ,  Jet $\eta$   ("  +opt.algorithm+" "+opt.correction+")"
     fig.suptitle(title, size='x-large')
 
     file_name = "responseratio_ALL_"+opt.algorithm+opt.correction
@@ -640,14 +647,14 @@ def responseratio_all(files, opt, types=['bal']):
 
 
 plots = [
-'response', 'response_npv', 'response_eta', 'bal_eta', 'mpf_eta',
-#'response_all',
-'ratio',  'ratio_npv', 'ratio_eta', 
+'response', 'response_npv', 'response_eta', 'bal_eta', 'mpf_eta', 'response_all',
+
+'ratio',  'ratio_npv', 'ratio_eta', 'ratio_all',
 
 'responseratio_all',
 'bal_responseratio_eta', 'bal_responseratio_zpt', 'bal_responseratio_npv', 
 'mpf_responseratio_eta', 'mpf_responseratio_zpt', 'mpf_responseratio_npv', 
-#'ratio_all'
+
 #,'balratio', 'mpfratio', 'kfsr'
 ]
 
