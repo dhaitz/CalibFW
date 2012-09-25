@@ -887,34 +887,26 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
     config.set("local", "delay output", "True")
 
     config.add_section("UserMod")
-
     # we can run more data files with one MC job as they don't contain that many
     # events
     if settings["InputType"] == "mc":
-        config.set("UserMod", "files per job", 15 )
+        config.set("UserMod", "files per job", 15)
     else:
-        config.set("UserMod", "files per job", 25 )
-
-    config.set("UserMod", "executable", "gc-run-closure.sh" )
-    config.set("UserMod", "subst files", "gc-run-closure.sh" )
-    #config.set("UserMod", "input files", "/usr/lib64/libboost_regex.so.2" )
-    if "CMSSW_4_" in GetCMSSWPath():
-        config.set("UserMod", "input files", "/wlcg/sw/cms/experimental/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_2_8/external/slc5_amd64_gcc434/lib/libboost_regex.so.1.44.0")
-    elif "CMSSW_5_" in GetCMSSWPath():
-        config.set("UserMod", "input files", "/wlcg/sw/cms/slc5_amd64_gcc462/cms/cmssw/CMSSW_5_2_1/external/slc5_amd64_gcc462/lib/libboost_regex.so.1.47.0")
-    else:
-        print "I try to use boost 1.44 as before. This could fail if linked against newer CMSSW versions."
-        config.set("UserMod", "input files", "/wlcg/sw/cms/experimental/slc5_amd64_gcc434/cms/cmssw/CMSSW_4_2_8/external/slc5_amd64_gcc434/lib/libboost_regex.so.1.44.0")
+        config.set("UserMod", "files per job", 25)
+    config.set("UserMod", "executable", "gc-run-closure.sh")
+    config.set("UserMod", "subst files", "gc-run-closure.sh")
+    config.set("UserMod", "input files", GetBasePath() + "external/lib/libboost_regex.so.1.45.0")
 
     config.add_section("storage")
-    config.set("storage", "se path", "dir://" + output_folder )
-    config.set("storage", "se output files", settings["OutputPath"] + ".root" )
-    config.set("storage", "se output pattern", "@NICK@_job_@MY_JOBID@.root" )
+    config.set("storage", "se path", "dir://" + output_folder)
+    config.set("storage", "se output files", settings["OutputPath"] + ".root")
+    config.set("storage", "se output pattern", "@NICK@_job_@MY_JOBID@.root")
 
     # Writing our configuration file to 'example.cfg'
     cfile = open(filename, 'wb')
     config.write(cfile)
     cfile.close()
+
 
 def StoreMergeScript ( settings, nickname, filename, output_folder, merge_folder='temp'):
     print "Generating", filename
@@ -928,19 +920,22 @@ def StoreMergeScript ( settings, nickname, filename, output_folder, merge_folder
     mfile.write(GetBasePath()+"scripts/parallelmerge.sh " + output_folder + " 10")
     os.chmod(filename.replace("merge","parallelmerge"), stat.S_IRWXU)
 
-def StoreShellRunner ( settings, nickname, filename ):
+def StoreShellRunner(settings, nickname, filename):
     print "Generating " + filename
     cfile = open(filename, 'wb')
     cfile.write("echo $FILE_NAMES\n")
     cfile.write("cd " + GetCMSSWPath() +"\n")
     if "CMSSW_5_" in GetCMSSWPath():
+        cfile.write("export VO_CMS_SW_DIR=/wlcg/sw/cms\n")
         cfile.write("export SCRAM_ARCH=slc5_amd64_gcc462\n")
-        cfile.write("source /wlcg/sw/cms/cmsset_default.sh\n")
+        cfile.write("source $VO_CMS_SW_DIR/cmsset_default.sh\n")
     else:
         cfile.write("source /wlcg/sw/cms/experimental/cmsset_default.sh\n")
     cfile.write("eval `scram runtime -sh`\n")
     cfile.write("cd -\n")
+    cfile.write("cd "+GetBasePath()+"\n")
     cfile.write("source "+ GetBasePath() + "scripts/ClosureEnv.sh\n")
+    cfile.write("cd -\n")
     cfile.write( GetBasePath() + "closure " + GetBasePath() + "cfg/closure/" + nickname + ".py.json" )
     cfile.close()
     os.chmod(filename, stat.S_IRWXU)
