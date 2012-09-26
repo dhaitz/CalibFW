@@ -227,14 +227,16 @@ public:
 
 	boost::scoped_ptr< TGraphErrors > m_graph;
 };
-/*
-class Profile2D: public PlotBase< Profile2D>
+
+/*class Profile2d: public PlotBase< Profile2d>
 {
 public:
-	Profile2D() : PlotBase< Profile2D>(),
-	m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(200.0f)
+	Profile2d(std::string sName, std::string sFolder) : PlotBase< Profile2d>( sName, sFolder),
+		 m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(200.0f)
 	{
 	}
+
+
 
 	void Init()
 	{
@@ -272,33 +274,36 @@ public:
 	double m_dBinXUpper;
 
 	TProfile* m_profile;
-};
+};*/
 
 class Hist2D: public HistBase< Hist2D>
 {
 public:
 
-	Hist2D() : HistBase< Hist2D>(),
-	m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(200.0f),
-	m_iBinYCount(100), m_dBinYLower(0.0f), m_dBinYUpper(200.0f),
-	m_bDoProfile( false )
+	Hist2D(std::string sName, std::string sFolder, double xlow, double xtop, double ylow, double ytop) : HistBase< Hist2D>(sName, sFolder),
+	m_iBinXCount(100), m_dBinXLower(xlow), m_dBinXUpper(xtop),
+	//m_iBinXCount(100), m_dBinXLower(0.0f), m_dBinXUpper(3.14159f),
+	m_iBinYCount(100), m_dBinYLower(ylow), m_dBinYUpper(ytop)
+	//m_bDoProfile( false )
 	{
-	}
+	
 
-	void Init()
-	{
 		this->RunModifierBeforeCreation( this );
 
 		RootFileHelper::SafeCd( gROOT, GetRootFileFolder() );
-		m_hist = RootFileHelper::GetStandaloneTH2D_1(
-				GetName(), GetCaption(),
+		m_hist2d.reset(RootFileHelper::GetStandaloneTH2D_1(
+				GetRootFileFolder() + "_2d_" + GetName(), GetCaption(),
 				this->m_iBinXCount, this->m_dBinXLower, this->m_dBinXUpper,
-				this->m_iBinYCount, this->m_dBinYLower, this->m_dBinYUpper);
-		m_hist->Sumw2();
+				this->m_iBinYCount, this->m_dBinYLower, this->m_dBinYUpper));
+
+
+
+		//std::cout << typeid(m_hist2d).name() << std::endl;
+		m_hist2d->Sumw2();
 
 		this->RunModifierBeforeDataEntry( this );
 
-		if ( m_bDoProfile )
+		/*if ( m_bDoProfile )
 		{
 			m_profile.SetNameAndCaption( this->GetName() + "_profiley");
 
@@ -308,7 +313,11 @@ public:
 			m_profile.m_dBinXUpper = this->m_dBinXUpper,
 					m_profile.SetRootFileFolder( GetRootFileFolder() );
 			m_profile.Init();
-		}
+		}*/
+	}
+
+	void Init()
+	{
 	}
 
 	void Store(TFile * pRootFile)
@@ -318,22 +327,22 @@ public:
 
 		//CALIB_LOG( "Storing 2d Histogram " + this->m_sRootFileFolder + "/" + this->m_sName + "_hist" )
 		RootFileHelper::SafeCd( pRootFile, GetRootFileFolder() );
-		m_hist->Write((GetName() + "_hist").c_str());
+		m_hist2d->Write((GetName()).c_str());
 
-		if ( m_bDoProfile )
-			m_profile.Store( pRootFile );
+		/*if ( m_bDoProfile )
+			m_profile.Store( pRootFile );*/
 	}
 
 	void Fill(double x, double y, double weight)
-	{
-		m_hist->Fill(x, y, weight);
+	{	
+		m_hist2d->Fill(x, y, weight);
 
-		if (m_bDoProfile)
-			m_profile.Fill(x, y, weight);
+		/*if (m_bDoProfile)
+			m_profile.Fill(x, y, weight);*/
 	}
 
-	TH2D * GetRawHisto()
-		{	return m_hist;}
+	//TH2D * GetRawHisto()
+	//	{	return m_hist;}
 
 	int m_iBinXCount;
 	double m_dBinXLower;
@@ -344,11 +353,12 @@ public:
 
 	bool m_bDoProfile;
 
-	Profile2D m_profile;
+	//Profile2d m_profile;
 
-	TH2D * m_hist;
+	boost::scoped_ptr<TH2D> m_hist2d;
+	//TH2D * m_hist2d;
 };
-*/
+
 class Hist1D: public HistBase< Hist1D>
 {
 public:

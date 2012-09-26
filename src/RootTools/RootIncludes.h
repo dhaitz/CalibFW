@@ -21,6 +21,7 @@
 #include "TObjString.h"
 #include "TVector3.h"
 #include "TProfile.h"
+#include "TProfile2D.h"
 #include "Math/GenVector/VectorUtil.h"
 
 /*
@@ -106,6 +107,15 @@ public:
 			int m_iBinYCount, double m_dBinYLower, double m_dBinYUpper )
 		{
 			return new TH2D(m_sName.c_str(), m_sCaption.c_str(),
+    				m_iBinXCount, m_dBinXLower, m_dBinXUpper,
+    				m_iBinYCount, m_dBinYLower, m_dBinYUpper);
+		}
+
+    static TProfile2D * GetStandaloneTProfile2D( std::string m_sName, std::string m_sCaption,
+			int m_iBinXCount, double m_dBinXLower, double m_dBinXUpper,
+			int m_iBinYCount, double m_dBinYLower, double m_dBinYUpper )
+		{
+			return new TProfile2D(m_sName.c_str(), m_sCaption.c_str(),
     				m_iBinXCount, m_dBinXLower, m_dBinXUpper,
     				m_iBinYCount, m_dBinYLower, m_dBinYUpper);
 		}

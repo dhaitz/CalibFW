@@ -23,6 +23,7 @@ from ROOT import gROOT
 import getroot
 import plotrc
 import plotdatamc
+import plot2d
 
 
 def plot(modules, plots, datamc, op):
@@ -47,13 +48,13 @@ def plot(modules, plots, datamc, op):
                 print "New plot: (from dictionary)", p, 
                 module.plotfromdict(datamc, op, p)
                 remaining_plots.remove(p)
-        # remaining plots are given to the function_selector  
-        if module == plotdatamc:
-            module.function_selector(remaining_plots, datamc, op)
         if op != startop:
             whichfunctions += [p+" in "+module.__name__]
         if op.verbose:
             print "%1.2f | End" % clock()
+    # remaining plots are given to the function_selector 
+    function_selector(remaining_plots, datamc, op)
+
     # check whether the options have changed and warn
     if op != startop:
         print "WARNING: The following options have been modified by a plot:"
@@ -66,12 +67,38 @@ def plot(modules, plots, datamc, op):
         print "This should not be the case! Options should not be changed within a plotting function."
         print "A solution could invoke copy.deepcopy() in such a case."
 
+
+# function_selector: takes a list of plots and assigns them to the according funtion
+def function_selector(plots, datamc, opt):
+
+    plotlist = getroot.getplotlist(datamc, algorithm=opt.algorithm, filenames=opt.files)
+    plotlist_nocuts = [i+"_nocuts" for i in getroot.getplotlist(datamc, folder="NoBinning_allevents", algorithm=opt.algorithm, filenames=opt.files)]
+    plotlist_all = [i+"_all" for i in getroot.getplotlist(datamc, 'all', algorithm=opt.algorithm, filenames=opt.files)]
+
+    for plot in plots:
+        if ('L1' in plot or 'L2' in plot) and plot in plotlist:
+            plotdatamc.L1(plot, datamc, opt)
+        elif '2D' in plot:
+            if plot in plotlist:
+                plot2d.twoD(plot, datamc, opt)
+            elif plot in plotlist_nocuts:
+                plot2d.twoD(plot[:-7], datamc, opt, changes={'incut':'allevents'})
+            elif "_all" in plot and plot in plotlist_all:
+                plot2d.twoD_all(plot[:-4], datamc, opt)
+        elif plot in plotlist:
+            plotdatamc.datamcplot(plot, datamc, opt)
+        elif plot in plotlist_nocuts:
+            plotdatamc.datamcplot(plot[:-7], datamc, opt, changes={'incut':'allevents'})
+        elif "_all" in plot and plot in plotlist_all:
+            plotdatamc.datamc_all(plot[:-4], datamc, opt)
+
+
 def options(
             # standard values go here:
-            algorithm="AK5PFJets",
+            algorithm="AK5PFJetsCHS",
             correction="L1L2L3Res",
             lumi=None,
-            energy=None,
+            energy=8,
             status=None,
             author=None,
             date=None,
@@ -395,19 +422,20 @@ def newplot(ratio=False, run=False, subplots=1, opt=options()):
 
 
 def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper right',
-           frame=True, sub_plot=False, changes={}, ratiosubplot=False):
+           frame=True, sub_plot=False, changes={}, ratiosubplot=False, mc='False', color='black'):
     """This function prints all labels and captions in a plot.
 
     Several functions are called for each type of label.
     """
     if not ratiosubplot:
-        if opt.lumi is not None:
+        if opt.lumi is not None and mc is not True:
             lumilabel(ax, opt.lumi)    # always (if given) pure MC plots?
         statuslabel(ax, opt.status)
         if opt.energy is not None:
             energylabel(ax, opt.energy)
         if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
         if changes.has_key('var') or changes.has_key('bin'): binlabel(ax, bin, changes=changes)
+        if 'incut' in changes and changes['incut'] == 'allevents': nocutlabel(ax, color)
         resultlabel(ax, result)
         authorlabel(ax, opt.author)
         datelabel(ax, opt.date)
@@ -415,6 +443,9 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper ri
     return ax
 
 
+def nocutlabel(ax, color='black'):    
+    ax.text(0.97, 0.97, r"(before cuts)" , va='top', ha='right', transform=ax.transAxes, color=color)
+    return ax
 
 def eventnumberlabel(ax, opt, events):
     text=""
@@ -507,7 +538,7 @@ def datelabel(ax, date='iso', xpos=0.99, ypos=1.10):
     return ax
 
 
-def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.97, changes={}):
+def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.97, changes={}, color='black'):
     if bin is None:
         return ax
     if bin == 'ptz':
@@ -528,7 +559,7 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.97, changes={}):
             text = r"$%u \leq NPV \leq %u$" % (low, high)
     else:
         text = bin
-    ax.text(xpos, ypos, text, va='top', ha='left', size='x-large', transform=ax.transAxes)
+    ax.text(xpos, ypos, text, va='top', ha='left', size='x-large', transform=ax.transAxes, color=color )
 
 
 def statuslabel(ax, status=None, xpos=0.25, ypos=1.018):
@@ -571,21 +602,13 @@ def unitformat(quantity="", unit="", brackets=False):
     return quantity
 
 
-def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
-    """same as the old version, but can handle and and y axis indpendetly
 
-       new idea: improve automatic scaling:
-       bottom=0
-       top
-       autoscaling
-       dict = { quantity: axsetting}
-    """
-    # put everything into one dictionary  key:[min, max, Name, unit]
-    d={         
+# put everything into one dictionary  key:[min, max, Name, unit, z_min, z_max]
+d={         
         'pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{%s}$", 'GeV'],        
         'zpt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],        
         'jetpt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],        
-        'jet1pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],        
+        'jet1pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Leading Jet}$", 'GeV'],        
         'jet2pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{Jet2}$", 'GeV'],
         'jet3pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{Jet3}$", 'GeV'],
         'METpt':[ 0, 80, r"$E_\mathrm{T}^\mathrm{miss}$", 'GeV'],
@@ -593,7 +616,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         'mupluspt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{\mu+}$", 'GeV'],
 
         'eta':[-5, 5, r"$\eta^\mathrm{%s}$", ""],
-        'deltaeta':[0, 10, r"$\Delta \eta(\mathrm{%s})$", ""],
+        'deltaeta':[0, 15, r"$\Delta \eta(\mathrm{%s})$", ""],
         'METeta':[-0.1, 0.1, r"$\eta^\mathrm{MET}$", ""],
         'METsumEt':[0, 2500, r"$\sum E^\mathrm{T}$", "GeV"],
         'sumEt':[0, 2500, r"$\sum E^\mathrm{T}$", "GeV"],
@@ -602,8 +625,9 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         'cut':[0, 1.1, r"Cut Inefficiency (%s)", ""],
 
         'phi':[-3.2, 3.2, r"$\phi^\mathrm{%s}$", ""],
-        'deltaphi':[0, 3.2, r"$\Delta \phi(\mathrm{%s,\/%s})$", ""],
-        'deltaeta':[0, 15, r"$\Delta \eta(\mathrm{%s,\/ %s})$", ""],
+        'absphi':[0, 3.141593, r"$|\phi^\mathrm{%s}|$", ""],
+        'deltaphi':[0, 3.141593, r"$\Delta \phi(\mathrm{%s,\/%s})$", ""],
+        'deltaeta':[0, 5, r"$\Delta \eta(\mathrm{%s,\/ %s})$", ""],
         'deltar':[0, 20, r"$\Delta \/R(\mathrm{%s,\/ %s})$", ""],
 
         'zmass':[70, 110, r"$m^\mathrm{Z}$", "GeV"],
@@ -628,17 +652,18 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         'abseta':[0.0, 5.5, r"$|\eta^\mathrm{%s}|$", ""],
         'balresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
         'baltwojet':[0.0, 1.8, r"$p_\mathrm{T}$ balance for 2 jets", ""],
-        'mpfresp':[0.3, 1.8, r"$MPF$ Response", ""],
+        'mpfresp':[0.61, 1.06, r"$MPF$ Response", ""],
         'bal':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
         'ptbalance':[0.61, 1.06, r"$p_\mathrm{T}$ balance", ""],
         'mpf':[0.3, 1.8, r"$MPF$ Response", ""],
         'response':[0.81, 1.05, r"Jet Response", ""],
         'ratio':[0.89, 1.08, r"%s / %s ratio", ""],
+        'responseratio':[0.88, 1.03, r"data/MC ratio", ""],
         'datamcratio':[0.88, 1.03, r"data/MC ratio", ""],
 
         'numputruth':[0, 35, r"Pile-up Truth (Poisson mean)", ""],
         'numpu':[0, 35, r"Number of Primary Vertices", ""],
-        'alpha':[0, 1, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
+        'alpha':[0, 3, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
         'baljet2z':[0, 1, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
         'rho':[0, 50, r"$\rho$", ""],
         'constituents':[0, 60, r"Number of Jet Constituents", ""],
@@ -654,9 +679,31 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         'components_diff':[-0.05, 0.05, r"Data-MC of Leading Jet Components", ""],
         'components':[0, 1, r"Leading Jet Component Fraction", ""],
 
+        'chargedhad':[0,1, r"$%s charged hadron fraction$", ""],
+        'chargedem':[0,1, r"$%s charged em fraction$", ""],
+        'neutralem':[0,1, r"$%s neutral em fraction$", ""],
+        'neutralhad':[0,1, r"$%s neutral hadron fraction$", ""],
+        'muon':[0,1, r"$%s$ muon fraction$", ""],
+        'HFhad':[0,1, r"$%s$ HF had fraction$", ""],
+        'HFem':[0,1, r"$%s$ HF em fraction$", ""],
+
+        'jet1charged':[0,30, r"$%s$ charged", ""],
+        'jet1const':[0,30, r"$%s$ const", ""],
+
+
         'extrapol':[0.86, 1.04, r"Response", ""],
         'xsec':[0, 20, r"$n_\mathrm{Events} / \mathcal{L}$", "pb$^{-1}$"],
         }
+
+def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
+    """same as the old version, but can handle and and y axis indpendetly
+
+       new idea: improve automatic scaling:
+       bottom=0
+       top
+       autoscaling
+       dict = { quantity: axsetting}
+    """
 
     def setxaxis(limits=(0, 200), quantity="x", unit=""):
         ax.set_xlabel(unitformat(quantity, unit, brackets), ha="right", x=1)
@@ -674,15 +721,15 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         if 'phi' in quantity:
             function[1]([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
             function[2]([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])
-            if 'deltaphi' in x:            
+            if 'deltaphi' in quantity:
                 function[0]((d['deltaphi'][0], d['deltaphi'][1]), d['deltaphi'][2] % (nicetext(quantity.replace("deltaphi-","").split("-")[0]), 
                         nicetext(quantity.replace("deltaphi-","").split("-")[1])), d['deltaphi'][3]) 
             elif 'phiabsdiff' in quantity:
                 function[0]((d['phiabsdiff'][0], d['phiabsdiff'][1]), d['phiabsdiff'][2] % nicetext(quantity.replace("phiabsdiff","")),
                         d['phiabsdiff'][3]) 
             elif 'abs' in quantity:
-                function[0]((d['abseta'][0], d['abseta'][1]), d['abseta'][2] % 
-                        nicetext(quantity.replace("abs_","").replace("_eta","")) , d['abseta'][3]) 
+                function[0]((d['absphi'][0], d['absphi'][1]), d['absphi'][2] % 
+                        nicetext(quantity.replace("abs_","").replace("_phi","")) , d['absphi'][3]) 
             else:
                 function[0]((d['phi'][0], d['phi'][1]), d['phi'][2] % nicetext(quantity.replace("phi","")) , d['phi'][3]) 
         elif 'eta' in quantity:
@@ -702,6 +749,8 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
             function[0](bottom=0.0, quantity="Events")
         elif 'cut' in quantity:
             function[0]((d['cut'][0], d['cut'][1]), d['cut'][2] % nicetext(quantity.replace("cut-","")), d['cut'][3]) 
+        elif 'fraction' in quantity and 'MET' not in quantity:
+            function[0]((d[quantity[4:-8]][0], d[quantity[4:-8]][1]), d[quantity[4:-8]][2] % nicetext(quantity[:4]), d[quantity[4:-8]][3])
         elif quantity == 'ratio':
             function[0]((d['ratio'][0], d['ratio'][1]), d['ratio'][2] % (opt.labels[0], opt.labels[1]), d['ratio'][3]) 
         elif quantity in d:     # if no special options, read from dictionary
@@ -711,6 +760,42 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
             function[0](quantity=quantity)
     return ax
 
+def getaxislabels_list(quantity):
+    # lower limit, upper limit, label, unit
+    print quantity
+    if 'phi' in quantity:
+        if 'deltaphi' in quantity:
+           labels_list = [d['deltaphi'][0], d['deltaphi'][1], d['deltaphi'][2] % (nicetext(quantity.replace("deltaphi-","").split("-")[0]), 
+                        nicetext(quantity.replace("deltaphi-","").split("-")[1])), d['deltaphi'][3]]
+        elif 'phiabsdiff' in quantity:
+             labels_list = [d['phiabsdiff'][0], d['phiabsdiff'][1], d['phiabsdiff'][2] % nicetext(quantity.replace("phiabsdiff","")),
+                        d['phiabsdiff'][3]]
+        elif 'abs' in quantity:
+            labels_list = [d['absphi'][0], d['absphi'][1], d['absphi'][2] % 
+                        nicetext(quantity.replace("abs_","").replace("_phi","")) , d['absphi'][3]]
+        else:
+                labels_list = [d['phi'][0], d['phi'][1], d['phi'][2] % nicetext(quantity.replace("phi","")) , d['phi'][3]]
+    elif 'eta' in quantity:
+        if 'deltaeta' in quantity:
+            labels_list = [d['deltaeta'][0], d['deltaeta'][1], d['deltaeta'][2] % (nicetext(quantity.replace("deltaeta-","").split("-")[0]),
+                         nicetext(quantity.replace("deltaeta-","").split("-")[1])), d['deltaeta'][3]]
+        elif 'etaabsdiff' in quantity:
+            labels_list = [d['deltaeta'][0], d['deltaeta'][1], d['deltaeta'][2] % nicetext(quantity.replace("etaabsdiff","")) , d['deltaeta'][3]]
+        elif 'abseta' in quantity:
+            labels_list = [d['abseta'][0], d['abseta'][1], d['abseta'][2] % nicetext(quantity.replace("abseta","")) , d['abseta'][3]]
+        else:
+            labels_list = [d['eta'][0], d['eta'][1], d['eta'][2] % nicetext(quantity.replace("eta","")) , d['eta'][3]]
+    elif 'deltar' in quantity:
+        labels_list = [d['deltar'][0], d['deltar'][1], d['deltar'][2] % (nicetext(quantity.replace("deltar-","").split("-")[0]), 
+                    nicetext(quantity.replace("deltar-","").split("-")[1])), d['deltar'][3]]
+    elif 'fraction' in quantity and 'MET' not in quantity:
+        labels_list = [d[quantity[4:-8]][0], d[quantity[4:-8]][1], d[quantity[4:-8]][2] % nicetext(quantity[:4]), d[quantity[4:-8]][3]]
+    elif quantity in d:
+        labels_list = [d[quantity][0], d[quantity][1], d[quantity][2] , d[quantity][3]]
+    else:
+        labels_list =  [0,1,quantity, ""]
+    return labels_list
+    
 
 def Save(figure, name, opt, alsoInLogScale=False, crop=True):
     _internal_Save(figure, name, opt)

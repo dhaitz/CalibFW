@@ -138,7 +138,6 @@ def datamcplot(quantity, files, opt, legloc='center right',
 
     if not file_name:
         if 'incut' in change and change['incut'] == 'allevents':
-            ax.text(0.97, 0.97, r"(before cuts)" , va='top', ha='right', transform=ax.transAxes, color='black')
             file_name = quantity + "_nocuts"
         else:
             file_name = quantity
@@ -195,25 +194,6 @@ def getPUindata(version=''):
     assert len(result) == len(result.yerr)
     assert len(result) > 10
     return result
-
-
-# function_selector: takes a list of plots and assigns them to the according funtion,
-# returns the list of remaining (not-plotted) plots
-def function_selector(plots, datamc, opt):
-
-    plotlist = getroot.getplotlist(datamc, algorithm=opt.algorithm, filenames=opt.files)
-    plotlist_nocuts = [i+"_nocuts" for i in getroot.getplotlist(datamc, folder="NoBinning_allevents", algorithm=opt.algorithm, filenames=opt.files)]
-    plotlist_all = [i+"_all" for i in getroot.getplotlist(datamc, 'all', algorithm=opt.algorithm, filenames=opt.files)]
-
-    for plot in plots:
-        if ('L1' in plot or 'L2' in plot) and plot in plotlist:
-            L1(plot, datamc, opt)
-        elif plot in plotlist:
-            datamcplot(plot, datamc, opt)
-        elif plot in plotlist_nocuts:
-            datamcplot(plot[:-7], datamc, opt, changes={'incut':'allevents'})
-        elif "_all" in plot and plot in plotlist_all:
-            datamc_all(plot[:-4], datamc, opt)
 
 
 #Some additional submodules ...

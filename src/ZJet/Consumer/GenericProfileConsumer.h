@@ -98,6 +98,8 @@ public:
 			this->SetYSource ( new SourcePtBalance() );
 		else if ( ref == "mpf" )
 			this->SetYSource ( new SourceMPFresponse() );
+		else if ( ref == "alpha" )
+			this->SetYSource ( new SourceAlpha() );
 
 		else if ( ref == "METpt" )
 			this->SetYSource ( new SourceMETPt() );
@@ -156,14 +158,14 @@ public:
 		}
 		else if ( ref == "etaabsdiff" )
 		{
-			std::string Name1 = ptree->get<std::string>( configPath + ".Name1");
-			std::string Name2 = ptree->get<std::string>( configPath + ".Name2");
+			std::string Name1 = ptree->get<std::string>( configPath + ".XName1");
+			std::string Name2 = ptree->get<std::string>( configPath + ".XName2");
 			this->SetXSource ( new SourceEtaAbsDiff( Name1, Name2) );
 		}
 		else if ( ref == "phiabsdiff" )
 		{
-			std::string Name1 = ptree->get<std::string>( configPath + ".Name1");
-			std::string Name2 = ptree->get<std::string>( configPath + ".Name2");
+			std::string Name1 = ptree->get<std::string>( configPath + ".XName1");
+			std::string Name2 = ptree->get<std::string>( configPath + ".XName2");
 			this->SetXSource ( new SourcePhiAbsDiff( Name1, Name2) );
 		}
 

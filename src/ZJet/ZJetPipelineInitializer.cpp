@@ -11,6 +11,7 @@
 #include "ZJet/Consumer/CutStatistics.h"
 #include "ZJet/Consumer/FilterStatistics.h"
 #include "ZJet/Consumer/GenericProfileConsumer.h"
+#include "ZJet/Consumer/GenericTwoDConsumer.h"
 #include "ZJet/Consumer/JetRespConsumer.h"
 #include "ZJet/Consumer/Dumper.h"
 #include "ZJet/Consumer/BinResponseConsumer.h"
@@ -156,6 +157,9 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 			pLine->AddConsumer( new DeltaConsumer( pset.GetJetAlgorithm() ));
 
+			
+			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
+
 			if ( JetType::IsPF( pset.GetJetAlgorithm() ))
 			{
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 0));
@@ -186,10 +190,10 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 			}
 
-			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
 
 			if (pset.IsMC())
-			{
+			{	std::string genName = JetType::GetGenName( pset.GetJetAlgorithm() );
+				//pLine->AddConsumer( new BasicTwoDConsumer( genName ));
 				pLine->AddConsumer( new GenMetadataConsumer( ) );
 				// rate the matching
 				pLine->AddConsumer( new JetMatchingConsumer( ) );
@@ -234,9 +238,15 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 			}
 		}
+		
+		else if (sName == BasicTwoDConsumer::GetName())		
+			pLine->AddConsumer( new BasicTwoDConsumer( pset.GetJetAlgorithm() ));
 
 		else if (sName == GenericProfileConsumer::GetName())
 			pLine->AddConsumer( new GenericProfileConsumer( pset.GetPropTree(), consPath ) );
+
+		else if (sName == GenericTwoDConsumer::GetName())
+			pLine->AddConsumer( new GenericTwoDConsumer( pset.GetPropTree(), consPath ) );
 
 		else if (sName == CutStatisticsConsumer::GetName())
 			pLine->AddConsumer( new CutStatisticsConsumer());

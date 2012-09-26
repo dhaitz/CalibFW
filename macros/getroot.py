@@ -133,15 +133,17 @@ def getplotlist(files, folder="NoBinning_incut", algorithm="AK5PFJetsCHS", filen
     import os
 
     # Get the paths of the txt files (which might not exist yet)
-    txtpaths =  [os.path.dirname(filename)+"/%s.txt" % folder for filename in filenames]
+    txtpaths =  [os.path.dirname(filename)+"/%s_%s.txt" % (os.path.basename(filename), folder) for filename in filenames]
 
-    if folder == "all":    
-        folders = [key.GetName() for key in files[0].GetListOfKeys()]
-        folders.remove("NoBinning_incut")
-        folders.remove("NoBinning_allevents")
-    else: folders = [folder]
 
     for rootfile, txtpath in zip(files, txtpaths):
+        plotlist = []
+        if folder == "all":    
+            folders = [key.GetName() for key in rootfile.GetListOfKeys()]
+            folders.remove("NoBinning_incut")
+            folders.remove("NoBinning_allevents")
+        else: folders = [folder]
+
         if os.path.exists(txtpath):   # if txt file exists, get list from file
             f = open(txtpath, 'r')
             plotlist = f.read().splitlines()
@@ -160,7 +162,12 @@ def getplotlist(files, folder="NoBinning_incut", algorithm="AK5PFJetsCHS", filen
         setlist.append(set(plotlist))
         plotlist = list(set.intersection(*setlist))  #get the matches of the lists from all files
 
-    for filt in ['run', 'fraction', 'charged', 'const', 'invalid']:
+    if folder == 'all':
+        filter_list = ['run', 'invalid', '2D'] # currently no 2D-'allplots' functionality
+    else:
+        filter_list = ['run', 'invalid']
+
+    for filt in filter_list:
         plotlist = filter(lambda x : filt not in x, plotlist)
     return plotlist
 
@@ -284,6 +291,32 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.y.append(0.0)
         hst.xerr.append(0.0)
         hst.yerr.append(0.0)
+        hst.mean = histo.GetMean()
+        hst.meanerr = histo.GetMeanError()
+    elif histo.ClassName() == 'TH2D' or histo.ClassName() == 'TH2F' or histo.ClassName() == 'TProfile2D':
+        hst = Histo2D()
+        histo.RebinX(rebin[0])
+        histo.RebinY(rebin[1])
+        hst.source = rootfile
+        hst.name = histo.GetName()
+        hst.title = histo.GetTitle()
+        hst.xlabel = histo.GetXaxis().GetTitle()
+        hst.ylabel = histo.GetYaxis().GetTitle()
+        for y in range(1, histo.GetNbinsY()+1):
+            x_list = []
+            for x in range(1, histo.GetNbinsX()+1):
+                x_list.append(histo.GetBinContent(y,x))
+            hst.BinContents.append(x_list)
+            hst.x.append(histo.GetBinLowEdge(y))
+            hst.xc.append(histo.GetBinCenter(y))
+            hst.y.append(histo.GetYaxis().GetBinLowEdge(y))
+            hst.yc.append(histo.GetYaxis().GetBinCenter(y))
+            hst.xerr.append(histo.GetBinWidth(y) / 2.0)
+            hst.yerr.append(histo.GetYaxis().GetBinWidth(y) / 2.0)
+        hst.xborderhigh = hst.xc[-1] + hst.xerr[-1]
+        hst.xborderlow = hst.xc[0] - hst.xerr[0]
+        hst.yborderhigh = hst.yc[-1] + hst.yerr[-1]
+        hst.yborderlow = hst.yc[0] - hst.yerr[0]
         hst.mean = histo.GetMean()
         hst.meanerr = histo.GetMeanError()
     elif histo.ClassName() == 'TGraphErrors':
@@ -493,6 +526,28 @@ def getValue(line, key):
     except:
         return value
 
+class Histo2D(Histo):
+    def __init__(self):
+        Histo.__init__(self)
+        self.yc = []
+        self.BinContents = []
+        self.xborderhigh = 0.0
+        self.yborderhigh = 0.0
+        self.xborderlow = 0.0
+        self.yborderlow = 0.0
+
+    def scale(self, factor):
+        BinContentsNew = []
+        for l in self.BinContents:
+            BinContentsNew.append(map(lambda item: item * factor, l))
+        self.BinContents = BinContentsNew
+
+    def binsum(self):
+        return sum([sum(a) for a in self.BinContents])
+
+    def maxBin(self):
+        a = max([max(l) for l in self.BinContents])
+        return a
 
 class Fitfunction:
     """For now this can only handle linear functions intended for extrapolation"""

@@ -36,7 +36,6 @@ public:
 	{
         m_xsource.reset( xsource );
         m_ysource.reset( ysource );
-
 	}
 
 	virtual void Init(PipelineTypeForThis * pset)
