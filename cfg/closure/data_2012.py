@@ -2,7 +2,7 @@ import sys
 import ClosureConfigBase as cbase
 
 conf = cbase.BaseConfig('data', '2012')
-conf["JsonFile"] = cbase.GetBasePath() + "data/json/Cert_190456-202305_8TeV_CombinedReco_Collisions12_JSON.txt"
+conf["JsonFile"] = cbase.GetBasePath() + "data/json/Cert_190456-203002_8TeV_CombinedReco_Collisions12_JSON.txt"
 conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa53_Data12/*.root", sys.argv)
 conf["OutputPath"] = "closure_data_2012"
 conf["EnableMetPhiCorrection"] = 0
@@ -26,7 +26,7 @@ cbase.AddHltConsumer(conf, base_algorithms, ["HLT_Mu17_Mu8", "HLT_Mu13_Mu8", "HL
 for v in variations:
     conf["Pipelines"].update(v)
 
-cbase.AddLumiConsumer(conf, algorithms)
-cbase.AddQuantityPlots(conf, algorithms)
+cbase.AddLumiConsumer(conf, ["AK5PFJetsCHSL1L2L3Res"])
+cbase.AddQuantityPlots(conf, ["AK5PFJetsCHSL1L2L3Res"])
 
 cbase.Run(conf, sys.argv)
