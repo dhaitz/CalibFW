@@ -59,7 +59,7 @@ def fractions(files, opt, over='jet1eta', fa=() , subplot=False, changes={}, sub
     # Name everything you want and take only the first <nbr> entries of them
     if over == 'zpt': nbr=5
     else: nbr = 7
-    labels =     ["CHF", "NEF", "NHF", "CEF", r"MF $\,$", "HFhad", "HFem"][:nbr]
+    labels =     ["CHF", "NEF", "NHF", "CEF", r"MF $\,$", "HFem", "HFhad"][:nbr]
     colours =    ['Orange', 'LightSkyBlue', 'YellowGreen', 'MediumBlue',
                   'Darkred', 'yellow', 'grey'][:nbr]
     markers =    ['o','x','*','^','d','D','>'][:nbr]
