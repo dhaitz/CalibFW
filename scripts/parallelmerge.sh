@@ -39,7 +39,7 @@ for (( i=0; i<${tLen};)); do
 
     # run the job
     echo -e "Job ${JOBS}: $out \c "
-    echo "ROOTSYS=${ROOTPATH} PATH=$PATH:$ROOTSYS/bin LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTSYS/lib:$ROOTSYS/lib/root hadd ${out} ${ifiles}" | qsub -q short
+    echo "ROOTSYS=${ROOTPATH} PATH=$PATH:$ROOTSYS/bin LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTSYS/lib:$ROOTSYS/lib/root hadd -f ${out} ${ifiles}" | qsub -q short -cwd
 
     let i+=$INC
     let JOBS+=1
@@ -62,6 +62,7 @@ while (($JOBS > 1)); do
     #start fmerge
     echo -e "\nSubmitting jobs: "
     fmerge $OUT $INC
+    sleep 2
 
     # NF = number of qstat output lines for Jobs STDIN / 23 -> number of unfinished jobs
     NF=`qstat -j STDIN| wc -l`
