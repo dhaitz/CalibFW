@@ -11,6 +11,7 @@ from ROOT import TF1, TGraphErrors
 import ROOT
 import getroot
 import plotbase
+import plotdatamc
 
 def getvalues(nickname, f, opt, over = 'zpt', changes={}):
     graph = TGraphErrors()
@@ -59,12 +60,11 @@ def fractions(files, opt, over='jet1eta', fa=() , subplot=False, changes={}, sub
     # Name everything you want and take only the first <nbr> entries of them
     if over == 'zpt': nbr=5
     else: nbr = 7
-    labels =     ["CHF", "NEF", "NHF", "CEF", r"MF $\,$", "HFem", "HFhad"][:nbr]
+    labels =     ["CHad", r"$\gamma$", "NHad", r"$e$", r"$\mu$", "HFem", "HFhad"][:nbr]
     colours =    ['Orange', 'LightSkyBlue', 'YellowGreen', 'MediumBlue',
                   'Darkred', 'yellow', 'grey'][:nbr]
     markers =    ['o','x','*','^','d','D','>'][:nbr]
-    components = ["chargedhad", "neutralem", "neutralhad", "chargedem", 
-                  "muon", "HFem", "HFhad"][:nbr]
+    components = ["chargedhad", "photon", "neutralhad", "electron", "muon", "HFem", "HFhad"][:nbr]
     graphnames = ["jet1" + component + "fraction"
         for component in components]
 
@@ -141,9 +141,6 @@ def fractions(files, opt, over='jet1eta', fa=() , subplot=False, changes={}, sub
    
 
     # MC histograms (begin with the last one)
-    """print "\nlen(mcG[0]):  ",len(mcG[0])
-    print "len(DataG[0]):  ",len(dataG[0])
-    print "len(x):  ",len(x)"""
 
     assert len(mcG[0]) == len(x)
     assert len(bins) == len(mcG[0]) + 1
@@ -196,22 +193,118 @@ def fractions(files, opt, over='jet1eta', fa=() , subplot=False, changes={}, sub
     ax.axhline(0.0, color='black', lw=1, zorder=10)
 
     for i in range(len(mcG)):
-        ax.errorbar( mcG[i].x, diff[i], dataG[i].yerr,
-            label=r"%s: $%+1.3f(%d)$" % (labels[i],fitd[i]-fitm[i],math.ceil(1000*(fitderr[i]+fitmerr[i]))),
+        if over is "jet1eta": label = labels[i]
+        else: label = r"%s: $%+1.3f(%d)$" % (labels[i],fitd[i]-fitm[i],math.ceil(1000*(fitderr[i]+fitmerr[i])))
+        ax.errorbar( mcG[i].x, diff[i], dataG[i].yerr, label=label,
             fmt="o", capsize=2, color=colours[i], zorder=15+i)
         ax.plot([30.0,1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
-    ax = plotbase.labels(ax, opt, legloc='lower center', frame=True, sub_plot=subplot, jet=subplot, changes=changes)
+    ax = plotbase.labels(ax, opt, legloc='lower right', frame=True, sub_plot=subplot, jet=subplot, changes=changes)
     ax = plotbase.axislabels(ax, axisname, 'components_diff')
     if subplot is not True: plotbase.Save(fig, "fractions_diff_" + over+ "_" + algoname, opt, False)
 
+#fractions_run: a plot for the time dependence of the various jet components
+def fractions_run(files, opt, changes={}, fig_ax=None, subplot=False, diff=False):
+    # Name everything you want and take only the first <nbr> entries of them
+    nbr = 6
+    labels =     ["CHad","photon", "NHad", "electron", "HFem", "HFhad"][:nbr]
+    colours =    ['Orange', 'LightSkyBlue', 'YellowGreen', 'MediumBlue',
+                  'Darkred', 'grey', 'black'][:nbr]
+    markers =    ['o','x','*','^','d','D','>'][:nbr]
+    components = ["chargedhad", "photon", "neutralhad", "electron", "HFem", "HFhad"][:nbr] 
 
+    opt_change = copy.deepcopy(opt)
+
+    if diff == True: 
+        y_name = 'components_diff'
+        title = "fractions_diff_run_"
+    else:
+        y_name = 'components'
+        title = "fractions_run_"
+
+    if fig_ax is None:
+        fig, ax = plotbase.newplot(run=True)
+    else:
+        fig, ax = fig_ax[0], fig_ax[1]
+
+    #changes['var'] = "var_JetEta_2_5to2_964"
+    for quantity , label, color, marker in zip(components, labels, colours, markers):
+        opt_change.labels = [label]
+        opt_change.colors = [color]
+        opt_change.style = [marker]
+        plotdatamc.datamcplot("jet1%sfraction_run" % quantity, files, opt_change, changes=changes, 
+                    xy_names=['run', y_name], fig_axes = (fig, ax), subplot=True, rebin=1000, legloc = 'lower right', runplot_diff = diff)
+
+    if subplot: return
+
+    filename = plotbase.getdefaultfilename(title, opt_change, changes)
+    plotbase.Save(fig, filename, opt_change)
+
+#fractions_run for all eta bins in one plot
+def fractions_run_jet1eta(files, opt, change={}, diff=False):
+    fig, ax = plotbase.newplot(subplots = 7, run=True)
+
+    if diff:
+        title = "Time dependence of the leading jet composition data/MC difference for various eta bins  "
+        filename = "fractions_diff_run_all-eta_"
+
+    else:
+        title = "Time dependence of the leading jet composition for various eta bins  "
+        filename = "fractions_run_all-eta_"
+
+    for etavar, ax_element in zip(getroot.etastrings(opt.eta), ax):
+        change['var'] = etavar
+        fractions_run(files, opt, changes=change, fig_ax = (fig, ax_element), subplot=True, diff=diff)
+    del change['var']
+
+    fig.suptitle(title+opt.algorithm+opt.correction, size='xx-large')
+    filename = plotbase.getdefaultfilename(filename, opt, change)
+    plotbase.Save(fig, filename, opt)
+
+# classic fraction plots
 def fractions_zpt (files, opt):
     fractions(files, opt, over='zpt')
 
 def fractions_jet1eta (files, opt):
     fractions(files, opt, over='jet1eta')
 
-plots = ['fractions_zpt', 'fractions_jet1eta']
+
+#plots for fractions and data/mc difference
+def fractions_run_nocuts(files, opt):
+    fractions_run(files, opt, changes={'incut':'allevents'})
+
+def fractions_diff_run(files, opt):
+    fractions_run(files, opt, diff=True),
+
+def fractions_diff_run_nocuts(files, opt):
+    fractions_run(files, opt, changes={'incut':'allevents'}, diff=True)
+
+
+# plots for comparison of eta bins:
+def fractions_run_jet1eta_nocuts(files, opt):
+    fractions_run_jet1eta(files, opt, change={'incut':'allevents'})
+
+def fractions_diff_run_jet1eta(files, opt):
+    fractions_run_jet1eta(files, opt, diff=True)
+
+def fractions_diff_run_jet1eta_nocuts(files, opt):
+    fractions_run_jet1eta(files, opt, change={'incut':'allevents'}, diff=True)
+
+
+plots = ['fractions_zpt', 'fractions_jet1eta', 
+        'fractions_run', 'fractions_run_nocuts', 'fractions_run_jet1eta',
+        'fractions_diff_run', 'fractions_diff_run_nocuts', 'fractions_diff_run_jet1eta']
+
+
+if __name__ == "__main__":
+    """Unit test: doing the plots standalone (not as a module)."""
+    import sys
+    if len(sys.argv) < 2:
+        print "Usage: python macros/plotfractions.py data_file.root mc_file.root"
+        exit(0)
+    fdata = getroot.openfile(sys.argv[1])
+    fmc = getroot.openfile(sys.argv[2])
+    bins = getroot.getbins(fdata, [])
+    fractions_zpt(fdata, fmc, opt=plotbase.options(bins=bins))
 
 
 if __name__ == "__main__":

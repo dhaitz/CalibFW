@@ -115,6 +115,20 @@ public:
 
 		else if ( ref == "jetsvalid" )
 			this->SetYSource ( new SourceValidJets() );
+
+		else if ( ref == "jet1neutralemfraction" )
+			this->SetYSource ( new SourceJet1NeutralEMFraction() );
+		else if ( ref == "jet1chargedemfraction" )
+			this->SetYSource ( new SourceJet1ChargedEMFraction() );
+		else if ( ref == "jet1neutralhadfraction" )
+			this->SetYSource ( new SourceJet1NeutralHadFraction() );
+		else if ( ref == "jet1chargedhadfraction" )
+			this->SetYSource ( new SourceJet1ChargedHadFraction() );
+		else if ( ref == "jet1HFhadfraction" )
+			this->SetYSource ( new SourceJet1HFHadFraction() );
+		else if ( ref == "jet1HFemfraction" )
+			this->SetYSource ( new SourceJet1HFEMFraction() );
+
 		else
 		{
 			CALIB_LOG_FATAL( "Source " << ref << " not supported" )

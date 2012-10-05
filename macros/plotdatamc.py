@@ -14,7 +14,8 @@ import multiprocessing as mp
 import os
 
 def datamcplot(quantity, files, opt, legloc='center right',
-               changes={}, log=False, rebin=5, file_name = "", subplot=False, subtext="", fig_axes=(), xy_names=None, normalize=True):
+               changes={}, log=False, rebin=5, file_name = "", subplot=False, subtext="", fig_axes=(), xy_names=None, normalize=True,           
+               runplot_diff=False):
     """Template for all data/MC comparison plots for basic quantities."""
     # read the values
     if opt.verbose:
@@ -28,11 +29,28 @@ def datamcplot(quantity, files, opt, legloc='center right',
     if change.has_key('algorithm') and 'Gen' in change['algorithm']:
         datamc = [getroot.getplotfromnick(quantity, files[1], change, rebin)]
     elif '_run' in quantity:
-        datamc = [getroot.getplotfromnick(quantity, f, change, rebin) for (f, name) in zip(files, opt.files) if "data" in name]
+        plot = getroot.getplotfromnick(quantity, files[0], change, rebin)
+        #remove empty elements:
+        for x_elem, y_elem, yerr_elem in zip(plot.xc, plot.y, plot.yerr):
+            if y_elem == 0.0:
+                plot.xc.remove(x_elem)
+                plot.y.remove(y_elem)
+                plot.yerr.remove(yerr_elem)
+        if len(plot.y)==0: return
+
+        if runplot_diff:
+            mc_mean = getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).mean
+            plot.y = [y_data - mc_mean for y_data in plot.y]
+            datamc.append(plot)
+        else:
+            datamc.append(plot)
+            datamc.append([ getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).mean, 
+                                getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).meanerr ])
     else: 
         datamc = [getroot.getplotfromnick(quantity, f, change, rebin) for f in files]
     if quantity in ['numpu', 'numputruth']:
         datamc[0] = getPUindata(quantity)
+
     # create the plot
     if subplot==True: fig, ax = fig_axes
     else: fig, ax = plotbase.newplot()
@@ -49,6 +67,15 @@ def datamcplot(quantity, files, opt, legloc='center right',
         if 'L1' in quantity or 'L2' in quantity or 'L3' in quantity: 
             s='o'
 
+        #remove empty elements for run plots:
+        if 'run' in quantity:
+            for x_elem, y_elem, yerr_elem in zip(f.xc, f.y, f.yerr):
+                if y_elem == 0.0:
+                    f.xc.remove(x_elem)
+                    f.y.remove(y_elem)
+                    f.yerr.remove(yerr_elem)
+            if len(f.y)==0: return
+
         if change.has_key('algorithm') and 'GenJets' in change['algorithm']:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=opt.colors[1], fmt='-', capsize=0 ,label=opt.labels[1])
             ax.bar(f.x, f.y, (f.x[2] - f.x[1]), bottom=numpy.ones(len(f.x)) * 1e-6, fill=True, facecolor=opt.colors[1], edgecolor=opt.colors[1])
@@ -62,26 +89,38 @@ def datamcplot(quantity, files, opt, legloc='center right',
         # add fits for time dependence plots
         if 'run' in quantity:
             # add a horizontal line at unity for jet response plots
-            if 'resp' or 'twojet' in quantity: ax.axhline(1.0, color="black", linestyle='--')
+            #if 'resp' or 'twojet' in quantity: ax.axhline(1.0, color="black", linestyle='--')
 
-            # fit line and display slope
             intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
-            ax.plot([190000, 205000],[intercept+190000*slope, intercept+205000*slope], color = c)
-            ax.plot([190000, 205000],[intercept+ierr+190000*(slope-serr), intercept+ierr+205000*(slope-serr)], alpha=0.2, color = c)
-            ax.plot([190000, 205000],[intercept-ierr+190000*(slope+serr), intercept-ierr+205000*(slope+serr)], alpha=0.2, color = c)
-            ax.text(0.97, 0.97-(datamc.index(f)/10.), r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{-6}$" % (slope*1000000, serr*1000000),
-               va='top', ha='right', transform=ax.transAxes, color=c,
-               size='x-large')
+            # fit line and display slope
+            if runplot_diff:
+                line_fit = ax.plot([190000, 206000],[intercept-mc_mean+190000*slope, intercept-mc_mean+205000*slope], color = c, linestyle='--')
+                ax.plot([190000, 206000],[intercept-mc_mean+ierr+190000*(slope-serr), intercept-mc_mean+ierr+206000*(slope-serr)], alpha=0.2, color = c, linestyle='--')
+                ax.plot([190000, 206000],[intercept-mc_mean-ierr+190000*(slope+serr), intercept-mc_mean-ierr+206000*(slope+serr)], alpha=0.2, color = c, linestyle='--')
+                
+                
+            else:                
+                line_fit = ax.plot([190000, 206000],[intercept+190000*slope, intercept+205000*slope], color = c, linestyle='--')
+                ax.plot([190000, 206000],[intercept+ierr+190000*(slope-serr), intercept+ierr+206000*(slope-serr)], alpha=0.2, color = c, linestyle='--')
+                ax.plot([190000, 206000],[intercept-ierr+190000*(slope+serr), intercept-ierr+206000*(slope+serr)], alpha=0.2, color = c, linestyle='--')
+                #ax.text(0.97, 0.95-(datamc.index(f)/10.), r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{-6}$" % (slope*1000000, serr*1000000),
+                #   va='top', ha='right', transform=ax.transAxes, color=c,
+                #   size='x-large')
 
-            # fit a horizontal line and display chi^2
-            """intercept, ierr, chi2, ndf = getroot.fitline(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
-            ax.axhline(intercept, color=c, linestyle='--')
-            ax.axhspan(intercept+ierr, intercept-ierr, color=c, alpha=0.2)
-            ax.text(0.97, 0.17+(datamc.index(f)/10.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
-               va='top', ha='right', transform=ax.transAxes, color=c, size='x-large')"""
+                # fit a horizontal line and display chi^2
+                """intercept, ierr, chi2, ndf = getroot.fitline(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
+                ax.axhline(intercept, color=c, linestyle='--')
+                ax.axhspan(intercept+ierr, intercept-ierr, color=c, alpha=0.2)
+                ax.text(0.97, 0.17+(datamc.index(f)/10.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
+                   va='top', ha='right', transform=ax.transAxes, color=c, size='x-large')"""
+    if "run" in quantity and not runplot_diff:
+        mc_mean = getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).mean
+        mc_meanerr = getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).meanerr
+        line_mc = ax.axhline(mc_mean, color=opt.colors[0])
+        ax.axhspan(mc_mean+mc_meanerr,mc_mean-mc_meanerr, color=opt.colors[0], alpha=0.2)
 
     # Jet response plots: add vertical lines for mean and mean error to see data/MC agreement
-    if quantity in ['balresp', 'mpfresp', 'baltwojet', 'response', 'METpt'] and 'Gen' not in change['algorithm']:
+    if quantity in ['balresp', 'mpfresp', 'mpfresp-notypeI', 'baltwojet', 'response', 'METpt'] and 'Gen' not in change['algorithm']:
         if quantity == 'METpt': unit = r' \/ / \/ GeV'
         else: unit = ""
         ax.axvline(datamc[0].mean, color='black', linestyle='-')
@@ -103,60 +142,36 @@ def datamcplot(quantity, files, opt, legloc='center right',
 
 
     plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot)
+    if 'run' in quantity and 'fraction' in quantity and not runplot_diff:
+        legend1 = ax.legend(loc='lower right', numpoints=1, frameon=True)
+        legend2 = ax.legend([line_fit, line_mc], ["data fit", "MC"], loc='upper right')
+        plotbase.plt.gca().add_artist(legend1)
+
     if opt.eventnumberlabel is True: plotbase.eventnumberlabel(ax, opt, events)
 
-    xy = quantity.split("_")
-    y = ""
-    if len(xy) == 1:
-        ax = plotbase.axislabels(ax, quantity)
-        ax.set_ylim(top=max(d.ymax() for d in datamc) * 1.2)
-        y = 'events'
-    elif len(xy) == 2:
-        x = xy[1]
-        y = xy[0]
-        ax = plotbase.axislabels(ax, x, y)
-        if (y in ['balresp', 'mpfresp', 'ptbalance', 'L1', 'L2', 'L3', 'mpf', 'mpfresp']) or 'cut' in y:
-            ax.axhline(1.0, color='black', linestyle='--')
-
-
-    # binlabels:
-    if 'var' in change and 'Cut' in change['var'] and len(change['var']) > 35:
-        change['var'] = 'var'+change['var'].split('var')[2]
-    if 'bin' in change:
-        file_name = change['bin'] + "_" + quantity
-        ranges = change['bin'][2:].split('to')
-        plotbase.binlabel(ax, 'ptz', int(ranges[0]), int(ranges[1]))
-    elif 'var' in change and 'Eta' in change['var']:
-        ranges = change['var'][11:].replace('_','.').split('to')
-        plotbase.binlabel(ax, 'eta', float(ranges[0]), float(ranges[1]))        
-    elif 'var' in change and 'Npv' in change['var']:
-        ranges = change['var'][8:].split('to')
-        plotbase.binlabel(ax, 'Npv', int(ranges[0]), int(ranges[1]))
-    elif 'var' in change and 'Cut' in change['var']:
-        ranges = change['var'][27:].replace('_','.')
-        plotbase.binlabel(ax, 'alpha', float(ranges))
-
-    if not file_name:
-        if 'incut' in change and change['incut'] == 'allevents':
-            file_name = quantity + "_nocuts"
-        else:
-            file_name = quantity
+    if xy_names is not None:
+        plotbase.axislabels(ax, xy_names[0], xy_names[1])
+    else:
+        xy = quantity.split("_")
+        y = ""
+        if len(xy) == 1:
+            ax = plotbase.axislabels(ax, quantity)
+            ax.set_ylim(top=max(d.ymax() for d in datamc) * 1.2)
+            y = 'events'
+        elif len(xy) == 2:
+            x = xy[1]
+            y = xy[0]
+            ax = plotbase.axislabels(ax, x, y)
+            if (y in ['balresp', 'mpfresp', 'ptbalance', 'L1', 'L2', 'L3', 'mpf', 'mpfresp']) or 'cut' in y:
+                ax.axhline(1.0, color='black', linestyle='--')
 
     if subtext is not 'None':
         ax.text(-0.03, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
 
     # save it
-    if change.has_key('bin'):file_name += "_"+change['bin']
-    elif change.has_key('var'):file_name += "_"+change['var']
 
-    if 'algorithm' in change:
-        file_name += "__"+change['algorithm']
-    else:
-        file_name += "__"+opt.algorithm
-    if 'correction' in change:
-        file_name += change['correction']
-    else:
-        file_name += opt.correction
+    if not file_name:
+        file_name = plotbase.getdefaultfilename(quantity, opt, changes)
 
     if subplot is not True: 
         if y is 'events' or y is "":
@@ -251,7 +266,8 @@ def datamc_all(quantity, datamc, opt, rebin=5, log=False, run=False, legloc='cen
     """
     if 'run' in quantity: 
         variations = ['eta', 'z_pt']
-        datamc = [d for d, name in zip(datamc, opt.files) if "data" in name] # Use only data file for run plots! Disable to compare several data files
+        datamc = [d for d, name in zip(datamc, opt.files)]# if "data" in name] # Use only data file for run plots! Disable to compare several data files
+        print datamc
     else:
         variations = ['npv', 'jet1eta', 'zpt', 'alpha']
         #variations = ['eta']
@@ -459,7 +475,7 @@ plotdictionary={
         'zpt_run':["rebin=500"],
         'sumEt_run':["rebin=500, run=True"],
         'METpt_run':["rebin=500, run=True"],
-        'jetsvalid_run':["rebin=500, run=True"],
+        'jetsvalid_run':["rebin=500, run=True", "datamc_all"],
         #'':[""],
 
 

@@ -551,24 +551,23 @@ def AddCutConsumer( pipelineDict, algos):
                 #AddSingleCutConsumer(pval, "muoneta", 4, algo )
                 #AddSingleCutConsumer(pval, "jeteta", 8, algo )
 
-def AddLumiConsumer( pipelineDict, algos):
+def AddLumiConsumer( pipelineDict, algos, allevents=True, incut=True, all_variations=False):
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
-            if ("default_" + algo +"_" in p) or (p == "default_" + algo):
+            if (  (allevents == True and "default_" + algo + "nocuts" in p) 
+                 or (incut == True and p == "default_" + algo)
+                 or (all_variations == True and ("default_"+algo+"_" in p ))  ):
+
                 def AddLumiConsumerEasy(y,x):
                     AddConsumerEasy(pval, { "Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x, "ProductName" : "_".join([y,x,algo])})
 
                 AddLumiConsumerEasy("eventcount", "intlumi")
-                AddLumiConsumerEasy("eventcount", "run")
-                AddLumiConsumerEasy("jet1pt", "run")
-                AddLumiConsumerEasy("zpt", "run",)
-                AddLumiConsumerEasy("ptbalance", "run")
                 AddLumiConsumerEasy("ptbalance", "intlumi")
-                AddLumiConsumerEasy("mpf", "run")
-                AddLumiConsumerEasy("sumEt", "run")
-                AddLumiConsumerEasy("METpt", "run")
-                AddLumiConsumerEasy("METfraction", "run")
-                AddLumiConsumerEasy("jetsvalid", "run")
+
+                for quantity in ["eventcount","zpt", "sumEt", "METpt", "jetsvalid",'jet1pt', 'ptbalance', 'mpf', 
+                                'jet1neutralemfraction', 'jet1chargedemfraction', 'jet1neutralhadfraction', 
+                                'jet1chargedhadfraction', 'jet1HFhadfraction', 'jet1HFemfraction']:
+                    AddLumiConsumerEasy(quantity, "run")
 
 
 def AddHltConsumer( pipelineDict, algoNames, hlt_names):
