@@ -540,7 +540,34 @@ def datelabel(ax, date='iso', xpos=0.99, ypos=1.10):
 
 def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.97, changes={}, color='black'):
     if bin is None:
-        return ax
+        if 'var' in changes and 'Cut' in changes['var'] and len(changes['var']) > 35:
+            changes['var'] = 'var'+changes['var'].split('var')[2]
+        if 'bin' in changes:
+            ranges = changes['bin'][2:].split('to')
+            bin= 'ptz'
+            low = int(ranges[0])
+            high = int(ranges[1])
+        elif 'var' in changes and 'Eta' in changes['var']:
+            ranges = changes['var'][11:].replace('_','.').split('to')
+            bin = 'eta'
+            low = float(ranges[0])
+            high = float(ranges[1])
+        elif 'var' in changes and 'PtBin' in changes['var']:
+            ranges = changes['var'][10:].replace('_','.').split('to')
+            bin = 'ptbin'
+            low = float(ranges[0])
+            high = float(ranges[1])   
+        elif 'var' in changes and 'Npv' in changes['var']:
+            ranges = changes['var'][8:].split('to')
+            bin = 'Npv'
+            low = int(ranges[0])
+            high = int(ranges[1])
+        elif 'var' in changes and 'Cut' in changes['var']:
+            ranges = changes['var'][27:].replace('_','.')
+            bin ='alpha'
+            low = float(ranges)
+        else:
+            return ax
     if bin == 'ptz':
         text = r"$%u < p_\mathrm{T}^\mathrm{Z} / \mathrm{GeV} < %u$" % (low, high)
     elif bin == 'pthat':
@@ -552,6 +579,9 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.97, changes={}, colo
             text = r"$%1.3f < |\eta_\mathrm{jet}| < %1.3f$" % (low, high)
     elif bin == 'alpha':
         text = r"$ \alpha < %1.2f$" % (low)
+    elif bin == 'ptbin':
+        #text = r"%1.0f < $|\pt_\mathrm{jet}|$ < %1.0f" % (low, high)
+        text = r"%1.0f GeV < $p_T^\mathrm{Jet}$ < %1.0f GeV" % (low, high)
     elif bin == 'Npv':
         if low == 0:
             text = r"$ NPV \leq %u$" % (high)
