@@ -28,6 +28,7 @@
 #include "ZJet/Filter/JetEtaFilter.h"
 #include "ZJet/Filter/ResponseFilter.h"
 #include "ZJet/Filter/DeltaEtaFilter.h"
+#include "ZJet/Filter/JetPtFilter.h"
 
 using namespace CalibFW;
 
@@ -64,6 +65,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddFilter( new ResponseFilter);
 			else if ( sid == DeltaEtaFilter().GetFilterId())
 				pLine->AddFilter( new DeltaEtaFilter);
+			else if ( sid == JetPtFilter().GetFilterId())
+				pLine->AddFilter( new JetPtFilter);
 			else
 				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 		}

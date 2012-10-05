@@ -76,6 +76,8 @@ public:
 	// Filter Settings
 	IMPL_SETTING(double, FilterPtBinLow)
 	IMPL_SETTING(double, FilterPtBinHigh)
+	IMPL_SETTING(double, FilterJetPtLow)
+	IMPL_SETTING(double, FilterJetPtHigh)
 	IMPL_SETTING(unsigned int, FilterNpvLow)
 	IMPL_SETTING(unsigned int, FilterNpvHigh)
 	IMPL_SETTING(double, FilterJetEtaLow)
