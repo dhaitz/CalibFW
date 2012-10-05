@@ -853,7 +853,7 @@ def Save(figure, name, opt, alsoInLogScale=False, crop=True, pad=None):
 
     if alsoInLogScale:
         figure.get_axes()[0].set_yscale('log')
-        _internal_Save(figure, name + "_log_scale", opt, crop)
+        _internal_Save(figure, name + "_log_scale", opt, crop, pad=pad)
 
 def EnsurePathExists(path):
     full_path = ""
@@ -864,7 +864,7 @@ def EnsurePathExists(path):
             print "Creating " + full_path
             os.mkdir(full_path)
         
-def _internal_Save(figure, name, opt, crop=True):
+def _internal_Save(figure, name, opt, crop=True, pad=None):
     """Save this figure in all listed data formats.
 
     The standard data formats are png and pdf.
@@ -888,7 +888,10 @@ def _internal_Save(figure, name, opt, crop=True):
                 first = False
             print name + '.' + f,
             if crop:
-                figure.savefig(name + '.' + f,bbox_inches='tight', bbox_extra_artists=[title])
+                if pad is not None:
+                    figure.savefig(name + '.' + f,bbox_inches='tight', bbox_extra_artists=[title], pad_inches=pad)
+                else:
+                    figure.savefig(name + '.' + f,bbox_inches='tight', bbox_extra_artists=[title])
             else:
                 figure.savefig(name + '.' + f)
             plt.close(figure)
