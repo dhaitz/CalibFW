@@ -307,6 +307,10 @@ public:
 			this->SetZSource ( new SourceJet1HFHadFraction() );
 		else if ( ref == "jet1HFemfraction" )
 			this->SetZSource ( new SourceJet1HFEMFraction() );
+		else if ( ref == "jet1photonfraction" )
+			this->SetZSource ( new SourceJet1photonFraction() );
+		else if ( ref == "jet1electronfraction" )
+			this->SetZSource ( new SourceJet1electronFraction() );
 		else
         {
 			CALIB_LOG_FATAL( "Source " << ref << " not supported" )

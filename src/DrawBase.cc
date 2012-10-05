@@ -122,8 +122,8 @@ Hist1D::ModifierList Hist1D::GetFractionModifier()
 {
 	Hist1D::ModifierList modList;
 
-	modList.push_back(new ModHistBinRange(.0f, 1.2f));
-	modList.push_back(new ModHistBinCount(120));
+	modList.push_back(new ModHistBinRange(-0.005f, +1.495f));
+	modList.push_back(new ModHistBinCount(150));
 	return modList;
 }
 

@@ -128,6 +128,10 @@ public:
 			this->SetYSource ( new SourceJet1HFHadFraction() );
 		else if ( ref == "jet1HFemfraction" )
 			this->SetYSource ( new SourceJet1HFEMFraction() );
+		else if ( ref == "jet1photonfraction" )
+			this->SetYSource ( new SourceJet1photonFraction() );
+		else if ( ref == "jet1electronfraction" )
+			this->SetYSource ( new SourceJet1electronFraction() );
 
 		else
 		{

@@ -391,6 +391,23 @@ public:
 
 			AddPlot( m_muonFraction );
 
+
+
+			m_electronFraction = new Hist1D( GenName(GetPhysicsObjectName(), "electronfraction_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetFractionModifier());
+
+			AddPlot( m_electronFraction );
+
+			m_photonFraction = new Hist1D( GenName(GetPhysicsObjectName(), "photonfraction_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetFractionModifier());
+
+			AddPlot( m_photonFraction );
+
+
+
+
 			m_const = new Hist1D( GenName(GetPhysicsObjectName(), "const_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetConstituentsModifier());
@@ -408,6 +425,12 @@ public:
 					Hist1D::GetFractionModifier());
 
 			AddPlot( m_summedFraction );
+
+			m_summedFraction2 = new Hist1D( GenName(GetPhysicsObjectName(), "summedfractions2_"),
+					GetPipelineSettings().GetRootFileFolder(),
+					Hist1D::GetFractionModifier());
+
+			AddPlot( m_summedFraction2 );
 
 			m_area = new Hist1D( GenName(GetPhysicsObjectName(), "area_"),
 					GetPipelineSettings().GetRootFileFolder(),
@@ -433,11 +456,21 @@ public:
 			m_neutralHadFraction->Fill( pfJet->neutralHadFraction, metaData.GetWeight() );
 			m_muonFraction->Fill( pfJet->muonFraction, metaData.GetWeight() );
 
+
+			m_photonFraction->Fill( pfJet->photonFraction, metaData.GetWeight() );
+			m_electronFraction->Fill( pfJet->electronFraction, metaData.GetWeight() );
+
 			m_const->Fill( pfJet->nConst, metaData.GetWeight() );
 			m_charged->Fill( pfJet->nCharged, metaData.GetWeight() );
 			m_area->Fill( pfJet->area, metaData.GetWeight() );
 
 			m_summedFraction->Fill( pfJet->neutralEMFraction + pfJet->chargedEMFraction +
+					pfJet->chargedHadFraction + pfJet->neutralHadFraction +
+					pfJet->HFHadFraction + pfJet->HFEMFraction +                                 
+					pfJet->muonFraction ,
+					metaData.GetWeight() );
+
+			m_summedFraction2->Fill( pfJet->photonFraction + pfJet->electronFraction +
 					pfJet->chargedHadFraction + pfJet->neutralHadFraction +
 					pfJet->HFHadFraction + pfJet->HFEMFraction +                                 
 					pfJet->muonFraction ,
@@ -454,6 +487,11 @@ public:
 	Hist1D * m_HFHadFraction;
 	Hist1D * m_neutralHadFraction;
 	Hist1D * m_muonFraction;
+
+	Hist1D * m_electronFraction;
+	Hist1D * m_photonFraction;
+	Hist1D * m_summedFraction2;
+
 	Hist1D * m_const;
 	Hist1D * m_charged;
 	Hist1D * m_area;

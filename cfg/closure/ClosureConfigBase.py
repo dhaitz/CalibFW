@@ -312,6 +312,13 @@ def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
     conf["2ndJetWeight"] = d[dataset] + [1.0]*(300 - len(d[dataset]))
     return conf
 
+def check_if_add(pipelinename, algo, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
+    #function that determines whether a consumer/variation is added to a pipeline
+    check = ((forIncut and pipelinename == "default_"+algo)
+        or (forAllevents and pipelinename == "default_" + algo + "nocuts") 
+        or (forIncutVariations and pipelinename is not "default_"+algo and "default_"+algo in pipelinename)
+        or (forAlleventsVariations and pipelinename is not "default_"+algo + "nocuts" and "default_"+algo + "nocuts" in pipelinename) )
+    return check
 
 def ExpandRange(pipelineDict, varName, vals,
                 setRootFolder=True, includeSource=True,
@@ -350,6 +357,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
                  foldername="var_{name}_{low}to{high}",
                  includeSource=False, onlyOnIncut=True,
                  alsoForPtBins=True,
+                 onlyForNocuts=False,
                  onlyBasicQuantities = True):
     """Add pipelines with values between low and high for filtername
 
@@ -359,8 +367,10 @@ def ExpandRange2(pipelines, filtername, low, high=None,
     """
     newDict = {}
     for pipeline, subdict in pipelines.items():
-        if subdict["Level"] == 1 and (not onlyOnIncut or
-                "incut" in subdict["RootFileFolder"]) and (alsoForPtBins or "NoBinning_" in subdict["RootFileFolder"]):
+        if (subdict["Level"] == 1
+                and (not onlyOnIncut or "incut" in subdict["RootFileFolder"]) 
+                and (alsoForPtBins or "NoBinning_" in subdict["RootFileFolder"])
+                and (not onlyForNocuts or 'allevents' in subdict["RootFileFolder"]) ):
             for l, h in zip(low, high):
                 # copy existing pipeline (subdict) and modify it
                 newpipe = copy.deepcopy(subdict)
@@ -551,12 +561,10 @@ def AddCutConsumer( pipelineDict, algos):
                 #AddSingleCutConsumer(pval, "muoneta", 4, algo )
                 #AddSingleCutConsumer(pval, "jeteta", 8, algo )
 
-def AddLumiConsumer( pipelineDict, algos, allevents=True, incut=True, all_variations=False):
+def AddLumiConsumer( pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
-            if (  (allevents == True and "default_" + algo + "nocuts" in p) 
-                 or (incut == True and p == "default_" + algo)
-                 or (all_variations == True and ("default_"+algo+"_" in p ))  ):
+            if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
 
                 def AddLumiConsumerEasy(y,x):
                     AddConsumerEasy(pval, { "Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x, "ProductName" : "_".join([y,x,algo])})
@@ -566,7 +574,7 @@ def AddLumiConsumer( pipelineDict, algos, allevents=True, incut=True, all_variat
 
                 for quantity in ["eventcount","zpt", "sumEt", "METpt", "jetsvalid",'jet1pt', 'ptbalance', 'mpf', 
                                 'jet1neutralemfraction', 'jet1chargedemfraction', 'jet1neutralhadfraction', 
-                                'jet1chargedhadfraction', 'jet1HFhadfraction', 'jet1HFemfraction']:
+                                'jet1chargedhadfraction', 'jet1HFhadfraction', 'jet1HFemfraction', 'jet1photonfraction', 'jet1electronfraction']:
                     AddLumiConsumerEasy(quantity, "run")
 
 
@@ -576,7 +584,6 @@ def AddHltConsumer( pipelineDict, algoNames, hlt_names):
             for p, pval in pipelineDict["Pipelines"].items():
                 #print p
                 if p == "default_" + algo + "nocuts":
-                    #print "ADDING"
                     AddConsumer(pval, "hlt_" + hname + "_prescale_run_" + algo,
                                                 { "Name" : "generic_profile_consumer",
                                                   "YSource" : "hltprescale",
@@ -704,7 +711,7 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
                 if l3residual:
                     AddCorrectionConsumer(pval, algo, "L1L2L3", "L1L2L3Res")
 
-def AddQuantityPlots( pipelineDict, algos):
+def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
 
     def AddGenericProfileConsumer(x, y, jets=None):
         if jets is None:
@@ -729,10 +736,7 @@ def AddQuantityPlots( pipelineDict, algos):
     #if pipelineDict["InputType"] == 'mc': algos.append("AK5GenJets")
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
-            # only apply to 'NoBinning_incut' and 'NoBinning_allevents' for L1L2L3(Res) algorithm:
-            #if ((p == "default_" + algo) or (p == "default_" + algo + "nocuts")) and 'L1L2L3' in algo:
-            if (("default_"+algo+"_" in p or (p == "default_" + algo) or (p == "default_" + algo + "nocuts")) 
-                and 'L1L2L3' in algo) or (algo == 'AK5GenJets' and (p == "default_AK5PFJets" or p=="default_AK5PFJetsnocuts")):
+            if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
 
                   for x in x_quantities:
                       for y in y_quantities:
@@ -753,16 +757,14 @@ def AddQuantityPlots( pipelineDict, algos):
                               for quantity  in ['ptbalance', 'mpf', 'zpt', 'METpt', 'jet1pt', 'alpha']:
                                   AddAbsDiff("phi", quantity, obj1, obj2)
 
-def Add2DHistograms(pipelineDict, algos, allevents=True, incut=True, all_variations=False):
+def Add2DHistograms(pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
-            if (  (allevents == True and p == "default_" + algo + "nocuts") 
-                 or (incut == True and p == "default_" + algo)
-                 or (all_variations == True and ("default_"+algo+"_" in p ))  ):
+            if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
                     AddConsumerEasy(pval, {"Name" : "basic_twod_consumer", "ProductName": "2d"})
                     
 
-def Add2DProfiles(pipelineDict, algos, allevents=True, incut=True, all_variations=False):
+def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
 
     def AddTwoDProfileConsumer(x, y, z):
             AddConsumerEasy(pval, { "Name" : "generic_profile2d_consumer",
@@ -779,23 +781,20 @@ def Add2DProfiles(pipelineDict, algos, allevents=True, incut=True, all_variation
                     "ZSource" : z,
                     "ProductName" : "2D_%s_deltaphi-%s-%s_deltaeta-%s-%s_" % (z, obj1, obj2, obj1, obj2) +algo   } )
 
-
-                        
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
-            if (  (allevents == True and "default_" + algo + "nocuts" in p) 
-                 or (incut == True and p == "default_" + algo)
-                 or (all_variations == True and ("default_"+algo+"_" in p ))  ):
+            if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
 
-                for z_quantity in ['jet1pt', 'ptbalance', 'mpf', 'jet1neutralemfraction', 'jet1chargedemfraction', 'jet1neutralhadfraction', 'jet1chargedhadfraction', 'jet1HFhadfraction', 'jet1HFemfraction']:
+                for z_quantity in ['jet1pt', 'ptbalance', 'mpf', 'jet1neutralemfraction', 'jet1chargedemfraction', 'jet1neutralhadfraction', 'jet1chargedhadfraction', 'jet1HFhadfraction', 'jet1HFemfraction', 'jet1photonfraction', 'jet1electronfraction']:
                     AddTwoDProfileConsumer('jet1phi', 'jet1eta', z_quantity)
-
 
                 AddTwoDProfileConsumer('zphi', 'zeta', 'zpt')
                 AddTwoDProfileConsumer('jet1phi', 'jet1eta', 'METpt')
                 AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'METpt')
                 AddTwoDProfileConsumer('zpt', 'jet1eta', 'ptbalance')
                 AddTwoDProfileConsumer('zpt', 'npv', 'ptbalance')
+                AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'ptbalance')
+                AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'mpf')
 
                 AddTwoDProfileEtaPhiConsumer('z', 'jet1', 'jet1pt')
                 AddTwoDProfileEtaPhiConsumer('jet1', 'jet2', 'jet1pt')

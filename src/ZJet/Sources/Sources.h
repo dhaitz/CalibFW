@@ -1197,6 +1197,36 @@ public:
 	virtual double GetDefaultHighBin() const{
 		return 1.f; }
 };
+class SourceJet1electronFraction: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const	{
+        KDataPFJet * pfJet = static_cast<KDataPFJet*>( metaData.GetValidPrimaryJet(settings, event) );
+		val = pfJet->electronFraction;
+		return true;}
+	virtual unsigned int GetDefaultBinCount() const	{
+		return 100;	}
+	virtual double GetDefaultLowBin() const	{		
+        return 0.f; }
+	virtual double GetDefaultHighBin() const{
+		return 1.f; }
+};
+class SourceJet1photonFraction: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const	{
+        KDataPFJet * pfJet = static_cast<KDataPFJet*>( metaData.GetValidPrimaryJet(settings, event) );
+		val = pfJet->photonFraction;
+		return true;}
+	virtual unsigned int GetDefaultBinCount() const	{
+		return 100;	}
+	virtual double GetDefaultLowBin() const	{		
+        return 0.f; }
+	virtual double GetDefaultHighBin() const{
+		return 1.f; }
+};
 
 
 

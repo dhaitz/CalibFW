@@ -709,16 +709,21 @@ d={
         'components_diff':[-0.05, 0.05, r"Data-MC of Leading Jet Components", ""],
         'components':[0, 1, r"Leading Jet Component Fraction", ""],
 
-        'chargedhad':[0,1, r"$%s charged hadron fraction$", ""],
-        'chargedem':[0,1, r"$%s charged em fraction$", ""],
-        'neutralem':[0,1, r"$%s neutral em fraction$", ""],
-        'neutralhad':[0,1, r"$%s neutral hadron fraction$", ""],
-        'muon':[0,1, r"$%s$ muon fraction$", ""],
-        'HFhad':[0,1, r"$%s$ HF had fraction$", ""],
-        'HFem':[0,1, r"$%s$ HF em fraction$", ""],
+        'chargedhad':[0,1, r"%s charged hadron fraction", ""],
+        'chargedem':[0,1, r"%s charged em fraction", ""],
+        'neutralem':[0,1, r"%s neutral em fraction", ""],
+        'neutralhad':[0,1, r"%s neutral hadron fraction", ""],
+        'muon':[0,1, r"%s muon fraction", ""],
+        'electron':[0,1, r"%s electron fraction", ""],
+        'photon':[0,1, r"%s photon fraction", ""],
+        'HFhad':[0,1, r"%s HF hadron fraction", ""],
+        'HFem':[0,1, r"%s HF em fraction", ""],
 
         'jet1charged':[0,30, r"$%s$ charged", ""],
         'jet1const':[0,30, r"$%s$ const", ""],
+        'summedf':[0.8,1.2, r"$%s$ fraction sum", ""],
+
+        'summedfr':[0.8,1.2, r"$%s$ fraction sum2", ""],
 
 
         'extrapol':[0.86, 1.04, r"Response", ""],
