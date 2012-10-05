@@ -827,8 +827,29 @@ def getaxislabels_list(quantity):
     return labels_list
     
 
-def Save(figure, name, opt, alsoInLogScale=False, crop=True):
-    _internal_Save(figure, name, opt)
+def getdefaultfilename(quantity, opt, change):
+    #create a default filename based on quantity, changes and algorithm/correction
+    filename = quantity
+
+    if 'bin' in change:
+        filename += "_"+change['bin']
+
+    if 'incut' in change and change['incut'] == 'allevents':
+        filename = quantity + "_nocuts"
+
+    if 'algorithm' in change:
+        filename += "__"+change['algorithm']
+    else:
+        filename += "__"+opt.algorithm
+
+    if 'correction' in change:
+        filename += change['correction']
+    else:
+        filename += opt.correction
+    return filename    
+
+def Save(figure, name, opt, alsoInLogScale=False, crop=True, pad=None):
+    _internal_Save(figure, name, opt, pad=pad)
 
     if alsoInLogScale:
         figure.get_axes()[0].set_yscale('log')
