@@ -14,14 +14,14 @@ plots = ['response_mikko','ratio_mikko']
 def response_mikko(files, opt):
     al = opt.algorithm
     co = opt.correction
-    corr = ["L1L2L3"]
+    corr = ["L1L2L3","L1L2L3Res"]
     alg = ["AK5PFJets","AK5PFJetsCHS"
                ]
     for a in alg:
         opt.algorithm = a
         for c in corr:
             opt.correction = c
-            responseplot_mikko(files, opt, ['bal', 'mpf'
+            responseplot_mikko(files, opt, ['bal', 'mpf', 'mpf-notypeI'
                     ], drawextrapolation=False, binborders=True)
     opt.algorithm = al
     opt.correction = co
@@ -29,14 +29,14 @@ def response_mikko(files, opt):
 def ratio_mikko(files, opt):
     al = opt.algorithm
     co = opt.correction
-    corr = ["L1L2L3"]
+    corr = ["L1L2L3", "L1L2L3Res"]
     alg = ["AK5PFJets", "AK5PFJetsCHS"
           ]
     for a in alg:
         opt.algorithm = a
         for c in corr:
             opt.correction = c
-            ratioplot_mikko(files, opt, ['bal', 'mpf'
+            ratioplot_mikko(files, opt, ['bal', 'mpf', 'mpf-notypeI'
                 ], drawextrapolation=False, binborders=True)
     opt.algorithm = al
     opt.correction = co
@@ -58,6 +58,7 @@ def responseplot_mikko(files, opt, types, labels=None,
                   ]
     cu_strings = ["_a10", "_a15", "_a20", "_a30"
                    ]
+    print types, labels
 
     for et, et_str in zip(([""]+getroot.etastrings(opt.eta)),et_strings):
         for cu, cu_str in zip(getroot.cutstrings(opt.cut), cu_strings):
@@ -65,20 +66,24 @@ def responseplot_mikko(files, opt, types, labels=None,
                 extrapolation = False
                 if t == 'RecoGen':
                     t = 'RecoToGen_bal'
-                elif len(t) > 3:
-                    extrapolation = t[3:]
-                    t = t[:3]
+                #elif len(t) > 3:
+                #    extrapolation = t[3:]
+                #    t = t[:3]
+                print t
                 if extrapolation in ['ex', 'data', 'mc', 'datamc']:        
                     extrapolation = 'data'
                 if 'Gen' not in t:
                     rgraph = plotresponse.getresponse(t+'resp', over, opt, files[0], None, {'var': cu+"_"+et}, extrapolation)
                     plot = getroot.root2histo(rgraph)
+                    print t
 
                     if t == 'bal':
                         t1 = 'PtBal'
                     elif t == 'mpf':
                         t1 = 'MPF'
-                    string = "data_"+t1+"_"+opt.algorithm+"_"+cu_str+et_str
+                    elif t == 'mpf-notypeI':
+                        t1 = 'MPF-notypeI'
+                    string = "data_"+t1+"_"+opt.algorithm+"_"+cu_str+et_str+"_"+opt.correction
                     string = string.replace("AK5PFJetsCHS_", "CHS")
                     string = string.replace("_AK5PFJets_", "")
                     rgraph.SetTitle(string)
@@ -96,7 +101,9 @@ def responseplot_mikko(files, opt, types, labels=None,
                     t = 'PtBal'
                 elif t == 'mpf':
                     t = 'MPF'
-                string = "mc_"+str(t)+"_"+opt.algorithm+"_"+cu_str+et_str
+                elif t == 'mpf-notypeI':
+                    t = 'MPF-notypeI'
+                string = "mc_"+str(t)+"_"+opt.algorithm+"_"+cu_str+et_str+"_"+opt.correction
                 string = string.replace("AK5PFJetsCHS_", "CHS")
                 string = string.replace("_AK5PFJets_", "")
                 rgraph.SetTitle(string)
@@ -132,7 +139,7 @@ def ratioplot_mikko(files, opt, types, labels=None,
     for et, et_str in zip(([""]+getroot.etastrings(opt.eta)),et_strings):
         for cu, cu_str in zip(getroot.cutstrings(opt.cut), cu_strings):
             for t, l, m, c in zip(types, labels, markers, colors):
-                rgraph = plotresponse.getresponse(t[:3]+'resp', over, opt, files[0], files[1], {'var': cu+"_"+et}, extrapol=t[3:])
+                rgraph = plotresponse.getresponse(t[:3]+'resp', over, opt, files[0], files[1], {'var': cu+"_"+et})
                 if fit:
                     line, err, chi2, ndf = getroot.fitline(rgraph)
 
@@ -141,7 +148,9 @@ def ratioplot_mikko(files, opt, types, labels=None,
                     t = 'PtBal'
                 elif t == 'mpf':
                     t = 'MPF'
-                string = "ratio_"+str(t)+"_"+opt.algorithm+"_"+cu_str+et_str
+                elif t == 'mpf_notypeI':
+                    t = 'MPF_notypeI'
+                string = "ratio_"+str(t)+"_"+opt.algorithm+"_"+cu_str+et_str+"_"+opt.correction
                 string = string.replace("AK5PFJetsCHS_", "CHS")
                 string = string.replace("_AK5PFJets_", "")
                 rgraph.SetTitle(string)

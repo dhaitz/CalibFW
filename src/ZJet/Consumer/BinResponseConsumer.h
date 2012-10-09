@@ -37,7 +37,7 @@ namespace CalibFW
 class BinResponseConsumer: public ZJetMetaConsumer
 {
 public:
-	enum {MpfResponse, BalResponse, TwoJetResponse, Zeppenfeld} m_respType;
+	enum {MpfResponse, BalResponse, TwoJetResponse, Zeppenfeld, MpfResponse_notypeI} m_respType;
 
 	BinResponseConsumer(boost::property_tree::ptree * ptree, std::string configPath):
 			ZJetMetaConsumer(), m_useGenJet(false), m_useGenJetAsReference(false)
@@ -59,6 +59,8 @@ public:
 			m_respType = TwoJetResponse;
 		else if (ptree->get<std::string>(configPath + ".ResponseType") == "z")
 			m_respType = Zeppenfeld;
+		else if (ptree->get<std::string>(configPath + ".ResponseType") == "mpf_notypeI")
+			m_respType = MpfResponse_notypeI;
 		else
 		{
 			CALIB_LOG_FATAL("Unknown Response type " + ptree->get<std::string>(configPath + ".ResponseType"));
@@ -181,6 +183,13 @@ public:
 			assert(jet1 != NULL);
 			assert(jet2 != NULL);
 			m_resp->Fill(metaData.GetZeppenfeld(jet0, jet1, jet2), metaData.GetWeight());
+		}
+
+		if (m_respType == MpfResponse_notypeI)
+		{
+			// todo: get Gen MPF
+			m_resp->Fill(metaData.GetMPF(event.m_pfMet),
+					metaData.GetWeight());
 		}
 	}
 

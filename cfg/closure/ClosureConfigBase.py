@@ -493,6 +493,10 @@ def ExpandCutNoCut(pipelineDict):
                                                       "ResponseType": "z",
                                                       "ProductName": "zeppenfeld_" + algoName,
                                                       "JetNumber": 3}
+        cutPipe["Consumer"]["bin_mpf-notypeI_response"] = { "Name" : "bin_response",
+                                                        "ProductName" : "mpfresp-notypeI_" +  algoName,
+                                                        "ResponseType" : "mpf_notypeI",
+                                                         "JetNumber" : 0}
 
 
         # only add the nocut pipeline for the default ( no binning )

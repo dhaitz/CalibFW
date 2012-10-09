@@ -229,10 +229,11 @@ def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw
 
        TODO: for npv, eta etc.
     """
-    assert method in ['balresp', 'mpfresp', 'RecoToGen_balresp']
+    assert method in ['balresp', 'mpfresp', 'RecoToGen_balresp', 'mpf-notypeIresp']
     assert type(changes) == dict
     assert extrapol in [False, '', 'data', 'mc', 'ratio', 'separate']
     #print "getresp", changes
+    if method == 'mpf-notypeIresp': method = 'mpfresp-notypeI'
     
     graph = getroot.getgraphratio(over, method, f1, f2, opt, changes, absmean=(over=='jet1_eta'))
     if extrapol:
