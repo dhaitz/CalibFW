@@ -93,6 +93,8 @@ public:
 			this->SetYSource ( new SourceZAbsEta() );
 		else if ( ref == "zphi" )
 			this->SetYSource ( new SourceZPhi() );
+		else if ( ref == "zmass" )
+			this->SetYSource ( new SourceZMass() );
 
 		else if ( ref == "ptbalance" )
 			this->SetYSource ( new SourcePtBalance() );

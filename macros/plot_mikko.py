@@ -58,7 +58,6 @@ def responseplot_mikko(files, opt, types, labels=None,
                   ]
     cu_strings = ["_a10", "_a15", "_a20", "_a30"
                    ]
-    print types, labels
 
     for et, et_str in zip(([""]+getroot.etastrings(opt.eta)),et_strings):
         for cu, cu_str in zip(getroot.cutstrings(opt.cut), cu_strings):
@@ -69,13 +68,11 @@ def responseplot_mikko(files, opt, types, labels=None,
                 #elif len(t) > 3:
                 #    extrapolation = t[3:]
                 #    t = t[:3]
-                print t
                 if extrapolation in ['ex', 'data', 'mc', 'datamc']:        
                     extrapolation = 'data'
                 if 'Gen' not in t:
                     rgraph = plotresponse.getresponse(t+'resp', over, opt, files[0], None, {'var': cu+"_"+et}, extrapolation)
                     plot = getroot.root2histo(rgraph)
-                    print t
 
                     if t == 'bal':
                         t1 = 'PtBal'
@@ -132,9 +129,6 @@ def ratioplot_mikko(files, opt, types, labels=None,
                        ]
     cu_strings = ["_a10", "_a15", "_a20", "_a30"
                    ]
-    print et_strings
-    print "labels ", labels
-    print ([""]+getroot.etastrings(opt.eta))
 
     for et, et_str in zip(([""]+getroot.etastrings(opt.eta)),et_strings):
         for cu, cu_str in zip(getroot.cutstrings(opt.cut), cu_strings):

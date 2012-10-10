@@ -25,6 +25,7 @@ import cPickle as pickle
 import time
 import copy
 import math
+import os
 
 # converts a integer list of bins [1, 30, 70] to a
 # string representation ["Pt1to30", "Pt30to70"]
@@ -75,11 +76,9 @@ def getcutbins(rootfile, fallbackbins):
             name = key.GetName()
             name = name.replace("_",".")
             if name.find("NoBinning.incut.var.CutSecondLeadingToZPt.") == 0 and len(name) < 47:
-                print name,"  X  ", name[42:]
                 #low  = [float(name[42:])] Floating point error! for now, save as string:
-                low  = [(name[42:])]
+                low  = float(name[42:])
                 result.append(low)
-                print low
         assert result != [], "No cut bins found in " + rootfile.GetName()
     except AssertionError:
         print "cut bins could not be determined from root file."
@@ -130,7 +129,6 @@ def getplotlist(files, folder="NoBinning_incut", algorithm="AK5PFJetsCHS", filen
     As getting the list from the root file is CPU-intensive, save it in a txt file after first retrieval"""
 
     setlist = []
-    import os
 
     # Get the paths of the txt files (which might not exist yet)
     txtpaths =  [os.path.dirname(filename)+"/%s_%s.txt" % (os.path.basename(filename), folder) for filename in filenames]
@@ -138,10 +136,9 @@ def getplotlist(files, folder="NoBinning_incut", algorithm="AK5PFJetsCHS", filen
 
     for rootfile, txtpath in zip(files, txtpaths):
         plotlist = []
-        if folder == "all":    
-            folders = [key.GetName() for key in rootfile.GetListOfKeys()]
+        if folder == "all":
+            folders = [key.GetName() for key in rootfile.GetListOfKeys() if "NoBinning_incut" in key.GetName()]
             folders.remove("NoBinning_incut")
-            folders.remove("NoBinning_allevents")
         else: folders = [folder]
 
         if os.path.exists(txtpath):   # if txt file exists, get list from file
@@ -162,12 +159,7 @@ def getplotlist(files, folder="NoBinning_incut", algorithm="AK5PFJetsCHS", filen
         setlist.append(set(plotlist))
         plotlist = list(set.intersection(*setlist))  #get the matches of the lists from all files
 
-    if folder == 'all':
-        filter_list = ['run', 'invalid', '2D'] # currently no 2D-'allplots' functionality
-    else:
-        filter_list = ['run', 'invalid']
-
-    for filt in filter_list:
+    for filt in ['run', 'invalid']:
         plotlist = filter(lambda x : filt not in x, plotlist)
     return plotlist
 

@@ -52,8 +52,10 @@ def plot(modules, plots, datamc, op):
             whichfunctions += [p+" in "+module.__name__]
         if op.verbose:
             print "%1.2f | End" % clock()
-    # remaining plots are given to the function_selector 
-    function_selector(remaining_plots, datamc, op)
+    # remaining plots are given to the function_selector
+    if len(remaining_plots) > 0:
+        print "Doing remaining plots ..."
+        function_selector(remaining_plots, datamc, op)
 
     # check whether the options have changed and warn
     if op != startop:
@@ -327,7 +329,7 @@ def nicetext(s):
     elif s == 'leadingjet': return r"Leading \/Jet"
     elif s == 'secondjet': return r"Second \/Jet"
     elif s == 'leadingjetsecondjet': return r"Leading\/ Jet,\/ Second\/ Jet"
-    elif s == 'jet1': return r"Leading\/ Jet"
+    elif s == 'jet1': return r"Leading Jet"
     elif s == 'jet2': return r"Second \/Jet"
     elif s == 'z': return r"Z"
     elif s == 'leadingjetMET': return r"Leading\/ Jet,\/ MET"
@@ -396,7 +398,9 @@ def newplot(ratio=False, run=False, subplots=1, opt=options()):
         elif subplots == 7:
             if run==True: a = [30,21,4,2]
             else: a = [28,15,2,4]
-        elif subplots == 6: a = [22,14,2,3]
+        elif subplots == 6: 
+            if run==True: a = [25,20,3,2]
+            else: a = [22,14,2,3]
         elif subplots == 5: a = [22, 14, 2, 3]
         elif subplots == 4:
             if run==True: a = [24,10,2,2]
@@ -422,7 +426,7 @@ def newplot(ratio=False, run=False, subplots=1, opt=options()):
 
 
 def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper right',
-           frame=True, sub_plot=False, changes={}, ratiosubplot=False, mc='False', color='black'):
+           frame=True, sub_plot=False, changes={}, ratiosubplot=False, mc='False', color='black', energy_label=True):
     """This function prints all labels and captions in a plot.
 
     Several functions are called for each type of label.
@@ -431,15 +435,15 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper ri
         if opt.lumi is not None and mc is not True:
             lumilabel(ax, opt.lumi)    # always (if given) pure MC plots?
         statuslabel(ax, opt.status)
-        if opt.energy is not None:
+        if opt.energy is not None and energy_label==True:
             energylabel(ax, opt.energy)
         if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
-        if changes.has_key('var') or changes.has_key('bin'): binlabel(ax, bin, changes=changes)
+        if changes.has_key('var') or changes.has_key('bin'): binlabel(ax, bin, changes=changes, color=color)
         if 'incut' in changes and changes['incut'] == 'allevents': nocutlabel(ax, color)
         resultlabel(ax, result)
         authorlabel(ax, opt.author)
         datelabel(ax, opt.date)
-    ax.legend(loc=legloc, numpoints=1, frameon=frame)
+    if legloc is not False: ax.legend(loc=legloc, numpoints=1, frameon=frame)
     return ax
 
 
@@ -681,11 +685,14 @@ d={
 
         'abseta':[0.0, 5.5, r"$|\eta^\mathrm{%s}|$", ""],
         'balresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
+        'zeppenfeld':[0.0, 3, r"Zeppenfeld variable", ""],
         'baltwojet':[0.0, 1.8, r"$p_\mathrm{T}$ balance for 2 jets", ""],
-        'mpfresp':[0.61, 1.06, r"$MPF$ Response", ""],
+        'mpfresp':[0.0, 1.8, r"$MPF$ Response", ""],
+        'mpfresp-notypeI':[0.0, 1.8, r"$MPF$ Response (raw MET)", ""],
         'bal':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
         'ptbalance':[0.61, 1.06, r"$p_\mathrm{T}$ balance", ""],
         'mpf':[0.3, 1.8, r"$MPF$ Response", ""],
+
         'response':[0.81, 1.05, r"Jet Response", ""],
         'ratio':[0.89, 1.08, r"%s / %s ratio", ""],
         'responseratio':[0.88, 1.03, r"data/MC ratio", ""],
@@ -698,7 +705,7 @@ d={
         'rho':[0, 50, r"$\rho$", ""],
         'constituents':[0, 60, r"Number of Jet Constituents", ""],
         'jet2ratio':[0, 0.4, r"$p_\mathrm{T}^\mathrm{Jet_2}/p_\mathrm{T}^{Z}$", ""],
-        'run':[190000, 205000, r"Run", ""],
+        'run':[190000, 206000, r"Run", ""],
 
         'jet1area':[0.6, 1, r"Leading Jet area", ""],
         'jet2area':[0.6, 1, r"Second Jet area", ""],
@@ -712,15 +719,15 @@ d={
         'chargedhad':[0,1, r"%s charged hadron fraction", ""],
         'chargedem':[0,1, r"%s charged em fraction", ""],
         'neutralem':[0,1, r"%s neutral em fraction", ""],
-        'neutralhad':[0,1, r"%s neutral hadron fraction", ""],
+        'neutralhad':[0,1., r"%s neutral hadron fraction", ""],
         'muon':[0,1, r"%s muon fraction", ""],
         'electron':[0,1, r"%s electron fraction", ""],
-        'photon':[0,1, r"%s photon fraction", ""],
+        'photon':[0,1., r"%s photon fraction", ""],
         'HFhad':[0,1, r"%s HF hadron fraction", ""],
         'HFem':[0,1, r"%s HF em fraction", ""],
 
-        'jet1charged':[0,30, r"$%s$ charged", ""],
-        'jet1const':[0,30, r"$%s$ const", ""],
+        'jet1charged':[0,30, r"%s charged", ""],
+        'jet1const':[0,30, r"%s const", ""],
         'summedf':[0.8,1.2, r"$%s$ fraction sum", ""],
 
         'summedfr':[0.8,1.2, r"$%s$ fraction sum2", ""],
@@ -796,8 +803,10 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
     return ax
 
 def getaxislabels_list(quantity):
+# can we integrate this function somehow into axislabels??
+# currently we need one function to change a given ax elemnt and one to simply return limits+label
+
     # lower limit, upper limit, label, unit
-    print quantity
     if 'phi' in quantity:
         if 'deltaphi' in quantity:
            labels_list = [d['deltaphi'][0], d['deltaphi'][1], d['deltaphi'][2] % (nicetext(quantity.replace("deltaphi-","").split("-")[0]), 
@@ -830,7 +839,6 @@ def getaxislabels_list(quantity):
     else:
         labels_list =  [0,1,quantity, ""]
     return labels_list
-    
 
 def getdefaultfilename(quantity, opt, change):
     #create a default filename based on quantity, changes and algorithm/correction
@@ -839,8 +847,11 @@ def getdefaultfilename(quantity, opt, change):
     if 'bin' in change:
         filename += "_"+change['bin']
 
+    if 'var' in change:
+        filename += "_"+change['var']
+
     if 'incut' in change and change['incut'] == 'allevents':
-        filename = quantity + "_nocuts"
+        filename += "_nocuts"
 
     if 'algorithm' in change:
         filename += "__"+change['algorithm']
@@ -851,6 +862,7 @@ def getdefaultfilename(quantity, opt, change):
         filename += change['correction']
     else:
         filename += opt.correction
+
     return filename    
 
 def Save(figure, name, opt, alsoInLogScale=False, crop=True, pad=None):

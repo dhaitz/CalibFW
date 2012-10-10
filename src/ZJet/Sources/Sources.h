@@ -824,6 +824,29 @@ public:
 		return 3.14159f;
 	}
 };
+class SourceZMass: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = metaData.GetRefZ().p4.mass();
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 500;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 500.f;
+	}
+};
 
 class SourceCutValue: public ZJetSourceBase
 {

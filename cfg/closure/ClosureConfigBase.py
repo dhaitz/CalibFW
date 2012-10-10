@@ -729,10 +729,10 @@ def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, 
                          "ProductName" : "_".join([y,"-".join(["delta"+x,obj1,obj2]),algo]) } )
 
     y_quantities = ['jet1pt', 'jet1abseta', 'jet2pt', 'jet2abseta', 'zpt', 'zabseta', 
-                         'ptbalance', 'mpf', 'METpt', 'sumEt', 'METfraction', 'zphi', 'METphi']
+                         'ptbalance', 'mpf', 'METpt', 'sumEt', 'METfraction', 'zphi', 'METphi', 'zmass']
 
     x_quantities = ['jet1pt', 'npv', 'jet1eta', 'jet1phi', 'jet2pt', 'jet2eta', 'jet2phi', 'zpt', 'zeta', 'zphi', 
-                          'METpt', 'METphi', 'sumEt', 'jetsvalid']
+                          'METpt', 'METphi', 'sumEt', 'jetsvalid', 'alpha']
 
     objects = ['z', 'jet1', 'jet2', 'MET']
 

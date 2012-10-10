@@ -56,7 +56,7 @@ def plot(cluster=False):
                #+plot_resolution.plots
                #plot_mikko.plots
         )
-    module_list = [plotresponse, plotfractions, plot2d, plotdatamc]#, plot_resolution, plot_mikko]
+    module_list = [plotresponse, plotfractions, plot2d, plotdatamc, plot_resolution, plot_mikko]
     
     print "Number of files:", len(op.files)
     files=[]
@@ -66,10 +66,10 @@ def plot(cluster=False):
 
     if cluster: return op, files
 
-    #op.bins = getroot.getbins(files[0], op.bins)
-    #op.eta = getroot.getetabins(files[0], op.eta)
-    #op.npv = getroot.getnpvbins(files[0], op.npv)
-    #op.cut = getroot.getcutbins(files[0], op.cut)
+    op.bins = getroot.getbins(files[0], op.bins)
+    op.eta = getroot.getetabins(files[0], op.eta)
+    op.npv = getroot.getnpvbins(files[0], op.npv)
+    op.cut = getroot.getcutbins(files[0], op.cut)
 
     plotbase.plot(module_list, op.plots, files, op)
 

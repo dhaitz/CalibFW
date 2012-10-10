@@ -464,6 +464,7 @@ plotdictionary={
         'zmass':["rebin=2, log=True"],
 
         'jet1pt':["log=True"],
+        'zmass_npv':["rebin=20, legloc='lower center'"],
 
         'jet2pt':["log=True, rebin=2"],
         'jet3pt':["log=True, rebin=2"],
