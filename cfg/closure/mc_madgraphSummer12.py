@@ -17,8 +17,7 @@ cbase.ApplyPUReweighting(conf, "kappa53_MC12_madgraph_190456-203002_8TeV_Combine
 variations = []
 variations += [ cbase.ExpandRange(conf["Pipelines"], "CutSecondLeadingToZPt", [0.2, 0.4], onlyBasicQuantities=False) ]
 variations += [ cbase.ExpandRange2(variations[0], "Npv", [0, 5, 9, 16, 22], [4, 8, 15, 21, 100], onlyBasicQuantities=False, alsoForPtBins=False) ]
-variations += [ cbase.ExpandRange2(variations[0], "JetEta", [0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139], [0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191], onlyBasicQuantities=False, alsoForPtBins=False) ]
-variations += [ cbase.ExpandRange2(conf["Pipelines"], "PtBin", [30, 50], [1000, 1000], onlyBasicQuantities=True, alsoForPtBins=False, onlyOnIncut=False) ]
+variations += [ cbase.ExpandRange2(variations[0], "JetEta", [0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139], [0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191], onlyBasicQuantities=False, alsoForPtBins=False, onlyOnIncut=False) ]
 
 cbase.AddCorrectionPlots(conf, base_algorithms, l3residual=False)
 cbase.AddCutConsumer(conf, algorithms)
@@ -26,9 +25,9 @@ cbase.AddCutConsumer(conf, algorithms)
 for v in variations:
     conf["Pipelines"].update(v)
 
-cbase.AddQuantityPlots(conf, algorithms)
+cbase.AddQuantityPlots(conf, ["AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
 
-cbase.Add2DHistograms(conf, ["AK5PFJets", "AK5PFJetsCHS", "AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3"], incut=True, allevents=True, all_variations=True)
-cbase.Add2DProfiles(conf, ["AK5PFJets", "AK5PFJetsCHS", "AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3"], incut=True, allevents=True, all_variations=True)
+cbase.Add2DHistograms(conf, ["AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
+cbase.Add2DProfiles(conf, ["AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
 
 cbase.Run(conf, sys.argv)

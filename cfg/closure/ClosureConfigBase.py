@@ -316,7 +316,7 @@ def check_if_add(pipelinename, algo, forIncut = True, forAllevents=False, forInc
     #function that determines whether a consumer/variation is added to a pipeline
     check = ((forIncut and pipelinename == "default_"+algo)
         or (forAllevents and pipelinename == "default_" + algo + "nocuts") 
-        or (forIncutVariations and pipelinename is not "default_"+algo and "default_"+algo in pipelinename)
+        or (forIncutVariations and pipelinename is not "default_"+algo and "default_"+algo in pipelinename and "nocut" not in pipelinename)
         or (forAlleventsVariations and pipelinename is not "default_"+algo + "nocuts" and "default_"+algo + "nocuts" in pipelinename) )
     return check
 
@@ -727,7 +727,6 @@ def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, 
     def AddAbsDiff(x,y,obj1,obj2):
         AddConsumerEasy(pval, {"Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x+"absdiff","XName1" : obj1,"XName2" : obj2,
                          "ProductName" : "_".join([y,"-".join(["delta"+x,obj1,obj2]),algo]) } )
-        #print "YSource", y, "XSource", x+"absdiff", "XName1" , obj1,"XName2" , obj2, "ProductName", "_".join([y,"-".join(["delta"+x,obj1,obj2]),algo]) 
 
     y_quantities = ['jet1pt', 'jet1abseta', 'jet2pt', 'jet2abseta', 'zpt', 'zabseta', 
                          'ptbalance', 'mpf', 'METpt', 'sumEt', 'METfraction', 'zphi', 'METphi']
@@ -737,7 +736,6 @@ def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, 
 
     objects = ['z', 'jet1', 'jet2', 'MET']
 
-    #if pipelineDict["InputType"] == 'mc': algos.append("AK5GenJets")
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
             if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
@@ -788,7 +786,6 @@ def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forI
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
             if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
-
                 for z_quantity in ['jet1pt', 'ptbalance', 'mpf', 'jet1neutralemfraction', 'jet1chargedemfraction', 'jet1neutralhadfraction', 'jet1chargedhadfraction', 'jet1HFhadfraction', 'jet1HFemfraction', 'jet1photonfraction', 'jet1electronfraction']:
                     AddTwoDProfileConsumer('jet1phi', 'jet1eta', z_quantity)
 
@@ -797,6 +794,7 @@ def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forI
                 AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'METpt')
                 AddTwoDProfileConsumer('zpt', 'jet1eta', 'ptbalance')
                 AddTwoDProfileConsumer('zpt', 'npv', 'ptbalance')
+                AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'jet2pt')
                 AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'ptbalance')
                 AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'mpf')
 
@@ -813,6 +811,20 @@ def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forI
                     "YSource" : 'etaabsdiff', "YName1":"jet1", "YName2":"jet2",                    
                     "ZSource" : "cutvalue", "ZCutId":"-1", 
                     "ProductName" : "2D_cut-all_deltaphi-jet1-jet2_deltaeta-jet1-jet2_"+algo    })
+
+                AddConsumerEasy(pval, { "Name" : "generic_profile2d_consumer",
+                    "RunUnfiltered" : 1,
+                    "XSource" : "jet1phi", 
+                    "YSource" : 'jet1eta',                  
+                    "ZSource" : "cutvalue", "ZCutId":"-1", 
+                    "ProductName" : "2D_cut-all_jet1phi_jet1eta_"+algo    })
+
+                AddConsumerEasy(pval, { "Name" : "generic_profile2d_consumer",
+                    "RunUnfiltered" : 1,
+                    "XSource" : "jet2phi", 
+                    "YSource" : 'jet2eta',                  
+                    "ZSource" : "cutvalue", "ZCutId":"-1", 
+                    "ProductName" : "2D_cut-all_jet2phi_jet2eta_"+algo    })
 
                 AddConsumerEasy(pval, { "Name" : "generic_profile2d_consumer", 
                     "RunUnfiltered" : 1, 
