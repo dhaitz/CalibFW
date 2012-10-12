@@ -11,7 +11,7 @@ cbase.addCHS(algorithms)
 base_algorithms = ["AK5PFJets", "AK5PFJetsCHS"]
 
 conf = cbase.ExpandConfig(algorithms, conf, expandptbins=True)
-cbase.ApplyPUReweighting(conf, "kappa53_MC12_madgraph_190456-203002_8TeV_CombinedReco")
+cbase.ApplyPUReweighting(conf, "kappa53_MC12_madgraph_190456-203853_8TeV_CombinedReco_v2")
 
 # create various variations ...
 variations = []
