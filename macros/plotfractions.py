@@ -24,6 +24,9 @@ def getvalues(nickname, f, opt, over = 'zpt', changes={}):
     elif over == 'jet1eta':
         bins = getroot.etastrings(opt.eta)
         fitf = TF1("fit1", "[0]", opt.eta[0], opt.eta[-2])
+    elif over == 'npv':
+        bins = getroot.npvstrings(opt.npv)
+        fitf = TF1("fit1", "[0]", 0, 100)
 
     # read the values from bin folders & store them in a root graph
     for i in range(len(bins)):
@@ -42,6 +45,12 @@ def getvalues(nickname, f, opt, over = 'zpt', changes={}):
             else:
                 graph.SetPoint(i, ojx.GetRMS(), ojy.GetMean())
             graph.SetPointError(i, ojx.GetMeanError(), ojy.GetMeanError())
+        elif over == 'npv':
+            ch['var'] = bins[i]
+            ojx = getroot.getobjectfromnick(over, f, ch)
+            ojy = getroot.getobjectfromnick(nickname, f, ch)
+            graph.SetPoint(i, ojx.GetMean(), ojy.GetMean())
+            graph.SetPointError(i, ojx.GetMeanError(), ojy.GetMeanError())
 
     # fit a horizontal line
     graph.Fit(fitf,"QN")
@@ -55,12 +64,12 @@ def getvalues(nickname, f, opt, over = 'zpt', changes={}):
     return result
 
 
-def fractions(files, opt, over='jet1eta', fa=() , subplot=False, changes={}, subtext=""):
+def fractions(files, opt, over='zpt', fa=() , subplot=False, changes={}, subtext=""):
     """Plot the components of the leading jet"""
     # Name everything you want and take only the first <nbr> entries of them
     if over == 'zpt': nbr=5
     else: nbr = 7
-    labels =     ["CHad", r"$\gamma$", "NHad", r"$e$", r"$\mu$", "HFem", "HFhad"][:nbr]
+    labels =     ["CHad", r"$\gamma$       ", "NHad", r"$e$       ", r"$\mu$       ", "HFem", "HFhad"][:nbr]
     colours =    ['Orange', 'LightSkyBlue', 'YellowGreen', 'MediumBlue',
                   'Darkred', 'yellow', 'grey'][:nbr]
     markers =    ['o','x','*','^','d','D','>'][:nbr]
@@ -91,6 +100,14 @@ def fractions(files, opt, over='jet1eta', fa=() , subplot=False, changes={}, sub
     elif over == 'jet1eta':
         bins = copy.deepcopy(opt.eta)
         x = bins[:-1]
+        print x
+        barWidth = []
+        for i in range(len(bins)-1):
+            barWidth.append(bins[i+1] - bins[i])
+    elif over == 'npv':
+        bins = [0]+[b+0.5 for a,b in opt.npv]
+        x = bins[:-1]
+        print x
         barWidth = []
         for i in range(len(bins)-1):
             barWidth.append(bins[i+1] - bins[i])
@@ -267,6 +284,8 @@ def fractions_zpt (files, opt):
 def fractions_jet1eta (files, opt):
     fractions(files, opt, over='jet1eta')
 
+def fractions_npv (files, opt):
+    fractions(files, opt, over='npv')
 
 #plots for fractions and data/mc difference
 def fractions_run_nocuts(files, opt):
