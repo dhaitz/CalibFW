@@ -74,33 +74,35 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		fvec = pset.GetCuts();
 		BOOST_FOREACH(std::string sid, fvec)
 		{		// make this more beautiful :)
-			if ( sid == LeadingJetEtaCut().GetCutShortName())
+
+
+			if ( sid == MuonEtaCut().GetCutShortName())
+				pLine->AddMetaDataProducer( new MuonEtaCut() );
+			else if ( sid == MuonPtCut().GetCutShortName())
+				pLine->AddMetaDataProducer( new MuonPtCut() );
+
+			else if ( sid == ZPtCut().GetCutShortName())
+				pLine->AddMetaDataProducer( new ZPtCut() );
+			else if ( sid == ZMassWindowCut().GetCutShortName())
+				pLine->AddMetaDataProducer( new ZMassWindowCut() );
+
+			else if ( sid == LeadingJetPtCut().GetCutShortName())
+				pLine->AddMetaDataProducer( new LeadingJetPtCut() );
+			else if ( sid == LeadingJetEtaCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new LeadingJetEtaCut() );
 
+			else if ( sid == BackToBackCut().GetCutShortName())
+				pLine->AddMetaDataProducer( new BackToBackCut() );
 			else if ( sid == SecondLeadingToZPtCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new SecondLeadingToZPtCut() );
+
 
 			else if ( sid == SecondLeadingToZPtRegionCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new SecondLeadingToZPtRegionCut() );
 
-			else if ( sid == MuonPtCut().GetCutShortName())
-				pLine->AddMetaDataProducer( new MuonPtCut() );
 
-			else if ( sid == MuonEtaCut().GetCutShortName())
-				pLine->AddMetaDataProducer( new MuonEtaCut() );
-
-			else if ( sid == ZMassWindowCut().GetCutShortName())
-				pLine->AddMetaDataProducer( new ZMassWindowCut() );
-
-			else if ( sid == BackToBackCut().GetCutShortName())
-				pLine->AddMetaDataProducer( new BackToBackCut() );
-
-			else if ( sid == ZPtCut().GetCutShortName())
-				pLine->AddMetaDataProducer( new ZPtCut() );
 			// VBF
-			else if (sid == LeadingJetPtCut().GetCutShortName())
-				pLine->AddMetaDataProducer( new LeadingJetPtCut() );
-			else if (sid == SecondJetPtCut().GetCutShortName())
+			else if ( sid == SecondJetPtCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new SecondJetPtCut() );
 			else if (sid == SecondJetEtaCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new SecondJetEtaCut() );

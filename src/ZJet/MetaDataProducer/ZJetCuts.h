@@ -16,6 +16,43 @@ public:
 	virtual unsigned long GetId() const = 0;
 };
 
+//order of cuts
+/*
+1. muon eta
+2. muon pt
+3. Z pt
+4. Z mass window
+5. leading jet pt
+6. leading jet eta
+7. second jet to Z cut
+8. back-to-back
+*/
+
+class MuonEtaCut: public ZJetCutBase
+{
+public:
+
+	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
+			ZJetMetaData::LocalMetaDataType & localMetaData,
+			ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		bool allPassed = true;
+
+		for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				it != metaData.m_listValidMuons.end(); it ++)
+		{
+			allPassed = allPassed
+				&& std::abs(it->p4.Eta()) < m_pipelineSettings.GetCutMuonEta();
+		}
+
+		localMetaData.SetCutResult(this->GetId(), allPassed);
+	}
+
+	unsigned long GetId() const { return MuonEtaCut::CutId; }
+	std::string GetCutName() { return "1) muon eta cut"; }
+	std::string GetCutShortName() const { return "muon_eta"; }
+	static const long CutId = 1 << 0;
+};
 
 class MuonPtCut: public ZJetCutBase
 {
@@ -44,8 +81,7 @@ public:
 	static const long CutId = 1 << 1;
 };
 
-
-class MuonEtaCut: public ZJetCutBase
+class ZPtCut: public ZJetCutBase
 {
 public:
 
@@ -53,22 +89,72 @@ public:
 			ZJetMetaData::LocalMetaDataType & localMetaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		bool allPassed = true;
-
-		for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				it != metaData.m_listValidMuons.end(); it ++)
+		if (!metaData.HasValidZ())
 		{
-			allPassed = allPassed
-				&& std::abs(it->p4.Eta()) < m_pipelineSettings.GetCutMuonEta();
+			//No valid objects found to apply this cut
+			return;
 		}
 
-		localMetaData.SetCutResult(this->GetId(), allPassed);
+		localMetaData.SetCutResult(this->GetId(),
+				metaData.GetRefZ().p4.Pt() > m_pipelineSettings.GetCutZPt());
 	}
 
-	unsigned long GetId() const { return MuonEtaCut::CutId; }
-	std::string GetCutName() { return "3) muon eta cut"; }
-	std::string GetCutShortName() const { return "muon_eta"; }
+	unsigned long GetId() const { return ZPtCut::CutId; }
+	std::string GetCutName() { return "3) z pt"; }
+	std::string GetCutShortName() const { return "zpt"; }
 	static const long CutId = 1 << 2;
+};
+
+class ZMassWindowCut: public ZJetCutBase
+{
+public:
+
+	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
+			ZJetMetaData::LocalMetaDataType & localMetaData,
+			ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		if (!metaData.HasValidZ())
+		{
+			//No valid objects found to apply this cut
+			return;
+		}
+
+		localMetaData.SetCutResult(this->GetId(),
+				std::abs(metaData.GetRefZ().p4.mass() - g_kZmass)
+					< m_pipelineSettings.GetCutZMassWindow()
+		);
+	}
+
+	unsigned long GetId() const { return ZMassWindowCut::CutId; }
+	std::string GetCutName() { return "4) z mass window"; }
+	std::string GetCutShortName() const { return "zmass_window"; }
+	static const long CutId = 1 << 3;
+};
+
+class LeadingJetPtCut: public ZJetCutBase
+{
+public:
+
+	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
+			ZJetMetaData::LocalMetaDataType & localMetaData,
+			ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		if (!metaData.HasValidJet(m_pipelineSettings, data))
+		{
+			// is not ok, there seems to be no jet in the event
+			return;
+		}
+
+		KDataLV* jet = metaData.GetValidPrimaryJet(m_pipelineSettings, data);
+		localMetaData.SetCutResult(this->GetId(),
+			jet->p4.Pt() > m_pipelineSettings.GetCutLeadingJetPt()
+		);
+	}
+
+	unsigned long GetId() const { return LeadingJetPtCut::CutId; }
+	std::string GetCutName() { return "5) Leading Jet Pt Cut"; }
+	std::string GetCutShortName() const { return "leadingjet_pt"; }
+	static const long CutId = 1 << 4;
 };
 
 
@@ -93,9 +179,9 @@ public:
 	}
 
 	unsigned long GetId() const { return LeadingJetEtaCut::CutId; }
-	std::string GetCutName() { return "4) leading jet eta cut"; }
+	std::string GetCutName() { return "6) leading jet eta cut"; }
 	std::string GetCutShortName() const { return "leadingjet_eta"; }
-	static const long CutId = 1 << 3;
+	static const long CutId = 1 << 5;
 };
 
 
@@ -128,10 +214,37 @@ public:
 	}
 
 	unsigned long GetId() const { return SecondLeadingToZPtCut::CutId; }
-	std::string GetCutName() { return "5) 2nd leading jet to Z pt"; }
+	std::string GetCutName() { return "7) 2nd leading jet to Z pt"; }
 	std::string GetCutShortName() const { return "secondleading_to_zpt"; }
-	static const long CutId = 1 << 4;
+	static const long CutId = 1 << 6;
 };
+
+class BackToBackCut: public ZJetCutBase
+{
+public:
+
+	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
+			ZJetMetaData::LocalMetaDataType & localMetaData,
+			ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		if (!metaData.HasValidJet(m_pipelineSettings, data) || !metaData.HasValidZ())
+			//No valid objects found to apply this cut
+			return;
+
+		KDataLV * jet1 = metaData.GetValidPrimaryJet(m_pipelineSettings, data);
+
+		localMetaData.SetCutResult(this->GetId(),
+				(std::abs(std::abs(jet1->p4.Phi() - metaData.GetRefZ().p4.Phi()) - TMath::Pi()))
+					< m_pipelineSettings.GetCutBack2Back()
+		);
+	}
+
+	unsigned long GetId() const { return BackToBackCut::CutId; }
+	std::string GetCutName() { return "8) back to back/jet to z"; }
+	std::string GetCutShortName() const { return "back_to_back"; }
+	static const long CutId = 1 << 7;
+};
+
 
 
 class SecondLeadingToZPtRegionCut: public ZJetCutBase
@@ -171,58 +284,6 @@ public:
 };
 
 
-class BackToBackCut: public ZJetCutBase
-{
-public:
-
-	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
-			ZJetMetaData::LocalMetaDataType & localMetaData,
-			ZJetPipelineSettings const& m_pipelineSettings) const
-	{
-		if (!metaData.HasValidJet(m_pipelineSettings, data) || !metaData.HasValidZ())
-			//No valid objects found to apply this cut
-			return;
-
-		KDataLV * jet1 = metaData.GetValidPrimaryJet(m_pipelineSettings, data);
-
-		localMetaData.SetCutResult(this->GetId(),
-				(std::abs(std::abs(jet1->p4.Phi() - metaData.GetRefZ().p4.Phi()) - TMath::Pi()))
-					< m_pipelineSettings.GetCutBack2Back()
-		);
-	}
-
-	unsigned long GetId() const { return BackToBackCut::CutId; }
-	std::string GetCutName() { return "6) back to back/jet to z"; }
-	std::string GetCutShortName() const { return "back_to_back"; }
-	static const long CutId = 1 << 5;
-};
-
-
-class ZMassWindowCut: public ZJetCutBase
-{
-public:
-
-	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
-			ZJetMetaData::LocalMetaDataType & localMetaData,
-			ZJetPipelineSettings const& m_pipelineSettings) const
-	{
-		if (!metaData.HasValidZ())
-		{
-			//No valid objects found to apply this cut
-			return;
-		}
-
-		localMetaData.SetCutResult(this->GetId(),
-				std::abs(metaData.GetRefZ().p4.mass() - g_kZmass)
-					< m_pipelineSettings.GetCutZMassWindow()
-		);
-	}
-
-	unsigned long GetId() const { return ZMassWindowCut::CutId; }
-	std::string GetCutName() { return "7) z mass window"; }
-	std::string GetCutShortName() const { return "zmass_window"; }
-	static const long CutId = 1 << 6;
-};
 
 class DeltaEtaCut: public ZJetCutBase
 {
@@ -257,30 +318,6 @@ public:
 		return "deltaeta";
 	}
 	static const long CutId = 1 << 5;
-};
-
-class ZPtCut: public ZJetCutBase
-{
-public:
-
-	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
-			ZJetMetaData::LocalMetaDataType & localMetaData,
-			ZJetPipelineSettings const& m_pipelineSettings) const
-	{
-		if (!metaData.HasValidZ())
-		{
-			//No valid objects found to apply this cut
-			return;
-		}
-
-		localMetaData.SetCutResult(this->GetId(),
-				metaData.GetRefZ().p4.Pt() > m_pipelineSettings.GetCutZPt());
-	}
-
-	unsigned long GetId() const { return ZPtCut::CutId; }
-	std::string GetCutName() { return "7.5) z pt"; }
-	std::string GetCutShortName() const { return "zpt"; }
-	static const long CutId = 1 << 7;
 };
 
 
@@ -340,33 +377,6 @@ public:
 	8.) central jet veto    17
 	9.)                     18
 */
-
-class LeadingJetPtCut: public ZJetCutBase
-// pT_jet1 > 50 GeV
-{
-public:
-
-	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
-			ZJetMetaData::LocalMetaDataType & localMetaData,
-			ZJetPipelineSettings const& m_pipelineSettings) const
-	{
-		if (!metaData.HasValidJet(m_pipelineSettings, data))
-		{
-			// is not ok, there seems to be no jet in the event
-			return;
-		}
-
-		KDataLV* jet = metaData.GetValidPrimaryJet(m_pipelineSettings, data);
-		localMetaData.SetCutResult(this->GetId(),
-			jet->p4.Pt() > m_pipelineSettings.GetCutLeadingJetPt()
-		);
-	}
-
-	unsigned long GetId() const { return LeadingJetPtCut::CutId; }
-	std::string GetCutName() { return "1) Leading Jet Pt Cut"; }
-	std::string GetCutShortName() const { return "leadingjet_pt"; }
-	static const long CutId = 1 << 11;
-};
 
 
 class SecondJetPtCut: public ZJetCutBase
