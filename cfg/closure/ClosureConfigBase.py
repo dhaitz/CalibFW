@@ -316,7 +316,7 @@ def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
 def check_if_add(pipelinename, algo, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
     #function that determines whether a consumer/variation is added to a pipeline
     check = ((forIncut and pipelinename == "default_"+algo)
-        or (forAllevents and pipelinename == "default_" + algo + "nocuts") 
+        or (forAllevents and pipelinename == "default_" + algo + "nocuts")
         or (forIncutVariations and pipelinename is not "default_"+algo and "default_"+algo in pipelinename and "nocut" not in pipelinename)
         or (forAlleventsVariations and pipelinename is not "default_"+algo + "nocuts" and "default_"+algo + "nocuts" in pipelinename) )
     return check
@@ -329,7 +329,7 @@ def ExpandRange(pipelineDict, varName, vals,
 
     for name, elem in pipelineDict.items():
 
-        if (elem["Level"] == 1 )and ( ( not "nocuts" in name) or alsoForNoCuts ) and  ( correction in name) and (alsoForPtBins or "NoBinning_" in elem["RootFileFolder"]):
+        if (elem["Level"] == 1 )and ( ( not "nocuts" in name) or alsoForNoCuts ) and  ( correction in name) and (alsoForPtBins or "NoBinning_incut" in elem["RootFileFolder"]) and ('zcutsonly' not in name) and ('alleta' not in name):
             for v in vals:
                 newPipe = copy.deepcopy(elem)
                 newPipe[ varName ] = v
@@ -370,7 +370,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
     for pipeline, subdict in pipelines.items():
         if (subdict["Level"] == 1
                 and (not onlyOnIncut or "incut" in subdict["RootFileFolder"]) 
-                and (alsoForPtBins or "NoBinning_" in subdict["RootFileFolder"])
+                and (alsoForPtBins or "NoBinning_incut" in subdict["RootFileFolder"])
                 and (not onlyForNocuts or 'allevents' in subdict["RootFileFolder"]) ):
             for l, h in zip(low, high):
                 # copy existing pipeline (subdict) and modify it
@@ -460,8 +460,8 @@ def AddMetaDataProducerEasy( pline, producer_name):
     pline["MetaDataProducer"][ consumer["Name"] ] = producer_name
 
 
-def ExpandCutNoCut(pipelineDict, isMC=False):
-    newDict = {}
+def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder):
+    newDict = dict()
 
     for name, elem in pipelineDict.items():
 
@@ -592,6 +592,18 @@ def ExpandCutNoCut(pipelineDict, isMC=False):
         newDict[name + "nocuts" ] = nocutPipe
         newDict[name] = cutPipe
 
+        # a pipe without leadingjet eta cut
+        if alletaFolder:
+            alletaPipe = copy.deepcopy(cutPipe)
+            alletaPipe["Cuts"].remove('leadingjet_eta')
+            newDict[name + "alleta" ] = alletaPipe
+
+        # a pipe with only muon and Z cuts
+        if zcutsFolder:
+            zcutsPipe = copy.deepcopy(cutPipe)
+            zcutsPipe["Cuts"]=['muon_eta', 'muon_pt', 'zpt', 'zmass_window']
+            newDict[name + "zcutsonly" ] = zcutsPipe
+
     return newDict
 
 def Expand( pipelineDict, expandCount, includeSource):
@@ -710,7 +722,7 @@ def ExpandPtBins( pipelineDict, ptbins, includeSource):
 
     for name, elem in pipelineDict.items():
         # dont do this for uncut events
-        if not "nocuts" in name:
+        if ((not "nocuts" in name) and (not "alleta" in name) and (not "zcutsonly" in name)) :
             i = 0
             for upper in ptbins[1:]:
                 ptbinsname =  "Bin" + str(ptbins[i]) + "To" + str(upper)
@@ -934,7 +946,7 @@ def ReplaceWithQuantitiesBasic(pline):
 
 
 def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
-        binning=GetDefaultBinning(), onlyBasicQuantities=False, expandptbins=True):
+        binning=GetDefaultBinning(), onlyBasicQuantities=False, expandptbins=True, alletaFolder=False, zcutsFolder=False):
     conf = copy.deepcopy(conf_template)
 
     # get globalalgorithms
@@ -958,7 +970,7 @@ def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
             pline["JetAlgorithm"] = algo
             algoPipelines[p + "_" + algo] = pline
 
-    conf["Pipelines"] = ExpandCutNoCut(algoPipelines, conf['InputType'] == 'mc')
+    conf["Pipelines"] = ExpandCutNoCut(algoPipelines, alletaFolder, zcutsFolder)
 
     # create pipelines for all bins
     if expandptbins:
@@ -973,7 +985,12 @@ def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
             if onlyBasicQuantities: ReplaceWithQuantitiesBasic ( pval )
 
         if "incut" in pval["Filter"]:
-            ptVal = ptVal + "_incut"
+            if  pval["Cuts"] == ['muon_eta', 'muon_pt', 'zpt', 'zmass_window']:
+                ptVal = ptVal + "_zcutsonly"
+            elif 'leadingjet_eta' not in pval["Cuts"]:
+                ptVal = ptVal + "_alleta"
+            else:
+                ptVal = ptVal + "_incut"
 
             if not ptVal == "NoBinning_incut":
                 if onlyBasicQuantities: ReplaceWithQuantitiesBasic(pval)

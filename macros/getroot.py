@@ -140,10 +140,14 @@ def getplotlist(files, folder="NoBinning_incut", algorithm="AK5PFJetsCHS", filen
             files += [openfile(f)]
 
     for rootfile, txtpath in zip(files, txtpaths):
-        if folder == "all":
-            folders = [key.GetName() for key in rootfile.GetListOfKeys() if "NoBinning_incut" in key.GetName()]
+        if folder == "all":     
+            folders = [key.GetName() for key in rootfile.GetListOfKeys() if "NoBinning_incut" in key.GetName()] 
             folders.remove("NoBinning_incut")
-        else: folders = [folder]
+        else:
+            if folder in [key.GetName() for key in rootfile.GetListOfKeys()]:
+                folders = [folder]
+            else:
+                return []
 
         if os.path.exists(txtpath):   # if txt file exists, get list from file
             f = open(txtpath, 'r')

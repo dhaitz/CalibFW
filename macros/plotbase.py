@@ -76,8 +76,12 @@ def function_selector(plots, datamc, opt):
 
     plotlist = getroot.getplotlist(datamc, algorithm=opt.algorithm, filenames=opt.files)
     plotlist_nocuts = [i+"_nocuts" for i in getroot.getplotlist(datamc, folder="NoBinning_allevents", algorithm=opt.algorithm, filenames=opt.files)]
-    plotlist_all = [i+"_all" for i in getroot.getplotlist(datamc, 'all', algorithm=opt.algorithm, filenames=opt.files)]
+    plotlist_zcutsonly = [i+"_zcutsonly" for i in getroot.getplotlist(datamc,
+                                        folder="NoBinning_zcutsonly", algorithm=opt.algorithm, filenames=opt.files)]
 
+    plotlist_alleta = [i+"_alleta" for i in getroot.getplotlist(datamc,
+                                        folder="NoBinning_alleta", algorithm=opt.algorithm, filenames=opt.files)]
+    plotlist_all = [i+"_all" for i in getroot.getplotlist(datamc, 'all', algorithm=opt.algorithm, filenames=opt.files)]
     for plot in plots:
         if ('L1' in plot or 'L2' in plot) and plot in plotlist:
             plotdatamc.L1(plot, datamc, opt)
@@ -92,6 +96,10 @@ def function_selector(plots, datamc, opt):
             plotdatamc.datamcplot(plot, datamc, opt)
         elif plot in plotlist_nocuts:
             plotdatamc.datamcplot(plot[:-7], datamc, opt, changes={'incut':'allevents'})
+        elif plot in plotlist_zcutsonly:
+            plotdatamc.datamcplot(plot[:-10], datamc, opt, changes={'incut':'zcutsonly'})
+        elif plot in plotlist_alleta:
+            plotdatamc.datamcplot(plot[:-7], datamc, opt, changes={'incut':'alleta'})
         elif "_all" in plot and plot in plotlist_all:
             plotdatamc.datamc_all(plot[:-4], datamc, opt)
         elif '_run' in plot:
@@ -433,7 +441,7 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper ri
             energylabel(ax, opt.energy)
         if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
         if changes.has_key('var') or changes.has_key('bin'): binlabel(ax, bin, changes=changes, color=color)
-        if 'incut' in changes and changes['incut'] == 'allevents': nocutlabel(ax, color)
+        if 'incut' in changes: incutlabel(ax, color, changes['incut'])
         resultlabel(ax, result)
         authorlabel(ax, opt.author)
         datelabel(ax, opt.date)
@@ -442,8 +450,16 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper ri
     return ax
 
 
-def nocutlabel(ax, color='black'):    
-    ax.text(0.97, 0.97, r"(before cuts)" , va='top', ha='right', transform=ax.transAxes, color=color)
+def incutlabel(ax, color='black', incut=''):
+    if incut == 'allevents':
+        text = r"(before cuts)"
+    if incut == 'zcutsonly':
+        text = r"(only $\mu$ and Z cuts applied)"
+    elif incut == 'alleta':
+        text = r"(jet 1 all $\eta$)"
+    else:
+        return
+    ax.text(0.97, 0.97, text, va='top', ha='right', transform=ax.transAxes, color=color)
     return ax
 
 def eventnumberlabel(ax, opt, events):
