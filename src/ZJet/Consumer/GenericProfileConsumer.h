@@ -117,6 +117,8 @@ public:
 
 		else if ( ref == "jetsvalid" )
 			this->SetYSource ( new SourceValidJets() );
+		else if ( ref == "npv")
+			this->SetYSource ( new SourceRecoVert());
 
 		else if ( ref == "jet1neutralemfraction" )
 			this->SetYSource ( new SourceJet1NeutralEMFraction() );

@@ -124,18 +124,22 @@ def openfile(filename, verbose=False, exitonfail=True):
         print " * Inputfile:", filename
     return f
 
-def getplotlist(files, folder="NoBinning_incut", algorithm="AK5PFJetsCHS", filenames=None):
-    """Idea: Get a list of the avaible plots in all input files and return the mathing plots.
+def getplotlist(files, folder="NoBinning_incut", algorithm="AK5PFJetsCHS", filenames=None, run=False):
+    """Idea: Get a list of the avaible plots in all input files and return the matching plots.
     As getting the list from the root file is CPU-intensive, save it in a txt file after first retrieval"""
 
     setlist = []
+    plotlist = []
 
     # Get the paths of the txt files (which might not exist yet)
     txtpaths =  [os.path.dirname(filename)+"/%s_%s.txt" % (os.path.basename(filename), folder) for filename in filenames]
 
+    if files == None:
+        files=[]
+        for f in filenames:
+            files += [openfile(f)]
 
     for rootfile, txtpath in zip(files, txtpaths):
-        plotlist = []
         if folder == "all":
             folders = [key.GetName() for key in rootfile.GetListOfKeys() if "NoBinning_incut" in key.GetName()]
             folders.remove("NoBinning_incut")
@@ -143,24 +147,27 @@ def getplotlist(files, folder="NoBinning_incut", algorithm="AK5PFJetsCHS", filen
 
         if os.path.exists(txtpath):   # if txt file exists, get list from file
             f = open(txtpath, 'r')
-            plotlist = f.read().splitlines()
+            p_list = f.read().splitlines()
             f.close()
         else:                         # if file doesn't exist, get list from rootfile and save as txt
             for folder in folders:
-                plotlist = []
+                p_list = []
                 for plot in rootfile.Get(folder).GetListOfKeys():
                     plotname = str(plot.GetName())
-                    if plotname not in plotlist and algorithm in plotname: plotlist.append(plotname[:(plotname.find(algorithm)-1)])
-            plotlist.sort()
+                    if plotname not in p_list and algorithm in plotname: p_list.append(plotname[:(plotname.find(algorithm)-1)])
+            p_list.sort()
             f = open(txtpath, 'w+')
-            [f.write("%s\n" % p) for p in plotlist]
+            [f.write("%s\n" % p) for p in p_list]
             f.close()
 
-        setlist.append(set(plotlist))
-        plotlist = list(set.intersection(*setlist))  #get the matches of the lists from all files
+        if run==True: 
+            # get the run plots
+            plotlist += [plot for plot in p_list if '_run' in plot]
+        else: 
+            #get the matches of the lists from all files
+            setlist.append(set(p_list))
+            plotlist = list(set.intersection(*setlist))  
 
-    for filt in ['run', 'invalid']:
-        plotlist = filter(lambda x : filt not in x, plotlist)
     return plotlist
 
 def getplot(name, rootfile, changes={}, rebin=1):

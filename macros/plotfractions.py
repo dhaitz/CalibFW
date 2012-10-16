@@ -243,39 +243,40 @@ def fractions_run(files, opt, changes={}, fig_ax=None, subplot=False, diff=False
     else:
         fig, ax = fig_ax[0], fig_ax[1]
 
-    #changes['var'] = "var_JetEta_2_5to2_964"
     for quantity , label, color, marker in zip(components, labels, colours, markers):
         opt_change.labels = [label]
         opt_change.colors = [color]
         opt_change.style = [marker]
-        plotdatamc.datamcplot("jet1%sfraction_run" % quantity, files, opt_change, changes=changes, 
-                    xy_names=['run', y_name], fig_axes = (fig, ax), subplot=True, rebin=1000, legloc = 'lower right', runplot_diff = diff)
+        plotdatamc.runplot("jet1%sfraction_run" % quantity, files, opt_change, changes=changes, fractions=True, 
+                    xy_names=['run', y_name], fig_axes = (fig, ax), subplot=True, rebin=500, legloc = 'lower right', runplot_diff = diff)
 
     if subplot: return
 
     filename = plotbase.getdefaultfilename(title, opt_change, changes)
     plotbase.Save(fig, filename, opt_change)
 
-#fractions_run for all eta bins in one plot
-def fractions_run_jet1eta(files, opt, change={}, diff=False):
-    fig, ax = plotbase.newplot(subplots = 7, run=True)
+#fractions_run for variations
+def fractions_run_all(files, opt, change={}, diff=False):
+    for quantity, variation_strings, var_bin in zip(['jet1eta', 'zpt', 'npv'], [getroot.etastrings(opt.eta), getroot.binstrings(opt.bins), getroot.npvstrings(opt.npv)], ['var', 'bin', 'var']):
 
-    if diff:
-        title = "Time dependence of the leading jet composition data/MC difference for various eta bins  "
-        filename = "fractions_diff_run_all-eta_"
+        fig, ax = plotbase.newplot(subplots = len(variation_strings), run=True)
 
-    else:
-        title = "Time dependence of the leading jet composition for various eta bins  "
-        filename = "fractions_run_all-eta_"
+        if diff:
+            title = "Time dependence of the leading jet composition data/MC difference for various %s bins  " % quantity
+            filename = "fractions_diff_run_all-%s_" % quantity
 
-    for etavar, ax_element in zip(getroot.etastrings(opt.eta), ax):
-        change['var'] = etavar
-        fractions_run(files, opt, changes=change, fig_ax = (fig, ax_element), subplot=True, diff=diff)
-    del change['var']
+        else:
+            title = "Time dependence of the leading jet composition for various %s bins  " % quantity
+            filename = "fractions_run_all-%s_" % quantity
 
-    fig.suptitle(title+opt.algorithm+opt.correction, size='xx-large')
-    filename = plotbase.getdefaultfilename(filename, opt, change)
-    plotbase.Save(fig, filename, opt)
+        for var, ax_element in zip(variation_strings, ax):
+            change[var_bin] = var
+            fractions_run(files, opt, changes=change, fig_ax = (fig, ax_element), subplot=True, diff=diff)
+        del change[var_bin]
+
+        fig.suptitle(title+opt.algorithm+opt.correction, size='xx-large')
+        filename = plotbase.getdefaultfilename(filename, opt, change)
+        plotbase.Save(fig, filename, opt)
 
 # classic fraction plots
 def fractions_zpt (files, opt):
@@ -298,20 +299,14 @@ def fractions_diff_run_nocuts(files, opt):
     fractions_run(files, opt, changes={'incut':'allevents'}, diff=True)
 
 
-# plots for comparison of eta bins:
-def fractions_run_jet1eta_nocuts(files, opt):
-    fractions_run_jet1eta(files, opt, change={'incut':'allevents'})
-
-def fractions_diff_run_jet1eta(files, opt):
-    fractions_run_jet1eta(files, opt, diff=True)
-
-def fractions_diff_run_jet1eta_nocuts(files, opt):
-    fractions_run_jet1eta(files, opt, change={'incut':'allevents'}, diff=True)
+# plots for comparison of variations:
+def fractions_diff_run_all(files, opt):
+    fractions_run_all(files, opt, diff=True)
 
 
 plots = ['fractions_zpt', 'fractions_jet1eta', 
-        'fractions_run', 'fractions_run_nocuts', 'fractions_run_jet1eta',
-        'fractions_diff_run', 'fractions_diff_run_nocuts', 'fractions_diff_run_jet1eta']
+        'fractions_run', 'fractions_run_nocuts', 'fractions_run_all',
+        'fractions_diff_run', 'fractions_diff_run_nocuts', 'fractions_diff_run_all']
 
 
 if __name__ == "__main__":

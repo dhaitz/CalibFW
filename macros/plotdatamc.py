@@ -28,24 +28,6 @@ def datamcplot(quantity, files, opt, legloc='center right',
     #create list with histograms
     if change.has_key('algorithm') and 'Gen' in change['algorithm']:
         datamc = [getroot.getplotfromnick(quantity, files[1], change, rebin)]
-    elif '_run' in quantity:
-        plot = getroot.getplotfromnick(quantity, files[0], change, rebin)
-        #remove empty elements:
-        for x_elem, y_elem, yerr_elem in zip(plot.xc, plot.y, plot.yerr):
-            if y_elem == 0.0:
-                plot.xc.remove(x_elem)
-                plot.y.remove(y_elem)
-                plot.yerr.remove(yerr_elem)
-        if len(plot.y)==0: return
-
-        if runplot_diff:
-            mc_mean = getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).mean
-            plot.y = [y_data - mc_mean for y_data in plot.y]
-            datamc.append(plot)
-        else:
-            datamc.append(plot)
-            datamc.append([ getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).mean, 
-                                getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).meanerr ])
     else: 
         datamc = [getroot.getplotfromnick(quantity, f, change, rebin) for f in files]
     if quantity in ['numpu', 'numputruth']:
@@ -67,15 +49,6 @@ def datamcplot(quantity, files, opt, legloc='center right',
         if 'L1' in quantity or 'L2' in quantity or 'L3' in quantity: 
             s='o'
 
-        #remove empty elements for run plots:
-        if 'run' in quantity:
-            for x_elem, y_elem, yerr_elem in zip(f.xc, f.y, f.yerr):
-                if y_elem == 0.0:
-                    f.xc.remove(x_elem)
-                    f.y.remove(y_elem)
-                    f.yerr.remove(yerr_elem)
-            if len(f.y)==0: return
-
         if change.has_key('algorithm') and 'GenJets' in change['algorithm']:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=opt.colors[1], fmt='-', capsize=0 ,label=opt.labels[1])
             ax.bar(f.x, f.y, (f.x[2] - f.x[1]), bottom=numpy.ones(len(f.x)) * 1e-6, fill=True, facecolor=opt.colors[1], edgecolor=opt.colors[1])
@@ -85,39 +58,6 @@ def datamcplot(quantity, files, opt, legloc='center right',
         else:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, fmt=s, capsize=0 ,label=l)
 
-
-        # add fits for time dependence plots
-        if 'run' in quantity:
-            # add a horizontal line at unity for jet response plots
-            #if 'resp' or 'twojet' in quantity: ax.axhline(1.0, color="black", linestyle='--')
-
-            intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
-            # fit line and display slope
-            if runplot_diff:
-                line_fit = ax.plot([190000, 206000],[intercept-mc_mean+190000*slope, intercept-mc_mean+205000*slope], color = c, linestyle='--')
-                ax.plot([190000, 206000],[intercept-mc_mean+ierr+190000*(slope-serr), intercept-mc_mean+ierr+206000*(slope-serr)], alpha=0.2, color = c, linestyle='--')
-                ax.plot([190000, 206000],[intercept-mc_mean-ierr+190000*(slope+serr), intercept-mc_mean-ierr+206000*(slope+serr)], alpha=0.2, color = c, linestyle='--')
-                
-                
-            else:                
-                line_fit = ax.plot([190000, 206000],[intercept+190000*slope, intercept+205000*slope], color = c, linestyle='--')
-                ax.plot([190000, 206000],[intercept+ierr+190000*(slope-serr), intercept+ierr+206000*(slope-serr)], alpha=0.2, color = c, linestyle='--')
-                ax.plot([190000, 206000],[intercept-ierr+190000*(slope+serr), intercept-ierr+206000*(slope+serr)], alpha=0.2, color = c, linestyle='--')
-                #ax.text(0.97, 0.95-(datamc.index(f)/10.), r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{-6}$" % (slope*1000000, serr*1000000),
-                #   va='top', ha='right', transform=ax.transAxes, color=c,
-                #   size='x-large')
-
-                # fit a horizontal line and display chi^2
-                """intercept, ierr, chi2, ndf = getroot.fitline(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
-                ax.axhline(intercept, color=c, linestyle='--')
-                ax.axhspan(intercept+ierr, intercept-ierr, color=c, alpha=0.2)
-                ax.text(0.97, 0.17+(datamc.index(f)/10.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
-                   va='top', ha='right', transform=ax.transAxes, color=c, size='x-large')"""
-    if "run" in quantity and not runplot_diff:
-        mc_mean = getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).mean
-        mc_meanerr = getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).meanerr
-        line_mc = ax.axhline(mc_mean, color=opt.colors[0])
-        ax.axhspan(mc_mean+mc_meanerr,mc_mean-mc_meanerr, color=opt.colors[0], alpha=0.2)
 
     # Jet response plots: add vertical lines for mean and mean error to see data/MC agreement
     if quantity in ['balresp', 'mpfresp', 'mpfresp-notypeI', 'baltwojet', 'response', 'METpt'] and 'Gen' not in change['algorithm']:
@@ -142,10 +82,6 @@ def datamcplot(quantity, files, opt, legloc='center right',
 
 
     plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot)
-    if 'run' in quantity and 'fraction' in quantity and not runplot_diff:
-        legend1 = ax.legend(loc='lower right', numpoints=1, frameon=True)
-        legend2 = ax.legend([line_fit, line_mc], ["data fit", "MC"], loc='upper right')
-        plotbase.plt.gca().add_artist(legend1)
 
     if opt.eventnumberlabel is True: plotbase.eventnumberlabel(ax, opt, events)
 
@@ -184,6 +120,109 @@ def datamcplot(quantity, files, opt, legloc='center right',
         ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in datamc) * 2)
         ax.set_yscale('log')
         if subplot is not True: plotbase.Save(fig, file_name + '_log', opt)
+
+
+
+
+def runplot(quantity, files, opt, legloc='center right',
+               changes={}, log=False, rebin=500, file_name = "", subplot=False, subtext="", fig_axes=(), xy_names=None, normalize=True,           
+               fractions=False, runplot_diff=False):
+
+    change= plotbase.getchanges(opt, changes)
+    datamc=[]
+    events=[]
+    run_min = 190000
+    run_max = 206000
+
+    # create the plot
+    if subplot==True: fig, ax = fig_axes
+    else: fig, ax = plotbase.newplot(run=True)
+
+
+    plotlist = getroot.getplotlist(None, algorithm=opt.algorithm, filenames=opt.files)
+
+
+    for f, l, c, s in reversed(zip(files, opt.labels, opt.colors, opt.style)):
+        if 'data' in l or fractions:
+            plot = getroot.getplotfromnick(quantity, f, change, rebin)
+            #remove empty elements:
+            for x_elem, y_elem, yerr_elem in zip(plot.xc, plot.y, plot.yerr):
+                if y_elem == 0.0:
+                    plot.xc.remove(x_elem)
+                    plot.y.remove(y_elem)
+                    plot.yerr.remove(yerr_elem)
+            if len(plot.y)==0: return
+
+            if runplot_diff:
+                mc_mean = getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).mean
+                plot.y = [y - mc_mean for y in plot.y]
+            
+            ax.errorbar(plot.xc, plot.y, plot.yerr, drawstyle='steps-mid', color=c, fmt=s, capsize=0 ,label=l)
+
+
+            intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, f, change, rebin))
+            if runplot_diff:
+                intercept = intercept - mc_mean
+
+            # fit line and display slope:
+            line_fit = ax.plot([run_min, run_max],[intercept+run_min*slope, intercept+run_max*slope], color = c, linestyle='--')
+            ax.plot([run_min, run_max],[intercept+ierr+run_min*(slope-serr), intercept+ierr+run_max*(slope-serr)], alpha=0.2, color = c, linestyle='--')
+            ax.plot([run_min, run_max],[intercept-ierr+run_min*(slope+serr), intercept-ierr+run_max*(slope+serr)], alpha=0.2, color = c, linestyle='--')
+
+            #ax.text(0.97, 0.95-(datamc.index(f)/10.), r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{-6}$" % (slope*1000000, serr*1000000),
+            #   va='top', ha='right', transform=ax.transAxes, color=c,
+            #   size='x-large')
+            # fit a horizontal line and display chi^2
+            """intercept, ierr, chi2, ndf = getroot.fitline(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
+            ax.axhline(intercept, color=c, linestyle='--')
+            ax.axhspan(intercept+ierr, intercept-ierr, color=c, alpha=0.2)
+            ax.text(0.97, 0.17+(datamc.index(f)/10.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
+            va='top', ha='right', transform=ax.transAxes, color=c, size='x-large')"""
+
+        elif ('MC' in l  or fractions) and quantity[:-4] in plotlist:
+            if runplot_diff:
+                mc_mean = getroot.getplotfromnick(quantity[:-4], f, change, rebin=1).mean
+                plot.y = [y_data - mc_mean for y_data in plot.y]
+                datamc.append(plot)
+            else:
+                mc_mean = getroot.getplotfromnick(quantity[:-4], f, change, rebin=1).mean
+                mc_meanerr = getroot.getplotfromnick(quantity[:-4], f, change, rebin=1).meanerr
+                ax.errorbar(0.5*(run_min+ run_max), mc_mean, mc_meanerr, drawstyle='steps-mid', color=c, fmt='-', capsize=0 ,label=l)
+                ax.bar(run_min, mc_mean, (run_max - run_min), bottom=0., fill=True, facecolor=c, edgecolor=c)
+                ax.axhspan(mc_mean+mc_meanerr,mc_mean-mc_meanerr, color=c, alpha=0.2)
+
+        
+    run_2012B = 193834.
+    run_2012C = 197770.
+    ax.axvline(run_2012B, color='gray', linestyle='--', alpha=0.2)
+    ax.text((run_2012B - run_min)/(run_max-run_min),  0.98, "2012B",
+                     va='top', ha='left', transform=ax.transAxes, color='gray', alpha=0.5, size='medium')
+    ax.axvline(run_2012C, color='gray', linestyle='--', alpha=0.2)
+    ax.text((run_2012C - run_min)/(run_max-run_min),  0.98, "2012C", 
+                    va='top', ha='left', transform=ax.transAxes, color='gray', alpha=0.5, size='medium')
+
+    plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot)
+
+    #if 'fraction' in quantity and not runplot_diff:
+    #    legend1 = ax.legend(loc='lower right', numpoints=1, frameon=True)
+    #    legend2 = ax.legend([line_fit, line_mc], ["data fit", "MC"], loc='upper right')
+    #    plotbase.plt.gca().add_artist(legend1)
+
+    if xy_names is not None:
+        plotbase.axislabels(ax, xy_names[0], xy_names[1])
+    else:
+        y, x = quantity.split("_")
+        ax = plotbase.axislabels(ax, x, y)
+
+    if subtext is not 'None':
+        ax.text(-0.03, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
+
+    # get file name
+    if not file_name:
+        file_name = plotbase.getdefaultfilename(quantity, opt, changes)
+    # save
+    if subplot is not True: 
+        plotbase.Save(fig, file_name, opt)
 
 
 def getPUindata(version=''):
@@ -469,14 +508,6 @@ plotdictionary={
         'jet2pt':["log=True, rebin=2"],
         'jet3pt':["log=True, rebin=2"],
 
-        'ptbalance_run':["rebin=500, legloc='lower left', run=True"],
-        'ptbalance_run_all':["rebin=500, run=True ,legloc='lower left'", 'datamc_all', 'ptbalance_run' ],
-        'mpfresp_run':["rebin=500, run=True"],
-        'jetpt_run':["rebin=500, run=True"],
-        'zpt_run':["rebin=500"],
-        'sumEt_run':["rebin=500, run=True"],
-        'METpt_run':["rebin=500, run=True"],
-        'jetsvalid_run':["rebin=500, run=True", "datamc_all"],
         #'':[""],
 
 

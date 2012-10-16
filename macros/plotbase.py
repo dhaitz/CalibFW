@@ -16,6 +16,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from time import localtime, strftime, clock
 import argparse
+import math
 
 
 from ROOT import gROOT
@@ -93,6 +94,11 @@ def function_selector(plots, datamc, opt):
             plotdatamc.datamcplot(plot[:-7], datamc, opt, changes={'incut':'allevents'})
         elif "_all" in plot and plot in plotlist_all:
             plotdatamc.datamc_all(plot[:-4], datamc, opt)
+        elif '_run' in plot:
+            if '_nocuts' in plot:
+                plotdatamc.runplot(plot[:-7], datamc, opt, changes={'incut':'allevents'})
+            else:
+                plotdatamc.runplot(plot, datamc, opt)
 
 
 def options(
@@ -388,25 +394,13 @@ def newplot(ratio=False, run=False, subplots=1, opt=options()):
     fig = plt.figure(figsize=[7, 7])
     fig.suptitle(opt.title, size='xx-large')
     if subplots is not 1: #Get 4 config numbers: FigXsize, FigYsize, NaxesY, NaxesX
-        if subplots == 16: a = [56, 14, 2, 8]
-        elif subplots == 9:
-            if run==True: a = [30,25,5,2]
-            else: a = [35,14,2,5]
-        elif subplots == 8:
-            if run==True: a = [30,21,4,2]
-            else: a = [28,14,2,4]
-        elif subplots == 7:
-            if run==True: a = [30,21,4,2]
-            else: a = [28,15,2,4]
-        elif subplots == 6: 
-            if run==True: a = [25,20,3,2]
-            else: a = [22,14,2,3]
-        elif subplots == 5: a = [22, 14, 2, 3]
-        elif subplots == 4:
-            if run==True: a = [24,10,2,2]
-            else: a = [15, 14, 2, 2]
-        elif subplots == 2: a = [15, 7 ,1, 2]
-        else: a = [14,7,1,1]
+
+        x = int(math.sqrt(subplots))
+        y = int(round(subplots/float(x)))
+        if run:
+            a = [14*x, 7*y, y, x]
+        else:
+            a = [7*x, 7*y, y, x]
         fig = plt.figure(figsize=[a[0], a[1]]) #apply config numbers
         ax = [fig.add_subplot(a[2],a[3],n+1) for n in range(subplots)]
         return fig, ax
@@ -443,7 +437,8 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper ri
         resultlabel(ax, result)
         authorlabel(ax, opt.author)
         datelabel(ax, opt.date)
-    if legloc is not False: ax.legend(loc=legloc, numpoints=1, frameon=frame)
+    if legloc is not False:
+        legend = ax.legend(loc=legloc, numpoints=1, frameon=frame)
     return ax
 
 
@@ -670,13 +665,13 @@ d={
         'reco':[0, 35, r"Number of Reconstructed Vertices $n$",""],
 
         'L1':[0, 1.2, r"L1 correction factor",""],
-        'L1abs':[-25, 25, r"L1 absolute correction",""],
+        'L1abs':[-25, 25, r"L1 absolute correction","GeV"],
         'L2':[0, 1.2, r"L2 correction factor",""],
-        'L2abs':[-25, 25, r"L2 absolute correction",""],
+        'L2abs':[-25, 25, r"L2 absolute correction","GeV"],
         'L1L2L3':[0, 1.2, r"L1L2L3 correction factor",""],
-        'L1L2L3abs':[-25, 25, r"L1L2L3 absolute correction",""],
+        'L1L2L3abs':[-25, 25, r"L1L2L3 absolute correction","GeV"],
         'L3':[0, 1.2, r"L3 correction factor",""],
-        'L3abs':[-25, 25, r"L3 absolute correction",""],
+        'L3abs':[-25, 25, r"L3 absolute correction","GeV"],
         'jetsvalid':[0, 100, r"Number of valid jets $n$",""],
         'muonsvalid':[0, 5, "Number of valid muons", ""],
         'muonsinvalid':[0, 5, "Number of invalid muons", ""],
@@ -706,6 +701,7 @@ d={
         'constituents':[0, 60, r"Number of Jet Constituents", ""],
         'jet2ratio':[0, 0.4, r"$p_\mathrm{T}^\mathrm{Jet_2}/p_\mathrm{T}^{Z}$", ""],
         'run':[190000, 206000, r"Run", ""],
+        'eventcount':[0, 1.1, r"Eventcount", ""],
 
         'jet1area':[0.6, 1, r"Leading Jet area", ""],
         'jet2area':[0.6, 1, r"Second Jet area", ""],
