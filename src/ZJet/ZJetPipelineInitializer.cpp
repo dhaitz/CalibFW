@@ -150,6 +150,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			pLine->AddConsumer( new DataMETConsumer( pset.GetJetAlgorithm() ));
 			pLine->AddConsumer( new DeltaConsumer( pset.GetJetAlgorithm() ));
 			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
+			pLine->AddConsumer( new RhoConsumer( ) );
 
 			if (JetType::IsPF(pset.GetJetAlgorithm()))
 			{

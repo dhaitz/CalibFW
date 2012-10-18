@@ -136,6 +136,15 @@ Hist1D::ModifierList Hist1D::GetAreaModifier()
 	return modList;
 }
 
+Hist1D::ModifierList Hist1D::GetRhoModifier()
+{
+	Hist1D::ModifierList modList;
+
+	modList.push_back(new ModHistBinRange(.0f, 50.0f));
+	modList.push_back(new ModHistBinCount(100));
+	return modList;
+}
+
 Hist1D::ModifierList Hist1D::GetMETModifier()
 {
 	Hist1D::ModifierList modList;

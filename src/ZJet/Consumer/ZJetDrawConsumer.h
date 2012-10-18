@@ -147,6 +147,33 @@ private:
 	Hist1D* m_npv;
 };
 
+class RhoConsumer: public ZJetMetaConsumer
+{
+public:
+
+	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+			ZJetPipelineSettings> * pset)
+	{
+		ZJetMetaConsumer::Init( pset );
+
+		m_rho = new Hist1D( "rho_"  + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetRhoModifier() );
+		AddPlot ( m_rho );
+	}
+
+	virtual void ProcessFilteredEvent(ZJetEventData const& event,
+			ZJetMetaData const& metaData)
+	{
+		ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
+		m_rho->Fill( event.m_jetArea->median, metaData.GetWeight());
+	}
+
+private:
+	Hist1D * m_rho;
+
+};
+
 
 class BasicTwoDConsumer: public ZJetMetaConsumer
 {

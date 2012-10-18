@@ -376,6 +376,7 @@ public:
 	static ModifierList GetResponseModifier();
 	static ModifierList GetMassModifier();
 	static ModifierList GetAreaModifier();
+	static ModifierList GetRhoModifier();
 	static ModifierList GetMETModifier();
 	static ModifierList GetDeltaRModifier();
 	static ModifierList GetDeltaPhiModifier();
