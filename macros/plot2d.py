@@ -116,6 +116,49 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
     plotbase.Save(fig, file_name, opt)
 
 
+def ThreeD(files, opt, changes={}, rebin=[2,2]):
+    from mpl_toolkits.mplot3d import Axes3D
+    from matplotlib import cm
+    import numpy as np
+    import random
+
+    change= plotbase.getchanges(opt, changes)
+    change['incut']='allevents'
+    datamc = [getroot.getplotfromnick("2D_jet1eta_jet1phi", f,change, rebin) for f in files[1:]]
+
+    # create supporting points
+    x = np.linspace(-5,5,100/rebin[0])
+    y = np.linspace(-3.2,3.2,100/rebin[1])
+    X,Y = np.meshgrid(x,y)
+
+    # create numpy array
+    Z = np.array(datamc[0].BinContents)
+
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # 
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.jet, linewidth=0)
+
+    # set label + limits
+    ax.set_zlim3d(0, datamc[0].maxBin())
+    ax.set_xlabel(r'$\eta$')
+    ax.set_ylabel(r'$\phi$')
+
+    n = 360
+    for i in range(n):
+
+        # rotate viewing angle
+        ax.view_init(20,-120+(360/n)*i)
+
+        """if (i % 2 == 0):
+            ax.text(0, 0, 11000, "WARNING!!!", va='top', ha='left', color='red', size='xx-large')
+        ax.text(0, 0, 9800, "critical spike detected!", va='top', ha='left', color='black')
+        ax.text(0, 0, 9100, str(random.random())+str(random.random())+str(random.random()), va='top', ha='center', color='black')"""
+
+        # create filename + save
+        plotbase.Save(fig, str(i).zfill(3), opt)
 
 # for now, disable this
 """def twoD_all_grid(quantity, datamc, opt):
