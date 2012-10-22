@@ -272,7 +272,7 @@ class GenProducer: public ZJetGlobalMetaDataProducerBase
 public:
 
 	GenProducer(): ZJetGlobalMetaDataProducerBase(),
-		nmin(9), nmax(13)
+		nmin(50), nmax(1300)
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
@@ -290,10 +290,8 @@ public:
 		for (auto it = data.m_particles->begin(); it != data.m_particles->end(); ++it)
 		{
 			// Take only stable final particles and check for children
-			if (it->status() != 3) {
-				CALIB_LOG("Status is " << it->status() << " (this particle is already showered)!")
+			if (it->status() != 3)
 				continue;
-			}
 			if (it->children != 0)
 				CALIB_LOG("Particle has " << it->children << " children.")
 
