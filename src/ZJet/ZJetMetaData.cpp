@@ -61,11 +61,11 @@ KDataLV * ZJetMetaData::GetValidJet(ZJetPipelineSettings const& psettings,
 	{
 		return &(m_validPFJets.at(algoName).at(index));
 	}
-	else if ( JetType::IsGen( algoName ) )
+	else if (JetType::IsGen(algoName))
 	{
 		// all gen jets are valid ...
 		KDataLV * j = evtData.GetJet(psettings, index, algoName);
-		assert( j != NULL);
+		assert(j != NULL);
 
 		return j;
 	}
@@ -73,7 +73,7 @@ KDataLV * ZJetMetaData::GetValidJet(ZJetPipelineSettings const& psettings,
 	{
 		KDataLV * j = evtData.GetJet(psettings, m_listValidJets[algoName].at(
 				index), algoName);
-		assert( j != NULL);
+		assert(j != NULL);
 
 		return j;
 	}
@@ -87,19 +87,19 @@ KDataLV * ZJetMetaData::GetInvalidJet(ZJetPipelineSettings const& psettings,
 
 	if (IsMetaJetAlgo(algoName))
 	{
-        CALIB_LOG_FATAL("Invalid jets are not provided for corrected algorithm " + algoName ) 
+		CALIB_LOG_FATAL("Invalid jets are not provided for corrected algorithm " + algoName)
 		return NULL;
 	}
-	else if ( JetType::IsGen( algoName ) )
+	else if (JetType::IsGen(algoName))
 	{
-        CALIB_LOG_FATAL("Invalid jets are not provided for GenJets algorithm " + algoName ) 
+		CALIB_LOG_FATAL("Invalid jets are not provided for GenJets algorithm " + algoName)
 		return NULL;
 	}
 	else
 	{
-		KDataLV * j = evtData.GetJet(psettings, m_listInvalidJets[algoName].at(
-				index), algoName);
-		assert( j != NULL);
+		KDataLV * j = evtData.GetJet(psettings,
+				m_listInvalidJets[algoName].at(index), algoName);
+		assert(j != NULL);
 
 		return j;
 	}
@@ -119,7 +119,7 @@ unsigned int ZJetMetaData::GetValidJetCount(
 	}
 	else
 	{
-		return SafeMap<std::string, std::vector<unsigned int> >::GetPtrMap( algoName,  m_listValidJets).size();
+		return SafeMap<std::string, std::vector<unsigned int> >::GetPtrMap(algoName, m_listValidJets).size();
 	}
 }
 
@@ -141,7 +141,7 @@ double ZJetMetaData::GetTwoJetBalance(KDataLV * jet1, KDataLV * jet2) const
 
 bool cmpPFJetPt (KDataPFJet i,KDataPFJet j)
 {
-	return (i.p4.Pt()<j.p4.Pt());
+	return (i.p4.Pt() < j.p4.Pt());
 }
 
 double ZJetMetaData::GetZeppenfeld(KDataLV * jet1, KDataLV * jet2, KDataLV * jet3) const

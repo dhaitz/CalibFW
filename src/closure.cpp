@@ -98,25 +98,25 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 	for (std::vector<std::string>::const_iterator it = producer.begin();
 			it != producer.end(); ++it)
 	{
-		if ( ValidMuonProducer::Name() == (*it) )
-			runner.AddGlobalMetaProducer( new ValidMuonProducer());
-		else if ( ZProducer::Name() == (*it) )
-			runner.AddGlobalMetaProducer( new ZProducer());
-		else if ( PuReweightingProducer::Name() == (*it))
-			runner.AddGlobalMetaProducer( new PuReweightingProducer());
-		else if ( ValidJetProducer::Name() == (*it) )
-			runner.AddGlobalMetaProducer( new ValidJetProducer());
-		else if ( CorrJetProducer::Name() == (*it) )
-			runner.AddGlobalMetaProducer( new CorrJetProducer(
+		if (ValidMuonProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new ValidMuonProducer());
+		else if (ZProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new ZProducer());
+		else if (PuReweightingProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new PuReweightingProducer());
+		else if (ValidJetProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new ValidJetProducer());
+		else if (CorrJetProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new CorrJetProducer(
 					globalSettings.get<std::string>("Jec"),
 					globalSettings.get<std::string>("L1Correction"),
 					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
-		else if ( JetSorter::Name() == (*it))
-			runner.AddGlobalMetaProducer( new JetSorter());
-		else if ( HltSelector::Name() == (*it))
-			runner.AddGlobalMetaProducer( new HltSelector( PropertyTreeSupport::GetAsStringList( &globalSettings, "HltPaths", true ) ));
-		else if ( JetMatcher::Name() == (*it))
-			runner.AddGlobalMetaProducer( new JetMatcher(PropertyTreeSupport::GetAsStringList(&globalSettings,"GlobalAlgorithms")) );
+		else if (JetSorter::Name() == *it)
+			runner.AddGlobalMetaProducer(new JetSorter());
+		else if (HltSelector::Name() == *it)
+			runner.AddGlobalMetaProducer(new HltSelector( PropertyTreeSupport::GetAsStringList(&globalSettings, "HltPaths", true)));
+		else if (JetMatcher::Name() == *it)
+			runner.AddGlobalMetaProducer(new JetMatcher(PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else if (GenProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new GenProducer());
 		else if (GenBalanceProducer::Name() == *it)
@@ -124,7 +124,7 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 		else if (GenDibalanceProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new GenDibalanceProducer());
 		else
-			CALIB_LOG_FATAL("Global MetaData producer of name " << (*it) << " not found")
+			CALIB_LOG_FATAL("Global MetaData producer of name " << *it << " not found")
 	}
 }
 /* did not work
@@ -269,7 +269,7 @@ int main(int argc, char** argv)
 			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
 
 			pLine->InitPipeline( *(*it), plineInit);
-			pRunner.AddPipeline( pLine );
+			pRunner.AddPipeline(pLine);
 		}
 	}
 
