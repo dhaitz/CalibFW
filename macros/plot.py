@@ -37,21 +37,20 @@ def plot(cluster=False):
     op = plotbase.options(
         algorithm="AK5PFJetsCHS",
         correction="L1L2L3Res",
-        lumi=5051.0,
-        energy=7,
+        lumi=11990.0,
+        energy=8,
         plots=plotdatamc.plots +
               plotresponse.plots +
-              plotfractions.plots +
-              plot_resolution.plots,
-        eta=[0, 1.305, 2.411, 5.0],
-        )
+              plotfractions.plots,
+#              plot_resolution.plots,
+        eta=[0.0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191]        )
     module_list = [plotdatamc, plotresponse, plotfractions, plot_resolution]
 
     # check if GenJet Plot
-    if op.gen:
-        op.algorithm = "AK5GenJets"
-        op.correction = ""
-        op.plots = plotdatamc.genplots
+    #if op.gen:
+    #    op.algorithm = "AK5GenJets"
+    #    op.correction = ""
+    #    op.plots = plotdatamc.genplots
         
 
     # override commandline (3):

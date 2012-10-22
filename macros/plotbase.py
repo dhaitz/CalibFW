@@ -107,7 +107,7 @@ def options(
             out="out",
             labels=["data", "MC"],
             colors=['black', '#CBDBF9'],
-            style=["o","-"],
+            style=["o","f"],
             formats=['png'],
             layout='generic',
             files=None,

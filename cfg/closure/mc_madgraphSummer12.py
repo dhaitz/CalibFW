@@ -4,7 +4,6 @@ import ClosureConfigBase as cbase
 conf = cbase.BaseConfig('mc', '2012')
 conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa53_MC12_madgraph/*.root", sys.argv)
 conf["OutputPath"] = "closure_mc_madgraphSummer12_53X"
-conf["UseMETPhiCorrection"] = 0
 
 algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2L3"]
 cbase.addCHS(algorithms)
