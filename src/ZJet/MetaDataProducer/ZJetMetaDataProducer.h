@@ -158,11 +158,9 @@ public:
 					metaData.m_listInvalidJets[italgo->first].push_back(i);
 				i++;
 			}
-
 		}
 
 		return true;
-
 	}
 
 	static std::string Name() { return "valid_jet_producer"; }
@@ -177,8 +175,6 @@ public:
 class ZProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
-	const double zmassRangeMin;
-	const double zmassRangeMax;
 
 	ZProducer() : ZJetGlobalMetaDataProducerBase(),
 		zmassRangeMin(71.19), zmassRangeMax(111.19)
@@ -254,7 +250,10 @@ public:
 	}
 
 	static std::string Name() { return "z_producer"; }
-};
 
+private:
+	const double zmassRangeMin;
+	const double zmassRangeMax;
+};
 
 }
