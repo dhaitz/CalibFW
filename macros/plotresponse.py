@@ -376,9 +376,13 @@ def ratioplot(files, opt, types, labels=None,
         rgraph = getresponse(t[:3]+'resp', over, opt, files[0], files[1], changes, extrapol=t[3:], draw=False)
         if fit:
             line, err, chi2, ndf = getroot.fitline(rgraph)
-            ax.text(0.97, 0.85+0.07*colors.index(c), r"R = {0:.3f} $\pm$ {1:.3f}".format(line, err),
+            if ratiosubplot:
+                fitlabel_offset=0.65
+            else:
+                fitlabel_offset=0.0
+            ax.text(0.97, fitlabel_offset+0.20+0.07*colors.index(c), r"R = {0:.3f} $\pm$ {1:.3f}".format(line, err),
                 va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=14)
-            ax.text(0.97, 0.70+0.07*colors.index(c), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f}".format(chi2, ndf),
+            ax.text(0.97, fitlabel_offset+0.05+0.07*colors.index(c), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f}".format(chi2, ndf),
                 va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=14)
             ax.axhline(line, color=c)
             ax.axhspan(line-err, line+err, color=c, alpha=0.2)
@@ -493,6 +497,7 @@ def plot_all(files, opt, plottype='response'):
             list_ac = [ac for ac in list_ac if 'L1L2L3' in ac['correction']]
 
         fig_axes = plotbase.newplot(subplots=len(list_ac))
+
         for ch, subtext, ax in zip(list_ac, subtexts, fig_axes[1]):    # iterate over subplots in figure figaxes
             if plottype == 'ratio':
                 if o == 'jet1eta': fit=False

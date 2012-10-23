@@ -25,7 +25,7 @@ def clusterplots():
         plotfile = "plot.py"
 
     # get list of plots from the files
-    plotlist =  plotresponse.plots #plotfractions.plots +
+    plotlist =  plotresponse.plots + plotfractions.plots
     plotlist += getroot.getplotlist(datamc, algorithm=opt.algorithm, filenames=opt.files)
     plotlist += getroot.getplotlist(datamc, algorithm=opt.algorithm, filenames=opt.files, run=True)
     plotlist += ([i+"_nocuts" for i in getroot.getplotlist(datamc, folder="NoBinning_allevents", algorithm=opt.algorithm, filenames=opt.files)]) 

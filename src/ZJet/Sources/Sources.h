@@ -588,8 +588,8 @@ public:
 	}
 	virtual double GetDefaultHighBin() const
 	{
-		return  5.0;
-	}
+		return  0.5;
+	}	
 };
 
 class SourceIntegratedLumi: public ZJetSourceBase
@@ -1187,6 +1187,10 @@ public:
 	virtual double GetDefaultLowBin() const { return 0.f; }
 	virtual double GetDefaultHighBin() const { return 1.f; }
 };
+
+}
+
+#endif /* SOURCES_H_ */
 
 }
 

@@ -317,7 +317,7 @@ def check_if_add(pipelinename, algo, forIncut = True, forAllevents=False, forInc
     #function that determines whether a consumer/variation is added to a pipeline
     check = ((forIncut and pipelinename == "default_"+algo)
         or (forAllevents and pipelinename == "default_" + algo + "nocuts")
-        or (forIncutVariations and pipelinename is not "default_"+algo and "default_"+algo in pipelinename and "nocut" not in pipelinename)
+        or (forIncutVariations and pipelinename is not "default_"+algo and "default_"+algo+"_" in pipelinename and "nocut" not in pipelinename)
         or (forAlleventsVariations and pipelinename is not "default_"+algo + "nocuts" and "default_"+algo + "nocuts" in pipelinename) )
     return check
 

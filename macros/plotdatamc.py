@@ -14,8 +14,8 @@ import multiprocessing as mp
 import os
 
 def datamcplot(quantity, files, opt, legloc='center right',
-               changes={}, log=False, rebin=5, file_name = "", subplot=False, subtext="", fig_axes=(), xy_names=None, normalize=True,           
-               runplot_diff=False):
+               changes={}, log=False, xlog=False, rebin=5, file_name = "", subplot=False, 
+               subtext="", fig_axes=(), xy_names=None, normalize=True, runplot_diff=False):
     """Template for all data/MC comparison plots for basic quantities."""
     # read the values
     if opt.verbose:
@@ -23,7 +23,6 @@ def datamcplot(quantity, files, opt, legloc='center right',
     change= plotbase.getchanges(opt, changes)
     datamc=[]
     events=[]
-    if 'npv' in quantity or 'area' in quantity: rebin=1
 
     #create list with histograms
     if change.has_key('algorithm') and 'Gen' in change['algorithm']:
@@ -57,6 +56,33 @@ def datamcplot(quantity, files, opt, legloc='center right',
             ax.bar(f.x, f.y, (f.x[2] - f.x[1]), bottom=numpy.ones(len(f.x)) * 1e-6, fill=True, facecolor=c, edgecolor=c)
         else:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, fmt=s, capsize=0 ,label=l)
+
+        """#print "Fit!"
+        run_min=0
+        run_max=1
+        fit_colors= ['black', 'blue']
+        intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
+        #fit line and display slope:
+        line_fit = ax.plot([run_min, run_max],[intercept+run_min*slope, intercept+run_max*slope], color = fit_colors[datamc.index(f)], linestyle='--')
+        ax.plot([run_min, run_max],[intercept+ierr+run_min*(slope-serr), intercept+ierr+run_max*(slope-serr)], alpha=0.2, color = fit_colors[datamc.index(f)], linestyle='--')
+        ax.plot([run_min, run_max],[intercept-ierr+run_min*(slope+serr), intercept-ierr+run_max*(slope+serr)], alpha=0.2, color = fit_colors[datamc.index(f)], linestyle='--')
+
+        #ax.text(0.97, 0.92-(datamc.index(f)/20.), r"%s: Fit slope  = $(%1.2f\pm%1.2f) \times 10^{-2}$" % (l, slope*100, serr*100),
+        #   va='top', ha='right', transform=ax.transAxes, color=fit_colors[datamc.index(f)],
+        #   size='large')
+        #factor = intercept / f.mean
+        ax.text(0.97, 0.22-(datamc.index(f)/20.), r"%s: balance extrapolated  = $(%1.3f\pm%1.3f)$" % (l, intercept, ierr),
+           va='top', ha='right', transform=ax.transAxes, color=fit_colors[datamc.index(f)],
+           size='medium')"""
+
+        # fit a horizontal line and display chi^2
+        """fit_colors= ['black', 'blue']
+        intercept, ierr, chi2, ndf = getroot.fitline(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
+        ax.axhline(intercept, color=fit_colors[datamc.index(f)], linestyle='--')
+        ax.axhspan(intercept+ierr, intercept-ierr, color=fit_colors[datamc.index(f)], alpha=0.2)
+        ax.text(0.97, 0.92-(datamc.index(f)/10.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
+        va='top', ha='right', transform=ax.transAxes, color=fit_colors[datamc.index(f)], size='large')"""
+
 
 
     # Jet response plots: add vertical lines for mean and mean error to see data/MC agreement
@@ -110,16 +136,20 @@ def datamcplot(quantity, files, opt, legloc='center right',
         file_name = plotbase.getdefaultfilename(quantity, opt, changes)
 
     if subplot is not True: 
-        if y is 'events' or y is "":
-            plotbase.Save(fig, file_name, opt)
-        else:
+        if not (y is 'events' or y is ""):
             plotbase.EnsurePathExists(opt.out+"/"+y)
-            plotbase.Save(fig, y+"/"+file_name, opt)
+            file_name = y+"/"+file_name
+        plotbase.Save(fig, file_name, opt)
             
     if log:
         ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in datamc) * 2)
         ax.set_yscale('log')
         if subplot is not True: plotbase.Save(fig, file_name + '_log', opt)
+
+
+    if xlog:
+        ax.set_xscale('log')
+        if subplot is not True: plotbase.Save(fig, file_name + '_xlog', opt)
 
 
 
@@ -159,8 +189,8 @@ def runplot(quantity, files, opt, legloc='center right',
             
             ax.errorbar(plot.xc, plot.y, plot.yerr, drawstyle='steps-mid', color=c, fmt=s, capsize=0 ,label=l)
 
-
-            intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, f, change, rebin))
+            # only for zmass!!
+            """intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, f, change, rebin))
             if runplot_diff:
                 intercept = intercept - mc_mean
 
@@ -168,6 +198,7 @@ def runplot(quantity, files, opt, legloc='center right',
             line_fit = ax.plot([run_min, run_max],[intercept+run_min*slope, intercept+run_max*slope], color = c, linestyle='--')
             ax.plot([run_min, run_max],[intercept+ierr+run_min*(slope-serr), intercept+ierr+run_max*(slope-serr)], alpha=0.2, color = c, linestyle='--')
             ax.plot([run_min, run_max],[intercept-ierr+run_min*(slope+serr), intercept-ierr+run_max*(slope+serr)], alpha=0.2, color = c, linestyle='--')
+            """
 
             #ax.text(0.97, 0.95-(datamc.index(f)/10.), r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{-6}$" % (slope*1000000, serr*1000000),
             #   va='top', ha='right', transform=ax.transAxes, color=c,
@@ -293,7 +324,7 @@ def genjets(datamc, opt):
         datamcplot(quantity, datamc, opt, changes={'algorithm': plotbase.getgenname(opt), 'correction':'', 'incut': 'allevents'})
 
 
-def datamc_all(quantity, datamc, opt, rebin=5, log=False, run=False, legloc='center right'):
+def datamc_all(quantity, datamc, opt, rebin=5, log=False, run=False, legloc='center right', fit=None):
     """Plot subplots of one quantity in bins of different variation.
        Loop over the different variations and the different alpha cut values.
 
@@ -306,7 +337,6 @@ def datamc_all(quantity, datamc, opt, rebin=5, log=False, run=False, legloc='cen
     if 'run' in quantity: 
         variations = ['eta', 'z_pt']
         datamc = [d for d, name in zip(datamc, opt.files)]# if "data" in name] # Use only data file for run plots! Disable to compare several data files
-        print datamc
     else:
         variations = ['npv', 'jet1eta', 'zpt', 'alpha']
         #variations = ['eta']
@@ -325,7 +355,7 @@ def datamc_all(quantity, datamc, opt, rebin=5, log=False, run=False, legloc='cen
                 elif variation is not 'alpha':
                     ch['var'] = cut_string+"_"+ch['var']
 
-                datamcplot(quantity, datamc, opt, changes=ch,fig_axes=(fig_axes[0],ax),subplot=True, log=log, subtext=subtext, rebin=rebin, legloc=legloc)
+                datamcplot(quantity, datamc, opt, changes=ch,fig_axes=(fig_axes[0],ax),subplot=True, log=log, subtext=subtext, rebin=rebin, legloc=legloc, fit=fit)
 
             if variation == 'alpha': text = " for different "+plotbase.nicetext(variation)+" values "
             else: text = " in "+plotbase.nicetext(variation)+" bins for "+r"$\alpha$ "+str(cut)+"  "
@@ -441,77 +471,59 @@ def plotfromdict(datamc, opt, name, blacklist=[]):
 
 
 plotdictionary={ 
-       # plot:[arguments, function, name]
-        'npv':['rebin=1'],
-        'npv_nocuts':['rebin=1, changes={"incut":"allevents"}', 'datamcplot', 'npv'],
-        'jetpt_zeta':['rebin=5, legloc="upper left"'],
-        'jetpt_zeta_nocuts':['changes={"incut":"allevents"}'],
-
-        # eta vs. phi
-        'jeteta_jetphi':['rebin=2'],
-        'jet2eta_jet2phi': ['rebin=2'],
-        #phi vs. eta
-        'jeteta_jetphi':['rebin=2'],
-
-        'jet2eta_jet2phi':['rebin=2'],
-        'METeta':['legloc="lower center"'],
-        #muons
-        'mupluspt':['legloc="center right"'],
-        'mupluseta':['legloc="lower center"'],
-        'muplusphi':['legloc="lower center"'],
-        'muminusphi':['legloc="lower center"'],
-        'muonsvalid':['legloc="lower center", rebin=1'],
-        'muonsinvalid':['legloc="lower center", rebin=1'],
-
-        #correction factors
-        'L1_npv':['rebin=1','L1'],
-        'L1abs_npv':['rebin=1','L1'],
-
-        'L2_npv':['rebin=1','L1'],
-        'L2abs_npv':['rebin=1','L1'],
-
-        'L1L2L3_npv':['rebin=1','L1'],
-        'L1L2L3abs_npv':['rebin=1','L1'],
-
-        'sumEt_npv':['rebin=1'],
-        'mpf_npv':['rebin=1'],
-        'jetpt_npv':['rebin=1'],
-
-        'ptbalance_deltaeta-jet1-jet2':[],
-        'tworesp':['legloc="lower right"', datamcplot, 'bal_twojet'],
-        'bal_twojet':['legloc="lower right"'],
-        'balresp_all':["", 'datamc_all', 'balresp'],
-        'mpfresp_all':["", 'datamc_all', 'mpfresp'],
-        'METpt_all':["", 'datamc_all', 'METpt'],
-        'METphi_all':["", 'datamc_all', 'METphi'],
-        'zpt_all':["", 'datamc_all', 'zpt'],
-        'deltaphi-leadingjet-z_all':["", 'datamc_all', 'deltaphi-leadingjet-z'],
-        'deltaphi-leadingjet-MET_all':["", 'datamc_all', 'deltaphi-leadingjet-MET'],
-        'deltaphi-z-MET_all':["legloc='lower left'", 'datamc_all', 'deltaphi-z-MET'],
-
-        'mpf_deltaphi-z-MET_all':["", 'datamc_all', 'mpf_deltaphi-z-MET'],
-        'mpf_deltaphi-jet1-MET_all':["", 'datamc_all', 'mpf_deltaphi-jet1-MET'],
-
-        #MET
-        'METpt':["legloc='center right', log=True"],
-        'METphi':["'lower center'"],
-        'METsumEt':["'center right', rebin=10"],
-        'METfraction':["'center right', rebin=2, log=True"],
-        'METpt_METphi':["'lower right'"],
-
-        'zpt':["legloc='center right', log=True"],
-        'zmass':["rebin=2, log=True"],
-
-        'jet1pt':["log=True"],
-        'zmass_npv':["rebin=20, legloc='lower center'"],
-
-        'jet2pt':["log=True, rebin=2"],
-        'jet3pt':["log=True, rebin=2"],
-
-        #'':[""],
-
-
-        } 
+       # plot:[arguments, function, name]'L1L2L3_npv':['rebin=1', 'L1'],
+    'L1L2L3abs_npv':['rebin=1', 'L1'],
+    'L1_npv':['rebin=1', 'L1'],
+    'L1abs_npv':['rebin=1', 'L1'],
+    'L2_npv':['rebin=1', 'L1'],
+    'L2abs_npv':['rebin=1', 'L1'],
+    'METeta':['legloc="lower center"'],
+    'METfraction':["'center right', rebin=2, log=True"],
+    'METphi':["'lower center'"],
+    'METphi_all':['', 'datamc_all', 'METphi'],
+    'METpt':["legloc='center right', log=True"],
+    'METpt_METphi':["'lower right'"],
+    'METpt_all':['', 'datamc_all', 'METpt'],
+    'METsumEt':["'center right', rebin=10"],
+    'bal_twojet':['legloc="lower right"'],
+    'balresp_all':['', 'datamc_all', 'balresp'],
+    'deltaphi-leadingjet-MET_all':['', 'datamc_all', 'deltaphi-leadingjet-MET'],
+    'deltaphi-leadingjet-z_all':['', 'datamc_all', 'deltaphi-leadingjet-z'],
+    'deltaphi-z-MET_all':["legloc='lower left'", 'datamc_all', 'deltaphi-z-MET'],
+    'jet1pt':['log=True'],
+    'jet2eta_jet2phi':['rebin=2'],
+    'jet2pt':['log=True, rebin=2'],
+    'jet3pt':['log=True, rebin=2'],
+    'jeteta_jetphi':['rebin=2'],
+    'jetpt_zeta':['rebin=5, legloc="upper left"'],
+    'mpf_deltaphi-jet1-MET_all':['', 'datamc_all', 'mpf_deltaphi-jet1-MET'],
+    'mpf_deltaphi-z-MET_all':['', 'datamc_all', 'mpf_deltaphi-z-MET'],
+    'mpfresp_all':['', 'datamc_all', 'mpfresp'],
+    'mpf_alpha':['rebin=4, fit="chi2"'],
+    'mpf_alpha_all':['rebin=4, fit="chi2"', 'datamc_all', 'mpf_alpha'],
+    'muminusphi':['legloc="lower center"'],
+    'muonsinvalid':['legloc="lower center", rebin=1'],
+    'muonsvalid':['legloc="lower center", rebin=1'],
+    'mupluseta':['legloc="lower center"'],
+    'muplusphi':['legloc="lower center"'],
+    'mupluspt':['legloc="center right"'],
+    'npv':['rebin=1'],
+    'npv_nocuts':['rebin=1, changes={"incut":"allevents"}', 'datamcplot', 'npv'],
+    'ptbalance_alpha':['rebin=2, fit="intercept", legloc="lower center"'],
+    'ptbalance_alpha_alpha04':['rebin=4, changes={"var":"var_CutSecondLeadingToZPt_0_4"}, fit="intercept"'],
+    'ptbalance_alpha_all':['rebin=4, fit="intercept"', 'datamc_all', 'ptbalance_alpha'],
+    'tworesp':['legloc="lower right"', 'datamcplot', 'bal_twojet'],
+    'zmass':['rebin=2, log=True'],
+    'zmass_zcutsonly':['rebin=2, log=True, changes={"incut":"zcutsonly"}', 'datamcplot', 'zmass'],
+    'zmass_npv':["legloc='lower center', fit='chi2'"],
+    'zmass_npv_zcutsonly':['legloc="lower center", fit="chi2", changes={"incut":"zcutsonly"}', 'datamcplot', 'zmass_npv'],
+    'zmass_zpt':["legloc='lower center', fit='chi2'"],
+    'zmass_zpt_zcutsonly':["legloc='lower center', changes={'incut':'zcutsonly'}, fit='chi2'", 'datamcplot', 'zmass_zpt'],
+    'zpt':["legloc='center right', log=True"],
+    'zpt_all':['', 'datamc_all', 'zpt'],
+    'zpt_npv':["legloc='lower center', fit='chi2'"],
+    'zpt_npv_zcutsonly':["legloc='lower center', changes={'incut':'zcutsonly'}, fit='chi2'", 'datamcplot', 'zpt_npv'],
+    } 
 
 plots = [
     'ploteverything',

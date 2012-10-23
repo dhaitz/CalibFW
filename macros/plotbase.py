@@ -398,13 +398,27 @@ def getpath():
     return datapath
 
 
-def newplot(ratio=False, run=False, subplots=1, opt=options()):
+def newplot(ratio=False, run=False, subplots=1, opt=options(), subplots_X=None, subplots_Y=None):
     fig = plt.figure(figsize=[7, 7])
     fig.suptitle(opt.title, size='xx-large')
     if subplots is not 1: #Get 4 config numbers: FigXsize, FigYsize, NaxesY, NaxesX
-
-        x = int(math.sqrt(subplots))
-        y = int(round(subplots/float(x)))
+        d = {3:3, 2:2}
+        if subplots_Y is not None:
+            y = subplots_Y
+            x = int(round(subplots/float(y)))
+            if x * y < subplots:
+                y = y+1
+        else:
+            if subplots_X is not None:
+                x = subplots_X
+            elif subplots in d:
+                x = d[subplots]
+            else:        
+                x = int(math.sqrt(subplots))
+            y = int(round(subplots/float(x)))
+            if x * y < subplots:
+                x = x+1
+        print subplots, x, y
         if run:
             a = [14*x, 7*y, y, x]
         else:
@@ -625,6 +639,40 @@ def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
     print "Please use axislabels instead of axislabel_2d."
     return axislabels(ax, x_q, y_q, brackets)
 
+def fit(fit, ax, quantity, rootfile, change, rebin, color, index, runplot_diff=False, mc_mean = None, run_min=0, run_max=1):
+    """One of several fits is added to an axis element, fit parameters are added as text element"""
+    if color == '#CBDBF9': color = 'blue'
+    if fit == 'chi2':
+        # fit a horizontal line
+        intercept, ierr, chi2, ndf = getroot.fitline(getroot.getobjectfromnick(quantity, rootfile, change, rebin))
+        ax.axhline(intercept, color=color, linestyle='--')
+        ax.axhspan(intercept+ierr, intercept-ierr, color=color, alpha=0.2)
+
+        # and display chi^2
+        ax.text(0.97, 0.20+(index/20.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
+        va='top', ha='right', transform=ax.transAxes, color=color)
+              
+    else:
+        intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, rootfile, change, rebin))
+        if runplot_diff:
+            intercept = intercept - mc_mean
+
+        # fit line:
+        line_fit = ax.plot([run_min, run_max],[intercept+run_min*slope, intercept+run_max*slope], color = color, linestyle='--')
+        ax.plot([run_min, run_max],[intercept+ierr+run_min*(slope-serr), intercept+ierr+run_max*(slope-serr)], alpha=0.2, color = color, linestyle='--')
+        ax.plot([run_min, run_max],[intercept-ierr+run_min*(slope+serr), intercept-ierr+run_max*(slope+serr)], alpha=0.2, color = color, linestyle='--')
+        
+        if fit == 'slope':
+            #display slope
+            ax.text(0.97, 0.95-(index/10.), r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{-6}$" % (slope*1000000, serr*1000000),
+               va='top', ha='right', transform=ax.transAxes, color=color,
+               size='x-large')
+        elif fit == 'intercept':
+            #display intercept
+            ax.text(0.97, 0.35-(index/10.), r"$\mathrm{Fit\/intercept} = (%1.3f\pm%1.3f)$" % (intercept, ierr),
+               va='top', ha='right', transform=ax.transAxes, color=color,
+               size='x-large')
+
 
 def unitformat(quantity="", unit="", brackets=False):
     """Returns a string according to SI standards
@@ -650,9 +698,34 @@ def unitformat(quantity="", unit="", brackets=False):
 
 # put everything into one dictionary  key:[min, max, Name, unit, z_min, z_max]
 d={         
-        'pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{%s}$", 'GeV'],        
-        'zpt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],        
-        'jetpt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],        
+        'abseta':[0.0, 5.5, r"$|\eta^\mathrm{%s}|$", ""],
+        'absphi':[0, 3.141593, r"$|\phi^\mathrm{%s}|$", ""],
+        'alpha':[0, 0.2, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
+        'bal':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
+        'baljet2z':[0, 1, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
+        'balresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
+        'baltwojet':[0.0, 1.8, r"$p_\mathrm{T}$ balance for 2 jets", ""],
+        'chargedem':[0,1, r"%s charged em fraction", ""],
+        'chargedhad':[0,1, r"%s charged hadron fraction", ""],
+        'components_diff':[-0.05, 0.05, r"Data-MC of Leading Jet Components", ""],
+        'components':[0, 1, r"Leading Jet Component Fraction", ""],
+        'constituents':[0, 60, r"Number of Jet Constituents", ""],
+        'correction':[0.85, 1.02, "Correction factor", ""],
+        'cut':[0, 1.1, r"Cut Inefficiency (%s)", ""],
+        'datamcratio':[0.88, 1.03, r"data/MC ratio", ""],
+        'deltaeta':[0, 15, r"$\Delta \eta(\mathrm{%s})$", ""],
+        'deltaeta':[0, 5, r"$\Delta \eta(\mathrm{%s,\/ %s})$", ""],
+        'deltaphi':[0, 3.141593, r"$\Delta \phi(\mathrm{%s,\/%s})$", ""],
+        'deltar':[0, 20, r"$\Delta \/R(\mathrm{%s,\/ %s})$", ""],
+        'electron':[0,1, r"%s electron fraction", ""],
+        'eta':[-5, 5, r"$\eta^\mathrm{%s}$", ""],
+        'eventcount':[0, 1.1, r"Eventcount", ""],
+        'extrapol':[0.86, 1.04, r"Response", ""],
+        'HFem':[0,1, r"%s HF em fraction", ""],
+        'HFhad':[0,1, r"%s HF hadron fraction", ""],
+        'jet1area':[0.6, 1, r"Leading Jet area", ""],
+        'jet1charged':[0,30, r"%s charged", ""],
+        'jet1const':[0,30, r"%s const", ""],
         'jet1pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Leading Jet}$", 'GeV'],        
         'jet2pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{Jet2}$", 'GeV'],
         'jet3pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{Jet3}$", 'GeV'],
@@ -688,22 +761,29 @@ d={
         'L1L2L3abs':[-25, 25, r"L1L2L3 absolute correction","GeV"],
         'L3':[0, 1.2, r"L3 correction factor",""],
         'L3abs':[-25, 25, r"L3 absolute correction","GeV"],
-        'jetsvalid':[0, 100, r"Number of valid jets $n$",""],
-        'muonsvalid':[0, 5, "Number of valid muons", ""],
-        'muonsinvalid':[0, 5, "Number of invalid muons", ""],
-
-        'correction':[0.85, 1.02, "Correction factor", ""],
-
-        'abseta':[0.0, 5.5, r"$|\eta^\mathrm{%s}|$", ""],
-        'balresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
-        'zeppenfeld':[0.0, 3, r"Zeppenfeld variable", ""],
-        'baltwojet':[0.0, 1.8, r"$p_\mathrm{T}$ balance for 2 jets", ""],
-        'mpfresp':[0.0, 1.8, r"$MPF$ Response", ""],
+        'METeta':[-0.1, 0.1, r"$\eta^\mathrm{MET}$", ""],
+        'METfraction':[0, 0.2, r"MET / $E^T_Total$", ""],
+        'METpt':[ 0, 80, r"$E_\mathrm{T}^\mathrm{miss}$", 'GeV'],
+        'METsumEt':[0, 2500, r"$\sum E^\mathrm{T}$", "GeV"],
+        'mpf':[0.9, 1.1, r"$MPF$ Response", ""],
         'mpfresp-notypeI':[0.0, 1.8, r"$MPF$ Response (raw MET)", ""],
-        'bal':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
-        'ptbalance':[0.61, 1.06, r"$p_\mathrm{T}$ balance", ""],
-        'mpf':[0.3, 1.8, r"$MPF$ Response", ""],
-
+        'mpfresp':[0.8, 1.1, r"$MPF$ Response", ""],
+        'muminuspt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{\mu-}$", 'GeV'],
+        'muon':[0,1, r"%s muon fraction", ""],
+        'muonsinvalid':[0, 5, "Number of invalid muons", ""],
+        'muonsvalid':[0, 5, "Number of valid muons", ""],
+        'mupluspt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{\mu+}$", 'GeV'],
+        'neutralem':[0,1, r"%s neutral em fraction", ""],
+        'neutralhad':[0,1., r"%s neutral hadron fraction", ""],
+        'npv':[0, 35, r"Number of Reconstructed Vertices $n$",""],
+        'numpu':[0, 35, r"Number of Primary Vertices", ""],
+        'numputruth':[0, 35, r"Pile-up Truth (Poisson mean)", ""],
+        'phi':[-3.2, 3.2, r"$\phi^\mathrm{%s}$", ""],
+        'photon':[0,1., r"%s photon fraction", ""],
+        'pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{%s}$", 'GeV'],        
+        'ptbalance':[0.88, 1.04, r"$p_\mathrm{T}$ balance", ""],
+        'ratio':[0.89, 1.08, r"%s / %s ratio", ""],
+        'reco':[0, 35, r"Number of Reconstructed Vertices $n$",""],
         'response':[0.81, 1.05, r"Jet Response", ""],
         'ratio':[0.89, 1.08, r"%s / %s ratio", ""],
         'responseratio':[0.88, 1.03, r"data/MC ratio", ""],
@@ -742,11 +822,6 @@ d={
         'jet1const':[0,30, r"%s const", ""],
         'summedf':[0.8,1.2, r"$%s$ fraction sum", ""],
 
-        'summedfr':[0.8,1.2, r"$%s$ fraction sum2", ""],
-
-
-        'extrapol':[0.86, 1.04, r"Response", ""],
-        'xsec':[0, 20, r"$n_\mathrm{Events} / \mathcal{L}$", "pb$^{-1}$"],
         }
 
 def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
@@ -814,7 +889,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
             function[0](quantity=quantity)
     return ax
 
-def getaxislabels_list(quantity):
+def getaxislabels_list(quantity, ax=None):
 # can we integrate this function somehow into axislabels??
 # currently we need one function to change a given ax elemnt and one to simply return limits+label
 
@@ -862,8 +937,11 @@ def getdefaultfilename(quantity, opt, change):
     if 'var' in change:
         filename += "_"+change['var']
 
-    if 'incut' in change and change['incut'] == 'allevents':
-        filename += "_nocuts"
+    if 'incut' in change:
+        if change['incut'] == 'allevents':
+            filename += "_nocuts"
+        elif change['incut'] is not 'incut':
+            filename += "_"+change['incut']
 
     if 'algorithm' in change:
         filename += "__"+change['algorithm']
