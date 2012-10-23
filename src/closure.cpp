@@ -117,6 +117,8 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 			runner.AddGlobalMetaProducer( new HltSelector( PropertyTreeSupport::GetAsStringList( &globalSettings, "HltPaths", true ) ));
 		else if ( JetMatcher::Name() == (*it))
 			runner.AddGlobalMetaProducer( new JetMatcher(PropertyTreeSupport::GetAsStringList(&globalSettings,"GlobalAlgorithms")) );
+		else if (GenProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new GenProducer());
 		else
 			CALIB_LOG_FATAL( "Global MetaData producer of name " << (*it) << " not found")
 	}

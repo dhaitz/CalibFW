@@ -229,6 +229,9 @@ public:
 	KDataMuons m_listValidMuons;
 	KDataMuons m_listInvalidMuons;
 
+	KPartons m_genPartons;
+	KPartons m_genMuons;
+	KPartons m_genZs;
 
 	typedef boost::ptr_map<std::string, std::vector<unsigned int> > JetMapping;
 	typedef JetMapping::iterator JetMappingIterator;

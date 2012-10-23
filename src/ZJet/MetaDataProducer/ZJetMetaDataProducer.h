@@ -256,4 +256,89 @@ private:
 	const double zmassRangeMax;
 };
 
+
+/** Produce lists of different generator particle categories.
+
+    These particles are treated (status == 3):
+    pdgId  Name
+    13     µ
+    23     Z
+    1-6,21 q,g
+    2212   p
+
+    This requires no other producer.
+    Monte-Carlo only.
+*/
+class GenProducer: public ZJetGlobalMetaDataProducerBase
+{
+public:
+
+	GenProducer() : ZJetGlobalMetaDataProducerBase(),
+		nmin(9), nmax(13)
+	{}
+
+	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
+			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
+	{
+		// Check number of particles (could be simplified after study)
+		if (data.m_particles->size() < 0)
+			CALIB_LOG("This event contains no generator information.")
+		else if (data.m_particles->size() < nmin)
+			CALIB_LOG("This event contains only few particles: " << data.m_particles->size())
+		else if (data.m_particles->size() > nmax)
+			CALIB_LOG("This event contains a lot of particles: " << data.m_particles->size())
+
+		// Loop over particles
+		for (auto it = data.m_particles->begin(); it != data.m_particles->end(); ++it)
+		{
+			// Take only stable final particles and check for children
+			if (it->status() != 3) {
+				std::cout << "Status is " << it->status() << " (this particle is already showered)!\n";
+				continue;
+			}
+			if (it->children != 0)
+				CALIB_LOG("Particle has " << it->children << " children.")
+
+			// Sort particles in lists in metaData
+			if (std::abs(it->pdgId()) == 13)		// muon
+			{
+				metaData.m_genMuons.push_back(*it);
+			}
+			else if (std::abs(it->pdgId()) == 23)	// Z
+			{
+				metaData.m_genZs.push_back(*it);
+			}
+			else if (std::abs(it->pdgId()) < 7 || std::abs(it->pdgId()) == 21)	// parton
+			{
+				metaData.m_genPartons.push_back(*it);
+			}
+			else if (it->pdgId() == 2212 && it->p4.Pt() < 1e-6) // ignore incoming protons
+			{
+			}
+			else // unexpected particles
+			{
+				CALIB_LOG("Unexpected particle with id: " << it->pdgId() << ", status: " << it->status())
+			}
+		}
+
+		// check for unusual behaviour
+		if (metaData.m_genZs.size() < 1)
+			CALIB_LOG("There is no Z!")
+		if (metaData.m_genPartons.size() < 1)
+			CALIB_LOG("There is no parton!")
+		if (metaData.m_genMuons.size() < 1)
+			CALIB_LOG("There are no gen muons!")
+		if (metaData.m_genMuons.size() > 2)
+			CALIB_LOG("There are more than 2 gen muons (" << metaData.m_genMuons.size() << ")!")
+
+		return true;
+	}
+
+	static std::string Name() { return "gen_producer"; }
+
+private:
+	const unsigned short int nmin;
+	const unsigned short int nmax;
+};
+
 }
