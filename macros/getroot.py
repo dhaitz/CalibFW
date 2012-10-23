@@ -26,6 +26,7 @@ import time
 import copy
 import math
 import os
+import array
 
 # converts a integer list of bins [1, 30, 70] to a
 # string representation ["Pt1to30", "Pt30to70"]
@@ -626,7 +627,20 @@ def fitline(rootgraph):
 def fitline2(rootgraph):
     fitf = ROOT.TF1("fit1", "1*[0]+x*[1]", 1.0, 1000.0)
     fitres = rootgraph.Fit(fitf,"SQN")
-    return (fitf.GetParameter(0), fitf.GetParError(0), fitf.GetParameter(1), fitf.GetParError(1), fitres.Chi2(), fitres.Ndf())
+    if 'Profile' in rootgraph.ClassName():
+        rootgraph.Approximate(0)
+
+    #Get conf intervals as an array and then convert to list
+    points = []
+    for n in range(1, rootgraph.GetSize() - 1):
+        points.append(rootgraph.GetBinCenter(n))
+    points.insert(0, 0.)
+    x = array.array('d',points)
+    y = array.array('d',[0.]*len(points))
+    fitres.GetConfidenceIntervals(len(points),1,1,x,y, 0.683)
+    conf_intervals = [i for i in y]
+
+    return (fitf.GetParameter(0), fitf.GetParError(0), fitf.GetParameter(1), fitf.GetParError(1), fitres.Chi2(), fitres.Ndf(), conf_intervals)
 
 
 def dividegraphs(graph1, graph2):

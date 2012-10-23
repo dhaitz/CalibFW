@@ -286,8 +286,7 @@ def getcorralgovariations():
     return list_ac
 
 def getdefaultsubtexts():
-    subtexts = ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)"]
-    return subtexts
+    return ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)", "k)", "l)", "m)", "n)", "o)", "p)", "q)", "r)"]
 
 def showoptions(opt):
     print "Options:"
@@ -568,31 +567,32 @@ def datelabel(ax, date='iso', xpos=0.99, ypos=1.10):
 
 
 def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.97, changes={}, color='black'):
+    ch_copy = copy.deepcopy(changes)
     if bin is None:
-        if 'var' in changes and 'Cut' in changes['var'] and len(changes['var']) > 35:
-            changes['var'] = 'var'+changes['var'].split('var')[2]
-        if 'bin' in changes:
-            ranges = changes['bin'][2:].split('to')
+        if 'var' in ch_copy and 'Cut' in ch_copy['var'] and len(ch_copy['var']) > 35:
+            ch_copy['var'] = 'var'+ch_copy['var'].split('var')[2]
+        if 'bin' in ch_copy:
+            ranges = ch_copy['bin'][2:].split('to')
             bin= 'ptz'
             low = int(ranges[0])
             high = int(ranges[1])
-        elif 'var' in changes and 'Eta' in changes['var']:
-            ranges = changes['var'][11:].replace('_','.').split('to')
+        elif 'var' in ch_copy and 'Eta' in ch_copy['var']:
+            ranges = ch_copy['var'][11:].replace('_','.').split('to')
             bin = 'eta'
             low = float(ranges[0])
             high = float(ranges[1])
-        elif 'var' in changes and 'PtBin' in changes['var']:
-            ranges = changes['var'][10:].replace('_','.').split('to')
+        elif 'var' in ch_copy and 'PtBin' in ch_copy['var']:
+            ranges = ch_copy['var'][10:].replace('_','.').split('to')
             bin = 'ptbin'
             low = float(ranges[0])
             high = float(ranges[1])   
-        elif 'var' in changes and 'Npv' in changes['var']:
-            ranges = changes['var'][8:].split('to')
+        elif 'var' in ch_copy and 'Npv' in ch_copy['var']:
+            ranges = ch_copy['var'][8:].split('to')
             bin = 'Npv'
             low = int(ranges[0])
             high = int(ranges[1])
-        elif 'var' in changes and 'Cut' in changes['var']:
-            ranges = changes['var'][27:].replace('_','.')
+        elif 'var' in ch_copy and 'Cut' in ch_copy['var']:
+            ranges = ch_copy['var'][27:].replace('_','.')
             bin ='alpha'
             low = float(ranges)
         else:
@@ -639,39 +639,55 @@ def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
     print "Please use axislabels instead of axislabel_2d."
     return axislabels(ax, x_q, y_q, brackets)
 
-def fit(fit, ax, quantity, rootfile, change, rebin, color, index, runplot_diff=False, mc_mean = None, run_min=0, run_max=1):
+def fit(fit, ax, quantity, rootfile, change, rebin, color, index, runplot_diff=False, mc_mean = None, run_min=0, run_max=1, rootobject=None, offset=0):
     """One of several fits is added to an axis element, fit parameters are added as text element"""
     if color == '#CBDBF9': color = 'blue'
+    if fit=='vertical': return
     if fit == 'chi2':
         # fit a horizontal line
-        intercept, ierr, chi2, ndf = getroot.fitline(getroot.getobjectfromnick(quantity, rootfile, change, rebin))
+        if rootobject is None:
+            rootobject = getroot.getobjectfromnick(quantity, rootfile, change, rebin=1)
+        intercept, ierr, chi2, ndf = getroot.fitline(rootobject)
         ax.axhline(intercept, color=color, linestyle='--')
         ax.axhspan(intercept+ierr, intercept-ierr, color=color, alpha=0.2)
 
         # and display chi^2
-        ax.text(0.97, 0.20+(index/20.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
+        ax.text(0.97, 0.20+(index/20.)+offset, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
         va='top', ha='right', transform=ax.transAxes, color=color)
               
     else:
-        intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, rootfile, change, rebin))
+        if rootobject is None:
+            rootobject = getroot.getobjectfromnick(quantity, rootfile, change, rebin=1)
+        intercept, ierr, slope, serr,  chi2, ndf, conf_intervals = getroot.fitline2(rootobject)
+        mean = rootobject.GetMean()
         if runplot_diff:
             intercept = intercept - mc_mean
 
         # fit line:
         line_fit = ax.plot([run_min, run_max],[intercept+run_min*slope, intercept+run_max*slope], color = color, linestyle='--')
-        ax.plot([run_min, run_max],[intercept+ierr+run_min*(slope-serr), intercept+ierr+run_max*(slope-serr)], alpha=0.2, color = color, linestyle='--')
-        ax.plot([run_min, run_max],[intercept-ierr+run_min*(slope+serr), intercept-ierr+run_max*(slope+serr)], alpha=0.2, color = color, linestyle='--')
-        
+
+        # insert a (0, 0) bin because the conf_intervals list also contains an additional (0., conf)-point
+        plot = getroot.root2histo(rootobject)
+        plot.xc.insert(0, 0.)
+
+        # display confidence intervals
+        ax.fill_between(plot.xc[:-1], [intercept+x*slope + c for x, c in zip(plot.xc[:-1], conf_intervals)], [intercept+x*slope - c for x, c in zip(plot.xc[:-1], conf_intervals)], facecolor=color, edgecolor=color, interpolate=True, alpha=0.2)
+
         if fit == 'slope':
             #display slope
-            ax.text(0.97, 0.95-(index/10.), r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{-6}$" % (slope*1000000, serr*1000000),
+            ax.text(0.97, 0.95-(index/10.)+offset, r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{-3}$" % (slope*1000, serr*1000),
                va='top', ha='right', transform=ax.transAxes, color=color,
                size='x-large')
         elif fit == 'intercept':
-            #display intercept
-            ax.text(0.97, 0.35-(index/10.), r"$\mathrm{Fit\/intercept} = (%1.3f\pm%1.3f)$" % (intercept, ierr),
+            #display intercept ...
+            ax.text(0.97, 0.35-(index/10.)+offset, r"$\mathrm{y(0)} = %1.3f\pm%1.3f$" % (intercept, ierr),
                va='top', ha='right', transform=ax.transAxes, color=color,
                size='x-large')
+
+            # ... and chi2 (smaller)
+            ax.text(0.97, 0.30-(index/10.)+offset, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
+                va='top', ha='right', transform=ax.transAxes, color=color, size='small')
+
 
 
 def unitformat(quantity="", unit="", brackets=False):
@@ -700,10 +716,11 @@ def unitformat(quantity="", unit="", brackets=False):
 d={         
         'abseta':[0.0, 5.5, r"$|\eta^\mathrm{%s}|$", ""],
         'absphi':[0, 3.141593, r"$|\phi^\mathrm{%s}|$", ""],
-        'alpha':[0, 0.3, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
+        'alpha':[0, 0.4, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
         'bal':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
         'baljet2z':[0, 1, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
         'balresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
+        'balresp_ratio':[0.9, 1.1, r"$p_\mathrm{T}$ balance", ""],
         'baltwojet':[0.0, 1.8, r"$p_\mathrm{T}$ balance for 2 jets", ""],
         'chargedem':[0,1, r"%s charged em fraction", ""],
         'chargedhad':[0,1, r"%s charged hadron fraction", ""],
@@ -712,7 +729,7 @@ d={
         'constituents':[0, 60, r"Number of Jet Constituents", ""],
         'correction':[0.85, 1.02, "Correction factor", ""],
         'cut':[0, 1.1, r"Cut Inefficiency (%s)", ""],
-        'datamcratio':[0.88, 1.03, r"data/MC ratio", ""],
+        'datamcratio':[0.94, 1.03, r"data/MC ratio", ""],
         'deltaeta':[0, 15, r"$\Delta \eta(\mathrm{%s})$", ""],
         'deltaeta':[0, 5, r"$\Delta \eta(\mathrm{%s,\/ %s})$", ""],
         'deltaphi':[0, 3.141593, r"$\Delta \phi(\mathrm{%s,\/%s})$", ""],
@@ -747,9 +764,10 @@ d={
         'METfraction':[0, 0.2, r"MET / $E^T_Total$", ""],
         'METpt':[ 0, 80, r"$E_\mathrm{T}^\mathrm{miss}$", 'GeV'],
         'METsumEt':[0, 2500, r"$\sum E^\mathrm{T}$", "GeV"],
-        'mpf':[0.3, 1.8, r"$MPF$ Response", ""],
+        'mpf':[0.75, 1.02, r"$MPF$ Response", ""],
+        'mpf-diff':[0., 0.1, r"$\Delta MPF$ Response", ""],
         'mpfresp-notypeI':[0.0, 1.8, r"$MPF$ Response (raw MET)", ""],
-        'mpfresp':[0.0, 1.8, r"$MPF$ Response", ""],
+        'mpfresp':[0.8, 1.03, r"$MPF$ Response", ""],
         'muminuspt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{\mu-}$", 'GeV'],
         'muon':[0,1, r"%s muon fraction", ""],
         'muonsinvalid':[0, 5, "Number of invalid muons", ""],
@@ -763,7 +781,7 @@ d={
         'phi':[-3.2, 3.2, r"$\phi^\mathrm{%s}$", ""],
         'photon':[0,1., r"%s photon fraction", ""],
         'pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{%s}$", 'GeV'],        
-        'ptbalance':[0.61, 1.06, r"$p_\mathrm{T}$ balance", ""],
+        'ptbalance':[0.74, 1.04, r"$p_\mathrm{T}$ balance", ""],
         'ratio':[0.89, 1.08, r"%s / %s ratio", ""],
         'reco':[0, 35, r"Number of Reconstructed Vertices $n$",""],
         'response':[0.81, 1.05, r"Jet Response", ""],

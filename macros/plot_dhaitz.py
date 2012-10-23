@@ -69,7 +69,7 @@ def plot(cluster=False):
     op.bins = getroot.getbins(files[0], op.bins)
     op.eta = getroot.getetabins(files[0], op.eta)
     op.npv = getroot.getnpvbins(files[0], op.npv)
-    #op.cut = getroot.getcutbins(files[0], op.cut)
+    op.cut = getroot.getcutbins(files[0], op.cut)
 
     plotbase.plot(module_list, op.plots, files, op)
 

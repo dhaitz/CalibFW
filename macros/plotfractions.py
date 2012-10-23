@@ -247,9 +247,9 @@ def fractions_run(files, opt, changes={}, fig_ax=None, subplot=False, diff=False
         opt_change.labels = [label]
         opt_change.colors = [color]
         opt_change.style = [marker]
-        plotdatamc.runplot("jet1%sfraction_run" % quantity, files, opt_change, changes=changes, fractions=True, 
-                    xy_names=['run', y_name], fig_axes = (fig, ax), subplot=True, rebin=500, legloc = 'lower right', runplot_diff = diff)
-
+        plotdatamc.runplot("jet1%sfraction_run" % quantity, files, opt_change, changes=changes,
+                    fractions=True, xy_names=['run', y_name], fig_axes = (fig, ax), subplot=True, 
+                    rebin=500, legloc = 'lower right', runplot_diff = diff, fit='slope_noLabel')
     if subplot: return
 
     filename = plotbase.getdefaultfilename(title, opt_change, changes)

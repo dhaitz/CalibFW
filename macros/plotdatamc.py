@@ -14,8 +14,8 @@ import multiprocessing as mp
 import os
 
 def datamcplot(quantity, files, opt, legloc='center right',
-               changes={}, log=False, xlog=False, rebin=5, file_name = "", subplot=False, 
-               subtext="", fig_axes=(), xy_names=None, normalize=True, runplot_diff=False):
+               changes={}, log=False, xlog=False, rebin=10, file_name = "", subplot=False, 
+               subtext="", fig_axes=(), xy_names=None, normalize=True, runplot_diff=False, fit=None, ratio=False, fit_offset=0):
     """Template for all data/MC comparison plots for basic quantities."""
     # read the values
     if opt.verbose:
@@ -27,7 +27,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
     #create list with histograms
     if change.has_key('algorithm') and 'Gen' in change['algorithm']:
         datamc = [getroot.getplotfromnick(quantity, files[1], change, rebin)]
-    else: 
+    else:
         datamc = [getroot.getplotfromnick(quantity, f, change, rebin) for f in files]
     if quantity in ['numpu', 'numputruth']:
         datamc[0] = getPUindata(quantity)
@@ -37,7 +37,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
     else: fig, ax = plotbase.newplot()
 
     #loop over histograms: scale and plot 
-    for f, l, c, s in reversed(zip(datamc, opt.labels, opt.colors, opt.style)):
+    for f, l, c, s, rootfile in reversed(zip(datamc, opt.labels, opt.colors, opt.style, files)):
         events.insert(0,f.ysum())
         if opt.normalize and normalize and quantity and "L1" not in quantity and "run" not in quantity and len(quantity.split("_")) < 2:
             if 'cut_' not in quantity and f.ysum()!=0:
@@ -57,32 +57,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
         else:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, fmt=s, capsize=0 ,label=l)
 
-        """#print "Fit!"
-        run_min=0
-        run_max=1
-        fit_colors= ['black', 'blue']
-        intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
-        #fit line and display slope:
-        line_fit = ax.plot([run_min, run_max],[intercept+run_min*slope, intercept+run_max*slope], color = fit_colors[datamc.index(f)], linestyle='--')
-        ax.plot([run_min, run_max],[intercept+ierr+run_min*(slope-serr), intercept+ierr+run_max*(slope-serr)], alpha=0.2, color = fit_colors[datamc.index(f)], linestyle='--')
-        ax.plot([run_min, run_max],[intercept-ierr+run_min*(slope+serr), intercept-ierr+run_max*(slope+serr)], alpha=0.2, color = fit_colors[datamc.index(f)], linestyle='--')
-
-        #ax.text(0.97, 0.92-(datamc.index(f)/20.), r"%s: Fit slope  = $(%1.2f\pm%1.2f) \times 10^{-2}$" % (l, slope*100, serr*100),
-        #   va='top', ha='right', transform=ax.transAxes, color=fit_colors[datamc.index(f)],
-        #   size='large')
-        #factor = intercept / f.mean
-        ax.text(0.97, 0.22-(datamc.index(f)/20.), r"%s: balance extrapolated  = $(%1.3f\pm%1.3f)$" % (l, intercept, ierr),
-           va='top', ha='right', transform=ax.transAxes, color=fit_colors[datamc.index(f)],
-           size='medium')"""
-
-        # fit a horizontal line and display chi^2
-        """fit_colors= ['black', 'blue']
-        intercept, ierr, chi2, ndf = getroot.fitline(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
-        ax.axhline(intercept, color=fit_colors[datamc.index(f)], linestyle='--')
-        ax.axhspan(intercept+ierr, intercept-ierr, color=fit_colors[datamc.index(f)], alpha=0.2)
-        ax.text(0.97, 0.92-(datamc.index(f)/10.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
-        va='top', ha='right', transform=ax.transAxes, color=fit_colors[datamc.index(f)], size='large')"""
-
+        if fit is not None: plotbase.fit(fit, ax, quantity, rootfile, change, 1, c, datamc.index(f), rootobject=rootobject, offset=fit_offset)
 
 
     # Jet response plots: add vertical lines for mean and mean error to see data/MC agreement
@@ -125,13 +100,12 @@ def datamcplot(quantity, files, opt, legloc='center right',
             y = xy[0]
             ax = plotbase.axislabels(ax, x, y)
             if (y in ['balresp', 'mpfresp', 'ptbalance', 'L1', 'L2', 'L3', 'mpf', 'mpfresp']) or 'cut' in y:
-                ax.axhline(1.0, color='black', linestyle='--')
+                ax.axhline(1.0, color='black', linestyle=':')
 
     if subtext is not 'None':
         ax.text(-0.03, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
 
     # save it
-
     if not file_name:
         file_name = plotbase.getdefaultfilename(quantity, opt, changes)
 
@@ -146,17 +120,15 @@ def datamcplot(quantity, files, opt, legloc='center right',
         ax.set_yscale('log')
         if subplot is not True: plotbase.Save(fig, file_name + '_log', opt)
 
-
     if xlog:
         ax.set_xscale('log')
         if subplot is not True: plotbase.Save(fig, file_name + '_xlog', opt)
 
 
 
-
 def runplot(quantity, files, opt, legloc='center right',
                changes={}, log=False, rebin=500, file_name = "", subplot=False, subtext="", fig_axes=(), xy_names=None, normalize=True,           
-               fractions=False, runplot_diff=False):
+               fractions=False, runplot_diff=False, fit='slope'):
 
     change= plotbase.getchanges(opt, changes)
     datamc=[]
@@ -168,9 +140,7 @@ def runplot(quantity, files, opt, legloc='center right',
     if subplot==True: fig, ax = fig_axes
     else: fig, ax = plotbase.newplot(run=True)
 
-
     plotlist = getroot.getplotlist(None, algorithm=opt.algorithm, filenames=opt.files)
-
 
     for f, l, c, s in reversed(zip(files, opt.labels, opt.colors, opt.style)):
         if 'data' in l or fractions:
@@ -186,29 +156,10 @@ def runplot(quantity, files, opt, legloc='center right',
             if runplot_diff:
                 mc_mean = getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).mean
                 plot.y = [y - mc_mean for y in plot.y]
+
+            plotbase.fit(fit, ax, quantity, f, changes, rebin, c, files.index(f), runplot_diff, mc_mean, run_min, run_max)
             
             ax.errorbar(plot.xc, plot.y, plot.yerr, drawstyle='steps-mid', color=c, fmt=s, capsize=0 ,label=l)
-
-            # only for zmass!!
-            """intercept, ierr, slope, serr,  chi2, ndf = getroot.fitline2(getroot.getobjectfromnick(quantity, f, change, rebin))
-            if runplot_diff:
-                intercept = intercept - mc_mean
-
-            # fit line and display slope:
-            line_fit = ax.plot([run_min, run_max],[intercept+run_min*slope, intercept+run_max*slope], color = c, linestyle='--')
-            ax.plot([run_min, run_max],[intercept+ierr+run_min*(slope-serr), intercept+ierr+run_max*(slope-serr)], alpha=0.2, color = c, linestyle='--')
-            ax.plot([run_min, run_max],[intercept-ierr+run_min*(slope+serr), intercept-ierr+run_max*(slope+serr)], alpha=0.2, color = c, linestyle='--')
-            """
-
-            #ax.text(0.97, 0.95-(datamc.index(f)/10.), r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{-6}$" % (slope*1000000, serr*1000000),
-            #   va='top', ha='right', transform=ax.transAxes, color=c,
-            #   size='x-large')
-            # fit a horizontal line and display chi^2
-            """intercept, ierr, chi2, ndf = getroot.fitline(getroot.getobjectfromnick(quantity, files[datamc.index(f)], change, rebin))
-            ax.axhline(intercept, color=c, linestyle='--')
-            ax.axhspan(intercept+ierr, intercept-ierr, color=c, alpha=0.2)
-            ax.text(0.97, 0.17+(datamc.index(f)/10.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
-            va='top', ha='right', transform=ax.transAxes, color=c, size='x-large')"""
 
         elif ('MC' in l  or fractions) and quantity[:-4] in plotlist:
             if runplot_diff:
@@ -221,7 +172,6 @@ def runplot(quantity, files, opt, legloc='center right',
                 ax.errorbar(0.5*(run_min+ run_max), mc_mean, mc_meanerr, drawstyle='steps-mid', color=c, fmt='-', capsize=0 ,label=l)
                 ax.bar(run_min, mc_mean, (run_max - run_min), bottom=0., fill=True, facecolor=c, edgecolor=c)
                 ax.axhspan(mc_mean+mc_meanerr,mc_mean-mc_meanerr, color=c, alpha=0.2)
-
         
     run_2012B = 193834.
     run_2012C = 197770.
@@ -233,11 +183,6 @@ def runplot(quantity, files, opt, legloc='center right',
                     va='top', ha='left', transform=ax.transAxes, color='gray', alpha=0.5, size='medium')
 
     plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot)
-
-    #if 'fraction' in quantity and not runplot_diff:
-    #    legend1 = ax.legend(loc='lower right', numpoints=1, frameon=True)
-    #    legend2 = ax.legend([line_fit, line_mc], ["data fit", "MC"], loc='upper right')
-    #    plotbase.plt.gca().add_artist(legend1)
 
     if xy_names is not None:
         plotbase.axislabels(ax, xy_names[0], xy_names[1])
@@ -638,10 +583,12 @@ plotdictionary={
     'jet3pt':['log=True, rebin=2'],
     'jeteta_jetphi':['rebin=2'],
     'jetpt_zeta':['rebin=5, legloc="upper left"'],
+    'mpf-diff_alpha':['rebin=2, changes={"var":"var_CutSecondLeadingToZPt_0_3"}'],
     'mpf_deltaphi-jet1-MET_all':['', 'datamc_all', 'mpf_deltaphi-jet1-MET'],
     'mpf_deltaphi-z-MET_all':['', 'datamc_all', 'mpf_deltaphi-z-MET'],
     'mpfresp_all':['', 'datamc_all', 'mpfresp'],
     'mpf_alpha':['rebin=4, fit="chi2"'],
+    'mpf_alpha03':['rebin=2, fit="intercept", changes={"var":"var_CutSecondLeadingToZPt_0_3"}', 'datamcplot', 'mpf_alpha'],
     'mpf_alpha_all':['rebin=4, fit="chi2"', 'datamc_all', 'mpf_alpha'],
     'muminusphi':['legloc="lower center"'],
     'muonsinvalid':['legloc="lower center", rebin=1'],
@@ -652,8 +599,11 @@ plotdictionary={
     'npv':['rebin=1'],
     'npv_nocuts':['rebin=1, changes={"incut":"allevents"}', 'datamcplot', 'npv'],
     'ptbalance_alpha':['rebin=2, fit="intercept", legloc="lower center"'],
-    'ptbalance_alpha_alpha04':['rebin=4, changes={"var":"var_CutSecondLeadingToZPt_0_4"}, fit="intercept"'],
+    'ptbalance_alpha_ratio':['rebin=2, fit="chi2",legloc="lower center", ratio=True', 'datamcplot', 'ptbalance_alpha'],
+    'ptbalance_alpha_alpha04':['rebin=2, changes={"var":"var_CutSecondLeadingToZPt_0_4"}, fit="intercept", legloc="lower center"', 'datamcplot', 'ptbalance_alpha'],
+    'ptbalance_alpha_alpha03':['rebin=2, changes={"var":"var_CutSecondLeadingToZPt_0_3"}, fit="intercept", legloc="lower center"', 'datamcplot', 'ptbalance_alpha'],
     'ptbalance_alpha_all':['rebin=4, fit="intercept"', 'datamc_all', 'ptbalance_alpha'],
+    'ptbalance_jetsvalid':['rebin=1, legloc="lower center"'],
     'tworesp':['legloc="lower right"', 'datamcplot', 'bal_twojet'],
     'zmass':['rebin=2, log=True'],
     'zmass_zcutsonly':['rebin=2, log=True, changes={"incut":"zcutsonly"}', 'datamcplot', 'zmass'],
