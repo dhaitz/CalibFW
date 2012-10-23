@@ -39,7 +39,7 @@ public:
 	KDataPFMET * m_pfMetChsL2L3Res;
 	KDataPFMET * m_pfMetChsL2L3phi;
 	KDataPFMET * m_pfMetChsL2L3Resphi;
-
+	KPartons * m_particles;
 
 	// only use directly if there is no other way
 	//FileInterface * m_fi;
@@ -201,7 +201,6 @@ public:
 
 	KDataMuons * Muons;
 	KEventMetadata * m_eventmetadata;
-
 	KLumiMetadata * m_lumimetadata;
 
 	KGenLumiMetadata * GetGenLumiMetadata() const

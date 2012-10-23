@@ -26,11 +26,10 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 		m_event.m_pfMetL2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETL2L3", false);
 		m_event.m_pfMetL1L2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETL1L2L3", false);
 		m_event.m_pfMetChsL1L2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL1L2L3", false);
-                if (phicorrection)
-			m_event.m_pfMetChsL2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3phi", false);  //phi-corrected
+		if (phicorrection)
+			m_event.m_pfMetChsL2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3phi", false); //phi-corrected
 		else
 			m_event.m_pfMetChsL2L3 = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3", false);
-		
 		InitPFJets(m_event, "AK5PFJets");
 		InitPFJets(m_event, "AK5PFJetsCHS");
 
@@ -42,17 +41,17 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 			// nice, we have the all-mighty TRUTH !
 			InitGenJets(m_event, "AK5GenJets");
 			InitGenJets(m_event, "AK7GenJets");
+			m_event.m_particles = m_fi.Get<KPartons> ("genParticles", false);
 		}
 		else
 		{
 			// we need to read the residual MET corrections for data
 			m_event.m_pfMetL2L3Res = m_fi.Get<KDataPFMET> ("ak5PFMETL2L3Res", false);
-            		if (phicorrection)
+			if (phicorrection)
 				m_event.m_pfMetChsL2L3Res = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3Resphi", false); //phi-corrected
 			else
 				m_event.m_pfMetChsL2L3Res = m_fi.Get<KDataPFMET> ("ak5PFMETCHSL2L3Res", false);
 		}
-
 }
 
 }
