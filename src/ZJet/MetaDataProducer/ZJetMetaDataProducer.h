@@ -403,6 +403,12 @@ public:
 		//search
 		metaData.SetBalanceQuality(threshold);
 		metaData.SetValidParton(false);
+		if (metaData.m_genPartons.size() < 1)
+		{
+			CALIB_LOG("No partons in the event!")
+			return false;
+		}
+
 		for (auto it = metaData.m_genPartons.begin(); it != metaData.m_genPartons.end(); ++it)
 		{
 			if (it->p4.Pt() < pptmin)
@@ -418,6 +424,12 @@ public:
 
 			if (bQuality < metaData.GetRefBalanceQuality())
 			{
+				//if (metaData.GetValidParton() && metaData.GetRefParton().p4.Pt() > it->p4.Pt())
+				//{
+				//	CALIB_LOG("The best balanced parton is not the leading one!")
+				//	CALIB_LOG("  Best    (" << it->pdgId() << ") Q: " << bQuality << ", pt: " <<it->p4.Pt() << ", dphi: " << dphi << ", R: " << R)
+				//	CALIB_LOG("  Leading (" << metaData.GetRefParton().pdgId() << ") Q: " << metaData.GetRefBalanceQuality() << ", pt: " <<metaData.GetRefParton().p4.Pt())
+				//}
 				metaData.SetValidParton(true);
 				metaData.SetBalanceQuality(bQuality);
 				metaData.SetParton(*it);
