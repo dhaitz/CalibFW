@@ -805,37 +805,45 @@ def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forI
 
             #cuts
             if p == "default_" + algo:
-                AddConsumerEasy(pval, { "Name" : "generic_profile2d_consumer",
-                    "RunUnfiltered" : 1,
-                    "XSource" : "phiabsdiff", "XName1":"jet1", "XName2":"jet2", 
-                    "YSource" : 'etaabsdiff', "YName1":"jet1", "YName2":"jet2",                    
-                    "ZSource" : "cutvalue", "ZCutId":"-1", 
-                    "ProductName" : "2D_cut-all_deltaphi-jet1-jet2_deltaeta-jet1-jet2_"+algo    })
+                AddConsumerEasy(pval, {
+                    'Name': "generic_profile2d_consumer",
+                    'RunUnfiltered': 1,
+                    'XSource': "phiabsdiff", 'XName1': "jet1", 'XName2': "jet2",
+                    'YSource': "etaabsdiff", 'YName1': "jet1", 'YName2': "jet2",
+                    'ZSource': "cutvalue", 'ZCutId': "-1",
+                    'ProductName': "2D_cut-all_deltaphi-jet1-jet2_deltaeta-jet1-jet2_" + algo
+                })
 
-                AddConsumerEasy(pval, { "Name" : "generic_profile2d_consumer",
-                    "RunUnfiltered" : 1,
-                    "XSource" : "jet1phi", 
-                    "YSource" : 'jet1eta',                  
-                    "ZSource" : "cutvalue", "ZCutId":"-1", 
-                    "ProductName" : "2D_cut-all_jet1phi_jet1eta_"+algo    })
+                AddConsumerEasy(pval, {
+                    'Name': "generic_profile2d_consumer",
+                    'RunUnfiltered': 1,
+                    'XSource': "jet1phi",
+                    'YSource': "jet1eta",
+                    'ZSource': "cutvalue", 'ZCutId': "-1",
+                    'ProductName': "2D_cut-all_jet1phi_jet1eta_" + algo
+                })
 
-                AddConsumerEasy(pval, { "Name" : "generic_profile2d_consumer",
-                    "RunUnfiltered" : 1,
-                    "XSource" : "jet2phi", 
-                    "YSource" : 'jet2eta',                  
-                    "ZSource" : "cutvalue", "ZCutId":"-1", 
-                    "ProductName" : "2D_cut-all_jet2phi_jet2eta_"+algo    })
+                AddConsumerEasy(pval, {
+                    'Name': "generic_profile2d_consumer",
+                    'RunUnfiltered': 1,
+                    'XSource': "jet2phi",
+                    'YSource': "jet2eta",
+                    'ZSource': "cutvalue", 'ZCutId': "-1",
+                    'ProductName': "2D_cut-all_jet2phi_jet2eta_" + algo
+                })
 
-                AddConsumerEasy(pval, { "Name" : "generic_profile2d_consumer", 
-                    "RunUnfiltered" : 1, 
-                    "XSource" : "phiabsdiff", "XName1":"jet1", "XName2":"jet2",
-                    "YSource" : 'etaabsdiff', "YName1":"jet1", "YName2":"jet2",                      
-                    "ZSource" : "cutvalue", "ZCutId":"16", 
-                    "ProductName" : "2D_cut-jet2toZpt_deltaphi-jet1-jet2_deltaeta-jet1-jet2_"+algo  })
+                AddConsumerEasy(pval, {
+                    'Name': "generic_profile2d_consumer",
+                    'RunUnfiltered': 1,
+                    'XSource': "phiabsdiff", 'XName1': "jet1", 'XName2': "jet2",
+                    'YSource': "etaabsdiff", 'YName1': "jet1", 'YName2': "jet2",
+                    'ZSource': "cutvalue", "ZCutId": "16",
+                    'ProductName': "2D_cut-jet2toZpt_deltaphi-jet1-jet2_deltaeta-jet1-jet2_" + algo
+                })
     
 
 def ReplaceWithQuantitiesBasic(pline):
-    RemoveConsumer( pline, "quantities_all" )
+    RemoveConsumer(pline, "quantities_all")
     AddConsumerNoConfig(pline, "quantities_basic")
 
 
