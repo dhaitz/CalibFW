@@ -172,8 +172,6 @@ public:
 		return (this->GetCutBitmask() == 0);
 	}
 
-
-
 	long GetCutBitmask() const
 	{
 		return GetLocalMetaData()->GetCutBitmask();
@@ -200,6 +198,26 @@ public:
 	double GetTwoJetBalance(KDataLV * jet1, KDataLV * jet2) const;
 
 	double GetZeppenfeld(KDataLV * jet1, KDataLV * jet2, KDataLV * jet3) const;
+
+	double GetJetGenZBalance(KDataLV * genjet) const
+	{
+		return genjet->p4.Pt() / this->GetRefGenZ().p4.Pt();
+	}
+
+	double GetJetPartonBalance(KDataLV * genjet) const
+	{
+		return genjet->p4.Pt() / this->GetRefParton().p4.Pt();
+	}
+
+	double GetZBalance() const
+	{
+		return this->GetRefZ().p4.Pt() / this->GetRefGenZ().p4.Pt();
+	}
+
+	double GetPartonBalance() const
+	{
+		return this->GetRefParton().p4.Pt() / this->GetRefGenZ().p4.Pt();
+	}
 
 	IMPL_PROPERTY(bool, ValidZ)
 	IMPL_PROPERTY(bool, ValidGenZ)
