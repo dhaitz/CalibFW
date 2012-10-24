@@ -278,7 +278,8 @@ def root2histo(histo, rootfile='', rebin=1):
     if histo.ClassName() == 'TH1D' or histo.ClassName() == 'TH1F' or \
             histo.ClassName() == 'TProfile':
         # histo is a 1D histogram, read it
-        histo.Rebin(rebin)
+        if rebin > 1:
+            histo.Rebin(rebin)
         hst.source = rootfile
         hst.name = histo.GetName()
         hst.title = histo.GetTitle()
@@ -620,16 +621,21 @@ class Fitfunction:
 
 
 def fitline(rootgraph):
+    if 'Profile' in rootgraph.ClassName():
+        rootgraph.Approximate() # call this function so zero-error (one entry) bins don't distort the fit
     fitf = ROOT.TF1("fit1", "1*[0]", 1.0, 1000.0)
     fitres = rootgraph.Fit(fitf,"SQN")
+    if 'Profile' in rootgraph.ClassName():
+        rootgraph.Approximate(0)
     return (fitf.GetParameter(0), fitf.GetParError(0), fitres.Chi2(), fitres.Ndf())
 
 def fitline2(rootgraph):
+    if 'Profile' in rootgraph.ClassName():
+        rootgraph.Approximate() # call this function so zero-error (one entry) bins don't distort the fit
     fitf = ROOT.TF1("fit1", "1*[0]+x*[1]", 1.0, 1000.0)
     fitres = rootgraph.Fit(fitf,"SQN")
     if 'Profile' in rootgraph.ClassName():
         rootgraph.Approximate(0)
-
     #Get conf intervals as an array and then convert to list
     points = []
     for n in range(1, rootgraph.GetSize() - 1):
