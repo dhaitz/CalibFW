@@ -202,8 +202,13 @@ public:
 	double GetZeppenfeld(KDataLV * jet1, KDataLV * jet2, KDataLV * jet3) const;
 
 	IMPL_PROPERTY(bool, ValidZ)
+	IMPL_PROPERTY(bool, ValidGenZ)
+	IMPL_PROPERTY(bool, ValidParton)
 
 	IMPL_PROPERTY(KDataLV, Z)
+	IMPL_PROPERTY(KParton, GenZ)
+	IMPL_PROPERTY(KParton, Parton)
+	IMPL_PROPERTY(double, BalanceQuality)
 
 	IMPL_PROPERTY(double, Weight)
 

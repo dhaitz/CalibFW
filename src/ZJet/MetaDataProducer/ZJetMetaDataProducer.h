@@ -131,8 +131,7 @@ public:
 
 				// Ensure the jets are ordered by pt!
 				if ((lastpt > 0.0f) && (lastpt < itjet->p4.Pt()))
-					std::cout << "Jet pt unsorted " << lastpt << " to "
-							<< itjet->p4.Pt() << std::endl;
+					CALIB_LOG("Jet pt unsorted " << lastpt << " to " << itjet->p4.Pt())
 
 				lastpt = itjet->p4.Pt();
 
@@ -178,7 +177,7 @@ public:
 
 	ZProducer() : ZJetGlobalMetaDataProducerBase(),
 		zmassRangeMin(71.19), zmassRangeMax(111.19)
-		{}
+	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
@@ -220,11 +219,11 @@ public:
 					if (z.p4.mass() > zmassRangeMin && z.p4.mass() < zmassRangeMax)
 					{
 						z_cand.push_back(z);
-						// std::cout << std::endl << "Found possible Z with mass " << z.p4.mass();
+						//CALIB_LOG("Found possible Z with mass " << z.p4.mass())
 					}
 					else
 					{
-						// std::cout << std::endl << "Dropping Z because of wrong mass " << z.p4.mass();
+						//CALIB_LOG("Dropping Z because of wrong mass " << z.p4.mass())
 					}
 				}
 			}
@@ -273,7 +272,7 @@ class GenProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
 
-	GenProducer() : ZJetGlobalMetaDataProducerBase(),
+	GenProducer(): ZJetGlobalMetaDataProducerBase(),
 		nmin(9), nmax(13)
 	{}
 
@@ -293,7 +292,7 @@ public:
 		{
 			// Take only stable final particles and check for children
 			if (it->status() != 3) {
-				std::cout << "Status is " << it->status() << " (this particle is already showered)!\n";
+				CALIB_LOG("Status is " << it->status() << " (this particle is already showered)!")
 				continue;
 			}
 			if (it->children != 0)
@@ -339,6 +338,109 @@ public:
 private:
 	const unsigned short int nmin;
 	const unsigned short int nmax;
+};
+
+
+/* Produce the balanced objects
+
+    The generated Z boson is required to be unique and to have a minimal pt.
+    The parton must have a minimal pt and it must be close to the Z in pt and phi.
+    There must be exactly 2 gen muons that match the gen Z kinematics.
+
+    This requires the @see GenProducer before.
+*/
+class GenBalanceProducer: public ZJetGlobalMetaDataProducerBase
+{
+public:
+
+	GenBalanceProducer(): ZJetGlobalMetaDataProducerBase(),
+		zptmin(5.0), pptmin(1.0), threshold(2.0), pi(3.1415926535)
+	{}
+
+	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
+			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
+	{
+		// Valid gen Z producer
+		if (metaData.m_genZs.size() < 1)
+		{
+			CALIB_LOG("No gen Z in the event.")
+			metaData.SetValidGenZ(false);
+			return false;
+		}
+		if (metaData.m_genZs.size() > 1)
+		{
+			CALIB_LOG("More than one gen Z in the event.")
+			// Could be resolved, but this case is currently not present.
+			metaData.SetValidGenZ(false);
+			return false;
+		}
+		if (metaData.m_genZs[0].p4.Pt() < zptmin)
+		{
+			//CALIB_LOG("Gen Z pt is very low, no balance calculated.")
+			metaData.SetValidGenZ(false);
+			return false;
+		}
+
+		// check if the Z decays to the muons:
+		if (metaData.m_genMuons.size() != 2)
+		{
+			CALIB_LOG("Not exactly two muons in the event, therefore no valid Z.")
+			metaData.SetValidGenZ(false);
+			return false;
+		}
+		if (metaData.m_genZs.size() >= 1)
+		{
+			KParton test;
+			test.p4 = metaData.m_genMuons[0].p4 + metaData.m_genMuons[1].p4 - metaData.m_genZs[0].p4;
+			if (test.p4.Pt() > 1e-3)	// differs more than a MeV
+			{
+				CALIB_LOG("Muons not from Z decay: pt:" << test.p4.Pt() << ", eta: " << test.p4.Eta()<< ", phi: " << test.p4.Phi()<< ", m: " << test.p4.M())
+			}
+		}
+		metaData.SetValidGenZ(true);
+		metaData.SetGenZ(metaData.m_genZs[0]);
+
+		//search
+		metaData.SetBalanceQuality(threshold);
+		metaData.SetValidParton(false);
+		for (auto it = metaData.m_genPartons.begin(); it != metaData.m_genPartons.end(); ++it)
+		{
+			if (it->p4.Pt() < pptmin)
+				continue;
+			// to be implemented with ROOT tools
+			double dphi = std::abs(it->p4.Phi() - metaData.GetRefGenZ().p4.Phi()) - pi;
+			if (dphi > +pi) dphi -= pi;
+			if (dphi < -pi) dphi += pi;
+			dphi = std::abs(dphi);
+			double R = it->p4.Pt() / metaData.GetRefGenZ().p4.Pt();
+			// decision metric
+			double bQuality = dphi + 2.0 * std::abs(R - 1.0);
+
+			if (bQuality < metaData.GetRefBalanceQuality())
+			{
+				metaData.SetValidParton(true);
+				metaData.SetBalanceQuality(bQuality);
+				metaData.SetParton(*it);
+				//CALIB_LOG("Balance (" << it->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
+			}
+		}
+
+		if (!metaData.GetRefValidParton())
+		{
+			//CALIB_LOG("No balance found below threshold=" << metaData.GetRefBalanceQuality() << "!")
+			return false;
+		}
+		//CALIB_LOG("Best parton is " << metaData.GetRefParton().pdgId() << ": " << metaData.GetRefBalanceQuality())
+		return true;
+	}
+
+	static std::string Name() { return "gen_balance_producer"; }
+
+private:
+	const double zptmin;
+	const double pptmin;
+	const double threshold;
+	const double pi;
 };
 
 }
