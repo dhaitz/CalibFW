@@ -121,6 +121,8 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 			runner.AddGlobalMetaProducer(new GenProducer());
 		else if (GenBalanceProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new GenBalanceProducer());
+		else if (GenDibalanceProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new GenDibalanceProducer());
 		else
 			CALIB_LOG_FATAL("Global MetaData producer of name " << (*it) << " not found")
 	}

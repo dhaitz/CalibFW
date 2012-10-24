@@ -443,4 +443,66 @@ private:
 	const double pi;
 };
 
+
+/** Complex balance finder
+
+    This includes balance of two partons to the Z. The best balanced object is
+    stored in m_GenParton as the GenBalanceProducer does and thus overwrites
+    the balanced object if it finds a better one.
+
+    This requires the @see GenBalanceProducer before.
+*/
+class GenDibalanceProducer: public ZJetGlobalMetaDataProducerBase
+{
+public:
+
+	GenDibalanceProducer(): ZJetGlobalMetaDataProducerBase(),
+		pi(3.1415926535)
+	{}
+
+	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
+			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
+	{
+		// combine and look for balancing of 2 partons
+		for (auto i = metaData.m_genPartons.begin(); i != metaData.m_genPartons.end(); ++i)
+			for (auto j = i; j != metaData.m_genPartons.end(); ++j)
+			{
+				if (std::abs(j->p4.Pt() - i->p4.Pt()) < 1e-6)
+					continue;
+				assert(j->p4 != i->p4);
+				KParton comb;
+				comb.p4 = i->p4 + j->p4;
+				// to be implemented with ROOT tools
+				double dphi = std::abs(comb.p4.Phi() - metaData.GetRefGenZ().p4.Phi()) - pi;
+				if (dphi > +pi) dphi -= pi;
+				if (dphi < -pi) dphi += pi;
+				dphi = std::abs(dphi);
+				double R = comb.p4.Pt() / metaData.m_genZs[0].p4.Pt();
+				// decision metric
+				double bQuality = dphi + 2.0 * std::abs(R - 1.0);
+
+				if (bQuality < metaData.GetRefBalanceQuality()){
+					metaData.SetValidParton(true);
+					metaData.SetBalanceQuality(bQuality);
+					if (i->p4.Pt() > j->p4.Pt())
+					{
+						metaData.SetParton(*i);
+						//CALIB_LOG("Balance (" << i->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
+					}
+					else
+					{
+						metaData.SetParton(*j);
+						//CALIB_LOG("Balance (" << i->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
+					}
+				}
+			}
+		return true;
+	}
+
+	static std::string Name() { return "gen_dibalance_producer"; }
+
+private:
+	const double pi;
+};
+
 }
