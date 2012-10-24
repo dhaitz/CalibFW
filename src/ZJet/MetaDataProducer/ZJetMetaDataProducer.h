@@ -435,6 +435,10 @@ public:
 				metaData.SetParton(*it);
 				//CALIB_LOG("Balance (" << it->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
 			}
+			if (it == metaData.m_genPartons.begin() || metaData.GetRefLeadingParton().p4.Pt() < it->p4.Pt())
+			{
+				metaData.SetLeadingParton(*it);
+			}
 		}
 
 		if (!metaData.GetRefValidParton())
