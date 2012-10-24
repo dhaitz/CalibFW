@@ -25,7 +25,7 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 		val = (double) event.m_vertexSummary->nVertices;
-		return false;
+		return true;
 	}
 
 	virtual unsigned int GetDefaultBinCount() const
@@ -54,7 +54,7 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 		val = metaData.GetValidPrimaryJet(settings, event)->p4.Eta();
-		return false;
+		return true;
 	}
 
 	virtual unsigned int GetDefaultBinCount() const
@@ -83,7 +83,7 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 		val = TMath::Abs(metaData.GetValidPrimaryJet(settings, event)->p4.Eta());
-		return false;
+		return true;
 	}
 
 	virtual unsigned int GetDefaultBinCount() const
@@ -111,7 +111,7 @@ public:
 			return false;
 		}
 		val = metaData.GetValidJet(settings, event, 1)->p4.Eta();
-		return false;
+		return true;
 	}
 
 	virtual unsigned int GetDefaultBinCount() const
@@ -139,7 +139,7 @@ public:
 			return false;
 		}
 		val = TMath::Abs(metaData.GetValidJet(settings, event, 1)->p4.Eta());
-		return false;
+		return true;
 	}
 
 	virtual unsigned int GetDefaultBinCount() const
@@ -443,7 +443,7 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 		val = event.GetMet(settings)->p4.Eta();
-		return false;
+		return true;
 	}
 
 	virtual unsigned int GetDefaultBinCount() const
@@ -574,10 +574,9 @@ public:
 		if (metaData.GetValidJetCount(settings, event) < 2)
 			return false;
 
-		val = metaData.GetValidJet(settings, event, 1)->p4.Pt() / metaData.GetRefZ().p4.Pt();
+		val = metaData.GetValidJet(settings, event, 1)->p4.Pt() / metaData.GetRefZ().p4.Pt();       
 		return true;
 	}
-
 	virtual unsigned int GetDefaultBinCount() const
 	{
 		return 100;
@@ -726,7 +725,7 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 		val = metaData.GetRefZ().p4.Eta();
-		return false;
+		return true;
 	}
 
 	virtual unsigned int GetDefaultBinCount() const
@@ -751,7 +750,7 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 		val = TMath::Abs(metaData.GetRefZ().p4.Eta());
-		return false;
+		return true;
 	}
 
 	virtual unsigned int GetDefaultBinCount() const

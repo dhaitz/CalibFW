@@ -367,12 +367,17 @@ public:
 		double yval;
 		double zval;
 
-		m_xsource->GetValue( event, metaData, this->GetPipelineSettings(), xval );
-		m_ysource->GetValue( event, metaData, this->GetPipelineSettings(), yval );
-		m_zsource->GetValue( event, metaData, this->GetPipelineSettings(), zval );
+		bool has_xval;
+		bool has_yval;
+		bool has_zval;
 
-		m_profile->AddPoint(	xval,	yval,	zval );
+		has_xval = m_xsource->GetValue( event, metaData, this->GetPipelineSettings(), xval );
+		has_yval = m_ysource->GetValue( event, metaData, this->GetPipelineSettings(), yval );
+		has_zval = m_zsource->GetValue( event, metaData, this->GetPipelineSettings(), zval );
 
+        if (has_xval && has_yval && has_zval) {
+			m_profile->AddPoint( xval, yval, zval );
+        }
 		m_ysource->EndOnEvent( event, metaData, this->GetPipelineSettings() );
 	}
 
@@ -395,12 +400,17 @@ public:
 		double yval;
 		double zval;
 
-		m_xsource->GetValue( event, metaData, this->GetPipelineSettings(), xval );
-		m_ysource->GetValue( event, metaData, this->GetPipelineSettings(), yval );
-		m_zsource->GetValue( event, metaData, this->GetPipelineSettings(), zval );
+		bool has_xval;
+		bool has_yval;
+		bool has_zval;
 
+		has_xval = m_xsource->GetValue( event, metaData, this->GetPipelineSettings(), xval );
+		has_yval = m_ysource->GetValue( event, metaData, this->GetPipelineSettings(), yval );
+		has_zval = m_zsource->GetValue( event, metaData, this->GetPipelineSettings(), zval );
+
+        if (has_xval && has_yval && has_zval) {
 			m_profile->AddPoint( xval, yval, zval );
-
+        }
 
 		m_ysource->EndOnEvent( event, metaData, this->GetPipelineSettings() );
         //}

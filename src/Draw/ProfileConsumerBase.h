@@ -75,13 +75,17 @@ public:
 		double xval;
 		double yval;
 
-		m_xsource->GetValue( event, metaData, this->GetPipelineSettings(), xval );
-		m_ysource->GetValue( event, metaData, this->GetPipelineSettings(), yval );
+        bool has_xval;
+        bool has_yval;
 
-		m_profile->AddPoint(	xval,
-								yval,
-								metaData.GetWeight() );
+		has_xval = m_xsource->GetValue( event, metaData, this->GetPipelineSettings(), xval );
+		has_yval = m_ysource->GetValue( event, metaData, this->GetPipelineSettings(), yval );
 
+        if (has_xval && has_yval) {
+		    m_profile->AddPoint(	xval,
+								    yval,
+								    metaData.GetWeight() );
+        }
 		m_ysource->EndOnEvent( event, metaData, this->GetPipelineSettings() );
 	}
 
@@ -103,12 +107,18 @@ public:
 		double xval;
 		double yval;
 
-		m_xsource->GetValue( event, metaData, this->GetPipelineSettings(), xval );
-		m_ysource->GetValue( event, metaData, this->GetPipelineSettings(), yval );
+        bool has_xval;
+        bool has_yval;
 
-			m_profile->AddPoint(	xval,
-									yval,
-								metaData.GetWeight() );
+
+		has_xval = m_xsource->GetValue( event, metaData, this->GetPipelineSettings(), xval );
+        has_yval = m_ysource->GetValue( event, metaData, this->GetPipelineSettings(), yval );
+
+        if (has_xval && has_yval) {
+		    m_profile->AddPoint(	xval,
+								    yval,
+							    metaData.GetWeight() );
+        }
 
 
 		m_ysource->EndOnEvent( event, metaData, this->GetPipelineSettings() );
