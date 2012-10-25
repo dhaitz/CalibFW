@@ -32,6 +32,18 @@ def datamcplot(quantity, files, opt, legloc='center right',
     if quantity in ['numpu', 'numputruth']:
         datamc[0] = getPUindata(quantity)
 
+    # For now this function only works with TProfiles
+    if ratio and len(datamc) == 2:
+        rootobjects = [getroot.getobjectfromnick(quantity, f, change, rebin) for f in files]
+        #convert TProfiles into TH1Ds because root cant correctly divide TProfiles
+        rootobject = ROOT.TH1D(rootobjects[0].ProjectionX())
+        rootobject_2 = ROOT.TH1D(rootobjects[1].ProjectionX())
+        rootobject.Divide(rootobject_2);
+        datamc = [getroot.root2histo(rootobject, files[0].GetName(), rebin=1)]
+    else:
+        rootobject = None
+
+
     # create the plot
     if subplot==True: fig, ax = fig_axes
     else: fig, ax = plotbase.newplot()

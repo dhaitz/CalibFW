@@ -412,9 +412,9 @@ class Histo:
         self.yerr.pop(number)
 
     def __div__(self, other):
-        if 0 in other.y:
-            print "Division by zero!"
-            return None
+        #if 0 in other.y:
+        #    print "Division by zero!"
+        #    return None
         if len(self) != len(other):
             print "Histos of different lengths! The shorter is taken."
         res = Histo()
@@ -423,6 +423,7 @@ class Histo:
         res.y = [a / b if b != 0 else 0. for a,b in zip(self.y, other.y)]
         res.xerr = [0.5*(abs(da)+abs(db)) for da, db in zip(self.xerr, other.xerr)]
         res.yerr = [abs(da/b)+abs(db*a/b/b) if b != 0 else 0. for a, da, b, db in zip(self.y, self.yerr, other.y, other.yerr)]
+        return res
 
 
     def read(self, filename):
