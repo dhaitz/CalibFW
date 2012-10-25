@@ -42,7 +42,6 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		stringvector fvec = pset.GetFilter();
 		BOOST_FOREACH( std::string sid, fvec )
 		{		// make this more beatiful :)
-
 			if ( sid == PtWindowFilter().GetFilterId())
 				pLine->AddFilter( new PtWindowFilter);
 			else if ( sid == JsonFilter().GetFilterId())
@@ -73,7 +72,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 		// Cuts
 		fvec = pset.GetCuts();
-		BOOST_FOREACH( std::string sid, fvec )
+		BOOST_FOREACH(std::string sid, fvec)
 		{		// make this more beautiful :)
 			if ( sid == LeadingJetEtaCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new LeadingJetEtaCut() );
@@ -99,27 +98,20 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			else if ( sid == ZPtCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new ZPtCut() );
 			// VBF
-			else if ( sid == LeadingJetPtCut().GetCutShortName())
+			else if (sid == LeadingJetPtCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new LeadingJetPtCut() );
-
-			else if ( sid == SecondJetPtCut().GetCutShortName())
+			else if (sid == SecondJetPtCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new SecondJetPtCut() );
-
-			else if ( sid == SecondJetEtaCut().GetCutShortName())
+			else if (sid == SecondJetEtaCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new SecondJetEtaCut() );
-
-			else if ( sid == RapidityGapCut().GetCutShortName())
+			else if (sid == RapidityGapCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new RapidityGapCut() );
-
-			else if ( sid == InvariantMassCut().GetCutShortName())
+			else if (sid == InvariantMassCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new InvariantMassCut() );
-
-			else if ( sid == DeltaEtaCut().GetCutShortName())
+			else if (sid == DeltaEtaCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new DeltaEtaCut() );
-
-
-			else {
-			}
+			else
+				CALIB_LOG_FATAL("Cut " << sid << " not found.")
 		}
 
 		// Other MetaDataProducers
@@ -149,72 +141,64 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		if (sName == "quantities_all" )
 		{
 			pLine->AddConsumer( new DataZConsumer( pset.GetJetAlgorithm() ));
-
 			pLine->AddConsumer( new DataMuonConsumer(+1, pset.GetJetAlgorithm()));
 			pLine->AddConsumer( new DataMuonConsumer(-1, pset.GetJetAlgorithm()));
-
 			pLine->AddConsumer( new ValidMuonsConsumer());
 			pLine->AddConsumer( new ValidJetsConsumer());
-
 			pLine->AddConsumer( new DataMETConsumer( pset.GetJetAlgorithm() ));
-
 			pLine->AddConsumer( new DeltaConsumer( pset.GetJetAlgorithm() ));
-
-			
 			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
 
-			if ( JetType::IsPF( pset.GetJetAlgorithm() ))
+			if (JetType::IsPF(pset.GetJetAlgorithm()))
 			{
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 0));
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 1, pset.GetJetAlgorithm(), true));
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 2, pset.GetJetAlgorithm(), true));
 
-				if ( JetType::IsRaw ( pset.GetJetAlgorithm() ))
+				if (JetType::IsRaw(pset.GetJetAlgorithm()))
 				{
 					// plot the invalid jet 0
-					pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(),
-							0, pset.GetJetAlgorithm(), false, false, "jets_invalid_" ));
+					pLine->AddConsumer(new DataPFJetsConsumer(pset.GetJetAlgorithm(),
+							0, pset.GetJetAlgorithm(), false, false, "jets_invalid_"));
 				}
 			}
 
-			if ( pset.IsMC() && (( pset.GetJetAlgorithm() == "AK5PFJetsL1L2L3" ) || ( pset.GetJetAlgorithm() == "AK7PFJetsL1L2L3" ) ) )
+			if (pset.IsMC() && (pset.GetJetAlgorithm() == "AK5PFJetsL1L2L3" ||
+					pset.GetJetAlgorithm() == "AK7PFJetsL1L2L3"))
 			{
-				std::string genName = JetType::GetGenName( pset.GetJetAlgorithm() );
+				std::string genName = JetType::GetGenName(pset.GetJetAlgorithm());
 
 				// add gen jets plots
-				pLine->AddConsumer( new DataGenJetConsumer( genName, 0,
-									    genName));
-				pLine->AddConsumer( new DataGenJetConsumer( genName, 1,
-									    genName ));
-				pLine->AddConsumer( new DataGenJetConsumer( genName, 2,
-									    genName));
-
-				pLine->AddConsumer( new DeltaConsumer( genName ));
+				pLine->AddConsumer(new DataGenJetConsumer(genName, 0, genName));
+				pLine->AddConsumer(new DataGenJetConsumer(genName, 1, genName));
+				pLine->AddConsumer(new DataGenJetConsumer(genName, 2, genName));
+				pLine->AddConsumer(new DeltaConsumer(genName));
 
 			}
 
 
 			if (pset.IsMC())
-			{	std::string genName = JetType::GetGenName( pset.GetJetAlgorithm() );
+			{
+				std::string genName = JetType::GetGenName(pset.GetJetAlgorithm());
 				//pLine->AddConsumer( new BasicTwoDConsumer( genName ));
-				pLine->AddConsumer( new GenMetadataConsumer( ) );
+				pLine->AddConsumer(new GenMetadataConsumer());
 				// rate the matching
-				pLine->AddConsumer( new JetMatchingConsumer( ) );
+				pLine->AddConsumer(new JetMatchingConsumer());
 			}
 			else
 			{
-				pLine->AddConsumer( new MetadataConsumer( ) );
+				pLine->AddConsumer(new MetadataConsumer());
 			}
 		}
 
 		else if (sName == "quantities_basic" )
 		{
-			pLine->AddConsumer( new DataZConsumer( pset.GetJetAlgorithm() ));
-			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
+			pLine->AddConsumer(new DataZConsumer(pset.GetJetAlgorithm()));
+			pLine->AddConsumer(new PrimaryVertexConsumer());
 
-			if ( JetType::IsPF( pset.GetJetAlgorithm() ))
+			if (JetType::IsPF(pset.GetJetAlgorithm()))
 			{
-				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 0));
+				pLine->AddConsumer(new DataPFJetsConsumer(pset.GetJetAlgorithm(), 0));
 			}
 		}
 
@@ -223,26 +207,26 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		// optional 1st Level Producer
 		else if (sName == BinResponseConsumer::GetName())
 		{
-			BinResponseConsumer * resp = new BinResponseConsumer( pset.GetPropTree(), consPath );
-			pLine->AddConsumer( resp );
-			if ( pset.IsMC() && (resp->m_jetnum == 0) )
+			BinResponseConsumer * resp = new BinResponseConsumer(pset.GetPropTree(), consPath);
+			pLine->AddConsumer(resp);
+			if (pset.IsMC() && resp->m_jetnum == 0)
 			{
 				// do gen gesponse to z.pt
 				BinResponseConsumer * gen = new BinResponseConsumer(pset.GetPropTree(), consPath);
 				gen->m_useGenJet = true;
-				gen->m_name.insert(0,"Gen_");
+				gen->m_name.insert(0, "Gen_");
 				pLine->AddConsumer(gen);
 
 				// do Reco To Gen response
 				BinResponseConsumer * reco_to_gen = new BinResponseConsumer(pset.GetPropTree(), consPath);
 				reco_to_gen->m_useGenJetAsReference = true;
-				reco_to_gen->m_name.insert(0,"RecoToGen_");
+				reco_to_gen->m_name.insert(0, "RecoToGen_");
 				pLine->AddConsumer(reco_to_gen);
 
 			}
 		}
-		
-		else if (sName == BasicTwoDConsumer::GetName())		
+
+		else if (sName == BasicTwoDConsumer::GetName())
 			pLine->AddConsumer( new BasicTwoDConsumer( pset.GetJetAlgorithm() ));
 
 		else if (sName == GenericProfileConsumer::GetName())
@@ -261,7 +245,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		else if( sName == JetRespConsumer::GetName() )
 			pLine->AddConsumer( new JetRespConsumer( pset.GetPropTree(), consPath ) );
 		else
-			CALIB_LOG_FATAL( "Consumer " << sName << " not found." )
+			CALIB_LOG_FATAL("Consumer " << sName << " not found.")
 	}
 
 }
