@@ -155,13 +155,6 @@ public:
 		return GetInvalidJetCount(psettings, evtData, psettings.GetJetAlgorithm());
 	}
 
-
-
-	bool HasValidZ() const
-	{
-		return this->GetValidZ();
-	}
-
 	bool HasValidJet(ZJetPipelineSettings const& psettings, ZJetEventData const& evtData) const
 	{
 		return GetValidJetCount(psettings, evtData) > 0;

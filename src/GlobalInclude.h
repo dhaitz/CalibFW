@@ -31,6 +31,7 @@ private: 											\
 TYPE m_##SNAME; 									\
 public: 											\
 TYPE Get##SNAME ( ) const { return m_##SNAME; }			\
+bool Has##SNAME() const { return &m_##SNAME; }				\
 TYPE const& GetRef##SNAME ( ) const { return m_##SNAME; }			\
 TYPE const* GetPt##SNAME ( ) const { return &m_##SNAME; }			\
 void Set##SNAME ( TYPE val) { m_##SNAME = val; }
