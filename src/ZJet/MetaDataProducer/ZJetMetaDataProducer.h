@@ -354,7 +354,7 @@ class GenBalanceProducer: public ZJetGlobalMetaDataProducerBase
 public:
 
 	GenBalanceProducer(): ZJetGlobalMetaDataProducerBase(),
-		zptmin(5.0), pptmin(1.0), threshold(2.0), pi(3.1415926535)
+		zptmin(5.0), pptmin(1.0), threshold(2.0)
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
@@ -395,6 +395,8 @@ public:
 			if (test.p4.Pt() > 1e-3)	// differs more than a MeV
 			{
 				CALIB_LOG("Muons not from Z decay: pt:" << test.p4.Pt() << ", eta: " << test.p4.Eta()<< ", phi: " << test.p4.Phi()<< ", m: " << test.p4.M())
+				metaData.SetValidGenZ(false);
+				return false;
 			}
 		}
 		metaData.SetValidGenZ(true);
@@ -409,18 +411,19 @@ public:
 			return false;
 		}
 
+		double dphi = -1.;
+		double R = -1.;
+		double bQuality = -1.;
 		for (auto it = metaData.m_genPartons.begin(); it != metaData.m_genPartons.end(); ++it)
 		{
 			if (it->p4.Pt() < pptmin)
 				continue;
-			// to be implemented with ROOT tools
-			double dphi = std::abs(it->p4.Phi() - metaData.GetRefGenZ().p4.Phi()) - pi;
-			if (dphi > +pi) dphi -= pi;
-			if (dphi < -pi) dphi += pi;
-			dphi = std::abs(dphi);
-			double R = it->p4.Pt() / metaData.GetRefGenZ().p4.Pt();
+
+			dphi = ROOT::Math::VectorUtil::DeltaPhi(it->p4, metaData.GetRefGenZ().p4);
+			dphi = ROOT::Math::VectorUtil::Phi_mpi_pi(dphi - ROOT::Math::Pi());
+			R = it->p4.Pt() / metaData.GetRefGenZ().p4.Pt();
 			// decision metric
-			double bQuality = dphi + 2.0 * std::abs(R - 1.0);
+			bQuality = std::abs(dphi) + 2.0 * std::abs(R - 1.0);
 
 			if (bQuality < metaData.GetRefBalanceQuality())
 			{
@@ -436,9 +439,7 @@ public:
 				//CALIB_LOG("Balance (" << it->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
 			}
 			if (it == metaData.m_genPartons.begin() || metaData.GetRefLeadingParton().p4.Pt() < it->p4.Pt())
-			{
 				metaData.SetLeadingParton(*it);
-			}
 		}
 
 		if (!metaData.GetRefValidParton())
@@ -456,7 +457,6 @@ private:
 	const double zptmin;
 	const double pptmin;
 	const double threshold;
-	const double pi;
 };
 
 
@@ -472,30 +472,28 @@ class GenDibalanceProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
 
-	GenDibalanceProducer(): ZJetGlobalMetaDataProducerBase(),
-		pi(3.1415926535)
+	GenDibalanceProducer(): ZJetGlobalMetaDataProducerBase()
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
 	{
+		double dphi = -1.;
+		double R = -1.;
+		double bQuality = -1.;
 		// combine and look for balancing of 2 partons
 		for (auto i = metaData.m_genPartons.begin(); i != metaData.m_genPartons.end(); ++i)
 			for (auto j = i; j != metaData.m_genPartons.end(); ++j)
 			{
 				if (std::abs(j->p4.Pt() - i->p4.Pt()) < 1e-6)
 					continue;
-				assert(j->p4 != i->p4);
 				KParton comb;
 				comb.p4 = i->p4 + j->p4;
-				// to be implemented with ROOT tools
-				double dphi = std::abs(comb.p4.Phi() - metaData.GetRefGenZ().p4.Phi()) - pi;
-				if (dphi > +pi) dphi -= pi;
-				if (dphi < -pi) dphi += pi;
-				dphi = std::abs(dphi);
-				double R = comb.p4.Pt() / metaData.m_genZs[0].p4.Pt();
+				dphi = ROOT::Math::VectorUtil::DeltaPhi(comb.p4, metaData.GetRefGenZ().p4);
+				dphi = ROOT::Math::VectorUtil::Phi_mpi_pi(dphi - ROOT::Math::Pi());
+				R = comb.p4.Pt() / metaData.GetRefGenZ().p4.Pt();
 				// decision metric
-				double bQuality = dphi + 2.0 * std::abs(R - 1.0);
+				bQuality = std::abs(dphi) + 2.0 * std::abs(R - 1.0);
 
 				if (bQuality < metaData.GetRefBalanceQuality()){
 					metaData.SetValidParton(true);
@@ -516,9 +514,6 @@ public:
 	}
 
 	static std::string Name() { return "gen_dibalance_producer"; }
-
-private:
-	const double pi;
 };
 
 }
