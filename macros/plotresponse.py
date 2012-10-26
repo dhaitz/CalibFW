@@ -32,7 +32,7 @@ extrapolation_is_done = False
 
 
 def fillgraph(method, changes, file_numerator, file_denominator=None, #extrapolateRatio=True,
-        var=[0.1, 0.15, 0.2, 0.3], varstr = "var_CutSecondLeadingToZPt_%s",
+        var=[0.2, 0.4], varstr = "var_CutSecondLeadingToZPt_%s",
         median=False):
     """Fill a TGraphErrors with the cut variation values for extrapolation
 
@@ -145,7 +145,7 @@ def draw_extrapolation(graph, fit, ptbin, opt):
     ax.errorbar(graph.xc, graph.y, graph.yerr, color='FireBrick', fmt='o',
                 capsize=2, label='correlated')
     # Legend and labels
-    ax = plotbase.labels(ax, op, legloc='upper right')
+    ax = plotbase.labels(ax, opt, legloc='upper right')
     ax = plotbase.axislabels(ax, "jet2ratio", graph.ylabel)
     ax.text(0.04, 0.17, r"$k_\mathrm{{FSR}} = {0:.3f} \pm {1:.3f}$".format(fit.k(), fit.kerr()),
             va='bottom', ha='left', transform=ax.transAxes, fontsize=18)
@@ -214,7 +214,7 @@ def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ra
         return fitd.f(0) / fitm.f(0), fitd.ferr(0) / fitm.f(0) + fitm.ferr(0) * fitd.f(0) / fitm.f(0) / fitm.f(0)
 
 
-def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw=False):
+def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw=True):
     """
        If 2 files are given the response ratio is returned!
        This is using fillgraph, fitextrapolation and draw_extra
@@ -541,7 +541,7 @@ def mpf_eta(files, opt):
 
 # ratios
 def balratio(files, opt):
-    ratioplot(files, opt, ['bal', 'balratio', 'balseperate'])
+    ratioplot(files, opt, ['bal', 'balratio', 'balseparate'], drawextrapolation=True, binborders=True)
 
 def mpfratio(files, opt):
     ratioplot(files, opt, ['mpf', 'mpfratio', 'mpfseperate'])
@@ -652,6 +652,99 @@ def responseratio_all(files, opt, types=['bal']):
     plotbase.Save(fig, file_name, opt)
 
 
+def direct_extrapolation_raw(files, opt):
+    direct_extrapolation(files, opt, use_rawMET=True)
+
+def direct_extrapolation_zpt(files, opt):
+    direct_extrapolation(files, opt, variation='zpt')
+def direct_extrapolation_zpt_raw(files, opt):
+    direct_extrapolation(files, opt, variation='zpt', use_rawMET=True)
+
+
+def direct_extrapolation_npv(files, opt):
+    direct_extrapolation(files, opt, variation='npv')
+def direct_extrapolation_npv_raw(files, opt):
+    direct_extrapolation(files, opt, variation='npv', use_rawMET=True)
+
+
+def direct_extrapolation_eta(files, opt):
+    direct_extrapolation(files, opt, variation='jet1eta')
+
+def direct_extrapolation(files, opt, variation='alpha', use_rawMET=False):
+
+    rebin = 10
+    changes = {}
+    local_opt = copy.deepcopy(opt)
+
+    if use_rawMET==True:
+        mpftype='mpf-notypeI'
+        mpflabel='MPF(noTypeI)'
+    else:
+        mpftype='mpf'
+        mpflabel='MPF'
+
+
+    if variation=='zpt':
+        variations = getroot.binstrings(opt.bins)
+        variation_label="zpt"
+        variation='bin'
+        changes['var']="_var_CutSecondLeadingToZPt_0_3"
+    elif variation=='alpha':
+        variations = getroot.cutstrings(opt.cut)
+        variation_label="alpha"
+        variation='var'
+    elif variation=='jet1eta':
+        variations = ["var_CutSecondLeadingToZPt_0_3__"+var for var in getroot.etastrings(opt.eta)]
+        variation_label="eta"
+        variation='var'
+    elif variation=='npv':
+        variations = ["var_CutSecondLeadingToZPt_0_3__"+var for var in getroot.npvstrings(opt.npv)]
+        variation_label="npv"
+        variation='var'
+    
+
+    l = len(variations)
+    fig, axes = plotbase.newplot(subplots=2*l, subplots_Y=2)
+    subtexts = plotbase.getdefaultsubtexts()
+
+    for cut, ax1, ax2, subtext1, subtext2 in zip(variations, axes[:l], axes[l:], subtexts[:l], subtexts[l:]):
+        changes[variation]= cut
+
+        #Response
+        local_opt.colors = ['black', 'blue']
+        local_opt.style = ['o', '*']
+        local_opt.labels = [r'$p_T$ balance (data)', r'$p_T$ balance (MC)']
+        plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, local_opt, legloc='upper center',
+                   changes=changes, rebin=rebin, file_name = "", subplot=True, 
+                   subtext="", fig_axes=(fig, ax1),fit=True, ratio=False)
+
+        local_opt.colors = ['red', 'maroon']
+        local_opt.labels = [mpflabel+' (data)',mpflabel+' (MC)']
+
+        plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, local_opt, legloc='lower left',
+                   changes=changes, rebin=rebin, file_name = "", subplot=True,  xy_names=['alpha','response'],
+                   subtext=subtext1, fig_axes=(fig, ax1),fit=True, ratio=False)
+
+        #Ratio
+        local_opt.labels = [r'$p_T$ balance']
+        local_opt.colors = ['blue']
+        plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, local_opt, legloc='lower left',
+                   changes=changes, rebin=1, file_name = "", subplot=True, 
+                   subtext="", fig_axes=(fig, ax2),fit='intercept', ratio=True)
+
+        local_opt.labels = [mpflabel]
+        local_opt.colors = ['red']
+
+        plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, local_opt, legloc='lower left',
+                   changes=changes, rebin=1, file_name = "", subplot=True, xy_names=['alpha','datamcratio'],
+                   subtext=subtext2, fig_axes=(fig, ax2),fit='intercept', ratio=True, fit_offset=-0.1)
+
+
+    del changes[variation]
+    file_name = plotbase.getdefaultfilename("directextrapolation_%s_%s" % (mpflabel, variation_label), opt, changes)
+    plotbase.Save(fig, file_name, opt)
+
+
 plots = [
 'response', 'response_npv', 'response_eta', 'bal_eta', 'mpf_eta', 'response_all',
 
@@ -660,7 +753,7 @@ plots = [
 'responseratio_all',
 'bal_responseratio_eta', 'bal_responseratio_zpt', 'bal_responseratio_npv', 
 'mpf_responseratio_eta', 'mpf_responseratio_zpt', 'mpf_responseratio_npv', 
-
+'direct_extrapolation',
 #,'balratio', 'mpfratio', 'kfsr'
 ]
 
