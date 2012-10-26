@@ -100,6 +100,14 @@ public:
 			this->SetYSource ( new SourcePtBalance() );
 		else if ( ref == "mpf" )
 			this->SetYSource ( new SourceMPFresponse() );
+		else if ( ref == "mpf-notypeI" )
+			this->SetYSource ( new SourceMPFresponse_notypeI() );
+		else if ( ref == "mpf-diff" )
+			this->SetYSource ( new SourceMPFResponseDiff() );
+		else if ( ref == "METpt-diff" )
+			this->SetYSource ( new SourceMETPtDiff() );
+		else if ( ref == "METphi-diff" )
+			this->SetYSource ( new SourceMETPhiDiff() );
 		else if ( ref == "alpha" )
 			this->SetYSource ( new SourceAlpha() );
 

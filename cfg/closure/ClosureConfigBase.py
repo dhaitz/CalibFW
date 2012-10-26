@@ -826,8 +826,8 @@ def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, 
         AddConsumerEasy(pval, {"Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x+"absdiff","XName1" : obj1,"XName2" : obj2,
                          "ProductName" : "_".join([y,"-".join(["delta"+x,obj1,obj2]),algo]) } )
 
-    y_quantities = ['jet1pt', 'jet1abseta', 'jet2pt', 'jet2abseta', 'zpt', 'zabseta', 
-                         'ptbalance', 'mpf', 'METpt', 'sumEt', 'METfraction', 'zphi', 'METphi', 'zmass']
+    y_quantities = ['jet1pt', 'jet1abseta', 'jet2pt', 'jet2abseta', 'zpt', 'zabseta', 'npv', 'METpt-diff', 'METphi-diff', 'mpf-diff',
+                         'ptbalance', 'mpf', 'mpf-notypeI', 'METpt', 'sumEt', 'METfraction', 'zphi', 'METphi', 'zmass']
 
     x_quantities = ['jet1pt', 'npv', 'jet1eta', 'jet1phi', 'jet2pt', 'jet2eta', 'jet2phi', 'zpt', 'zeta', 'zphi', 
                           'METpt', 'METphi', 'sumEt', 'jetsvalid', 'alpha']
@@ -837,25 +837,24 @@ def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, 
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
             if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
+                for x in x_quantities:
+                    for y in y_quantities:
+                        if x is not y:
+                          AddGenericProfileConsumer(x,y)
+                    AddGenericProfileConsumer(x, "jetptratio", jets=[algo,algo,0,1])
+                    AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo,algo,0,1])
 
-                  for x in x_quantities:
-                      for y in y_quantities:
-                          if x is not y:
-                              AddGenericProfileConsumer(x,y)
-                      AddGenericProfileConsumer(x, "jetptratio", jets=[algo,algo,0,1])
-                      AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo,algo,0,1])
+                for y in y_quantities:
+                    AddGenericProfileConsumer("jetptratio", y, jets=[algo,algo,0,1])
+                    AddGenericProfileConsumer("jetptabsdiff", y, jets=[algo,algo,0,1])
+                    AddAbsDiff("eta", y, 'jet1', 'z')
 
-                  for y in y_quantities:
-                      AddGenericProfileConsumer("jetptratio", y, jets=[algo,algo,0,1])
-                      AddGenericProfileConsumer("jetptabsdiff", y, jets=[algo,algo,0,1])
-                      AddAbsDiff("eta", y, 'jet1', 'z')
-
-                  for obj1 in objects:
-                      for obj2 in objects:
-                          if obj1 is not obj2:
-                              AddAbsDiff("eta", 'ptbalance', obj1, obj2)
-                              for quantity  in ['ptbalance', 'mpf', 'zpt', 'METpt', 'jet1pt', 'alpha']:
-                                  AddAbsDiff("phi", quantity, obj1, obj2)
+                for obj1 in objects:
+                    for obj2 in objects:
+                        if obj1 is not obj2:
+                            AddAbsDiff("eta", 'ptbalance', obj1, obj2)
+                            for quantity  in ['ptbalance', 'mpf', 'mpf-notypeI', 'zpt', 'METpt', 'jet1pt', 'alpha']:
+                                AddAbsDiff("phi", quantity, obj1, obj2)
 
 def Add2DHistograms(pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
     for algo in algos:
