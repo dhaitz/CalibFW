@@ -45,7 +45,7 @@ public:
 			m_respType = Balance;
 		else if (sType == "mpf")
 			m_respType = Mpf;
-		else if (sType == "mpf_notypeI")
+		else if (sType == "mpfraw")
 			m_respType = MpfRaw;
 		else if (sType == "two")
 			m_respType = TwoBalance;

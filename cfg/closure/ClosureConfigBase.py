@@ -144,7 +144,8 @@ def SetMcSpecific(cfg, run='2012'):
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
 
-    cfg['GlobalProducer'] += ['jet_matcher']
+    cfg['GlobalProducer'] += ['jet_matcher',
+        'gen_producer', 'gen_balance_producer', 'gen_dibalance_producer']
     return cfg
 
 
@@ -459,51 +460,131 @@ def AddMetaDataProducerEasy( pline, producer_name):
     pline["MetaDataProducer"][ consumer["Name"] ] = producer_name
 
 
-def ExpandCutNoCut(pipelineDict):
-    newDict = dict()
+def ExpandCutNoCut(pipelineDict, isMC=False):
+    newDict = {}
 
     for name, elem in pipelineDict.items():
 
         nocutPipe = copy.deepcopy(elem)
         cutPipe = copy.deepcopy(elem)
-
-        algoName = cutPipe["JetAlgorithm"]
+        algo = cutPipe["JetAlgorithm"]
 
         cutPipe["FilterInCutIgnored"] = 0
         cutPipe["Filter"].append ("incut")
 
-        cutPipe["Consumer"]["bin_mpf_response"] = { "Name" : "bin_response",
-                                                        "ProductName" : "mpfresp_" +  algoName,
-                                                        "ResponseType" : "mpf",
-                                                         "JetNumber" : 0}
+        consumers = {
+            'bin_old_response': {
+                'Name': "bin_response",
+                'ProductName': "oldbalresp_" + algo,
+                'ResponseType': "old",
+            },
+            'bin_balance_response': {
+                'Name': "bin_response",
+                'ProductName': "balresp_" + algo,
+                'ResponseType': "bal",
+            },
+            'bin_balance_response': {
+                'Name': "bin_response",
+                'ProductName': "balresp_" + algo,
+                'ResponseType': "bal",
+            },
+            'bin_balance_response_2ndJet': {
+                'Name': "bin_response",
+                'ProductName': "balrespjet2_" + algo,
+                'ResponseType': "bal",
+                'JetNumber': 2,
+            },
+            'bin_mpf_response': {
+                'Name': "bin_response",
+                'ProductName': "mpfresp_" + algo,
+                'ResponseType': "mpf",
+            },
+            'bin_mpf-notypeI_response': {
+                'Name': "bin_response",
+                'ProductName': "mpfresp-raw_" +  algo,
+                'ResponseType': "mpfraw",
+            },
+            'bin_twojet_response': {
+                'Name': "bin_response",
+                'ProductName': "baltwojet_" + algo,
+                'ResponseType': "two",
+            },
+            'bin_zeppenfeld': {
+                'Name': "bin_response",
+                'ProductName': "zeppenfeld_" + algo,
+                'ResponseType': "zep",
+            },
+        }
 
-        cutPipe["Consumer"]["bin_balance_response"] = { "Name" : "bin_response",
-                                                        "ResponseType" : "bal",
-                                                        "ProductName" : "balresp_" +  algoName,
-                                                        "JetNumber" : 1 }
-        cutPipe["Consumer"]["bin_balance_response_2ndJet"] = { "Name" : "bin_response",
-                                                              "ResponseType" : "bal",
-                                                        "ProductName" : "baljet2z_" +  algoName,
-                                                        "JetNumber" : 2 }
-        cutPipe["Consumer"]["bin_twojet_response"] = {"Name": "bin_response",
-                                                      "ResponseType": "two",
-                                                      "ProductName": "baltwojet_" + algoName,
-                                                      "JetNumber": 2}
-        cutPipe["Consumer"]["zeppenfeld"] = {"Name": "bin_response",
-                                                      "ResponseType": "z",
-                                                      "ProductName": "zeppenfeld_" + algoName,
-                                                      "JetNumber": 3}
-        cutPipe["Consumer"]["bin_mpf-notypeI_response"] = { "Name" : "bin_response",
-                                                        "ProductName" : "mpfresp-notypeI_" +  algoName,
-                                                        "ResponseType" : "mpf_notypeI",
-                                                         "JetNumber" : 0}
+        consumers_mc = {
+            'bin_z_response': {
+                'Name': "bin_response",
+                'ProductName': "zresp_" + algo,
+                'ResponseType': "z",
+            },
+            'bin_recogen_response': {
+                'Name': "bin_response",
+                'ProductName': "recogen_" + algo,
+                'ResponseType': "recogen",
+            },
+            'bin_recogen_response_2ndjet': {
+                'Name': "bin_response",
+                'ProductName': "recogenjet2_" + algo,
+                'ResponseType': "recogen",
+                'JetNumber': 2,
+            },
+        }
 
+        consumers_gen = {
+            'bin_genbal_response': {
+                'Name': "bin_response",
+                'ProductName': "genbal_" + algo,
+                'ResponseType': "genbal",
+            },
+            'bin_genmpf_response': {
+                'Name': "bin_response",
+                'ProductName': "genmpf_" + algo,
+                'ResponseType': "genmpf",
+            },
+            'bin_gentwo_response': {
+                'Name': "bin_response",
+                'ProductName': "gentwo_" + algo,
+                'ResponseType': "gentwo",
+            },
+            'bin_genzep_response': {
+                'Name': "bin_response",
+                'ProductName': "genzep_" + algo,
+                'ResponseType': "genzep",
+            },
+            'bin_parton_response': {
+                'Name': "bin_response",
+                'ProductName': "parton_" + algo,
+                'ResponseType': "parton",
+            },
+            'bin_balparton_response': {
+                'Name': "bin_response",
+                'ProductName': "balparton_" + algo,
+                'ResponseType': "balparton",
+            },
+            'bin_genbal_toparton_response': {
+                'Name': "bin_response",
+                'ProductName': "genbal_toparton_" + algo,
+                'ResponseType': "genbal_toparton",
+            },
+            'bin_genbal_tobalparton_response': {
+                'Name': "bin_response",
+                'ProductName': "genbal_tobalparton_" + algo,
+                'ResponseType': "genbal_tobalparton",
+            },
+        }
 
-        # only add the nocut pipeline for the default ( no binning )
-
+        if isMC:
+            cutPipe["Consumer"].update(consumers_mc)
+            cutPipe["Consumer"].update(consumers_gen)
+        cutPipe["Consumer"].update(consumers)
+        # only add the nocut pipeline for the default (no binning)
         #if name == "default":
         newDict[name + "nocuts" ] = nocutPipe
-
         newDict[name] = cutPipe
 
     return newDict
@@ -872,7 +953,7 @@ def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
             pline["JetAlgorithm"] = algo
             algoPipelines[p + "_" + algo] = pline
 
-    conf["Pipelines"] = ExpandCutNoCut(algoPipelines)
+    conf["Pipelines"] = ExpandCutNoCut(algoPipelines, conf['InputType'] == 'mc')
 
     # create pipelines for all bins
     if expandptbins:
