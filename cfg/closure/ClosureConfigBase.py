@@ -576,6 +576,11 @@ def ExpandCutNoCut(pipelineDict, isMC=False):
                 'ProductName': "genbal_tobalparton_" + algo,
                 'ResponseType': "genbal_tobalparton",
             },
+            'bin_genquality_response': {
+                'Name': "bin_response",
+                'ProductName': "genquality_" + algo,
+                'ResponseType': "quality",
+            },
         }
 
         if isMC:

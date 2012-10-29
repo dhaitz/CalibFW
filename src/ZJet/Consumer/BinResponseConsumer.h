@@ -71,6 +71,8 @@ public:
 			m_respType = GenBalanceToParton;
 		else if (sType == "genbal_tobalparton")
 			m_respType = GenBalanceToBalancedParton;
+		else if (sType == "quality")
+			m_respType = BalanceQuality;
 		else if (sType == "old")
 			m_respType = OldBalance;
 		else
@@ -296,6 +298,11 @@ public:
 			m_histo->Fill(metaData.GetGenBalance(genjet, metaData.GetPtBalancedParton()), metaData.GetWeight());
 		}
 
+		else if (m_respType == BalanceQuality)
+		{
+			m_histo->Fill(metaData.GetBalanceQuality(), metaData.GetWeight());
+		}
+
 		else
 			CALIB_LOG_FATAL("Response type " << m_respType << " not implemented!")
 	}
@@ -316,7 +323,7 @@ private:
 	Hist1D* m_histo;
 	enum rType {
 		// old version for comparison
-		OldBalance,
+		OldBalance, BalanceQuality,
 		// reco level
 		Mpf, MpfRaw, Balance, TwoBalance, Zeppenfeld,
 		// reco to gen
