@@ -8,7 +8,6 @@
 #include "ZJetPipelineSettings.h"
 #include "ZJetEventData.h"
 
-
 #include "KappaTools/RootTools/HLTTools.h"
 
 
@@ -57,14 +56,14 @@ public:
 
 	void ClearContent();
 
-	void SetLocalMetaData(LocalMetaDataType * pipelineMetaData)
+	void SetLocalMetaData(LocalMetaDataType* pipelineMetaData)
 	{
 		assert(pipelineMetaData != NULL);
 		m_pipelineMetaData = pipelineMetaData;
 	}
 
 	// holds pipeline specific metadata
-	LocalMetaDataType * GetLocalMetaData() const
+	LocalMetaDataType* GetLocalMetaData() const
 	{
 		assert(m_pipelineMetaData != NULL);
 		return m_pipelineMetaData;
@@ -73,7 +72,7 @@ public:
 	std::string GetContent() const;
 
 
-	KEventMetadata * GetKappaMetaData(ZJetEventData const& evtData,
+	KEventMetadata* GetKappaMetaData(ZJetEventData const& evtData,
 			ZJetPipelineSettings const& psettings) const;
 
 	bool IsMetaJetAlgo(std::string const& algoName) const
@@ -105,7 +104,7 @@ public:
 		return GetValidJetCount(psettings, evtData, psettings.GetJetAlgorithm());
 	}
 
-	KDataLV * GetValidJet(ZJetPipelineSettings const& psettings,
+	KDataLV* GetValidJet(ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData,
 			unsigned int index,
 			std::string algoName) const;
@@ -116,7 +115,7 @@ public:
 		return GetValidJet(psettings, evtData, 0);
 	}
 
-	KDataLV * GetValidJet(ZJetPipelineSettings const& psettings,
+	KDataLV* GetValidJet(ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData,
 			unsigned int index) const
 	{
@@ -128,19 +127,15 @@ public:
 
 	// ## ACCESS TO INVALID JETS
 
-	KDataLV * GetInvalidJet(ZJetPipelineSettings const& psettings,
+	KDataLV* GetInvalidJet(ZJetPipelineSettings const& psettings,
 			ZJetEventData const& evtData,
 			unsigned int index,
 			std::string algoName) const;
 
-	KDataLV * GetInvalidJet(ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData,
-			unsigned int index) const
+	KDataLV* GetInvalidJet(ZJetPipelineSettings const& psettings,
+			ZJetEventData const& evtData, unsigned int index) const
 	{
-		return GetInvalidJet(psettings,
-				evtData,
-				index,
-				psettings.GetJetAlgorithm());
+		return GetInvalidJet(psettings, evtData, index, psettings.GetJetAlgorithm());
 	}
 
 	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings,
@@ -176,40 +171,49 @@ public:
 		return (this->GetCutBitmask() & cutId) == 0;
 	}
 
-	double GetBalance(KDataLV * jet) const
+	double GetBalance(KDataLV* jet) const
 	{
 		return jet->p4.Pt() / this->GetRefZ().p4.Pt();
 	}
 
-	double GetBalanceBetweenJets(KDataLV * jet1, KDataLV * jet_ref) const
+	double GetBalance(KDataLV* jet, KDataLV* reference) const
 	{
-		return jet1->p4.Pt() / jet_ref->p4.Pt();
+		return jet->p4.Pt() / reference->p4.Pt();
 	}
 
-	double GetMPF(KDataLV * met) const;
+	double GetMPF(KDataLV* met) const;
 
-	double GetTwoJetBalance(KDataLV * jet1, KDataLV * jet2) const;
+	double GetTwoBalance(KDataLV* jet1, KDataLV* jet2) const;
 
-	double GetZeppenfeld(KDataLV * jet1, KDataLV * jet2, KDataLV * jet3) const;
+	double GetZeppenfeld(KDataLV* jet1, KDataLV* jet2, KDataLV* jet3) const;
 
-	double GetJetGenZBalance(KDataLV * genjet) const
+	/// Gen level balance for gen jets
+	double GetGenBalance(KDataLV* jet) const
 	{
-		return genjet->p4.Pt() / this->GetRefGenZ().p4.Pt();
+		return jet->p4.Pt() / this->GetRefGenZ().p4.Pt();
 	}
 
-	double GetJetPartonBalance(KDataLV * genjet) const
+	double GetGenBalance(const KDataLV* jet) const
 	{
-		return genjet->p4.Pt() / this->GetRefParton().p4.Pt();
+		return jet->p4.Pt() / this->GetRefGenZ().p4.Pt();
 	}
 
-	double GetZBalance() const
+	/// Gen level balance for partons
+	double GetGenBalance(const KParton* parton) const
 	{
-		return this->GetRefZ().p4.Pt() / this->GetRefGenZ().p4.Pt();
+		return parton->p4.Pt() / this->GetRefGenZ().p4.Pt();
 	}
 
-	double GetPartonBalance() const
+	/// Gen level balance for gen jets to any parton
+	double GetGenBalance(KDataLV* jet, const KParton* reference) const
 	{
-		return this->GetRefParton().p4.Pt() / this->GetRefGenZ().p4.Pt();
+		return jet->p4.Pt() / reference->p4.Pt();
+	}
+
+	/// Gen level balance for partons to any other parton
+	double GetGenBalance(const KParton* parton, const KParton* reference) const
+	{
+		return parton->p4.Pt() / reference->p4.Pt();
 	}
 
 	IMPL_PROPERTY(bool, ValidZ)
@@ -264,10 +268,10 @@ public:
 	typedef boost::ptr_map<std::string, std::vector<int> > MatchingResults;
 	MatchingResults m_matchingResults;
 
-	HLTTools * m_hltInfo;
+	HLTTools* m_hltInfo;
 
 	// holds pipeline specific metadata of the current pipeline
-	LocalMetaDataType * m_pipelineMetaData;
+	LocalMetaDataType* m_pipelineMetaData;
 };
 
 }
