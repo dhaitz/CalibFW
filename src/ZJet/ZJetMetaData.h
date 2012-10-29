@@ -184,6 +184,7 @@ public:
 	double GetMPF(KDataLV* met) const;
 
 	double GetTwoBalance(KDataLV* jet1, KDataLV* jet2) const;
+	double GetGenTwoBalance(KDataLV* jet1, KDataLV* jet2) const;
 
 	double GetZeppenfeld(KDataLV* jet1, KDataLV* jet2, KDataLV* jet3) const;
 
