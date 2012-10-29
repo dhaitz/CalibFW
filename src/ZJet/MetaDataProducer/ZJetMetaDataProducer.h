@@ -435,7 +435,7 @@ public:
 				//}
 				metaData.SetValidParton(true);
 				metaData.SetBalanceQuality(bQuality);
-				metaData.SetParton(*it);
+				metaData.SetBalancedParton(*it);
 				//CALIB_LOG("Balance (" << it->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
 			}
 			if (it == metaData.m_genPartons.begin() || metaData.GetRefLeadingParton().p4.Pt() < it->p4.Pt())
@@ -500,12 +500,12 @@ public:
 					metaData.SetBalanceQuality(bQuality);
 					if (i->p4.Pt() > j->p4.Pt())
 					{
-						metaData.SetParton(*i);
+						metaData.SetBalancedParton(*i);
 						//CALIB_LOG("Balance (" << i->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
 					}
 					else
 					{
-						metaData.SetParton(*j);
+						metaData.SetBalancedParton(*j);
 						//CALIB_LOG("Balance (" << i->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
 					}
 				}

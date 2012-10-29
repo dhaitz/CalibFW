@@ -222,7 +222,7 @@ public:
 
 	IMPL_PROPERTY(KDataLV, Z)
 	IMPL_PROPERTY(KParton, GenZ)
-	IMPL_PROPERTY(KParton, Parton)
+	IMPL_PROPERTY(KParton, BalancedParton)
 	IMPL_PROPERTY(KParton, LeadingParton)
 	IMPL_PROPERTY(double, BalanceQuality)
 
