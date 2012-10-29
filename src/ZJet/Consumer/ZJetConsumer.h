@@ -7,36 +7,36 @@
 
 namespace CalibFW
 {
-	typedef EventConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> ZJetConsumerBase;
 
-	class BulkConsumer : ZJetConsumerBase
+typedef EventConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> ZJetConsumerBase;
+
+class BulkConsumer : ZJetConsumerBase
+{
+public:
+	BulkConsumer(stringvector const& plotProducts)
 	{
-	public:
-		BulkConsumer( stringvector const& plotProducts )
-		{
-			m_plotProducts = plotProducts;
-		}
+		m_plotProducts = plotProducts;
+	}
 
-	private:
-		stringvector m_plotProducts;
+private:
+	stringvector m_plotProducts;
+};
 
 
-	};
 /*
-	class LVBulkConsumer : BulkConsumer
+class LVBulkConsumer : BulkConsumer
+{
+public:
+	LVBulkConsumer(stringvector const& plotProducts) : BulkConsumer(plotProducts)
+	{}
+
+	virtual void Init(ZJetConsumerBase * pset)
 	{
-	public:
-		LVBulkConsumer( stringvector const& plotProducts ) : BulkConsumer( plotProducts)
-		{
-		}
+		m_pipeline = pset;
+		// initialize the needed histos
+	}
 
-		virtual void Init(ZJetConsumerBase * pset)
-		{
-			m_pipeline = pset;
+};
+*/
 
-			// initialize the needed histos
-
-		}
-
-	};*/
 }

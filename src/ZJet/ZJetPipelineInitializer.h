@@ -10,18 +10,14 @@
 namespace CalibFW
 {
 
-
 class ZJetPipelineInitializer: public PipelineInitilizerBase<ZJetEventData,
 		ZJetMetaData, ZJetPipelineSettings>
 {
 public:
+	~ZJetPipelineInitializer() {}
 
-    ~ZJetPipelineInitializer() {}
-
-	virtual void
-			InitPipeline(EventPipeline<ZJetEventData, ZJetMetaData,
-					ZJetPipelineSettings> * pLine,
-					ZJetPipelineSettings const& pset) const;
+	virtual void InitPipeline(EventPipeline<ZJetEventData, ZJetMetaData,
+			ZJetPipelineSettings>* pLine, ZJetPipelineSettings const& pset) const;
 };
 
 }
