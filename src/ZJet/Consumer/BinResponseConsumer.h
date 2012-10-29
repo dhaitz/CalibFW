@@ -2,37 +2,34 @@
 
 #include <string>
 #include <iostream>
-
-#include <boost/assign/list_of.hpp> // for 'list_of()'
-#include <boost/assert.hpp>
 #include <list>
-
+#include <typeinfo>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <boost/assign/list_of.hpp> // for 'list_of()'
+#include <boost/assert.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
-
 #include <boost/algorithm/string/replace.hpp>
-
 #include <boost/property_tree/ptree.hpp>
-
-#include <typeinfo>
 
 #include "GlobalInclude.h"
 #include "RootTools/RootIncludes.h"
-
 #include "Draw/DrawBase.h"
 #include "Pipeline/JetTools.h"
-
 #include "../ZJetPipeline.h"
 #include "ZJetConsumer.h"
 
 namespace CalibFW
 {
 
-/*
-* Calculates the Response distribution with a Histogram
+/** Calculates the Response distribution with a Histogram
+
+   "Name" : "response_balance",
+   "ProductName" : "binresp",
+   "ResponseType": "bal"|"mpf"|"two"|"z",
+   "JetNumber" : 1 to n
 */
 class BinResponseConsumer: public ZJetMetaConsumer
 {
@@ -42,33 +39,28 @@ public:
 	BinResponseConsumer(boost::property_tree::ptree * ptree, std::string configPath):
 			ZJetMetaConsumer(), m_useGenJet(false), m_useGenJetAsReference(false)
 	{
-	/*
-	"Name" : "response_balance",
-	"ProductName" : "binresp",
-	"ResponseType": "bal"|"mpf"|"two"|"z",
-	"JetNumber" : 1 to n
-	*/
-		m_jetnum = ptree->get<unsigned int>(configPath + ".JetNumber", 1) -1;
+		m_jetnum = ptree->get<unsigned int>(configPath + ".JetNumber", 1) - 1;
 		m_name = ptree->get<std::string>(configPath + ".ProductName");
+		const std::string sType = ptree->get<std::string>(configPath + ".ResponseType");
 
-		if (ptree->get<std::string>(configPath + ".ResponseType") == "bal")
-			m_respType = BalResponse;
-		else if (ptree->get<std::string>(configPath + ".ResponseType") == "mpf")
-			m_respType = MpfResponse;
-		else if (ptree->get<std::string>(configPath + ".ResponseType") == "two")
-			m_respType = TwoJetResponse;
-		else if (ptree->get<std::string>(configPath + ".ResponseType") == "z")
+		if (sType == "bal")
+			m_respType = Balance;
+		else if (sType == "mpf")
+			m_respType = Mpf;
+		else if (sType == "mpf_notypeI")
+			m_respType = MpfRaw;
+		else if (sType == "two")
+			m_respType = TwoBalance;
+		else if (sType == "zep")
 			m_respType = Zeppenfeld;
 		else if (ptree->get<std::string>(configPath + ".ResponseType") == "mpf_notypeI")
 			m_respType = MpfResponse_notypeI;
 		else
-		{
-			CALIB_LOG_FATAL("Unknown Response type " + ptree->get<std::string>(configPath + ".ResponseType"));
-		}
+			CALIB_LOG_FATAL("Unknown Response type " << sType);
 	}
 
 	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
-			ZJetPipelineSettings> * pset)
+			ZJetPipelineSettings>* pset)
 	{
 		ZJetMetaConsumer::Init(pset);
 
