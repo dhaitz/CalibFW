@@ -94,22 +94,24 @@ public:
 	{
 		ZJetMetaConsumer::ProcessFilteredEvent(event, metaData);
 		assert(metaData.HasValidZ());
-		std::string genName(JetType::GetGenName(this->GetPipelineSettings().GetJetAlgorithm()));
+		ZJetPipelineSettings const& set = this->GetPipelineSettings();
+		std::string genName(JetType::GetGenName(set.GetJetAlgorithm()));
+
 
 		if (m_respType == OldBalance)
 		{
-			if (m_jetnum >= metaData.GetValidJetCount(this->GetPipelineSettings(), event))
+			if (m_jetnum >= metaData.GetValidJetCount(set, event))
 				// no jet for us here
 				return;
 
-			KDataLV * jet0 = metaData.GetValidJet(this->GetPipelineSettings(), event, m_jetnum);
+			KDataLV * jet0 = metaData.GetValidJet(set, event, m_jetnum);
 			KDataLV * genjet = NULL;
 			assert(jet0 != NULL);
 
 			// do we also need to load the matched gen jet ?
 			if (m_useGenJet || m_useGenJetAsReference)
 			{
-				std::string genName(JetType::GetGenName(this->GetPipelineSettings().GetJetAlgorithm()));
+				std::string genName(JetType::GetGenName(set.GetJetAlgorithm()));
 				//std::cout << std::endl << "Loading genJets " << genName;
 				std::vector<int> const& matchList = metaData.m_matchingResults.at(genName);
 				int iMatchedGen = -1;
@@ -121,12 +123,11 @@ public:
 				// do we even have a matched gen jet ??
 				if (iMatchedGen > -1)
 				{
-					unsigned int count = metaData.GetValidJetCount(
-							this->GetPipelineSettings(), event, genName);
+					unsigned int count = metaData.GetValidJetCount(set, event, genName);
 
 					if (iMatchedGen < count)
 					{
-						genjet = metaData.GetValidJet(this->GetPipelineSettings(),
+						genjet = metaData.GetValidJet(set,
 								event, iMatchedGen, genName);
 					}
 				}
@@ -163,17 +164,17 @@ public:
 
 		else if (m_respType == Balance)
 		{
-			if (m_jetnum >= metaData.GetValidJetCount(this->GetPipelineSettings(), event)
+			if (m_jetnum >= metaData.GetValidJetCount(set, event)
 				|| !metaData.HasValidZ())
 				return;
-			KDataLV* jet = metaData.GetValidJet(this->GetPipelineSettings(), event, m_jetnum);
+			KDataLV* jet = metaData.GetValidJet(set, event, m_jetnum);
 			m_histo->Fill(metaData.GetBalance(jet), metaData.GetWeight());
 		}
 
 		else if (m_respType == RecoGen)
 		{
-			if (m_jetnum >= metaData.GetValidJetCount(this->GetPipelineSettings(), event, genName)
-					|| m_jetnum >= metaData.GetValidJetCount(this->GetPipelineSettings(), event))
+			if (m_jetnum >= metaData.GetValidJetCount(set, event, genName)
+					|| m_jetnum >= metaData.GetValidJetCount(set, event))
 				return;
 			// function GetMatchedJet(genname)
 			std::vector<int> const& matchList = metaData.m_matchingResults.at(genName);
@@ -182,19 +183,19 @@ public:
 			int iMatchedGen = matchList.at(m_jetnum);
 			if (iMatchedGen <= -1)
 				return;
-			if (iMatchedGen >= metaData.GetValidJetCount(this->GetPipelineSettings(), event, genName))
+			if (iMatchedGen >= metaData.GetValidJetCount(set, event, genName))
 				return;
-			KDataLV* genjet = metaData.GetValidJet(this->GetPipelineSettings(), event, iMatchedGen, genName);
-			KDataLV* jet = metaData.GetValidJet(this->GetPipelineSettings(), event, m_jetnum);
+			KDataLV* genjet = metaData.GetValidJet(set, event, iMatchedGen, genName);
+			KDataLV* jet = metaData.GetValidJet(set, event, m_jetnum);
 			m_histo->Fill(metaData.GetBalance(jet, genjet), metaData.GetWeight());
 		}
 
 		else if (m_respType == GenBalance)
 		{
-			if (m_jetnum >= metaData.GetValidJetCount(this->GetPipelineSettings(), event, genName)
+			if (m_jetnum >= metaData.GetValidJetCount(set, event, genName)
 					|| !metaData.HasValidGenZ())
 				return;
-			KDataLV* genjet = metaData.GetValidJet(this->GetPipelineSettings(), event, m_jetnum, genName);
+			KDataLV* genjet = metaData.GetValidJet(set, event, m_jetnum, genName);
 			m_histo->Fill(metaData.GetGenBalance(genjet), metaData.GetWeight());
 		}
 
@@ -202,7 +203,7 @@ public:
 		{
 			if (!metaData.HasValidZ())
 				return;
-			m_histo->Fill(metaData.GetMPF(event.GetMet(this->GetPipelineSettings())),
+			m_histo->Fill(metaData.GetMPF(event.GetMet(set)),
 					metaData.GetWeight());
 		}
 
@@ -215,39 +216,39 @@ public:
 
 		else if (m_respType == TwoBalance)
 		{
-			if (metaData.GetValidJetCount(this->GetPipelineSettings(), event) < 2)
+			if (metaData.GetValidJetCount(set, event) < 2)
 				return;
-			KDataLV* jet0 = metaData.GetValidJet(this->GetPipelineSettings(), event, 0);
-			KDataLV* jet1 = metaData.GetValidJet(this->GetPipelineSettings(), event, 1);
+			KDataLV* jet0 = metaData.GetValidJet(set, event, 0);
+			KDataLV* jet1 = metaData.GetValidJet(set, event, 1);
 			m_histo->Fill(metaData.GetTwoBalance(jet0, jet1), metaData.GetWeight());
 		}
 
 		else if (m_respType == GenTwoBalance)
 		{
-			if (metaData.GetValidJetCount(this->GetPipelineSettings(), event, genName) < 2)
+			if (metaData.GetValidJetCount(set, event, genName) < 2)
 				return;
-			KDataLV* jet0 = metaData.GetValidJet(this->GetPipelineSettings(), event, 0, genName);
-			KDataLV* jet1 = metaData.GetValidJet(this->GetPipelineSettings(), event, 1, genName);
+			KDataLV* jet0 = metaData.GetValidJet(set, event, 0, genName);
+			KDataLV* jet1 = metaData.GetValidJet(set, event, 1, genName);
 			m_histo->Fill(metaData.GetGenTwoBalance(jet0, jet1), metaData.GetWeight());
 		}
 
 		else if (m_respType == Zeppenfeld)
 		{
-			if (metaData.GetValidJetCount(this->GetPipelineSettings(), event) < 3)
+			if (metaData.GetValidJetCount(set, event) < 3)
 				return;
-			KDataLV* jet0 = metaData.GetValidJet(this->GetPipelineSettings(), event, 0);
-			KDataLV* jet1 = metaData.GetValidJet(this->GetPipelineSettings(), event, 1);
-			KDataLV* jet2 = metaData.GetValidJet(this->GetPipelineSettings(), event, 2);
+			KDataLV* jet0 = metaData.GetValidJet(set, event, 0);
+			KDataLV* jet1 = metaData.GetValidJet(set, event, 1);
+			KDataLV* jet2 = metaData.GetValidJet(set, event, 2);
 			m_histo->Fill(metaData.GetZeppenfeld(jet0, jet1, jet2), metaData.GetWeight());
 		}
 
 		else if (m_respType == GenZeppenfeld)
 		{
-			if (metaData.GetValidJetCount(this->GetPipelineSettings(), event, genName) < 3)
+			if (metaData.GetValidJetCount(set, event, genName) < 3)
 				return;
-			KDataLV* jet0 = metaData.GetValidJet(this->GetPipelineSettings(), event, 0, genName);
-			KDataLV* jet1 = metaData.GetValidJet(this->GetPipelineSettings(), event, 1, genName);
-			KDataLV* jet2 = metaData.GetValidJet(this->GetPipelineSettings(), event, 2, genName);
+			KDataLV* jet0 = metaData.GetValidJet(set, event, 0, genName);
+			KDataLV* jet1 = metaData.GetValidJet(set, event, 1, genName);
+			KDataLV* jet2 = metaData.GetValidJet(set, event, 2, genName);
 			m_histo->Fill(metaData.GetZeppenfeld(jet0, jet1, jet2), metaData.GetWeight());
 		}
 
@@ -281,20 +282,20 @@ public:
 
 		else if (m_respType == GenBalanceToParton)
 		{
-			if (m_jetnum >= metaData.GetValidJetCount(this->GetPipelineSettings(), event, genName)
+			if (m_jetnum >= metaData.GetValidJetCount(set, event, genName)
 					|| !metaData.HasValidParton()
 					|| metaData.GetBalanceQuality() > 1.0)
 				return;
-			KDataLV* genjet = metaData.GetValidJet(this->GetPipelineSettings(), event, m_jetnum, genName);
+			KDataLV* genjet = metaData.GetValidJet(set, event, m_jetnum, genName);
 			m_histo->Fill(metaData.GetGenBalance(genjet, metaData.GetPtLeadingParton()), metaData.GetWeight());
 		}
 
 		else if (m_respType == GenBalanceToBalancedParton)
 		{
-			if (m_jetnum >= metaData.GetValidJetCount(this->GetPipelineSettings(), event, genName)
+			if (m_jetnum >= metaData.GetValidJetCount(set, event, genName)
 					|| !metaData.HasBalancedParton())
 				return;
-			KDataLV* genjet = metaData.GetValidJet(this->GetPipelineSettings(), event, m_jetnum, genName);
+			KDataLV* genjet = metaData.GetValidJet(set, event, m_jetnum, genName);
 			m_histo->Fill(metaData.GetGenBalance(genjet, metaData.GetPtBalancedParton()), metaData.GetWeight());
 		}
 
