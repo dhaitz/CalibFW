@@ -310,6 +310,7 @@ public:
 			else if (std::abs(it->pdgId()) < 7 || std::abs(it->pdgId()) == 21)	// parton
 			{
 				metaData.m_genPartons.push_back(*it);
+				//CALIB_LOG("parton: " << it->pdgId() << " pt=" << it->p4.Pt()<< " eta=" << it->p4.Eta())
 			}
 			else if (it->pdgId() == 2212 && it->p4.Pt() < 1e-6) // ignore incoming protons
 			{
@@ -354,7 +355,7 @@ class GenBalanceProducer: public ZJetGlobalMetaDataProducerBase
 public:
 
 	GenBalanceProducer(): ZJetGlobalMetaDataProducerBase(),
-		zptmin(5.0), pptmin(1.0), threshold(2.0)
+		zptmin(5.0), pptmin(3.0), petamax(5.0), threshold(1.9)
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
@@ -416,7 +417,7 @@ public:
 		double bQuality = -1.;
 		for (auto it = metaData.m_genPartons.begin(); it != metaData.m_genPartons.end(); ++it)
 		{
-			if (it->p4.Pt() < pptmin)
+			if (it->p4.Pt() < pptmin || it->p4.Eta() > petamax)
 				continue;
 
 			dphi = ROOT::Math::VectorUtil::DeltaPhi(it->p4, metaData.GetRefGenZ().p4);
@@ -438,7 +439,8 @@ public:
 				metaData.SetBalancedParton(*it);
 				//CALIB_LOG("Balance (" << it->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
 			}
-			if (it == metaData.m_genPartons.begin() || metaData.GetRefLeadingParton().p4.Pt() < it->p4.Pt())
+			if (it == metaData.m_genPartons.begin()
+					|| metaData.GetRefLeadingParton().p4.Pt() < it->p4.Pt())
 				metaData.SetLeadingParton(*it);
 		}
 
@@ -456,6 +458,7 @@ public:
 private:
 	const double zptmin;
 	const double pptmin;
+	const double petamax;
 	const double threshold;
 };
 
