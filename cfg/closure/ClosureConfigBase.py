@@ -473,11 +473,6 @@ def ExpandCutNoCut(pipelineDict, isMC=False):
         cutPipe["Filter"].append ("incut")
 
         consumers = {
-            'bin_old_response': {
-                'Name': "bin_response",
-                'ProductName': "oldbalresp_" + algo,
-                'ResponseType': "old",
-            },
             'bin_balance_response': {
                 'Name': "bin_response",
                 'ProductName': "balresp_" + algo,

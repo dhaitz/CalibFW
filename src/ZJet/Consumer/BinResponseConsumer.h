@@ -73,8 +73,6 @@ public:
 			m_respType = GenBalanceToBalancedParton;
 		else if (sType == "quality")
 			m_respType = BalanceQuality;
-		else if (sType == "old")
-			m_respType = OldBalance;
 		else
 			CALIB_LOG_FATAL("Unknown Response type " << sType << "!");
 	}
@@ -97,70 +95,7 @@ public:
 		ZJetPipelineSettings const& set = this->GetPipelineSettings();
 		std::string genName(JetType::GetGenName(set.GetJetAlgorithm()));
 
-
-		if (m_respType == OldBalance)
-		{
-			if (m_jetnum >= metaData.GetValidJetCount(set, event))
-				// no jet for us here
-				return;
-
-			KDataLV * jet0 = metaData.GetValidJet(set, event, m_jetnum);
-			KDataLV * genjet = NULL;
-			assert(jet0 != NULL);
-
-			// do we also need to load the matched gen jet ?
-			if (m_useGenJet || m_useGenJetAsReference)
-			{
-				std::string genName(JetType::GetGenName(set.GetJetAlgorithm()));
-				std::vector<int> const& matchList = metaData.m_matchingResults.at(genName);
-
-				int iMatchedGen = -1;
-				if (matchList.size() > m_jetnum)
-				{
-					iMatchedGen = matchList.at(m_jetnum);
-				}
-				// do we even have a matched gen jet ??
-				if (iMatchedGen > -1)
-				{
-					unsigned int count = metaData.GetValidJetCount(set, event, genName);
-
-					if (iMatchedGen < count)
-					{
-						genjet = metaData.GetValidJet(set,
-								event, iMatchedGen, genName);
-					}
-				}
-			}
-
-			// do we do gen jet response to z.pt ?
-			if (!m_useGenJet)
-			{
-				// check which reference object to use
-				if (!m_useGenJetAsReference)
-				{
-					// use Z as reference
-					m_histo->Fill(metaData.GetBalance(jet0), metaData.GetWeight());
-				}
-				else
-				{
-					if (genjet != NULL)
-						m_histo->Fill(metaData.GetBalance(jet0, genjet),
-							metaData.GetWeight());
-					else
-						CALIB_LOG("no gen jet for balance reference found ? RECO JetNum " << m_jetnum)
-				}
-			}
-			else
-			{
-			// plot the gen.pt over z.pt
-				if (genjet != NULL)
-					m_histo->Fill(metaData.GetBalance(genjet), metaData.GetWeight());
-				else
-					CALIB_LOG("no gen jet for balance found? RECO JetNum " << m_jetnum)
-			}
-		}
-
-		else if (m_respType == Balance)
+		if (m_respType == Balance)
 		{
 			if (m_jetnum >= metaData.GetValidJetCount(set, event)
 				|| !metaData.HasValidZ())
@@ -338,15 +273,14 @@ public:
 private:
 	Hist1D* m_histo;
 	enum rType {
-		// old version for comparison
-		OldBalance, BalanceQuality,
 		// reco level
 		Mpf, MpfRaw, Balance, TwoBalance, Zeppenfeld,
 		// reco to gen
 		Z, RecoGen,
 		// gen level
 		GenMpf, GenBalance, GenTwoBalance, GenZeppenfeld, Parton, BalancedParton,
-		GenBalanceToParton, GenBalanceToBalancedParton
+		GenBalanceToParton, GenBalanceToBalancedParton,
+		BalanceQuality
 		//Matched Balances
 	} m_respType;
 };
