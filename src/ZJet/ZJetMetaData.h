@@ -187,28 +187,16 @@ public:
 
 	double GetZeppenfeld(const KDataLV* jet1, const KDataLV* jet2, const KDataLV* jet3) const;
 
-	/// Gen level balance for gen jets
+	/// Gen level balance
 	double GetGenBalance(const KDataLV* jet) const
 	{
 		return jet->p4.Pt() / this->GetRefGenZ().p4.Pt();
 	}
 
-	/// Gen level balance for partons
-	double GetGenBalance(const KParton* parton) const
-	{
-		return parton->p4.Pt() / this->GetRefGenZ().p4.Pt();
-	}
-
-	/// Gen level balance for gen jets to any parton
-	double GetGenBalance(const KDataLV* jet, const KParton* reference) const
+	/// Gen level balance to any parton
+	double GetGenBalance(const KDataLV* jet, const KDataLV* reference) const
 	{
 		return jet->p4.Pt() / reference->p4.Pt();
-	}
-
-	/// Gen level balance for partons to any other parton
-	double GetGenBalance(const KParton* parton, const KParton* reference) const
-	{
-		return parton->p4.Pt() / reference->p4.Pt();
 	}
 
 	double GetMuonResponse() const;
@@ -218,10 +206,10 @@ public:
 	IMPL_PROPERTY(bool, ValidParton)
 
 	IMPL_PROPERTY(KDataLV, Z)
-	IMPL_PROPERTY(KParton, GenZ)
+	IMPL_PROPERTY(KDataLV, GenZ)
 	IMPL_PROPERTY(KDataLV, GenMet)
-	IMPL_PROPERTY(KParton, BalancedParton)
-	IMPL_PROPERTY(KParton, LeadingParton)
+	IMPL_PROPERTY(KGenParticle, BalancedParton)
+	IMPL_PROPERTY(KGenParticle, LeadingParton)
 	IMPL_PROPERTY(double, BalanceQuality)
 
 	IMPL_PROPERTY(double, Weight)
@@ -248,11 +236,11 @@ public:
 	KDataMuons m_listValidMuons;
 	KDataMuons m_listInvalidMuons;
 
-	KPartons m_genPartons;
-	KPartons m_genMuons;
-	KPartons m_genZs;
+	KGenParticles m_genPartons;
+	KGenParticles m_genMuons;
+	KGenParticles m_genZs;
 
-	KPartons const& GetGenMuons() const
+	KGenParticles const& GetGenMuons() const
 	{
 		return m_genMuons;
 	}

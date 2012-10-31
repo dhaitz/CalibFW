@@ -33,7 +33,7 @@ public:
 	KDataPFMET * m_pfMetChs;
 	KDataPFMET * m_pfMetChsL2L3;
 	KDataPFMET * m_pfMetChsL2L3Res;
-	KPartons * m_particles;
+	KGenParticles * m_particles;
 
 	// only use directly if there is no other way
 	//FileInterface * m_fi;

@@ -388,11 +388,11 @@ public:
 		}
 		if (metaData.m_genZs.size() >= 1)
 		{
-			KParton test;
-			test.p4 = metaData.m_genMuons[0].p4 + metaData.m_genMuons[1].p4 - metaData.m_genZs[0].p4;
-			if (test.p4.Pt() > 1e-3)	// differs more than a MeV
+			RMDataLV vec = metaData.m_genMuons[0].p4 + metaData.m_genMuons[1].p4
+					- metaData.m_genZs[0].p4;
+			if (vec.Pt() > 1e-3)	// differs more than a MeV
 			{
-				CALIB_LOG("Muons not from Z decay: pt:" << test.p4.Pt() << ", eta: " << test.p4.Eta()<< ", phi: " << test.p4.Phi()<< ", m: " << test.p4.M())
+				CALIB_LOG("Muons not from Z decay: pt:" << vec.Pt() << ", eta: " << vec.Eta()<< ", phi: " << vec.Phi()<< ", m: " << vec.M())
 				metaData.SetValidGenZ(false);
 				return false;
 			}
@@ -493,11 +493,10 @@ public:
 			{
 				if (std::abs(j->p4.Pt() - i->p4.Pt()) < 1e-6)
 					continue;
-				KParton comb;
-				comb.p4 = i->p4 + j->p4;
-				dphi = ROOT::Math::VectorUtil::DeltaPhi(comb.p4, metaData.GetRefGenZ().p4);
+				RMDataLV comb = i->p4 + j->p4;
+				dphi = ROOT::Math::VectorUtil::DeltaPhi(comb, metaData.GetRefGenZ().p4);
 				dphi = ROOT::Math::VectorUtil::Phi_mpi_pi(dphi - ROOT::Math::Pi());
-				R = comb.p4.Pt() / metaData.GetRefGenZ().p4.Pt();
+				R = comb.Pt() / metaData.GetRefGenZ().p4.Pt();
 				// decision metric
 				bQuality = std::abs(dphi) + 2.0 * std::abs(R - 1.0);
 

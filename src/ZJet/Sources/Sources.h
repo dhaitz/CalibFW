@@ -192,7 +192,7 @@ public:
 		        }
         if (metaData.m_genZs.size() >= 1)
         {
-	        KParton test;
+	        KDataLV test;
 	        test.p4 = metaData.m_genMuons[0].p4 + metaData.m_genMuons[1].p4 - metaData.m_genZs[0].p4;
 	        if (test.p4.Pt() < 1e-3)	// differs less than a MeV
 	        {

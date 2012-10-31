@@ -194,7 +194,7 @@ def getBaseConfig(globaltag, testfile="", additional_actives=[], maxevents=-1, r
         "^HLT_(Double)?Mu([0-9]+)(_v[[:digit:]]+)?$",
     )
     process.kappatuple.Metadata.tauDiscrProcessName = cms.untracked.string("XXXXXXXXX")
-    process.kappatuple.Partons.genParticles.selectedStatus = cms.int32(31)
+    process.kappatuple.GenParticles.genParticles.selectedStatus = cms.int32(31)
 
     # use the jets created during the kappa skim and not the RECO Jet
     process.kappatuple.PFJets.whitelist = cms.vstring("recoPFJets.*kappaSkim")

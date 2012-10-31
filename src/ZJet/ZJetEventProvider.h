@@ -42,7 +42,7 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 			// nice, we have the all-mighty TRUTH !
 			InitGenJets(m_event, "AK5GenJets");
 			InitGenJets(m_event, "AK7GenJets");
-			m_event.m_particles = m_fi.Get<KPartons>("genParticles");
+			m_event.m_particles = m_fi.Get<KGenParticles>("genParticles");
 		}
 		else
 		{
