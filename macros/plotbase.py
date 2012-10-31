@@ -107,6 +107,10 @@ def function_selector(plots, datamc, opt):
                 plotdatamc.runplot(plot[:-7], datamc, opt, changes={'incut':'allevents'})
             else:
                 plotdatamc.runplot(plot, datamc, opt)
+        elif '_AllX' in plot:
+            plotdatamc.plot_YvsAll(datamc, opt, plot[:-5])
+        elif 'AllY_' in plot:
+            plotdatamc.plot_AllvsX(datamc, opt, plot[5:])
 
 
 def options(

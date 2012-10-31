@@ -569,6 +569,30 @@ def plotfromdict(datamc, opt, name, blacklist=[]):
         eval(plotdictionary[name][1]+"('"+plotdictionary[name][2]+"', datamc, opt, "+plotdictionary[name][0]+")")
 
 
+
+def plot_YvsAll(datamc, opt, y='zpt'):
+    plotlist = getroot.getplotlist(datamc, algorithm=opt.algorithm, filenames=opt.files)
+    plotlist = [x for x in plotlist if x.startswith(y+"_")]
+
+    fig, axes = plotbase.newplot(subplots=len(plotlist))
+    for ax, plot in zip(axes, plotlist):
+        datamcplot(plot, datamc, opt, subplot=True, fig_axes=(fig, ax))
+
+    plotbase.Save(fig, "%s_allX__%s%s" % (y, opt.algorithm, opt.correction), opt)
+
+
+def plot_AllvsX(datamc, opt, x='zpt'):
+
+    plotlist = getroot.getplotlist(datamc, algorithm=opt.algorithm, filenames=opt.files)
+    plotlist = [y for y in plotlist if y.endswith("_"+x)]
+    fig, axes = plotbase.newplot(subplots=len(plotlist))
+
+    for ax, plot in zip(axes, plotlist):
+        datamcplot(plot, datamc, opt, subplot=True, fig_axes=(fig, ax))
+
+    plotbase.Save(fig, "AllY_%s__%s%s" % (x, opt.algorithm, opt.correction), opt)
+
+
 plotdictionary={ 
        # plot:[arguments, function, name]'L1L2L3_npv':['rebin=1', 'L1'],
     'L1L2L3abs_npv':['rebin=1', 'L1'],
