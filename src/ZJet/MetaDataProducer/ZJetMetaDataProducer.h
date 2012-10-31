@@ -36,7 +36,7 @@ public:
 			good_muon = good_muon
 				&& it->p4.Pt() > 12.0
 				&& std::abs(it->p4.Eta()) < 5.0
-				&& it->sumPtIso03 < 3.0;
+				&& it->trackIso03 < 3.0;
 
 			// Tight MuonID 2012
 			// [twiki](https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId#Tight_Muon)
