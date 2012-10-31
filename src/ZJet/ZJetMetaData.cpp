@@ -117,7 +117,7 @@ unsigned int ZJetMetaData::GetValidJetCount(ZJetPipelineSettings const& psetting
 	}
 }
 
-double ZJetMetaData::GetMPF(KDataLV* met) const
+double ZJetMetaData::GetMPF(const KDataLV* met) const
 {
 	double scalPtEt = GetRefZ().p4.Px() * met->p4.Px()
 			+ GetRefZ().p4.Py() * met->p4.Py();

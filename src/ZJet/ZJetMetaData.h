@@ -48,7 +48,8 @@ class ZJetMetaData : public boost::noncopyable
 public:
 	ZJetMetaData();
 
-	~ZJetMetaData(){
+	~ZJetMetaData()
+	{
 		ClearContent();
 	}
 
@@ -119,10 +120,7 @@ public:
 			ZJetEventData const& evtData,
 			unsigned int index) const
 	{
-		return GetValidJet(psettings,
-				evtData,
-				index,
-				psettings.GetJetAlgorithm());
+		return GetValidJet(psettings, evtData, index, psettings.GetJetAlgorithm());
 	}
 
 	// ## ACCESS TO INVALID JETS
@@ -181,7 +179,7 @@ public:
 		return jet->p4.Pt() / reference->p4.Pt();
 	}
 
-	double GetMPF(KDataLV* met) const;
+	double GetMPF(const KDataLV* met) const;
 
 	double GetTwoBalance(KDataLV* jet1, KDataLV* jet2) const;
 	double GetGenTwoBalance(KDataLV* jet1, KDataLV* jet2) const;
@@ -223,6 +221,7 @@ public:
 
 	IMPL_PROPERTY(KDataLV, Z)
 	IMPL_PROPERTY(KParton, GenZ)
+	IMPL_PROPERTY(KDataLV, GenMet)
 	IMPL_PROPERTY(KParton, BalancedParton)
 	IMPL_PROPERTY(KParton, LeadingParton)
 	IMPL_PROPERTY(double, BalanceQuality)

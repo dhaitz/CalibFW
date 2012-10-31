@@ -415,6 +415,9 @@ public:
 		double dphi = -1.;
 		double R = -1.;
 		double bQuality = -1.;
+		KDataLV met;
+		met.p4 = metaData.GetRefGenZ().p4;
+
 		for (auto it = metaData.m_genPartons.begin(); it != metaData.m_genPartons.end(); ++it)
 		{
 			if (it->p4.Pt() < pptmin || it->p4.Eta() > petamax)
@@ -450,6 +453,8 @@ public:
 			return false;
 		}
 		//CALIB_LOG("Best parton is " << metaData.GetRefParton().pdgId() << ": " << metaData.GetRefBalanceQuality())
+
+		metaData.SetGenMet(met);
 		return true;
 	}
 
