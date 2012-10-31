@@ -36,7 +36,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		ZJetPipelineSettings const& pset) const
 {
 
-	if ( pset.GetLevel() == 1 )
+	if (pset.GetLevel() == 1)
 	{
 		// load filter from the Settings and add them
 		stringvector fvec = pset.GetFilter();
@@ -202,29 +202,9 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			}
 		}
 
-
-
 		// optional 1st Level Producer
 		else if (sName == BinResponseConsumer::GetName())
-		{
-			BinResponseConsumer * resp = new BinResponseConsumer(pset.GetPropTree(), consPath);
-			pLine->AddConsumer(resp);
-			if (pset.IsMC() && resp->m_jetnum == 0)
-			{
-				// do gen gesponse to z.pt
-				BinResponseConsumer * gen = new BinResponseConsumer(pset.GetPropTree(), consPath);
-				gen->m_useGenJet = true;
-				gen->m_name.insert(0, "Gen_");
-				pLine->AddConsumer(gen);
-
-				// do Reco To Gen response
-				BinResponseConsumer * reco_to_gen = new BinResponseConsumer(pset.GetPropTree(), consPath);
-				reco_to_gen->m_useGenJetAsReference = true;
-				reco_to_gen->m_name.insert(0, "RecoToGen_");
-				pLine->AddConsumer(reco_to_gen);
-
-			}
-		}
+			pLine->AddConsumer(new BinResponseConsumer(pset.GetPropTree(), consPath));
 
 		else if (sName == BasicTwoDConsumer::GetName())
 			pLine->AddConsumer( new BasicTwoDConsumer( pset.GetJetAlgorithm() ));
