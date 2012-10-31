@@ -74,7 +74,6 @@ KDataLV* ZJetMetaData::GetValidJet(ZJetPipelineSettings const& psettings,
 	}
 }
 
-
 KDataLV* ZJetMetaData::GetInvalidJet(ZJetPipelineSettings const& psettings,
 		ZJetEventData const& evtData, unsigned int index, std::string algoName) const
 {
@@ -128,22 +127,22 @@ double ZJetMetaData::GetMPF(const KDataLV* met) const
 	return 1.0f + scalPtEt / scalPtSq;
 }
 
-double ZJetMetaData::GetTwoBalance(KDataLV* jet1, KDataLV* jet2) const
+double ZJetMetaData::GetTwoBalance(const KDataLV* jet1, const KDataLV* jet2) const
 {
 	return (jet1->p4 + jet2->p4).Pt() / GetRefZ().p4.Pt();
 }
 
-double ZJetMetaData::GetGenTwoBalance(KDataLV* jet1, KDataLV* jet2) const
+double ZJetMetaData::GetGenTwoBalance(const KDataLV* jet1, const KDataLV* jet2) const
 {
 	return (jet1->p4 + jet2->p4).Pt() / GetRefGenZ().p4.Pt();
 }
 
-bool cmpPFJetPt (KDataPFJet i,KDataPFJet j)
+bool cmpPFJetPt (const KDataPFJet i, const KDataPFJet j)
 {
 	return (i.p4.Pt() < j.p4.Pt());
 }
 
-double ZJetMetaData::GetZeppenfeld(KDataLV* jet1, KDataLV* jet2, KDataLV* jet3) const
+double ZJetMetaData::GetZeppenfeld(const KDataLV* jet1, const KDataLV* jet2, const KDataLV* jet3) const
 {
 	double eta1 = jet1->p4.Eta();
 	double eta2 = jet2->p4.Eta();

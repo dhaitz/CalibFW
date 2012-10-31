@@ -169,29 +169,24 @@ public:
 		return (this->GetCutBitmask() & cutId) == 0;
 	}
 
-	double GetBalance(KDataLV* jet) const
+	double GetBalance(const KDataLV* jet) const
 	{
 		return jet->p4.Pt() / this->GetRefZ().p4.Pt();
 	}
 
-	double GetBalance(KDataLV* jet, KDataLV* reference) const
+	double GetBalance(const KDataLV* jet, const KDataLV* reference) const
 	{
 		return jet->p4.Pt() / reference->p4.Pt();
 	}
 
 	double GetMPF(const KDataLV* met) const;
 
-	double GetTwoBalance(KDataLV* jet1, KDataLV* jet2) const;
-	double GetGenTwoBalance(KDataLV* jet1, KDataLV* jet2) const;
+	double GetTwoBalance(const KDataLV* jet1, const KDataLV* jet2) const;
+	double GetGenTwoBalance(const KDataLV* jet1, const KDataLV* jet2) const;
 
-	double GetZeppenfeld(KDataLV* jet1, KDataLV* jet2, KDataLV* jet3) const;
+	double GetZeppenfeld(const KDataLV* jet1, const KDataLV* jet2, const KDataLV* jet3) const;
 
 	/// Gen level balance for gen jets
-	double GetGenBalance(KDataLV* jet) const
-	{
-		return jet->p4.Pt() / this->GetRefGenZ().p4.Pt();
-	}
-
 	double GetGenBalance(const KDataLV* jet) const
 	{
 		return jet->p4.Pt() / this->GetRefGenZ().p4.Pt();
@@ -204,7 +199,7 @@ public:
 	}
 
 	/// Gen level balance for gen jets to any parton
-	double GetGenBalance(KDataLV* jet, const KParton* reference) const
+	double GetGenBalance(const KDataLV* jet, const KParton* reference) const
 	{
 		return jet->p4.Pt() / reference->p4.Pt();
 	}
