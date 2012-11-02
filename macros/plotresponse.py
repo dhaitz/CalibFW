@@ -673,6 +673,7 @@ def direct_extrapolation_eta(files, opt):
 def direct_extrapolation(files, opt, variation='alpha', use_rawMET=False):
 
     rebin = 10
+    if opt.rebin is not None: rebin = opt.rebin
     changes = {}
     local_opt = copy.deepcopy(opt)
 

@@ -13,14 +13,18 @@ import sys
 import multiprocessing as mp
 import os
 
+
 def datamcplot(quantity, files, opt, legloc='center right',
-               changes={}, log=False, xlog=False, rebin=10, file_name = "", subplot=False, 
+               changes={}, log=False, xlog=False, rebin=5, file_name = "", subplot=False, 
                subtext="", fig_axes=(), xy_names=None, normalize=True, runplot_diff=False, fit=None, ratio=False, fit_offset=0):
     """Template for all data/MC comparison plots for basic quantities."""
     # read the values
     if opt.verbose:
         print quantity
     change= plotbase.getchanges(opt, changes)
+    if opt.rebin is not None: rebin = opt.rebin
+    if opt.ratio is not False: ratio = opt.ratio
+
     datamc=[]
     events=[]
 
@@ -113,6 +117,8 @@ def datamcplot(quantity, files, opt, legloc='center right',
             ax = plotbase.axislabels(ax, x, y)
             if (y in ['balresp', 'mpfresp', 'ptbalance', 'L1', 'L2', 'L3', 'mpf', 'mpfresp']) or 'cut' in y:
                 ax.axhline(1.0, color='black', linestyle=':')
+    if opt.x_limits is not None: ax.set_xlim(opt.x_limits[0], opt.x_limits[1])
+    if opt.y_limits is not None: ax.set_ylim(opt.y_limits[0], opt.y_limits[1])
 
     if subtext is not 'None':
         ax.text(-0.03, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')

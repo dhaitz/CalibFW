@@ -132,6 +132,10 @@ def options(
             title="",
             eventnumberlabel=None,
             plots=None,
+            x_limits=None,
+            y_limits=None,
+            rebin=None,
+            ratio=False,
             npv=[(0, 4), (5, 8), (9, 15), (16, 21), (22, 100)],
             cut=[0.2, 0.4],
             eta=[0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
@@ -202,6 +206,7 @@ def options(
         help="layout for the plots. E.g. 'document': serif, LaTeX, pdf; " +
              "'slides': sans serif, big, png; 'generic': slides + pdf. " +
              "This is not implemented yet.")
+
     parser.add_argument('-P', '--plots', type=str, nargs='+',
         default=plots,
         help="do only this plot/these plots. " +
@@ -217,6 +222,17 @@ def options(
     parser.add_argument('-t', '--title', type=str,
         default=title,
         help="plot title")
+    parser.add_argument('-y', '--y_limits', type=float, nargs='+',
+        default=y_limits,
+        help="upper and lower limit for y-axis")
+    parser.add_argument('-x', '--x_limits', type=float, nargs='+',
+        default=x_limits,
+        help="upper and lower limit for x-axis")
+    parser.add_argument('-r', '--rebin', type=int,
+        default=rebin,
+        help="Rebinning value n")
+    parser.add_argument('-R', '--ratio', action='store_true',
+        help="do a ratio plot from the first two input files")
 
 
     opt = parser.parse_args()
