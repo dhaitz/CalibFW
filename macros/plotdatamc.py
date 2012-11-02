@@ -37,13 +37,20 @@ def datamcplot(quantity, files, opt, legloc='center right',
         datamc[0] = getPUindata(quantity)
 
     # For now this function only works with TProfiles
+        # implement event reweighitng for TH1Ds
     if ratio and len(datamc) == 2:
         rootobjects = [getroot.getobjectfromnick(quantity, f, change, rebin) for f in files]
         #convert TProfiles into TH1Ds because root cant correctly divide TProfiles
-        rootobject = ROOT.TH1D(rootobjects[0].ProjectionX())
-        rootobject_2 = ROOT.TH1D(rootobjects[1].ProjectionX())
-        rootobject.Divide(rootobject_2);
-        datamc = [getroot.root2histo(rootobject, files[0].GetName(), rebin=1)]
+        if rootobjects[0].ClassName() != 'TH1D' and rootobjects[1].ClassName() != 'TH1D':
+                rootobjects[0] = ROOT.TH1D(rootobjects[0].ProjectionX())
+                rootobjects[1] = ROOT.TH1D(rootobjects[1].ProjectionX())
+        else:
+            rootobjects[0].Rebin(rebin)
+            rootobjects[1].Rebin(rebin)
+            rootobjects[1].Scale(rootobjects[0].Integral() / rootobjects[1].Integral())
+        rootobjects[0].Divide(rootobjects[1])
+        rootobject = rootobjects[0]
+        datamc = [getroot.root2histo(rootobjects[0], files[0].GetName(), rebin=1)]
     else:
         rootobject = None
 
@@ -77,25 +84,26 @@ def datamcplot(quantity, files, opt, legloc='center right',
 
 
     # Jet response plots: add vertical lines for mean and mean error to see data/MC agreement
-    if quantity in ['balresp', 'mpfresp', 'mpfresp-notypeI', 'baltwojet', 'response', 'METpt'] and 'Gen' not in change['algorithm']:
+    if fit=='vertical':
         if quantity == 'METpt': unit = r' \/ / \/ GeV'
         else: unit = ""
         ax.axvline(datamc[0].mean, color='black', linestyle='-')
         ax.axvspan(datamc[0].mean-datamc[0].meanerr, datamc[0].mean+datamc[0].meanerr, color='black', alpha=0.1)
         ax.text(0.97, 0.97, r"$\langle \mathrm{%s} \rangle = %1.3f\pm%1.3f" % (opt.labels[0], datamc[0].mean, datamc[0].meanerr)+"\mathrm{%s}$" % unit,
                va='top', ha='right', transform=ax.transAxes, color='black')
-        ax.axvline(datamc[1].mean, color='blue', linestyle='-')
-        ax.axvspan(datamc[1].mean-datamc[1].meanerr, datamc[1].mean+datamc[1].meanerr, color='blue', alpha=0.1)
-        ax.text(0.97, 0.92, r"$\langle \mathrm{%s} \rangle = %1.3f\pm%1.3f" % (opt.labels[1],datamc[1].mean,datamc[1].meanerr)+" \mathrm{%s}$" % unit,
-               va='top', ha='right', transform=ax.transAxes, color='blue')
+        if len(datamc) > 1:
+            ax.axvline(datamc[1].mean, color='blue', linestyle='-')
+            ax.axvspan(datamc[1].mean-datamc[1].meanerr, datamc[1].mean+datamc[1].meanerr, color='blue', alpha=0.1)
+            ax.text(0.97, 0.92, r"$\langle \mathrm{%s} \rangle = %1.3f\pm%1.3f" % (opt.labels[1],datamc[1].mean,datamc[1].meanerr)+" \mathrm{%s}$" % unit,
+                   va='top', ha='right', transform=ax.transAxes, color='blue')
 
-        if (datamc[1].mean != 0.0): R = datamc[0].mean/datamc[1].mean
-        else: R =0
-        if (R != 0.0):
-            Rerr=abs(datamc[0].mean / datamc[1].mean)*math.sqrt((datamc[0].meanerr / datamc[0].mean)**2 + (datamc[1].meanerr / datamc[1].mean)**2)
-        else: Rerr=0
-        ax.text(0.97, 0.87, r"$ \langle \mathrm{%s} \rangle / \langle \mathrm{%s} \rangle = %1.3f\pm%1.3f$" %(opt.labels[0], opt.labels[1], R, Rerr),
-               va='top', ha='right', transform=ax.transAxes, color='maroon')
+            if (datamc[1].mean != 0.0): R = datamc[0].mean/datamc[1].mean
+            else: R =0
+            if (R != 0.0):
+                Rerr=abs(datamc[0].mean / datamc[1].mean)*math.sqrt((datamc[0].meanerr / datamc[0].mean)**2 + (datamc[1].meanerr / datamc[1].mean)**2)
+            else: Rerr=0
+            ax.text(0.97, 0.87, r"$ \langle \mathrm{%s} \rangle / \langle \mathrm{%s} \rangle = %1.3f\pm%1.3f$" %(opt.labels[0], opt.labels[1], R, Rerr),
+                   va='top', ha='right', transform=ax.transAxes, color='maroon')
 
 
     plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot)
@@ -174,6 +182,8 @@ def runplot(quantity, files, opt, legloc='center right',
             if runplot_diff:
                 mc_mean = getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).mean
                 plot.y = [y - mc_mean for y in plot.y]
+            else:
+                mc_mean = None
 
             plotbase.fit(fit, ax, quantity, f, changes, rebin, c, files.index(f), runplot_diff, mc_mean, run_min, run_max)
             
@@ -615,7 +625,8 @@ plotdictionary={
     'METpt_all':['', 'datamc_all', 'METpt'],
     'METsumEt':["'center right', rebin=10"],
     'bal_twojet':['legloc="lower right"'],
-    'balresp_all':['', 'datamc_all', 'balresp'],
+    'balresp':['fit="vertical"'],
+    'balresp_all':['fit="vertical"', 'datamc_all', 'balresp'],
     'deltaphi-leadingjet-MET_all':['', 'datamc_all', 'deltaphi-leadingjet-MET'],
     'deltaphi-leadingjet-z_all':['', 'datamc_all', 'deltaphi-leadingjet-z'],
     'deltaphi-z-MET_all':["legloc='lower left'", 'datamc_all', 'deltaphi-z-MET'],
@@ -628,10 +639,11 @@ plotdictionary={
     'mpf-diff_alpha':['rebin=2, changes={"var":"var_CutSecondLeadingToZPt_0_3"}'],
     'mpf_deltaphi-jet1-MET_all':['', 'datamc_all', 'mpf_deltaphi-jet1-MET'],
     'mpf_deltaphi-z-MET_all':['', 'datamc_all', 'mpf_deltaphi-z-MET'],
+    'mpfresp':['fit="vertical"'],
     'mpfresp_all':['', 'datamc_all', 'mpfresp'],
-    'mpf_alpha':['rebin=4, fit="chi2"'],
+    'mpf_alpha':['rebin=10, fit="slope"'],
     'mpf_alpha03':['rebin=2, fit="intercept", changes={"var":"var_CutSecondLeadingToZPt_0_3"}', 'datamcplot', 'mpf_alpha'],
-    'mpf_alpha_all':['rebin=4, fit="chi2"', 'datamc_all', 'mpf_alpha'],
+    'mpf_alpha_all':['rebin=10, fit="slope"', 'datamc_all', 'mpf_alpha'],
     'muminusphi':['legloc="lower center"'],
     'muonsinvalid':['legloc="lower center", rebin=1'],
     'muonsvalid':['legloc="lower center", rebin=1'],
@@ -640,7 +652,7 @@ plotdictionary={
     'mupluspt':['legloc="center right"'],
     'npv':['rebin=1'],
     'npv_nocuts':['rebin=1, changes={"incut":"allevents"}', 'datamcplot', 'npv'],
-    'ptbalance_alpha':['rebin=2, fit="intercept", legloc="lower center"'],
+    'ptbalance_alpha':['rebin=10, changes={"var":"var_CutSecondLeadingToZPt_0_3"}, ratio=True, fit="intercept", legloc="lower center"'],
     'ptbalance_alpha_ratio':['rebin=2, fit="chi2",legloc="lower center", ratio=True', 'datamcplot', 'ptbalance_alpha'],
     'ptbalance_alpha_alpha04':['rebin=2, changes={"var":"var_CutSecondLeadingToZPt_0_4"}, fit="intercept", legloc="lower center"', 'datamcplot', 'ptbalance_alpha'],
     'ptbalance_alpha_alpha03':['rebin=2, changes={"var":"var_CutSecondLeadingToZPt_0_3"}, fit="intercept", legloc="lower center"', 'datamcplot', 'ptbalance_alpha'],
@@ -657,6 +669,9 @@ plotdictionary={
     'zpt_all':['', 'datamc_all', 'zpt'],
     'zpt_npv':["legloc='lower center', fit='chi2'"],
     'zpt_npv_zcutsonly':["legloc='lower center', changes={'incut':'zcutsonly'}, fit='chi2'", 'datamcplot', 'zpt_npv'],
+    'zresp':['rebin=1, fit="vertical"'],
+    'parton':['fit="vertical"'],
+    'balparton':['fit="vertical"'],
     } 
 
 plots = [

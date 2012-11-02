@@ -433,11 +433,10 @@ def newplot(ratio=False, run=False, subplots=1, opt=options(), subplots_X=None, 
             elif subplots in d:
                 x = d[subplots]
             else:        
-                x = int(math.sqrt(subplots))
-            y = int(round(subplots/float(x)))
+                y = int(math.sqrt(subplots))
+            x = int(round(subplots/float(y)))
             if x * y < subplots:
                 x = x+1
-        print subplots, x, y
         if run:
             a = [14*x, 7*y, y, x]
         else:
@@ -763,7 +762,7 @@ d={
         'jet1area':[0.6, 1, r"Leading Jet area", ""],
         'jet1charged':[0,30, r"%s charged", ""],
         'jet1const':[0,30, r"%s const", ""],
-        'jet1pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Leading Jet}$", 'GeV'],        
+        'jet1pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Leading Jet}$", 'GeV'],
         'jet2area':[0.6, 1, r"Second Jet area", ""],
         'jet2pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{Jet2}$", 'GeV'],
         'jet2ratio':[0, 0.4, r"$p_\mathrm{T}^\mathrm{Jet_2}/p_\mathrm{T}^{Z}$", ""],
@@ -816,9 +815,7 @@ d={
         'xsec':[0, 20, r"$n_\mathrm{Events} / \mathcal{L}$", "pb$^{-1}$"],
         'zeppenfeld':[0.0, 3, r"Zeppenfeld variable", ""],
         'zmass':[88, 94, r"$m^\mathrm{Z}$", "GeV"],
-        'zpt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],        
-
-
+        'zpt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],
         'oldbalresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance (old version)", ""],
         'genbal':[0.0, 1.8, r"$p_\mathrm{T}$ balance (Gen level)", ""],
         'genzep':[0.0, 3, r"Zeppenfeld variable (Gen level)", ""],
