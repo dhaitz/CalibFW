@@ -100,7 +100,7 @@ public:
 			this->SetYSource ( new SourcePtBalance() );
 		else if ( ref == "mpf" )
 			this->SetYSource ( new SourceMPFresponse() );
-		else if ( ref == "mpf-notypeI" )
+		else if ( ref == "mpf-raw" )
 			this->SetYSource ( new SourceMPFresponse_notypeI() );
 		else if ( ref == "mpf-diff" )
 			this->SetYSource ( new SourceMPFResponseDiff() );

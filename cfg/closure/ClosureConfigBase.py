@@ -460,7 +460,7 @@ def AddMetaDataProducerEasy( pline, producer_name):
     pline["MetaDataProducer"][ consumer["Name"] ] = producer_name
 
 
-def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder):
+def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
@@ -568,12 +568,12 @@ def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder):
             },
             'bin_genbal_toparton_response': {
                 'Name': "bin_response",
-                'ProductName': "genbal_toparton_" + algo,
+                'ProductName': "genbal-toparton_" + algo,
                 'ResponseType': "genbal_toparton",
             },
             'bin_genbal_tobalparton_response': {
                 'Name': "bin_response",
-                'ProductName': "genbal_tobalparton_" + algo,
+                'ProductName': "genbal-tobalparton_" + algo,
                 'ResponseType': "genbal_tobalparton",
             },
             'bin_genquality_response': {
@@ -827,7 +827,7 @@ def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, 
                          "ProductName" : "_".join([y,"-".join(["delta"+x,obj1,obj2]),algo]) } )
 
     y_quantities = ['jet1pt', 'jet1abseta', 'jet2pt', 'jet2abseta', 'zpt', 'zabseta', 'npv', 'METpt-diff', 'METphi-diff', 'mpf-diff',
-                         'ptbalance', 'mpf', 'mpf-notypeI', 'METpt', 'sumEt', 'METfraction', 'zphi', 'METphi', 'zmass']
+                         'ptbalance', 'mpf', 'mpf-raw', 'METpt', 'sumEt', 'METfraction', 'zphi', 'METphi', 'zmass']
 
     x_quantities = ['jet1pt', 'npv', 'jet1eta', 'jet1phi', 'jet2pt', 'jet2eta', 'jet2phi', 'zpt', 'zeta', 'zphi', 
                           'METpt', 'METphi', 'sumEt', 'jetsvalid', 'alpha']
@@ -853,7 +853,7 @@ def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, 
                     for obj2 in objects:
                         if obj1 is not obj2:
                             AddAbsDiff("eta", 'ptbalance', obj1, obj2)
-                            for quantity  in ['ptbalance', 'mpf', 'mpf-notypeI', 'zpt', 'METpt', 'jet1pt', 'alpha']:
+                            for quantity  in ['ptbalance', 'mpf', 'mpf-raw', 'zpt', 'METpt', 'jet1pt', 'alpha']:
                                 AddAbsDiff("phi", quantity, obj1, obj2)
 
 def Add2DHistograms(pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
@@ -969,7 +969,7 @@ def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
             pline["JetAlgorithm"] = algo
             algoPipelines[p + "_" + algo] = pline
 
-    conf["Pipelines"] = ExpandCutNoCut(algoPipelines, alletaFolder, zcutsFolder)
+    conf["Pipelines"] = ExpandCutNoCut(algoPipelines, alletaFolder, zcutsFolder, conf['InputType'] == 'mc')
 
     # create pipelines for all bins
     if expandptbins:

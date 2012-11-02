@@ -722,7 +722,7 @@ d={
         'absphi':[0, 3.141593, r"$|\phi^\mathrm{%s}|$", ""],
         'alpha':[0, 0.4, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
         'bal':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
-        'baljet2z':[0, 1, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
+        'balrespjet2':[0, 1, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
         'balresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
         'balresp_ratio':[0.9, 1.1, r"$p_\mathrm{T}$ balance", ""],
         'baltwojet':[0.0, 1.8, r"$p_\mathrm{T}$ balance for 2 jets", ""],
@@ -770,10 +770,10 @@ d={
         'METpt-diff':[ 0, 10, r"$\Delta E_\mathrm{T}^\mathrm{miss}$ (TypeI-corrected - raw)", 'GeV'],
         'METsumEt':[0, 2500, r"$\sum E^\mathrm{T}$", "GeV"],
         'mpf':[0.75, 1.2, r"$MPF$ Response", ""],
-        'mpf-notypeI':[0.75, 1.2, r"$MPF$ Response (no type I)", ""],
+        'mpf-raw':[0.75, 1.2, r"$MPF$ Response (no type I)", ""],
         'mpf-diff':[0., 0.1, r"$\Delta MPF$ Response (TypeI-corrected - raw)", ""],
-        'mpfresp-notypeI':[0.0, 1.8, r"$MPF$ Response (raw MET)", ""],
-        'mpfresp':[0.8, 1.03, r"$MPF$ Response", ""],
+        'mpfresp-raw':[0.0, 1.8, r"$MPF$ Response (raw MET)", ""],
+        'mpfresp':[0.0, 1.8, r"$MPF$ Response", ""],
         'muminuspt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{\mu-}$", 'GeV'],
         'muon':[0,1, r"%s muon fraction", ""],
         'muonsinvalid':[0, 5, "Number of invalid muons", ""],
@@ -801,6 +801,18 @@ d={
         'zeppenfeld':[0.0, 3, r"Zeppenfeld variable", ""],
         'zmass':[88, 94, r"$m^\mathrm{Z}$", "GeV"],
         'zpt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],        
+
+
+        'oldbalresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance (old version)", ""],
+        'genbal':[0.0, 1.8, r"$p_\mathrm{T}$ balance (Gen level)", ""],
+        'genzep':[0.0, 3, r"Zeppenfeld variable (Gen level)", ""],
+        'balparton':[0.0, 1.8, r"Matching parton$p_\mathrm{T}$ / Z $p_\mathrm{T}$ ", ""],
+        'genbal_tobalparton':[0.0, 1.8, r"", ""],
+        'genbal_toparton':[0.0, 1.8, r"", ""],
+        'genquality':[0.0, 2, r"Quality of Parton/Z matching", ""],
+        'genmpf':[0.75, 1.2, r"$MPF$ Response (Gen level)", ""],
+        'zresp':[0.8, 1.2, r"Z Reco $p_\mathrm{T}$ / Z Gen $p_\mathrm{T}$", ""],
+        'parton':[0.0, 1.8, r"Leading parton$p_\mathrm{T}$ / Z $p_\mathrm{T}$ ", ""],
 
         }
 
