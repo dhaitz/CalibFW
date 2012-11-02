@@ -12,6 +12,7 @@ import ROOT
 import sys
 import multiprocessing as mp
 import os
+from dictionaries import d_plots
 
 
 def datamcplot(quantity, files, opt, legloc='center right',
@@ -541,7 +542,7 @@ def ploteverything(datamc, opt):
     print "Blacklist: ", blacklist
 
     for plotname in plotlist:
-        if plotname in plotdictionary:                #(1) check if plot in the dictionary
+        if plotname in d_plots:                #(1) check if plot in the dictionary
            print "plot from dictionary ",  plotname
            p = mp.Process(plotfromdict(datamc, opt, plotname, blacklist))
            p.start()
@@ -572,17 +573,17 @@ def ploteverything(datamc, opt):
 
 
 def plotfromdict(datamc, opt, name, blacklist=[]):
-    if len(plotdictionary[name]) == 0: #emptylist
+    if len(d_plots[name]) == 0: #emptylist
         datamcplot(name, datamc, opt)
 
-    elif len(plotdictionary[name]) == 1: #list contains only arguments
-        eval("datamcplot('"+name+"', datamc, opt, "+plotdictionary[name][0]+")")
+    elif len(d_plots[name]) == 1: #list contains only arguments
+        eval("datamcplot('"+name+"', datamc, opt, "+d_plots[name][0]+")")
 
-    elif len(plotdictionary[name]) == 2: #list contains arguments+function
-        eval(plotdictionary[name][1]+"('"+name+"', datamc, opt, "+plotdictionary[name][0]+")")
+    elif len(d_plots[name]) == 2: #list contains arguments+function
+        eval(d_plots[name][1]+"('"+name+"', datamc, opt, "+d_plots[name][0]+")")
 
-    elif len(plotdictionary[name]) == 3: #list contains arguments+function+name
-        eval(plotdictionary[name][1]+"('"+plotdictionary[name][2]+"', datamc, opt, "+plotdictionary[name][0]+")")
+    elif len(d_plots[name]) == 3: #list contains arguments+function+name
+        eval(d_plots[name][1]+"('"+d_plots[name][2]+"', datamc, opt, "+d_plots[name][0]+")")
 
 
 
@@ -608,71 +609,6 @@ def plot_AllvsX(datamc, opt, x='zpt'):
 
     plotbase.Save(fig, "AllY_%s__%s%s" % (x, opt.algorithm, opt.correction), opt)
 
-
-plotdictionary={ 
-       # plot:[arguments, function, name]'L1L2L3_npv':['rebin=1', 'L1'],
-    'L1L2L3abs_npv':['rebin=1', 'L1'],
-    'L1_npv':['rebin=1', 'L1'],
-    'L1abs_npv':['rebin=1', 'L1'],
-    'L2_npv':['rebin=1', 'L1'],
-    'L2abs_npv':['rebin=1', 'L1'],
-    'METeta':['legloc="lower center"'],
-    'METfraction':["'center right', rebin=2, log=True"],
-    'METphi':["'lower center'"],
-    'METphi_all':['', 'datamc_all', 'METphi'],
-    'METpt':["legloc='center right', log=True"],
-    'METpt_METphi':["'lower right'"],
-    'METpt_all':['', 'datamc_all', 'METpt'],
-    'METsumEt':["'center right', rebin=10"],
-    'bal_twojet':['legloc="lower right"'],
-    'balresp':['fit="vertical"'],
-    'balresp_all':['fit="vertical"', 'datamc_all', 'balresp'],
-    'deltaphi-leadingjet-MET_all':['', 'datamc_all', 'deltaphi-leadingjet-MET'],
-    'deltaphi-leadingjet-z_all':['', 'datamc_all', 'deltaphi-leadingjet-z'],
-    'deltaphi-z-MET_all':["legloc='lower left'", 'datamc_all', 'deltaphi-z-MET'],
-    'jet1pt':['log=True'],
-    'jet2eta_jet2phi':['rebin=2'],
-    'jet2pt':['log=True, rebin=2'],
-    'jet3pt':['log=True, rebin=2'],
-    'jeteta_jetphi':['rebin=2'],
-    'jetpt_zeta':['rebin=5, legloc="upper left"'],
-    'mpf-diff_alpha':['rebin=2, changes={"var":"var_CutSecondLeadingToZPt_0_3"}'],
-    'mpf_deltaphi-jet1-MET_all':['', 'datamc_all', 'mpf_deltaphi-jet1-MET'],
-    'mpf_deltaphi-z-MET_all':['', 'datamc_all', 'mpf_deltaphi-z-MET'],
-    'mpfresp':['fit="vertical"'],
-    'mpfresp_all':['', 'datamc_all', 'mpfresp'],
-    'mpf_alpha':['rebin=10, fit="slope"'],
-    'mpf_alpha03':['rebin=2, fit="intercept", changes={"var":"var_CutSecondLeadingToZPt_0_3"}', 'datamcplot', 'mpf_alpha'],
-    'mpf_alpha_all':['rebin=10, fit="slope"', 'datamc_all', 'mpf_alpha'],
-    'muminusphi':['legloc="lower center"'],
-    'muonsinvalid':['legloc="lower center", rebin=1'],
-    'muonsvalid':['legloc="lower center", rebin=1'],
-    'mupluseta':['legloc="lower center"'],
-    'muplusphi':['legloc="lower center"'],
-    'mupluspt':['legloc="center right"'],
-    'npv':['rebin=1'],
-    'npv_nocuts':['rebin=1, changes={"incut":"allevents"}', 'datamcplot', 'npv'],
-    'ptbalance_alpha':['rebin=10, changes={"var":"var_CutSecondLeadingToZPt_0_3"}, ratio=True, fit="intercept", legloc="lower center"'],
-    'ptbalance_alpha_ratio':['rebin=2, fit="chi2",legloc="lower center", ratio=True', 'datamcplot', 'ptbalance_alpha'],
-    'ptbalance_alpha_alpha04':['rebin=2, changes={"var":"var_CutSecondLeadingToZPt_0_4"}, fit="intercept", legloc="lower center"', 'datamcplot', 'ptbalance_alpha'],
-    'ptbalance_alpha_alpha03':['rebin=2, changes={"var":"var_CutSecondLeadingToZPt_0_3"}, fit="intercept", legloc="lower center"', 'datamcplot', 'ptbalance_alpha'],
-    'ptbalance_alpha_all':['rebin=4, fit="intercept"', 'datamc_all', 'ptbalance_alpha'],
-    'ptbalance_jetsvalid':['rebin=1, legloc="lower center"'],
-    'tworesp':['legloc="lower right"', 'datamcplot', 'bal_twojet'],
-    'zmass':['rebin=2, log=True'],
-    'zmass_zcutsonly':['rebin=2, log=True, changes={"incut":"zcutsonly"}', 'datamcplot', 'zmass'],
-    'zmass_npv':["legloc='lower center', fit='chi2'"],
-    'zmass_npv_zcutsonly':['legloc="lower center", fit="chi2", changes={"incut":"zcutsonly"}', 'datamcplot', 'zmass_npv'],
-    'zmass_zpt':["legloc='lower center', fit='chi2'"],
-    'zmass_zpt_zcutsonly':["legloc='lower center', changes={'incut':'zcutsonly'}, fit='chi2'", 'datamcplot', 'zmass_zpt'],
-    'zpt':["legloc='center right', log=True"],
-    'zpt_all':['', 'datamc_all', 'zpt'],
-    'zpt_npv':["legloc='lower center', fit='chi2'"],
-    'zpt_npv_zcutsonly':["legloc='lower center', changes={'incut':'zcutsonly'}, fit='chi2'", 'datamcplot', 'zpt_npv'],
-    'zresp':['rebin=1, fit="vertical"'],
-    'parton':['fit="vertical"'],
-    'balparton':['fit="vertical"'],
-    } 
 
 plots = [
     'ploteverything',

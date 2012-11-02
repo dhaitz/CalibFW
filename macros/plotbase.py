@@ -25,6 +25,7 @@ import getroot
 import plotrc
 import plotdatamc
 import plot2d
+from dictionaries import d_axes, d_plots
 
 
 def plot(modules, plots, datamc, op):
@@ -45,7 +46,7 @@ def plot(modules, plots, datamc, op):
             if hasattr(module, p):                                                        #plot directly as a function
                 getattr(module, p)(datamc, op)
                 remaining_plots.remove(p)
-            elif hasattr(module, "plotdictionary") and p in module.plotdictionary:        #if no function available, try dictionary
+            elif p in d_plots:        #if no function available, try dictionary
                 print "New plot: (from dictionary)", p, 
                 module.plotfromdict(datamc, op, p)
                 remaining_plots.remove(p)
@@ -431,7 +432,7 @@ def newplot(ratio=False, run=False, subplots=1, opt=options(), subplots_X=None, 
             if subplots_X is not None:
                 x = subplots_X
             elif subplots in d:
-                x = d[subplots]
+                x = d [subplots]
             else:        
                 y = int(math.sqrt(subplots))
             x = int(round(subplots/float(y)))
@@ -730,105 +731,6 @@ def unitformat(quantity="", unit="", brackets=False):
     return quantity
 
 
-
-# put everything into one dictionary  key:[min, max, Name, unit, z_min, z_max]
-d={         
-        'abseta':[0.0, 5.5, r"$|\eta^\mathrm{%s}|$", ""],
-        'absphi':[0, 3.141593, r"$|\phi^\mathrm{%s}|$", ""],
-        'alpha':[0, 0.4, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
-        'bal':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
-        'balrespjet2':[0, 1, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
-        'balresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
-        'balresp_ratio':[0.9, 1.1, r"$p_\mathrm{T}$ balance", ""],
-        'baltwojet':[0.0, 1.8, r"$p_\mathrm{T}$ balance for 2 jets", ""],
-        'chargedem':[0,1, r"%s charged em fraction", ""],
-        'chargedhad':[0,1, r"%s charged hadron fraction", ""],
-        'components_diff':[-0.05, 0.05, r"Data-MC of Leading Jet Components", ""],
-        'components':[0, 1, r"Leading Jet Component Fraction", ""],
-        'constituents':[0, 60, r"Number of Jet Constituents", ""],
-        'correction':[0.85, 1.02, "Correction factor", ""],
-        'cut':[0, 1.1, r"Cut Inefficiency (%s)", ""],
-        'datamcratio':[0.94, 1.03, r"data/MC ratio", ""],
-        'deltaeta':[0, 15, r"$\Delta \eta(\mathrm{%s})$", ""],
-        'deltaeta':[0, 5, r"$\Delta \eta(\mathrm{%s,\/ %s})$", ""],
-        'deltaphi':[0, 3.141593, r"$\Delta \phi(\mathrm{%s,\/%s})$", ""],
-        'deltar':[0, 20, r"$\Delta \/R(\mathrm{%s,\/ %s})$", ""],
-        'electron':[0,1, r"%s electron fraction", ""],
-        'eta':[-5, 5, r"$\eta^\mathrm{%s}$", ""],
-        'eventcount':[0, 1.1, r"Eventcount", ""],
-        'extrapol':[0.86, 1.04, r"Response", ""],
-        'HFem':[0,1, r"%s HF em fraction", ""],
-        'HFhad':[0,1, r"%s HF hadron fraction", ""],
-        'jet1area':[0.6, 1, r"Leading Jet area", ""],
-        'jet1charged':[0,30, r"%s charged", ""],
-        'jet1const':[0,30, r"%s const", ""],
-        'jet1pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Leading Jet}$", 'GeV'],
-        'jet2area':[0.6, 1, r"Second Jet area", ""],
-        'jet2pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{Jet2}$", 'GeV'],
-        'jet2ratio':[0, 0.4, r"$p_\mathrm{T}^\mathrm{Jet_2}/p_\mathrm{T}^{Z}$", ""],
-        'jet3pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{Jet3}$", 'GeV'],
-        'jetpt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],        
-        'jetptabsdiff':[0, 100, r"$p_\mathrm{T}^\mathrm{Jet 1} - p_\mathrm{T}^{Jet 2}$", "GeV"],
-        'jetptratio':[0, 10, r"$p_\mathrm{T}^\mathrm{Jet 1} / p_\mathrm{T}^{Jet 2}$", ""],
-        'jetsvalid':[0, 100, r"Number of valid jets $n$",""],
-        'L1':[0, 1.2, r"L1 correction factor",""],
-        'L1abs':[0, 30, r"L1 absolute correction","GeV"],
-        'L1L2L3':[0, 1.2, r"L1L2L3 correction factor",""],
-        'L1L2L3abs':[-25, 25, r"L1L2L3 absolute correction","GeV"],
-        'L2':[0, 1.2, r"L2 correction factor",""],
-        'L2abs':[-25, 25, r"L2 absolute correction","GeV"],
-        'L3':[0, 1.2, r"L3 correction factor",""],
-        'L3abs':[-25, 25, r"L3 absolute correction","GeV"],
-        'METeta':[-0.1, 0.1, r"$\eta^\mathrm{MET}$", ""],
-        'METfraction':[0, 0.2, r"MET / $E^T_Total$", ""],
-        'METpt':[ 0, 80, r"$E_\mathrm{T}^\mathrm{miss}$", 'GeV'],
-        'METpt-diff':[ 0, 10, r"$\Delta E_\mathrm{T}^\mathrm{miss}$ (TypeI-corrected - raw)", 'GeV'],
-        'METsumEt':[0, 2500, r"$\sum E^\mathrm{T}$", "GeV"],
-        'mpf':[0.75, 1.2, r"$MPF$ Response", ""],
-        'mpf-raw':[0.75, 1.2, r"$MPF$ Response (no type I)", ""],
-        'mpf-diff':[0., 0.1, r"$\Delta MPF$ Response (TypeI-corrected - raw)", ""],
-        'mpfresp-raw':[0.0, 1.8, r"$MPF$ Response (raw MET)", ""],
-        'mpfresp':[0.0, 1.8, r"$MPF$ Response", ""],
-        'muminuspt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{\mu-}$", 'GeV'],
-        'muon':[0,1, r"%s muon fraction", ""],
-        'muonsinvalid':[0, 5, "Number of invalid muons", ""],
-        'muonsvalid':[0, 5, "Number of valid muons", ""],
-        'mupluspt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{\mu+}$", 'GeV'],
-        'neutralem':[0,1, r"%s neutral em fraction", ""],
-        'neutralhad':[0,1., r"%s neutral hadron fraction", ""],
-        'npv':[0, 35, r"Number of Reconstructed Vertices $n$",""],
-        'numpu':[0, 35, r"Number of Primary Vertices", ""],
-        'numputruth':[0, 35, r"Pile-up Truth (Poisson mean)", ""],
-        'phi':[-3.2, 3.2, r"$\phi^\mathrm{%s}$", ""],
-        'photon':[0,1., r"%s photon fraction", ""],
-        'pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{%s}$", 'GeV'],        
-        'ptbalance':[0.74, 1.04, r"$p_\mathrm{T}$ balance", ""],
-        'ratio':[0.89, 1.08, r"%s / %s ratio", ""],
-        'reco':[0, 35, r"Number of Reconstructed Vertices $n$",""],
-        'response':[0.81, 1.05, r"Jet Response", ""],
-        'responseratio':[0.88, 1.03, r"data/MC ratio", ""],
-        'rho':[0, 50, r"$\rho$", ""],
-        'run':[190000, 206000, r"Run", ""],
-        'sumEt':[0, 2500, r"$\sum E^\mathrm{T}$", "GeV"],
-        'summedf':[0.8,1.2, r"$%s$ fraction sum", ""],
-        'summedfr':[0.8,1.2, r"$%s$ fraction sum2", ""],
-        'xsec':[0, 20, r"$n_\mathrm{Events} / \mathcal{L}$", "pb$^{-1}$"],
-        'zeppenfeld':[0.0, 3, r"Zeppenfeld variable", ""],
-        'zmass':[88, 94, r"$m^\mathrm{Z}$", "GeV"],
-        'zpt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],
-        'oldbalresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance (old version)", ""],
-        'genbal':[0.0, 1.8, r"$p_\mathrm{T}$ balance (Gen level)", ""],
-        'genzep':[0.0, 3, r"Zeppenfeld variable (Gen level)", ""],
-        'balparton':[0.0, 1.8, r"Matching parton$p_\mathrm{T}$ / Z $p_\mathrm{T}$ ", ""],
-        'genbal_tobalparton':[0.0, 1.8, r"", ""],
-        'genbal_toparton':[0.0, 1.8, r"", ""],
-        'genquality':[0.0, 2, r"Quality of Parton/Z matching", ""],
-        'genmpf':[0.75, 1.2, r"$MPF$ Response (Gen level)", ""],
-        'zresp':[0.8, 1.2, r"Z Reco $p_\mathrm{T}$ / Z Gen $p_\mathrm{T}$", ""],
-        'parton':[0.0, 1.8, r"Leading parton$p_\mathrm{T}$ / Z $p_\mathrm{T}$ ", ""],
-
-        }
-
 def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
     """same as the old version, but can handle and and y axis indpendetly
 
@@ -856,39 +758,39 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
             function[1]([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
             function[2]([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])
             if 'deltaphi' in quantity:
-                function[0]((d['deltaphi'][0], d['deltaphi'][1]), d['deltaphi'][2] % (nicetext(quantity.replace("deltaphi-","").split("-")[0]), 
-                        nicetext(quantity.replace("deltaphi-","").split("-")[1])), d['deltaphi'][3]) 
+                function[0]((d_axes['deltaphi'][0], d_axes['deltaphi'][1]), d_axes['deltaphi'][2] % (nicetext(quantity.replace("deltaphi-","").split("-")[0]), 
+                        nicetext(quantity.replace("deltaphi-","").split("-")[1])), d_axes['deltaphi'][3]) 
             elif 'phiabsdiff' in quantity:
-                function[0]((d['phiabsdiff'][0], d['phiabsdiff'][1]), d['phiabsdiff'][2] % nicetext(quantity.replace("phiabsdiff","")),
-                        d['phiabsdiff'][3]) 
+                function[0]((d_axes['phiabsdiff'][0], d_axes['phiabsdiff'][1]), d_axes['phiabsdiff'][2] % nicetext(quantity.replace("phiabsdiff","")),
+                        d_axes['phiabsdiff'][3]) 
             elif 'abs' in quantity:
-                function[0]((d['absphi'][0], d['absphi'][1]), d['absphi'][2] % 
-                        nicetext(quantity.replace("abs_","").replace("_phi","")) , d['absphi'][3]) 
+                function[0]((d_axes['absphi'][0], d_axes['absphi'][1]), d_axes['absphi'][2] % 
+                        nicetext(quantity.replace("abs_","").replace("_phi","")) , d_axes['absphi'][3]) 
             else:
-                function[0]((d['phi'][0], d['phi'][1]), d['phi'][2] % nicetext(quantity.replace("phi","")) , d['phi'][3]) 
+                function[0]((d_axes['phi'][0], d_axes['phi'][1]), d_axes['phi'][2] % nicetext(quantity.replace("phi","")) , d_axes['phi'][3]) 
         elif 'eta' in quantity:
             if 'deltaeta' in quantity:
-                function[0]((d['deltaeta'][0], d['deltaeta'][1]), d['deltaeta'][2] % (nicetext(quantity.replace("deltaeta-","").split("-")[0]),
-                         nicetext(quantity.replace("deltaeta-","").split("-")[1])), d['deltaeta'][3]) 
+                function[0]((d_axes['deltaeta'][0], d_axes['deltaeta'][1]), d_axes['deltaeta'][2] % (nicetext(quantity.replace("deltaeta-","").split("-")[0]),
+                         nicetext(quantity.replace("deltaeta-","").split("-")[1])), d_axes['deltaeta'][3]) 
             elif 'etaabsdiff' in quantity:
-                function[0]((d['deltaeta'][0], d['deltaeta'][1]), d['deltaeta'][2] % nicetext(quantity.replace("etaabsdiff","")) , d['deltaeta'][3]) 
+                function[0]((d_axes['deltaeta'][0], d_axes['deltaeta'][1]), d_axes['deltaeta'][2] % nicetext(quantity.replace("etaabsdiff","")) , d_axes['deltaeta'][3]) 
             elif 'abseta' in quantity:
-                function[0]((d['abseta'][0], d['abseta'][1]), d['abseta'][2] % nicetext(quantity.replace("abseta","")) , d['abseta'][3]) 
+                function[0]((d_axes['abseta'][0], d_axes['abseta'][1]), d_axes['abseta'][2] % nicetext(quantity.replace("abseta","")) , d_axes['abseta'][3]) 
             else:
-                function[0]((d['eta'][0], d['eta'][1]), d['eta'][2] % nicetext(quantity.replace("eta","")) , d['eta'][3]) 
+                function[0]((d_axes['eta'][0], d_axes['eta'][1]), d_axes['eta'][2] % nicetext(quantity.replace("eta","")) , d_axes['eta'][3]) 
         elif 'deltar' in quantity:
-            function[0]((d['deltar'][0], d['deltar'][1]), d['deltar'][2] % (nicetext(quantity.replace("deltar-","").split("-")[0]), 
-                    nicetext(quantity.replace("deltar-","").split("-")[1])), d['deltar'][3]) 
+            function[0]((d_axes['deltar'][0], d_axes['deltar'][1]), d_axes['deltar'][2] % (nicetext(quantity.replace("deltar-","").split("-")[0]), 
+                    nicetext(quantity.replace("deltar-","").split("-")[1])), d_axes['deltar'][3]) 
         elif 'events' == quantity:
             function[0](bottom=0.0, quantity="Events")
         elif 'cut' in quantity:
-            function[0]((d['cut'][0], d['cut'][1]), d['cut'][2] % nicetext(quantity.replace("cut-","")), d['cut'][3]) 
+            function[0]((d_axes['cut'][0], d_axes['cut'][1]), d_axes['cut'][2] % nicetext(quantity.replace("cut-","")), d_axes['cut'][3]) 
         elif 'fraction' in quantity and 'MET' not in quantity:
-            function[0]((d[quantity[4:-8]][0], d[quantity[4:-8]][1]), d[quantity[4:-8]][2] % nicetext(quantity[:4]), d[quantity[4:-8]][3])
+            function[0]((d_axes[quantity[4:-8]][0], d_axes[quantity[4:-8]][1]), d_axes[quantity[4:-8]][2] % nicetext(quantity[:4]), d_axes[quantity[4:-8]][3])
         elif quantity == 'ratio':
-            function[0]((d['ratio'][0], d['ratio'][1]), d['ratio'][2] % (opt.labels[0], opt.labels[1]), d['ratio'][3]) 
+            function[0]((d_axes['ratio'][0], d_axes['ratio'][1]), d_axes['ratio'][2] % (opt.labels[0], opt.labels[1]), d_axes['ratio'][3]) 
         elif quantity in d:     # if no special options, read from dictionary
-            function[0]((d[quantity][0], d[quantity][1]), d[quantity][2], d[quantity][3])
+            function[0]((d_axes[quantity][0], d_axes[quantity][1]), d_axes[quantity][2], d_axes[quantity][3])
         else:
             print '"'+quantity + '" is not defined and therefore directly written to label.'
             function[0](quantity=quantity)
@@ -901,33 +803,33 @@ def getaxislabels_list(quantity, ax=None):
     # lower limit, upper limit, label, unit
     if 'phi' in quantity:
         if 'deltaphi' in quantity:
-           labels_list = [d['deltaphi'][0], d['deltaphi'][1], d['deltaphi'][2] % (nicetext(quantity.replace("deltaphi-","").split("-")[0]), 
-                        nicetext(quantity.replace("deltaphi-","").split("-")[1])), d['deltaphi'][3]]
+           labels_list = [d_axes['deltaphi'][0], d_axes['deltaphi'][1], d_axes['deltaphi'][2] % (nicetext(quantity.replace("deltaphi-","").split("-")[0]), 
+                        nicetext(quantity.replace("deltaphi-","").split("-")[1])), d_axes['deltaphi'][3]]
         elif 'phiabsdiff' in quantity:
-             labels_list = [d['phiabsdiff'][0], d['phiabsdiff'][1], d['phiabsdiff'][2] % nicetext(quantity.replace("phiabsdiff","")),
-                        d['phiabsdiff'][3]]
+             labels_list = [d_axes['phiabsdiff'][0], d_axes['phiabsdiff'][1], d_axes['phiabsdiff'][2] % nicetext(quantity.replace("phiabsdiff","")),
+                        d_axes['phiabsdiff'][3]]
         elif 'abs' in quantity:
-            labels_list = [d['absphi'][0], d['absphi'][1], d['absphi'][2] % 
-                        nicetext(quantity.replace("abs_","").replace("_phi","")) , d['absphi'][3]]
+            labels_list = [d_axes['absphi'][0], d_axes['absphi'][1], d_axes['absphi'][2] % 
+                        nicetext(quantity.replace("abs_","").replace("_phi","")) , d_axes['absphi'][3]]
         else:
-                labels_list = [d['phi'][0], d['phi'][1], d['phi'][2] % nicetext(quantity.replace("phi","")) , d['phi'][3]]
+                labels_list = [d_axes['phi'][0], d_axes['phi'][1], d_axes['phi'][2] % nicetext(quantity.replace("phi","")) , d_axes['phi'][3]]
     elif 'eta' in quantity:
         if 'deltaeta' in quantity:
-            labels_list = [d['deltaeta'][0], d['deltaeta'][1], d['deltaeta'][2] % (nicetext(quantity.replace("deltaeta-","").split("-")[0]),
-                         nicetext(quantity.replace("deltaeta-","").split("-")[1])), d['deltaeta'][3]]
+            labels_list = [d_axes['deltaeta'][0], d_axes['deltaeta'][1], d_axes['deltaeta'][2] % (nicetext(quantity.replace("deltaeta-","").split("-")[0]),
+                         nicetext(quantity.replace("deltaeta-","").split("-")[1])), d_axes['deltaeta'][3]]
         elif 'etaabsdiff' in quantity:
-            labels_list = [d['deltaeta'][0], d['deltaeta'][1], d['deltaeta'][2] % nicetext(quantity.replace("etaabsdiff","")) , d['deltaeta'][3]]
+            labels_list = [d_axes['deltaeta'][0], d_axes['deltaeta'][1], d_axes['deltaeta'][2] % nicetext(quantity.replace("etaabsdiff","")) , d_axes['deltaeta'][3]]
         elif 'abseta' in quantity:
-            labels_list = [d['abseta'][0], d['abseta'][1], d['abseta'][2] % nicetext(quantity.replace("abseta","")) , d['abseta'][3]]
+            labels_list = [d_axes['abseta'][0], d_axes['abseta'][1], d_axes['abseta'][2] % nicetext(quantity.replace("abseta","")) , d_axes['abseta'][3]]
         else:
-            labels_list = [d['eta'][0], d['eta'][1], d['eta'][2] % nicetext(quantity.replace("eta","")) , d['eta'][3]]
+            labels_list = [d_axes['eta'][0], d_axes['eta'][1], d_axes['eta'][2] % nicetext(quantity.replace("eta","")) , d_axes['eta'][3]]
     elif 'deltar' in quantity:
-        labels_list = [d['deltar'][0], d['deltar'][1], d['deltar'][2] % (nicetext(quantity.replace("deltar-","").split("-")[0]), 
-                    nicetext(quantity.replace("deltar-","").split("-")[1])), d['deltar'][3]]
+        labels_list = [d_axes['deltar'][0], d_axes['deltar'][1], d_axes['deltar'][2] % (nicetext(quantity.replace("deltar-","").split("-")[0]), 
+                    nicetext(quantity.replace("deltar-","").split("-")[1])), d_axes['deltar'][3]]
     elif 'fraction' in quantity and 'MET' not in quantity:
-        labels_list = [d[quantity[4:-8]][0], d[quantity[4:-8]][1], d[quantity[4:-8]][2] % nicetext(quantity[:4]), d[quantity[4:-8]][3]]
+        labels_list = [d_axes[quantity[4:-8]][0], d_axes[quantity[4:-8]][1], d_axes[quantity[4:-8]][2] % nicetext(quantity[:4]), d_axes[quantity[4:-8]][3]]
     elif quantity in d:
-        labels_list = [d[quantity][0], d[quantity][1], d[quantity][2] , d[quantity][3]]
+        labels_list = [d_axes[quantity][0], d_axes[quantity][1], d_axes[quantity][2] , d_axes[quantity][3]]
     else:
         labels_list =  [0,1,quantity, ""]
     return labels_list
