@@ -106,7 +106,8 @@ public:
 
 		else if (m_respType == RecoGen)
 		{
-			if (m_jetnum >= metaData.GetValidJetCount(set, event, genName))
+			if (m_jetnum >= metaData.GetValidJetCount(set, event, genName)
+					|| m_jetnum >= metaData.GetValidJetCount(set, event))
 			{
 				//CALIB_LOG("Reco to gen matching of jet_" << m_jetnum << ": Only " << metaData.GetValidJetCount(set, event, genName) << " genjet(s) in the event!")
 				return;
