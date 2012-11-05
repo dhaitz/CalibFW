@@ -39,7 +39,7 @@ for (( i=0; i<${tLen};)); do
 
     # run the job
     echo -e "Job ${JOBS}: $out \c "
-    echo "ROOTSYS=${ROOTPATH} PATH=$PATH:$ROOTSYS/bin LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTSYS/lib:$ROOTSYS/lib/root hadd -f ${out} ${ifiles}" | qsub -q short -cwd
+    echo "ROOTSYS=${ROOTPATH} PATH=$PATH:$ROOTSYS/bin LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTSYS/lib:$ROOTSYS/lib/root hadd -f ${out} ${ifiles}" | qsub -q express -cwd
 
     let i+=$INC
     let JOBS+=1
@@ -64,18 +64,15 @@ while (($JOBS > 1)); do
     fmerge $OUT $INC
     sleep 2
 
-    # NF = number of qstat output lines for Jobs STDIN / 23 -> number of unfinished jobs
-    NF=`qstat -j STDIN| wc -l`
-    let NF/=23
-
+    # NF = number of for jobs from STDIN retrieved from qstat
+    NF=`qstat | grep STDIN |  wc -l`
         
     #check if there are still jobs running
     while (($NF > 0)); do
         echo "Waiting for $NF jobs to finish..."
         sleep 5 
        
-        NF=`qstat -j STDIN| wc -l`
-        let NF/=23
+        NF=`qstat | grep STDIN | wc -l`
     done
 
     if [ $JOBS = 1 ]; then
