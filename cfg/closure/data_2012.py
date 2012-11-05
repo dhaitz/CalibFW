@@ -2,9 +2,9 @@ import sys
 import ClosureConfigBase as cbase
 
 conf = cbase.BaseConfig('data', '2012')
-conf["JsonFile"] = cbase.GetBasePath() + "data/json/Cert_190456-203853_8TeV_CombinedReco_Collisions12_JSON_v2.txt"
+conf['JsonFile'] = cbase.GetBasePath() + "data/json/Cert_190456-206098_8TeV_CombinedReco_Collisions12_JSON.txt"
 conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa53_Data12/*.root", sys.argv)
-conf["OutputPath"] = "closure_data_2012"
+conf["OutputPath"] = "closure_data2012"
 
 algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2L3", "AK5PFJetsL1L2L3Res"]
 cbase.addCHS(algorithms)
