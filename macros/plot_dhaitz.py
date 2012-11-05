@@ -15,7 +15,7 @@
     3. getroot does the interaction with ROOT files
     4. good standard settings:
        settings hierarchy:
-        (0) plotBase.commandlineOptions defaults are overwritten by
+        (0) plotBase.options defaults are overwritten by
         (1) arguments in main are overwritten by
         (2) commandline arguments are overwritten by
         (3) changes afterwards in main

@@ -7,38 +7,44 @@ import plotdatamc
 import plotfractions
 import plotresponse
 import plot_resolution
+import plot_mikko
+import plot2d
 
+def plot(cluster=False):
 
-def plot():
     op = plotbase.options(
-        files=[
-            "/home/berger/CalibFW/work/data_2012_vbf/out/closure_data_2012_vbf.root",
-            "/home/berger/CalibFW/work/mc_madgraphSummer12_vbf/out/closure_mc_madgraphSummer12_vbf.root",
-        ],
         algorithm="AK5PFJetsCHS",
         correction="L1L2L3Res",
-        labels=["2012 data", "Madgraph"],
-        colors=['black', '#19D175'],
-        style=["o","f"],
-        lumi=9882.0,
-        author="Joram Berger",
-        date='today',
-        out="out_vbf",
-        plots=plotdatamc.plots +
-              plotresponse.plots +
-              plotfractions.plots #+
-              #plot_resolution.plots
+        out="out/vbf/",
+        labels=["data", "MC", "MC2"],
+        colors=['black', '#CBDBF9','#800000', 'blue', '#00FFFF'],
+        style=["o", "f", "-", "-", "-"],
+
+        lumi=14712.0,
+        energy=8,
+        plots=plotresponse.plots
+            + plotfractions.plots
+            + plot2d.plots
+            + plotdatamc.plots
+            #+ plot_resolution.plots
+            #+ plot_mikko.plots
         )
-    module_list = [plotdatamc, plotresponse, plot_resolution, plotfractions]
+    module_list = [plotresponse, plotfractions, plot2d, plotdatamc, plot_resolution, plot_mikko]
 
     op.normalize = True
 
-    print "Using Data file " + op.files[0]
-    print "Using MC file " + op.files[1]
+    print "Number of files:", len(op.files)
+    files=[]
+    for f in op.files:
+        print "Using as file %d: %s" % (1 + op.files.index(f), f)
+        files += [getroot.openfile(f, op.verbose)]
 
-    files = [getroot.openfile(f, op.verbose) for f in op.files]
-    op.bins = getroot.getbins(files[0],
-            [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
+    if cluster: return op, files
+
+    op.bins = getroot.getbins(files[0], op.bins)
+    op.eta = getroot.getetabins(files[0], op.eta)
+    op.npv = getroot.getnpvbins(files[0], op.npv)
+    op.cut = getroot.getcutbins(files[0], op.cut)
 
     plotbase.plot(module_list, op.plots, files, op)
 
