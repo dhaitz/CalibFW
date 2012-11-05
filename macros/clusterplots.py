@@ -1,5 +1,6 @@
 import os
 import getroot
+import plotbase
 import plot, plot_dhaitz
 import plotresponse, plotfractions
 import getpass
@@ -34,8 +35,8 @@ def clusterplots():
 
     # directory for STDOUT/STDERR
     jobinfo_dir = opt.out+"/jobinfo/"
-    if not os.path.exists(opt.out): os.mkdir(opt.out)
-    if not os.path.exists(jobinfo_dir): os.mkdir(jobinfo_dir)
+    plotbase.EnsurePathExists(opt.out)
+    plotbase.EnsurePathExists(jobinfo_dir)
 
     # divide into n jobs and submit
     for plots in [plotlist[i:i+len(plotlist)/n_jobs] for i in range(0, len(plotlist), len(plotlist)/n_jobs)]:
