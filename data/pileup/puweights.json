@@ -511,7 +511,7 @@
       0.0074641449880991917, 
       0.0074725316375456102
     ], 
-    "xsection": 1614.0
+    "xsection": 2950.0
   }, 
   "kappa53_MC12_madgraph_190456-201678_8TeV_CombinedReco": {
     "step": 1, 
@@ -587,7 +587,7 @@
       0.0, 
       0.0
     ], 
-    "xsection": 1614.0
+    "xsection": 2950.0
   }, 
   "kappa53_MC12_madgraph_190456-202016_8TeV_CombinedReco": {
     "step": 1, 
@@ -663,7 +663,7 @@
       0.0, 
       0.0
     ], 
-    "xsection": 1614.0
+    "xsection": 2950.0
   }, 
   "kappa53_MC12_madgraph_190456-203002_8TeV_CombinedReco": {
     "step": 1, 
@@ -739,7 +739,7 @@
       0.0, 
       0.0
     ], 
-    "xsection": 1614.0
+    "xsection": 2950.0
   }, 
   "kappa53_MC12_madgraph_190456-203853_8TeV_CombinedReco_v2": {
     "step": 1, 

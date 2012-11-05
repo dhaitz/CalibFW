@@ -292,7 +292,7 @@ def options():
         help="Minimum bias cross section in mb (NB: pileupCalc takes µb!)")
     parser.add_argument('-n', '--numPileupBins', type=int, default=70,
         help="Maximum number of pile-up bins (default: 70).")
-    parser.add_argument('-X', '--mcXsec', type=float, default=1614.0,
+    parser.add_argument('-X', '--mcXsec', type=float, default=2950.0,
         help="Cross section of the MC sample to be saved alongside the weights.")
 
     parser.add_argument('-v', '--verbose', action='store_true',
