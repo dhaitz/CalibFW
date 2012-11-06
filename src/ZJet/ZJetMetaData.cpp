@@ -161,6 +161,20 @@ double ZJetMetaData::GetZeppenfeld(const KDataLV* jet1, const KDataLV* jet2, con
 	return std::abs((2.0 * eta3 - eta1 - eta2) / (eta1 - eta2));
 }
 
+// to be implemented in a better way with sorted collections
+double ZJetMetaData::GetMuonResponse() const
+{
+		double gm1 = m_genMuons[0].p4.Pt();
+		double gm2 = m_genMuons[1].p4.Pt();
+		double rm1 = GetValidMuons()[0].p4.Pt();
+		double rm2 = GetValidMuons()[1].p4.Pt();
+
+		if ((gm1 - gm2) * (rm1 - rm2) > 0)
+			return 0.5 * (rm1 / gm1 + rm2 / gm2);
+		else
+			return 0.5 * (rm2 / gm1 + rm1 / gm2);
+}
+
 void ZJetMetaData::SortJetCollections()
 {
 	for (MetaPFJetContainer::iterator it = m_validPFJets.begin();

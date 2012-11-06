@@ -512,6 +512,11 @@ def ExpandCutNoCut(pipelineDict, isMC=False):
         }
 
         consumers_mc = {
+            'bin_muresp_response': {
+                'Name': "bin_response",
+                'ProductName': "muresp_" + algo,
+                'ResponseType': "muresp",
+            },
             'bin_z_response': {
                 'Name': "bin_response",
                 'ProductName': "zresp_" + algo,

@@ -55,6 +55,8 @@ public:
 			m_respType = Z;
 		else if (sType == "recogen")
 			m_respType = RecoGen;
+		else if (sType == "muresp")
+			m_respType = MuonResponse;
 		else if (sType == "genbal")
 			m_respType = GenBalance;
 		else if (sType == "genmpf")
@@ -255,6 +257,13 @@ public:
 			m_histo->Fill(metaData.GetBalanceQuality(), metaData.GetWeight());
 		}
 
+		else if (m_respType == MuonResponse)
+		{
+			if (metaData.m_genMuons.size() != 2 || metaData.GetValidMuons().size() != 2)
+				return;
+			m_histo->Fill(metaData.GetMuonResponse(), metaData.GetWeight());
+		}
+
 		else
 			CALIB_LOG_FATAL("Response type " << m_respType << " not implemented!")
 	}
@@ -277,7 +286,7 @@ private:
 		// reco level
 		Mpf, MpfRaw, Balance, TwoBalance, Zeppenfeld,
 		// reco to gen
-		Z, RecoGen,
+		Z, RecoGen, MuonResponse,
 		// gen level
 		GenMpf, GenBalance, GenTwoBalance, GenZeppenfeld, Parton, BalancedParton,
 		GenBalanceToParton, GenBalanceToBalancedParton,

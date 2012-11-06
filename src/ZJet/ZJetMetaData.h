@@ -211,6 +211,8 @@ public:
 		return parton->p4.Pt() / reference->p4.Pt();
 	}
 
+	double GetMuonResponse() const;
+
 	IMPL_PROPERTY(bool, ValidZ)
 	IMPL_PROPERTY(bool, ValidGenZ)
 	IMPL_PROPERTY(bool, ValidParton)
