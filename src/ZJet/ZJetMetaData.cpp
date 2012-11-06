@@ -127,6 +127,17 @@ double ZJetMetaData::GetMPF(const KDataLV* met) const
 	return 1.0f + scalPtEt / scalPtSq;
 }
 
+double ZJetMetaData::GetGenMPF(const KDataLV* met) const
+{
+	double scalPtEt = GetRefGenZ().p4.Px() * met->p4.Px()
+			+ GetRefGenZ().p4.Py() * met->p4.Py();
+
+	double scalPtSq = GetRefGenZ().p4.Px() * GetRefGenZ().p4.Px()
+			+ GetRefGenZ().p4.Py() * GetRefGenZ().p4.Py();
+
+	return 1.0f + scalPtEt / scalPtSq;
+}
+
 double ZJetMetaData::GetTwoBalance(const KDataLV* jet1, const KDataLV* jet2) const
 {
 	return (jet1->p4 + jet2->p4).Pt() / GetRefZ().p4.Pt();

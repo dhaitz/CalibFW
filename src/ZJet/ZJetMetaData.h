@@ -180,6 +180,7 @@ public:
 	}
 
 	double GetMPF(const KDataLV* met) const;
+	double GetGenMPF(const KDataLV* met) const;
 
 	double GetTwoBalance(const KDataLV* jet1, const KDataLV* jet2) const;
 	double GetGenTwoBalance(const KDataLV* jet1, const KDataLV* jet2) const;

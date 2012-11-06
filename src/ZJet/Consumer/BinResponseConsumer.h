@@ -207,7 +207,7 @@ public:
 		{
 			if (!metaData.HasValidGenZ())
 				return;
-			m_histo->Fill(metaData.GetMPF(metaData.GetPtGenMet()), metaData.GetWeight());
+			m_histo->Fill(metaData.GetGenMPF(metaData.GetPtGenMet()), metaData.GetWeight());
 		}
 
 		else if (m_respType == Z)

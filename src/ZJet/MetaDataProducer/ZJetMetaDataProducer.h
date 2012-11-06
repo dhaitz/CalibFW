@@ -422,6 +422,7 @@ public:
 		{
 			if (it->p4.Pt() < pptmin || it->p4.Eta() > petamax)
 				continue;
+			met.p4 = met.p4 + it->p4;
 
 			dphi = ROOT::Math::VectorUtil::DeltaPhi(it->p4, metaData.GetRefGenZ().p4);
 			dphi = ROOT::Math::VectorUtil::Phi_mpi_pi(dphi - ROOT::Math::Pi());
