@@ -813,7 +813,7 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
                 if l3residual:
                     AddCorrectionConsumer(pval, algo, "L1L2L3", "L1L2L3Res")
 
-def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
+def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False, isMC=False):
 
     def AddGenericProfileConsumer(x, y, jets=None):
         if jets is None:
@@ -840,7 +840,17 @@ def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, 
                 for x in x_quantities:
                     for y in y_quantities:
                         if x is not y:
-                          AddGenericProfileConsumer(x,y)
+                            AddGenericProfileConsumer(x,y)
+
+                            if isMC:
+                                AddGenericProfileConsumer('genalpha','genbalance')
+                                AddGenericProfileConsumer('alpha','genbalance')
+                                AddGenericProfileConsumer('genzpt','genzmass')
+                                AddGenericProfileConsumer('genzrapidity','genzmass')
+                                AddGenericProfileConsumer('genzrapidity','genzpt')
+                                AddGenericProfileConsumer('genzeta','genzmass')
+                                AddGenericProfileConsumer('genzeta','genzpt')
+
                     AddGenericProfileConsumer(x, "jetptratio", jets=[algo,algo,0,1])
                     AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo,algo,0,1])
 
@@ -894,11 +904,16 @@ def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forI
                 AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'jet2pt')
                 AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'ptbalance')
                 AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'mpf')
+                AddTwoDProfileConsumer('zpt', 'zeta', 'zmass')
 
                 AddTwoDProfileEtaPhiConsumer('z', 'jet1', 'jet1pt')
                 AddTwoDProfileEtaPhiConsumer('jet1', 'jet2', 'jet1pt')
                 AddTwoDProfileEtaPhiConsumer('z', 'jet1', 'ptbalance')
                 AddTwoDProfileEtaPhiConsumer('jet1', 'jet2', 'ptbalance')
+
+                if isMC:
+                    AddTwoDProfileConsumer('genzpt', 'genzeta', 'genzmass')
+                    AddTwoDProfileConsumer('genzpt', 'genzeta', 'genzrapidity')
 
             #cuts
             if p == "default_" + algo:

@@ -87,17 +87,25 @@ public:
 
 		else if ( ref == "zpt" )
 			this->SetYSource ( new SourceZPt() );
+		else if ( ref == "genzpt" )
+			this->SetYSource ( new SourceGenZPt() );
 		else if ( ref == "zeta" )
 			this->SetYSource ( new SourceZEta() );
+		else if ( ref == "genzeta" )
+			this->SetYSource ( new SourceGenZEta() );
 		else if ( ref == "zabseta" )
 			this->SetYSource ( new SourceZAbsEta() );
 		else if ( ref == "zphi" )
 			this->SetYSource ( new SourceZPhi() );
 		else if ( ref == "zmass" )
 			this->SetYSource ( new SourceZMass() );
+		else if ( ref == "genzmass" )
+			this->SetYSource ( new SourceGenZMass() );
 
 		else if ( ref == "ptbalance" )
 			this->SetYSource ( new SourcePtBalance() );
+		else if ( ref == "genbalance" )
+			this->SetYSource ( new SourceGenBalance() );
 		else if ( ref == "mpf" )
 			this->SetYSource ( new SourceMPFresponse() );
 		else if ( ref == "mpf-raw" )
@@ -110,6 +118,8 @@ public:
 			this->SetYSource ( new SourceMETPhiDiff() );
 		else if ( ref == "alpha" )
 			this->SetYSource ( new SourceAlpha() );
+		else if ( ref == "genalpha" )
+			this->SetYSource ( new SourceGenAlpha() );
 
 		else if ( ref == "METpt" )
 			this->SetYSource ( new SourceMETPt() );
@@ -201,10 +211,16 @@ public:
 
 		else if ( ref == "zpt")
 			this->SetXSource ( new SourceZPt());
+		else if ( ref == "genzpt" )
+			this->SetXSource ( new SourceGenZPt() );
+		else if ( ref == "genzrapidity" )
+			this->SetXSource ( new SourceGenZRapidity() );
 		else if ( ref == "zphi")
 			this->SetXSource ( new SourceZPhi());
 		else if ( ref == "zeta")
 			this->SetXSource ( new SourceZEta());
+		else if ( ref == "genzeta" )
+			this->SetXSource ( new SourceGenZEta() );
 
 		else if ( ref == "METpt" )
 			this->SetXSource ( new SourceMETPt() );
@@ -219,6 +235,8 @@ public:
 			this->SetXSource ( new SourceValidJets() );
 		else if ( ref == "alpha" )
 			this->SetXSource ( new SourceAlpha() );
+		else if ( ref == "genalpha" )
+			this->SetXSource ( new SourceGenAlpha() );
 
 		else if ( ref == "deltarsecondjettoz" )
 			this->SetXSource ( new SourceDeltaRSecondJetToZ() );

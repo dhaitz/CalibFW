@@ -99,8 +99,12 @@ public:
 
 		else if ( ref == "zpt" )
 			this->SetYSource ( new SourceZPt() );
+		else if ( ref == "genzpt" )
+			this->SetYSource ( new SourceGenZPt() );
 		else if ( ref == "zeta" )
 			this->SetYSource ( new SourceZEta() );
+		else if ( ref == "genzeta" )
+			this->SetYSource ( new SourceGenZEta() );
 		else if ( ref == "zabseta" )
 			this->SetYSource ( new SourceZAbsEta() );
 		else if ( ref == "zphi" )
@@ -194,10 +198,14 @@ public:
 
 		else if ( ref == "zpt")
 			this->SetXSource ( new SourceZPt());
+		else if ( ref == "genzpt")
+			this->SetXSource ( new SourceGenZPt());
 		else if ( ref == "zphi")
 			this->SetXSource ( new SourceZPhi());
-		else if ( ref == "zeta")
-			this->SetXSource ( new SourceZEta());
+		else if ( ref == "zeta" )
+			this->SetXSource ( new SourceZEta() );
+		else if ( ref == "genzeta")
+			this->SetXSource ( new SourceGenZEta());
 
 		else if ( ref == "METpt" )
 			this->SetXSource ( new SourceMETPt() );
@@ -258,6 +266,12 @@ public:
 			this->SetZSource ( new SourceZAbsEta() );
 		else if ( ref == "zphi" )
 			this->SetZSource ( new SourceZPhi() );
+		else if ( ref == "zmass" )
+			this->SetZSource ( new SourceZMass() );
+		else if ( ref == "genzmass" )
+			this->SetZSource ( new SourceGenZMass() );
+		else if ( ref == "genzrapidity" )
+			this->SetZSource ( new SourceGenZRapidity() );
 
 		else if ( ref == "ptbalance" )
 			this->SetZSource ( new SourcePtBalance() );

@@ -268,7 +268,39 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = metaData.GetValidPrimaryJet(settings, event)->p4.Pt()/metaData.GetRefZ().p4.Pt();
+		KDataLV* jet = metaData.GetValidJet(settings, event, 0);
+	        val = metaData.GetBalance(jet);
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 2.0;
+	}
+};
+
+
+class SourceGenBalance: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		std::string genName(JetType::GetGenName(settings.GetJetAlgorithm()));
+
+    if ( metaData.GetValidJetCount(settings, event, genName)  == 0)
+        return false;
+
+		KDataLV* jet = metaData.GetValidJet(settings, event, 0, genName);
+	        val = metaData.GetGenBalance(jet);
 		return true;
 	}
 
@@ -678,6 +710,35 @@ public:
 	}	
 };
 
+class SourceGenAlpha: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		std::string genName(JetType::GetGenName(settings.GetJetAlgorithm()));
+
+		if (metaData.GetValidJetCount(settings, event, genName) < 2) 
+			return false;
+
+		KDataLV* jet = metaData.GetValidJet(settings, event, 1, genName);
+		val = metaData.GetGenBalance(jet);
+		return true;
+	}
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return  0.5;
+	}	
+};
+
 class SourceIntegratedLumi: public ZJetSourceBase
 {
 public:
@@ -804,6 +865,54 @@ public:
 	}
 };
 
+class SourceGenZPt: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = metaData.GetRefGenZ().p4.Pt();
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 200;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 1000.0;
+	}
+};
+
+class SourceGenZRapidity: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = metaData.GetRefGenZ().p4.Rapidity();
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return -5.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 5.0f;
+	}
+};
+
 class SourceZEta: public ZJetSourceBase
 {
 public:
@@ -829,6 +938,30 @@ public:
 	}
 };
 
+class SourceGenZEta: public ZJetSourceBase
+{
+public:
+
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = metaData.GetRefGenZ().p4.Eta();
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return -10.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 10.0;
+	}
+};
 class SourceZAbsEta: public ZJetSourceBase
 {
 public:
@@ -853,7 +986,6 @@ public:
 		return 10.0;
 	}
 };
-
 class SourceZPhi: public ZJetSourceBase
 {
 public:
@@ -885,6 +1017,29 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 		val = metaData.GetRefZ().p4.mass();
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 500;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 500.f;
+	}
+};
+class SourceGenZMass: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = metaData.GetRefGenZ().p4.mass();
 		return true;
 	}
 
