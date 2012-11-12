@@ -913,6 +913,30 @@ public:
 	}
 };
 
+class SourceGenZEtaRapidityRatio: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = metaData.GetRefGenZ().p4.Eta() / metaData.GetRefGenZ().p4.Rapidity();
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return -2.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 2.0f;
+	}
+};
+
 class SourceZEta: public ZJetSourceBase
 {
 public:
@@ -1428,10 +1452,6 @@ public:
 	virtual double GetDefaultLowBin() const { return 0.f; }
 	virtual double GetDefaultHighBin() const { return 1.f; }
 };
-
-}
-
-#endif /* SOURCES_H_ */
 
 }
 

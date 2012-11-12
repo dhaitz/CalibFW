@@ -69,7 +69,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
             elif 'cut_' not in quantity and opt.lumi !=None:
                 f.scale(opt.lumi)
 
-        if 'L1' in quantity or 'L2' in quantity or 'L3' in quantity: 
+        if 'Profile' in f.classname and s == 'f':
             s='o'
 
         if change.has_key('algorithm') and 'GenJets' in change['algorithm']:
@@ -81,7 +81,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
         else:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, fmt=s, capsize=0 ,label=l)
 
-        if fit is not None: plotbase.fit(fit, ax, quantity, rootfile, change, 1, c, datamc.index(f), rootobject=rootobject, offset=fit_offset)
+        if fit is not None: plotbase.fit(fit, ax, quantity, rootfile, change, 1, c, datamc.index(f), rootobject=rootobject, offset=fit_offset, label=l)
 
 
     # Jet response plots: add vertical lines for mean and mean error to see data/MC agreement
@@ -112,6 +112,8 @@ def datamcplot(quantity, files, opt, legloc='center right',
     if opt.eventnumberlabel is True: plotbase.eventnumberlabel(ax, opt, events)
 
     if xy_names is not None:
+        x = xy_names[0]
+        y = xy_names[1]
         plotbase.axislabels(ax, xy_names[0], xy_names[1])
     else:
         xy = quantity.split("_")

@@ -1,3 +1,140 @@
+import plotbase
+import copy
+import plotdatamc
+import getroot
+import math
+import plotresponse
+
+def closure(files, opt):
+    def divide((a, a_err), (b, b_err)):
+        if (b != 0.0): R = a/b
+        else: R =0
+        Rerr=R*math.sqrt((a_err / a)**2 + (b_err / b)**2)
+        return R, Rerr
+
+    def multiply((a, a_err), (b, b_err)):
+        R = a* b
+        Rerr= R * math.sqrt((a_err / a)**2 + (b_err / b)**2)
+        return R, Rerr
+    changes ={}
+    changes= plotbase.getchanges(opt, changes)
+
+
+    #get extrapol factors with alpha 035
+    #changes['var']='var_CutSecondLeadingToZPt_0_4'
+    #changes['correction']='L1L2L3'
+
+    balresp = (getroot.getobjectfromnick('balresp', files[0], changes, rebin=1).GetMean(), getroot.getobjectfromnick('balresp', files[0], changes, rebin=1).GetMeanError())
+    mpfresp = (getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMean(), getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMeanError())
+    genbal = (getroot.getobjectfromnick('genbal', files[0], changes, rebin=1).GetMean(), getroot.getobjectfromnick('genbal', files[0], changes, rebin=1).GetMeanError())
+
+
+    intercept, ierr, slope, serr,  chi2, ndf, conf_intervals = getroot.fitline2(getroot.getobjectfromnick('ptbalance_alpha', files[0], changes, rebin=1))
+    balresp_extrapol = (intercept, conf_intervals[0])
+    extrapol_reco_factor = divide(balresp_extrapol, balresp)
+
+    intercept2, ierr2, slope2, serr2,  chi22, ndf2, conf_intervals2 = getroot.fitline2(getroot.getobjectfromnick('genbalance_genalpha', files[0], changes, rebin=1))
+    genbal_extrapol = (intercept2, conf_intervals2[0])
+    extrapol_gen_factor = divide(genbal_extrapol, genbal)
+
+
+    intercept3, ierr3, slope3, serr3,  chi23, ndf3, conf_intervals3 = getroot.fitline2(getroot.getobjectfromnick('mpf_alpha', files[0], changes, rebin=1))
+    mpf_extrapol = (intercept3, conf_intervals3[0])
+    extrapol_mpf_factor = divide(mpf_extrapol, mpfresp)
+
+
+    #del changes['var']
+    #del changes['correction']
+    #other quantities with alpha 02
+
+
+    recogen = (getroot.getobjectfromnick('recogen', files[0], changes, rebin=1).GetMean(), getroot.getobjectfromnick('recogen', files[0], changes, rebin=1).GetMeanError())
+    zresp = (getroot.getobjectfromnick('zresp', files[0], changes, rebin=1).GetMean(), getroot.getobjectfromnick('zresp', files[0], changes, rebin=1).GetMeanError())
+    balresp = (getroot.getobjectfromnick('balresp', files[0], changes, rebin=1).GetMean(), getroot.getobjectfromnick('balresp', files[0], changes, rebin=1).GetMeanError())
+    mpfresp = (getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMean(), getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMeanError())
+    mpfresp_raw = (getroot.getobjectfromnick('mpfresp-raw', files[0], changes, rebin=1).GetMean(), getroot.getobjectfromnick('mpfresp-raw', files[0], changes, rebin=1).GetMeanError())
+    genbal = (getroot.getobjectfromnick('genbal', files[0], changes, rebin=1).GetMean(), getroot.getobjectfromnick('genbal', files[0], changes, rebin=1).GetMeanError())
+    balparton = (getroot.getobjectfromnick('balparton', files[0], changes, rebin=1).GetMean(), getroot.getobjectfromnick('balparton', files[0], changes, rebin=1).GetMeanError())
+    partoncorr = divide(balparton, genbal)
+
+
+
+    format = "%1.4f"
+    print changes
+    print ""
+    print (r"balresp reco        %s +- %s" % (format, format) ) % balresp
+    print (r"mpf                 %s +- %s" % (format, format) ) % mpfresp
+    print (r"balparton           %s +- %s" % (format, format) ) % balparton
+    print (r"zresp               %s +- %s" % (format, format) ) % zresp
+    print (r"recogen             %s +- %s" % (format, format) ) % recogen
+    print (r"extrapolReco_factor %s +- %s" % (format, format) ) % extrapol_reco_factor
+    print (r"extrapolGen_factor  %s +- %s" % (format, format) ) % extrapol_gen_factor
+    print (r"extrapolMPF_factor  %s +- %s" % (format, format) ) % extrapol_mpf_factor
+    print (r"parton/genjet       %s +- %s" % (format, format) ) % divide(balparton, genbal)
+    print ""
+    print (r"pTgenjet / pTgenZ                %s +- %s" % (format, format) ) % genbal
+
+    genbal = multiply(genbal, extrapol_gen_factor )
+    print (r"* gen Level extrapolation        %s +- %s" % (format, format) ) % genbal
+
+    #genbal = multiply(genbal, partoncorr)
+    #print (r"* pTparton/pTgenjet correction   %s +- %s" % (format, format) ) % genbal
+
+    #genbal = divide(genbal, balparton)
+    #print (r"* pTparton/pTZ      correction   %s +- %s" % (format, format) ) % genbal
+
+    reco_bal = divide(multiply(genbal, recogen), zresp)
+    print (r"* GenToReco for Jet and Z        %s +- %s" % (format, format) ) % reco_bal
+
+
+    print ""
+    print (r"pTrecojet / pTrecoZ              %s +- %s" % (format, format) ) % balresp
+
+    balresp = multiply(balresp, extrapol_reco_factor )
+    print (r"* reco Level extrapolation       %s +- %s" % (format, format) ) % balresp
+
+
+
+
+    print ""
+    print (r"MPF (typeI)                      %s +- %s" % (format, format) ) % mpfresp
+    #mpfresp = divide(mpfresp, zresp)
+    #print (r"MPF (GenZ)                             %s +- %s" % (format, format) ) % mpfresp
+
+    mpfresp = multiply(mpfresp, extrapol_mpf_factor)
+    print (r"MPF (extrapol)                   %s +- %s" % (format, format) ) % mpfresp
+
+    print (r"MPF (Raw)                        %s +- %s" % (format, format) ) % mpfresp_raw
+
+
+
+
+def extrapol(files, opt):
+    fig, ax = plotbase.newplot()
+    changes = {}
+    changes['var']="_var_CutSecondLeadingToZPt_0_3"
+    local_opt = copy.deepcopy(opt)
+    
+    rebin = 5
+    if opt.rebin is not None: rebin = opt.rebin
+
+    plotdatamc.datamcplot('ptbalance_alpha', files, local_opt, legloc='upper center',
+           changes=changes, rebin=rebin, subplot=True, 
+           subtext="", fig_axes=(fig, ax),fit='intercept', ratio=False)
+
+    local_opt.colors = ['red', 'maroon']
+    plotdatamc.datamcplot('mpf_alpha', files, local_opt, legloc='upper center',
+           changes=changes, rebin=rebin, subplot=True, xy_names=['alpha','response'],
+           subtext="", fig_axes=(fig, ax),fit='intercept', ratio=False, fit_offset=-0.1)
+
+
+
+    file_name = plotbase.getdefaultfilename("extrapolation_", opt, changes)
+    plotbase.Save(fig, file_name, opt)
+
+
+
+
 
 # function for comparing old and new corrections
 def comparison(datamc, opt):
@@ -183,4 +320,176 @@ def comparison(datamc, opt):
     plotbase.Save(fig, file_name, opt, crop=False, pad=1.5)"""
 
 
+def Fall12(files, opt):
+    local_opt = copy.deepcopy(opt)
+    filelist = [
+                ['/storage/8/dhaitz/CalibFW/work/data_2012/out/closure.root', 
+                 '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12/out/closure.root'],
+                 ['/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC/out/closure.root', 
+                 '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC/out/closure.root'],
+                 ['/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_V4/out/closure.root', 
+                 '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_V4/out/closure.root']
+                ]
+    labellist = [['data_Summer12', 'MC_Summer12'], [ 'data_Fall12V1', 'MC_Fall12V1'], [ 'data_Fall12V4', 'MC_Fall12V4']]
+    
+
+    over = 'zpt'
+    for over in ['zpt', 'npv', 'jet1eta']:
+        fig = plotbase.plt.figure(figsize=[21, 14])
+        fig.suptitle(opt.title, size='xx-large')
+        for typ, row in zip(['bal', 'mpf'], [0,4]):
+            for filenames, labels, col in zip(filelist, labellist, [0,1,2]):
+
+                ax1 = plotbase.plt.subplot2grid((7,3),(row,col), rowspan=2)
+                ax2 = plotbase.plt.subplot2grid((7,3),(row+2,col))
+                fig.add_axes(ax1)
+                fig.add_axes(ax2)
+
+                if over== 'jet1eta' and typ == 'bal': legloc = 'upper right'
+                else: legloc = 'lower left'
+
+                local_opt.labels = labels
+
+                files = []
+                for f in filenames:
+                    files += [getroot.openfile(f, opt.verbose)]
+
+                plotresponse.responseplot(files, local_opt, [typ], over=over, figaxes=(fig,ax1), legloc=legloc, subplot = True)
+                plotresponse.ratioplot(files, local_opt, [typ], binborders=True, fit=True, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True)
+                fig.subplots_adjust(hspace=0.05)
+                ax1.set_xticks([])
+                ax1.set_xlabel("")
+                ax2.set_yticks([1.00, 0.95, 0.90])
+                if col > 0:
+                    ax1.set_ylabel("")
+                    ax2.set_ylabel("")
+                    
+        title=""#"                               Jet Response ($p_T$ balance / MPF) vs. Z $p_T$, $N_{vtx}$ ,  Jet $\eta$   ("  +opt.algorithm+" "+opt.correction+")"
+        fig.suptitle(title, size='x-large')
+
+        file_name = "comparison_ALL_"+over+opt.algorithm+opt.correction
+        plotbase.Save(fig, file_name, opt)
+
+def factors(files, opt):
+    local_opt = copy.deepcopy(opt)
+    filelist = [
+                 ['/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC/out/closure.root', 
+                 '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC/out/closure.root',
+                 '/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_L1Offset/out/closure.root', 
+                 '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_L1Offset/out/closure.root'],
+
+                 ['/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_V4/out/closure.root', 
+                 '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_V4/out/closure.root',
+                 '/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_V4_L1Offset/out/closure.root', 
+                 '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_V4_L1Offset/out/closure.root']
+                ]
+    labellist = [
+                ['data FastJet V1', 'MC FastJet V1', 'data Offset V1', 'MC Offset V1'],
+                ['data FastJet V4', 'MC FastJet V4', 'data Offset V4', 'MC Offset V4']]
+    
+
+
+
+    """filelistt = [
+                 ['/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC/out/closure.root', 
+                 '/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_V4/out/closure.root'],
+ 
+                 ['/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC/out/closure.root',
+                 '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_V4/out/closure.root'],
+
+                 ['/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_L1Offset/out/closure.root', 
+                 '/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_V4_L1Offset/out/closure.root'], 
+
+                 ['/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_L1Offset/out/closure.root',
+                 '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_V4_L1Offset/out/closure.root']
+
+                ]
+    labellistt = ['data FastJet V1', 'data FastJet V4'], ['MC FastJet V1',  'MC FastJet V4'], ['data Offset V1',  'data Offset V4'], ['MC Offset V1','MC Offset V4'
+]]
+
+    names = ['dataV1', 'MCV1', 'dataV4', 'MCV4' ]"""
+    
+    files = []
+    #for sublist in filelist:
+    #    rootfiles = [getroot.openfile(f, opt.verbose) for f in sublist]
+    #    files.append( rootfiles)
+
+    for sublist in filelist:
+        files.append([getroot.openfile(f, opt.verbose) for f in sublist])
+
+    fit = None
+    rebin = 1
+
+   # for files, labellist, name in zip(files, labellist, names)
+    fig, axes= plotbase.newplot(subplots=2)
+    quantity = 'L1abs_npv'
+    local_opt.style = ['o', '*', 'o', '*']
+
+    local_opt.labels = labellist[0]
+    local_opt.colors = ['blue', 'blue', 'red', 'red']
+
+    plotdatamc.datamcplot(quantity, files[0], local_opt, 'upper center', changes={'correction':''}, fig_axes=(fig,axes[0]), fit=fit,
+                        rebin=rebin, subplot=True, subtext="")
+
+    local_opt.labels = labellist[1]
+    plotdatamc.datamcplot(quantity, files[1], local_opt, 'upper center', changes={'correction':''}, fig_axes=(fig,axes[1]), fit=fit,
+                        rebin=rebin, subplot=True, subtext="")
+
+
+    file_name = "L1_comparison_"#+name
+    plotbase.Save(fig, file_name, opt)
+
+
+
+def factors2(files, opt):
+    local_opt = copy.deepcopy(opt)
+
+    filelist = [
+                 ['/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC/out/closure.root', 
+                 '/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_V4/out/closure.root'],
+ 
+                 ['/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC/out/closure.root',
+                 '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_V4/out/closure.root'],
+
+                 ['/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_L1Offset/out/closure.root', 
+                 '/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_V4_L1Offset/out/closure.root'], 
+
+                 ['/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_L1Offset/out/closure.root',
+                 '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_V4_L1Offset/out/closure.root']
+
+                ]
+    labellistt = [['data FastJet V1', 'data FastJet V4'], ['MC FastJet V1',  'MC FastJet V4'], ['data Offset V1',  'data Offset V4'], ['MC Offset V1','MC Offset V4']
+]
+
+    names = ['dataV1', 'MCV1', 'dataV4', 'MCV4' ]
+    
+    files = []
+    for sublist in filelist:
+        rootfiles = [getroot.openfile(f, opt.verbose) for f in sublist]
+        files.append( rootfiles)
+    #print files
+
+    fit = 'chi2_linear'
+    rebin = 1
+    fit_offset = -0.1
+
+    for files, labellist, name in zip(files, labellistt, names):
+        print labellist
+        fig, axes= plotbase.newplot(subplots=2)
+        quantity = 'L1abs_npv'
+        local_opt.style = ['o', '*', 'o', '*']
+
+        local_opt.labels = [labellist[0]]
+        local_opt.colors = ['blue', 'blue', 'red', 'red']
+
+        plotdatamc.datamcplot(quantity, [files[0]], local_opt, 'upper center', changes={'correction':''}, fig_axes=(fig,axes[0]), fit=fit,
+                            rebin=rebin, fit_offset=fit_offset, subplot=True, subtext="")
+
+        local_opt.labels = [labellist[1]]
+        plotdatamc.datamcplot(quantity, [files[1]], local_opt, 'upper center', changes={'correction':''}, fig_axes=(fig,axes[1]), fit=fit,
+                            rebin=rebin, fit_offset=fit_offset, subplot=True, subtext="")
+
+
+        file_name = "L1_comparison_"+name
+        plotbase.Save(fig, file_name, opt)
 

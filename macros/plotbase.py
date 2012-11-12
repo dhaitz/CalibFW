@@ -46,9 +46,9 @@ def plot(modules, plots, datamc, op):
             if hasattr(module, p):                                                        #plot directly as a function
                 getattr(module, p)(datamc, op)
                 remaining_plots.remove(p)
-            elif p in d_plots:        #if no function available, try dictionary
+            elif module == plotdatamc and p in d_plots:        #if no function available, try dictionary
                 print "New plot: (from dictionary)", p, 
-                module.plotfromdict(datamc, op, p)
+                plotdatamc.plotfromdict(datamc, op, p)
                 remaining_plots.remove(p)
         if op != startop:
             whichfunctions += [p+" in "+module.__name__]
@@ -366,6 +366,7 @@ def nicetext(s):
     elif s == 'jet1': return r"Leading Jet"
     elif s == 'jet2': return r"Second \/Jet"
     elif s == 'z': return r"Z"
+    elif s == 'genz': return r"GenZ"
     elif s == 'leadingjetMET': return r"Leading\/ Jet,\/ MET"
     elif s == 'jet1MET': return r"Leading\/ Jet,\/ MET"
     elif s == 'zMET': return r"Z, MET"
@@ -423,21 +424,20 @@ def newplot(ratio=False, run=False, subplots=1, opt=options(), subplots_X=None, 
     fig.suptitle(opt.title, size='xx-large')
     if subplots is not 1: #Get 4 config numbers: FigXsize, FigYsize, NaxesY, NaxesX
         d = {3:3, 2:2}
-        if subplots_Y is not None:
+        if subplots in d:
+            x = d [subplots]
+            y = int(round(subplots/float(x)))
+        elif subplots_Y is not None:
             y = subplots_Y
             x = int(round(subplots/float(y)))
-            if x * y < subplots:
-                y = y+1
+        elif subplots_X is not None:
+            x = subplots_X
+            y = int(round(subplots/float(x)))
         else:
-            if subplots_X is not None:
-                x = subplots_X
-            elif subplots in d:
-                x = d [subplots]
-            else:        
-                y = int(math.sqrt(subplots))
+            y = int(math.sqrt(subplots))
             x = int(round(subplots/float(y)))
-            if x * y < subplots:
-                x = x+1
+        if x * y < subplots:
+            x = x+1
         if run:
             a = [14*x, 7*y, y, x]
         else:
@@ -486,7 +486,7 @@ def labels(ax, opt=options(), jet=False, bin=None, result=None, legloc='upper ri
 def incutlabel(ax, color='black', incut=''):
     if incut == 'allevents':
         text = r"(before cuts)"
-    if incut == 'zcutsonly':
+    elif incut == 'zcutsonly':
         text = r"(only $\mu$ and Z cuts applied)"
     elif incut == 'alleta':
         text = r"(jet 1 all $\eta$)"
@@ -586,7 +586,7 @@ def datelabel(ax, date='iso', xpos=0.99, ypos=1.10):
     return ax
 
 
-def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.97, changes={}, color='black'):
+def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.95, changes={}, color='black'):
     ch_copy = copy.deepcopy(changes)
     if bin is None:
         if 'var' in ch_copy and 'Cut' in ch_copy['var'] and len(ch_copy['var']) > 35:
@@ -638,7 +638,7 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.97, changes={}, colo
             text = r"$%u \leq NPV \leq %u$" % (low, high)
     else:
         text = bin
-    ax.text(xpos, ypos, text, va='top', ha='left', size='x-large', transform=ax.transAxes, color=color )
+    ax.text(xpos, ypos, text, va='center', ha='left', size='x-large', transform=ax.transAxes, color=color )
 
 
 def statuslabel(ax, status=None, xpos=0.25, ypos=1.018):
@@ -659,7 +659,7 @@ def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
     print "Please use axislabels instead of axislabel_2d."
     return axislabels(ax, x_q, y_q, brackets)
 
-def fit(fit, ax, quantity, rootfile, change, rebin, color, index, runplot_diff=False, mc_mean = None, run_min=0, run_max=1, rootobject=None, offset=0):
+def fit(fit, ax, quantity, rootfile, change, rebin, color, index, runplot_diff=False, mc_mean = None, run_min=0, run_max=1, rootobject=None, offset=0, label=""):
     """One of several fits is added to an axis element, fit parameters are added as text element"""
     if color == '#CBDBF9': color = 'blue'
     if fit=='vertical': return
@@ -693,6 +693,7 @@ def fit(fit, ax, quantity, rootfile, change, rebin, color, index, runplot_diff=F
         # display confidence intervals
         ax.fill_between(plot.xc[:-1], [intercept+x*slope + c for x, c in zip(plot.xc[:-1], conf_intervals)], [intercept+x*slope - c for x, c in zip(plot.xc[:-1], conf_intervals)], facecolor=color, edgecolor=color, interpolate=True, alpha=0.2)
 
+
         if fit == 'slope':
             #display slope
             ax.text(0.97, 0.95-(index/10.)+offset, r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{-3}$" % (slope*1000, serr*1000),
@@ -700,13 +701,17 @@ def fit(fit, ax, quantity, rootfile, change, rebin, color, index, runplot_diff=F
                size='x-large')
         elif fit == 'intercept':
             #display intercept ...
-            ax.text(0.97, 0.35-(index/10.)+offset, r"$\mathrm{y(0)} = %1.3f\pm%1.3f$" % (intercept, ierr),
-               va='top', ha='right', transform=ax.transAxes, color=color,
-               size='x-large')
+            ax.text(0.97, 0.35-(index/10.)+offset, r"$\mathrm{y(0)} = %1.3f\pm%1.3f$" % (intercept, conf_intervals[0]),
+               va='top', ha='right', transform=ax.transAxes, color=color, size='x-large')
 
             # ... and chi2 (smaller)
             ax.text(0.97, 0.30-(index/10.)+offset, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
                 va='top', ha='right', transform=ax.transAxes, color=color, size='small')
+        elif fit == 'chi2_linear':
+
+            # display chi2
+            ax.text(0.97, 0.20-(index/10.)+offset, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
+                va='top', ha='right', transform=ax.transAxes, color=color, size='x-large')
 
 
 
@@ -789,7 +794,7 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
             function[0]((d_axes[quantity[4:-8]][0], d_axes[quantity[4:-8]][1]), d_axes[quantity[4:-8]][2] % nicetext(quantity[:4]), d_axes[quantity[4:-8]][3])
         elif quantity == 'ratio':
             function[0]((d_axes['ratio'][0], d_axes['ratio'][1]), d_axes['ratio'][2] % (opt.labels[0], opt.labels[1]), d_axes['ratio'][3]) 
-        elif quantity in d:     # if no special options, read from dictionary
+        elif quantity in d_axes:     # if no special options, read from dictionary
             function[0]((d_axes[quantity][0], d_axes[quantity][1]), d_axes[quantity][2], d_axes[quantity][3])
         else:
             print '"'+quantity + '" is not defined and therefore directly written to label.'
@@ -813,7 +818,7 @@ def getaxislabels_list(quantity, ax=None):
                         nicetext(quantity.replace("abs_","").replace("_phi","")) , d_axes['absphi'][3]]
         else:
                 labels_list = [d_axes['phi'][0], d_axes['phi'][1], d_axes['phi'][2] % nicetext(quantity.replace("phi","")) , d_axes['phi'][3]]
-    elif 'eta' in quantity:
+    elif  quantity.endswith('eta'):
         if 'deltaeta' in quantity:
             labels_list = [d_axes['deltaeta'][0], d_axes['deltaeta'][1], d_axes['deltaeta'][2] % (nicetext(quantity.replace("deltaeta-","").split("-")[0]),
                          nicetext(quantity.replace("deltaeta-","").split("-")[1])), d_axes['deltaeta'][3]]
@@ -828,7 +833,7 @@ def getaxislabels_list(quantity, ax=None):
                     nicetext(quantity.replace("deltar-","").split("-")[1])), d_axes['deltar'][3]]
     elif 'fraction' in quantity and 'MET' not in quantity:
         labels_list = [d_axes[quantity[4:-8]][0], d_axes[quantity[4:-8]][1], d_axes[quantity[4:-8]][2] % nicetext(quantity[:4]), d_axes[quantity[4:-8]][3]]
-    elif quantity in d:
+    elif quantity in d_axes:
         labels_list = [d_axes[quantity][0], d_axes[quantity][1], d_axes[quantity][2] , d_axes[quantity][3]]
     else:
         labels_list =  [0,1,quantity, ""]

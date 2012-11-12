@@ -288,6 +288,7 @@ def responseplot(files, opt, types, labels=None,
     ax=figaxes[1]
     if labels is None:
         labels = types
+
     labels = [string.replace("mpf", "MPF").replace("bal","Balance") for string in labels]
     for t, l, m, c in zip(types, labels, markers, colors):
         extrapolation = False
@@ -326,6 +327,13 @@ def responseplot(files, opt, types, labels=None,
     if subtext is not 'None':
         ax.text(-0.04, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
     
+    #label with pt and eta cut
+    if over == 'jet1eta':
+        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}$>30 GeV"
+    else:
+        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}$>30 GeV    $\eta^\mathrm{Jet1}$<1.3"
+    ax.text(0.02, 0.98, pt_eta_label, va='top', ha='left', color='black', transform=ax.transAxes, size='small')
+
     if subplot == True:
         return fig
 
@@ -652,30 +660,39 @@ def responseratio_all(files, opt, types=['bal']):
     plotbase.Save(fig, file_name, opt)
 
 
-def direct_extrapolation_raw(files, opt):
-    direct_extrapolation(files, opt, use_rawMET=True)
+def exclusive_extrapolation_raw(files, opt):
+    exclusive_extrapolation(files, opt, use_rawMET=True)
 
-def direct_extrapolation_zpt(files, opt):
-    direct_extrapolation(files, opt, variation='zpt')
-def direct_extrapolation_zpt_raw(files, opt):
-    direct_extrapolation(files, opt, variation='zpt', use_rawMET=True)
-
-
-def direct_extrapolation_npv(files, opt):
-    direct_extrapolation(files, opt, variation='npv')
-def direct_extrapolation_npv_raw(files, opt):
-    direct_extrapolation(files, opt, variation='npv', use_rawMET=True)
+def exclusive_extrapolation_zpt(files, opt):
+    exclusive_extrapolation(files, opt, variation='zpt')
+def exclusive_extrapolation_zpt_raw(files, opt):
+    exclusive_extrapolation(files, opt, variation='zpt', use_rawMET=True)
 
 
-def direct_extrapolation_eta(files, opt):
-    direct_extrapolation(files, opt, variation='jet1eta')
+def exclusive_extrapolation_npv(files, opt):
+    exclusive_extrapolation(files, opt, variation='npv')
+def exclusive_extrapolation_npv_raw(files, opt):
+    exclusive_extrapolation(files, opt, variation='npv', use_rawMET=True)
 
-def direct_extrapolation(files, opt, variation='alpha', use_rawMET=False):
+
+def exclusive_extrapolation_eta(files, opt):
+    exclusive_extrapolation(files, opt, variation='jet1eta')
+
+def extrapolation_noMPF(files, opt):
+    exclusive_extrapolation(files, opt, extrapolate_mpf = False)
+
+
+def exclusive_extrapolation(files, opt, 
+           variation='alpha',
+           use_rawMET=False, # use raw MET instead of type-I MET
+           extrapolate_mpf = True, # if false, use average for MET
+           save_individually = False):  # save each plot indivually, not as a subplot
 
     rebin = 10
     if opt.rebin is not None: rebin = opt.rebin
     changes = {}
     local_opt = copy.deepcopy(opt)
+
 
     if use_rawMET==True:
         mpftype='mpf-notypeI'
@@ -711,38 +728,93 @@ def direct_extrapolation(files, opt, variation='alpha', use_rawMET=False):
     for cut, ax1, ax2, subtext1, subtext2 in zip(variations, axes[:l], axes[l:], subtexts[:l], subtexts[l:]):
         changes[variation]= cut
 
+        files = [getroot.openfile(f, opt.verbose) for f in opt.files]
+
+        if save_individually:
+            fig, ax1 = plotbase.newplot()
+            subtext1 = ""
+
+
         #Response
+        #   balance
         local_opt.colors = ['black', 'blue']
         local_opt.style = ['o', '*']
         local_opt.labels = [r'$p_T$ balance (data)', r'$p_T$ balance (MC)']
         plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, local_opt, legloc='upper center',
-                   changes=changes, rebin=rebin, file_name = "", subplot=True, 
+                   changes=changes, rebin=rebin, file_name = "", subplot=True,  xy_names=['alpha','response'],
                    subtext="", fig_axes=(fig, ax1),fit=True, ratio=False)
 
+        #   mpf
         local_opt.colors = ['red', 'maroon']
         local_opt.labels = [mpflabel+' (data)',mpflabel+' (MC)']
+        if extrapolate_mpf ==True:
+            plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, local_opt, legloc='lower left',
+                           changes=changes, rebin=rebin, file_name = "", subplot=True,  xy_names=['alpha','response'],
+                           subtext=subtext1, fig_axes=(fig, ax1),fit=True, ratio=False)
+        else:
+                mpfmean_data = getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMean()
+                mpfmean_mc = getroot.getobjectfromnick('mpfresp', files[1], changes, rebin=1).GetMean()
+                mpfmeanerror_data = getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMeanError()
+                mpfmeanerror_mc = getroot.getobjectfromnick('mpfresp', files[1], changes, rebin=1).GetMeanError()
+                ax1.axhline(mpfmean_data, color=local_opt.colors[0])
+		ax1.axhspan(mpfmean_data + mpfmeanerror_data, mpfmean_data - mpfmeanerror_data, color=local_opt.colors[0], alpha=0.2)
+                ax1.axhline(mpfmean_mc, color=local_opt.colors[1])
+		ax1.axhspan(mpfmean_mc + mpfmeanerror_mc, mpfmean_mc - mpfmeanerror_mc, color=local_opt.colors[1], alpha=0.2)
 
-        plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, local_opt, legloc='lower left',
-                   changes=changes, rebin=rebin, file_name = "", subplot=True,  xy_names=['alpha','response'],
-                   subtext=subtext1, fig_axes=(fig, ax1),fit=True, ratio=False)
+        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30$ GeV   $\eta^\mathrm{Jet1}<1.3$"
+        ax1.text(0.97, 0.98, pt_eta_label, va='top', ha='right', color='black', transform=ax1.transAxes, size='large')
+
+        if save_individually:
+            file_name = plotbase.getdefaultfilename("extrapolation_%s" % (variation_label), opt, changes)
+            file_name = file_name.replace('var_CutSecondLeadingToZPt__','')
+            plotbase.Save(fig, file_name, opt)
+            fig, ax2 = plotbase.newplot()
+            subtext2 = ""
+
+        # re-open files because we're using the same histograms again
+        files = [getroot.openfile(f, opt.verbose) for f in opt.files]
 
         #Ratio
+        #   balance
         local_opt.labels = [r'$p_T$ balance']
         local_opt.colors = ['blue']
         plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, local_opt, legloc='lower left',
-                   changes=changes, rebin=1, file_name = "", subplot=True, 
+                   changes=changes, rebin=rebin, file_name = "", subplot=True, xy_names=['alpha','datamcratio'],
                    subtext="", fig_axes=(fig, ax2),fit='intercept', ratio=True)
 
+        #   mpf
         local_opt.labels = [mpflabel]
         local_opt.colors = ['red']
+        if extrapolate_mpf ==True:
+            plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, local_opt, legloc='lower left',
+                           changes=changes, rebin=rebin, file_name = "", subplot=True, xy_names=['alpha','datamcratio'],
+                           subtext=subtext2, fig_axes=(fig, ax2),fit='intercept', ratio=True, fit_offset=-0.1)
+        else:
+            if (mpfmean_mc != 0.0): R = mpfmean_data/mpfmean_mc
+            else: R =0
+            if (R != 0.0):
+                Rerr=abs(mpfmean_data / mpfmean_mc)*math.sqrt((mpfmeanerror_data / mpfmean_data)**2 + (mpfmeanerror_mc / mpfmean_mc)**2)
+            else: Rerr=0
+            ax2.axhline(R, color=local_opt.colors[0])
+            ax2.axhspan(R+Rerr, R-Rerr, color=local_opt.colors[0], alpha=0.2)
+            ax2.text(0.97, 0.67, r" Ratio $=%1.3f\pm%1.3f$" %(R, Rerr), va='top', ha='right', transform=ax2.transAxes, color='maroon')
 
-        plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, local_opt, legloc='lower left',
-                   changes=changes, rebin=1, file_name = "", subplot=True, xy_names=['alpha','datamcratio'],
-                   subtext=subtext2, fig_axes=(fig, ax2),fit='intercept', ratio=True, fit_offset=-0.1)
 
+        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30$ GeV   $\eta^\mathrm{Jet1}<1.3$"
+        ax2.text(0.97, 0.95, pt_eta_label, va='center', ha='right', color='black', transform=ax2.transAxes, size='large')
 
-    del changes[variation]
-    file_name = plotbase.getdefaultfilename("directextrapolation_%s_%s" % (mpflabel, variation_label), opt, changes)
+        if save_individually:
+            file_name = plotbase.getdefaultfilename("ratio_extrapolation_%s" % (variation_label), opt, changes)
+            file_name = file_name.replace('var_CutSecondLeadingToZPt__','')
+            plotbase.Save(fig, file_name, opt)
+
+    if save_individually:
+        return
+
+    del changes[variation] # delete changes so this isn't included in the file names
+    if extrapolate_mpf:
+	    mpflabel = "extrapol" + mpflabel
+    file_name = plotbase.getdefaultfilename("exclusiveextrapolation_%s_%s" % (mpflabel, variation_label), opt, changes)
     plotbase.Save(fig, file_name, opt)
 
 
@@ -754,7 +826,7 @@ plots = [
 'responseratio_all',
 'bal_responseratio_eta', 'bal_responseratio_zpt', 'bal_responseratio_npv', 
 'mpf_responseratio_eta', 'mpf_responseratio_zpt', 'mpf_responseratio_npv', 
-'direct_extrapolation',
+'exclusive_extrapolation', 'exclusive_extrapolation_zpt'
 #,'balratio', 'mpfratio', 'kfsr'
 ]
 

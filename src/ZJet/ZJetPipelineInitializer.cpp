@@ -183,6 +183,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 			if (pset.IsMC())
 			{
+				pLine->AddConsumer( new GenZTwoDConsumer( pset.GetJetAlgorithm() ));
+
 				std::string genName = JetType::GetGenName(pset.GetJetAlgorithm());
 				//pLine->AddConsumer( new BasicTwoDConsumer( genName ));
 				pLine->AddConsumer(new GenMetadataConsumer());

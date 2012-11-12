@@ -30,6 +30,6 @@ cbase.AddCorrectionPlots(conf, base_algorithms, l3residual=False, forIncut=True,
 cbase.AddQuantityPlots(conf, ["AK5PFJets", "AK5PFJetsCHS", "AK5PFJetsCHSL1", "AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False, isMC=True)
 
 cbase.Add2DHistograms(conf, ["AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
-cbase.Add2DProfiles(conf, ["AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
+cbase.Add2DProfiles(conf, ["AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False, isMC=True)
 
 cbase.Run(conf, sys.argv)

@@ -307,6 +307,82 @@ private:
 	std::string m_algoname;
 };
 
+class GenZTwoDConsumer: public ZJetMetaConsumer
+{
+public:
+	GenZTwoDConsumer(std::string algoName) : m_algoname(algoName) {}
+
+	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+			ZJetPipelineSettings>* pset)
+	{
+		ZJetMetaConsumer::Init(pset);
+
+		m_2dgenz = new Hist2D("2D_genzeta_genzphi_" + m_algoname,
+				GetPipelineSettings().GetRootFileFolder(), -5.0f, 5.0f, -3.14159f, 3.14159f);
+		m_2dgenz2 = new Hist2D("2D_genzeta_genzpt_" + m_algoname,
+				GetPipelineSettings().GetRootFileFolder(), -5.0f, 5.0f, 0.0f, 1000.f);
+		m_2dgenz3 = new Hist2D("2D_genzmass_genzpt_" + m_algoname,
+				GetPipelineSettings().GetRootFileFolder(), 71.19f, 111.19f, 0.f, 1000.f);
+		m_2dgenzetarap = new Hist2D("2D_genzeta_genzrapidity_" + m_algoname,
+				GetPipelineSettings().GetRootFileFolder(), -5.0f, 5.0f, -5.0f, 5.0f);
+		m_2dgenzrappt = new Hist2D("2D_genzrapidity_genzpt_" + m_algoname,
+				GetPipelineSettings().GetRootFileFolder(), -5.0f, 5.0f, 0.0f, 1000.f);
+
+
+		AddPlot(m_2dgenz);
+		AddPlot(m_2dgenz2);
+		AddPlot(m_2dgenz3);
+		AddPlot(m_2dgenzetarap);
+		AddPlot(m_2dgenzrappt);
+
+	}
+
+	virtual void ProcessFilteredEvent(ZJetEventData const& event,
+			ZJetMetaData const& metaData)
+	{
+		ZJetMetaConsumer::ProcessFilteredEvent(event, metaData);
+
+
+			m_2dgenz->Fill(
+				metaData.GetRefGenZ().p4.Eta(),
+				metaData.GetRefGenZ().p4.Phi(),
+				metaData.GetWeight());
+			m_2dgenz2->Fill(
+				metaData.GetRefGenZ().p4.Eta(),
+				metaData.GetRefGenZ().p4.Pt(),
+				metaData.GetWeight());
+			m_2dgenz3->Fill(
+				metaData.GetRefGenZ().p4.mass(),
+				metaData.GetRefGenZ().p4.Pt(),
+				metaData.GetWeight());
+			m_2dgenzetarap->Fill(
+				metaData.GetRefGenZ().p4.eta(),
+				metaData.GetRefGenZ().p4.Rapidity(),
+				metaData.GetWeight());
+			m_2dgenzrappt->Fill(
+				metaData.GetRefGenZ().p4.Rapidity(),
+				metaData.GetRefGenZ().p4.Pt(),
+				metaData.GetWeight());
+
+	}
+
+	static std::string GetName()
+	{
+		return "genz_twod_consumer";
+	}
+
+private:
+	Hist2D* m_2dgenz;
+	Hist2D* m_2dgenz2;
+	Hist2D* m_2dgenz3;
+	Hist2D* m_2dgenzetarap;
+	Hist2D* m_2dgenzrappt;
+
+
+	std::string m_algoname;
+};
+
+
 
 class DeltaConsumer: public ZJetMetaConsumer
 {

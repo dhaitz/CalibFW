@@ -156,6 +156,7 @@ def getplotlist(files, folder="NoBinning_incut", algorithm="AK5PFJetsCHS", filen
             p_list = f.read().splitlines()
             f.close()
         else:                         # if file doesn't exist, get list from rootfile and save as txt
+            p_list = []
             for folder in folders:
                 p_list = []
                 for plot in rootfile.Get(folder).GetListOfKeys():
@@ -283,6 +284,7 @@ def root2histo(histo, rootfile='', rebin=1):
             histo.Rebin(rebin)
         hst.source = rootfile
         hst.name = histo.GetName()
+        hst.classname = histo.ClassName()
         hst.title = histo.GetTitle()
         hst.xlabel = histo.GetXaxis().GetTitle()
         hst.ylabel = histo.GetYaxis().GetTitle()
@@ -312,15 +314,12 @@ def root2histo(histo, rootfile='', rebin=1):
             hst.x.append(histo.GetBinLowEdge(x))
             hst.xc.append(histo.GetBinCenter(x))
             hst.xerr.append(histo.GetBinWidth(x) / 2.0)
-
         a = np.zeros(shape=(histo.GetNbinsY(), histo.GetNbinsX()))
         hst.BinContents = np.ma.masked_equal(a, 0.0)
-        
-
         for y in range(1, histo.GetNbinsY()+1):
             for x in range(1, histo.GetNbinsX()+1):
-                if histo.GetBinEntries(histo.GetBin(x,y)) > 0:
-                    hst.BinContents[y-1,x-1] = histo.GetBinContent(x,y)  
+                if (histo.ClassName() != 'TProfile2D') or histo.GetBinEntries(histo.GetBin(x,y)) > 0:
+                    hst.BinContents[y-1,x-1] = histo.GetBinContent(x,y)
             hst.y.append(histo.GetYaxis().GetBinLowEdge(y))
             hst.yc.append(histo.GetYaxis().GetBinCenter(y))
             hst.yerr.append(histo.GetYaxis().GetBinWidth(y) / 2.0)
@@ -366,6 +365,7 @@ class Histo:
         self.source = ""
         self.path = ""
         self.name = ""
+        self.classname = ""
         self.title = ""
         self.xlabel = "x"
         self.ylabel = "y"

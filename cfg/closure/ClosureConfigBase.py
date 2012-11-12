@@ -315,7 +315,7 @@ def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
 
 def check_if_add(pipelinename, algo, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
     #function that determines whether a consumer/variation is added to a pipeline
-    check = ((forIncut and pipelinename == "default_"+algo)
+    check = ((forIncut and (pipelinename == "default_"+algo or pipelinename == "default_"+algo+"zcutsonly" or pipelinename == "default_"+algo+"alleta" ))
         or (forAllevents and pipelinename == "default_" + algo + "nocuts")
         or (forIncutVariations and pipelinename is not "default_"+algo and "default_"+algo+"_" in pipelinename and "nocut" not in pipelinename)
         or (forAlleventsVariations and pipelinename is not "default_"+algo + "nocuts" and "default_"+algo + "nocuts" in pipelinename) )
@@ -742,7 +742,7 @@ def ExpandPtBins( pipelineDict, ptbins, includeSource):
     else:
         return newDict
 
-def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
+def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
 
     def AddCorrectionConsumer(pval, algo, level0, level1):
                 name = level1.replace(level0,"")
@@ -800,7 +800,7 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3 ):
 
     for algo in algoNames:
         for p, pval in conf["Pipelines"].items():
-            if p == "default_" + algo:
+            if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
 
                 AddCorrectionConsumer(pval, algo, "", "L1")
 
@@ -873,9 +873,9 @@ def Add2DHistograms(pipelineDict, algos, forIncut = True, forAllevents=False, fo
                     AddConsumerEasy(pval, {"Name" : "basic_twod_consumer", "ProductName": "2d"})
                     
 
-def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
+def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False, isMC=False):
 
-    def AddTwoDProfileConsumer(x, y, z):
+    def AddTwoDProfileConsumer(y, x, z):
             AddConsumerEasy(pval, { "Name" : "generic_profile2d_consumer",
                 "XSource" : x,
                 "YSource" : y,
@@ -913,7 +913,12 @@ def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forI
 
                 if isMC:
                     AddTwoDProfileConsumer('genzpt', 'genzeta', 'genzmass')
+                    AddTwoDProfileConsumer('genzpt', 'genzrapidity', 'genzmass')
                     AddTwoDProfileConsumer('genzpt', 'genzeta', 'genzrapidity')
+                    AddTwoDProfileConsumer('genzrapidity', 'genzeta', 'genzmass')
+                    AddTwoDProfileConsumer('genzpt', 'genzmass', 'genzetarapidityratio')
+                    AddTwoDProfileConsumer('genzpt', 'genzeta', 'genzetarapidityratio')
+                    AddTwoDProfileConsumer('npvtruth', 'digenmuonpt', 'genzmass')
 
             #cuts
             if p == "default_" + algo:

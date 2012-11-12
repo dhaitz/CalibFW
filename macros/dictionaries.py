@@ -34,6 +34,7 @@ d_axes={
         'genbal':[0.0, 1.8, r"$p_\mathrm{T}$ balance (Gen Jet / Gen Z)", ""],
         'genmpf':[0.75, 1.2, r"Gen $MPF$ Response", ""],
         'genzep':[0.0, 3, r"Zeppenfeld variable (Gen level)", ""],
+        'genzetarapidityratio':[-4, 4, r"$\eta^\mathrm{GenZ} / y^\mathrm{GenZ}$", ""],
         'genzmass':[70, 110, r"$m^\mathrm{GenZ}$", "GeV"],
         'genzrapidity':[-4, 4, r"$y^\mathrm{GenZ}$", ""],
         'genzpt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{GenZ}$", 'GeV'],

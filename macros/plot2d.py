@@ -30,7 +30,8 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
         'jet2pt':[0, 40, 0, 40],
         'METpt':[15, 30, 15, 30],
         'ptbalance':[0.85, 1.1, 1, 4],
-        'genzmass':[89, 93, 90.5, 92.5]
+        'genzmass':[89, 93, 90.5, 92.5],
+        'genzetarapidityratio':[1, 3, 0, 5]
     }
 
     #determine plot type: 2D Histogram or 2D Profile, and get the axis properties
@@ -47,9 +48,7 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
                 z_min = z_dict[z_name][0]
                 z_max = z_dict[z_name][1]
             labels_list = plotbase.getaxislabels_list(z_name)
-            z_name = labels_list[2]
-            print z_name
-
+            z_name = plotbase.unitformat(labels_list[2], labels_list[3])
         else:
             labels_list = plotbase.getaxislabels_list(z_name)
             z_min = labels_list[0]
@@ -57,12 +56,14 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
             z_name = labels_list[2]
     elif len(names) == 2:
         # normalize to the same number of events
-        for d in datamc[1:]:
-            if d.binsum() > 0.0: d.scale(datamc[0].binsum() / d.binsum() )
+        if len(datamc) > 1:
+            for d in datamc[1:]:
+                if d.binsum() > 0.0: d.scale(datamc[0].binsum() / d.binsum() )
         xy_names = names
         z_name = 'Events'
         z_min = 0.0
-        z_max = max([plot.maxBin() for plot in datamc])
+        z_max = np.max(datamc[0].BinContents)
+    print z_max
 
 
     if subplot==True:
