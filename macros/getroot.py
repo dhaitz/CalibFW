@@ -27,6 +27,7 @@ import copy
 import math
 import os
 import array
+import numpy as np
 
 # converts a integer list of bins [1, 30, 70] to a
 # string representation ["Pt1to30", "Pt30to70"]
@@ -307,16 +308,21 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.title = histo.GetTitle()
         hst.xlabel = histo.GetXaxis().GetTitle()
         hst.ylabel = histo.GetYaxis().GetTitle()
+        for x in range(1, histo.GetNbinsX()+1):
+            hst.x.append(histo.GetBinLowEdge(x))
+            hst.xc.append(histo.GetBinCenter(x))
+            hst.xerr.append(histo.GetBinWidth(x) / 2.0)
+
+        a = np.zeros(shape=(histo.GetNbinsY(), histo.GetNbinsX()))
+        hst.BinContents = np.ma.masked_equal(a, 0.0)
+        
+
         for y in range(1, histo.GetNbinsY()+1):
-            x_list = []
             for x in range(1, histo.GetNbinsX()+1):
-                x_list.append(histo.GetBinContent(y,x))
-            hst.BinContents.append(x_list)
-            hst.x.append(histo.GetBinLowEdge(y))
-            hst.xc.append(histo.GetBinCenter(y))
+                if histo.GetBinEntries(histo.GetBin(x,y)) > 0:
+                    hst.BinContents[y-1,x-1] = histo.GetBinContent(x,y)  
             hst.y.append(histo.GetYaxis().GetBinLowEdge(y))
             hst.yc.append(histo.GetYaxis().GetBinCenter(y))
-            hst.xerr.append(histo.GetBinWidth(y) / 2.0)
             hst.yerr.append(histo.GetYaxis().GetBinWidth(y) / 2.0)
         hst.xborderhigh = hst.xc[-1] + hst.xerr[-1]
         hst.xborderlow = hst.xc[0] - hst.xerr[0]

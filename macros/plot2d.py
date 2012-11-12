@@ -3,7 +3,8 @@ import plotbase
 
 import matplotlib
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import AxesGrid 
+from mpl_toolkits.axes_grid1 import AxesGrid
+import numpy as np 
 
 plots = []
 
@@ -28,14 +29,15 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
         'jet1pt':[0, 120, 0, 40],
         'jet2pt':[0, 40, 0, 40],
         'METpt':[15, 30, 15, 30],
-        'ptbalance':[0.85, 1.1, 1, 4]
+        'ptbalance':[0.85, 1.1, 1, 4],
+        'genzmass':[89, 93, 90.5, 92.5]
     }
 
     #determine plot type: 2D Histogram or 2D Profile, and get the axis properties
     names = quantity[3:].split('_')
     if len(names) == 3:
         xy_names = names[1:3]
-        xy_names.reverse()
+        #xy_names.reverse()
         z_name = names[0]
         if z_name in z_dict:
             if 'incut' in changes and changes['incut']=='allevents':
@@ -44,6 +46,10 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
             else:
                 z_min = z_dict[z_name][0]
                 z_max = z_dict[z_name][1]
+            labels_list = plotbase.getaxislabels_list(z_name)
+            z_name = labels_list[2]
+            print z_name
+
         else:
             labels_list = plotbase.getaxislabels_list(z_name)
             z_min = labels_list[0]
@@ -69,22 +75,27 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
                         nrows_ncols = (1, len(datamc)),
                         axes_pad = 0.4,
                         share_all=True,
+                        aspect=False,
                         label_mode = "L",
                         cbar_pad = 0.2,
                         cbar_location = "right",
                         cbar_mode='single',
                         )
 
-
-
     for plot, label, ax in zip(datamc, opt.labels, grid):
+
+        if axtitle is not None:
+            ax.set_title(axtitle)
+        else:
+            ax.set_title(label)
+
         cmap1 = matplotlib.cm.get_cmap('jet')
-        image = ax.imshow(plot.BinContents, 
+        image = ax.imshow(plot.BinContents,
             interpolation='nearest',
             cmap=cmap1,
             origin='lower',
             aspect = 'auto',
-            extent = [plot.yborderlow, plot.yborderhigh, plot.xborderlow, plot.xborderhigh],
+            extent = [plot.xborderlow, plot.xborderhigh, plot.yborderlow, plot.yborderhigh],
             vmin=z_min,
             vmax=z_max)
 
@@ -93,11 +104,8 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
         else: mc = False
         if not subplot: plotbase.labels(ax, opt, legloc=False, frame=True, changes=change, jet=False,
                                         sub_plot=subplot, mc=mc, color='white', energy_label=(not subplot))
-        if axtitle is not None:
-            ax.set_title(axtitle)
-        else:
-            ax.set_title(label)
-        plotbase.axislabels(ax, xy_names[0], xy_names[1])
+
+    plotbase.axislabels(ax, xy_names[0], xy_names[1])
 
     if subplot: return
 
@@ -114,6 +122,8 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
         plotbase.EnsurePathExists(opt.out+"/"+quantity+"/"+folder)
 
     plotbase.Save(fig, file_name, opt)
+
+
 
 
 def ThreeD(files, opt, changes={}, rebin=[2,2]):
