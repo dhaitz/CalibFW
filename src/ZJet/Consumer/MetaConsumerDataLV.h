@@ -162,6 +162,29 @@ public:
 	Hist1D* m_fraction;
 };
 
+class DataRawMETConsumer: public MetaConsumerDataLV
+{
+public:
+	DataRawMETConsumer(std::string algoName)
+	{
+		SetPhysicsObjectName("rawMET%quant%" + algoName);
+		m_plotMass = false;
+	}
+
+	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+			ZJetPipelineSettings>* pset)
+	{
+		MetaConsumerDataLV::Init(pset);
+
+	}
+
+	virtual void ProcessFilteredEvent(ZJetEventData const& event,
+			ZJetMetaData const& metaData)
+	{
+		PlotDataLVQuantities(event.m_pfMet, metaData);
+	}
+};
+
 
 class DataMuonConsumer: public MetaConsumerDataLV
 {

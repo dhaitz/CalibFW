@@ -148,6 +148,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			pLine->AddConsumer( new ValidMuonsConsumer());
 			pLine->AddConsumer( new ValidJetsConsumer());
 			pLine->AddConsumer( new DataMETConsumer( pset.GetJetAlgorithm() ));
+			pLine->AddConsumer( new DataRawMETConsumer( pset.GetJetAlgorithm() ));
 			pLine->AddConsumer( new DeltaConsumer( pset.GetJetAlgorithm() ));
 			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
 			pLine->AddConsumer( new RhoConsumer( ) );
