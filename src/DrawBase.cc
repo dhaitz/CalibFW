@@ -43,8 +43,8 @@ Hist1D::ModifierList Hist1D::GetConstituentsModifier()
 {
 	Hist1D::ModifierList modList;
 
-	modList.push_back(new ModHistBinRange(-0.5f, +150.5f));
-	modList.push_back(new ModHistBinCount(151));
+	modList.push_back(new ModHistBinRange(-0.5f, +149.5f));
+	modList.push_back(new ModHistBinCount(150));
 
 	return modList;
 }
@@ -94,8 +94,8 @@ Hist1D::ModifierList Hist1D::GetNRVModifier()
 {
 	Hist1D::ModifierList modList;
 
-	modList.push_back(new ModHistBinRange(-0.5f, +50.5f));
-	modList.push_back(new ModHistBinCount(51));
+	modList.push_back(new ModHistBinRange(-0.5f, +49.5f));
+	modList.push_back(new ModHistBinCount(50));
 
 	return modList;
 }

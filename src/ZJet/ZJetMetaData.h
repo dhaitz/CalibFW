@@ -252,6 +252,11 @@ public:
 	KPartons m_genMuons;
 	KPartons m_genZs;
 
+	KPartons const& GetGenMuons() const
+	{
+		return m_genMuons;
+	}
+
 	typedef boost::ptr_map<std::string, std::vector<unsigned int> > JetMapping;
 	typedef JetMapping::iterator JetMappingIterator;
 

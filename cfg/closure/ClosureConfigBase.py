@@ -905,6 +905,9 @@ def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forI
                 AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'ptbalance')
                 AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'mpf')
                 AddTwoDProfileConsumer('zpt', 'zeta', 'zmass')
+                AddTwoDProfileConsumer('npv', 'dimuonptebeb', 'zmass')
+                AddTwoDProfileConsumer('npv', 'dimuonptebec', 'zmass')
+                AddTwoDProfileConsumer('npv', 'dimuonptecec', 'zmass')
 
                 AddTwoDProfileEtaPhiConsumer('z', 'jet1', 'jet1pt')
                 AddTwoDProfileEtaPhiConsumer('jet1', 'jet2', 'jet1pt')

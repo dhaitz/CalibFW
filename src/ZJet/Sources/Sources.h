@@ -30,7 +30,7 @@ public:
 
 	virtual unsigned int GetDefaultBinCount() const
 	{
-		return 51;
+		return 50;
 	}
 	virtual double GetDefaultLowBin() const
 	{
@@ -38,7 +38,182 @@ public:
 	}
 	virtual double GetDefaultHighBin() const
 	{
-		return 50.5;
+		return 49.5;
+	}
+};
+
+class SourceTrueVert: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = (double) event.m_geneventmetadata->numPUInteractionsTruth;
+		return true;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 50;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return -0.5f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 49.5;
+	}
+};
+
+class SourceDiMuonPtCombinedEBEB: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		for (unsigned int i = 0; i < metaData.GetValidMuons().size() ; ++i)
+		{
+			for (unsigned int j = i + 1; j < metaData.GetValidMuons().size(); ++j)
+			{
+				KDataMuon const& m1 = metaData.GetValidMuons().at(i);
+				KDataMuon const& m2 = metaData.GetValidMuons().at(j);
+				if (m1.charge + m2.charge == 0)
+				{
+					KDataLV z;
+					z.p4 = m1.p4 + m2.p4;
+					if (z.p4.mass() > 71.19 && z.p4.mass() < 111.19)
+					{
+						if (m1.p4.Eta() < 1.48 && m2.p4.Eta() < 1.48)
+						{
+							val = (1 / m1.p4.Pt()) + (1 / m2.p4.Pt());
+							return true;
+						}
+					}
+				}
+			}
+		}
+	return false;
+	}
+	virtual unsigned int GetDefaultBinCount() const
+	    {return 100;}
+	virtual double GetDefaultLowBin() const
+	    {return 0.0f;}
+	virtual double GetDefaultHighBin() const
+	{return 0.2f;}
+};
+
+class SourceDiMuonPtCombinedECEC: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		for (unsigned int i = 0; i < metaData.GetValidMuons().size() ; ++i)
+		{
+			for (unsigned int j = i + 1; j < metaData.GetValidMuons().size(); ++j)
+			{
+				KDataMuon const& m1 = metaData.GetValidMuons().at(i);
+				KDataMuon const& m2 = metaData.GetValidMuons().at(j);
+				if (m1.charge + m2.charge == 0)
+				{
+					KDataLV z;
+					z.p4 = m1.p4 + m2.p4;
+					if (z.p4.mass() > 71.19 && z.p4.mass() < 111.19)
+					{
+						if (m1.p4.Eta() > 1.48 && m1.p4.Eta() < 3. && m2.p4.Eta() > 1.48 && m2.p4.Eta() < 3.)
+						{
+							val = (1 / m1.p4.Pt()) + (1 / m2.p4.Pt());
+							return true;
+						}
+					}
+				}
+			}
+		}
+	return false;
+	}
+	virtual unsigned int GetDefaultBinCount() const
+	    {return 100;}
+	virtual double GetDefaultLowBin() const
+	    {return 0.0f;}
+	virtual double GetDefaultHighBin() const
+	{return 0.2f;}
+};
+
+class SourceDiMuonPtCombinedEBEC: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		for (unsigned int i = 0; i < metaData.GetValidMuons().size() ; ++i)
+		{
+			for (unsigned int j = i + 1; j < metaData.GetValidMuons().size(); ++j)
+			{
+				KDataMuon const& m1 = metaData.GetValidMuons().at(i);
+				KDataMuon const& m2 = metaData.GetValidMuons().at(j);
+				if (m1.charge + m2.charge == 0)
+				{
+					KDataLV z;
+					z.p4 = m1.p4 + m2.p4;
+					if (z.p4.mass() > 71.19 && z.p4.mass() < 111.19)
+					{
+						if (  (m1.p4.Eta() > 1.48 && m1.p4.Eta() < 3. && m2.p4.Eta() < 1.48 )
+							||(m1.p4.Eta() < 1.48 && m2.p4.Eta() > 1.48 && m2.p4.Eta() < 3.)  )
+						{
+							val = (1 / m1.p4.Pt()) + (1 / m2.p4.Pt());
+							return true;
+						}
+					}
+				}
+			}
+		}
+	return false;
+	}
+	virtual unsigned int GetDefaultBinCount() const
+	    {return 100;}
+	virtual double GetDefaultLowBin() const
+	    {return 0.0f;}
+	virtual double GetDefaultHighBin() const
+	{return 0.2f;}
+};
+
+
+
+class SourceDiGenMuonPtCombined: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+        if (metaData.m_genMuons.size() != 2)
+		        {
+			        return false;
+		        }
+        if (metaData.m_genZs.size() >= 1)
+        {
+	        KParton test;
+	        test.p4 = metaData.m_genMuons[0].p4 + metaData.m_genMuons[1].p4 - metaData.m_genZs[0].p4;
+	        if (test.p4.Pt() < 1e-3)	// differs less than a MeV
+	        {
+                        val = (1 / metaData.m_genMuons[0].p4.Pt()) + (1 / metaData.m_genMuons[1].p4.Pt());
+                        return true;
+	        }
+        }
+        return false;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+		return 0.0f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 0.2f;
 	}
 };
 
@@ -443,7 +618,7 @@ public:
 
 	virtual unsigned int GetDefaultBinCount() const
 	{
-		return 101;
+		return 100;
 	}
 	virtual double GetDefaultLowBin() const
 	{
@@ -451,7 +626,7 @@ public:
 	}
 	virtual double GetDefaultHighBin() const
 	{
-		return 100.5;
+		return 99.5;
 	}
 };
 
@@ -693,7 +868,7 @@ public:
 		if (metaData.GetValidJetCount(settings, event) < 2)
 			return false;
 
-		val = metaData.GetValidJet(settings, event, 1)->p4.Pt() / metaData.GetRefZ().p4.Pt();       
+		val = metaData.GetValidJet(settings, event, 1)->p4.Pt() / metaData.GetRefZ().p4.Pt();
 		return true;
 	}
 	virtual unsigned int GetDefaultBinCount() const

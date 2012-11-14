@@ -79,6 +79,8 @@ public:
 		}
 		else if ( ref == "npv")
 			this->SetYSource ( new SourceRecoVert());
+		else if ( ref == "npvtruth")
+			this->SetYSource ( new SourceTrueVert());
 		else if ( ref == "jet1pt" )
 			this->SetYSource ( new SourceJetPt() );
 		else if ( ref == "jet1eta" )
@@ -219,6 +221,15 @@ public:
 		else if ( ref == "genzetarapidityratio" )
 			this->SetXSource ( new SourceGenZEtaRapidityRatio() );
 
+		else if ( ref == "dimuonptebeb" )
+			this->SetXSource ( new SourceDiMuonPtCombinedEBEB() );
+		else if ( ref == "dimuonptecec" )
+			this->SetXSource ( new SourceDiMuonPtCombinedECEC() );
+		else if ( ref == "dimuonptebec" )
+			this->SetXSource ( new SourceDiMuonPtCombinedEBEC() );
+		else if ( ref == "digenmuonpt" )
+			this->SetXSource ( new SourceDiGenMuonPtCombined() );
+
 		else if ( ref == "METpt" )
 			this->SetXSource ( new SourceMETPt() );
 		else if ( ref == "METeta" )
@@ -286,6 +297,8 @@ public:
 			this->SetZSource ( new SourceGenZRapidity() );
 		else if ( ref == "genzetarapidityratio" )
 			this->SetZSource ( new SourceGenZEtaRapidityRatio() );
+
+
 
 		else if ( ref == "ptbalance" )
 			this->SetZSource ( new SourcePtBalance() );
