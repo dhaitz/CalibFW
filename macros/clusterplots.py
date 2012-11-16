@@ -12,17 +12,25 @@ import sys
 def clusterplots():
 
     n_jobs = 50
-    arguments = " ".join(sys.argv[1:])
+    mods = filter(lambda x: "plot" in x, dir())
+
+    if len(sys.argv) > 1 and ".py" in sys.argv[1]:
+        plotfile = sys.argv[1].replace("macros/", "")
+        arguments = " ".join(sys.argv[2:])
+    else:
+        plotfile = "plot.py"
+        arguments = " ".join(sys.argv[1:])
     print arguments
 
+
     #preferred main plotting file: get options + filelist
+    opt, datamc = plot.plot(cluster=True)
+
     username = getpass.getuser()
     if username == 'dhaitz':
         opt, datamc = plot_dhaitz.plot(cluster=True)
         plotfile = "plot_dhaitz.py"
-    else:
-        opt, datamc = plot.plot(cluster=True)
-        plotfile = "plot.py"
+
 
     # get list of plots from the files
     plotlist =  plotresponse.plots + plotfractions.plots
@@ -44,7 +52,6 @@ def clusterplots():
     for plots in [plotlist[i:i+len(plotlist)/n_jobs] for i in range(0, len(plotlist), len(plotlist)/n_jobs)]:
         plotstring = " ".join(plots)
         os.system('echo "PYTHONPATH=${PYTHONPATH} ROOTSYS=${ROOTPATH} PATH=$PATH:$ROOTSYS/bin LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTSYS/lib:$ROOTSYS/lib/root PATH=$PATH:$PYTHONPATH python macros/%s %s -P %s" | qsub -q short -cwd -o %s -e %s' % (plotfile, arguments, plotstring, jobinfo_dir, jobinfo_dir))
-    
 
 if __name__ == "__main__":
     """Unit test: standalone (not as a module)."""
