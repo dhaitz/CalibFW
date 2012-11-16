@@ -246,10 +246,10 @@ int main(int argc, char** argv)
 	typedef std::map<std::string, KDataPFJets*> PfMap;
 	PfMap pfJets;
 
-	stringvector globalProducer = PropertyTreeSupport::GetAsStringList(&g_propTree,
-									"GlobalProducer");
+	stringvector globalProducer = PropertyTreeSupport::GetAsStringList(
+			&g_propTree, "GlobalProducer");
 
-	AddGlobalMetaProducer( globalProducer, pRunner, g_propTree );
+	AddGlobalMetaProducer(globalProducer, pRunner, g_propTree);
 
 	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin();
 			it != g_pipeSettings.end(); it++)
@@ -277,7 +277,7 @@ int main(int argc, char** argv)
 	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin();
 			it != g_pipeSettings.end(); it++)
 	{
-		delete (*it);
+		delete *it;
 	}
 
 	if (g_propTree.get<bool>("EnablePuReweighting", false))

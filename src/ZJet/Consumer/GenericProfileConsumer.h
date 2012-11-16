@@ -17,11 +17,11 @@
 namespace CalibFW
 {
 
-class GenericProfileConsumer : public ProfileConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings >
+class GenericProfileConsumer : public ProfileConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
 {
 public:
-	GenericProfileConsumer( boost::property_tree::ptree * ptree , std::string configPath)
-	 : ProfileConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings > ()
+	GenericProfileConsumer(boost::property_tree::ptree* ptree, std::string configPath):
+		ProfileConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>()
 	{
 		// make this more generic
 		this->SetPlotName( ptree->get<std::string>( configPath + ".ProductName") );
