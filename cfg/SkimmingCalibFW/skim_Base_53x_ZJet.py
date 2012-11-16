@@ -1,18 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, residual=False):
+def getBaseConfig(globaltag, testfile="", additional_actives=[], maxevents=-1, residual=False):
     """Default config for Z+jet skims with Kappa
 
        This is used in a cmssw config file via:
        import skim_base
-       process = skim_base.getBaseConfig('START44_V12', "filename of testfile")
+       process = skim_base.getBaseConfig('START53_V12', "testfile.root")
 
        additional_actives can for example be used for MC-only products
     """
     # Basic process setup -----------------------------------------------------
     process = cms.Process('kappaSkim')
     process.source = cms.Source('PoolSource',
-        fileNames = cms.untracked.vstring(srcfile))
+        fileNames = cms.untracked.vstring(testfile))
     process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(maxevents))
 
@@ -162,7 +162,7 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
         process.metCorrections *= process.ak7PFMETCHSL2L3Res
         process.metCorrections *= process.ak5PFMETCHSL2L3ResPhi
 
-    # Require one good muon --------------------------------------------------------
+    # Require one good muon ---------------------------------------------------
     process.goodMuons = cms.EDFilter('CandViewSelector',
         src = cms.InputTag('muons'),
         cut = cms.string("pt > 12.0 & abs(eta) < 8.0 & isGlobalMuon()"),
@@ -172,7 +172,7 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
         minNumber = cms.uint32(2),
     )
 
-    # Configure tuple generation ---------------------------------------------------
+    # Configure tuple generation ----------------------------------------------
     process.load('Kappa.Producers.KTuple_cff')
     process.kappatuple = cms.EDAnalyzer('KTuple',
         process.kappaTupleDefaultsBlock,
