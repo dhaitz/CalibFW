@@ -28,14 +28,10 @@ public:
 	KDataPFJets * m_primaryJetCollection;
 	KDataMuons * m_muons;
 	KDataPFMET * m_pfMet;
-	KDataPFMET * m_pfMetL1;
 	KDataPFMET * m_pfMetL2L3;
-	KDataPFMET * m_pfMetL1L2L3;
 	KDataPFMET * m_pfMetL2L3Res;
 	KDataPFMET * m_pfMetChs;
-	KDataPFMET * m_pfMetChsL1;
 	KDataPFMET * m_pfMetChsL2L3;
-	KDataPFMET * m_pfMetChsL1L2L3;
 	KDataPFMET * m_pfMetChsL2L3Res;
 	KPartons * m_particles;
 

@@ -23,11 +23,7 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 			m_event.m_pfMetChs = m_fi.Get<KDataPFMET>("PFMETCHSPhi");
 		else
 			m_event.m_pfMetChs = m_fi.Get<KDataPFMET>("PFMETCHS");
-		m_event.m_pfMetL1 = m_fi.Get<KDataPFMET>("ak5PFMETL1");
-		m_event.m_pfMetChsL1 = m_fi.Get<KDataPFMET>("ak5PFMETCHSL1");
 		m_event.m_pfMetL2L3 = m_fi.Get<KDataPFMET>("ak5PFMETL2L3");
-		m_event.m_pfMetL1L2L3 = m_fi.Get<KDataPFMET>("ak5PFMETL1L2L3");
-		m_event.m_pfMetChsL1L2L3 = m_fi.Get<KDataPFMET>("ak5PFMETCHSL1L2L3");
 		if (phicorrection)
 			m_event.m_pfMetChsL2L3 = m_fi.Get<KDataPFMET>("ak5PFMETCHSL2L3phi");
 		else
