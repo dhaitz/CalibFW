@@ -71,10 +71,20 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1, re
     process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
     process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
     process.selectedVerticesForMEtCorr.src = cms.InputTag('goodOfflinePrimaryVertices')
+    # These lines get obsolete when JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi
+    # gets updated to version 1.6
+    process.pfMEtSysShiftCorrParameters_2012runABCvsNvtx_data = cms.PSet(
+        px = cms.string("+0.2661 + 0.3217*Nvtx"),
+        py = cms.string("-0.2251 - 0.1747*Nvtx")
+    )
+    process.pfMEtSysShiftCorrParameters_2012runABCvsNvtx_mc = cms.PSet(
+        px = cms.string("+0.1166 + 0.0200*Nvtx"),
+        py = cms.string("+0.2764 - 0.1280*Nvtx")
+    )
     if residual: # residual == data
-        process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAplusBvsNvtx_data
+        process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCvsNvtx_data
     else:
-        process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runAplusBvsNvtx_mc
+        process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCvsNvtx_mc
     # Add AK7 correction services
     process.ak7PFL1Fastjet = process.ak5PFL1Fastjet.clone(algorithm = cms.string('AK7PF'))
     process.ak7PFL1FastL2L3 = process.ak5PFL1FastL2L3.clone(algorithm = cms.string('AK7PF'))
