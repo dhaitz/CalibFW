@@ -1,18 +1,28 @@
 import FWCore.ParameterSet.Config as cms
 
-def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
+def getBaseConfig(globaltag, testfile="", maxevents=300, datatype='mc'):
     """Default config for Z+jet skims with Kappa
 
        This is used in a cmssw config file via:
        import skim_base
-       process = skim_base.getBaseConfig('START44_V12', "filename of testfile")
-
-       additional_actives can for example be used for MC-only products
+       process = skim_base.getBaseConfig('START53_V12', "testfile.root")
     """
+    # Set the globalt tag and datatype for testing or by grid-control ---------
+    data = (datatype == 'data')
+    if data:
+        testfile = 'file:/storage/6/berger/testfiles/data_2012C_AOD.root'
+        if '@' in globaltag: globaltag = 'GR_P_V40_AN1'
+        maxevents = 800
+    else:
+        testfile = 'file:/storage/6/berger/testfiles/mc_madgraphV9_AOD.root'
+        if '@' in globaltag: globaltag = 'START53_V6'
+        datatype = 'mc'
+    print "GT:", globaltag, "| TYPE:", datatype
+
     # Basic process setup -----------------------------------------------------
     process = cms.Process('kappaSkim')
     process.source = cms.Source('PoolSource',
-        fileNames = cms.untracked.vstring(srcfile))
+        fileNames = cms.untracked.vstring(testfile))
     process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(maxevents))
 
@@ -77,41 +87,49 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
     )
 
 
-    # Require one good muon --------------------------------------------------------
+    # Require two good muons --------------------------------------------------
     process.goodMuons = cms.EDFilter('CandViewSelector',
         src = cms.InputTag('muons'),
         cut = cms.string("pt > 12.0 & abs(eta) < 8.0 & isGlobalMuon()"),
     )
-    process.oneGoodMuon = cms.EDFilter('CandViewCountFilter',
+    process.twoGoodMuons = cms.EDFilter('CandViewCountFilter',
         src = cms.InputTag('goodMuons'),
         minNumber = cms.uint32(2),
     )
 
-    # Configure tuple generation ---------------------------------------------------
+    # Configure tuple generation ----------------------------------------------
     process.load('Kappa.Producers.KTuple_cff')
     process.kappatuple = cms.EDAnalyzer('KTuple',
         process.kappaTupleDefaultsBlock,
-        outputFile = cms.string("skim.root")
+        outputFile = cms.string("skim_"+datatype+".root")
     )
     process.kappatuple.verbose = cms.int32(0)
     process.kappatuple.active = cms.vstring(
         'LV', 'L1Muons', 'Muons', 'TrackSummary', 'VertexSummary', 'BeamSpot',
         'JetArea', 'PFMET', 'PFJets',
     )
+    if data:
+        additional_actives = ['DataMetadata', 'TriggerObjects']
+    else:
+        additional_actives = ['GenMetadata', 'GenParticles']
     for active in additional_actives:
         process.kappatuple.active.append(active)
 
-    # custom whitelist, otherwise the HLT trigger bits are not sufficient !
+    # custom whitelist, otherwise the HLT trigger bits are not sufficient!
     process.kappatuple.Metadata.hltWhitelist = cms.vstring(
         # matches 'HLT_Mu17_Mu8_v7' etc.
-        "^HLT_(L[123])?(Iso|Double)?Mu([0-9]+)_(L[123])?(Iso|Double)?Mu([0-9]+)(_v[[:digit:]]+)?$",
+        "^HLT_(Double)?Mu([0-9]+)_(Double)?Mu([0-9]+)(_v[[:digit:]]+)?$",
         # matches 'HLT_DoubleMu7_v8' etc.
-        "^HLT_(L[123])?(Iso|Double)?Mu([0-9]+)(_v[[:digit:]]+)?$",
+        "^HLT_(Double)?Mu([0-9]+)(_v[[:digit:]]+)?$",
     )
+    process.kappatuple.Metadata.tauDiscrProcessName = cms.untracked.string("XXXXXXXXX")
+    process.kappatuple.GenParticles.genParticles.selectedStatus = cms.int32(31)
 
     # use the jets created during the kappa skim and not the RECO Jet
     process.kappatuple.PFJets.whitelist = cms.vstring("recoPFJets.*kappaSkim")
-    process.pathKappa = cms.Path(process.goodMuons*process.oneGoodMuon*process.kappatuple)
+    process.pathKappa = cms.Path(
+        process.goodMuons * process.twoGoodMuons * process.kappatuple
+    )
 
     # Process schedule --------------------------------------------------------
     process.schedule = cms.Schedule(
@@ -125,16 +143,18 @@ def getBaseConfig(globaltag, srcfile="", additional_actives=[], maxevents=-1):
     return process
 
 
-def getOutputModule(process):
-    process.RECOSIMoutput = cms.OutputModule('PoolOutputModule',
-        splitLevel = cms.untracked.int32(0),
-        eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-        outputCommands = process.RECOSIMEventContent.outputCommands,
-        fileName = cms.untracked.string('step3_RELVAL_RAW2DIGI_L1Reco_RECO_VALIDATION_RECO.root'),
-        dataset = cms.untracked.PSet(
-            filterName = cms.untracked.string(''),
-            dataTier = cms.untracked.string('GEN-SIM-RECO'),
-        )
+def addOutputModule(process, filename="test_out.root"):
+    """Additional output file for testing.
+
+       Do not use for a full skim, only for a few 100 events.
+       Usage in cmssw config: process = base.addOutputModule(process)
+    """
+    process.Out = cms.OutputModule("PoolOutputModule",
+         fileName = cms.untracked.string(filename)
     )
-    # and add this to the end step
-    process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
+    process.end = cms.EndPath(process.Out)
+    process.schedule.append(process.end)
+    return process
+
+if __name__ == "__main__":
+    process = getBaseConfig('@GLOBALTAG@', datatype='@TYPE@')
