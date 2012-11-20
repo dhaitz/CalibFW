@@ -13,7 +13,7 @@ if [ "CMSSW" != ${1/*CMSSW*/CMSSW} ] ; then
   echo "Usage: syncto.sh /path/to/CMSSW_X_Y_Z"
   exit
 fi
-CALIB=$CALIB/cfg/SkimmingCalibFW
+CALIB=$CALIB/cfg/cmssw
 
 VERSION=${1/*CMSSW_/}
 VERSION=${VERSION/_/}
