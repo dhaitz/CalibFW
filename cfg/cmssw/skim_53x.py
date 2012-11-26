@@ -77,6 +77,73 @@ def getBaseConfig(globaltag, testfile="", maxevents=300, datatype='mc'):
         process.ak5PFJetsCHS * process.ak7PFJetsCHS * process.kt4PFJetsCHS * process.kt6PFJetsCHS
     )
 
+    # MET filters -------------------------------------------------------------
+    process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
+    # Create good vertices for the trackingFailure MET filter
+    process.goodVertices = cms.EDFilter("VertexSelector",
+        filter = cms.bool(False),
+        src = cms.InputTag("offlinePrimaryVertices"),
+        cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2"),
+    )
+    # The good primary vertex filter for other MET filters
+    process.primaryVertexFilter = cms.EDFilter("VertexSelector",
+        filter = cms.bool(True),
+        src = cms.InputTag("offlinePrimaryVertices"),
+        cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
+    )
+    process.noscraping = cms.EDFilter("FilterOutScraping",
+        applyfilter = cms.untracked.bool(True),
+        debugOn = cms.untracked.bool(False),
+        numtrack = cms.untracked.uint32(10),
+        thresh = cms.untracked.double(0.25)
+    )
+    process.load('CommonTools.RecoAlgos.HBHENoiseFilter_cfi')
+    process.load('RecoMET.METAnalyzers.CSCHaloFilter_cfi')
+    process.load('RecoMET.METFilters.hcalLaserEventFilter_cfi')
+    process.hcalLaserEventFilter.vetoByRunEventNumber=cms.untracked.bool(False)
+    process.hcalLaserEventFilter.vetoByHBHEOccupancy=cms.untracked.bool(True)
+    process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
+    process.EcalDeadCellTriggerPrimitiveFilter.tpDigiCollection = cms.InputTag("ecalTPSkimNA")
+    process.load('RecoMET.METFilters.EcalDeadCellBoundaryEnergyFilter_cfi')
+    process.load('RecoMET.METFilters.eeBadScFilter_cfi')
+    process.load('RecoMET.METFilters.eeNoiseFilter_cfi')
+    process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
+    process.load('RecoMET.METFilters.trackingFailureFilter_cfi')
+    process.load('RecoMET.METFilters.inconsistentMuonPFCandidateFilter_cfi')
+    process.load('RecoMET.METFilters.greedyMuonPFCandidateFilter_cfi')
+
+    process.hcalLaserEventFilter.taggingMode = cms.bool(True)
+    process.EcalDeadCellTriggerPrimitiveFilter.taggingMode = cms.bool(True)
+    process.EcalDeadCellBoundaryEnergyFilter.taggingMode = cms.bool(True)
+    process.trackingFailureFilter.taggingMode = cms.bool(True)
+    process.eeBadScFilter.taggingMode = cms.bool(True)
+    process.eeNoiseFilter.taggingMode = cms.bool(True)
+    process.ecalLaserCorrFilter.taggingMode = cms.bool(True)
+    process.trackingFailureFilter.taggingMode = cms.bool(True)
+    process.inconsistentMuonPFCandidateFilter.taggingMode = cms.bool(True)
+    process.greedyMuonPFCandidateFilter.taggingMode = cms.bool(True)
+    process.beamScrapingFilter = process.inconsistentMuonPFCandidateFilter.clone(
+        ptMin = cms.double(5000.0)
+    )
+    process.hcalNoiseFilter = process.beamScrapingFilter.clone()
+    process.beamHaloFilter = process.beamScrapingFilter.clone()
+    process.filtersSeq = cms.Sequence(
+        process.primaryVertexFilter *
+        process.hcalLaserEventFilter +
+        process.EcalDeadCellTriggerPrimitiveFilter +
+        process.EcalDeadCellBoundaryEnergyFilter +
+        process.eeBadScFilter +
+        process.eeNoiseFilter +
+        process.ecalLaserCorrFilter +
+        process.goodVertices * process.trackingFailureFilter +
+        process.inconsistentMuonPFCandidateFilter +
+        process.greedyMuonPFCandidateFilter +
+        process.noscraping * process.beamScrapingFilter +
+        process.HBHENoiseFilter * process.hcalNoiseFilter +
+        process.CSCTightHaloFilter * process.beamHaloFilter
+    )
+    process.metFilters = cms.Path(process.filtersSeq)
+
     # MET correction for ak5PFJets and ak7PFJets (useful ones only) -----------
     process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
     process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
@@ -191,7 +258,7 @@ def getBaseConfig(globaltag, testfile="", maxevents=300, datatype='mc'):
     process.kappatuple.verbose = cms.int32(0)
     process.kappatuple.active = cms.vstring(
         'LV', 'L1Muons', 'Muons', 'TrackSummary', 'VertexSummary', 'BeamSpot',
-        'JetArea', 'PFMET', 'PFJets',
+        'JetArea', 'PFMET', 'PFJets', 'FilterSummary',
     )
     if data:
         additional_actives = ['DataMetadata', 'TriggerObjects']
@@ -218,6 +285,7 @@ def getBaseConfig(globaltag, testfile="", maxevents=300, datatype='mc'):
 
     # Process schedule --------------------------------------------------------
     process.schedule = cms.Schedule(
+            process.metFilters,
             process.pfCHS,
             process.jetsRedo,
             process.pfMuonIso,
