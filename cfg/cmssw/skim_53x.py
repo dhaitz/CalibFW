@@ -254,12 +254,37 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='mc'):
     process.load('Kappa.Producers.KTuple_cff')
     process.kappatuple = cms.EDAnalyzer('KTuple',
         process.kappaTupleDefaultsBlock,
-        outputFile = cms.string("skim_"+datatype+".root")
+        outputFile = cms.string("skim_"+datatype+".root"),
+        CaloJets = cms.PSet(
+            process.kappaNoCut,
+            process.kappaNoRegEx,
+        srcNoiseHCAL = cms.InputTag(""),
+        AK5CaloJets = cms.PSet(
+            src = cms.InputTag("ak5CaloJets"),
+            srcExtender = cms.InputTag("ak5JetExtender"),
+            srcJetID = cms.InputTag("ak5JetID"),
+        ),
+        AK7CaloJets = cms.PSet(
+            src = cms.InputTag("ak7CaloJets"),
+            srcExtender = cms.InputTag("ak7JetExtender"),
+            srcJetID = cms.InputTag("ak7JetID"),
+        ),
+        KT4CaloJets = cms.PSet(
+            src = cms.InputTag("kt4CaloJets"),
+            srcExtender = cms.InputTag("kt4JetExtender"),
+            srcJetID = cms.InputTag("kt4JetID")
+        ),
+        KT6CaloJets = cms.PSet(
+            src = cms.InputTag("kt6CaloJets"),
+            srcExtender = cms.InputTag(""),
+            srcJetID = cms.InputTag("kt6JetID")
+        ),
+    )
     )
     process.kappatuple.verbose = cms.int32(0)
     process.kappatuple.active = cms.vstring(
-        'LV', 'L1Muons', 'Muons', 'TrackSummary', 'VertexSummary', 'BeamSpot',
-        'JetArea', 'PFMET', 'PFJets', 'FilterSummary',
+        'LV', 'Muons', 'TrackSummary', 'VertexSummary', 'BeamSpot',
+        'JetArea', 'PFMET', 'PFJets', 'CaloJets', 'FilterSummary',
     )
     if data:
         additional_actives = ['DataMetadata']
