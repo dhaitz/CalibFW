@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def getBaseConfig(globaltag, testfile="", maxevents=300, datatype='mc'):
+def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='mc'):
     """Default config for Z+jet skims with Kappa
 
        This is used in a cmssw config file via:
@@ -12,12 +12,13 @@ def getBaseConfig(globaltag, testfile="", maxevents=300, datatype='mc'):
     if data:
         testfile = 'file:/storage/6/berger/testfiles/data_2012C_AOD.root'
         if '@' in globaltag: globaltag = 'GR_P_V40_AN1'
-        maxevents = 800
+        maxevents = maxevents or 500
     else:
         testfile = 'file:/storage/6/berger/testfiles/mc_madgraphV9_AOD.root'
         if '@' in globaltag: globaltag = 'START53_V6'
+        maxevents = maxevents or 100
         datatype = 'mc'
-    print "GT:", globaltag, "| TYPE:", datatype
+    print "GT:", globaltag, "| TYPE:", datatype, "| maxevents:", maxevents, "| file:", testfile
 
     # Basic process setup -----------------------------------------------------
     process = cms.Process('kappaSkim')
@@ -285,12 +286,12 @@ def getBaseConfig(globaltag, testfile="", maxevents=300, datatype='mc'):
 
     # Process schedule --------------------------------------------------------
     process.schedule = cms.Schedule(
-            process.metFilters,
-            process.pfCHS,
-            process.jetsRedo,
-            process.pfMuonIso,
-            process.metCorrections,
-            process.pathKappa,
+        process.metFilters,
+        process.pfCHS,
+        process.jetsRedo,
+        process.pfMuonIso,
+        process.metCorrections,
+        process.pathKappa,
     )
 
     return process
