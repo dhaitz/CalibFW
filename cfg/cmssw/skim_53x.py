@@ -262,7 +262,7 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='mc'):
         'JetArea', 'PFMET', 'PFJets', 'FilterSummary',
     )
     if data:
-        additional_actives = ['DataMetadata', 'TriggerObjects']
+        additional_actives = ['DataMetadata']
     else:
         additional_actives = ['GenMetadata', 'GenParticles']
     for active in additional_actives:
@@ -278,8 +278,14 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='mc'):
     process.kappatuple.Metadata.tauDiscrProcessName = cms.untracked.string("XXXXXXXXX")
     process.kappatuple.GenParticles.genParticles.selectedStatus = cms.int32(31)
 
-    # use the jets created during the kappa skim and not the RECO Jet
+    # use the good objects not temporary ones
+    process.kappatuple.VertexSummary.whitelist = cms.vstring(".*goodOfflinePrimaryVertices.*")
+    process.kappatuple.LV.whitelist += cms.vstring("recoCaloJets.*")
     process.kappatuple.PFJets.whitelist = cms.vstring("recoPFJets.*kappaSkim")
+    process.kappatuple.PFMET.blacklist = cms.vstring("pfType1.*CorrectedMet")
+    process.kappatuple.PFJets.blacklist = cms.vstring(".*Tau.*", "recoPFJets_pfJets.*kappaSkim")
+    del process.kappatuple.GenParticles.genStableMuons
+
     process.pathKappa = cms.Path(
         process.goodMuons * process.twoGoodMuons * process.kappatuple
     )
