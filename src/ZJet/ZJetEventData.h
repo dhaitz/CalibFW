@@ -47,14 +47,17 @@ public:
 	typedef std::map<std::string, KDataPFJets *> PfMap;
 	typedef PfMap::const_iterator PfMapIterator;
 
+	typedef std::map<std::string, KDataJets*> CaloMap;
+	typedef CaloMap::const_iterator CaloMapIterator;
+
 	typedef std::map<std::string, KDataLVs *> GenJetMap;
 	typedef GenJetMap::const_iterator GenJetMapIterator;
 
 	typedef std::map<std::string, KDataJets *> JetMap;
 	typedef JetMap::const_iterator JetMapIterator;
 
-	//typedef std::map<std::string, K * > GenMap;
 	PfMap m_pfJets;
+	CaloMap m_caloJets;
 	JetMap m_jets;
 	GenJetMap m_genJets;
 
@@ -129,22 +132,29 @@ public:
 		if (JetType::IsPF(algoName))
 		{
 			KDataPFJets * pfJets =
-				SafeMap<std::string, KDataPFJets *>::Get(algoName, m_pfJets);
+				SafeMap<std::string, KDataPFJets*>::Get(algoName, m_pfJets);
 
 			if (pfJets->size() <= index)
 				return NULL;
-
 			return &pfJets->at(index);
 		}
 		else if (JetType::IsGen(algoName))
 		{
 			KDataLVs * genJets =
-				SafeMap<std::string, KDataLVs *>::Get(algoName, m_genJets);
+				SafeMap<std::string, KDataLVs*>::Get(algoName, m_genJets);
 
 			if (genJets->size() <= index)
 				return NULL;
-
 			return &genJets->at(index);
+		}
+		else if (JetType::IsCalo(algoName))
+		{
+			KDataJets * caloJets =
+				SafeMap<std::string, KDataJets*>::Get(algoName, m_caloJets);
+
+			if (caloJets->size() <= index)
+				return NULL;
+			return &caloJets->at(index);
 		}
 		else
 		{
@@ -153,7 +163,6 @@ public:
 
 			if (jets->size() >= index)
 				return NULL;
-
 			return &jets->at(index);
 		}
 	}

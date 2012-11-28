@@ -11,19 +11,19 @@
 namespace CalibFW
 {
 
-template < class TEventType >
-class KappaEventProvider: public EventProvider< TEventType >
+template <class TEventType>
+class KappaEventProvider: public EventProvider<TEventType>
 {
 public:
 	KappaEventProvider(FileInterface & fi, InputTypeEnum inpType, bool phicorrection) :
 		m_prevRun(-1), m_prevLumi(-1), m_inpType(inpType), m_fi(fi)
 	{
 		// setup pointer to collections
-		m_event.m_eventmetadata = fi.Get<KEventMetadata> ();
+		m_event.m_eventmetadata = fi.Get<KEventMetadata>();
 
 		if (inpType == McInput)
 		{
-			m_event.m_geneventmetadata = fi.Get<KGenEventMetadata> ();
+			m_event.m_geneventmetadata = fi.Get<KGenEventMetadata>();
 		}
 		WireEvent(phicorrection);
 		m_fi.SpeedupTree();
@@ -39,7 +39,7 @@ public:
 
 	virtual bool GotoEvent(long long lEvent, HLTTools * hltInfo)
 	{
-		m_mon->Update( );
+		m_mon->Update();
 		m_fi.eventdata.GetEntry(lEvent);
 
 		if (m_prevRun != m_event.m_eventmetadata->nRun)
@@ -94,6 +94,11 @@ protected:
 		event.m_pfJets[algoName] = m_fi.Get<KDataPFJets> (algoName);
 	}
 
+	void InitCaloJets(ZJetEventData & event, std::string algoName)
+	{
+		event.m_caloJets[algoName] = m_fi.Get<KDataJets>(algoName);
+	}
+
 	void InitGenJets(ZJetEventData & event, std::string algoName)
 	{
 		event.m_genJets[algoName] = m_fi.Get<KDataLVs> (algoName);
@@ -103,7 +108,7 @@ protected:
 	TEventType m_event;
 
 	InputTypeEnum m_inpType;
-        bool phicorrection;
+	bool phicorrection;
 	boost::scoped_ptr<ProgressMonitor> m_mon;
 
 	FileInterface & m_fi;

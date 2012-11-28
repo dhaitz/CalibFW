@@ -14,6 +14,7 @@ public:
 	{
 		size_t pos = algoname.find("GenJets");
 		pos = std::min(pos, algoname.find("PFJets"));
+		pos = std::min(pos, algoname.find("CaloJets"));
 		std::string newname = algoname.substr(0, pos) + "GenJets";
 		if (pos == std::string::npos)
 			CALIB_LOG_FATAL("Can not convert algoname " << algoname << " to Gen (" << newname << " is not valid).");

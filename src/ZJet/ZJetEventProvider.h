@@ -36,6 +36,9 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 		InitPFJets(m_event, "AK7PFJets");
 		InitPFJets(m_event, "AK7PFJetsCHS");
 
+		InitCaloJets(m_event, "AK5CaloJets");
+		InitCaloJets(m_event, "AK7CaloJets");
+
 		if (m_fi.isMC())
 		{
 			// nice, we have the all-mighty TRUTH !
