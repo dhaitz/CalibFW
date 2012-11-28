@@ -53,6 +53,8 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 			else
 				m_event.m_pfMetChsL2L3Res = m_fi.Get<KDataPFMET>("ak5PFMETCHSL2L3Res");
 		}
+		m_event.m_filtermetadata = m_fi.GetMeta<KFilterMetadata>("KFilterMetadata");
+		m_event.m_filter = m_fi.Get<KFilterSummary>("filterSummary");
 }
 
 }

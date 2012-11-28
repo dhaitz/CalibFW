@@ -217,7 +217,7 @@ def GetCuts(analysis='zjet'):
             'CutZPt': 30.0,
             'CutLeadingJetPt': 12.0,
 
-            'Filter': ['valid_z', 'valid_jet'],
+            'Filter': ['valid_z', 'valid_jet', 'metfilter'],
         },
         'vbf': {
             'Cuts': [
@@ -243,7 +243,7 @@ def GetCuts(analysis='zjet'):
             'CutRapidityGap': 4.0,
             'CutInvariantMass': 500.0,
 
-            'Filter': ['valid_z', 'valid_jet'],
+            'Filter': ['valid_z', 'valid_jet', 'metfilter'],
         },
     }
     if analysis not in cuts:

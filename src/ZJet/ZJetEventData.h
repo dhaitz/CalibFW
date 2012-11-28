@@ -206,6 +206,8 @@ public:
 	KGenEventMetadata* m_geneventmetadata;
 	KEventMetadata* m_eventmetadata;
 	KLumiMetadata* m_lumimetadata;
+	KFilterMetadata* m_filtermetadata;
+	KFilterSummary* m_filter;
 	KVertexSummary* m_vertexSummary;
 	KDataBeamSpot* m_beamSpot;
 	KJetArea* m_jetArea;

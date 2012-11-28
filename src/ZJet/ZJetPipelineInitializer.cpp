@@ -23,6 +23,7 @@
 #include "ZJet/Filter/PtWindowFilter.h"
 #include "ZJet/Filter/JsonFilter.h"
 #include "ZJet/Filter/HltFilter.h"
+#include "ZJet/Filter/MetFilter.h"
 #include "ZJet/Filter/RunRangeFilter.h"
 #include "ZJet/Filter/NpvFilter.h"
 #include "ZJet/Filter/JetEtaFilter.h"
@@ -46,6 +47,9 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddFilter( new PtWindowFilter);
 			else if ( sid == JsonFilter().GetFilterId())
 				pLine->AddFilter( new JsonFilter( pset.Global()->GetJsonFile()));
+			else if (sid == MetFilter().GetFilterId())
+				//pLine->AddFilter(new MetFilter(pset.Global()->GetMetFilters()));
+				pLine->AddFilter(new MetFilter());
 			else if ( sid == InCutFilter().GetFilterId())
 				pLine->AddFilter( new InCutFilter);
 			else if ( sid == ValidZFilter().GetFilterId())
