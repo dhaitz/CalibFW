@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/algorithm/string.hpp>
-
 #include "GlobalInclude.h"
 
 namespace CalibFW
@@ -11,56 +10,37 @@ class JetType
 {
 public:
 
-	static std::string GetGenName( std::string algoname )
+	static std::string GetGenName(std::string algoname)
 	{
-		if ( boost::algorithm::starts_with( algoname, "AK5PFJets" ))
-		{
-			return "AK5GenJets";
-		}
-
-		if ( boost::algorithm::starts_with( algoname, "AK7PFJets" ))
-		{
-			return "AK7GenJets";
-		}
-
-		CALIB_LOG_FATAL ( "Cant convert algoname " << algoname << " to Gen " );
+		size_t pos = algoname.find("GenJets");
+		pos = std::min(pos, algoname.find("PFJets"));
+		std::string newname = algoname.substr(0, pos) + "GenJets";
+		if (pos == std::string::npos)
+			CALIB_LOG_FATAL("Can not convert algoname " << algoname << " to Gen (" << newname << " is not valid).");
+		return newname;
 	}
 
-	// jet algo ( AK5PF ) without any correction applied ??
-	static bool IsRaw( std::string algoname )
+	// jet algo without any correction applied??
+	static bool IsRaw(std::string algoname)
 	{
-		return ( algoname == "AK5PFJets") ||
-				( algoname == "AK7PFJets") ||
-				( algoname == "KT4PFJets") ||
-				( algoname == "KT6PFJets") ||
-				( algoname == "AK5PFJetsCHS") ||
-				( algoname == "AK7PFJetsCHS") ||
-				( algoname == "KT4PFJetsCHS") ||
-				( algoname == "KT6PFJetsCHS");
+		return boost::algorithm::ends_with(algoname, "PFJets") ||
+			boost::algorithm::ends_with(algoname, "PFJetsCHS") ||
+			boost::algorithm::ends_with(algoname, "CaloJets");
 	}
 
 	static bool IsPF(std::string algoname)
 	{
-		return boost::algorithm::starts_with( algoname, "AK5PF") ||
-				boost::algorithm::starts_with( algoname, "AK7PF") ||
-				boost::algorithm::starts_with( algoname, "KT4PF") ||
-				boost::algorithm::starts_with( algoname, "KT6PF");
+		return boost::algorithm::contains(algoname, "PFJets");
 	}
 
 	static bool IsGen(std::string algoname)
 	{
-		return boost::algorithm::starts_with( algoname, "AK5Gen") ||
-				boost::algorithm::starts_with( algoname, "AK7Gen") ||
-				boost::algorithm::starts_with( algoname, "KT4Gen") ||
-				boost::algorithm::starts_with( algoname, "KT6Gen");
+		return boost::algorithm::contains(algoname, "GenJets");
 	}
 
 	static bool IsCalo(std::string algoname)
 	{
-		return boost::algorithm::starts_with( algoname, "AK5Calo") ||
-				boost::algorithm::starts_with( algoname, "AK7Calo") ||
-				boost::algorithm::starts_with( algoname, "KT4Calo") ||
-				boost::algorithm::starts_with( algoname, "KT6Calo");
+		return boost::algorithm::contains(algoname, "CaloJets");
 	}
 
 };
