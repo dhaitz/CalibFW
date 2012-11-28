@@ -15,6 +15,7 @@ public:
 		size_t pos = algoname.find("GenJets");
 		pos = std::min(pos, algoname.find("PFJets"));
 		pos = std::min(pos, algoname.find("CaloJets"));
+		pos = std::min(pos, algoname.find("JPTJets"));
 		std::string newname = algoname.substr(0, pos) + "GenJets";
 		if (pos == std::string::npos)
 			CALIB_LOG_FATAL("Can not convert algoname " << algoname << " to Gen (" << newname << " is not valid).");
@@ -42,6 +43,11 @@ public:
 	static bool IsCalo(std::string algoname)
 	{
 		return boost::algorithm::contains(algoname, "CaloJets");
+	}
+
+	static bool IsJPT(std::string algoname)
+	{
+		return boost::algorithm::contains(algoname, "JPTJets");
 	}
 
 };
