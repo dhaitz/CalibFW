@@ -3,7 +3,7 @@
 #include <sstream>
 #include "DataFormats/interface/Kappa.h"
 
-#include <KappaTools/RootTools/FileInterface.h>
+#include <KappaTools/RootTools/FileInterface2.h>
 #include <Kappa/DataFormats/interface/KDebug.h>
 
 
@@ -34,9 +34,6 @@ public:
 	KDataPFMET * m_pfMetChsL2L3;
 	KDataPFMET * m_pfMetChsL2L3Res;
 	KGenParticles * m_particles;
-
-	// only use directly if there is no other way
-	//FileInterface * m_fi;
 
 	typedef std::map<std::string, KDataPFJets *> PfMap;
 	typedef PfMap::const_iterator PfMapIterator;

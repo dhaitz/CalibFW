@@ -15,7 +15,7 @@ template <class TEventType>
 class KappaEventProvider: public EventProvider<TEventType>
 {
 public:
-	KappaEventProvider(FileInterface & fi, InputTypeEnum inpType, bool phicorrection) :
+	KappaEventProvider(FileInterface2 & fi, InputTypeEnum inpType, bool phicorrection) :
 		m_prevRun(-1), m_prevLumi(-1), m_inpType(inpType), m_fi(fi)
 	{
 		// setup pointer to collections
@@ -111,7 +111,7 @@ protected:
 	bool phicorrection;
 	boost::scoped_ptr<ProgressMonitor> m_mon;
 
-	FileInterface & m_fi;
+	FileInterface2 & m_fi;
 };
 
 }

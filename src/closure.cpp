@@ -185,7 +185,7 @@ int main(int argc, char** argv)
 //			CALIB_LOG_FILE("Input File " << s)
 //		}
 	}
-	FileInterface finterface(g_sourcefiles);
+	FileInterface2 finterface(g_sourcefiles);
 
 
 	// setup Global Settings
