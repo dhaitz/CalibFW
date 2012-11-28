@@ -208,9 +208,13 @@ public:
 		return s.str();
 	}
 
-	KDataMuons * Muons;
-	KEventMetadata * m_eventmetadata;
-	KLumiMetadata * m_lumimetadata;
+	KDataMuons* Muons;
+	KGenEventMetadata* m_geneventmetadata;
+	KEventMetadata* m_eventmetadata;
+	KLumiMetadata* m_lumimetadata;
+	KVertexSummary* m_vertexSummary;
+	KDataBeamSpot* m_beamSpot;
+	KJetArea* m_jetArea;
 
 	KGenLumiMetadata * GetGenLumiMetadata() const
 	{
@@ -221,13 +225,6 @@ public:
 	{
 		return (KDataLumiMetadata *) m_lumimetadata;
 	}
-
-
-	KGenEventMetadata * m_geneventmetadata;
-
-	KVertexSummary * m_vertexSummary;
-	KDataBeamSpot * m_beamSpot;
-	KJetArea * m_jetArea;
 
 };
 }
