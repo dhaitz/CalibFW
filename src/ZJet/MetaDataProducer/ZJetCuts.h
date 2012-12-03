@@ -36,15 +36,18 @@ public:
 			ZJetMetaData::LocalMetaDataType & localMetaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		bool allPassed = true;
+		KDataLVs muons;
+		if (m_pipelineSettings.GetGenCuts())
+			muons = metaData.GetAsLVs(metaData.m_genMuons);
+		else
+			muons = metaData.GetAsLVs(metaData.m_listValidMuons);
 
-		for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				it != metaData.m_listValidMuons.end(); it ++)
+		bool allPassed = true;
+		for (KDataLVs::const_iterator it = muons.begin(); it != muons.end(); it++)
 		{
 			allPassed = allPassed
 				&& std::abs(it->p4.Eta()) < m_pipelineSettings.GetCutMuonEta();
 		}
-
 		localMetaData.SetCutResult(this->GetId(), allPassed);
 	}
 
@@ -62,8 +65,13 @@ public:
 			ZJetMetaData::LocalMetaDataType & localMetaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		for (KDataMuons::const_iterator it = metaData.GetValidMuons().begin();
-				it != metaData.GetValidMuons().end(); it++)
+		KDataLVs muons;
+		if (m_pipelineSettings.GetGenCuts())
+			muons = metaData.GetAsLVs(metaData.m_genMuons);
+		else
+			muons = metaData.GetAsLVs(metaData.m_listValidMuons);
+
+		for (KDataLVs::const_iterator it = muons.begin(); it != muons.end(); it++)
 		{
 			if (it->p4.Pt() < m_pipelineSettings.GetCutMuonPt())
 			{
@@ -89,14 +97,11 @@ public:
 			ZJetMetaData::LocalMetaDataType & localMetaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		if (!metaData.HasValidZ())
-		{
-			//No valid objects found to apply this cut
+		if (!metaData.HasValidKindZ(m_pipelineSettings.GetGenCuts()))
 			return;
-		}
-
 		localMetaData.SetCutResult(this->GetId(),
-				metaData.GetRefZ().p4.Pt() > m_pipelineSettings.GetCutZPt());
+				metaData.GetRefKindZ(m_pipelineSettings.GetGenCuts()).p4.Pt()
+				> m_pipelineSettings.GetCutZPt());
 	}
 
 	unsigned long GetId() const { return ZPtCut::CutId; }
@@ -113,15 +118,11 @@ public:
 			ZJetMetaData::LocalMetaDataType & localMetaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		if (!metaData.HasValidZ())
-		{
-			//No valid objects found to apply this cut
+		if (!metaData.HasValidKindZ(m_pipelineSettings.GetGenCuts()))
 			return;
-		}
-
 		localMetaData.SetCutResult(this->GetId(),
-				std::abs(metaData.GetRefZ().p4.mass() - g_kZmass)
-					< m_pipelineSettings.GetCutZMassWindow()
+			std::abs(metaData.GetRefKindZ(m_pipelineSettings.GetGenCuts()).p4.mass() - g_kZmass)
+			< m_pipelineSettings.GetCutZMassWindow()
 		);
 	}
 
@@ -140,10 +141,7 @@ public:
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		if (!metaData.HasValidJet(m_pipelineSettings, data))
-		{
-			// is not ok, there seems to be no jet in the event
 			return;
-		}
 
 		KDataLV* jet = metaData.GetValidPrimaryJet(m_pipelineSettings, data);
 		localMetaData.SetCutResult(this->GetId(),
@@ -167,13 +165,12 @@ public:
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		if (!metaData.HasValidJet(m_pipelineSettings,data))
-			// no decision possible for this event
 			return;
 
-		KDataLV * jet = metaData.GetValidPrimaryJet(m_pipelineSettings, data);
+		KDataLV* jet = metaData.GetValidPrimaryJet(m_pipelineSettings, data);
 
 		localMetaData.SetCutResult(this->GetId(),
-				std::abs(jet->p4.Eta()) < m_pipelineSettings.GetCutLeadingJetEta()
+			std::abs(jet->p4.Eta()) < m_pipelineSettings.GetCutLeadingJetEta()
 		);
 
 	}
@@ -193,23 +190,18 @@ public:
 			ZJetMetaData::LocalMetaDataType & localMetaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		if (!metaData.HasValidZ())
-		{
-			// no decision possible for this event
+		if (!metaData.HasValidKindZ(m_pipelineSettings.GetGenCuts()))
 			return;
-		}
-
 		if (metaData.GetValidJetCount(m_pipelineSettings, data) < 2)
 		{
-			// is ok, there seems to be no 2nd Jet in the event
 			localMetaData.SetCutResult(this->GetId(), true);
 			return;
 		}
 
-		KDataLV * jet2 = metaData.GetValidJet(m_pipelineSettings, data, 1);
+		KDataLV* jet2 = metaData.GetValidJet(m_pipelineSettings, data, 1);
 
 		localMetaData.SetCutResult(this->GetId(),
-				metaData.GetBalance(jet2)
+			metaData.GetBalance(jet2, metaData.GetPtKindZ(m_pipelineSettings.GetGenCuts()))
 				< m_pipelineSettings.GetCutSecondLeadingToZPt());
 	}
 
@@ -227,14 +219,16 @@ public:
 			ZJetMetaData::LocalMetaDataType & localMetaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		if (!metaData.HasValidJet(m_pipelineSettings, data) || !metaData.HasValidZ())
-			//No valid objects found to apply this cut
+		if (!metaData.HasValidJet(m_pipelineSettings, data))
 			return;
-
 		KDataLV * jet1 = metaData.GetValidPrimaryJet(m_pipelineSettings, data);
 
+		if (!metaData.HasValidKindZ(m_pipelineSettings.GetGenCuts()))
+			return;
+		double zphi = metaData.GetRefKindZ(m_pipelineSettings.GetGenCuts()).p4.Phi();
+
 		localMetaData.SetCutResult(this->GetId(),
-				(std::abs(std::abs(jet1->p4.Phi() - metaData.GetRefZ().p4.Phi()) - TMath::Pi()))
+				(std::abs(std::abs(jet1->p4.Phi() - zphi) - ROOT::Math::Pi()))
 					< m_pipelineSettings.GetCutBack2Back()
 		);
 	}
@@ -256,11 +250,8 @@ public:
 			ZJetMetaData::LocalMetaDataType & localMetaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		if (!metaData.HasValidZ())
-		{
-			// no decision possible for this event
+		if (!metaData.HasValidKindZ(m_pipelineSettings.GetGenCuts()))
 			return;
-		}
 
 		if (metaData.GetValidJetCount(m_pipelineSettings, data) < 2)
 		{
@@ -269,11 +260,13 @@ public:
 			return;
 		}
 
-		KDataLV * jet2 = metaData.GetValidJet(m_pipelineSettings, data, 1);
+		KDataLV* jet2 = metaData.GetValidJet(m_pipelineSettings, data, 1);
 
 		localMetaData.SetCutResult(this->GetId(),
-			(metaData.GetBalance(jet2) >= m_pipelineSettings.GetCutSecondLeadingToZPtRegionLow()) &&
-			(metaData.GetBalance(jet2) < m_pipelineSettings.GetCutSecondLeadingToZPtRegionHigh())
+			(metaData.GetBalance(jet2, metaData.GetPtKindZ(m_pipelineSettings.GetGenCuts()))
+				>= m_pipelineSettings.GetCutSecondLeadingToZPtRegionLow()) &&
+			(metaData.GetBalance(jet2, metaData.GetPtKindZ(m_pipelineSettings.GetGenCuts()))
+				< m_pipelineSettings.GetCutSecondLeadingToZPtRegionHigh())
 		);
 	}
 
@@ -289,20 +282,20 @@ class DeltaEtaCut: public ZJetCutBase
 {
 public:
 	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
-            ZJetMetaData::LocalMetaDataType & localMetaData,
+			ZJetMetaData::LocalMetaDataType & localMetaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
-	{		
-		if (!metaData.HasValidJet(m_pipelineSettings, data) || !metaData.HasValidZ())
-		{
-			//No valid objects found to apply this cut
+	{
+		if (!metaData.HasValidJet(m_pipelineSettings, data))
 			return;
-		}
+		if (!metaData.HasValidKindZ(m_pipelineSettings.GetGenCuts()))
+			return;
+		double jeta = metaData.GetValidPrimaryJet(m_pipelineSettings, data)->p4.Eta();
+		double zeta = metaData.GetRefKindZ(m_pipelineSettings.GetGenCuts()).p4.Eta();
 
-		localMetaData.SetCutResult ( this->GetId(),
-			(TMath::Abs(metaData.GetValidPrimaryJet(m_pipelineSettings, data)->p4.Eta() - metaData.GetRefZ().p4.Eta()) > 			
-				m_pipelineSettings.GetCutDeltaEtaLow() && TMath::Abs(metaData.GetValidPrimaryJet(m_pipelineSettings, data)->p4.Eta() -
-				 metaData.GetRefZ().p4.Eta()) < m_pipelineSettings.GetCutDeltaEtaHigh()) );
-
+		localMetaData.SetCutResult(this->GetId(),
+			std::abs(jeta - zeta) > m_pipelineSettings.GetCutDeltaEtaLow() &&
+			std::abs(jeta - zeta) < m_pipelineSettings.GetCutDeltaEtaHigh()
+		);
 	}
 
 	unsigned long GetId() const
