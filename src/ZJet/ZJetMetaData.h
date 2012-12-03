@@ -245,6 +245,37 @@ public:
 		return m_genMuons;
 	}
 
+	const KDataLV& GetRefKindZ(bool gen) const
+	{
+		if (gen)
+			return GetRefGenZ();
+		else
+			return GetRefZ();
+	}
+
+	const KDataLV* GetPtKindZ(bool gen) const
+	{
+		if (gen)
+			return GetPtGenZ();
+		else
+			return GetPtZ();
+	}
+
+	bool HasValidKindZ(bool gen) const
+	{
+		if (gen)
+			return HasValidGenZ();
+		else
+			return HasValidZ();
+	}
+
+	template <class T>
+	std::vector<KDataLV> GetAsLVs(T collection) const
+	{
+		std::vector<KDataLV> result(collection.begin(), collection.end());
+		return result;
+	}
+
 	typedef boost::ptr_map<std::string, std::vector<unsigned int> > JetMapping;
 	typedef JetMapping::iterator JetMappingIterator;
 
