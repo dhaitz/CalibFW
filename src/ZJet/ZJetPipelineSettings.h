@@ -136,6 +136,7 @@ public:
 	}
 
 	// Cut settings
+	IMPL_SETTING(bool, GenCuts)
 	IMPL_SETTING(double, CutMuonPt)
 	IMPL_SETTING(double, CutZMassWindow)
 	IMPL_SETTING(double, CutMuEta)

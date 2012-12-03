@@ -196,6 +196,7 @@ def GetCuts(analysis='zjet'):
     """Return a set of default cuts for a given analysis."""
     cuts = {
         'zjet': {
+            'GenCuts': False,
             'Cuts': [
                 'muon_eta',
                 'muon_pt',
@@ -220,6 +221,7 @@ def GetCuts(analysis='zjet'):
             'Filter': ['valid_z', 'valid_jet', 'metfilter'],
         },
         'vbf': {
+            'GenCuts': False,
             'Cuts': [
                 'leadingjet_pt',
                 'secondjet_pt',
