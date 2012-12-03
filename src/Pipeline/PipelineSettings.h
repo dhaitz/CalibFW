@@ -13,7 +13,7 @@ namespace CalibFW
  */
 enum InputTypeEnum
 {
-	McInput, DataInput, UnknownInput
+	McInput, DataInput, GenInput, UnknownInput
 };
 
 /*

@@ -174,16 +174,23 @@ public:
 		return (GetInputType() == DataInput);
 	}
 
+	bool IsGen() const
+	{
+		return (GetInputType() == GenInput);
+	}
+
 	InputTypeEnum GetInputType() const
 	{
 		std::string sInp = GetPropTree()->get<std::string>("InputType");
 
 		InputTypeEnum inp = McInput;
 
-		if (sInp == "mc")
-			inp = McInput;
-		else if (sInp == "data")
+		if (sInp == "data")
 			inp = DataInput;
+		else if (sInp == "mc")
+			inp = McInput;
+		else if (sInp == "gen")
+			inp = GenInput;
 		else
 			CALIB_LOG_FATAL("Input type " + sInp + " not supported.")
 
