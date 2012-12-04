@@ -2,7 +2,7 @@ import sys
 import ClosureConfigBase as cbase
 
 conf = cbase.BaseConfig('mc', '2012')
-conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa53_MC12_madgraph/*.root", sys.argv)
+conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa534_MC12_madgraph/*.root", sys.argv)
 conf["OutputPath"] = "closure_madgraphSummer12"
 
 algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2L3"]
