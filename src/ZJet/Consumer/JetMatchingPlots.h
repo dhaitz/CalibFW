@@ -36,14 +36,13 @@ class JetMatchingConsumer: public ZJetMetaConsumer
 public:
 
 	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
-			ZJetPipelineSettings> * pset)
+			ZJetPipelineSettings>* pset)
 	{
-		ZJetMetaConsumer::Init( pset );
+		ZJetMetaConsumer::Init(pset);
 
 		m_histJetMatch = new Hist1D("jet1-jet-matching_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetJetMatchingModifier());
-
 
 		AddPlot(m_histJetMatch);
 	}
@@ -51,20 +50,21 @@ public:
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
 			ZJetMetaData const& metaData)
 	{
-		ZJetMetaConsumer::ProcessFilteredEvent( event, metaData);
-		
-        std::string genName ( JetType::GetGenName ( this->GetPipelineSettings().GetJetAlgorithm() ) );
-        std::vector < int > const& matchList = metaData.m_matchingResults.at( genName );
-        
-        if ( matchList.size() == 0 )
-        {
-            // something is wrong with the mapping
-            m_histJetMatch->Fill( -2, metaData.GetWeight());
-        }
-        else
-        {
-            m_histJetMatch->Fill( matchList[0], metaData.GetWeight());
-        }
+		if (this->GetPipelineSettings().GetJetAlgorithm().find("PFJets") == std::string::npos)
+			return;
+
+		ZJetMetaConsumer::ProcessFilteredEvent(event, metaData);
+		std::string genName(JetType::GetGenName(this->GetPipelineSettings().GetJetAlgorithm()));
+		if (metaData.m_matchingResults.find(genName) != metaData.m_matchingResults.end())
+			return;
+
+		std::vector<int> const& matchList = metaData.m_matchingResults.at(genName);
+
+		if (matchList.size() == 0)
+			// something is wrong with the mapping
+			m_histJetMatch->Fill(-2, metaData.GetWeight());
+		else
+			m_histJetMatch->Fill(matchList[0], metaData.GetWeight());
 	}
 
 	Hist1D * m_histJetMatch;

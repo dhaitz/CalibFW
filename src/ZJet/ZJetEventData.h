@@ -88,9 +88,12 @@ public:
 	// return MET, depending on which correction level we are looking at right now
 	virtual KDataPFMET * GetMet(ZJetPipelineSettings const& psettings) const
 	{
-		std::string corr = psettings.GetJetAlgorithm().substr(9); //remove the "AKxPFJets"
-
-		//to do: implement AK7 MET and phi-corrected MET while ensuring backwards-compatibility
+		std::string corr = psettings.GetJetAlgorithm();
+		//to do: implement MET for all algorithms while ensuring backwards-compatibility
+		if (corr.find("GenJets") != std::string::npos || corr.find("Jets") == std::string::npos)
+			corr = "";
+		else
+			corr = corr.substr(std::max(corr.find("Jets") + 4, corr.find("CHS") + 3), std::string::npos);
 
 		if (corr == "" || corr == "L1")
 			return m_pfMet;

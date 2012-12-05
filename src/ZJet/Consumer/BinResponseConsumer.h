@@ -110,16 +110,17 @@ public:
 		{
 			if (m_jetnum >= metaData.GetValidJetCount(set, event, genName)
 					|| m_jetnum >= metaData.GetValidJetCount(set, event))
-			{
-				//CALIB_LOG("Reco to gen matching of jet_" << m_jetnum << ": Only " << metaData.GetValidJetCount(set, event, genName) << " genjet(s) in the event!")
 				return;
-			}
+
 			// function GetMatchedJet(genname)
+			if (metaData.m_matchingResults.find(genName) == metaData.m_matchingResults.end())
+				return;
 			std::vector<int> const& matchList = metaData.m_matchingResults.at(genName);
 
 			if (m_jetnum >= matchList.size())
 			{
-				CALIB_LOG_FATAL("Reco to gen matching: Not enough jets (looking for jet_"<<m_jetnum <<" but only "<< matchList.size() << "jet(s) are matched)!")
+				CALIB_LOG_FATAL("Reco to gen matching: Not enough jets (looking for jet_"
+					<< m_jetnum << " but only " << matchList.size() << "jet(s) are matched)!")
 				return;
 			}
 			int iMatchedGen = matchList.at(m_jetnum);
@@ -131,7 +132,8 @@ public:
 			}
 			if (iMatchedGen >= metaData.GetValidJetCount(set, event, genName))
 			{
-				CALIB_LOG_FATAL("Reco to gen matching: No reference gen jet found! " << iMatchedGen <<" >= "<< metaData.GetValidJetCount(set, event, genName))
+				CALIB_LOG_FATAL("Reco to gen matching: No reference gen jet found! "
+					<< iMatchedGen <<" >= " << metaData.GetValidJetCount(set, event, genName))
 				return;
 			}
 			KDataLV* genjet = metaData.GetValidJet(set, event, iMatchedGen, genName);

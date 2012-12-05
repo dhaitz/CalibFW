@@ -266,7 +266,7 @@ public:
 
 		if (GetUseValidJets())
 		{
-			if(m_algorithm == "")
+			if (m_algorithm == "")
 				lv = metaData.GetValidJet(GetPipelineSettings(), event, GetProductIndex());
 			else
 				lv = metaData.GetValidJet(GetPipelineSettings(), event, GetProductIndex(), m_algorithm);
@@ -278,9 +278,11 @@ public:
 		else
 		{
 			// plot all invalid jet quantities at once !
-			if(m_algorithm == "") { CALIB_LOG_FATAL("not implemented, please provide jet name") }
+			if(m_algorithm == "")
+				CALIB_LOG_FATAL("not implemented, please provide jet name")
 
-			unsigned int invalidJetCount =  metaData.GetInvalidJetCount(GetPipelineSettings(), event, m_algorithm);
+			unsigned int invalidJetCount =  metaData.GetInvalidJetCount(
+					GetPipelineSettings(), event, m_algorithm);
 			for (unsigned int i = 0; i < invalidJetCount; ++i)
 			{
 				lv = metaData.GetInvalidJet(GetPipelineSettings(), event, GetProductIndex(), m_algorithm);
@@ -337,7 +339,7 @@ public:
 		DataLVsConsumer::Init(pset);
 
 		if (! m_onlyBasic)
-			{
+		{
 			m_neutralEmFraction = new Hist1D(GenName(GetPhysicsObjectName(), "neutralemfraction_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetFractionModifier());
