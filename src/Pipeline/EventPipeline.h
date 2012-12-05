@@ -105,25 +105,23 @@ public:
 			TMetaData, TSettings> const& initializer)
 	{
 		m_pipelineSettings = pset;
-
 		initializer.InitPipeline(this, pset);
 
 		// init Filters
-		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
-				== m_filter.end()); itfilter++)
+		for (FilterVectorIterator itfilter = m_filter.begin();
+				itfilter != m_filter.end(); itfilter++)
 		{
 			itfilter->Init(this);
 		}
 
 		// init Consumers
-		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
-				== m_consumer.end()); itcons++)
+		for (ConsumerVectorIterator itcons = m_consumer.begin();
+				itcons != m_consumer.end(); itcons++)
 		{
 			itcons->Init(this);
 		}
 
 	}
-
 
 
 	/*
@@ -132,12 +130,12 @@ public:
 	virtual std::string GetContent()
 	{
 		std::stringstream s;
-
-		s << "== Pipeline Settings: " << std::endl << m_pipelineSettings.ToString() << std::endl;
+		s << "== Pipeline Settings: " << std::endl;
+		s << m_pipelineSettings.ToString() << std::endl;
 		s << "== Pipeline Filter: ";
 
-		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
-				== m_filter.end()); itfilter++)
+		for (FilterVectorIterator itfilter = m_filter.begin();
+				itfilter != m_filter.end(); itfilter++)
 		{
 			s << std::endl << itfilter->GetFilterId();
 		}
@@ -150,13 +148,12 @@ public:
 	 */
 	virtual void FinishPipeline()
 	{
-		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
-				== m_consumer.end()); itcons++)
+		for (ConsumerVectorIterator itcons = m_consumer.begin();
+				itcons != m_consumer.end(); itcons++)
 			itcons->Finish();
-		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
-				== m_filter.end()); itfilter++)
+		for (FilterVectorIterator itfilter = m_filter.begin();
+				itfilter != m_filter.end(); itfilter++)
 			itfilter->Finish();
-
 	}
 
 	/*
@@ -165,8 +162,8 @@ public:
 	 */
 	virtual void Run()
 	{
-		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
-				== m_consumer.end()); itcons++)
+		for (ConsumerVectorIterator itcons = m_consumer.begin();
+				itcons != m_consumer.end(); itcons++)
 		{
 			itcons->Process();
 		}
@@ -180,38 +177,33 @@ public:
 	virtual void RunEvent(TData const& evt, TMetaData const& globalMetaData)
 	{
 		// create the pipeline local data and set the pointer to the localMetaData
-        TMetaData & nonconst_metaData = const_cast< TMetaData &>( globalMetaData );
-        typename TMetaData::LocalMetaDataType localMetaData;
-        nonconst_metaData.SetLocalMetaData ( & localMetaData );
+		TMetaData& nonconst_metaData = const_cast<TMetaData&>(globalMetaData);
+		typename TMetaData::LocalMetaDataType localMetaData;
+		nonconst_metaData.SetLocalMetaData(&localMetaData);
 
 		// run MetaDataProducers
-        // Pipeline private MetaDataProducers not supported at the momemnt
-		for (MetaDataVectorIterator it = m_producer.begin(); !(it
-				== m_producer.end()); it++)
+		// Pipeline private MetaDataProducers not supported at the momemnt
+		for (MetaDataVectorIterator it = m_producer.begin();
+				it != m_producer.end(); it++)
 		{
-			(it)->PopulateLocal(evt, globalMetaData, localMetaData,  m_pipelineSettings);
+			it->PopulateLocal(evt, globalMetaData, localMetaData, m_pipelineSettings);
 		}
 
-
-		FilterResult fres;
-
 		// run Filters
-		for (FilterVectorIterator itfilter = m_filter.begin(); !(itfilter
-				== m_filter.end()); itfilter++)
+		FilterResult fres;
+		for (FilterVectorIterator itfilter = m_filter.begin();
+				itfilter != m_filter.end(); itfilter++)
 		{
-			fres.SetFilterDecisions( itfilter->GetFilterId() ,
+			fres.SetFilterDecisions(itfilter->GetFilterId(),
 					itfilter->DoesEventPass(evt, globalMetaData, m_pipelineSettings));
 		}
 
-
 		// run Consumer
-		for (ConsumerVectorIterator itcons = m_consumer.begin(); !(itcons
-				== m_consumer.end()); itcons++)
+		for (ConsumerVectorIterator itcons = m_consumer.begin();
+				itcons != m_consumer.end(); itcons++)
 		{
 			if (fres.HasPassed())
-			{
 				itcons->ProcessFilteredEvent(evt, globalMetaData);
-			}
 
 			itcons->ProcessEvent(evt, globalMetaData, fres);
 		}
@@ -220,16 +212,13 @@ public:
 	/*
 	 * Find and return a Filter by it's id in this Pipline
 	 */
-	virtual FilterBase<TData, TMetaData, TSettings> * FindFilter(
-			std::string sFilterId)
+	virtual FilterBase<TData, TMetaData, TSettings>* FindFilter(std::string sFilterId)
 	{
-
-		for (FilterVectorIterator it = m_filter.begin(); !(it == m_filter.end()); it++)
+		for (FilterVectorIterator it = m_filter.begin(); it != m_filter.end(); it++)
 		{
 			if (it->GetFilterId() == sFilterId)
 				return &(*it);
 		}
-
 		return NULL;
 	}
 
@@ -284,11 +273,8 @@ private:
 	ConsumerVector m_consumer;
 	FilterVector m_filter;
 	MetaDataProducerVector m_producer;
-
 	TSettings m_pipelineSettings;
 };
-
-
 
 }
 

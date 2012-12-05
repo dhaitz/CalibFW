@@ -46,17 +46,17 @@ public:
 	/*
 	 * Add a pipeline. The object is destroy in the destructor of the EventPipelineRunner
 	 */
-	void AddPipeline( TPipeline * pline )
+	void AddPipeline(TPipeline* pline)
 	{
-		m_pipelines.push_back( pline );
+		m_pipelines.push_back(pline);
 	}
 
 	/*
 	 * Add a GlobalMetaProducer. The object is destroy in the destructor of the EventPipelineRunner
 	 */
-	void AddGlobalMetaProducer( TGlobalMetaProducer * metaProd )
+	void AddGlobalMetaProducer(TGlobalMetaProducer* metaProd)
 	{
-		m_globalMetaProducer.push_back( metaProd );
+		m_globalMetaProducer.push_back(metaProd);
 	}
 
 	/*
@@ -64,29 +64,27 @@ public:
 	 */
 	void AddPipelines(std::vector<TPipeline*> pVec)
 	{
-		BOOST_FOREACH( TPipeline * pline, pVec )
-			{
-				AddPipeline(pline);
-			}
+		BOOST_FOREACH(TPipeline * pline, pVec)
+		{
+			AddPipeline(pline);
+		}
 	}
 
 	/*
 	 * Run the GlobalMetaProducers and all pipelines.
 	 */
-	template< class TEvent, class TMetaData, class TSettings>
-	void RunPipelines( EventProvider< TEvent > & evtProvider, TSettings const& settings)
+	template<class TEvent, class TMetaData, class TSettings>
+	void RunPipelines(EventProvider<TEvent>& evtProvider, TSettings const& settings)
 	{
 		long long nEvents = evtProvider.GetOverallEventCount();
 		CALIB_LOG("Running over " << nEvents << " Events")
-
-		HLTTools * hltTools = new HLTTools;
-
+		HLTTools* hltTools = new HLTTools;
 		bool bEventValid = true;
 
-		for (long long lCur = 0; lCur < nEvents; ++ lCur)
+		for (long long lCur = 0; lCur < nEvents; ++lCur)
 		{
 			// TODO refactor the evtProvider to clean up this mess with the hltTools
-			evtProvider.GotoEvent( lCur , hltTools );
+			evtProvider.GotoEvent(lCur , hltTools);
 			TMetaData metaDataGlobal;
 			metaDataGlobal.m_hltInfo = hltTools;
 
@@ -95,11 +93,9 @@ public:
 					it != m_globalMetaProducer.end(); it++)
 			{
 				bEventValid = it->PopulateGlobalMetaData(evtProvider.GetCurrentEvent(), metaDataGlobal, settings);
-
-				if ( !bEventValid )
-				{
+				//CALIB_LOG(it->GetContent())
+				if (!bEventValid)
 					break;
-				}
 			}
 
 			// run the pipelines, if the event is valid
@@ -108,14 +104,9 @@ public:
 				for (PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
 				{
 					if (it->GetSettings().GetLevel() == 1)
-					{
-						//CALIB_LOG( it->GetContent() )
-
-						it->RunEvent( evtProvider.GetCurrentEvent(), metaDataGlobal );
-					}
+						it->RunEvent(evtProvider.GetCurrentEvent(), metaDataGlobal);
 				}
 			}
-
 			metaDataGlobal.ClearContent();
 		}
 
@@ -124,9 +115,7 @@ public:
 				!(it == m_pipelines.end()); it++)
 		{
 			if (it->GetSettings().GetLevel() == 1)
-			{
 				it->FinishPipeline();
-			}
 		}
 
 		// run the pipelines greater level one
@@ -136,8 +125,6 @@ public:
 			{
 				if (it->GetSettings().GetLevel() == i)
 				{
-					//CALIB_LOG( it->GetContent() )
-
 					it->Run();
 					it->FinishPipeline();
 				}

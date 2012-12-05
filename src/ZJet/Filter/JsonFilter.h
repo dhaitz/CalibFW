@@ -14,24 +14,19 @@ class JsonFilter: public ZJetFilterBase
 
 public:
 
-	JsonFilter()
-	{
+	JsonFilter() {}
 
-	}
-
-	JsonFilter( std::string jsonFileName)
+	JsonFilter(std::string jsonFileName)
 	{
-		m_lumiSelector.reset (
-				new RunLumiSelector( jsonFileName)
-				);
+		m_lumiSelector.reset(new RunLumiSelector(jsonFileName));
 	}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
 			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
 	{
-		KEventMetadata * p =  metaData.GetKappaMetaData( event, settings );
+		KEventMetadata* p =  metaData.GetKappaMetaData(event, settings);
 
-		return m_lumiSelector->accept( p->nRun, p->nLumi );
+		return m_lumiSelector->accept(p->nRun, p->nLumi);
 	}
 
 	virtual std::string GetFilterId()

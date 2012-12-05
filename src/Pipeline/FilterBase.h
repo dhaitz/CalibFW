@@ -17,29 +17,23 @@ class FilterResult
 public:
 
 	typedef std::map<std::string, bool> FilterDecisions;
-	typedef std::map<std::string, bool>::const_iterator FilterDecisionsIterator_const;
 
-	FilterResult():
-			m_cacheHasPassed(false), m_IsCachedHasPassed( false)
+	FilterResult() : m_cacheHasPassed(false), m_IsCachedHasPassed(false)
 	{
 	}
 
 	// Note: only call this, when all FilterDecisions have been added, as this result is cached
 	bool HasPassed() const
 	{
-		if ( m_IsCachedHasPassed)
+		if (m_IsCachedHasPassed)
 			return m_cacheHasPassed;
 
 		m_cacheHasPassed = true;
-
-		for ( std::map<std::string, bool>::const_iterator it = GetFilterDecisions().begin();
-			it != GetFilterDecisions().end();
-			it ++ )
+		for (FilterDecisions::const_iterator it = GetFilterDecisions().begin();
+			it != GetFilterDecisions().end(); it++)
 		{
-			if ( it->second == false)
-			{
+			if (it->second == false)
 				m_cacheHasPassed = false;
-			}
 		}
 
 		m_IsCachedHasPassed = true;
@@ -48,31 +42,28 @@ public:
 
 	bool HasPassedIfExcludingFilter(std::string const& excludedFilter ) const
 	{
-		for ( std::map<std::string, bool>::const_iterator it = GetFilterDecisions().begin();
-			it != GetFilterDecisions().end();
-			it ++ )
+		for (FilterDecisions::const_iterator it = GetFilterDecisions().begin();
+			it != GetFilterDecisions().end(); it++)
 		{
-			if ( it->second == false)
-			{
-				if( it->first != excludedFilter )
+			if (it->second == false)
+				if(it->first != excludedFilter)
 					return false;
-			}
 		}
 
 		return true;
 	}
 
-	bool GetFilterDecision( std::string filterName) const
+	bool GetFilterDecision(std::string filterName) const
 	{
 		return GetFilterDecisions().at(filterName);
 	}
 
-	FilterDecisions const&  GetFilterDecisions() const
+	FilterDecisions const& GetFilterDecisions() const
 	{
 		return m_filterDecision;
 	}
 
-	void  SetFilterDecisions( std::string filterName, bool passed)
+	void SetFilterDecisions(std::string filterName, bool passed)
 	{
 		m_filterDecision[filterName] = passed;
 	}
@@ -81,12 +72,10 @@ public:
 	std::string ToString() const
 	{
 		std::stringstream s;
-
 		s << "== Filter Decision == " << std::endl;
-		//s << "Overall: " << this->m_bHasPassed << std::endl;
-		for ( FilterDecisions::const_iterator it = m_filterDecision.begin();
-				it != m_filterDecision.end();
-				it ++)
+
+		for (FilterDecisions::const_iterator it = m_filterDecision.begin();
+				it != m_filterDecision.end(); it++)
 		{
 			s << it->first << " : " << it->second << std::endl;
 		}
@@ -123,7 +112,7 @@ public:
 
 	virtual std::string GetFilterId() = 0;
 
-	virtual bool DoesEventPass( TData const& event, TMetaData const& metaData, TSettings const& settings) = 0;
+	virtual bool DoesEventPass(TData const& event, TMetaData const& metaData, TSettings const& settings) = 0;
 
 	virtual std::string ToString(bool bVerbose = false)
 	{
