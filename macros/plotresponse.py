@@ -229,11 +229,11 @@ def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw
 
        TODO: for npv, eta etc.
     """
-    assert method in ['balresp', 'mpfresp', 'RecoToGen_balresp', 'mpf-notypeIresp']
+    assert method in ['balresp', 'mpfresp', 'recogen', 'mpf-rawresp']
     assert type(changes) == dict
     assert extrapol in [False, '', 'data', 'mc', 'ratio', 'separate']
     #print "getresp", changes
-    if method == 'mpf-notypeIresp': method = 'mpfresp-notypeI'
+    if method == 'mpf-rawresp': method = 'mpfresp-raw'
     
     graph = getroot.getgraphratio(over, method, f1, f2, opt, changes, absmean=(over=='jet1_eta'))
     if extrapol:
@@ -289,18 +289,18 @@ def responseplot(files, opt, types, labels=None,
     if labels is None:
         labels = types
 
-    labels = [string.replace("mpf", "MPF").replace("bal","Balance") for string in labels]
+    labels = [string.replace("mpfresp", "MPF").replace("balresp","PtBalance") for string in labels] 
     for t, l, m, c in zip(types, labels, markers, colors):
         extrapolation = False
-        if t == 'RecoGen':
-            t = 'RecoToGen_bal'
-        elif len(t) > 3:
-            extrapolation = t[3:]
-            t = t[:3]
+        #if t == 'recogen':
+        #    pass#t = 'RecoToGen_bal'
+        #elif len(t) > 3:
+        #    extrapolation = t[3:]
+        #    t = t[:3]
         if extrapolation in ['ex', 'data', 'mc', 'datamc']:
             extrapolation = 'data'
-        if 'Gen' not in t:
-            plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[0], None, changes, extrapolation))
+        if 'gen' not in t:
+            plot = getroot.root2histo(getresponse(t, over, opt, files[0], None, changes, extrapolation))
             ax.errorbar(plot.x, plot.y, plot.yerr, color='black', fmt=m, label=l+" ("+opt.labels[0]+")")
             plotbinborders(ax, over, plot.y, opt)
         if extrapolation == 'data':
@@ -308,11 +308,11 @@ def responseplot(files, opt, types, labels=None,
 
         if (len(files)>1 and len(types)<2):
             for f, label, color, mark in zip(files[1:], opt.labels[1:], colors, markers[1:]):
-                plot = getroot.root2histo(getresponse(t+'resp', over, opt, f, None, changes, extrapolation))
+                plot = getroot.root2histo(getresponse(t, over, opt, f, None, changes, extrapolation))
                 ax.errorbar(plot.x, plot.y, plot.yerr, color=color, fmt=mark, label=l+" ("+label+")")
         else:
-            plot = getroot.root2histo(getresponse(t+'resp', over, opt, files[1], None, changes, extrapolation))
-            if l == 'RecoGen': l = "Reco/Gen"
+            plot = getroot.root2histo(getresponse(t, over, opt, files[1], None, changes, extrapolation))
+            if l == 'recogen': l = "Reco/Gen"
             else: l = l+" ("+opt.labels[1]+")"
             ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
             plotbinborders(ax, over, plot.y, opt)
@@ -381,14 +381,14 @@ def ratioplot(files, opt, types, labels=None,
             pass #ax.axvline(x, color='gray')
 
     for t, l, m, c in zip(types, labels, markers, colors):
-        rgraph = getresponse(t[:3]+'resp', over, opt, files[0], files[1], changes, extrapol=t[3:], draw=False)
+        rgraph = getresponse(t[:3]+'resp', over, opt, files[0], files[1], changes, extrapol=False, draw=False)
         if fit:
             line, err, chi2, ndf = getroot.fitline(rgraph)
             if ratiosubplot:
                 fitlabel_offset=0.65
             else:
                 fitlabel_offset=0.0
-            ax.text(0.97, fitlabel_offset+0.20+0.07*colors.index(c), r"R = {0:.3f} $\pm$ {1:.3f}".format(line, err),
+            ax.text(0.97, fitlabel_offset+0.20+0.07*colors.index(c), r"R = {0:.4f} $\pm$ {1:.4f}".format(line, err),
                 va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=14)
             ax.text(0.97, fitlabel_offset+0.05+0.07*colors.index(c), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f}".format(chi2, ndf),
                 va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=14)
@@ -477,9 +477,9 @@ def plotkfsr(files, opt, method='balresp', label=None,
 
 
 def labelformat(label):
-    if 'bal' in label:
+    if 'balresp' in label:
         result = "Balance"
-    elif 'mpf' in label:
+    elif 'mpfresp' in label:
         result = "MPF"
     if 'ratio' in label:
         result += " (ratio extrapol.)"
@@ -493,7 +493,7 @@ def plot_all(files, opt, plottype='response'):
        Each plot contains several subplots for the different algorithms/ correction levels."""
 
     over = ['zpt', 'npv', 'jet1eta', 'alpha']
-    types = ['bal', 'mpf']
+    types = ['balresp', 'mpfresp']
     subtexts = ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)"]
     
     # create list_ac with all variation combinations from the alg/corr lists
@@ -526,43 +526,43 @@ def plot_all(files, opt, plottype='response'):
 
 # responses
 def response(files, opt):
-    responseplot(files, opt, ['bal', 'mpf'])
+    responseplot(files, opt, ['balresp', 'mpfresp', 'recogen'])
     for key in k_fsr:
         print key, k_fsr[key]
 def response_npv(files, opt):
-    responseplot(files, opt, ['bal', 'mpf'], over='npv')
+    responseplot(files, opt, ['balresp', 'mpfresp', 'recogen'], over='npv')
 def response_eta(files, opt):
-    responseplot(files, opt, ['bal', 'mpf'], over='jet1eta', legloc='lower left')
+    responseplot(files, opt, ['balresp', 'mpfresp', 'recogen'], over='jet1eta', legloc='lower left')
 
 def bal_eta(files, opt):
-    responseplot(files, opt, ['bal'], over='jet1eta', legloc='lower left')
+    responseplot(files, opt, ['balresp'], over='jet1eta', legloc='lower left')
 def bal_npv(files, opt):
-    responseplot(files, opt, ['bal'], over='npv')
+    responseplot(files, opt, ['balresp'], over='npv')
 def bal_zpt(files, opt):
-    responseplot(files, opt, ['bal'], over='zpt')
+    responseplot(files, opt, ['balresp'], over='zpt')
 
 def mpf_eta(files, opt):
-    responseplot(files, opt, ['mpf'], over='jet1eta', legloc='lower left')
+    responseplot(files, opt, ['mpfresp'], over='jet1eta', legloc='lower left')
 
 
 
 
 # ratios
 def balratio(files, opt):
-    ratioplot(files, opt, ['bal', 'balratio', 'balseparate'], drawextrapolation=True, binborders=True)
+    ratioplot(files, opt, ['balresp', 'balratio', 'balseparate'], drawextrapolation=True, binborders=True)
 
 def mpfratio(files, opt):
-    ratioplot(files, opt, ['mpf', 'mpfratio', 'mpfseperate'])
+    ratioplot(files, opt, ['mpfresp', 'mpfratio', 'mpfseperate'])
 
 
 def ratio(files, opt):
-    ratioplot(files, opt, ['bal', 'mpf'], drawextrapolation=True, binborders=True)
+    ratioplot(files, opt, ['balresp', 'mpfresp'], drawextrapolation=True, binborders=True)
 
 def ratio_npv(files, opt):
-    ratioplot(files, opt, ['bal', 'mpf'], drawextrapolation=True, binborders=True, over='npv')
+    ratioplot(files, opt, ['balresp', 'mpfresp'], drawextrapolation=True, binborders=True, over='npv')
 
 def ratio_eta(files, opt):
-    ratioplot(files, opt, ['bal', 'mpf'], drawextrapolation=True, binborders=True, over='jet1eta', fit=False)
+    ratioplot(files, opt, ['balresp', 'mpfresp'], drawextrapolation=True, binborders=True, over='jet1eta', fit=False)
 
 #kfsr
 def kfsr(files, opt):
@@ -583,27 +583,27 @@ def response_all(files, opt):
 
 # response + ratio
 def bal_responseratio_eta(files, opt):
-    responseratio(files, opt, over='jet1eta', fit=False, types=['bal'])
+    responseratio(files, opt, over='jet1eta', fit=False, types=['balresp'])
 
 def bal_responseratio_zpt(files, opt):
-    responseratio(files, opt, fit=True, types=['bal'])
+    responseratio(files, opt, fit=True, types=['balresp'])
 
 def bal_responseratio_npv(files, opt):
-    responseratio(files, opt, over='npv', fit=True, types=['bal'])
+    responseratio(files, opt, over='npv', fit=True, types=['balresp'])
 
 
 def mpf_responseratio_eta(files, opt):
-    responseratio(files, opt, over='jet1eta', fit=False, types=['mpf'])
+    responseratio(files, opt, over='jet1eta', fit=False, types=['mpfresp'])
 
 def mpf_responseratio_zpt(files, opt):
-    responseratio(files, opt, fit=True, types=['mpf'])
+    responseratio(files, opt, fit=True, types=['mpfresp'])
 
 def mpf_responseratio_npv(files, opt):
-    responseratio(files, opt, over='npv', fit=True, types=['mpf'])
+    responseratio(files, opt, over='npv', fit=True, types=['mpfresp'])
 
 
 
-def responseratio(files, opt, over='zpt', fit=False, types=['bal']):
+def responseratio(files, opt, over='zpt', fit=False, types=['balresp']):
 
     fig = plotbase.plt.figure(figsize=[7, 7])
     fig.suptitle(opt.title, size='xx-large')
@@ -612,7 +612,7 @@ def responseratio(files, opt, over='zpt', fit=False, types=['bal']):
     fig.add_axes(ax1)
     fig.add_axes(ax2)
 
-    if over== 'jet1eta' and types == ['bal']: legloc = 'upper right'
+    if over== 'jet1eta' and types == ['balresp']: legloc = 'upper right'
     else: legloc = 'lower left'
 
     responseplot(files, opt, types, over=over, figaxes=(fig,ax1), legloc=legloc, subplot = True)
@@ -628,11 +628,11 @@ def responseratio(files, opt, over='zpt', fit=False, types=['bal']):
 
 
 
-def responseratio_all(files, opt, types=['bal']):
+def responseratio_all(files, opt, types=['balresp']):
     
     fig = plotbase.plt.figure(figsize=[21, 14])
     fig.suptitle(opt.title, size='xx-large')
-    for typ, row in zip(['bal', 'mpf'], [0,4]):
+    for typ, row in zip(['balresp', 'mpfresp'], [0,4]):
         for over, col, fit in zip(['zpt', 'npv', 'jet1eta'], [0,1,2], [True, True, True]):
 
             ax1 = plotbase.plt.subplot2grid((7,3),(row,col), rowspan=2)
@@ -640,7 +640,7 @@ def responseratio_all(files, opt, types=['bal']):
             fig.add_axes(ax1)
             fig.add_axes(ax2)
 
-            if over== 'jet1eta' and typ == 'bal': legloc = 'upper right'
+            if over== 'jet1eta' and typ == 'balresp': legloc = 'upper right'
             else: legloc = 'lower left'
 
             responseplot(files, opt, [typ], over=over, figaxes=(fig,ax1), legloc=legloc, subplot = True)
@@ -698,7 +698,7 @@ def exclusive_extrapolation(files, opt,
         mpftype='mpf-notypeI'
         mpflabel='MPF(noTypeI)'
     else:
-        mpftype='mpf'
+        mpftype='mpfresp'
         mpflabel='MPF'
 
 
@@ -797,7 +797,7 @@ def exclusive_extrapolation(files, opt,
             else: Rerr=0
             ax2.axhline(R, color=local_opt.colors[0])
             ax2.axhspan(R+Rerr, R-Rerr, color=local_opt.colors[0], alpha=0.2)
-            ax2.text(0.97, 0.67, r" Ratio $=%1.3f\pm%1.3f$" %(R, Rerr), va='top', ha='right', transform=ax2.transAxes, color='maroon')
+            ax2.text(0.97, 0.67, r" Ratio $=%1.4f\pm%1.4f$" %(R, Rerr), va='top', ha='right', transform=ax2.transAxes, color='maroon')
 
 
         pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30$ GeV   $\eta^\mathrm{Jet1}<1.3$"

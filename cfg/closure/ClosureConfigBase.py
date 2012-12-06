@@ -831,7 +831,7 @@ def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, 
         AddConsumerEasy(pval, {"Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x+"absdiff","XName1" : obj1,"XName2" : obj2,
                          "ProductName" : "_".join([y,"-".join(["delta"+x,obj1,obj2]),algo]) } )
 
-    y_quantities = ['jet1pt', 'jet1abseta', 'jet2pt', 'jet2abseta', 'zpt', 'zabseta', 'npv', 'METpt-diff', 'METphi-diff', 'mpf-diff',
+    y_quantities = ['jet1pt', 'jet1abseta', 'jet2pt', 'jet2abseta', 'zpt', 'zabseta', 'npv', 'METpt-diff', 'METphi-diff', 'mpf-diff', 'jetsvalid',
                          'ptbalance', 'mpf', 'mpf-raw', 'METpt', 'sumEt', 'METfraction', 'zphi', 'METphi', 'zmass']
 
     x_quantities = ['jet1pt', 'npv', 'jet1eta', 'jet1phi', 'jet2pt', 'jet2eta', 'jet2phi', 'zpt', 'zeta', 'zphi', 

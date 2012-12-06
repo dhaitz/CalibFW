@@ -179,7 +179,7 @@ def runplot(quantity, files, opt, legloc='center right',
     datamc=[]
     events=[]
     run_min = 190000
-    run_max = 206000
+    run_max = 210000
 
     # create the plot
     if subplot==True: fig, ax = fig_axes
@@ -223,11 +223,11 @@ def runplot(quantity, files, opt, legloc='center right',
     run_2012B = 193834.
     run_2012C = 197770.
     ax.axvline(run_2012B, color='gray', linestyle='--', alpha=0.2)
-    ax.text((run_2012B - run_min)/(run_max-run_min),  0.98, "2012B",
-                     va='top', ha='left', transform=ax.transAxes, color='gray', alpha=0.5, size='medium')
+    ax.text(run_2012B,  0.98, "2012B",
+                     va='top', ha='left', color='gray', alpha=0.5, size='medium')
     ax.axvline(run_2012C, color='gray', linestyle='--', alpha=0.2)
-    ax.text((run_2012C - run_min)/(run_max-run_min),  0.98, "2012C", 
-                    va='top', ha='left', transform=ax.transAxes, color='gray', alpha=0.5, size='medium')
+    ax.text(run_2012C,  0.98, "2012C", 
+                    va='top', ha='left', color='gray', alpha=0.5, size='medium')
 
     plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot)
 
@@ -327,19 +327,19 @@ def datamc_all(quantity, datamc, opt, rebin=5, log=False, run=False, legloc='cen
        fig_axes = plotbase.newplot(subplots=n) creates a plot figure (fig_axes[0]) with a list fig_axes[1]
          of n 'axes' elements (=subplots), where fig_axes[1][n] is the n-th subplot
     """
-    if 'run' in quantity: 
-        variations = ['eta', 'z_pt']
-        datamc = [d for d, name in zip(datamc, opt.files)]# if "data" in name] # Use only data file for run plots! Disable to compare several data files
+    if 'run' in quantity:
+        run = True
+        variations = ['eta', 'zpt']
+        rebin = 500
+        datamc = [d for d, name in zip(datamc, opt.files) if 'data' in name]
     else:
         variations = ['npv', 'jet1eta', 'zpt', 'alpha']
-        #variations = ['eta']
 
     subtexts = ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)"]
 
     if quantity in variations: variations.remove(quantity)
     for variation in variations:
         for cut, cut_string in zip(opt.cut, getroot.cutstrings(opt.cut)):
-        #for cut, cut_string in zip([0.2], ["var_CutSecondLeadingToZPt__0_1"]):
             ch_list = plotbase.getvariationlist(variation, opt)
             fig_axes = plotbase.newplot(subplots=len(ch_list), run=run)
             for ch, ax, subtext in zip(ch_list, fig_axes[1], subtexts):
@@ -347,8 +347,10 @@ def datamc_all(quantity, datamc, opt, rebin=5, log=False, run=False, legloc='cen
                     ch['var'] = cut_string
                 elif variation is not 'alpha':
                     ch['var'] = cut_string+"_"+ch['var']
-
-                datamcplot(quantity, datamc, opt, changes=ch,fig_axes=(fig_axes[0],ax),subplot=True, log=log, subtext=subtext, rebin=rebin, legloc=legloc, fit=fit)
+                if run:
+                    runplot(quantity, datamc, opt, changes=ch,fig_axes=(fig_axes[0],ax),subplot=True, log=log, subtext=subtext, rebin=rebin, legloc=legloc, fit=fit)
+                else:
+                    datamcplot(quantity, datamc, opt, changes=ch,fig_axes=(fig_axes[0],ax),subplot=True, log=log, subtext=subtext, rebin=rebin, legloc=legloc, fit=fit)
 
             if variation == 'alpha': text = " for different "+plotbase.nicetext(variation)+" values "
             else: text = " in "+plotbase.nicetext(variation)+" bins for "+r"$\alpha$ "+str(cut)+"  "
