@@ -1,12 +1,24 @@
 # Combine JSON files for Rereco and PromptReco
-# Usage: scripts/combineJSON.sh AB_rereco.json C_prompt.json
+# Usage: scripts/combineJSON.sh ABC_rereco.jsons C_prompt.json
+
+PROMPT=${@: -1}
+OUTPUT=${PROMPT/PromptReco/CombinedReco}
+TMP=tmp_384956746.json
 
 # Remove 2012AB runs from PromptReco json
-filterJSON.py --min=197700 $2 --output tmp_384956746.json
+filterJSON.py --min=198934 --output="0_$TMP" $PROMPT
 
 # Add 2012AB 13JulRereco json
-compareJSON.py --or $1 tmp_384956746.json ${2/PromptReco/CombinedReco}
-echo "${2/PromptReco/CombinedReco} saved."
+i=0
+for j in $*;
+do
+  if [[ "$j" != "$PROMPT" ]]
+  then
+    compareJSON.py --or "$j" "${i}_${TMP}" "$((i+1))_${TMP}"
+    i=$((i+1))
+  fi
+done
 
-# Cleanup
-rm tmp_384956746.json
+mv "${i}_${TMP}" "$OUTPUT"
+echo "$OUTPUT saved."
+rm *$TMP
