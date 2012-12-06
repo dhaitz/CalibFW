@@ -92,6 +92,8 @@ d_axes={
         'recogen':[0.0, 1.8, r"$p_\mathrm{T}^\mathrm{RecoJet}/p_\mathrm{T}^\mathrm{GenJet}$", ""],
         'response':[0.81, 1.05, r"Jet Response", ""],
         'responseratio':[0.88, 1.03, r"data/MC ratio", ""],
+        'resolution':[0, 0.3, r"Jet response resolution", ""],
+        'resolutionratio':[.5, 1.5, r"Jet response resolution data/MC ratio", ""],
         'rho':[0, 50, r"$\rho$", ""],
         'run':[190000, 206000, r"Run", ""],
         'sumEt':[0, 2500, r"$\sum E^\mathrm{T}$", "GeV"],

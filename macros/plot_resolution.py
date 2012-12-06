@@ -78,7 +78,7 @@ def extrapolate_resolution ( file,
                              base_name, # is "Pt300to1000_incut_var_CutSecondLeadingToZPt_XXX/balresp_AK5PFJetsCHSL1L2L3
                              tag,
                              out_path,
-                             var=[0.1, 0.15, 0.2, 0.3],
+                             var=[0.2, 0.3],
                              gen_imbalance = 0.0,
                              extr_method = "plain" ):
     variation_result = []
@@ -182,7 +182,7 @@ def extrapolate_resolution ( file,
     print "Extrapolated resolution for " + base_name + " is " + str( (yex, yex_err) )
 
     base_name = base_name.replace ( "/", "_")
-    c.Print ( out_path + tag + base_name + "_resolution_extrapolation.png")
+    #c.Print ( out_path + tag + base_name + "_resolution_extrapolation.png")
 
     return (yex, yex_err)
 
@@ -298,8 +298,8 @@ def combined_resolution( files, opt,
     f,ax = plotbase.newplot()
 
     plotbase.labels(ax, opt)
-    plotbase.jetlabel(ax, algo, corr)
-    plotbase.axislabels(ax, 'z_pt_log', 'resolution')
+    #plotbase.jetlabel(ax, algo, corr)
+    plotbase.axislabels(ax, 'zpt', 'resolution')
 
 
     # construct names
@@ -307,10 +307,11 @@ def combined_resolution( files, opt,
     hist_name = folder_template + "/" + method_name + "_" + algo + corr
     hist_truth_name = "YYY_incut" + "/" + method_name + "_" + algo + corr
 
-    hist_z = "YYY_incut/z_pt_" + algo + corr
+    hist_z = "YYY_incut/zpt_" + algo + corr
 
-
-    plot_resolution_truth( files[1], hist_truth_name + "RecoToGen",
+    s = "recogen".join(hist_truth_name.split(method_name))
+    print s
+    plot_resolution_truth( files[1], s,
                     "MC Truth",
                      opt,
                      algo,
@@ -320,7 +321,7 @@ def combined_resolution( files, opt,
                     drop_first_bin = drop_first, drop_last_bin = drop_last )
 
     # get the gen addition
-    gen_res = plot_resolution( files[1], hist_name + "Gen",
+    gen_res = plot_resolution( files[1], "genbal".join(hist_truth_name.split(method_name)),
                     "MC Instrinsic",
                      opt,
                      algo,
@@ -336,7 +337,7 @@ def combined_resolution( files, opt,
         title_postfix = "Total"
 
     mc_res = plot_resolution( files[1], hist_name,
-                    "MC " + title_postfix,
+                    opt.labels[1] + " " + title_postfix,
                      opt,
                      algo,
                      corr,
@@ -347,7 +348,7 @@ def combined_resolution( files, opt,
                     drop_first_bin = drop_first, drop_last_bin = drop_last )
 
     data_res = plot_resolution( files[0], hist_name,
-                    "Run 2011 " + title_postfix,
+                    opt.labels[0] + " " + title_postfix,
                      opt,
                      algo,
                      corr,
@@ -375,8 +376,8 @@ def combined_resolution( files, opt,
     ax.axhline(1.0, color="black", linestyle='--')
 
     plotbase.labels(ax, opt)
-    plotbase.jetlabel(ax, algo, corr)
-    plotbase.axislabels(ax, 'z_pt_log', 'resolutionratio')
+    #plotbase.jetlabel(ax, algo, corr)
+    plotbase.axislabels(ax, 'zpt', 'resolutionratio')
 
     plotbase.Save(f,plot_filename + "_ratio", opt)
 
@@ -384,35 +385,35 @@ def combined_resolution( files, opt,
 def resolution(files, opt):
 
     # balance
-    combined_resolution(files, opt,
+    """combined_resolution(files, opt,
                         folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
                         algo = "AK5PFJets",
                         corr = "L1L2L3",
                         method_name = "balresp",
                         filename_postfix = "_plus_gen",
-                        subtract_gen = False )
+                        subtract_gen = False )"""
 
     combined_resolution(files, opt,
                         folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
                         algo = "AK5PFJetsCHS",
-                        corr = "L1L2L3",
+                        corr = "L1L2L3Res",
                         method_name = "balresp",
                         filename_postfix = "_plus_gen",
                         subtract_gen = False )
 
-    combined_resolution(files, opt,
+    """combined_resolution(files, opt,
                         folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
                         algo = "AK5PFJets",
                         corr = "L1L2L3",
                         method_name = "balresp",
                         filename_postfix = "",
                         subtract_gen = True,
-                        drop_first = 2, drop_last = 1)
+                        drop_first = 2, drop_last = 1)"""
 
     combined_resolution(files, opt,
                         folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
                         algo = "AK5PFJetsCHS",
-                        corr = "L1L2L3",
+                        corr = "L1L2L3Res",
                         method_name = "balresp",
                         filename_postfix = "",
                         subtract_gen = True,
