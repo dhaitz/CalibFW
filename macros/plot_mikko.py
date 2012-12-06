@@ -21,7 +21,7 @@ def response_mikko(files, opt):
         opt.algorithm = a
         for c in corr:
             opt.correction = c
-            responseplot_mikko(files, opt, ['bal', 'mpf', 'mpf-notypeI'
+            responseplot_mikko(files, opt, ['bal', 'mpf', 'mpf-raw'
                     ], drawextrapolation=False, binborders=True)
     opt.algorithm = al
     opt.correction = co
@@ -36,7 +36,7 @@ def ratio_mikko(files, opt):
         opt.algorithm = a
         for c in corr:
             opt.correction = c
-            ratioplot_mikko(files, opt, ['bal', 'mpf', 'mpf-notypeI'
+            ratioplot_mikko(files, opt, ['bal', 'mpf', 'mpf-raw'
                 ], drawextrapolation=False, binborders=True)
     opt.algorithm = al
     opt.correction = co
@@ -78,7 +78,7 @@ def responseplot_mikko(files, opt, types, labels=None,
                         t1 = 'PtBal'
                     elif t == 'mpf':
                         t1 = 'MPF'
-                    elif t == 'mpf-notypeI':
+                    elif t == 'mpf-raw':
                         t1 = 'MPF-notypeI'
                     string = "data_"+t1+"_"+opt.algorithm+"_"+cu_str+et_str+"_"+opt.correction
                     string = string.replace("AK5PFJetsCHS_", "CHS")
@@ -98,7 +98,7 @@ def responseplot_mikko(files, opt, types, labels=None,
                     t = 'PtBal'
                 elif t == 'mpf':
                     t = 'MPF'
-                elif t == 'mpf-notypeI':
+                elif t == 'mpf-raw':
                     t = 'MPF-notypeI'
                 string = "mc_"+str(t)+"_"+opt.algorithm+"_"+cu_str+et_str+"_"+opt.correction
                 string = string.replace("AK5PFJetsCHS_", "CHS")
@@ -142,8 +142,8 @@ def ratioplot_mikko(files, opt, types, labels=None,
                     t = 'PtBal'
                 elif t == 'mpf':
                     t = 'MPF'
-                elif t == 'mpf_notypeI':
-                    t = 'MPF_notypeI'
+                elif t == 'mpf-raw':
+                    t = 'MPF-notypeI'
                 string = "ratio_"+str(t)+"_"+opt.algorithm+"_"+cu_str+et_str+"_"+opt.correction
                 string = string.replace("AK5PFJetsCHS_", "CHS")
                 string = string.replace("_AK5PFJets_", "")
