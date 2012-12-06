@@ -137,6 +137,7 @@ def options(
             y_limits=None,
             rebin=None,
             ratio=False,
+            fit=None,
             npv=[(0, 4), (5, 8), (9, 15), (16, 21), (22, 100)],
             cut=[0.2, 0.4],
             eta=[0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
@@ -234,6 +235,9 @@ def options(
         help="Rebinning value n")
     parser.add_argument('-R', '--ratio', action='store_true',
         help="do a ratio plot from the first two input files")
+    parser.add_argument('-F', '--fit', type=str,
+        default=fit,
+        help="Fit option")
 
 
     opt = parser.parse_args()
@@ -701,7 +705,7 @@ def fit(fit, ax, quantity, rootfile, change, rebin, color, index, runplot_diff=F
                size='x-large')
         elif fit == 'intercept':
             #display intercept ...
-            ax.text(0.97, 0.35-(index/10.)+offset, r"$\mathrm{y(0)} = %1.3f\pm%1.3f$" % (intercept, conf_intervals[0]),
+            ax.text(0.97, 0.35-(index/10.)+offset, r"$\mathrm{y(0)} = %1.4f\pm%1.4f$" % (intercept, conf_intervals[0]),
                va='top', ha='right', transform=ax.transAxes, color=color, size='x-large')
 
             # ... and chi2 (smaller)

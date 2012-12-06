@@ -288,6 +288,8 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.title = histo.GetTitle()
         hst.xlabel = histo.GetXaxis().GetTitle()
         hst.ylabel = histo.GetYaxis().GetTitle()
+        hst.RMS = histo.GetRMS()
+        hst.RMSerr = histo.GetRMSError()
         for i in range(1, histo.GetSize() - 1):
             hst.x.append(histo.GetBinLowEdge(i))
             hst.xc.append(histo.GetBinCenter(i))
@@ -376,6 +378,9 @@ class Histo:
         self.yerr = []  # TODO yel, yeh wenn unterschiedlich...
         self.mean = 0.0
         self.meanerr = 0.0
+        self.RMS = 0.0
+        self.RMSerr = 0.0
+
 
     def __len__(self):
         return len(self.y)

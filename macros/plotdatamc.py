@@ -25,6 +25,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
     change= plotbase.getchanges(opt, changes)
     if opt.rebin is not None: rebin = opt.rebin
     if opt.ratio is not False: ratio = opt.ratio
+    if opt.fit is not None: fit = opt.fit
 
     datamc=[]
     events=[]
@@ -41,7 +42,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
         # implement event reweighitng for TH1Ds
     if ratio and len(datamc) == 2:
         rootobjects = [getroot.getobjectfromnick(quantity, f, change, rebin) for f in files]
-        #convert TProfiles into TH1Ds because root cant correctly divide TProfiles
+        #convert TProfiles into TH1Ds because ROOT cannot correctly divide TProfiles
         if rootobjects[0].ClassName() != 'TH1D' and rootobjects[1].ClassName() != 'TH1D':
                 rootobjects[0] = ROOT.TH1D(rootobjects[0].ProjectionX())
                 rootobjects[1] = ROOT.TH1D(rootobjects[1].ProjectionX())
@@ -50,6 +51,13 @@ def datamcplot(quantity, files, opt, legloc='center right',
             rootobjects[1].Rebin(rebin)
             rootobjects[1].Scale(rootobjects[0].Integral() / rootobjects[1].Integral())
         rootobjects[0].Divide(rootobjects[1])
+
+        for n in range(rootobjects[0].GetNbinsX()):#####
+            if ((rootobjects[0].GetBinError(n) < 1e-3 and rootobjects[0].GetBinContent(n) > 0.1) or rootobjects[0].GetBinContent(n) > 1.15):
+                print n, rootobjects[0].GetBinError(n)
+                rootobjects[0].SetBinError(n, 0.1)####
+                print "corected ", rootobjects[0].GetBinError(n)
+
         rootobject = rootobjects[0]
         datamc = [getroot.root2histo(rootobjects[0], files[0].GetName(), rebin=1)]
     else:
@@ -90,12 +98,12 @@ def datamcplot(quantity, files, opt, legloc='center right',
         else: unit = ""
         ax.axvline(datamc[0].mean, color='black', linestyle='-')
         ax.axvspan(datamc[0].mean-datamc[0].meanerr, datamc[0].mean+datamc[0].meanerr, color='black', alpha=0.1)
-        ax.text(0.97, 0.97, r"$\langle \mathrm{%s} \rangle = %1.3f\pm%1.3f" % (opt.labels[0], datamc[0].mean, datamc[0].meanerr)+"\mathrm{%s}$" % unit,
+        ax.text(0.97, 0.92, r"$\langle \mathrm{%s} \rangle = %1.4f\pm%1.4f" % (opt.labels[0], datamc[0].mean, datamc[0].meanerr)+"\mathrm{%s}$" % unit,
                va='top', ha='right', transform=ax.transAxes, color='black')
         if len(datamc) > 1:
             ax.axvline(datamc[1].mean, color='blue', linestyle='-')
             ax.axvspan(datamc[1].mean-datamc[1].meanerr, datamc[1].mean+datamc[1].meanerr, color='blue', alpha=0.1)
-            ax.text(0.97, 0.92, r"$\langle \mathrm{%s} \rangle = %1.3f\pm%1.3f" % (opt.labels[1],datamc[1].mean,datamc[1].meanerr)+" \mathrm{%s}$" % unit,
+            ax.text(0.97, 0.87, r"$\langle \mathrm{%s} \rangle = %1.4f\pm%1.4f" % (opt.labels[1],datamc[1].mean,datamc[1].meanerr)+" \mathrm{%s}$" % unit,
                    va='top', ha='right', transform=ax.transAxes, color='blue')
 
             if (datamc[1].mean != 0.0): R = datamc[0].mean/datamc[1].mean
@@ -103,8 +111,14 @@ def datamcplot(quantity, files, opt, legloc='center right',
             if (R != 0.0):
                 Rerr=abs(datamc[0].mean / datamc[1].mean)*math.sqrt((datamc[0].meanerr / datamc[0].mean)**2 + (datamc[1].meanerr / datamc[1].mean)**2)
             else: Rerr=0
-            ax.text(0.97, 0.87, r"$ \langle \mathrm{%s} \rangle / \langle \mathrm{%s} \rangle = %1.3f\pm%1.3f$" %(opt.labels[0], opt.labels[1], R, Rerr),
+            ax.text(0.97, 0.82, r"$ \langle \mathrm{%s} \rangle / \langle \mathrm{%s} \rangle = %1.4f\pm%1.4f$" %(opt.labels[0], opt.labels[1], R, Rerr),
                    va='top', ha='right', transform=ax.transAxes, color='maroon')
+
+
+            ax.text(0.4, 0.91, r"$\mathrm{RMS (%s)} = %1.3f$" % (opt.labels[0], datamc[0].RMS), va='top', ha='right', transform=ax.transAxes, color='black')
+            ax.text(0.4, 0.86, r"$\mathrm{RMS (%s)} = %1.3f$" % (opt.labels[1], datamc[1].RMS), va='top', ha='right', transform=ax.transAxes, color='blue')
+
+
 
 
     plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot)
@@ -120,7 +134,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
         y = ""
         if len(xy) == 1:
             ax = plotbase.axislabels(ax, quantity)
-            ax.set_ylim(top=max(d.ymax() for d in datamc) * 1.2)
+            ax.set_ylim(top=max(d.ymax() for d in datamc) * 1.4)
             y = 'events'
         elif len(xy) == 2:
             x = xy[1]
@@ -130,6 +144,8 @@ def datamcplot(quantity, files, opt, legloc='center right',
                 ax.axhline(1.0, color='black', linestyle=':')
     if opt.x_limits is not None: ax.set_xlim(opt.x_limits[0], opt.x_limits[1])
     if opt.y_limits is not None: ax.set_ylim(opt.y_limits[0], opt.y_limits[1])
+    if ratio:
+        ax.set_ylabel("Data/MC ratio", va="top", y=1)
 
     if subtext is not 'None':
         ax.text(-0.03, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
