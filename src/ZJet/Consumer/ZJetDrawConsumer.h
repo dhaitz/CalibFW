@@ -664,6 +664,46 @@ private:
 	Hist1D* m_numPUtruth;
 };
 
+class FilterSummaryConsumer: public ZJetMetaConsumer
+{
+public:
+	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>* pset)
+	{
+		ZJetMetaConsumer::Init(pset);
+		m_firstEvent = true;
+		m_filters = new Hist1D("filters_" + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetFiltersModifier());
+		AddPlot(m_filters);
+	}
+
+	virtual void ProcessFilteredEvent(ZJetEventData const& event,
+			ZJetMetaData const& metaData)
+	{
+		ZJetMetaConsumer::ProcessFilteredEvent(event, metaData);
+//		if (m_firstEvent)
+//		{
+//			for (auto it = event.m_filtermetadata->filternames.begin();
+//					it != event.m_filtermetadata->filternames.begin(); it++)
+//				xtitle += " " + *it;
+//			m_filters->AddModifier(new ModHistLabels("Filters3"));
+//			m_firstEvent = false;
+//			CALIB_LOG(xtitle)
+//		}
+		const int maxfilters = 16;
+		for (int i = 0; i < maxfilters; i++)
+			if (!event.m_filter->passedFilter(i))
+				m_filters->Fill(i, metaData.GetWeight());
+
+		if (!event.m_filter->passedFilters())
+			m_filters->Fill(maxfilters, metaData.GetWeight());
+	}
+
+private:
+	Hist1D* m_filters;
+	bool m_firstEvent;
+	std::string xtitle;
+};
 
 /*
 template<>

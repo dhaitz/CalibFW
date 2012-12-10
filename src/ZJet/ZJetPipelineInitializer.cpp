@@ -156,6 +156,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			pLine->AddConsumer( new DeltaConsumer( pset.GetJetAlgorithm() ));
 			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
 			pLine->AddConsumer( new RhoConsumer( ) );
+			pLine->AddConsumer(new FilterSummaryConsumer());
 
 			if (JetType::IsPF(pset.GetJetAlgorithm()))
 			{
@@ -183,7 +184,6 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddConsumer(new DeltaConsumer(genName));
 
 			}
-
 
 			if (pset.IsMC())
 			{
