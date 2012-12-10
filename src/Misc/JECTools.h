@@ -111,7 +111,7 @@ inline void correctJets(std::vector<T> *jets,
 		correctSingleJet(jet, jec);
 		applyUncertainty(jet, unc, jv);
 	}
-	sort_pt(jets);
+	//sort_pt(jets);
 }
 
 #include <KappaTools/RootTools/FileInterface.h>

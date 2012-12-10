@@ -286,6 +286,18 @@ public:
 	typedef boost::ptr_map<std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
 	mutable MetaPFJetContainer m_validPFJets;
 
+	//MET collection
+	typedef std::map<std::string, KDataPFMET> MetaMETContainer;
+	mutable MetaMETContainer m_MET;
+
+	KDataPFMET* GetMet(ZJetEventData const& event, ZJetPipelineSettings const& psettings) const
+	{
+		if (std::string::npos != psettings.GetJetAlgorithm().find("L3"))
+			return (&m_MET.at(psettings.GetJetAlgorithm()));
+		else
+			return (event.GetMet(psettings));
+	}
+
 	// Jet Matching Result
 	typedef boost::ptr_map<std::string, std::vector<int> > MatchingResults;
 	MatchingResults m_matchingResults;

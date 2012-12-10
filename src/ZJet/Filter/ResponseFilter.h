@@ -34,7 +34,7 @@ public:
 			response = metaData.GetValidPrimaryJet(settings, event)->p4.Pt();
 			response /= metaData.GetRefZ().p4.Pt();
 		} else {
-			response = metaData.GetMPF(event.GetMet(settings));
+			response = metaData.GetMPF(metaData.GetMet(event, settings));
 		}
 
 		return (response >= settings.GetFilterResponseLow() &&

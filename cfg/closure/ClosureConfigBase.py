@@ -92,7 +92,8 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
         'GlobalAlgorithms': [],
         'GlobalProducer': [    # The order of these producers is important!
             'valid_muon_producer', 'z_producer', 'valid_jet_producer',
-            'corr_jet_producer', 'jet_sorter_producer','pu_reweighting_producer'
+            'corr_jet_producer', 'typeImet_producer', 'jet_sorter_producer',
+            'pu_reweighting_producer'
         ],
         'L1Correction': 'L1FastJet',
         'EnableMetPhiCorrection': False,

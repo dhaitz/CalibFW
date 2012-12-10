@@ -60,6 +60,7 @@
 #include "ZJet/MetaDataProducer/JetSorter.h"
 #include "ZJet/MetaDataProducer/HltSelector.h"
 #include "ZJet/MetaDataProducer/JetMatcher.h"
+#include "ZJet/MetaDataProducer/TypeIMETProducer.h"
 #include "ZJet/ZJetPipelineInitializer.h"
 
 #include "KappaTools/RootTools/HLTTools.h"
@@ -123,6 +124,9 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 			runner.AddGlobalMetaProducer(new GenBalanceProducer());
 		else if (GenDibalanceProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new GenDibalanceProducer());
+		else if (TypeIMETProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new TypeIMETProducer(
+					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else
 			CALIB_LOG_FATAL("Global MetaData producer of name " << *it << " not found")
 	}

@@ -153,9 +153,9 @@ public:
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
 			ZJetMetaData const& metaData)
 	{
-		PlotDataLVQuantities(event.GetMet(GetPipelineSettings()), metaData);
-		m_sumEt->Fill(event.GetMet(GetPipelineSettings())->sumEt, metaData.GetWeight());
-		m_fraction->Fill(event.GetMet(GetPipelineSettings())->p4.Pt() / event.GetMet(GetPipelineSettings())->sumEt, metaData.GetWeight());
+		PlotDataLVQuantities(metaData.GetMet(event, GetPipelineSettings()), metaData);
+		m_sumEt->Fill(metaData.GetMet(event, GetPipelineSettings())->sumEt, metaData.GetWeight());
+		m_fraction->Fill(metaData.GetMet(event, GetPipelineSettings())->p4.Pt() / metaData.GetMet(event, GetPipelineSettings())->sumEt, metaData.GetWeight());
 	}
 
 	Hist1D* m_sumEt;

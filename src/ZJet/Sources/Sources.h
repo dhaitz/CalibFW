@@ -535,7 +535,7 @@ public:
 	virtual bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = metaData.GetMPF(event.GetMet(settings));
+		val = metaData.GetMPF(metaData.GetMet(event, settings));
 		return true;
 	}
 
@@ -559,7 +559,7 @@ public:
 	virtual bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = metaData.GetMPF(event.GetMet(settings)) - metaData.GetMPF(event.m_pfMet) ;
+		val = metaData.GetMPF(metaData.GetMet(event, settings)) - metaData.GetMPF(event.m_pfMet) ;
 		return true;
 	}
 
@@ -618,7 +618,7 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = event.GetMet(settings)->sumEt;
+		val = metaData.GetMet(event, settings)->sumEt;
 		return true;
 	}
 
@@ -642,7 +642,7 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = event.GetMet(settings)->p4.Pt();
+		val = metaData.GetMet(event, settings)->p4.Pt();
 		return true;
 	}
 
@@ -666,7 +666,7 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = event.GetMet(settings)->p4.Pt()-event.m_pfMet->p4.Pt();
+		val = metaData.GetMet(event, settings)->p4.Pt()-event.m_pfMet->p4.Pt();
 		return true;
 	}
 /*
@@ -693,7 +693,7 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = event.GetMet(settings)->p4.Eta();
+		val = metaData.GetMet(event, settings)->p4.Eta();
 		return true;
 	}
 
@@ -717,7 +717,7 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = event.GetMet(settings)->p4.Phi();
+		val = metaData.GetMet(event, settings)->p4.Phi();
 		return true;
 	}
 
@@ -742,7 +742,7 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = event.GetMet(settings)->p4.Phi()-event.m_pfMet->p4.Phi();
+		val = metaData.GetMet(event, settings)->p4.Phi()-event.m_pfMet->p4.Phi();
 		return true;
 	}
 
@@ -766,7 +766,7 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = event.GetMet(settings)->p4.Pt() / event.GetMet(settings)->sumEt;
+		val = metaData.GetMet(event, settings)->p4.Pt() / metaData.GetMet(event, settings)->sumEt;
 		return true;
 	}
 
@@ -1427,7 +1427,7 @@ public:
 		else if (m_name1 == "z")
 			m_val1 = metaData.GetRefZ().p4.Phi();
 		else if (m_name1 == "MET")
-			m_val1 = event.GetMet(settings)->p4.Phi();
+			m_val1 = metaData.GetMet(event, settings)->p4.Phi();
 
 		if (m_name2 == "jet1")
 			m_val2 = metaData.GetValidPrimaryJet(settings, event)->p4.Phi();
@@ -1440,7 +1440,7 @@ public:
 		else if (m_name2 == "z")
 			m_val2 = metaData.GetRefZ().p4.Phi();
 		else if (m_name2 == "MET")
-			m_val2 = event.GetMet(settings)->p4.Phi();
+			m_val2 = metaData.GetMet(event, settings)->p4.Phi();
 
 		val = (ROOT::Math::Pi() - std::abs(m_val1 - m_val2 - ROOT::Math::Pi()));
 		return true;
@@ -1488,7 +1488,7 @@ public:
 		else if (m_name1=="z")
 			m_val1 = metaData.GetRefZ().p4.Eta();
 		else if (m_name1=="MET")
-			m_val1 = event.GetMet(settings)->p4.Eta();
+			m_val1 = metaData.GetMet(event, settings)->p4.Eta();
 
 		if (m_name2 == "jet1")
 			m_val2 = metaData.GetValidPrimaryJet(settings, event)->p4.Eta();
@@ -1503,7 +1503,7 @@ public:
 		else if (m_name2=="z")
 			m_val2 = metaData.GetRefZ().p4.Eta();
 		else if (m_name2=="MET")
-			m_val2 = event.GetMet(settings)->p4.Eta();
+			m_val2 = metaData.GetMet(event, settings)->p4.Eta();
 
 		val = TMath::Abs(m_val1 - m_val2);
 

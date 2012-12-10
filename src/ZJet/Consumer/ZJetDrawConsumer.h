@@ -481,12 +481,12 @@ public:
 			m_deltaPhiLeadingJetToMET->Fill(
 				std::abs(ROOT::Math::VectorUtil::DeltaPhi(
 					metaData.GetValidJet(this->GetPipelineSettings(), event, 0, m_algoname)->p4,
-					event.GetMet(GetPipelineSettings())->p4)),
+					metaData.GetMet(event, GetPipelineSettings())->p4)),
 				metaData.GetWeight());
 			m_deltaPhiZToMET->Fill(
 				std::abs(ROOT::Math::VectorUtil::DeltaPhi(
 					metaData.GetRefZ().p4,
-					event.GetMet(GetPipelineSettings())->p4)),
+					metaData.GetMet(event, GetPipelineSettings())->p4)),
 				metaData.GetWeight());
 
 			m_deltaEtaLeadingJetToZ->Fill(
@@ -505,7 +505,7 @@ public:
 					metaData.GetValidJet(this->GetPipelineSettings(), event, 1, m_algoname)->p4.Eta()),
 				metaData.GetWeight());
 			m_deltaEtaZToMET->Fill(
-				std::abs(metaData.GetRefZ().p4.Eta() - event.GetMet(GetPipelineSettings())->p4.Eta()),
+				std::abs(metaData.GetRefZ().p4.Eta() - metaData.GetMet(event, GetPipelineSettings())->p4.Eta()),
 				metaData.GetWeight());
 		}
 	}

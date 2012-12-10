@@ -159,7 +159,7 @@ public:
 		{
 			if (!metaData.HasValidZ())
 				return;
-			m_histo->Fill(metaData.GetMPF(event.GetMet(set)), metaData.GetWeight());
+			m_histo->Fill(metaData.GetMPF(metaData.GetMet(event, set)), metaData.GetWeight());
 		}
 
 		else if (m_respType == MpfRaw)
