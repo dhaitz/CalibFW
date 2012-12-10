@@ -83,24 +83,19 @@ public:
 					KDataLV z;
 					z.p4 = m1.p4 + m2.p4;
 					if (z.p4.mass() > 71.19 && z.p4.mass() < 111.19)
-					{
 						if (m1.p4.Eta() < 1.48 && m2.p4.Eta() < 1.48)
 						{
 							val = (1 / m1.p4.Pt()) + (1 / m2.p4.Pt());
 							return true;
 						}
-					}
 				}
 			}
 		}
 	return false;
 	}
-	virtual unsigned int GetDefaultBinCount() const
-	    {return 100;}
-	virtual double GetDefaultLowBin() const
-	    {return 0.0f;}
-	virtual double GetDefaultHighBin() const
-	{return 0.2f;}
+	virtual unsigned int GetDefaultBinCount() const { return 100; }
+	virtual double GetDefaultLowBin() const { return 0.0f; }
+	virtual double GetDefaultHighBin() const { return 0.2f; }
 };
 
 class SourceDiMuonPtCombinedECEC: public ZJetSourceBase
@@ -120,13 +115,12 @@ public:
 					KDataLV z;
 					z.p4 = m1.p4 + m2.p4;
 					if (z.p4.mass() > 71.19 && z.p4.mass() < 111.19)
-					{
-						if (m1.p4.Eta() > 1.48 && m1.p4.Eta() < 3. && m2.p4.Eta() > 1.48 && m2.p4.Eta() < 3.)
+						if (m1.p4.Eta() > 1.48 && m1.p4.Eta() < 3. &&
+							m2.p4.Eta() > 1.48 && m2.p4.Eta() < 3.)
 						{
-							val = (1 / m1.p4.Pt()) + (1 / m2.p4.Pt());
+							val = 1.0 / m1.p4.Pt() + 1.0 / m2.p4.Pt();
 							return true;
 						}
-					}
 				}
 			}
 		}
@@ -186,21 +180,20 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-        if (metaData.m_genMuons.size() != 2)
-		        {
-			        return false;
-		        }
-        if (metaData.m_genZs.size() >= 1)
-        {
-	        KDataLV test;
-	        test.p4 = metaData.m_genMuons[0].p4 + metaData.m_genMuons[1].p4 - metaData.m_genZs[0].p4;
-	        if (test.p4.Pt() < 1e-3)	// differs less than a MeV
-	        {
-                        val = (1 / metaData.m_genMuons[0].p4.Pt()) + (1 / metaData.m_genMuons[1].p4.Pt());
-                        return true;
-	        }
-        }
-        return false;
+		if (metaData.m_genMuons.size() != 2)
+			return false;
+
+		if (metaData.m_genZs.size() >= 1)
+		{
+			KDataLV test;
+			test.p4 = metaData.m_genMuons[0].p4 + metaData.m_genMuons[1].p4 - metaData.m_genZs[0].p4;
+			if (test.p4.Pt() < 1e-3)	// differs less than a MeV
+			{
+				val = 1.0 / metaData.m_genMuons[0].p4.Pt() + 1.0 / metaData.m_genMuons[1].p4.Pt();
+				return true;
+			}
+		}
+		return false;
 	}
 
 	virtual unsigned int GetDefaultBinCount() const
@@ -220,10 +213,7 @@ public:
 class SourceJetEta: public ZJetSourceBase
 {
 public:
-	SourceJetEta()
-	{
-
-	}
+	SourceJetEta() {}
 
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
@@ -249,10 +239,7 @@ public:
 class SourceJetAbsEta: public ZJetSourceBase
 {
 public:
-	SourceJetAbsEta()
-	{
-
-	}
+	SourceJetAbsEta() {}
 
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
@@ -282,9 +269,8 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 		if (metaData.GetValidJetCount(settings, event) < 2)
-		{
 			return false;
-		}
+
 		val = metaData.GetValidJet(settings, event, 1)->p4.Eta();
 		return true;
 	}
@@ -310,9 +296,8 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 		if (metaData.GetValidJetCount(settings, event) < 2)
-		{
 			return false;
-		}
+
 		val = TMath::Abs(metaData.GetValidJet(settings, event, 1)->p4.Eta());
 		return true;
 	}
@@ -362,9 +347,8 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 		if (metaData.GetValidJetCount(settings, event) < 2)
-		{
 			return false;
-		}
+
 		val = metaData.GetValidJet(settings, event, 1)->p4.Pt();
 		return true;
 	}
@@ -415,11 +399,9 @@ public:
 	{
 		
 		if (metaData.GetValidJetCount(settings, event) < 2)
-		{
 			return false;
-		}
+
 		val = metaData.GetValidJet(settings, event, 1)->p4.Phi();
-		
 		return true;
 	}
 
@@ -444,7 +426,7 @@ public:
 			ZJetPipelineSettings const& settings, double & val) const
 	{
 		KDataLV* jet = metaData.GetValidJet(settings, event, 0);
-	        val = metaData.GetBalance(jet);
+		val = metaData.GetBalance(jet);
 		return true;
 	}
 
@@ -471,11 +453,11 @@ public:
 	{
 		std::string genName(JetType::GetGenName(settings.GetJetAlgorithm()));
 
-    if ( metaData.GetValidJetCount(settings, event, genName)  == 0)
-        return false;
+	if (metaData.GetValidJetCount(settings, event, genName) == 0)
+		return false;
 
 		KDataLV* jet = metaData.GetValidJet(settings, event, 0, genName);
-	        val = metaData.GetGenBalance(jet);
+		val = metaData.GetGenBalance(jet);
 		return true;
 	}
 
@@ -824,16 +806,14 @@ public:
 	}
 	virtual double GetDefaultHighBin() const
 	{
-		return 205000.0;
+		return 215000.0;
 	}
 };
 
 class SourceEventcount: public ZJetSourceBase
 {
 public:
-	SourceEventcount(  )
-	{
-	}
+	SourceEventcount() {}
 
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
@@ -845,15 +825,15 @@ public:
 	// hardcoded for now ...
 	virtual unsigned int GetDefaultBinCount() const
 	{
-		return 10000;
+		return 2;
 	}
 	virtual double GetDefaultLowBin() const
 	{
-		return 0.0;
+		return 0;
 	}
 	virtual double GetDefaultHighBin() const
 	{
-		return  1000000.0;
+		return 2;
 	}
 };
 
@@ -917,9 +897,7 @@ public:
 class SourceIntegratedLumi: public ZJetSourceBase
 {
 public:
-	SourceIntegratedLumi(  )
-	{
-	}
+	SourceIntegratedLumi() {}
 
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const

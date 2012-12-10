@@ -32,30 +32,20 @@ public:
 		if ( ref == "cutvalue" )
 		{
 			long l = ptree->get<long>( configPath + ".CutId");
-
 			this->SetYSource ( new SourceCutValue( l) );
 		}
-
 		else if ( ref == "hltprescale" )
-		{
 			this->SetYSource ( new SourceHltPrescale( ptree->get<std::string>( configPath + ".YSourceConfig") ) );
-		}
 		else if ( ref == "selectedhltprescale" )
-		{
-			this->SetYSource ( new SourceSelectedHltPrescale( ) );
-		}
-
+			this->SetYSource (new SourceSelectedHltPrescale());
 		else if ( ref == "eventcount" )
-		{
-			this->SetYSource ( new SourceEventcount() );
-		}
+			this->SetYSource (new SourceEventcount());
 		else if ( ref == "jetptratio" )
 		{
 			std::string jet1Name = ptree->get<std::string>( configPath + ".Jet1Name");
 			std::string jet2Name = ptree->get<std::string>( configPath + ".Jet2Name");
 			unsigned int jet1Num = ptree->get<unsigned int>( configPath + ".Jet1Num");
 			unsigned int jet2Num = ptree->get<unsigned int>( configPath + ".Jet2Num");
-
 			this->SetYSource ( new SourceJetPtRatio( jet1Name, jet2Name, jet1Num, jet2Num) );
 		}
 		else if ( ref == "jetptabsdiff" )
@@ -64,7 +54,6 @@ public:
 			std::string jet2Name = ptree->get<std::string>( configPath + ".Jet2Name");
 			unsigned int jet1Num = ptree->get<unsigned int>( configPath + ".Jet1Num");
 			unsigned int jet2Num = ptree->get<unsigned int>( configPath + ".Jet2Num");
-
 			this->SetYSource ( new SourceJetPtAbsDiff( jet1Name, jet2Name, jet1Num, jet2Num) );
 		}
 		else if ( ref == "jet1pt" )
@@ -156,9 +145,7 @@ public:
 			this->SetYSource ( new SourceJet1electronFraction() );
 
 		else
-		{
 			CALIB_LOG_FATAL( "Source " << ref << " not supported" )
-		}
 
 
 
