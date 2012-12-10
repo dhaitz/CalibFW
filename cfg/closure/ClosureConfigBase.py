@@ -21,9 +21,12 @@ def CreateFileList(wildcardExpression, args=None):
     print "Creating file list from " + wildcardExpression
     inputfiles = glob.glob(wildcardExpression)
 
-    if args is not None and len(args) > 1 and "fast" in args[1]:  # both 'fast' and '--fast' usable
+    if args is not None and len(args) > 1 and "--fast" == args[1]:
         try:
-            inputfiles = inputfiles[-int(args[2]):]
+            if len(args) > 3:
+                inputfiles = inputfiles[int(args[2]):int(args[3])]
+            else:
+                inputfiles = inputfiles[-int(args[2]):]
         except:
             inputfiles = inputfiles[-3:]
     return inputfiles
@@ -1173,7 +1176,7 @@ def Run(settings, arguments):
         print "The settings were stored to", filename
         exit(0)
 
-    if len(arguments) <= 1 or "batch" not in arguments[1]:  # both 'batch' and '--batch' usable
+    if len(arguments) <= 1 or "--batch" not in arguments[1]:
         subprocess.call(["./closure",filename])
     else:
         nickname = os.path.split(filename)[1]
