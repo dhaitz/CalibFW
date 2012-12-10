@@ -1102,6 +1102,7 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
     config.add_section("local")
     config.set("local", "queue", "short")
     config.set("local", "delay output", "True")
+    config.set("local", "sites", "-ekpblus007\n-@allnodes")
 
     config.add_section("UserMod")
     # we can run more data files with one MC job as they don't contain that many
