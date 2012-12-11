@@ -794,6 +794,10 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
             function[0]((d_axes[quantity[4:-8]][0], d_axes[quantity[4:-8]][1]), d_axes[quantity[4:-8]][2] % nicetext(quantity[:4]), d_axes[quantity[4:-8]][3])
         elif quantity == 'ratio':
             function[0]((d_axes['ratio'][0], d_axes['ratio'][1]), d_axes['ratio'][2] % (opt.labels[0], opt.labels[1]), d_axes['ratio'][3]) 
+        elif 'filters' in quantity:
+            function[1](range(12))
+            function[2](["ecalDeadCellB", "ecalDeadCellT", "beamHalo", "beamScraping", "ecalLaser", "ecalSupercrystal", "ecalNoise", "muonGreedy", "hcalLaser", "hcalNoise", "muonInconsistent", "trackingFailure"], rotation = 90)
+            function[0]((d_axes[quantity][0], d_axes[quantity][1]), d_axes[quantity][2], d_axes[quantity][3])
         elif quantity in d_axes:     # if no special options, read from dictionary
             function[0]((d_axes[quantity][0], d_axes[quantity][1]), d_axes[quantity][2], d_axes[quantity][3])
         else:
