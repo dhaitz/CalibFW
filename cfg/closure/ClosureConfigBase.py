@@ -1194,6 +1194,14 @@ def Run(settings, arguments):
       --fast      Run over a few files to see if it works
       --batch     Split into jobs for processing on a cluster
     """
+    print "    ______     ___       __       __  .______    ___________    __    ____ "
+    print "   /      |   /   \     |  |     |  | |   _  \  |   ____\   \  /  \  /   / "
+    print "  |  ,----'  /  ^  \    |  |     |  | |  |_)  | |  |__   \   \/    \/   /  "
+    print "  |  |      /  /_\  \   |  |     |  | |   _  <  |   __|   \            /   "
+    print "  |  `----./  _____  \  |  `----.|  | |  |_)  | |  |       \    /\    /    "
+    print "   \______/__/     \__\ |_______||__| |______/  |__|        \__/  \__/     "
+    print ""
+
     filename = arguments[0] + ".json"
     StoreSettings(settings, filename)
 
