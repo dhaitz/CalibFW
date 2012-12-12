@@ -186,25 +186,25 @@ public:
 		ZJetMetaConsumer::Init(pset);
 
 		m_2dz = new Hist2D("2D_zeta_zphi_" + m_algoname,
-				GetPipelineSettings().GetRootFileFolder(), -3.14159f, 3.14159f, -5.0f, 5.0f);
+				GetPipelineSettings().GetRootFileFolder(), -5.0f, 5.0f, -3.14159f, 3.14159f);
 		m_2djet1 = new Hist2D("2D_jet1eta_jet1phi_" + m_algoname,
-				GetPipelineSettings().GetRootFileFolder(), -3.14159f, 3.14159f, -5.0f, 5.0f);
+				GetPipelineSettings().GetRootFileFolder(), -5.0f, 5.0f, -3.14159f, 3.14159f);
 		m_2djet2 = new Hist2D("2D_jet2eta_jet2phi_" + m_algoname,
-				GetPipelineSettings().GetRootFileFolder(), -3.14159f, 3.14159f, -5.0f, 5.0f);
+				GetPipelineSettings().GetRootFileFolder(), -5.0f, 5.0f, -3.14159f, 3.14159f);
 
 		m_2djet1jet2 = new Hist2D("2D_deltaeta-jet1-jet2_deltaphi-jet1-jet2_" + m_algoname,
-				GetPipelineSettings().GetRootFileFolder(), 0.0f, 3.14159f, 0.0f, 10.0f);
+				GetPipelineSettings().GetRootFileFolder(), 0.0f, 10.0f, 0.0f, 3.14159f);
 		m_2dzjet1 = new Hist2D("2D_deltaeta-z-jet1_deltaphi-z-jet1_" + m_algoname,
-				GetPipelineSettings().GetRootFileFolder(), 0.0f, 3.14159f, 0.0f, 10.0f);
+				GetPipelineSettings().GetRootFileFolder(), 0.0f, 10.0f, 0.0f, 3.14159f);
 		m_2dzjet2 = new Hist2D("2D_deltaeta-z-jet2_deltaphi-z-jet2_" + m_algoname,
-				GetPipelineSettings().GetRootFileFolder(), 0.0f, 3.14159f, 0.0f, 10.0f);
+				GetPipelineSettings().GetRootFileFolder(), 0.0f, 10.0f, 0.0f, 3.14159f);
 		m_2dzmet = new Hist2D("2D_deltaeta-z-met_deltaphi-z-met_" + m_algoname,
-				GetPipelineSettings().GetRootFileFolder(), 0.0f, 3.14159f, 0.0f, 10.0f);
+				GetPipelineSettings().GetRootFileFolder(), 0.0f, 10.0f, 0.0f, 3.14159f);
 		m_2djet1met = new Hist2D("2D_deltaeta-jet1-met_deltaphi-jet1-met_" + m_algoname,
-				GetPipelineSettings().GetRootFileFolder(), 0.0f, 3.14159f, 0.0f, 10.0f);
+				GetPipelineSettings().GetRootFileFolder(), 0.0f, 10.0f, 0.0f, 3.14159f);
 
 		m_2dalphadeltaphi = new Hist2D("2D_alpha_deltaphi-z-jet1_" + m_algoname,
-				GetPipelineSettings().GetRootFileFolder(), 0.0f, 3.14159f, 0.0f, 5.0f);
+				GetPipelineSettings().GetRootFileFolder(), 0.0f, 5.0f, 0.0f, 3.14159f);
 
 		AddPlot(m_2dz);
 		AddPlot(m_2djet1);
@@ -227,60 +227,60 @@ public:
 		if (metaData.GetValidJetCount(this->GetPipelineSettings(), event, m_algoname) > 0)
 		{
 			m_2dz->Fill(
-				metaData.GetRefZ().p4.Phi(),
 				metaData.GetRefZ().p4.Eta(),
+				metaData.GetRefZ().p4.Phi(),
 				metaData.GetWeight());
 			m_2djet1->Fill(
-				metaData.GetValidJet(this->GetPipelineSettings(), event, 0, m_algoname)->p4.Phi(),
 				metaData.GetValidJet(this->GetPipelineSettings(), event, 0, m_algoname)->p4.Eta(),
+				metaData.GetValidJet(this->GetPipelineSettings(), event, 0, m_algoname)->p4.Phi(),
 				metaData.GetWeight());
 
 			m_2dzjet1->Fill(
-				std::abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetRefZ().p4, metaData.GetValidJet(
-						this->GetPipelineSettings(), event, 0, m_algoname)->p4)),
 				std::abs(metaData.GetRefZ().p4.Eta() - metaData.GetValidJet(
 						this->GetPipelineSettings(), event, 0, m_algoname)->p4.Eta()),
+				std::abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetRefZ().p4, metaData.GetValidJet(
+						this->GetPipelineSettings(), event, 0, m_algoname)->p4)),
 						metaData.GetWeight());
 			m_2dzmet->Fill(
-				std::abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetRefZ().p4, event.GetMet(GetPipelineSettings())->p4)),
-				std::abs(metaData.GetRefZ().p4.Eta() - event.GetMet(GetPipelineSettings())->p4.Eta()),
+				std::abs(metaData.GetRefZ().p4.Eta() - metaData.GetMet(event, GetPipelineSettings())->p4.Eta()),
+				std::abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetRefZ().p4, metaData.GetMet(event, GetPipelineSettings())->p4)),
 				metaData.GetWeight());
 
 			m_2djet1met->Fill(
-				std::abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetValidJet(
-						this->GetPipelineSettings(), event, 0, m_algoname)->p4, event.GetMet(GetPipelineSettings())->p4)),
 				std::abs(metaData.GetValidJet(
-						this->GetPipelineSettings(), event, 0, m_algoname)->p4.Eta() - event.GetMet(GetPipelineSettings())->p4.Eta()),
+						this->GetPipelineSettings(), event, 0, m_algoname)->p4.Eta() - metaData.GetMet(event, GetPipelineSettings())->p4.Eta()),
+				std::abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetValidJet(
+						this->GetPipelineSettings(), event, 0, m_algoname)->p4, metaData.GetMet(event, GetPipelineSettings())->p4)),
 				metaData.GetWeight());
 		}
 
 		if (metaData.GetValidJetCount(this->GetPipelineSettings(), event, m_algoname) > 1)
 		{
 			m_2djet2->Fill(
-				metaData.GetValidJet(this->GetPipelineSettings(), event, 1, m_algoname)->p4.Phi(),
 				metaData.GetValidJet(this->GetPipelineSettings(), event, 1, m_algoname)->p4.Eta(),
+				metaData.GetValidJet(this->GetPipelineSettings(), event, 1, m_algoname)->p4.Phi(),
 				metaData.GetWeight());
 
 			m_2djet1jet2->Fill(
-				std::abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetValidJet(
-						this->GetPipelineSettings(), event, 0, m_algoname)->p4, metaData.GetValidJet(
-						this->GetPipelineSettings(), event, 1, m_algoname)->p4)),
 				std::abs(metaData.GetValidJet(
 						this->GetPipelineSettings(), event, 0, m_algoname)->p4.Eta() - metaData.GetValidJet(
 						this->GetPipelineSettings(), event, 1, m_algoname)->p4.Eta()),
+				std::abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetValidJet(
+						this->GetPipelineSettings(), event, 0, m_algoname)->p4, metaData.GetValidJet(
+						this->GetPipelineSettings(), event, 1, m_algoname)->p4)),
 				metaData.GetWeight());
 
 			m_2dzjet2->Fill(
-				std::abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetRefZ().p4, metaData.GetValidJet(
-						this->GetPipelineSettings(), event, 1, m_algoname)->p4)),
 				std::abs(metaData.GetRefZ().p4.Eta() - metaData.GetValidJet(
 						this->GetPipelineSettings(), event, 1, m_algoname)->p4.Eta()),
+				std::abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetRefZ().p4, metaData.GetValidJet(
+						this->GetPipelineSettings(), event, 1, m_algoname)->p4)),
 				metaData.GetWeight());
 
 			m_2dalphadeltaphi->Fill(
+				metaData.GetValidJet(this->GetPipelineSettings(), event, 1, m_algoname)->p4.Pt() / metaData.GetRefZ().p4.Pt(),
 				std::abs(ROOT::Math::VectorUtil::DeltaPhi(metaData.GetRefZ().p4, metaData.GetValidJet(
 						this->GetPipelineSettings(), event, 0, m_algoname)->p4)),
-				metaData.GetValidJet(this->GetPipelineSettings(), event, 1, m_algoname)->p4.Pt() / metaData.GetRefZ().p4.Pt(),
 				metaData.GetWeight());
 		}
 	}
