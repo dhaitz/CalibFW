@@ -145,7 +145,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
     if opt.x_limits is not None: ax.set_xlim(opt.x_limits[0], opt.x_limits[1])
     if opt.y_limits is not None: ax.set_ylim(opt.y_limits[0], opt.y_limits[1])
     if ratio:
-        ax.set_ylabel("Data/MC ratio", va="top", y=1)
+        ax.set_ylabel(y +" Data/MC ratio", va="top", y=1)
 
     if subtext is not 'None':
         ax.text(-0.03, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')

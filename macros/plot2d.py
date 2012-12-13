@@ -63,7 +63,6 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
         z_name = 'Events'
         z_min = 0.0
         z_max = np.max(datamc[0].BinContents)
-    print z_max
 
 
     if subplot==True:
@@ -101,7 +100,7 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
             vmax=z_max)
 
         # labels:
-        if 'MC' in label: mc = True
+        if 'data' not in label: mc = True
         else: mc = False
         if not subplot: plotbase.labels(ax, opt, legloc=False, frame=True, changes=change, jet=False,
                                         sub_plot=subplot, mc=mc, color='white', energy_label=(not subplot))

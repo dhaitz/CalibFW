@@ -101,8 +101,11 @@ def function_selector(plots, datamc, opt):
             plotdatamc.datamcplot(plot[:-10], datamc, opt, changes={'incut':'zcutsonly'})
         elif plot in plotlist_alleta:
             plotdatamc.datamcplot(plot[:-7], datamc, opt, changes={'incut':'alleta'})
-        elif "_all" in plot and plot in plotlist_all:
-            plotdatamc.datamc_all(plot[:-4], datamc, opt)
+        elif "_all" in plot:# and plot in plotlist_all:
+            if '_run' in plot:
+                plotdatamc.datamc_all(plot[:-4], datamc, opt, run=True)
+            else:
+                plotdatamc.datamc_all(plot[:-4], datamc, opt)
         elif '_run' in plot:
             if '_nocuts' in plot:
                 plotdatamc.runplot(plot[:-7], datamc, opt, changes={'incut':'allevents'})

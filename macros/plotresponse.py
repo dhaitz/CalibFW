@@ -695,10 +695,10 @@ def exclusive_extrapolation(files, opt,
 
 
     if use_rawMET==True:
-        mpftype='mpf-notypeI'
+        mpftype='mpf-raw'
         mpflabel='MPF(noTypeI)'
     else:
-        mpftype='mpfresp'
+        mpftype='mpf'
         mpflabel='MPF'
 
 
@@ -834,7 +834,7 @@ plots = [
 'responseratio_all',
 'bal_responseratio_eta', 'bal_responseratio_zpt', 'bal_responseratio_npv', 
 'mpf_responseratio_eta', 'mpf_responseratio_zpt', 'mpf_responseratio_npv', 
-'exclusive_extrapolation', 'exclusive_extrapolation_zpt'
+'exclusive_extrapolation', 'exclusive_extrapolation_zpt', 'extrapolation_noMPF', 'exclusive_extrapolation_raw'
 #,'balratio', 'mpfratio', 'kfsr'
 ]
 
