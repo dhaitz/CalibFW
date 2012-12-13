@@ -363,20 +363,20 @@ public:
 		{
 			CALIB_LOG("No gen Z in the event.")
 			metaData.SetValidGenZ(false);
-			return false;
+			return true;
 		}
 		if (metaData.m_genZs.size() > 1)
 		{
 			CALIB_LOG("More than one gen Z in the event.")
 			// Could be resolved, but this case is currently not present.
 			metaData.SetValidGenZ(false);
-			return false;
+			return true;
 		}
 		if (metaData.m_genZs[0].p4.Pt() < zptmin)
 		{
 			//CALIB_LOG("Gen Z pt is very low, no balance calculated.")
 			metaData.SetValidGenZ(false);
-			return false;
+			return true;
 		}
 
 		// check if the Z decays to the muons:
@@ -384,7 +384,7 @@ public:
 		{
 			CALIB_LOG("Not exactly two muons in the event, therefore no valid Z.")
 			metaData.SetValidGenZ(false);
-			return false;
+			return true;
 		}
 		if (metaData.m_genZs.size() >= 1)
 		{
@@ -394,7 +394,7 @@ public:
 			{
 				CALIB_LOG("Muons not from Z decay: pt:" << vec.Pt() << ", eta: " << vec.Eta()<< ", phi: " << vec.Phi()<< ", m: " << vec.M())
 				metaData.SetValidGenZ(false);
-				return false;
+				return true;
 			}
 		}
 		metaData.SetValidGenZ(true);
@@ -406,7 +406,7 @@ public:
 		if (metaData.m_genPartons.size() < 1)
 		{
 			CALIB_LOG("No partons in the event!")
-			return false;
+			return true;
 		}
 
 		double dphi = -1.;
@@ -448,7 +448,7 @@ public:
 		if (!metaData.GetRefValidParton())
 		{
 			//CALIB_LOG("No balance found below threshold=" << metaData.GetRefBalanceQuality() << "!")
-			return false;
+			return true;
 		}
 		//CALIB_LOG("Best parton is " << metaData.GetRefParton().pdgId() << ": " << metaData.GetRefBalanceQuality())
 
