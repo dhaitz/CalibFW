@@ -2,9 +2,9 @@ import sys
 import ClosureConfigBase as cbase
 
 conf = cbase.BaseConfig('mc', '2012')
-conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa534_MC12_madgraph/*.root", sys.argv)
+conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa534_MC12_powheg/*.root", sys.argv)
 conf['Jec'] = cbase.GetBasePath() + "data/jec_data/Fall12_V5_MC"
-conf["OutputPath"] = "closure_madgraphSummer12_534"
+conf["OutputPath"] = "closure_powhegSummer12_534"
 conf["EnableMetPhiCorrection"] = 1
 
 algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2L3"]
@@ -12,7 +12,7 @@ cbase.addCHS(algorithms)
 base_algorithms = ["AK5PFJets", "AK5PFJetsCHS"]
 
 conf = cbase.ExpandConfig(algorithms, conf, expandptbins=True, alletaFolder=True, zcutsFolder=True)
-cbase.ApplyPUReweighting(conf, "kappa534_MC12_madgraph_190456-208357_8TeV_PromptReco")
+cbase.ApplyPUReweighting(conf, "kappa534_MC12_powheg_190456-208357_8TeV_PromptReco")
 
 # create various variations ...
 variations = []

@@ -7,9 +7,9 @@ conf['Jec'] = cbase.GetBasePath() + "data/jec_data/Fall12_V5_MC"
 conf["OutputPath"] = "closure_madgraphSummer12_534"
 conf["EnableMetPhiCorrection"] = 1
 
-algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2L3"]
+algorithms = ["AK7PFJets", "AK7PFJetsL1", "AK7PFJetsL1L2L3"]
 cbase.addCHS(algorithms)
-base_algorithms = ["AK5PFJets", "AK5PFJetsCHS"]
+base_algorithms = ["AK7PFJets", "AK7PFJetsCHS"]
 
 conf = cbase.ExpandConfig(algorithms, conf, expandptbins=True, alletaFolder=True, zcutsFolder=True)
 cbase.ApplyPUReweighting(conf, "kappa534_MC12_madgraph_190456-208357_8TeV_PromptReco")
@@ -26,9 +26,9 @@ cbase.AddCutConsumer(conf, algorithms)
 for v in variations:
     conf["Pipelines"].update(v)
 
-cbase.AddQuantityPlots(conf, ["AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
+cbase.AddQuantityPlots(conf, ["AK7PFJetsL1L2L3", "AK7PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
 
-cbase.Add2DHistograms(conf, ["AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
-cbase.Add2DProfiles(conf, ["AK5PFJetsL1L2L3", "AK5PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
+cbase.Add2DHistograms(conf, ["AK7PFJetsL1L2L3", "AK7PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
+cbase.Add2DProfiles(conf, ["AK7PFJetsL1L2L3", "AK7PFJetsCHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
 
 cbase.Run(conf, sys.argv)

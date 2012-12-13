@@ -8,9 +8,9 @@ conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa534_Data12
 conf["OutputPath"] = "closure_data2012_534"
 conf["EnableMetPhiCorrection"] = 1
 
-algorithms = ["AK5PFJets", "AK5PFJetsL1", "AK5PFJetsL1L2L3", "AK5PFJetsL1L2L3Res"]
+algorithms = ["AK7PFJets", "AK7PFJetsL1", "AK7PFJetsL1L2L3", "AK7PFJetsL1L2L3Res"]
 cbase.addCHS(algorithms)
-base_algorithms = ["AK5PFJets", "AK5PFJetsCHS"]
+base_algorithms = ["AK7PFJets", "AK7PFJetsCHS"]
 
 conf = cbase.ExpandConfig(algorithms, conf, expandptbins=True, alletaFolder=True, zcutsFolder=True)
 
@@ -27,10 +27,10 @@ cbase.AddHltConsumer(conf, base_algorithms, ["HLT_Mu17_Mu8", "HLT_Mu13_Mu8", "HL
 for v in variations:
     conf["Pipelines"].update(v)
 
-cbase.AddLumiConsumer(conf, ["AK5PFJetsL1L2L3Res", "AK5PFJetsCHSL1L2L3Res"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=True)
-cbase.AddQuantityPlots(conf, ["AK5PFJetsL1L2L3Res", "AK5PFJetsCHSL1L2L3Res"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
+cbase.AddLumiConsumer(conf, ["AK7PFJetsL1L2L3Res", "AK7PFJetsCHSL1L2L3Res"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=True)
+cbase.AddQuantityPlots(conf, ["AK7PFJetsL1L2L3Res", "AK7PFJetsCHSL1L2L3Res"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
 
-cbase.Add2DHistograms(conf, ["AK5PFJetsL1L2L3Res", "AK5PFJetsCHSL1L2L3Res"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=True)
-cbase.Add2DProfiles(conf, ["AK5PFJetsL1L2L3Res", "AK5PFJetsCHSL1L2L3Res"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=True)
+cbase.Add2DHistograms(conf, ["AK7PFJetsL1L2L3Res", "AK7PFJetsCHSL1L2L3Res"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=True)
+cbase.Add2DProfiles(conf, ["AK7PFJetsL1L2L3Res", "AK7PFJetsCHSL1L2L3Res"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=True)
 
 cbase.Run(conf, sys.argv)
