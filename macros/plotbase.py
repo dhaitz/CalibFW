@@ -799,8 +799,8 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, opt=options()):
         elif quantity == 'ratio':
             function[0]((d_axes['ratio'][0], d_axes['ratio'][1]), d_axes['ratio'][2] % (opt.labels[0], opt.labels[1]), d_axes['ratio'][3]) 
         elif 'filters' in quantity:
-            function[1](range(12))
-            function[2](["ecalDeadCellB", "ecalDeadCellT", "beamHalo", "beamScraping", "ecalLaser", "ecalSupercrystal", "ecalNoise", "muonGreedy", "hcalLaser", "hcalNoise", "muonInconsistent", "trackingFailure"], rotation = 90)
+            function[1](range(13))
+            function[2](["ECAL DeadCellB", "ECAL DeadCellT", "Beam Halo", "Beam Scraping", "ECAL Laser", "ECAL Supercrystal", "ECAL Noise", "Muon Greedy", "HCAL Laser", "HCAL Noise", "Muon Inconsistent", "Tracking Failure", "All Filters"], rotation = 90)
             function[0]((d_axes[quantity][0], d_axes[quantity][1]), d_axes[quantity][2], d_axes[quantity][3])
         elif quantity in d_axes:     # if no special options, read from dictionary
             function[0]((d_axes[quantity][0], d_axes[quantity][1]), d_axes[quantity][2], d_axes[quantity][3])

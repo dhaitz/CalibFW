@@ -690,7 +690,7 @@ public:
 //			m_firstEvent = false;
 //			CALIB_LOG(xtitle)
 //		}
-		const int maxfilters = 16;
+		const int maxfilters = 12;
 		for (int i = 0; i < maxfilters; i++)
 			if (!event.m_filter->passedFilter(i))
 				m_filters->Fill(i, metaData.GetWeight());

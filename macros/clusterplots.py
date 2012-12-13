@@ -27,7 +27,7 @@ def clusterplots():
     opt, datamc = plot.plot(cluster=True)
 
     username = getpass.getuser()
-    if username == 'dhaitz':
+    if username == 'dhaitz' or username == 'berger':
         opt, datamc = plot_dhaitz.plot(cluster=True)
         plotfile = "plot_dhaitz.py"
 
