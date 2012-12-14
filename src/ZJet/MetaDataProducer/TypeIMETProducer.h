@@ -60,6 +60,22 @@ public:
 			KDataPFMET corrmet;
 			corrmet.p4 = rawmet->p4 + correction.p4;
 			corrmet.p4.SetEta(0.0f);
+
+			double px = corrmet.p4.Px();
+			double py = corrmet.p4.Py();
+			if (globalsettings.Global()->GetInputType())
+			{
+				px = px - (0.2661 + 0.3217*event.m_vertexSummary->nVertices);
+				py = py - (-0.2251 - 0.1747*event.m_vertexSummary->nVertices);
+			}
+			else
+			{
+				px = px - (0.1166 + 0.0200*event.m_vertexSummary->nVertices);
+				py = py - (0.2764 - 0.1280*event.m_vertexSummary->nVertices);
+			}			
+			corrmet.p4.SetPt(sqrt(px*px + py*py));
+			corrmet.p4.SetPhi(atan2(py, px));
+
 			metaData.m_MET[algorithms[j]]  = corrmet;
 
 		}
