@@ -141,6 +141,7 @@ def options(
             rebin=None,
             ratio=False,
             fit=None,
+            legloc=None,
             npv=[(0, 4), (5, 8), (9, 15), (16, 21), (22, 100)],
             cut=[0.2, 0.4],
             eta=[0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
@@ -241,6 +242,9 @@ def options(
     parser.add_argument('-F', '--fit', type=str,
         default=fit,
         help="Fit option")
+    parser.add_argument('-g', '--legloc', type=str,
+        default=legloc,
+        help="Location of the legend")
 
 
     opt = parser.parse_args()
