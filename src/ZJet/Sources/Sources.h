@@ -1276,6 +1276,20 @@ public:
 	}
 };
 
+class SourceRho: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		val = event.m_jetArea->median;
+		return true;
+	}
+	virtual unsigned int GetDefaultBinCount() const { return 100; }
+	virtual double GetDefaultLowBin() const { return 0.f; }
+	virtual double GetDefaultHighBin() const { return 50.f; }
+};
+
 class SourceCutValue: public ZJetSourceBase
 {
 public:
