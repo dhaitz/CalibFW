@@ -33,6 +33,8 @@ public:
 	IMPL_PROPERTY(std::string, JsonFile)
 	IMPL_PROPERTY(InputTypeEnum, InputType)
 
+	doublevector m_metphi;
+
 	doublevector m_recovertWeight;
 	doublevector m_2ndJetWeight;
 };

@@ -126,6 +126,7 @@ void AddGlobalMetaProducer( std::vector< std::string > const& producer,
 			runner.AddGlobalMetaProducer(new GenDibalanceProducer());
 		else if (TypeIMETProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new TypeIMETProducer(
+					globalSettings.get<bool>("EnableMetPhiCorrection"),
 					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else
 			CALIB_LOG_FATAL("Global MetaData producer of name " << *it << " not found")
@@ -214,6 +215,7 @@ int main(int argc, char** argv)
 	gset.SetInputType(g_inputType);
 
 	ZJetEventProvider evtProvider(finterface, g_inputType, g_propTree.get<bool>("EnableMetPhiCorrection"));
+	gset.m_metphi = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "MetPhiCorrectionParameters");
 
 	// removes the old file
 	std::string sRootOutputFilename = g_sOutputPath + ".root";

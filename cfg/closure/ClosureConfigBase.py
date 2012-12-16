@@ -97,6 +97,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
         ],
         'L1Correction': 'L1FastJet',
         'EnableMetPhiCorrection': False,
+        'MetPhiCorrectionParameters': [],
         'EnablePuReweighting': False,
         'Enable2ndJetReweighting': False,
         'Jec': "default",
@@ -143,6 +144,7 @@ def SetMcSpecific(cfg, run='2012'):
         #ApplyPUReweighting(cfg, '...')
     elif run == '2012':
         cfg['Jec'] = GetBasePath() + "data/jec_data/START52_V11"
+        cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
         #ApplyPUReweighting(cfg, '...')
     else:
         print "MC period", run, "is undefined. No jet corrections known."
@@ -179,6 +181,7 @@ def SetDataSpecific(cfg, run='2012'):
             ]
     elif run == '2012':
         cfg['Jec'] = GetBasePath() + "data/jec_data/GR_R_52_V9"
+        cfg['MetPhiCorrectionParameters'] = [0.2661, 0.3217, -0.2251, -0.1747]
         cfg['JsonFile'] = GetBasePath() + "data/json/Cert_190456-201678_8TeV_PromptReco_Collisions12_JSON.txt"
         cfg['HltPaths'] = [
             "HLT_Mu17_Mu8_v1", "HLT_Mu17_Mu8_v2", "HLT_Mu17_Mu8_v3", "HLT_Mu17_Mu8_v4", "HLT_Mu17_Mu8_v5",

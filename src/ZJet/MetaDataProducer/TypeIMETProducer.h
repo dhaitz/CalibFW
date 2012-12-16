@@ -8,7 +8,7 @@ class TypeIMETProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
 
-	TypeIMETProducer(stringvector baseAlgos) : ZJetGlobalMetaDataProducerBase(), m_basealgorithms(baseAlgos)
+	TypeIMETProducer(bool EnableMetPhiCorrection, stringvector baseAlgos) : ZJetGlobalMetaDataProducerBase(), m_basealgorithms(baseAlgos), metphi(EnableMetPhiCorrection)
  {}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
@@ -61,20 +61,19 @@ public:
 			corrmet.p4 = rawmet->p4 + correction.p4;
 			corrmet.p4.SetEta(0.0f);
 
-			double px = corrmet.p4.Px();
-			double py = corrmet.p4.Py();
-			if (globalsettings.Global()->GetInputType())
+			//apply MET-phi-corrections
+			if (metphi)
 			{
-				px = px - (0.2661 + 0.3217*event.m_vertexSummary->nVertices);
-				py = py - (-0.2251 - 0.1747*event.m_vertexSummary->nVertices);
+				double px = corrmet.p4.Px();
+				double py = corrmet.p4.Py();
+				const doublevector * m_metphi = &globalsettings.Global()->m_metphi;
+
+				px = px - (m_metphi->at(0) + m_metphi->at(1)*event.m_vertexSummary->nVertices);
+				py = py - (m_metphi->at(2) + m_metphi->at(3)*event.m_vertexSummary->nVertices);
+
+				corrmet.p4.SetPt(sqrt(px*px + py*py));
+				corrmet.p4.SetPhi(atan2(py, px));
 			}
-			else
-			{
-				px = px - (0.1166 + 0.0200*event.m_vertexSummary->nVertices);
-				py = py - (0.2764 - 0.1280*event.m_vertexSummary->nVertices);
-			}			
-			corrmet.p4.SetPt(sqrt(px*px + py*py));
-			corrmet.p4.SetPhi(atan2(py, px));
 
 			metaData.m_MET[algorithms[j]]  = corrmet;
 
@@ -90,6 +89,7 @@ public:
 
 private:
 	std::vector<std::string> m_basealgorithms;
+	bool metphi;
 };
 
 }
