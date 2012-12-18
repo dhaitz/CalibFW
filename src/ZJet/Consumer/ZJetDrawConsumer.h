@@ -647,8 +647,12 @@ public:
 		m_numPUtruth = new Hist1D("numputruth_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetNRVModifier());
+		m_weight = new Hist1D("weights_" + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetWeightsModifier());
 		AddPlot(m_numPU);
 		AddPlot(m_numPUtruth);
+		AddPlot(m_weight);
 	}
 
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
@@ -657,11 +661,13 @@ public:
 		MetadataConsumer::ProcessFilteredEvent(event, metaData);
 		m_numPU->Fill(event.m_geneventmetadata->numPUInteractions0, metaData.GetWeight());
 		m_numPUtruth->Fill(event.m_geneventmetadata->numPUInteractionsTruth, metaData.GetWeight());
+		m_weight->Fill(1.0, metaData.GetWeight());
 	}
 
 private:
 	Hist1D* m_numPU;
 	Hist1D* m_numPUtruth;
+	Hist1D* m_weight;
 };
 
 class FilterSummaryConsumer: public ZJetMetaConsumer

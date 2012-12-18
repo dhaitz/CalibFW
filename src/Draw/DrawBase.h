@@ -356,6 +356,7 @@ public:
 	static ModifierList GetConstituentsModifier();
 	static ModifierList GetNoModifier();
 	static ModifierList GetNRVModifier();
+	static ModifierList GetWeightsModifier();
 	static ModifierList GetFiltersModifier();
 	static ModifierList GetCountModifier( unsigned int max );
 	static ModifierList GetResponseModifier();

@@ -100,6 +100,16 @@ Hist1D::ModifierList Hist1D::GetNRVModifier()
 	return modList;
 }
 
+Hist1D::ModifierList Hist1D::GetWeightsModifier()
+{
+	Hist1D::ModifierList modList;
+
+	modList.push_back(new ModHistBinRange(-0.5f, +1.5f));
+	modList.push_back(new ModHistBinCount(2));
+
+	return modList;
+}
+
 Hist1D::ModifierList Hist1D::GetFiltersModifier()
 {
 	Hist1D::ModifierList modList;
