@@ -132,7 +132,7 @@ public:
 
 		m_npv = new Hist1D("npv_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetNRVModifier());
+				Hist1D::GetCountModifier(49));
 		AddPlot(m_npv);
 	}
 
@@ -194,7 +194,6 @@ public:
 
 		m_2djet1jet2 = new Hist2D("2D_deltaeta-jet1-jet2_deltaphi-jet1-jet2_" + m_algoname,
 				GetPipelineSettings().GetRootFileFolder(), 0.0f, 3.14159f, 0.0f, 10.0f);
-				//Hist2D::GetNRVModifier());
 		m_2dzjet1 = new Hist2D("2D_deltaeta-z-jet1_deltaphi-z-jet1_" + m_algoname,
 				GetPipelineSettings().GetRootFileFolder(), 0.0f, 3.14159f, 0.0f, 10.0f);
 		m_2dzjet2 = new Hist2D("2D_deltaeta-z-jet2_deltaphi-z-jet2_" + m_algoname,
@@ -540,11 +539,11 @@ public:
 
 		m_valid = new Hist1D("muonsvalid_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetNRVModifier());
+				Hist1D::GetCountModifier(49));
 		AddPlot(m_valid);
 		m_invalid = new Hist1D("muonsinvalid_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetNRVModifier());
+				Hist1D::GetCountModifier(49));
 		AddPlot(m_invalid);
 	}
 
@@ -643,13 +642,13 @@ public:
 
 		m_numPU = new Hist1D("numpu_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetNRVModifier());
+				Hist1D::GetCountModifier(49));
 		m_numPUtruth = new Hist1D("numputruth_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetNRVModifier());
+				Hist1D::GetCountModifier(49));
 		m_weight = new Hist1D("weights_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetWeightsModifier());
+				Hist1D::GetCountModifier(0));
 		AddPlot(m_numPU);
 		AddPlot(m_numPUtruth);
 		AddPlot(m_weight);
@@ -661,7 +660,7 @@ public:
 		MetadataConsumer::ProcessFilteredEvent(event, metaData);
 		m_numPU->Fill(event.m_geneventmetadata->numPUInteractions0, metaData.GetWeight());
 		m_numPUtruth->Fill(event.m_geneventmetadata->numPUInteractionsTruth, metaData.GetWeight());
-		m_weight->Fill(1.0, metaData.GetWeight());
+		m_weight->Fill(0.0, metaData.GetWeight());
 	}
 
 private:
@@ -679,7 +678,7 @@ public:
 		m_firstEvent = true;
 		m_filters = new Hist1D("filters_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetFiltersModifier());
+				Hist1D::GetCountModifier(16));
 		AddPlot(m_filters);
 	}
 

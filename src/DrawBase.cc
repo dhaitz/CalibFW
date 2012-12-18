@@ -19,32 +19,12 @@ Hist1D::ModifierList Hist1D::GetPtModifier()
 	return modList;
 }
 
-Hist1D::ModifierList Hist1D::GetJetMatchingModifier()
-{
-	Hist1D::ModifierList modList;
-
-	modList.push_back(new ModHistBinRange(-2.5f, 100.5f));
-	modList.push_back(new ModHistBinCount( 103 ));
-
-	return modList;
-}
-
 Hist1D::ModifierList Hist1D::GetResponseModifier()
 {
 	Hist1D::ModifierList modList;
 
 	modList.push_back(new ModHistBinRange(0.0f, 2.0f));
 	modList.push_back(new ModHistBinCount(200));
-
-	return modList;
-}
-
-Hist1D::ModifierList Hist1D::GetConstituentsModifier()
-{
-	Hist1D::ModifierList modList;
-
-	modList.push_back(new ModHistBinRange(-0.5f, +149.5f));
-	modList.push_back(new ModHistBinCount(150));
 
 	return modList;
 }
@@ -80,42 +60,12 @@ Hist1D::ModifierList Hist1D::GetAbsEtaModifier()
 }
 
 
-Hist1D::ModifierList Hist1D::GetCountModifier( unsigned int max)
+Hist1D::ModifierList Hist1D::GetCountModifier(unsigned int max, int min)
 {
 	Hist1D::ModifierList modList;
 
-	modList.push_back(new ModHistBinRange(-0.5f,  float(max) +0.5f));
-	modList.push_back(new ModHistBinCount(max + 1));
-
-	return modList;
-}
-
-Hist1D::ModifierList Hist1D::GetNRVModifier()
-{
-	Hist1D::ModifierList modList;
-
-	modList.push_back(new ModHistBinRange(-0.5f, +49.5f));
-	modList.push_back(new ModHistBinCount(50));
-
-	return modList;
-}
-
-Hist1D::ModifierList Hist1D::GetWeightsModifier()
-{
-	Hist1D::ModifierList modList;
-
-	modList.push_back(new ModHistBinRange(-0.5f, +1.5f));
-	modList.push_back(new ModHistBinCount(2));
-
-	return modList;
-}
-
-Hist1D::ModifierList Hist1D::GetFiltersModifier()
-{
-	Hist1D::ModifierList modList;
-
-	modList.push_back(new ModHistBinRange(-1.5f, 16.5f));
-	modList.push_back(new ModHistBinCount(18));
+	modList.push_back(new ModHistBinRange(float(min) - 0.5f, float(max) + 0.5f));
+	modList.push_back(new ModHistBinCount(max - min + 1));
 
 	return modList;
 }

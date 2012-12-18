@@ -388,12 +388,12 @@ public:
 
 			m_const = new Hist1D(GenName(GetPhysicsObjectName(), "const_"),
 					GetPipelineSettings().GetRootFileFolder(),
-					Hist1D::GetConstituentsModifier());
+					Hist1D::GetCountModifier(149));
 			AddPlot(m_const);
 
 			m_charged = new Hist1D(GenName(GetPhysicsObjectName(), "charged_"),
 					GetPipelineSettings().GetRootFileFolder(),
-					Hist1D::GetConstituentsModifier());
+					Hist1D::GetCountModifier(149));
 			AddPlot(m_charged);
 
 			m_summedFraction = new Hist1D(GenName(GetPhysicsObjectName(), "summedfractions_"),

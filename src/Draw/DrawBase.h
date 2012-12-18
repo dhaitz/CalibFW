@@ -353,12 +353,8 @@ public:
 	static ModifierList GetEtaModifier();
 	static ModifierList GetAbsEtaModifier();
 	static ModifierList GetFractionModifier();
-	static ModifierList GetConstituentsModifier();
 	static ModifierList GetNoModifier();
-	static ModifierList GetNRVModifier();
-	static ModifierList GetWeightsModifier();
-	static ModifierList GetFiltersModifier();
-	static ModifierList GetCountModifier( unsigned int max );
+	static ModifierList GetCountModifier(unsigned int max, int min=0);
 	static ModifierList GetResponseModifier();
 	static ModifierList GetMassModifier();
 	static ModifierList GetAreaModifier();
@@ -368,7 +364,6 @@ public:
 	static ModifierList GetDeltaPhiModifier();
 	static ModifierList GetDeltaEtaModifier();
 	static ModifierList GetMETFractionModifier();
-	static ModifierList GetJetMatchingModifier();
 	static ModifierList GetRunModifier();
 
 	Hist1D(std::string sName, std::string sFolder, Hist1D::ModifierList l):

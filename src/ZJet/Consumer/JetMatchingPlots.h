@@ -42,7 +42,7 @@ public:
 
 		m_histJetMatch = new Hist1D("jet1-jet-matching_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetJetMatchingModifier());
+				Hist1D::GetCountModifier(97, -2));
 
 		AddPlot(m_histJetMatch);
 	}
