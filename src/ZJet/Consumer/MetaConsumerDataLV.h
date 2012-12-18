@@ -215,6 +215,35 @@ public:
 	char m_charge;
 };
 
+class DataGenMuonConsumer: public MetaConsumerDataLV
+{
+public:
+	DataGenMuonConsumer(char charge, std::string algoName) : m_charge(charge)
+	{
+		if (m_charge > 0)
+			SetPhysicsObjectName("genmuplus%quant%" + algoName);
+
+		if (m_charge < 0)
+			SetPhysicsObjectName("genmuminus%quant%" + algoName);
+	}
+
+	virtual void ProcessFilteredEvent(ZJetEventData const& event,
+			ZJetMetaData const& metaData)
+	{
+		for (KGenParticles::const_iterator it = metaData.m_genMuons.begin();
+				it != metaData.m_genMuons.end(); it ++)
+		{
+			if (it->charge() == m_charge)
+			{
+				PlotDataLVQuantities(&(*it), metaData);
+				return;
+			}
+		}
+	}
+
+	char m_charge;
+};
+
 /// maybe also used for other stuff, like muons
 class DataLVsConsumer: public MetaConsumerDataLV
 {

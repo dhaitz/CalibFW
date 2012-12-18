@@ -195,7 +195,10 @@ public:
 			std::string Name2 = ptree->get<std::string>( configPath + ".XName2");
 			this->SetXSource ( new SourcePhiAbsDiff( Name1, Name2) );
 		}
-
+		else if ( ref == "genmuppt")
+			this->SetXSource ( new SourceGenMuonPlusPt());
+		else if ( ref == "genmumpt")
+			this->SetXSource ( new SourceGenMuonMinusPt());
 		else if ( ref == "zpt")
 			this->SetXSource ( new SourceZPt());
 		else if ( ref == "genzpt" )

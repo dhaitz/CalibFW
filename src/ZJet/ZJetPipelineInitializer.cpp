@@ -176,7 +176,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 					pset.GetJetAlgorithm() == "AK7PFJetsL1L2L3"))
 			{
 				std::string genName = JetType::GetGenName(pset.GetJetAlgorithm());
-
+				pLine->AddConsumer(new DataGenMuonConsumer(+1, pset.GetJetAlgorithm()));
+				pLine->AddConsumer(new DataGenMuonConsumer(-1, pset.GetJetAlgorithm()));
 				// add gen jets plots
 				pLine->AddConsumer(new DataGenJetConsumer(genName, 0, genName));
 				pLine->AddConsumer(new DataGenJetConsumer(genName, 1, genName));

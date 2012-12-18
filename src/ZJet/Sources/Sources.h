@@ -994,6 +994,48 @@ private:
 	std::string m_hltName;
 };
 
+class SourceGenMuonMinusPt: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		for (int i = 0; i < metaData.m_genMuons.size(); ++i)
+			if (metaData.m_genMuons[i].charge() < 0)
+			{
+				val = metaData.m_genMuons[i].p4.Pt();
+				return true;
+			}
+		val = 0.0;
+		return false;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const { return 200; }
+	virtual double GetDefaultLowBin() const { return 0.0f; }
+	virtual double GetDefaultHighBin() const { return 1000.0; }
+};
+
+class SourceGenMuonPlusPt: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		for (int i = 0; i < metaData.m_genMuons.size(); ++i)
+			if (metaData.m_genMuons[i].charge() > 0)
+			{
+				val = metaData.m_genMuons[i].p4.Pt();
+				return true;
+			}
+		val = 0.0;
+		return false;
+	}
+
+	virtual unsigned int GetDefaultBinCount() const { return 200; }
+	virtual double GetDefaultLowBin() const { return 0.0f; }
+	virtual double GetDefaultHighBin() const { return 1000.0; }
+};
+
 class SourceZPt: public ZJetSourceBase
 {
 public:

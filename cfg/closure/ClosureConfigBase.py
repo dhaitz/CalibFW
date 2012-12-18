@@ -855,6 +855,7 @@ def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, 
                                 AddGenericProfileConsumer('genzrapidity','genzpt')
                                 AddGenericProfileConsumer('genzeta','genzmass')
                                 AddGenericProfileConsumer('genzeta','genzpt')
+                                AddGenericProfileConsumer('genzpt','zpt')
 
                     AddGenericProfileConsumer(x, "jetptratio", jets=[algo,algo,0,1])
                     AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo,algo,0,1])
