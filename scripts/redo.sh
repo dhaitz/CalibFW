@@ -1,23 +1,31 @@
 #!/bin/bash
 
-# DH:	For now this is useful only for me ... make this more generic
-#	get data / work directory paths from ClosureConfigBase or implement directly
+if [[ $1 != *"cfg"* ]]; then
+  NAME=$1
+  FILE="cfg/closure/${1}.py"
+else
+  NAME=${1##*/}
+  NAME=${NAME%.*}
+  FILE=$1
+fi
 
-NAME="${1}"
+echo "Work:" $CLOSURE_WORK
+echo "Base:" $CLOSURE_BASE
+echo "Name:" $NAME
+echo "File:" $FILE
 
-echo "File: ${NAME}.py"
-rm /storage/8/dhaitz/CalibFW/work/${NAME}"_old/" -r
-mv /storage/8/dhaitz/CalibFW/work/${NAME}/ /storage/8/dhaitz/CalibFW/work/${NAME}_old/ -f
+rm ${CLOSURE_WORK}/work/${NAME}"_old/" -r
+mv ${CLOSURE_WORK}/work/${NAME}/ ${CLOSURE_WORK}/work/${NAME}_old/ -f
 
 echo "Config file batch ..."
-python /home/dhaitz/git/CalibFW/cfg/closure/${NAME}.py batch
+python ${CLOSURE_BASE}/${FILE} --batch
 
 echo "Create output directory ..."
-mkdir /storage/8/dhaitz/CalibFW/work/${NAME}/work.${NAME}/
-cd /storage/8/dhaitz/CalibFW/work/${NAME}/
+mkdir ${CLOSURE_WORK}/work/${NAME}/work.${NAME}/
+cd ${CLOSURE_WORK}/work/${NAME}/
 
 echo "Start grid control ..."
-/home/dhaitz/git/grid-control/go.py  /storage/8/dhaitz/CalibFW/work/${NAME}/${NAME}.conf -cG
+/home/${USER}/git/grid-control/go.py  ${CLOSURE_WORK}/work/${NAME}/${NAME}.conf -cG
 
 echo "Merge files ... "
 . parallelmerge.sh
