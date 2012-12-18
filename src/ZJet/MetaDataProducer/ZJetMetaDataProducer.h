@@ -272,7 +272,7 @@ class GenProducer: public ZJetGlobalMetaDataProducerBase
 public:
 
 	GenProducer(): ZJetGlobalMetaDataProducerBase(),
-		nmin(50), nmax(1300)
+		nmin(50), nmax(1800)
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
