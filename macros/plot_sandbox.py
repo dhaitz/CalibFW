@@ -5,6 +5,28 @@ import getroot
 import math
 import plotresponse
 
+
+def response_run(files, opt):
+    fig, ax = plotbase.newplot(run=True)
+
+    local_opt = copy.deepcopy(opt)
+    #changes = {}
+    #changes = {'var':'var_CutSecondLeadingToZPt__0_4'}
+    #changes = {'var':'var_CutSecondLeadingToZPt__0_4_var_JetEta_2_5to2_964'}
+    #changes = {'var':'var_CutSecondLeadingToZPt__0_4_var_JetEta_2_5to2_964'}
+    changes = {'var':'var_JetEta_2_5to2_964'}
+
+    for label, color, quantity in zip(['PtBalance (data)', 'MPF (data)'], ['blue', 'red'], ['ptbalance_run', 'mpf_run']):
+        local_opt.labels = [label]
+        local_opt.colors = [color]
+        plotbase.plotdatamc.runplot(quantity, files, local_opt, legloc='upper right',
+                       subplot=True, fit=False, changes=changes, xy_names=['run','response'],
+                       fig_axes=(fig, ax))
+    ax.axhline(1.0, color='black', linestyle=':')
+    plotbase.Save(fig, "response_run", opt)
+
+
+
 def closure(files, opt):
     def divide((a, a_err), (b, b_err)):
         if (b != 0.0): R = a/b
@@ -109,7 +131,7 @@ def closure(files, opt):
 
 
 
-def extrapol(files, opt):
+def extrapola(files, opt):
     fig, ax = plotbase.newplot()
     changes = {}
     changes['var']="_var_CutSecondLeadingToZPt_0_3"

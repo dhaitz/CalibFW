@@ -221,15 +221,12 @@ def runplot(quantity, files, opt, legloc='center right',
                 ax.errorbar(0.5*(run_min+ run_max), mc_mean, mc_meanerr, drawstyle='steps-mid', color=c, fmt='-', capsize=0 ,label=l)
                 ax.bar(run_min, mc_mean, (run_max - run_min), bottom=0., fill=True, facecolor=c, edgecolor=c)
                 ax.axhspan(mc_mean+mc_meanerr,mc_mean-mc_meanerr, color=c, alpha=0.2)
-        
-    run_2012B = 193834.
-    run_2012C = 197770.
-    ax.axvline(run_2012B, color='gray', linestyle='--', alpha=0.2)
-    ax.text(run_2012B,  0.98, "2012B",
+
+    runs = [['2012B', 193834.], ['2012C', 197770.], ['2012D', 203773.]]
+    for [runlabel, runnumber] in runs:
+        ax.axvline(runnumber, color='gray', linestyle='--', alpha=0.2)
+        ax.text((runnumber-run_min) / (run_max - run_min),  0.92, runlabel, transform=ax.transAxes,
                      va='top', ha='left', color='gray', alpha=0.5, size='medium')
-    ax.axvline(run_2012C, color='gray', linestyle='--', alpha=0.2)
-    ax.text(run_2012C,  0.98, "2012C", 
-                    va='top', ha='left', color='gray', alpha=0.5, size='medium')
 
     plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot)
 
@@ -337,7 +334,7 @@ def datamc_all(quantity, datamc, opt, rebin=5, log=False, run=False, legloc='cen
     else:
         variations = ['npv', 'jet1eta', 'zpt', 'alpha']
 
-    subtexts = ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)"]
+    subtexts = plotbase.getdefaultsubtexts()
 
     if quantity in variations: variations.remove(quantity)
     for variation in variations:

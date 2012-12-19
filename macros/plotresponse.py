@@ -272,7 +272,7 @@ def plotbinborders(ax, quantity, y, opt):
 
 def responseplot(files, opt, types, labels=None,
                  colors=['blue', 'maroon', 'green', 'red']*7,
-                 markers=['o', 'x', 'o']*8,
+                 markers=['o', 'x', 'x']*8,
                  over='zpt',
                  binborders=False,
                  figaxes = None,
@@ -363,7 +363,7 @@ def ratioplot(files, opt, types, labels=None,
                  drawextrapolation=False,
                  figaxes = None,
                  fit=True,
-                 legloc='lower left',
+                 legloc='lower right',
                  changes = {},
                  subtext = "",
                  ratiosubplot=False,
@@ -399,7 +399,7 @@ def ratioplot(files, opt, types, labels=None,
         plotbinborders(ax, over, plot.y, opt)
 
     # format plot
-    plotbase.labels(ax, opt, jet=True, legloc='lower left', sub_plot=subplot, changes=changes, ratiosubplot=ratiosubplot)
+    plotbase.labels(ax, opt, jet=True, legloc=legloc, sub_plot=subplot, changes=changes, ratiosubplot=ratiosubplot)
     if ratiosubplot: label = 'ratio'
     else: label = 'responseratio'
 
@@ -545,6 +545,10 @@ def mpf_eta(files, opt):
     responseplot(files, opt, ['mpfresp'], over='jet1eta', legloc='lower left')
 
 
+def mpf_zpt(files, opt):
+    responseplot(files, opt, ['mpfresp'], over='zpt', legloc='lower left')
+
+
 
 
 # ratios
@@ -613,15 +617,15 @@ def responseratio(files, opt, over='zpt', fit=False, types=['balresp']):
     fig.add_axes(ax2)
 
     if over== 'jet1eta' and types == ['balresp']: legloc = 'upper right'
-    else: legloc = 'lower left'
+    else: legloc = 'lower right'
 
     responseplot(files, opt, types, over=over, figaxes=(fig,ax1), legloc=legloc, subplot = True)
-    ratioplot(files, opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True)
+    ratioplot(files, opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True, legloc='lower right')
     fig.subplots_adjust(hspace=0.05)
 
     ax1.set_xticks([])
     ax1.set_xlabel("")
-    ax2.set_yticks([1.00, 0.95, 0.90, 0.85])
+    #ax2.set_yticks([1.02,1.01, 1.00, 0.99, 0.98])
 
     file_name = "responseratio_"+"_".join(types)+"_"+over+"_"+opt.algorithm
     plotbase.Save(fig, file_name, opt)
@@ -648,7 +652,7 @@ def responseratio_all(files, opt, types=['balresp']):
             fig.subplots_adjust(hspace=0.05)
             ax1.set_xticks([])
             ax1.set_xlabel("")
-            ax2.set_yticks([1.00, 0.95, 0.90])
+            ax2.set_yticks([1.05, 1.00, 0.95])
             if col > 0:
                 ax1.set_ylabel("")
                 ax2.set_ylabel("")
@@ -660,33 +664,33 @@ def responseratio_all(files, opt, types=['balresp']):
     plotbase.Save(fig, file_name, opt)
 
 
-def exclusive_extrapolation_raw(files, opt):
-    exclusive_extrapolation(files, opt, use_rawMET=True)
+def extrapol_raw(files, opt):
+    extrapol(files, opt, use_rawMET=True)
 
-def exclusive_extrapolation_zpt(files, opt):
-    exclusive_extrapolation(files, opt, variation='zpt')
-def exclusive_extrapolation_zpt_raw(files, opt):
-    exclusive_extrapolation(files, opt, variation='zpt', use_rawMET=True)
-
-
-def exclusive_extrapolation_npv(files, opt):
-    exclusive_extrapolation(files, opt, variation='npv')
-def exclusive_extrapolation_npv_raw(files, opt):
-    exclusive_extrapolation(files, opt, variation='npv', use_rawMET=True)
+def extrapol_zpt(files, opt):
+    extrapol(files, opt, variation='zpt')
+def extrapol_zpt_raw(files, opt):
+    extrapol(files, opt, variation='zpt', use_rawMET=True)
 
 
-def exclusive_extrapolation_eta(files, opt):
-    exclusive_extrapolation(files, opt, variation='jet1eta')
+def extrapol_npv(files, opt):
+    extrapol(files, opt, variation='npv')
+def extrapol_npv_raw(files, opt):
+    extrapol(files, opt, variation='npv', use_rawMET=True)
+
+
+def extrapol_eta(files, opt):
+    extrapol(files, opt, variation='jet1eta')
 
 def extrapolation_noMPF(files, opt):
-    exclusive_extrapolation(files, opt, extrapolate_mpf = False)
+    extrapol(files, opt, extrapolate_mpf = False)
 
 
-def exclusive_extrapolation(files, opt, 
+def extrapol(files, opt, 
            variation='alpha',
            use_rawMET=False, # use raw MET instead of type-I MET
            extrapolate_mpf = True, # if false, use average for MET
-           save_individually = False):  # save each plot indivually, not as a subplot
+           save_individually = True):  # save each plot indivually, not as a subplot
 
     rebin = 10
     if opt.rebin is not None: rebin = opt.rebin
@@ -813,8 +817,8 @@ def exclusive_extrapolation(files, opt,
 
     del changes[variation] # delete changes so this isn't included in the file names
     if extrapolate_mpf:
-        mpflabel = "extrapol" + mpflabel
-    file_name = plotbase.getdefaultfilename("exclusiveextrapolation_%s_%s" % (mpflabel, variation_label), opt, changes)
+	    mpflabel = "extrapol" + mpflabel
+    file_name = plotbase.getdefaultfilename("extrapolation_%s_%s" % (mpflabel, variation_label), opt, changes)
     plotbase.Save(fig, file_name, opt)
 
 
@@ -834,7 +838,7 @@ plots = [
 'responseratio_all',
 'bal_responseratio_eta', 'bal_responseratio_zpt', 'bal_responseratio_npv', 
 'mpf_responseratio_eta', 'mpf_responseratio_zpt', 'mpf_responseratio_npv', 
-'exclusive_extrapolation', 'exclusive_extrapolation_zpt', 'extrapolation_noMPF', 'exclusive_extrapolation_raw'
+'extrapol', 'extrapol_zpt', 'extrapolation_noMPF', 'extrapol_raw'
 #,'balratio', 'mpfratio', 'kfsr'
 ]
 
