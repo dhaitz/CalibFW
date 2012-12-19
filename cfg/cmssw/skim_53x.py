@@ -147,37 +147,15 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='mc'):
 
     # MET correction ----------------------------------------------------------
     process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
-    process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
     process.selectedVerticesForMEtCorr.src = cms.InputTag('goodOfflinePrimaryVertices')
-    # These lines get obsolete when JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi
-    # gets updated to version 1.6
-    process.pfMEtSysShiftCorrParameters_2012runABCvsNvtx_data = cms.PSet(
-        px = cms.string("+0.2661 + 0.3217*Nvtx"),
-        py = cms.string("-0.2251 - 0.1747*Nvtx")
-    )
-    process.pfMEtSysShiftCorrParameters_2012runABCvsNvtx_mc = cms.PSet(
-        px = cms.string("+0.1166 + 0.0200*Nvtx"),
-        py = cms.string("+0.2764 - 0.1280*Nvtx")
-    )
-    if data:
-        process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCvsNvtx_data
-    else:
-        process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCvsNvtx_mc
     # Type-0
     process.pfMETCHS = process.pfType1CorrectedMet.clone(
         applyType1Corrections = cms.bool(False),
         applyType0Corrections = cms.bool(True)
     )
-    # MET phi corrections
-    process.pfMETCHSPhi = process.pfMETCHS.clone(
-        srcType1Corrections = cms.VInputTag(
-            cms.InputTag('pfMEtSysShiftCorr')
-        )
-    )
     # MET Path
     process.metCorrections = cms.Path(
-            process.pfMEtSysShiftCorrSequence * process.producePFMETCorrections *
-            process.pfMETCHS * process.pfMETCHSPhi
+            process.producePFMETCorrections * process.pfMETCHS
     )
 
     # Require two good muons --------------------------------------------------
