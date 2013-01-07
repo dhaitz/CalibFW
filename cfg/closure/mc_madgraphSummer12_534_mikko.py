@@ -5,7 +5,6 @@ conf = cbase.BaseConfig('mc', '2012')
 conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa534_MC12_madgraph/*.root", sys.argv)
 conf['Jec'] = cbase.GetBasePath() + "data/jec_data/Fall12_V5_MC"
 conf["OutputPath"] = "closure_madgraphSummer12_534"
-conf["EnableMetPhiCorrection"] = 1
 
 algorithms = ["AK5PFJetsL1L2L3"]
 cbase.addCHS(algorithms)
