@@ -687,7 +687,9 @@ def AddLumiConsumer( pipelineDict, algos, forIncut = True, forAllevents=False, f
 
                 for quantity in ["eventcount","zpt", "sumEt", "METpt", "jetsvalid",'jet1pt', 'ptbalance', 'mpf', 'npv',
                                 'jet1neutralemfraction', 'jet1chargedemfraction', 'jet1neutralhadfraction', 
-                                'jet1chargedhadfraction', 'jet1HFhadfraction', 'jet1HFemfraction', 'jet1photonfraction', 'jet1electronfraction']:
+                                'jet1chargedhadfraction', 'jet1HFhadfraction', 'jet1HFemfraction', 'jet1photonfraction', 'jet1electronfraction',
+                                'jet1neutralemresponsefraction', 'jet1chargedemresponsefraction', 'jet1neutralhadresponsefraction', 
+                                'jet1chargedhadresponsefraction', 'jet1HFhadresponsefraction', 'jet1HFemresponsefraction', 'jet1photonresponsefraction','jet1electronresponsefraction']:
                     AddLumiConsumerEasy(quantity, "run")
 
 

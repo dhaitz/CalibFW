@@ -175,7 +175,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
 
 def runplot(quantity, files, opt, legloc='center right',
                changes={}, log=False, rebin=500, file_name = "", subplot=False, subtext="", fig_axes=(), xy_names=None, normalize=True,           
-               fractions=False, runplot_diff=False, fit='slope'):
+               fractions=False, runplot_diff=False, fit='slope', response=False):
 
     change= plotbase.getchanges(opt, changes)
     datamc=[]
@@ -201,7 +201,10 @@ def runplot(quantity, files, opt, legloc='center right',
             if len(plot.y)==0: return
 
             if runplot_diff:
-                mc_mean = getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).mean
+                if response:
+                    mc_mean = getroot.getplotfromnick(quantity[:-4].replace("response",""), files[1], change, rebin=1).mean * getroot.getplotfromnick("balresp", files[1], change, rebin=1).mean
+                else:
+                    mc_mean = getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).mean
                 plot.y = [y - mc_mean for y in plot.y]
             else:
                 mc_mean = None

@@ -145,6 +145,23 @@ public:
 			this->SetYSource ( new SourceJet1photonFraction() );
 		else if ( ref == "jet1electronfraction" )
 			this->SetYSource ( new SourceJet1electronFraction() );
+		//Fractions weighted by response
+		else if ( ref == "jet1neutralemresponsefraction" )
+			this->SetYSource ( new SourceJet1NeutralEMResponseFraction() );
+		else if ( ref == "jet1chargedemresponsefraction" )
+			this->SetYSource ( new SourceJet1ChargedEMResponseFraction() );
+		else if ( ref == "jet1neutralhadresponsefraction" )
+			this->SetYSource ( new SourceJet1NeutralHadResponseFraction() );
+		else if ( ref == "jet1chargedhadresponsefraction" )
+			this->SetYSource ( new SourceJet1ChargedHadResponseFraction() );
+		else if ( ref == "jet1HFhadresponsefraction" )
+			this->SetYSource ( new SourceJet1HFHadResponseFraction() );
+		else if ( ref == "jet1HFemresponsefraction" )
+			this->SetYSource ( new SourceJet1HFEMResponseFraction() );
+		else if ( ref == "jet1photonresponsefraction" )
+			this->SetYSource ( new SourceJet1photonResponseFraction() );
+		else if ( ref == "jet1electronresponsefraction" )
+			this->SetYSource ( new SourceJet1electronResponseFraction() );
 
 		else
 			CALIB_LOG_FATAL( "Source " << ref << " not supported" )

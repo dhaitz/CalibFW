@@ -2,7 +2,7 @@
 
 
 #   Quantity:[ax_min, ax_max, Name, unit, z_min, z_max]
-d_axes={         
+d_axes={
         'abseta':[0.0, 5.5, r"$|\eta^\mathrm{%s}|$", ""],
         'absphi':[0, 3.141593, r"$|\phi^\mathrm{%s}|$", ""],
         'alpha':[0, 0.4, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
@@ -15,7 +15,9 @@ d_axes={
         'chargedem':[0,1, r"%s charged em fraction", ""],
         'chargedhad':[0,1, r"%s charged hadron fraction", ""],
         'components_diff':[-0.05, 0.05, r"Data-MC of Leading Jet Components", ""],
+        'components_diff_response':[-0.1, 0.1, r"Data-MC of jet fraction * response", ""],
         'components':[0, 1, r"Leading Jet Component Fraction", ""],
+        'components_response':[0, 1.2, r"Leading Jet Component Fraction * Response", ""],
         'constituents':[0, 60, r"Number of Jet Constituents", ""],
         'correction':[0.85, 1.02, "Correction factor", ""],
         'cut':[0, 1.1, r"Cut Inefficiency (%s)", ""],

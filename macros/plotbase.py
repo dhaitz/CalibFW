@@ -434,7 +434,7 @@ def newplot(ratio=False, run=False, subplots=1, opt=options(), subplots_X=None, 
     fig = plt.figure(figsize=[7, 7])
     fig.suptitle(opt.title, size='xx-large')
     if subplots is not 1: #Get 4 config numbers: FigXsize, FigYsize, NaxesY, NaxesX
-        d = {3:3, 2:2, 7:4}
+        d = {3:3, 2:2, 7:2}
         if subplots in d:
             x = d [subplots]
             y = int(round(subplots/float(x)))

@@ -1662,6 +1662,128 @@ public:
 	virtual double GetDefaultHighBin() const { return 1.f; }
 };
 
+//Fractions multiplied by response:
+
+class SourceJet1NeutralEMResponseFraction: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		KDataPFJet* pfJet = static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(settings, event));
+		val = pfJet->neutralEMFraction * metaData.GetBalance(pfJet);
+		return true;
+	}
+	virtual unsigned int GetDefaultBinCount() const { return 100; }
+	virtual double GetDefaultLowBin() const { return 0.f; }
+	virtual double GetDefaultHighBin() const { return 2.f; }
+};
+
+class SourceJet1NeutralHadResponseFraction: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		KDataPFJet * pfJet = static_cast<KDataPFJet*>( metaData.GetValidPrimaryJet(settings, event) );
+		val = pfJet->neutralHadFraction * metaData.GetBalance(pfJet);
+		return true;
+	}
+	virtual unsigned int GetDefaultBinCount() const { return 100; }
+	virtual double GetDefaultLowBin() const { return 0.f; }
+	virtual double GetDefaultHighBin() const { return 2.f; }
+};
+
+class SourceJet1ChargedEMResponseFraction: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		KDataPFJet * pfJet = static_cast<KDataPFJet*>( metaData.GetValidPrimaryJet(settings, event) );
+		val = pfJet->chargedEMFraction * metaData.GetBalance(pfJet);
+		return true;
+	}
+	virtual unsigned int GetDefaultBinCount() const { return 100; }
+	virtual double GetDefaultLowBin() const { return 0.f; }
+	virtual double GetDefaultHighBin() const { return 2.f; }
+};
+
+class SourceJet1ChargedHadResponseFraction: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		KDataPFJet * pfJet = static_cast<KDataPFJet*>( metaData.GetValidPrimaryJet(settings, event) );
+		val = pfJet->chargedHadFraction * metaData.GetBalance(pfJet);
+		return true;
+	}
+	virtual unsigned int GetDefaultBinCount() const { return 100; }
+	virtual double GetDefaultLowBin() const { return 0.f; }
+	virtual double GetDefaultHighBin() const { return 2.f; }
+};
+
+class SourceJet1HFHadResponseFraction: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		KDataPFJet * pfJet = static_cast<KDataPFJet*>( metaData.GetValidPrimaryJet(settings, event) );
+		val = pfJet->HFHadFraction * metaData.GetBalance(pfJet);
+		return true;
+	}
+	virtual unsigned int GetDefaultBinCount() const { return 100; }
+	virtual double GetDefaultLowBin() const { return 0.f; }
+	virtual double GetDefaultHighBin() const { return 2.f; }
+};
+
+class SourceJet1HFEMResponseFraction: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		KDataPFJet * pfJet = static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(settings, event));
+		val = pfJet->HFEMFraction * metaData.GetBalance(pfJet);
+		return true;
+	}
+	virtual unsigned int GetDefaultBinCount() const { return 100; }
+	virtual double GetDefaultLowBin() const { return 0.f; }
+	virtual double GetDefaultHighBin() const { return 2.f; }
+};
+
+class SourceJet1electronResponseFraction: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		KDataPFJet * pfJet = static_cast<KDataPFJet*>( metaData.GetValidPrimaryJet(settings, event) );
+		val = pfJet->electronFraction * metaData.GetBalance(pfJet);
+		return true;
+	}
+	virtual unsigned int GetDefaultBinCount() const { return 100; }
+	virtual double GetDefaultLowBin() const { return 0.f; }
+	virtual double GetDefaultHighBin() const { return 2.f; }
+};
+
+class SourceJet1photonResponseFraction: public ZJetSourceBase
+{
+public:
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+		KDataPFJet * pfJet = static_cast<KDataPFJet*>( metaData.GetValidPrimaryJet(settings, event) );
+		val = pfJet->photonFraction * metaData.GetBalance(pfJet);
+		return true;
+	}
+	virtual unsigned int GetDefaultBinCount() const { return 100; }
+	virtual double GetDefaultLowBin() const { return 0.f; }
+	virtual double GetDefaultHighBin() const { return 2.f; }
+};
+
 }
 
 #endif /* SOURCES_H_ */

@@ -220,23 +220,30 @@ def fractions(files, opt, over='zpt', fa=() , subplot=False, changes={}, subtext
     if subplot is not True: plotbase.Save(fig, "fractions_diff_" + over+ "_" + algoname, opt, False)
 
 #fractions_run: a plot for the time dependence of the various jet components
-def fractions_run(files, opt, changes={}, fig_ax=None, subplot=False, diff=False):
+def fractions_run(files, opt, changes={}, fig_ax=None, subplot=False, diff=False, response=False):
     # Name everything you want and take only the first <nbr> entries of them
     nbr = 6
     labels =     ["CHad","photon", "NHad", "electron", "HFem", "HFhad"][:nbr]
     colours =    ['Orange', 'LightSkyBlue', 'YellowGreen', 'MediumBlue',
                   'Darkred', 'grey', 'black'][:nbr]
     markers =    ['o','x','*','^','d','D','>'][:nbr]
-    components = ["chargedhad", "photon", "neutralhad", "electron", "HFem", "HFhad"][:nbr] 
+    components = ["chargedhad", "photon", "neutralhad", "electron", "HFem", "HFhad"][:nbr]
 
     opt_change = copy.deepcopy(opt)
 
-    if diff == True: 
+    if diff == True:
         y_name = 'components_diff'
         title = "fractions_diff_run_"
     else:
         y_name = 'components'
         title = "fractions_run_"
+
+    if response:
+        y_name += "_response"
+        title += "_response"
+        suffix = "response"
+    else:
+        suffix = ""
 
     if fig_ax is None:
         fig, ax = plotbase.newplot(run=True)
@@ -247,16 +254,18 @@ def fractions_run(files, opt, changes={}, fig_ax=None, subplot=False, diff=False
         opt_change.labels = [label]
         opt_change.colors = [color]
         opt_change.style = [marker]
-        plotdatamc.runplot("jet1%sfraction_run" % quantity, files, opt_change, changes=changes,
+        plotdatamc.runplot("jet1%s%sfraction_run" % (quantity, suffix), files, opt_change, changes=changes,
                     fractions=True, xy_names=['run', y_name], fig_axes = (fig, ax), subplot=True, 
-                    rebin=500, legloc = 'lower right', runplot_diff = diff, fit='slope_noLabel')
+                    rebin=500, legloc = 'lower right', runplot_diff = diff, fit='slope_noLabel',
+                    response=response)
     if subplot: return
 
     filename = plotbase.getdefaultfilename(title, opt_change, changes)
     plotbase.Save(fig, filename, opt_change)
 
 #fractions_run for variations
-def fractions_run_all(files, opt, change={}, diff=False):
+def fractions_run_all(files, opt, change={}, diff=False, response=False):
+
     for quantity, variation_strings, var_bin in zip(['jet1eta', 'zpt', 'npv'], [getroot.etastrings(opt.eta), getroot.binstrings(opt.bins), getroot.npvstrings(opt.npv)], ['var', 'bin', 'var']):
 
         fig, ax = plotbase.newplot(subplots = len(variation_strings), run=True)
@@ -269,9 +278,12 @@ def fractions_run_all(files, opt, change={}, diff=False):
             title = "Time dependence of the leading jet composition for various %s bins  " % quantity
             filename = "fractions_run_all-%s_" % quantity
 
+        if response:
+            filename = filename.replace("_run", "_run_response")
+
         for var, ax_element in zip(variation_strings, ax):
             change[var_bin] = var
-            fractions_run(files, opt, changes=change, fig_ax = (fig, ax_element), subplot=True, diff=diff)
+            fractions_run(files, opt, changes=change, fig_ax = (fig, ax_element), subplot=True, diff=diff, response=response)
         del change[var_bin]
 
         fig.suptitle(title+opt.algorithm+opt.correction, size='xx-large')
@@ -288,7 +300,7 @@ def fractions_jet1eta (files, opt):
 def fractions_npv (files, opt):
     fractions(files, opt, over='npv')
 
-#plots for fractions and data/mc difference
+# run plots for fractions and data/mc difference
 def fractions_run_nocuts(files, opt):
     fractions_run(files, opt, changes={'incut':'allevents'})
 
@@ -299,14 +311,31 @@ def fractions_diff_run_nocuts(files, opt):
     fractions_run(files, opt, changes={'incut':'allevents'}, diff=True)
 
 
-# plots for comparison of variations:
+# run plots for comparison of variations:
 def fractions_diff_run_all(files, opt):
     fractions_run_all(files, opt, diff=True)
 
 
+# run plots for comparison of variations weighted by RESPONSE:
+def fractions_run_response(files, opt):
+    fractions_run(files, opt, response=True)
+
+def fractions_run_response_diff(files, opt):
+    fractions_run(files, opt, response=True, diff=True)
+
+def fractions_run_response_all(files, opt):
+    fractions_run_all(files, opt, response=True, change={'var':'var_CutSecondLeadingToZPt__0_4'})
+
+def fractions_run_response_diff_all(files, opt):
+    fractions_run_all(files, opt, response=True, diff=True, change={'var':'var_CutSecondLeadingToZPt__0_4'})
+
+
+
 plots = ['fractions_zpt', 'fractions_jet1eta', 
         'fractions_run', 'fractions_run_nocuts', 'fractions_run_all',
-        'fractions_diff_run', 'fractions_diff_run_nocuts', 'fractions_diff_run_all']
+        'fractions_diff_run', 'fractions_diff_run_nocuts', 'fractions_diff_run_all',
+        'fractions_run_response', 'fractions_run_response_diff', 'fractions_run_response_all', 'fractions_run_response_diff_all'
+        ]
 
 
 if __name__ == "__main__":
