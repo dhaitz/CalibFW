@@ -10,7 +10,7 @@ cbase.addCHS(algorithms)
 base_algorithms = ["AK5PFJets", "AK5PFJetsCHS"]
 
 conf = cbase.ExpandConfig(algorithms, conf, expandptbins=True, alletaFolder=True, zcutsFolder=True)
-cbase.ApplyPUReweighting(conf, "kappa534_MC12_madgraph_190456-208357_8TeV_PromptReco")
+
 # create various variations ...
 variations = []
 variations += [ cbase.ExpandRange(conf["Pipelines"], "CutSecondLeadingToZPt", [0.1, 0.15, 0.2, 0.3, 0.4], onlyBasicQuantities=False) ]

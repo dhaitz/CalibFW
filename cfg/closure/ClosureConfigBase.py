@@ -141,11 +141,11 @@ def SetMcSpecific(cfg, run='2012'):
     """
     if run == '2011':
         cfg['Jec'] = GetBasePath() + "data/jec_data/START44_V12"
-        #ApplyPUReweighting(cfg, '...')
+        ApplyPUReweighting(cfg, 'kappa44_MC11_powheg_160404-180252_7TeV_ReRecoNov08')
     elif run == '2012':
         cfg['Jec'] = GetBasePath() + "data/jec_data/Fall12_V5_MC"
         cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
-        #ApplyPUReweighting(cfg, '...')
+        ApplyPUReweighting(cfg, 'kappa534_MC12_madgraph_190456-208357_8TeV_PromptReco')
     else:
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
