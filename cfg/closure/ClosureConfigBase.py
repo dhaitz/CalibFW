@@ -182,7 +182,7 @@ def SetDataSpecific(cfg, run='2012'):
     elif run == '2012':
         cfg['Jec'] = GetBasePath() + "data/jec_data/Fall12_V5_DATA"
         cfg['MetPhiCorrectionParameters'] = [0.2661, 0.3217, -0.2251, -0.1747]
-        cfg['JsonFile'] = GetBasePath() + "data/json/Cert_190456-201678_8TeV_PromptReco_Collisions12_JSON.txt"
+        cfg['JsonFile'] = GetBasePath() + "data/json/Cert_190456-208686_8TeV_CombinedReco_Collisions12_JSON.txt"
         cfg['HltPaths'] = [
             "HLT_Mu17_Mu8_v1", "HLT_Mu17_Mu8_v2", "HLT_Mu17_Mu8_v3", "HLT_Mu17_Mu8_v4", "HLT_Mu17_Mu8_v5",
             "HLT_Mu17_Mu8_v6", "HLT_Mu17_Mu8_v7", "HLT_Mu17_Mu8_v8", "HLT_Mu17_Mu8_v9", "HLT_Mu17_Mu8_v10",
