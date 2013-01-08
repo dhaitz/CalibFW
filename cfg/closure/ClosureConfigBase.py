@@ -143,7 +143,7 @@ def SetMcSpecific(cfg, run='2012'):
         cfg['Jec'] = GetBasePath() + "data/jec_data/START44_V12"
         #ApplyPUReweighting(cfg, '...')
     elif run == '2012':
-        cfg['Jec'] = GetBasePath() + "data/jec_data/START52_V11"
+        cfg['Jec'] = GetBasePath() + "data/jec_data/Fall12_V5_MC"
         cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
         #ApplyPUReweighting(cfg, '...')
     else:
@@ -180,7 +180,7 @@ def SetDataSpecific(cfg, run='2012'):
             "HLT_Mu13_Mu8_v11", "HLT_Mu13_Mu8_v12", "HLT_Mu13_Mu8_v13", "HLT_Mu13_Mu8_v14",
             ]
     elif run == '2012':
-        cfg['Jec'] = GetBasePath() + "data/jec_data/GR_R_52_V9"
+        cfg['Jec'] = GetBasePath() + "data/jec_data/Fall12_V5_DATA"
         cfg['MetPhiCorrectionParameters'] = [0.2661, 0.3217, -0.2251, -0.1747]
         cfg['JsonFile'] = GetBasePath() + "data/json/Cert_190456-201678_8TeV_PromptReco_Collisions12_JSON.txt"
         cfg['HltPaths'] = [
