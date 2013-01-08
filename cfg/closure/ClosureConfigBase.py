@@ -818,7 +818,7 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3, forIncut
                 if l3residual:
                     AddCorrectionConsumer(pval, algo, "L1L2L3", "L1L2L3Res")
 
-def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False, isMC=False):
+def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
 
     def AddGenericProfileConsumer(x, y, jets=None):
         if jets is None:
@@ -842,23 +842,23 @@ def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, 
     for algo in algos:
         for p, pval in pipelineDict["Pipelines"].items():
             if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
+                if (pipelineDict['InputType'] == 'mc'):
+                    AddGenericProfileConsumer('genalpha','genbalance')
+                    AddGenericProfileConsumer('alpha','genbalance')
+                    AddGenericProfileConsumer('genzpt','genzmass')
+                    AddGenericProfileConsumer('genzrapidity','genzmass')
+                    AddGenericProfileConsumer('genzrapidity','genzpt')
+                    AddGenericProfileConsumer('genzeta','genzmass')
+                    AddGenericProfileConsumer('genzeta','genzpt')
+                    AddGenericProfileConsumer('genzpt','zpt')
+
                 for x in x_quantities:
                     for y in y_quantities:
                         if x is not y:
                             AddGenericProfileConsumer(x,y)
 
-                            if isMC:
-                                AddGenericProfileConsumer('genalpha','genbalance')
-                                AddGenericProfileConsumer('alpha','genbalance')
-                                AddGenericProfileConsumer('genzpt','genzmass')
-                                AddGenericProfileConsumer('genzrapidity','genzmass')
-                                AddGenericProfileConsumer('genzrapidity','genzpt')
-                                AddGenericProfileConsumer('genzeta','genzmass')
-                                AddGenericProfileConsumer('genzeta','genzpt')
-                                AddGenericProfileConsumer('genzpt','zpt')
-
-                    AddGenericProfileConsumer(x, "jetptratio", jets=[algo,algo,0,1])
-                    AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo,algo,0,1])
+                    AddGenericProfileConsumer(x, "jetptratio", jets=[algo, algo, 0, 1])
+                    AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo, algo, 0, 1])
 
                 for y in y_quantities:
                     AddGenericProfileConsumer("jetptratio", y, jets=[algo,algo,0,1])
