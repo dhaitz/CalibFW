@@ -330,31 +330,33 @@ def ExpandRange(pipelineDict, varName, vals,
                 setRootFolder=True, includeSource=True,
                 alsoForNoCuts=False, alsoForPtBins=True,
                 correction="L1L2L3", onlyBasicQuantities=True):
-    newDict = dict()
+    newDict = {}
 
     for name, elem in pipelineDict.items():
 
-        if (elem["Level"] == 1 )and ( ( not "nocuts" in name) or alsoForNoCuts ) and  ( correction in name) and (alsoForPtBins or "NoBinning_incut" in elem["RootFileFolder"]) and ('zcutsonly' not in name) and ('alleta' not in name):
+        if ((elem["Level"] == 1)
+                and ((not "nocuts" in name) or alsoForNoCuts)
+                and (correction in name)
+                and (alsoForPtBins or "NoBinning_incut" in elem["RootFileFolder"])
+                and ('zcutsonly' not in name)
+                and ('alleta' not in name)):
             for v in vals:
                 newPipe = copy.deepcopy(elem)
                 newPipe[ varName ] = v
 
                 #only do basic plots
                 if onlyBasicQuantities:
-                    ReplaceWithQuantitiesBasic( newPipe )
+                    ReplaceWithQuantitiesBasic(newPipe)
 
                 varadd = "_var_" + varName + "_" + str(v).replace(".", "_")
-
                 newName = name + varadd
                 newRootFileFolder =  newPipe["RootFileFolder"] + varadd
-
                 newDict[newName] = newPipe
-                if ( setRootFolder ):
+                if setRootFolder:
                     newDict[newName]["RootFileFolder"] = newRootFileFolder
 
-
     if includeSource:
-        return dict( pipelineDict.items() +  newDict.items() )
+        return dict(pipelineDict.items() + newDict.items())
     else:
         return newDict
 
@@ -818,31 +820,51 @@ def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3, forIncut
                 if l3residual:
                     AddCorrectionConsumer(pval, algo, "L1L2L3", "L1L2L3Res")
 
-def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
+
+def AddQuantityPlots(config, algos, forIncut=True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
 
     def AddGenericProfileConsumer(x, y, jets=None):
-        if jets is None:
-            AddConsumerEasy(pval, { "Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x, "ProductName" : "_".join([y,x,algo]) } )
-        else:
-            AddConsumerEasy(pval, { "Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x, "ProductName" : "_".join([y,x,algo]),
-                                 "Jet1Name":jets[0], "Jet2Name":jets[1], "Jet1Num":jets[2], "Jet2Num":jets[3]  } )
+        d = {
+            'Name': "generic_profile_consumer",
+            'YSource': y,
+            'XSource': x,
+            'ProductName': "_".join([y, x, algo]),
+        }
+        if jets is not None:
+            d.update({
+                'Jet1Name': jets[0], 'Jet1Num': jets[2],
+                'Jet2Name': jets[1], 'Jet2Num': jets[3],
+            })
+        AddConsumerEasy(pval, d)
 
-    def AddAbsDiff(x,y,obj1,obj2):
-        AddConsumerEasy(pval, {"Name" : "generic_profile_consumer", "YSource" : y, "XSource" : x+"absdiff","XName1" : obj1,"XName2" : obj2,
-                         "ProductName" : "_".join([y,"-".join(["delta"+x,obj1,obj2]),algo]) } )
+    def AddAbsDiff(x, y, obj1, obj2):
+        AddConsumerEasy(pval, {
+            'Name': "generic_profile_consumer",
+            'YSource': y,
+            'XSource': x + "absdiff",
+            'XName1': obj1,
+            'XName2': obj2,
+            'ProductName': "_".join([y, "-".join(["delta" + x, obj1, obj2]), algo]),
+        })
 
-    y_quantities = ['jet1pt', 'jet1abseta', 'jet2pt', 'jet2abseta', 'zpt', 'zabseta', 'npv', 'METpt-diff', 'METphi-diff', 'mpf-diff', 'jetsvalid',
-                         'ptbalance', 'mpf', 'mpf-raw', 'METpt', 'sumEt', 'METfraction', 'zphi', 'METphi', 'zmass']
+    y_quantities = [
+        'jet1pt', 'jet1abseta', 'jet2pt', 'jet2abseta', 'zpt', 'zabseta', 'npv',
+        'METpt-diff', 'METphi-diff', 'mpf-diff', 'jetsvalid', 'ptbalance',
+        'mpf', 'mpf-raw', 'METpt', 'sumEt', 'METfraction', 'zphi', 'METphi',
+        'zmass'
+    ]
 
-    x_quantities = ['jet1pt', 'npv', 'jet1eta', 'jet1phi', 'jet2pt', 'jet2eta', 'jet2phi', 'zpt', 'zeta', 'zphi', 
-                          'METpt', 'METphi', 'sumEt', 'jetsvalid', 'alpha']
+    x_quantities = [
+        'jet1pt', 'npv', 'jet1eta', 'jet1phi', 'jet2pt', 'jet2eta', 'jet2phi',
+        'zpt', 'zeta', 'zphi', 'METpt', 'METphi', 'sumEt', 'jetsvalid', 'alpha'
+    ]
 
     objects = ['z', 'jet1', 'jet2', 'MET']
 
     for algo in algos:
-        for p, pval in pipelineDict["Pipelines"].items():
+        for p, pval in config["Pipelines"].items():
             if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
-                if (pipelineDict['InputType'] == 'mc'):
+                if (config['InputType'] == 'mc'):
                     AddGenericProfileConsumer('genalpha','genbalance')
                     AddGenericProfileConsumer('alpha','genbalance')
                     AddGenericProfileConsumer('genzpt','genzmass')
@@ -861,45 +883,50 @@ def AddQuantityPlots( pipelineDict, algos, forIncut = True, forAllevents=False, 
                     AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo, algo, 0, 1])
 
                 for y in y_quantities:
-                    AddGenericProfileConsumer("jetptratio", y, jets=[algo,algo,0,1])
-                    AddGenericProfileConsumer("jetptabsdiff", y, jets=[algo,algo,0,1])
+                    AddGenericProfileConsumer("jetptratio", y, jets=[algo, algo, 0, 1])
+                    AddGenericProfileConsumer("jetptabsdiff", y, jets=[algo, algo, 0, 1])
                     AddAbsDiff("eta", y, 'jet1', 'z')
 
                 for obj1 in objects:
                     for obj2 in objects:
                         if obj1 is not obj2:
                             AddAbsDiff("eta", 'ptbalance', obj1, obj2)
-                            for quantity  in ['ptbalance', 'mpf', 'mpf-raw', 'zpt', 'METpt', 'jet1pt', 'alpha']:
+                            for quantity in ['ptbalance', 'mpf', 'mpf-raw', 'zpt', 'METpt', 'jet1pt', 'alpha']:
                                 AddAbsDiff("phi", quantity, obj1, obj2)
 
-def Add2DHistograms(pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
+def Add2DHistograms(config, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
     for algo in algos:
-        for p, pval in pipelineDict["Pipelines"].items():
+        for p, pval in config["Pipelines"].items():
             if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
                     AddConsumerEasy(pval, {"Name" : "basic_twod_consumer", "ProductName": "2d"})
-                    
 
-def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False, isMC=False):
+
+def Add2DProfiles(config, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
 
     def AddTwoDProfileConsumer(y, x, z):
-            AddConsumerEasy(pval, { "Name" : "generic_profile2d_consumer",
-                "XSource" : x,
-                "YSource" : y,
-                "ZSource" : z,
-                "ProductName" : "2D_"+"_".join([z,x,y,algo]) } )
+        AddConsumerEasy(pval, {
+            'Name': "generic_profile2d_consumer",
+            'XSource': x,
+            'YSource': y,
+            'ZSource': z,
+            'ProductName': "2D_" + "_".join([z, x, y, algo])
+        })
 
     def AddTwoDProfileEtaPhiConsumer(obj1, obj2, z):
-            AddConsumerEasy(pval, { 
-                    "Name" : "generic_profile2d_consumer", 
-                    "XSource" : "phiabsdiff", "YName1":obj1, "YName2":obj2,
-                    "YSource" : 'etaabsdiff', "XName1":obj1, "XName2":obj2,
-                    "ZSource" : z,
-                    "ProductName" : "2D_%s_deltaphi-%s-%s_deltaeta-%s-%s_" % (z, obj1, obj2, obj1, obj2) +algo   } )
+        AddConsumerEasy(pval, {
+            "Name" : "generic_profile2d_consumer",
+            "XSource" : "phiabsdiff", "YName1":obj1, "YName2":obj2,
+            "YSource" : 'etaabsdiff', "XName1":obj1, "XName2":obj2,
+            "ZSource" : z,
+            "ProductName" : "2D_%s_deltaphi-%s-%s_deltaeta-%s-%s_" % (z, obj1, obj2, obj1, obj2) +algo
+        })
 
     for algo in algos:
-        for p, pval in pipelineDict["Pipelines"].items():
+        for p, pval in config["Pipelines"].items():
             if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
-                for z_quantity in ['jet1pt', 'ptbalance', 'mpf', 'jet1neutralemfraction', 'jet1chargedemfraction', 'jet1neutralhadfraction', 'jet1chargedhadfraction', 'jet1HFhadfraction', 'jet1HFemfraction', 'jet1photonfraction', 'jet1electronfraction']:
+                for z_quantity in ['jet1pt', 'ptbalance', 'mpf', 'jet1neutralemfraction',
+                        'jet1chargedemfraction', 'jet1neutralhadfraction', 'jet1chargedhadfraction',
+                        'jet1HFhadfraction', 'jet1HFemfraction', 'jet1photonfraction', 'jet1electronfraction']:
                     AddTwoDProfileConsumer('jet1phi', 'jet1eta', z_quantity)
 
                 AddTwoDProfileConsumer('zphi', 'zeta', 'zpt')
@@ -920,7 +947,7 @@ def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forI
                 AddTwoDProfileEtaPhiConsumer('z', 'jet1', 'ptbalance')
                 AddTwoDProfileEtaPhiConsumer('jet1', 'jet2', 'ptbalance')
 
-                if isMC:
+                if (config['InputType'] == 'mc'):
                     AddTwoDProfileConsumer('genzpt', 'genzeta', 'genzmass')
                     AddTwoDProfileConsumer('genzpt', 'genzrapidity', 'genzmass')
                     AddTwoDProfileConsumer('genzpt', 'genzeta', 'genzrapidity')
@@ -966,7 +993,7 @@ def Add2DProfiles(pipelineDict, algos, forIncut = True, forAllevents=False, forI
                     'ZSource': "cutvalue", "ZCutId": "16",
                     'ProductName': "2D_cut-jet2toZpt_deltaphi-jet1-jet2_deltaeta-jet1-jet2_" + algo
                 })
-    
+
 
 def ReplaceWithQuantitiesBasic(pline):
     RemoveConsumer(pline, "quantities_all")
