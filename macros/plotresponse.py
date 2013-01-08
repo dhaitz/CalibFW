@@ -690,7 +690,7 @@ def extrapol(files, opt,
            variation='alpha',
            use_rawMET=False, # use raw MET instead of type-I MET
            extrapolate_mpf = True, # if false, use average for MET
-           save_individually = True):  # save each plot indivually, not as a subplot
+           save_individually = False):  # save each plot indivually, not as a subplot
 
     rebin = 10
     if opt.rebin is not None: rebin = opt.rebin
@@ -834,7 +834,7 @@ def response_run(files, opt):
     fig, ax = plotbase.newplot(run=True)
 
     local_opt = copy.deepcopy(opt)
-    #changes = {}
+    changes = {}
     #changes = {'var':'var_CutSecondLeadingToZPt__0_4'}
     #changes = {'var':'var_CutSecondLeadingToZPt__0_4_var_JetEta_2_5to2_964'}
     #changes = {'var':'var_CutSecondLeadingToZPt__0_4_var_JetEta_2_5to2_964'}
@@ -843,7 +843,7 @@ def response_run(files, opt):
     for label, color, quantity in zip(['PtBalance (data)', 'MPF (data)'], ['blue', 'red'], ['ptbalance_run', 'mpf_run']):
         local_opt.labels = [label]
         local_opt.colors = [color]
-        plotdatamc.runplot(quantity, files, local_opt, legloc='upper right',
+        plotbase.plotdatamc.runplot(quantity, files, local_opt, legloc='upper right',
                        subplot=True, fit=False, changes=changes, xy_names=['run','response'],
                        fig_axes=(fig, ax))
     ax.axhline(1.0, color='black', linestyle=':')
