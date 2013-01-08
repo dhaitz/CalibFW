@@ -813,10 +813,18 @@ def exclusive_extrapolation(files, opt,
 
     del changes[variation] # delete changes so this isn't included in the file names
     if extrapolate_mpf:
-	    mpflabel = "extrapol" + mpflabel
+        mpflabel = "extrapol" + mpflabel
     file_name = plotbase.getdefaultfilename("exclusiveextrapolation_%s_%s" % (mpflabel, variation_label), opt, changes)
     plotbase.Save(fig, file_name, opt)
 
+
+def getextrapolated(balancetype, rootfile):
+    quantity = balancetype + "_alpha"
+    if "gen" in quantity:
+        quantity = quantity.replace("alpha", "genalpha")
+    rootobject = getroot.getobjectfromnick(quantity, rootfile, {}, rebin=1)
+    intercept, ierr, slope, serr, chi2, ndf, conf_intervals = getroot.fitline2(rootobject)
+    return intercept, ierr
 
 plots = [
 'response', 'response_npv', 'response_eta', 'bal_eta', 'mpf_eta', 'response_all',
