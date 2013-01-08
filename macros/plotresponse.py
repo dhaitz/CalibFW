@@ -830,6 +830,26 @@ def getextrapolated(balancetype, rootfile):
     intercept, ierr, slope, serr, chi2, ndf, conf_intervals = getroot.fitline2(rootobject)
     return intercept, ierr
 
+def response_run(files, opt):
+    fig, ax = plotbase.newplot(run=True)
+
+    local_opt = copy.deepcopy(opt)
+    #changes = {}
+    #changes = {'var':'var_CutSecondLeadingToZPt__0_4'}
+    #changes = {'var':'var_CutSecondLeadingToZPt__0_4_var_JetEta_2_5to2_964'}
+    #changes = {'var':'var_CutSecondLeadingToZPt__0_4_var_JetEta_2_5to2_964'}
+    #changes = {'var':'var_JetEta_2_5to2_964'}
+
+    for label, color, quantity in zip(['PtBalance (data)', 'MPF (data)'], ['blue', 'red'], ['ptbalance_run', 'mpf_run']):
+        local_opt.labels = [label]
+        local_opt.colors = [color]
+        plotdatamc.runplot(quantity, files, local_opt, legloc='upper right',
+                       subplot=True, fit=False, changes=changes, xy_names=['run','response'],
+                       fig_axes=(fig, ax))
+    ax.axhline(1.0, color='black', linestyle=':')
+    plotbase.Save(fig, "response_run", opt)
+
+
 plots = [
 'response', 'response_npv', 'response_eta', 'bal_eta', 'mpf_eta', 'response_all',
 
@@ -838,7 +858,8 @@ plots = [
 'responseratio_all',
 'bal_responseratio_eta', 'bal_responseratio_zpt', 'bal_responseratio_npv', 
 'mpf_responseratio_eta', 'mpf_responseratio_zpt', 'mpf_responseratio_npv', 
-'extrapol', 'extrapol_zpt', 'extrapolation_noMPF', 'extrapol_raw'
+'extrapol', 'extrapol_zpt', 'extrapolation_noMPF', 'extrapol_raw',
+'response_run'
 #,'balratio', 'mpfratio', 'kfsr'
 ]
 
