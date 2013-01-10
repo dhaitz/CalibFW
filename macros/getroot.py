@@ -641,10 +641,13 @@ def fitline(rootgraph):
         rootgraph.Approximate(0)
     return (fitf.GetParameter(0), fitf.GetParError(0), fitres.Chi2(), fitres.Ndf())
 
-def fitline2(rootgraph):
+def fitline2(rootgraph, quadratic=False):
     if 'Profile' in rootgraph.ClassName():
         rootgraph.Approximate() # call this function so zero-error (one entry) bins don't distort the fit
-    fitf = ROOT.TF1("fit1", "1*[0]+x*[1]", 1.0, 1000.0)
+    if quadratic:
+        fitf = ROOT.TF1("fit1", "1*[0]+x*[1]+x*x*[2]", 1.0, 1000.0)
+    else:
+        fitf = ROOT.TF1("fit1", "1*[0]+x*[1]", 1.0, 1000.0)
     fitres = rootgraph.Fit(fitf,"SQN")
     if 'Profile' in rootgraph.ClassName():
         rootgraph.Approximate(0)
@@ -653,12 +656,20 @@ def fitline2(rootgraph):
     for n in range(1, rootgraph.GetSize() - 1):
         points.append(rootgraph.GetBinCenter(n))
     points.insert(0, 0.)
-    x = array.array('d',points)
-    y = array.array('d',[0.]*len(points))
-    fitres.GetConfidenceIntervals(len(points),1,1,x,y, 0.683)
+    x = array.array('d', points)
+    y = array.array('d', [0.]*len(points))
+    fitres.GetConfidenceIntervals(len(points), 1, 1, x, y, 0.683)
     conf_intervals = [i for i in y]
 
-    return (fitf.GetParameter(0), fitf.GetParError(0), fitf.GetParameter(1), fitf.GetParError(1), fitres.Chi2(), fitres.Ndf(), conf_intervals)
+    if quadratic:
+        return (fitf.GetParameter(0), fitf.GetParError(0),
+            fitf.GetParameter(1), fitf.GetParError(1),
+            fitf.GetParameter(2), fitf.GetParError(2),
+            fitres.Chi2(), fitres.Ndf(), conf_intervals)
+    else:
+        return (fitf.GetParameter(0), fitf.GetParError(0),
+            fitf.GetParameter(1), fitf.GetParError(1),
+            fitres.Chi2(), fitres.Ndf(), conf_intervals)
 
 
 def dividegraphs(graph1, graph2):

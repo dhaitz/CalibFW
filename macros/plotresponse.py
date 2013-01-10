@@ -822,12 +822,12 @@ def extrapol(files, opt,
     plotbase.Save(fig, file_name, opt)
 
 
-def getextrapolated(balancetype, rootfile):
+def getextrapolated(balancetype, rootfile, changes={}, quadratic=False):
     quantity = balancetype + "_alpha"
     if "gen" in quantity:
         quantity = quantity.replace("alpha", "genalpha")
-    rootobject = getroot.getobjectfromnick(quantity, rootfile, {}, rebin=1)
-    intercept, ierr, slope, serr, chi2, ndf, conf_intervals = getroot.fitline2(rootobject)
+    rootobject = getroot.getobjectfromnick(quantity, rootfile, changes, rebin=1)
+    intercept, ierr = getroot.fitline2(rootobject, quadratic)[:2]
     return intercept, ierr
 
 def response_run(files, opt):
