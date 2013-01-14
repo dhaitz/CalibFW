@@ -126,7 +126,7 @@ public:
 			int iMatchedGen = matchList.at(m_jetnum);
 			if (iMatchedGen <= -1)
 			{
-				if (m_jetnum < 1) // that happens very often for 2nd jet!
+				if (unlikely(m_jetnum < 0)) // that happens very often for 2nd jet and leading vbf jets!
 					CALIB_LOG("Reco to gen matching: No gen jet matches jet_" << m_jetnum)
 				return;
 			}

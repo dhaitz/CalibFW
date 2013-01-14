@@ -152,7 +152,7 @@ public:
 		}
 		else
 		{
-			CALIB_LOG_FATAL("not implmented")
+			CALIB_LOG_FATAL("This jet type is not implemented." << algoName)
 			KDataJets * jets = m_jets.at(algoName);
 
 			if (jets->size() >= index)
