@@ -50,3 +50,7 @@ void Set##SNAME(TYPE val) { m_##SNAME = val; }
 /// Obtain a backtrace and print it to stdout.
 void print_trace(void);
 void backtrace_assert(bool val);
+
+/// Tell the compiler if a condition is likely or unlikely
+#define likely(x)   __builtin_expect((x),1)
+#define unlikely(x) __builtin_expect((x),0)

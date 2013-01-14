@@ -359,7 +359,7 @@ public:
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
 	{
 		// Valid gen Z producer
-		if (metaData.m_genZs.size() < 1)
+		if (unlikely(metaData.m_genZs.size() < 1))
 		{
 			CALIB_LOG("No gen Z in the event.")
 			metaData.SetValidGenZ(false);
