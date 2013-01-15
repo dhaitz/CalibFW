@@ -32,6 +32,12 @@ def CreateFileList(wildcardExpression, args=None):
     return inputfiles
 
 
+def FindFileInList(conf, number):
+    for f in conf['InputFiles']:
+        if "_" + str(number) in f:
+            print conf['InputFiles'].index(f)
+
+
 def GetDefaultBinning():
     return [30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]
 
