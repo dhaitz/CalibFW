@@ -117,10 +117,20 @@ public:
 				return;
 			std::vector<int> const& matchList = metaData.m_matchingResults.at(genName);
 
-			if (m_jetnum >= matchList.size())
+			if (unlikely(m_jetnum >= matchList.size()))
 			{
+				CALIB_LOG("\nJetnum: " << m_jetnum << ">= listsize: " << matchList.size()
+					<< ", Matchlist: " << matchList)
+				CALIB_LOG("nGenJets: " << metaData.GetValidJetCount(set, event, genName)
+					<< ", nPFJets: " << metaData.GetValidJetCount(set, event))
+				for (int i = 0; i < metaData.GetValidJetCount(set, event, genName); i++)
+					CALIB_LOG("Gen" << i << ": " << *metaData.GetValidJet(set, event, i, genName))
+
+				for (int i = 0; i < metaData.GetValidJetCount(set, event); i++)
+					CALIB_LOG("PF" << i << ": " << *((KDataPFJet*) metaData.GetValidJet(set, event, i)))
+
 				CALIB_LOG_FATAL("Reco to gen matching: Not enough jets (looking for jet_"
-					<< m_jetnum << " but only " << matchList.size() << "jet(s) are matched)!")
+					<< m_jetnum << " but only " << matchList.size() << " jet(s) are matched)!")
 				return;
 			}
 			int iMatchedGen = matchList.at(m_jetnum);
