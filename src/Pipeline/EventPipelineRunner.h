@@ -76,15 +76,22 @@ public:
 	template<class TEvent, class TMetaData, class TSettings>
 	void RunPipelines(EventProvider<TEvent>& evtProvider, TSettings const& settings)
 	{
+		long long firstEvent = settings.Global()->GetSkipEvents();
 		long long nEvents = evtProvider.GetOverallEventCount();
+		if (settings.Global()->GetEventCount() >= 0)
+			nEvents = firstEvent + settings.Global()->GetEventCount();
+		if (firstEvent != 0 || nEvents != evtProvider.GetOverallEventCount())
+			CALIB_LOG("Warning: Custom range of events: " << firstEvent << " to " << nEvents)
+
 		CALIB_LOG("Running over " << nEvents << " Events")
 		HLTTools* hltTools = new HLTTools;
 		bool bEventValid = true;
 
-		for (long long lCur = 0; lCur < nEvents; ++lCur)
+
+		for (long long i = firstEvent; i < nEvents; ++i)
 		{
 			// TODO refactor the evtProvider to clean up this mess with the hltTools
-			evtProvider.GotoEvent(lCur , hltTools);
+			evtProvider.GotoEvent(i , hltTools);
 			TMetaData metaDataGlobal;
 			metaDataGlobal.m_hltInfo = hltTools;
 
@@ -104,7 +111,13 @@ public:
 				for (PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
 				{
 					if (it->GetSettings().GetLevel() == 1)
+					{
+						if (unlikely(settings.Global()->GetEventCount() < 20)) // debug output
+							CALIB_LOG("Event:" << i
+								<< ", new pipeline: " << it->GetSettings().ToString()
+								<< ", algorithm: " << it->GetSettings().GetJetAlgorithm())
 						it->RunEvent(evtProvider.GetCurrentEvent(), metaDataGlobal);
+					}
 				}
 			}
 			metaDataGlobal.ClearContent();

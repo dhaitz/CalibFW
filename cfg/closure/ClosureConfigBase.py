@@ -89,6 +89,8 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
       - @param analysis can be either 'zjet' or 'vbf'. The cuts are set accordingly.
     """
     config = {
+        'SkipEvents': 0,
+        'EventCount': -1,
         'GlobalAlgorithms': [],
         'GlobalProducer': [    # The order of these producers is important!
             'valid_muon_producer', 'z_producer', 'valid_jet_producer',
@@ -1198,9 +1200,10 @@ def Run(settings, arguments):
     """Run this config with closure
 
     The options are:
-      --storeonly Just generate the json config file and exit
-      --fast      Run over a few files to see if it works
-      --batch     Split into jobs for processing on a cluster
+      --storeonly   Just generate the json config file and exit
+      --fast n [m]  Run over a few files to see if it works (file number n to m)
+      --batch       Split into jobs for processing on a cluster
+      --skip n [m]  skip first n events and run over the next m events [m=1]
     """
     print "    ______     ___       __       __  .______    ___________    __    ____ "
     print "   /      |   /   \     |  |     |  | |   _  \  |   ____\   \  /  \  /   / "
@@ -1209,6 +1212,17 @@ def Run(settings, arguments):
     print "  |  `----./  _____  \  |  `----.|  | |  |_)  | |  |       \    /\    /    "
     print "   \______/__/     \__\ |_______||__| |______/  |__|        \__/  \__/     "
     print ""
+
+    # skip first n events and run over the next m events: --skip n [m=1]
+    if len(arguments) > 2 and "--skip" in arguments:
+        settings['SkipEvents'] = int(arguments[arguments.index("--skip") + 1])
+        try:
+            settings['EventCount'] = int(arguments[arguments.index("--skip") + 2])
+        except:
+            settings['EventCount'] = 1
+        print "Running over %s events beginning with event %d." % (
+            "all" if settings['EventCount'] < 0 else str(settings['EventCount']),
+            settings['SkipEvents'])
 
     filename = arguments[0] + ".json"
     StoreSettings(settings, filename)
