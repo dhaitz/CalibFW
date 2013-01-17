@@ -33,6 +33,8 @@ closure_test
 /install-sh
 /missing
 /work
+/.cproject
+/.project
 
 /cfg/SkimmingCalibFW/work.*
 /data/pileup/pileup_*.txt
