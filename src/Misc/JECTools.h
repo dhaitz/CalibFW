@@ -75,8 +75,8 @@ inline void applyUncertainty(T &jet, JetCorrectionUncertainty *unc, const JECVal
 {
 	if ((unc != 0) && (jv != jec_center))
 	{
-	    // sure you want to do this ?
-        assert( false );
+		// sure you want to do this ?
+		assert( false );
 
 		setupFactorProvider(jet, unc);
 		if (jv == jec_up)
@@ -126,8 +126,7 @@ public:
 			vs(fi.Get<KVertexSummary>("goodOfflinePrimaryVerticesSummary", false)),
 			ja(fi.Get<KJetArea>("KT6Area", true, true))
 	{
-
-        init(level, jeuDir, prefix, algo);
+		init(level, jeuDir, prefix, algo);
 	}
 
 	JECService(KVertexSummary * vertexSummary,  KJetArea * jetArea, const std::string prefix,
@@ -136,9 +135,9 @@ public:
 		: area(-1), jeuType(jec_center), JEC(0), JEU(0),
 			vs( vertexSummary ),
 			ja( jetArea)
-    {
-        init(level, jeuDir, prefix , algo);
-    }
+	{
+		init(level, jeuDir, prefix , algo);
+	}
 
 	~JECService()
 	{
@@ -153,12 +152,12 @@ public:
 	}
 
 private:
-    void init(const std::vector<std::string> &level, const int jeuDir, const std::string prefix, const std::string algo)
-    {
-        assert( vs != NULL );
-        assert( ja != NULL );
+	void init(const std::vector<std::string> &level, const int jeuDir, const std::string prefix, const std::string algo)
+	{
+		assert( vs != NULL );
+		assert( ja != NULL );
 
-        std::cout << yellow << " * Loading jet energy corrections..." << reset << std::endl << "\t";
+		std::cout << yellow << " * Loading jet energy corrections..." << reset << std::endl << "\t";
 		std::vector<JetCorrectorParameters> jecVec;
 		for (size_t i = 0; i < level.size(); ++i)
 		{
@@ -176,7 +175,7 @@ private:
 			jeuType = jec_down;
 		else
 			jeuType = jec_center;
-    }
+	}
 
 	double area;
 	JECValueType jeuType;

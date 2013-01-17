@@ -87,7 +87,6 @@ public:
 		HLTTools* hltTools = new HLTTools;
 		bool bEventValid = true;
 
-
 		for (long long i = firstEvent; i < nEvents; ++i)
 		{
 			// TODO refactor the evtProvider to clean up this mess with the hltTools
@@ -112,7 +111,7 @@ public:
 				{
 					if (it->GetSettings().GetLevel() == 1)
 					{
-						if (unlikely(settings.Global()->GetEventCount() < 20)) // debug output
+						if (unlikely(settings.Global()->GetEventCount() < 5)) // debug output
 							CALIB_LOG("Event:" << i
 								<< ", new pipeline: " << it->GetSettings().ToString()
 								<< ", algorithm: " << it->GetSettings().GetJetAlgorithm())

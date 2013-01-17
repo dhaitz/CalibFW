@@ -122,17 +122,15 @@ static stringvector GetAsStringList(boost::property_tree::ptree * propTree,
 	{
 		BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
 				propTree->get_child(path))
-		{	fvec.push_back(v.second.data());
+		{
+			fvec.push_back(v.second.data());
 		}
 	}
-	catch ( boost::property_tree::ptree_bad_path & e)
+	catch (boost::property_tree::ptree_bad_path& e)
 	{
 		// no problem, node optional ?
-		if ( failIfNotFound )
-		{
+		if (failIfNotFound)
 			CALIB_LOG_FATAL("String list on path " + path + " can not be found in configuration file")
-		}
-
 	}
 	return fvec;
 }
@@ -145,10 +143,11 @@ static doublevector GetAsDoubleList(boost::property_tree::ptree * propTree,
 	{
 		BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
 				propTree->get_child(path))
-		{	fvec.push_back(atof(v.second.data().c_str()));
+		{
+			fvec.push_back(atof(v.second.data().c_str()));
 		}
 	}
-	catch ( boost::property_tree::ptree_bad_path & e)
+	catch (boost::property_tree::ptree_bad_path& e)
 	{
 		// no problem, node optional
 	}
@@ -163,10 +162,11 @@ static doublevector GetAsDoubleList(boost::property_tree::ptree & propTree,
 	{
 		BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
 				propTree.get_child(path))
-		{	fvec.push_back(atof(v.second.data().c_str()));
+		{
+			fvec.push_back(atof(v.second.data().c_str()));
 		}
 	}
-	catch ( boost::property_tree::ptree_bad_path & e)
+	catch (boost::property_tree::ptree_bad_path& e)
 	{
 		// no problem, node optional
 	}

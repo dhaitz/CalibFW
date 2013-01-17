@@ -91,7 +91,7 @@ typedef std::vector<ZJetPipelineSettings*> PipelineSettingsVector;
 PipelineSettingsVector g_pipeSettings;
 
 
-void AddGlobalMetaProducer( std::vector< std::string > const& producer,
+void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 		EventPipelineRunner<ZJetPipeline, ZJetGlobalMetaDataProducerBase> & runner,
 		boost::property_tree::ptree & globalSettings)
 {
@@ -165,7 +165,7 @@ int main(int argc, char** argv)
 
 	g_sOutputPath = g_propTree.get<std::string> ("OutputPath");
 	std::string sLogFileName = g_sOutputPath + ".log";
-	g_logFile = new ofstream(sLogFileName.c_str(), std::ios_base::trunc);
+	g_logFile = new std::ofstream(sLogFileName.c_str(), std::ios_base::trunc);
 
 	// input files
 
@@ -268,15 +268,15 @@ int main(int argc, char** argv)
 		{
 			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
 
-			pLine->InitPipeline( *(*it), plineInit);
-			pRunner.AddPipeline( pLine );
+			pLine->InitPipeline(**it, plineInit);
+			pRunner.AddPipeline(pLine);
 		}
 
 		if ((*it)->GetLevel() == 2)
 		{
 			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
 
-			pLine->InitPipeline( *(*it), plineInit);
+			pLine->InitPipeline(**it, plineInit);
 			pRunner.AddPipeline(pLine);
 		}
 	}
