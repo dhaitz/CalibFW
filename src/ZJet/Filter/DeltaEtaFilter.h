@@ -2,8 +2,7 @@
 
 #include "ZJetFilterBase.h"
 
-namespace CalibFW
-{
+namespace CalibFW {
 
 /*
  * Filters events by delta eta (Z, leading jet)

@@ -244,7 +244,7 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = TMath::Abs(metaData.GetValidPrimaryJet(settings, event)->p4.Eta());
+		val = std::abs(metaData.GetValidPrimaryJet(settings, event)->p4.Eta());
 		return true;
 	}
 
@@ -298,7 +298,7 @@ public:
 		if (metaData.GetValidJetCount(settings, event) < 2)
 			return false;
 
-		val = TMath::Abs(metaData.GetValidJet(settings, event, 1)->p4.Eta());
+		val = std::abs(metaData.GetValidJet(settings, event, 1)->p4.Eta());
 		return true;
 	}
 
@@ -1188,7 +1188,7 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = TMath::Abs(metaData.GetRefZ().p4.Eta());
+		val = std::abs(metaData.GetRefZ().p4.Eta());
 		return true;
 	}
 
@@ -1519,7 +1519,7 @@ public:
 		else if (m_name2=="MET")
 			m_val2 = metaData.GetMet(event, settings)->p4.Eta();
 
-		val = TMath::Abs(m_val1 - m_val2);
+		val = std::abs(m_val1 - m_val2);
 
 		return true;
 	}

@@ -1,8 +1,7 @@
 #pragma once
 
 #include <sstream>
-#include "DataFormats/interface/Kappa.h"
-
+#include <Kappa/DataFormats/interface/Kappa.h>
 #include <KappaTools/RootTools/FileInterface2.h>
 #include <Kappa/DataFormats/interface/KDebug.h>
 

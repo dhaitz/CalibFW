@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <boost/assign/list_of.hpp> // for 'list_of()'
+#include <boost/assign/list_of.hpp>
 #include <boost/assert.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
@@ -22,8 +22,7 @@
 #include "../ZJetPipeline.h"
 #include "ZJetDrawConsumer.h"
 
-namespace CalibFW
-{
+namespace CalibFW {
 
 class MetaConsumerDataLV: public ZJetMetaConsumer
 {
@@ -58,8 +57,7 @@ public:
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetPhiModifier());
 
-		if (m_plotMass)
-		{
+		if (m_plotMass) {
 			m_histMass = new Hist1D(GenName(GetPhysicsObjectName(), "mass_"),
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetMassModifier());

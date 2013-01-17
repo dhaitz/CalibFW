@@ -1,10 +1,8 @@
 #pragma once
 
-
 #include "ZJetFilterBase.h"
 
-namespace CalibFW
-{
+namespace CalibFW {
 
 class InCutFilter: public ZJetFilterBase
 {
