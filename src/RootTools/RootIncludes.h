@@ -15,7 +15,6 @@
 #include "TGraphPolar.h"
 #include "TLine.h"
 #include "TStyle.h"
-#include "TMath.h"
 #include "TF1.h"
 #include "TClonesArray.h"
 #include "TObjString.h"
@@ -131,12 +130,7 @@ class DeltaHelper
   static double GetDeltaPhiCenterZero ( TVector3 & v1, TVector3 & v2)
   {
 	  double delta = ROOT::Math::VectorUtil::DeltaPhi( v1, v2);
-	/*if (delta > 0.0)
-		delta -= TMath::Pi();
-	  else
-		delta += TMath::Pi();
-*/
-	return delta;
+	  return delta;
   }
 
   static TVector3 ConvertToVector ( TParticle * p1)

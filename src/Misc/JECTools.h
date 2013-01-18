@@ -154,8 +154,8 @@ public:
 private:
 	void init(const std::vector<std::string> &level, const int jeuDir, const std::string prefix, const std::string algo)
 	{
-		assert( vs != NULL );
-		assert( ja != NULL );
+		assert(vs != NULL);
+		assert(ja != NULL);
 
 		std::cout << yellow << " * Loading jet energy corrections..." << reset << std::endl << "\t";
 		std::vector<JetCorrectorParameters> jecVec;
@@ -165,9 +165,9 @@ private:
 			jecVec.push_back(JetCorrectorParameters(prefix + "_" + level[i] + "_" + algo + ".txt"));
 		}
 		JEC = new FactorizedJetCorrector(jecVec);
-		std::cout << std::endl;
+		//std::cout << std::endl;
 
-		std::cout << yellow << " * Loading jet energy uncertainties..." << reset << std::endl;
+		std::cout << yellow << " * Loading jet energy uncertainties..." << reset << std::endl << "\t";
 		JEU = new JetCorrectionUncertainty(prefix + "_" + "Uncertainty" + "_" + algo + ".txt");
 		if (jeuDir > 0)
 			jeuType = jec_up;

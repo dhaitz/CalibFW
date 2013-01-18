@@ -129,7 +129,7 @@ public:
 				for (int i = 0; i < metaData.GetValidJetCount(set, event); i++)
 					CALIB_LOG("PF" << i << ": " << *((KDataPFJet*) metaData.GetValidJet(set, event, i)))
 
-				CALIB_LOG_FATAL("Reco to gen matching: Not enough jets (looking for jet_"
+				CALIB_LOG("Reco to gen matching: Not enough jets (looking for jet_"
 					<< m_jetnum << " but only " << matchList.size() << " jet(s) are matched)!")
 				return;
 			}

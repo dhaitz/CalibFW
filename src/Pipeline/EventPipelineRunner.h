@@ -81,7 +81,7 @@ public:
 		if (settings.Global()->GetEventCount() >= 0)
 			nEvents = firstEvent + settings.Global()->GetEventCount();
 		if (firstEvent != 0 || nEvents != evtProvider.GetOverallEventCount())
-			CALIB_LOG("Warning: Custom range of events: " << firstEvent << " to " << nEvents)
+			CALIB_LOG(red << "Warning: Custom range of events: " << firstEvent << " to " << nEvents << reset)
 
 		CALIB_LOG("Running over " << nEvents << " Events")
 		HLTTools* hltTools = new HLTTools;
@@ -111,7 +111,7 @@ public:
 				{
 					if (it->GetSettings().GetLevel() == 1)
 					{
-						if (unlikely(settings.Global()->GetEventCount() < 5)) // debug output
+						if (unlikely(nEvents - firstEvent < 5)) // debug output
 							CALIB_LOG("Event:" << i
 								<< ", new pipeline: " << it->GetSettings().ToString()
 								<< ", algorithm: " << it->GetSettings().GetJetAlgorithm())

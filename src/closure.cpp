@@ -289,7 +289,7 @@ int main(int argc, char** argv)
 	}
 
 	if (g_propTree.get<bool>("EnablePuReweighting", false))
-		CALIB_LOG_FILE("\nPile-up reweighting enabled.\n")
+		CALIB_LOG_FILE("\n" << blue << "Pile-up reweighting enabled." << reset << "\n")
 
 	ZJetPipelineSettings settings;
 	settings.m_globalSettings = &gset;

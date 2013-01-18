@@ -12,7 +12,7 @@ CorrJetProducer::CorrJetProducer( std::string corBase, std::string l1cor, std::v
 			m_l1correction ( l1cor ),
 			m_basealgorithms ( baseAlgos )
 {
-	CALIB_LOG( "Loading JEC from " + m_corectionFileBase)
+	CALIB_LOG("Loading JEC from " + m_corectionFileBase)
 }
 
 void CorrJetProducer::PopulateMetaData(ZJetEventData const& data,
@@ -159,8 +159,7 @@ void CorrJetProducer::CorrectJetCollection( std::string algoName, std::string ne
 	}
 
     // correct the copied jet collection
-	corrService->correct(
-			&metaData.m_validPFJets[newAlgoName] );
+	corrService->correct(&metaData.m_validPFJets[newAlgoName]);
 }
 
 
