@@ -38,8 +38,8 @@ public:
  \brief Base implementation of the EventPipeline paradigm
 
   The EventPipline contains settings, filter and MetaDataProducer and Consumer which, when combined,
-  produce the desired output of a pipline as soon as Events are send to the pipeline. An incoming event
-  must not be changed by the pipeline but the pipeline can createt additional data for an event using
+  produce the desired output of a pipeline as soon as Events are send to the pipeline. An incoming event
+  must not be changed by the pipeline but the pipeline can create additional data for an event using
   MetaDataProducers.
   Most of the time, the EventPipeline will not be used stand-alone but by an EventPipelineRunner class.
 
@@ -55,8 +55,8 @@ public:
   Create additional, pipeline-specific, data for an event and stores this information in a TMetaData object
 
   - Filter
-  Filter decide wether an input event is suitable to be processed by this pipeline. An event might not be in the desired
-  PtRange and is therefore not useful for this pipline. The FilterResult is stored and Consumers can access the outcome of the
+  Filter decide whether an input event is suitable to be processed by this pipeline. An event might not be in the desired
+  PtRange and is therefore not useful for this pipeline. The FilterResult is stored and Consumers can access the outcome of the
   Filter process.
 
   - Consumer
@@ -98,7 +98,7 @@ public:
 	virtual ~EventPipeline(){};
 
 	/*
-	  Initialize the pipline using a custom PipelineInitilizer. This PipelineInitilizerBase can
+	  Initialize the pipeline using a custom PipelineInitilizer. This PipelineInitilizerBase can
 	  create specific Filters and Consumers
 	 */
 	virtual void InitPipeline(TSettings pset, PipelineInitilizerBase<TData,
@@ -182,7 +182,7 @@ public:
 		nonconst_metaData.SetLocalMetaData(&localMetaData);
 
 		// run MetaDataProducers
-		// Pipeline private MetaDataProducers not supported at the momemnt
+		// Pipeline private MetaDataProducers not supported at the moment
 		for (MetaDataVectorIterator it = m_producer.begin();
 				it != m_producer.end(); it++)
 		{
@@ -210,7 +210,7 @@ public:
 	}
 
 	/*
-	 * Find and return a Filter by it's id in this Pipline
+	 * Find and return a Filter by it's id in this pipeline
 	 */
 	virtual FilterBase<TData, TMetaData, TSettings>* FindFilter(std::string sFilterId)
 	{
@@ -223,7 +223,7 @@ public:
 	}
 
 	/*
-	 * Return a reference to the settings used within this pipline
+	 * Return a reference to the settings used within this pipeline
 	 */
 	virtual TSettings const& GetSettings() const
 	{
@@ -262,7 +262,7 @@ public:
 
 
 	/*
-	 * Return a list of filters is this pipline
+	 * Return a list of filters is this pipeline
 	 */
 	const boost::ptr_vector<FilterBase<TData, TMetaData, TSettings> >& GetFilters()
 	{
