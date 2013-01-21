@@ -107,6 +107,11 @@ public:
 			// run the pipelines, if the event is valid
 			if (bEventValid)
 			{
+				if (unlikely(nEvents - firstEvent < 100)) // debug output
+					CALIB_LOG("Event "
+							<< evtProvider.GetCurrentEvent().m_eventmetadata->nRun << ":"
+							<< evtProvider.GetCurrentEvent().m_eventmetadata->nLumi << ":"
+							<< evtProvider.GetCurrentEvent().m_eventmetadata->nEvent)
 				for (PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
 				{
 					if (it->GetSettings().GetLevel() == 1)
