@@ -40,8 +40,8 @@ public:
 			ZJetPipelineSettings const& m_pipelineSettings) const;
 
 	void InitCorrection( std::string algoName,
-			     std::string algoCorrectionAlias,
-			ZJetEventData const& event,
+			std::string algoCorrectionAlias,
+			ZJetEventData const& event, double hcal,
 			std::string prefix = "" ) const;
 
 	void CorrectJetCollection( std::string algoName, std::string newAlgoName,

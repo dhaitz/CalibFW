@@ -199,6 +199,7 @@ int main(int argc, char** argv)
 	gset.SetEnablePuReweighting(g_propTree.get<bool>("EnablePuReweighting", false));
 	gset.SetEnable2ndJetReweighting(g_propTree.get<bool>("Enable2ndJetReweighting", false));
 	gset.SetMuonID2011(g_propTree.get<bool>("MuonID2011", false));
+	gset.SetHcalCorrection(g_propTree.get<double>("HcalCorrection", 0.0));
 	gset.SetSkipEvents(g_propTree.get<long long>("SkipEvents", 0));
 	gset.SetEventCount(g_propTree.get<long long>("EventCount", -1));
 

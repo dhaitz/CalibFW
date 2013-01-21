@@ -108,6 +108,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
         'MetPhiCorrectionParameters': [],
         'EnablePuReweighting': False,
         'Enable2ndJetReweighting': False,
+        'HcalCorrection': 0.0,
         'Jec': "default",
         'JsonFile': "default",
         'InputFiles': [],

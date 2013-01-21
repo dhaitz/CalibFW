@@ -5,7 +5,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
 
-#include "RootTools/libKRootTools.h"
+#include "KappaTools/RootTools/libKRootTools.h"
 #include "KappaTools/RootTools/HLTTools.h"
 
 #include "EventPipeline.h"

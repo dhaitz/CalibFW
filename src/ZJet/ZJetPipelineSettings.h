@@ -30,6 +30,7 @@ public:
 	IMPL_PROPERTY(bool, EnablePuReweighting)
 	IMPL_PROPERTY(bool, Enable2ndJetReweighting)
 	IMPL_PROPERTY(bool, MuonID2011)
+	IMPL_PROPERTY(double, HcalCorrection)
 	IMPL_PROPERTY(long long, SkipEvents)
 	IMPL_PROPERTY(long long, EventCount)
 	IMPL_PROPERTY(std::string, JsonFile)

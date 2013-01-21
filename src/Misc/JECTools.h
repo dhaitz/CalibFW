@@ -46,14 +46,14 @@ inline void setupFactorProvider(const KDataPFJet &jet, Tprov *prov)
 // Functions to correct a single jet with the FactorizedJetCorrector
 
 template<typename T>
-inline void correctSingleJet(T &jet, FactorizedJetCorrector *jec)
+inline void correctSingleJet(T &jet, FactorizedJetCorrector *jec, double hcalcorr)
 {
 	setupFactorProvider(jet, jec);
 	jet.p4 *= jec->getCorrection();
 }
 
 template<>
-inline void correctSingleJet(KDataJet &jet, FactorizedJetCorrector *jec)
+inline void correctSingleJet(KDataJet &jet, FactorizedJetCorrector *jec, double hcalcorr)
 {
 	setupFactorProvider(jet, jec);
 	jec->setJetA(jet.area);
@@ -61,11 +61,26 @@ inline void correctSingleJet(KDataJet &jet, FactorizedJetCorrector *jec)
 }
 
 template<>
-inline void correctSingleJet(KDataPFJet &jet, FactorizedJetCorrector *jec)
+inline void correctSingleJet(KDataPFJet &jet, FactorizedJetCorrector *jec, double hcalcorr)
 {
 	setupFactorProvider(jet, jec);
 	jec->setJetA(jet.area);
-	jet.p4 *= jec->getCorrection();
+	if (jet.p4.Eta() <= 2.500 || jet.p4.Eta() > 2.964)
+		hcalcorr = 0.0;
+	double factor = 1.0 + hcalcorr;
+	double newsum = 1.0 + hcalcorr * jet.neutralHadFraction;
+
+	jet.HFEMFraction /= newsum;
+	jet.HFHadFraction /= newsum;
+	jet.chargedEMFraction /= newsum;
+	jet.chargedHadFraction /= newsum;
+	jet.electronFraction /= newsum;
+	jet.muonFraction /= newsum;
+	jet.neutralEMFraction /= newsum;
+	jet.photonFraction /= newsum;
+
+	jet.neutralHadFraction *= factor/newsum;
+	jet.p4 *= jec->getCorrection() * newsum;
 }
 
 // Functions to apply correction + uncertainty to a single jet:
@@ -76,13 +91,12 @@ inline void applyUncertainty(T &jet, JetCorrectionUncertainty *unc, const JECVal
 	if ((unc != 0) && (jv != jec_center))
 	{
 		// sure you want to do this ?
-		assert( false );
+		assert(false);
 
 		setupFactorProvider(jet, unc);
 		if (jv == jec_up)
 			jet.p4 *= (1 + unc->getUncertainty(true));
 		else
-
 			jet.p4 *= (1 - unc->getUncertainty(false));
 	}
 }
@@ -90,7 +104,8 @@ inline void applyUncertainty(T &jet, JetCorrectionUncertainty *unc, const JECVal
 template<typename T>
 inline void correctJets(std::vector<T> *jets,
 	FactorizedJetCorrector *jec, JetCorrectionUncertainty *unc,
-	const double rho, const int npv, const double area = -1, const JECValueType jv = jec_center)
+	const double rho, const int npv, const double area = -1, const JECValueType jv = jec_center,
+	double hcalcorr = 0.0)
 {
 	if (jec == 0)
 		return;
@@ -106,9 +121,8 @@ inline void correctJets(std::vector<T> *jets,
 			assert(false);
 			jet.area = area;
 		}
-		
-		//std::cout << "JetA: " << jet.area << std::endl;
-		correctSingleJet(jet, jec);
+
+		correctSingleJet(jet, jec, hcalcorr);
 		applyUncertainty(jet, unc, jv);
 	}
 	//sort_pt(jets);
@@ -121,8 +135,8 @@ class JECService
 public:
 	JECService(FileInterface &fi, const std::string prefix,
 			const std::vector<std::string> &level, const std::string algo,
-			const double R, const int jeuDir = 0)
-		: area(-1), jeuType(jec_center), JEC(0), JEU(0),
+			const double R, const int jeuDir = 0, double hcal = 0.0)
+		: area(-1), jeuType(jec_center), JEC(0), JEU(0), hcalCorr(hcal),
 			vs(fi.Get<KVertexSummary>("goodOfflinePrimaryVerticesSummary", false)),
 			ja(fi.Get<KJetArea>("KT6Area", true, true))
 	{
@@ -131,10 +145,10 @@ public:
 
 	JECService(KVertexSummary * vertexSummary,  KJetArea * jetArea, const std::string prefix,
 			const std::vector<std::string> &level, const std::string algo,
-			const double R, const int jeuDir = 0)
-		: area(-1), jeuType(jec_center), JEC(0), JEU(0),
-			vs( vertexSummary ),
-			ja( jetArea)
+			KEventMetadata* eventmetadata,
+			const double R, const int jeuDir = 0, double hcal = 0.0, unsigned int* run = 0)
+		: area(-1), jeuType(jec_center), JEC(0), JEU(0), vs(vertexSummary),
+			ja(jetArea), hcalCorr(hcal), evtMeta(eventmetadata), nRun0(196000)
 	{
 		init(level, jeuDir, prefix , algo);
 	}
@@ -148,7 +162,12 @@ public:
 	template<typename T>
 	inline void correct(T *jets)
 	{
-		correctJets(jets, JEC, JEU, ja->median, vs->nVertices, area, jeuType);
+		//CALIB_LOG("Correct jets: (" << evtMeta->nRun << "-" << nRun0 << ") * " << hcalCorr
+		//		<< " = " << ((signed int) evtMeta->nRun - nRun0) << " * " << hcalCorr
+		//		<< " = " << (((signed int) evtMeta->nRun - nRun0) * hcalCorr))
+		correctJets(jets, JEC, JEU, ja->median, vs->nVertices, area, jeuType,
+				((signed int) evtMeta->nRun-nRun0) * hcalCorr);
+
 	}
 
 private:
@@ -165,7 +184,6 @@ private:
 			jecVec.push_back(JetCorrectorParameters(prefix + "_" + level[i] + "_" + algo + ".txt"));
 		}
 		JEC = new FactorizedJetCorrector(jecVec);
-		//std::cout << std::endl;
 
 		std::cout << yellow << " * Loading jet energy uncertainties..." << reset << std::endl << "\t";
 		JEU = new JetCorrectionUncertainty(prefix + "_" + "Uncertainty" + "_" + algo + ".txt");
@@ -178,11 +196,14 @@ private:
 	}
 
 	double area;
+	double hcalCorr;
 	JECValueType jeuType;
 	FactorizedJetCorrector *JEC;
 	JetCorrectionUncertainty *JEU;
 	KVertexSummary *vs;
 	KJetArea *ja;
+	KEventMetadata* evtMeta;
+	signed int nRun0;
 };
 
 #endif

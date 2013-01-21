@@ -40,32 +40,36 @@ void CorrJetProducer::InitCorrection( std::string algoName,
 	//FileInterface & fi = *( const_cast< FileInterface*> ( event.m_fi ))
     m_corrService.insert( algoCorrectionAlias ,new JecCorrSet() );
 
-	m_corrService[ algoCorrectionAlias ].m_l1.reset( new JECService(
-            event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName, 0) // -1.0 takes the area of the jet from FastJet calculation
+	m_corrService[algoCorrectionAlias].m_l1.reset(new JECService(
+			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
+			event.m_eventmetadata, 0, 0, hcal)
 			);
 
 	// only apply one correction step in a round !
 	corLevel.clear();
 	corLevel.push_back("L2Relative");
 
-	m_corrService[ algoCorrectionAlias ].m_l2.reset( new JECService(
-			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName, 0) // -1.0 takes the area of the jet from FastJet calculation
+	m_corrService[algoCorrectionAlias].m_l2.reset(new JECService(
+			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
+			event.m_eventmetadata, 0, 0, hcal)
 			);
 
 	// only apply one correction step in a round !
 	corLevel.clear();
 	corLevel.push_back("L3Absolute");
 
-	m_corrService[ algoCorrectionAlias ].m_l3.reset( new JECService(
-			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName, 0) // -1.0 takes the area of the jet from FastJet calculation
+	m_corrService[algoCorrectionAlias].m_l3.reset(new JECService(
+			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
+			event.m_eventmetadata, 0, 0, hcal)
 		);
 
 	// only used for data
 	corLevel.clear();
 	corLevel.push_back("L2L3Residual");
 
-	m_corrService[ algoCorrectionAlias ].m_l2l3res.reset( new JECService(
-			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName, 0) // -1.0 takes the area of the jet from FastJet calculation
+	m_corrService[algoCorrectionAlias].m_l2l3res.reset(new JECService(
+			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
+			event.m_eventmetadata, 0, 0, hcal)
 			);
 }
 
@@ -84,34 +88,25 @@ void CorrJetProducer::CreateCorrections( std::string algoName,
 	std::string algoName_l3 = algoName_raw + "L1L2L3";
 	std::string algoName_l3res = algoName_raw + "L1L2L3Res";
 
+	CorrectJetCollection(algoName_raw, algoName_l1,
+			this->m_corrService.at(algoCorrectionAlias).m_l1,
+			event, metaData, settings);
 
-	CorrectJetCollection( algoName_raw, algoName_l1,
-				this->m_corrService.at( algoCorrectionAlias ).m_l1,
-				event,
-				metaData,
-				settings );
-
-	CorrectJetCollection( algoName_l1, algoName_l2,
-				this->m_corrService.at( algoCorrectionAlias ).m_l2,
-				event,
-				metaData,
-				settings );
-	CorrectJetCollection( algoName_l2, algoName_l3,
-				this->m_corrService.at( algoCorrectionAlias ).m_l3,
-				event,
-				metaData,
-				settings );
+	CorrectJetCollection(algoName_l1, algoName_l2,
+			this->m_corrService.at(algoCorrectionAlias).m_l2,
+			event, metaData, settings);
+	CorrectJetCollection(algoName_l2, algoName_l3,
+			this->m_corrService.at(algoCorrectionAlias).m_l3,
+			event, metaData, settings);
 
 	// residual for data
 	if (settings.Global()->GetInputType() == DataInput )
 	{
 		//CALIB_LOG_FATAL("Implement this ")
 		// do l2l3res here
-		CorrectJetCollection( algoName_l3, algoName_l3res,
-					this->m_corrService.at( algoCorrectionAlias ).m_l2l3res,
-					event,
-					metaData,
-					settings );
+		CorrectJetCollection(algoName_l3, algoName_l3res,
+				this->m_corrService.at(algoCorrectionAlias).m_l2l3res,
+				event, metaData, settings);
 	}
 }
 
