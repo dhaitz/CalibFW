@@ -46,7 +46,7 @@ void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorre
 
 	m_corrService[algoCorrectionAlias].m_l2.reset(new JECService(
 			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
-			event.m_eventmetadata, 0, 0, hcal)
+			event.m_eventmetadata, 0, 0, 0)
 			);
 
 	// only apply one correction step in a round !
@@ -55,7 +55,7 @@ void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorre
 
 	m_corrService[algoCorrectionAlias].m_l3.reset(new JECService(
 			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
-			event.m_eventmetadata, 0, 0, hcal)
+			event.m_eventmetadata, 0, 0, 0)
 		);
 
 	// only used for data
@@ -64,7 +64,7 @@ void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorre
 
 	m_corrService[algoCorrectionAlias].m_l2l3res.reset(new JECService(
 			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
-			event.m_eventmetadata, 0, 0, hcal)
+			event.m_eventmetadata, 0, 0, 0)
 			);
 }
 

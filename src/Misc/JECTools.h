@@ -148,7 +148,7 @@ public:
 			KEventMetadata* eventmetadata,
 			const double R, const int jeuDir = 0, double hcal = 0.0, unsigned int* run = 0)
 		: area(-1), jeuType(jec_center), JEC(0), JEU(0), vs(vertexSummary),
-			ja(jetArea), hcalCorr(hcal), evtMeta(eventmetadata), nRun0(196000)
+			ja(jetArea), hcalCorr(hcal), evtMeta(eventmetadata), nRun0(192000)
 	{
 		init(level, jeuDir, prefix , algo);
 	}
