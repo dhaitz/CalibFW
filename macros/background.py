@@ -10,6 +10,14 @@ datasets = {
 		'events': 30459503,
 		'weightf': 1.0,
 	},
+	'DYToMuMu': {
+		'name': "DYToMuMu",
+		'file': "powhegSummer12",
+		'xsec': 1871.0,
+		'feff': 1.0,
+		'events': 48819386,
+		'weightf': 1.0,
+	},
 	'QCD': {
 		'name': "QCD",
 		'file': 'qcd',
