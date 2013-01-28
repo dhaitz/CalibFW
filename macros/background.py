@@ -1,11 +1,15 @@
 import getroot
 import sys
 
+# LO cross sections from http://cms.cern.ch/iCMS/jsp/mcprod/admin/requestmanagement.jsp
+# NNLO cross sections from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
+
 datasets = {
 	'DYJets': {
 		'name': "DYJets",
 		'file': "madgraphSummer12",
 		'xsec': 2950.0,
+		'nlo':  3503.71,
 		'feff': 1.0,
 		'events': 30459503,
 		'weightf': 1.0,
@@ -14,6 +18,7 @@ datasets = {
 		'name': "DYToMuMu",
 		'file': "powhegSummer12",
 		'xsec': 1871.0,
+		'nlo': 1915.08,
 		'feff': 1.0,
 		'events': 48819386,
 		'weightf': 1.0,
@@ -22,6 +27,7 @@ datasets = {
 		'name': "QCD",
 		'file': 'qcd',
 		'xsec': 3.64e8,
+		'nlo': 3.64e8, #LO
 		'feff': 3.70e-4,
 		'events': 21484602,
 		'weightf': 1.0,
@@ -30,6 +36,7 @@ datasets = {
 		'name': "TTJets",
 		'file': 'ttbar',
 		'xsec': 126.0,
+		'nlo': 225.197,
 		'feff': 1.0,
 		'events': 5186494,
 		'weightf': 1.0,
@@ -38,6 +45,7 @@ datasets = {
 		'name': "WJets",
 		'file': 'wjets',
 		'xsec': 30400.0,
+		'nlo': 37509.0,
 		'feff': 1.0,
 		'events': 57709905,
 		'weightf': 1.0,
@@ -46,7 +54,7 @@ datasets = {
 		'name': "Data",
 		'file': "data",
 		'type': "data",
-	
+		'feff': 0.965**2,
 	}
 }
 
@@ -54,7 +62,7 @@ datasets = {
 fb2pb = 1000
 
 def main():
-	files, lumi, cuts, verb, weights, nmin, style = getopt(sys.argv)
+	files, lumi, cuts, verb, weights, nmin, style, nlo = getopt(sys.argv)
 	values = []
 
 	for f in files:
@@ -69,11 +77,15 @@ def main():
 			print "No parameters found for", f
 			exit(1)
 
+
 		# calculate expectations
 		if 'type' in item and item['type'] == 'data':
-			item['f'] = 1.0/lumi
+			item['f'] = 1.0/lumi/datasets['data']['feff']
 		else:
-			item['f'] = item['xsec']*item['feff']/item['events']/item['weightf']*fb2pb
+			if nlo:
+				item['f'] = item['nlo']*item['feff']/item['events']/item['weightf']*fb2pb
+			else:
+				item['f'] = item['xsec']*item['feff']/item['events']/item['weightf']*fb2pb
 
 		# read numbers from file
 		rootfile = getroot.openfile(f)
@@ -85,21 +97,21 @@ def main():
 			else:
 				n = obj.GetEntries()
 			item[c]['n'] = max(nmin, n)
-			item[c]['exp'] = item[c]['n']*item['f']*lumi
+			item[c]['exp'] = item[c]['n']*item['f']*lumi*datasets['data']['feff']
 			if files.index(f) > 0:
-				item[c]['pro'] = item[c]['n']*item['f']*lumi*100/values[0][c]['n']
+				item[c]['pro'] = item[c]['n']*item['f']*lumi*datasets['data']['feff']*100/values[0][c]['n']
 			else:
-				item[c]['pro'] = item['f']*lumi*100
+				item[c]['pro'] = item['f']*lumi*datasets['data']['feff']*100
 
 		values.append(item)
 
 	if style == 'dict':
 		printdicts(values)
 	else:
-		prints[style](transpose(maketable(values, cuts, lumi)))
+		prints[style](transpose(maketable(values, cuts, lumi, nlo)))
 
 
-def maketable(content, cuts, lumi):
+def maketable(content, cuts, lumi, useNLO):
 	result = [["Dataset", "xsec", "events", "feff"]]
 	for c in cuts:
 		result[-1] += [c, "events", "exp.", r" % "]
@@ -107,7 +119,10 @@ def maketable(content, cuts, lumi):
 		if 'ata' in i['name']:
 			result += [[i['name'], "", "L =%6.2f" % lumi, ""]]
 		else:
-			result += [[i['name'], i['xsec'], i['events'], i['feff']]]
+			if useNLO:
+				result += [[i['name'], i['nlo'], i['events'], i['feff']]]
+			else:
+				result += [[i['name'], i['xsec'], i['events'], i['feff']]]
 		for c in cuts:
 			if 'ata' in i['name']:
 				result[-1] += ["", i[c]['n'], "", i[c]['pro']]
@@ -187,6 +202,7 @@ def getopt(args):
 	cutfolders = ['allevents', 'zcutsonly', 'alleta', 'incut']
 	verbose = False
 	weights = True
+	nlo = False
 	style = 'txt'
 	program = args.pop(0)
 	while len(args) > 0:
@@ -207,6 +223,8 @@ def getopt(args):
 				pass
 			elif args[0] == '-v':
 				verbose = True
+			elif args[0] == "-n":
+				nlo = True
 			elif args[0] == "-w":
 				weights = False
 			elif args[0] == "-h":
@@ -224,19 +242,21 @@ def getopt(args):
 			print "  -h  Show this help"
 			print "  -l  luminosity of data sample in /fb (default: %1.2f)" % lumi
 			print "  -m  upper limit for number of events (default: %d)" % nmin
+			print "  -n  use NNLO cross sections"
 			print "  -s  table style [txt, latex, list, dict] (default: %s)" % style
 			print "  -v  verbosity"
 			print "  -w  do not use event weights"
 			exit(0)
 
 		del args[0]
+
 	if verbose:
 		print "Files:  ", "\n         ".join(files)
 		print "Lumi:   ", lumi, "/fb"
 		print "Cuts:   ", ", ".join(cutfolders)
 		if weights:
 			print "Weights: Use event weights."
-	return files, lumi, cutfolders, verbose, weights, nmin, style
+	return files, lumi, cutfolders, verbose, weights, nmin, style, nlo
 
 if __name__ == "__main__":
 	main()
