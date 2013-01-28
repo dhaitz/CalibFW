@@ -67,8 +67,8 @@ def getvalues(nickname, f, opt, over = 'zpt', changes={}):
 def fractions(files, opt, over='zpt', fa=() , subplot=False, changes={}, subtext=""):
     """Plot the components of the leading jet"""
     # Name everything you want and take only the first <nbr> entries of them
-    if over == 'zpt': nbr=5
-    else: nbr = 7
+    if over == 'jet1eta': nbr=7
+    else: nbr = 5
     labels =     ["CHad", r"$\gamma$       ", "NHad", r"$e$       ", r"$\mu$       ", "HFem", "HFhad"][:nbr]
     colours =    ['Orange', 'LightSkyBlue', 'YellowGreen', 'MediumBlue',
                   'Darkred', 'yellow', 'grey'][:nbr]
@@ -214,7 +214,11 @@ def fractions(files, opt, over='zpt', fa=() , subplot=False, changes={}, subtext
         else: label = r"%s: $%+1.3f(%d)$" % (labels[i],fitd[i]-fitm[i],math.ceil(1000*(fitderr[i]+fitmerr[i])))
         ax.errorbar( mcG[i].x, diff[i], dataG[i].yerr, label=label,
             fmt="o", capsize=2, color=colours[i], zorder=15+i)
-        ax.plot([30.0,1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
+        if over=='zpt':
+            fit_min = 30.
+        else:
+            fit_min = 0.
+        ax.plot([fit_min,1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
     ax = plotbase.labels(ax, opt, legloc='lower right', frame=True, sub_plot=subplot, jet=subplot, changes=changes)
     ax = plotbase.axislabels(ax, axisname, 'components_diff')
     if subplot is not True: plotbase.Save(fig, "fractions_diff_" + over+ "_" + algoname, opt, False)
