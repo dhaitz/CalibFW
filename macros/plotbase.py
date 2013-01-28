@@ -145,7 +145,11 @@ def options(
             npv=[(0, 4), (5, 8), (9, 15), (16, 21), (22, 100)],
             cut=[0.2, 0.4],
             eta=[0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
-            bins=[30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]):
+            bins=[30, 40, 50, 60, 75, 95, 125, 180, 300, 1000],
+            etabin=None,
+            npvbin=None,
+            zptbin=None,
+            alphabin=None,):
     """Set standard options and read command line arguments
 
     To be turned into a class with str method and init
@@ -246,6 +250,19 @@ def options(
         default=legloc,
         help="Location of the legend")
 
+    parser.add_argument('--etabin', type=int,
+        default=etabin,
+        help="Select Eta bin i (integer argument)")
+    parser.add_argument('--alphabin', type=int,
+        default=alphabin,
+        help="Alpha bin bin i (integer argument)")
+    parser.add_argument('--zptbin', type=int,
+        default=zptbin,
+        help="ZpT bin bin i (integer argument)")
+    parser.add_argument('--npvbin', type=int,
+        default=npvbin,
+        help="NPV bin bin i (integer argument)")
+
 
     opt = parser.parse_args()
     # to be substituted by commandline arguments (perhaps changed,
@@ -285,6 +302,15 @@ def createchanges(opt, change={}):
 def getchanges(opt, change={}):
     if 'algorithm' not in change: change['algorithm'] = opt.algorithm
     if 'correction' not in change: change['correction'] = opt.correction
+
+    for variation, key, strings in zip([opt.alphabin, opt.etabin, opt.npvbin, opt.zptbin], ['var', 'var', 'var', 'bin'], [getroot.cutstrings(opt.cut), getroot.etastrings(opt.eta), getroot.npvstrings(opt.npv), getroot.binstrings(opt.bins)] ):
+
+        if variation is not None:
+            if key in change and strings[variation] not in change[key]:
+                change[key] += "_"+strings[variation]
+            else:
+                change[key] = strings[variation]
+
     return change
 
 def getvariationlist (quantity, opt):

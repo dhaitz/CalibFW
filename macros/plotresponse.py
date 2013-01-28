@@ -835,10 +835,6 @@ def response_run(files, opt):
 
     local_opt = copy.deepcopy(opt)
     changes = {}
-    #changes = {'var':'var_CutSecondLeadingToZPt__0_4'}
-    #changes = {'var':'var_CutSecondLeadingToZPt__0_4_var_JetEta_2_5to2_964'}
-    #changes = {'var':'var_CutSecondLeadingToZPt__0_4_var_JetEta_2_5to2_964'}
-    #changes = {'var':'var_JetEta_2_5to2_964'}
 
     for label, color, quantity in zip(['PtBalance (data)', 'MPF (data)'], ['blue', 'red'], ['ptbalance_run', 'mpf_run']):
         local_opt.labels = [label]
