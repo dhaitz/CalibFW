@@ -289,7 +289,7 @@ def responseplot(files, opt, types, labels=None,
     if labels is None:
         labels = types
 
-    labels = [string.replace("mpfresp", "MPF").replace("balresp","PtBalance") for string in labels] 
+    labels = [string.replace("mpfresp", "MPF").replace("balresp","$p_{\mathrm{T}}$ Balance") for string in labels] 
     for t, l, m, c in zip(types, labels, markers, colors):
         extrapolation = False
         #if t == 'recogen':
@@ -478,7 +478,7 @@ def plotkfsr(files, opt, method='balresp', label=None,
 
 def labelformat(label):
     if 'balresp' in label:
-        result = "Balance"
+        result = "$p_{\mathrm{T}}$ balance"
     elif 'mpfresp' in label:
         result = "MPF"
     if 'ratio' in label:
@@ -627,7 +627,7 @@ def responseratio(files, opt, over='zpt', fit=False, types=['balresp']):
     ax1.set_xlabel("")
     #ax2.set_yticks([1.02,1.01, 1.00, 0.99, 0.98])
 
-    file_name = "responseratio_"+"_".join(types)+"_"+over+"_"+opt.algorithm
+    file_name = "responseratio_"+"_".join(types)+"_"+over+"_"+opt.algorithm+opt.correction
     plotbase.Save(fig, file_name, opt)
 
 
@@ -690,7 +690,7 @@ def extrapol(files, opt,
            variation='alpha',
            use_rawMET=False, # use raw MET instead of type-I MET
            extrapolate_mpf = True, # if false, use average for MET
-           save_individually = False):  # save each plot indivually, not as a subplot
+           save_individually = True):  # save each plot indivually, not as a subplot
 
     rebin = 10
     if opt.rebin is not None: rebin = opt.rebin

@@ -135,7 +135,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
         y = ""
         if len(xy) == 1:
             ax = plotbase.axislabels(ax, quantity)
-            ax.set_ylim(top=max(d.ymax() for d in datamc) * 1.4)
+            ax.set_ylim(top=max(d.ymax() for d in datamc) * 1.2)
             y = 'events'
         elif len(xy) == 2:
             x = xy[1]
