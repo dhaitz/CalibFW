@@ -111,6 +111,7 @@ d_axes={
         'genquality':[0.0, 2, r"Quality of Parton/Z matching", ""],
         'genmpf':[0.75, 1.2, r"$MPF$ Response (Gen level)", ""],
         'zresp':[0.8, 1.2, r"Z Reco $p_\mathrm{T}$ / Z Gen $p_\mathrm{T}$", ""],
+        'zY':[-2.2, 2.2, r"$y^Z$", ""],
 
         }
 

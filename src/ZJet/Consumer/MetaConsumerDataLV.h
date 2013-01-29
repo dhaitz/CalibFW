@@ -113,11 +113,25 @@ public:
 		m_plotMass = true;
 	}
 
+	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+			ZJetPipelineSettings>* pset)
+	{
+		MetaConsumerDataLV::Init(pset);
+
+		m_histY = new Hist1D(GenName(GetPhysicsObjectName(), "Y_"),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetEtaModifier());
+
+		AddPlot(m_histY);
+
+	}
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
 			ZJetMetaData const& metaData)
 	{
 		PlotDataLVQuantities(metaData.GetPtZ(), metaData);
+		m_histY->Fill(metaData.GetRefZ().p4.Rapidity(), metaData.GetWeight());
 	}
+	Hist1D* m_histY;
 };
 
 
