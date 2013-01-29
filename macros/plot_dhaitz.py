@@ -30,6 +30,7 @@ import plot_resolution
 import plot_mikko
 import plot2d
 import plot_sandbox
+import plots_diplomarbeit
 
 def plot(cluster=False):
     """Run all plots with the given settings"""
@@ -50,14 +51,15 @@ def plot(cluster=False):
         
         lumi=19490,
 
-        plots= plotresponse.plots
+        plots= plots_diplomarbeit.plots
+               +plotresponse.plots
                +plotfractions.plots
                +plot2d.plots
                +plotdatamc.plots
                #+plot_resolution.plots
                #plot_mikko.plots
         )
-    module_list = [plotresponse, plotfractions, plot2d, plotdatamc, plot_resolution, plot_mikko, plot_sandbox]
+    module_list = [plots_diplomarbeit, plotresponse, plotfractions, plot2d, plotdatamc, plot_resolution, plot_mikko, plot_sandbox]
     
     print "Number of files:", len(op.files)
     files=[]
