@@ -1,0 +1,15 @@
+redo data_2012_534
+redo data_2012_534_AK7
+redo data_2012_534_L1Offset
+redo data_2012_534_METphi
+redo mc_madgraphSummer12_534
+redo mc_madgraphSummer12_534_AK7
+redo mc_madgraphSummer12_534_L1Offset
+redo mc_madgraphSummer12_534_METphi
+redo mc_madgraphSummer12_534_noPUrew
+redo mc_powhegSummer12_534
+
+echo "done!"
+
+
+
