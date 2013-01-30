@@ -25,6 +25,8 @@ from ROOT import gROOT
 import getroot
 import plotrc
 import plotdatamc
+import plotresponse
+import plotfractions
 import plot2d
 import plotresponse
 from labels import *
