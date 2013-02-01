@@ -641,11 +641,13 @@ def fitline(rootgraph):
         rootgraph.Approximate(0)
     return (fitf.GetParameter(0), fitf.GetParError(0), fitres.Chi2(), fitres.Ndf())
 
-def fitline2(rootgraph, quadratic=False):
+def fitline2(rootgraph, quadratic=False, gauss=False, limits = [0, 1000]):
     if 'Profile' in rootgraph.ClassName():
         rootgraph.Approximate() # call this function so zero-error (one entry) bins don't distort the fit
     if quadratic:
         fitf = ROOT.TF1("fit1", "1*[0]+x*[1]+x*x*[2]", 1.0, 1000.0)
+    elif gauss:
+        fitf = ROOT.TF1("fit1", "gaus", limits[0], limits[1])
     else:
         fitf = ROOT.TF1("fit1", "1*[0]+x*[1]", 1.0, 1000.0)
     fitres = rootgraph.Fit(fitf,"SQN")
@@ -661,7 +663,7 @@ def fitline2(rootgraph, quadratic=False):
     fitres.GetConfidenceIntervals(len(points), 1, 1, x, y, 0.683)
     conf_intervals = [i for i in y]
 
-    if quadratic:
+    if quadratic or gauss:
         return (fitf.GetParameter(0), fitf.GetParError(0),
             fitf.GetParameter(1), fitf.GetParError(1),
             fitf.GetParameter(2), fitf.GetParError(2),

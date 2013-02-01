@@ -14,6 +14,7 @@ import copy
 import numpy
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
 from time import localtime, strftime, clock
 import argparse
 import math
@@ -696,14 +697,18 @@ def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
     print "Please use axislabels instead of axislabel_2d."
     return axislabels(ax, x_q, y_q, brackets)
 
-def fit(fit, ax, quantity, rootfile, change, rebin, color, index, runplot_diff=False, mc_mean = None, run_min=0, run_max=1, rootobject=None, offset=0, label=""):
+def fit(fit, ax, quantity, rootfile, change, rebin, color, scalefactor, index, 
+        runplot_diff=False, mc_mean = None, run_min=0, run_max=1, rootobject=None,
+        offset=0, label="", used_rebin = 1, limits = [0,1]):
     """One of several fits is added to an axis element, fit parameters are added as text element"""
     if color == '#CBDBF9': color = 'blue'
     if fit=='vertical': return
+
+    if rootobject is None:
+        rootobject = getroot.getobjectfromnick(quantity, rootfile, change, rebin=5)
+
     if fit == 'chi2':
         # fit a horizontal line
-        if rootobject is None:
-            rootobject = getroot.getobjectfromnick(quantity, rootfile, change, rebin=1)
         intercept, ierr, chi2, ndf = getroot.fitline(rootobject)
         ax.axhline(intercept, color=color, linestyle='--')
         ax.axhspan(intercept+ierr, intercept-ierr, color=color, alpha=0.2)
@@ -711,10 +716,25 @@ def fit(fit, ax, quantity, rootfile, change, rebin, color, index, runplot_diff=F
         # and display chi^2
         ax.text(0.97, 0.20+(index/20.)+offset, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
         va='top', ha='right', transform=ax.transAxes, color=color)
-              
+         
+
+    if fit == 'gauss':
+        p0, p0err, p1, p1err, p2, p2err, chi2, ndf, conf_intervals = getroot.fitline2(rootobject, gauss=True, limits=limits)
+
+        x = numpy.linspace(limits[0], limits[1], 500)
+
+        ymax = max(mlab.normpdf(x, p1, p2))
+        ax.plot(x,scalefactor * p0 * used_rebin / ymax * mlab.normpdf(x, p1, p2), color = color)
+
+        ax.text(0.03, 0.97-(index/20.)+offset, r"$\mathrm{%s:}$" % label,
+               va='top', ha='left', transform=ax.transAxes, color=color)
+        ax.text(0.20, 0.97-(index/20.)+offset, r"$\mu = %1.3f\pm%1.3f$" % (p1, p1err),
+               va='top', ha='left', transform=ax.transAxes, color=color)
+        ax.text(0.60, 0.97-(index/20.)+offset, r"$\sigma = %1.3f\pm%1.3f$" % (p2, p2err),
+               va='top', ha='left', transform=ax.transAxes, color=color)
+
+
     else:
-        if rootobject is None:
-            rootobject = getroot.getobjectfromnick(quantity, rootfile, change, rebin=1)
         intercept, ierr, slope, serr,  chi2, ndf, conf_intervals = getroot.fitline2(rootobject)
         mean = rootobject.GetMean()
         if runplot_diff:
