@@ -72,6 +72,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
     #loop over histograms: scale and plot 
     for f, l, c, s, rootfile in reversed(zip(datamc, opt.labels, opt.colors, opt.style, files)):
         events.insert(0,f.ysum())
+        scalefactor = 1
         if opt.normalize and normalize and quantity and "L1" not in quantity and "run" not in quantity and len(quantity.split("_")) < 2:
             if 'cut_' not in quantity and f.ysum()!=0:
                 scalefactor = datamc[0].ysum() / f.ysum()
@@ -91,9 +92,13 @@ def datamcplot(quantity, files, opt, legloc='center right',
         else:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, fmt=s, capsize=0 ,label=l)
 
-        if fit is not None: 
-            plotbase.fit(fit, ax, quantity, rootfile, change, 1, c, scalefactor, datamc.index(f), 
-                         rootobject=rootobject, offset=fit_offset, label=l, used_rebin = rebin, limits=[f.x[0], f.x[-1]])
+        if fit is not None:
+            #Fits on TProfiles need no scaling or rebinning:
+            if 'Profile' in f.classname:
+                rebin = 1
+                scalefactor = 1
+            plotbase.fit(fit, ax, quantity, rootfile, change, 1, c, datamc.index(f), 
+                         rootobject=rootobject, offset=fit_offset, label=l, used_rebin = rebin, limits=[f.x[0], f.x[-1]], scalefactor=scalefactor)
 
 
     # Jet response plots: add vertical lines for mean and mean error to see data/MC agreement

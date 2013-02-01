@@ -632,10 +632,10 @@ class Fitfunction:
         return [self.f(x) - self.ferr(x) for x in self.plotx(left, right)]
 
 
-def fitline(rootgraph):
+def fitline(rootgraph, limits=[0, 1]):
     if 'Profile' in rootgraph.ClassName():
         rootgraph.Approximate() # call this function so zero-error (one entry) bins don't distort the fit
-    fitf = ROOT.TF1("fit1", "1*[0]", 1.0, 1000.0)
+    fitf = ROOT.TF1("fit1", "1*[0]", limits[0], 250)
     fitres = rootgraph.Fit(fitf,"SQN")
     if 'Profile' in rootgraph.ClassName():
         rootgraph.Approximate(0)

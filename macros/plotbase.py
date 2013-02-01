@@ -697,9 +697,9 @@ def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
     print "Please use axislabels instead of axislabel_2d."
     return axislabels(ax, x_q, y_q, brackets)
 
-def fit(fit, ax, quantity, rootfile, change, rebin, color, scalefactor, index, 
+def fit(fit, ax, quantity, rootfile, change, rebin, color, index, 
         runplot_diff=False, mc_mean = None, run_min=0, run_max=1, rootobject=None,
-        offset=0, label="", used_rebin = 1, limits = [0,1]):
+        offset=0, label="", used_rebin = 1, limits = [0,1], scalefactor=1):
     """One of several fits is added to an axis element, fit parameters are added as text element"""
     if color == '#CBDBF9': color = 'blue'
     if fit=='vertical': return
@@ -709,7 +709,9 @@ def fit(fit, ax, quantity, rootfile, change, rebin, color, scalefactor, index,
 
     if fit == 'chi2':
         # fit a horizontal line
-        intercept, ierr, chi2, ndf = getroot.fitline(rootobject)
+        intercept, ierr, chi2, ndf = getroot.fitline(rootobject, limits)
+        #account for scaling and rebinning:
+        intercept = used_rebin * scalefactor * intercept
         ax.axhline(intercept, color=color, linestyle='--')
         ax.axhspan(intercept+ierr, intercept-ierr, color=color, alpha=0.2)
 
@@ -718,7 +720,7 @@ def fit(fit, ax, quantity, rootfile, change, rebin, color, scalefactor, index,
         va='top', ha='right', transform=ax.transAxes, color=color)
          
 
-    if fit == 'gauss':
+    elif fit == 'gauss':
         p0, p0err, p1, p1err, p2, p2err, chi2, ndf, conf_intervals = getroot.fitline2(rootobject, gauss=True, limits=limits)
 
         x = numpy.linspace(limits[0], limits[1], 500)
