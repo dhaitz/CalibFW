@@ -48,6 +48,7 @@ def plot(cluster=False):
         labels=["data", "MC", "MC 5.0" , "MC 7 TeV (powheg)" , "MC 7 TeV (madgraph)"],
         colors=['black', '#CBDBF9','#800000', 'blue', '#00FFFF'],
         style=["o","f","-","-","-"],
+        formats=['pdf'],
         
         lumi=19490,
 

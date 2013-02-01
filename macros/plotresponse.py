@@ -485,7 +485,7 @@ def extrapol(files, opt,
         variation='bin'
         changes['var']="_var_CutSecondLeadingToZPt_0_3"
     elif variation=='alpha':
-        variations = getroot.cutstrings(opt.cut)[1:2]
+        variations = getroot.cutstrings(opt.cut)
         variation_label="alpha"
         variation='var'
     elif variation=='jet1eta':
