@@ -10,6 +10,7 @@ def dipl(files, opt):
     dbasic(files, opt)
     dfrac(files, opt)
     dresp(files, opt)
+    dak7(files, opt)
 
 def dbasic(files, opt):
     #basic plots
@@ -53,7 +54,7 @@ def dfrac(files, opt):
 
 def dresp(files, opt):
     local_opt = copy.deepcopy(opt)
-    local_opt.out = "out/diplomarbeit/response/"
+    local_opt.out = "out/diplomarbeit/response"
     plotbase.plotresponse.mpf_responseratio_zpt(files, local_opt)
     plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
 
@@ -66,3 +67,21 @@ def dresp(files, opt):
 
     plotbase.plotresponse.mpf_responseratio_zpt(files, local_opt)
     plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
+
+
+def dak7(files, opt):
+    local_opt = copy.deepcopy(opt)
+    local_opt.out = "out/diplomarbeit/AK7"
+    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
+
+    local_opt.algorithm = "AK7PFJetsCHS"
+    local_opt.files = ["/storage/8/dhaitz/CalibFW/work/data_2012_534_AK7/out/closure.root",
+            "/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_534_AK7/out/closure.root"]
+    files = [plotbase.getroot.openfile(f, opt.verbose) for f in local_opt.files]
+    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
+
+
+
+
+
+
