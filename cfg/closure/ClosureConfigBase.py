@@ -955,9 +955,6 @@ def Add2DProfiles(config, algos, forIncut = True, forAllevents=False, forIncutVa
                 AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'ptbalance')
                 AddTwoDProfileConsumer('jet2phi', 'jet2eta', 'mpf')
                 AddTwoDProfileConsumer('zpt', 'zeta', 'zmass')
-                AddTwoDProfileConsumer('npv', 'dimuonptebeb', 'zmass')
-                AddTwoDProfileConsumer('npv', 'dimuonptebec', 'zmass')
-                AddTwoDProfileConsumer('npv', 'dimuonptecec', 'zmass')
 
                 AddTwoDProfileEtaPhiConsumer('z', 'jet1', 'jet1pt')
                 AddTwoDProfileEtaPhiConsumer('jet1', 'jet2', 'jet1pt')
@@ -971,7 +968,6 @@ def Add2DProfiles(config, algos, forIncut = True, forAllevents=False, forIncutVa
                     AddTwoDProfileConsumer('genzrapidity', 'genzeta', 'genzmass')
                     AddTwoDProfileConsumer('genzpt', 'genzmass', 'genzetarapidityratio')
                     AddTwoDProfileConsumer('genzpt', 'genzeta', 'genzetarapidityratio')
-                    AddTwoDProfileConsumer('npvtruth', 'digenmuonpt', 'genzmass')
 
             #cuts
             if p == "default_" + algo:
