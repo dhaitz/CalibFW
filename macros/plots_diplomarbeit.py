@@ -10,6 +10,8 @@ def dipl(files, opt):
     dbasic(files, opt)
     dfrac(files, opt)
     dresp(files, opt)
+    dresprun(files, opt)
+    dpowheg(files, opt)
     dak7(files, opt)
     dl1(files, opt)
     dex(files, opt)
@@ -57,6 +59,12 @@ def dfrac(files, opt):
     plotbase.plotfractions.fractions(files, local_opt, over='jet1eta')
 
 
+    local_opt.out = "out/diplomarbeit/fractions_run"
+    plotbase.plotfractions.fractions_diff_run_all(files, local_opt)
+    plotbase.plotfractions.fractions_diff_run(files, local_opt)
+    plotbase.plotfractions.fractions_run_response_diff_all(files, local_opt)
+    plotbase.plotfractions.fractions_run_response_diff(files, local_opt)
+
     #extrapolation
 def dex(files, opt):
     local_opt = copy.deepcopy(opt)
@@ -64,8 +72,8 @@ def dex(files, opt):
     local_opt.cut = [0.35]
     plotbase.plotresponse.extrapol(files, local_opt)
 
-    local_opt.correction = "L1L2L3"
-    plotbase.plotresponse.extrapol(files, local_opt)
+    #local_opt.correction = "L1L2L3Res"
+    #plotbase.plotresponse.extrapol(files, local_opt)
 
 def dresp(files, opt):
     local_opt = copy.deepcopy(opt)
@@ -73,9 +81,41 @@ def dresp(files, opt):
     plotbase.plotresponse.mpf_responseratio_zpt(files, local_opt)
     plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
 
-    # powheg
-    local_opt.out = "out/diplomarbeit/response/powheg"
+    # L1
+    local_opt.out = "out/diplomarbeit/response/L1"
+    local_opt.correction = ""
+    plotbase.plotresponse.bal_responseratio_npv(files, local_opt)
+    local_opt.correction = "L1"
+    plotbase.plotresponse.bal_responseratio_npv(files, local_opt)
 
+    # L2L3
+    local_opt.out = "out/diplomarbeit/response/L2L3"
+    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
+    plotbase.plotresponse.bal_responseratio_eta(files, local_opt)
+    local_opt.correction = "L1L2L3"
+    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
+    plotbase.plotresponse.bal_responseratio_eta(files, local_opt)
+
+    # CHS
+    local_opt.out = "out/diplomarbeit/response/chs"
+
+    for corr in ['', 'L1L2L3']:
+        for algo in ['AK5PFJets', 'AK5PFJetsCHS']:
+            local_opt.correction = corr
+            local_opt.algorithm = algo
+            plotbase.plotresponse.bal_responseratio_npv(files, local_opt)
+
+    
+
+    # powheg
+def dpowheg(files, opt):
+    local_opt = copy.deepcopy(opt)
+
+    local_opt.out = "out/diplomarbeit/response/madgraph"
+    plotbase.plotresponse.mpf_responseratio_zpt(files, local_opt)
+    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
+
+    local_opt.out = "out/diplomarbeit/response/powheg"
     local_opt.files = ["/storage/8/dhaitz/CalibFW/work/data_2012_534/out/closure.root",
             "/storage/8/dhaitz/CalibFW/work/mc_powhegSummer12_534/out/closure.root"]
     files = [plotbase.getroot.openfile(f, opt.verbose) for f in local_opt.files]
@@ -83,6 +123,12 @@ def dresp(files, opt):
     plotbase.plotresponse.mpf_responseratio_zpt(files, local_opt)
     plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
 
+
+def dresprun(files, opt):
+    local_opt = copy.deepcopy(opt)
+    local_opt.out = "out/diplomarbeit/response_run"
+    plotbase.plotresponse.response_run(files, local_opt)
+    plotbase.plotresponse.response_run(files, local_opt, changes = {'var':'var_JetEta_2_5to2_964'})
 
 def dak7(files, opt):
     local_opt = copy.deepcopy(opt)
