@@ -42,7 +42,7 @@ def plot(cluster=False):
             "/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_534/out/closure.root",
         ],
         #specify output path
-        out="out/534/",
+        out="out/diplomarbeit/",
 
         #extend colors, labels, styles:
         labels=["data", "MC", "MC 5.0" , "MC 7 TeV (powheg)" , "MC 7 TeV (madgraph)"],
@@ -50,6 +50,8 @@ def plot(cluster=False):
         style=["o","f","-","-","-"],
         formats=['pdf'],
         
+        correction = "L1L2L3",
+
         lumi=19490,
 
         plots= plots_diplomarbeit.plots
