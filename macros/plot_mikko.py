@@ -15,14 +15,14 @@ def response_mikko(files, opt):
     al = opt.algorithm
     co = opt.correction
     corr = ["L1L2L3","L1L2L3Res"]
-    alg = ["AK5PFJets","AK5PFJetsCHS"
-               ]
+    alg = ["AK5PFJets","AK5PFJetsCHS"]
+
     for a in alg:
         opt.algorithm = a
         for c in corr:
             opt.correction = c
-            responseplot_mikko(files, opt, ['bal', 'mpf', 'mpf-raw'
-                    ], drawextrapolation=False, binborders=True)
+            responseplot_mikko(files, opt, ['bal', 'mpf', 'mpf-raw'],
+                drawextrapolation=False, binborders=True)
     opt.algorithm = al
     opt.correction = co
 
@@ -30,14 +30,14 @@ def ratio_mikko(files, opt):
     al = opt.algorithm
     co = opt.correction
     corr = ["L1L2L3", "L1L2L3Res"]
-    alg = ["AK5PFJets", "AK5PFJetsCHS"
-          ]
+    alg = ["AK5PFJets", "AK5PFJetsCHS"]
+
     for a in alg:
         opt.algorithm = a
         for c in corr:
             opt.correction = c
-            ratioplot_mikko(files, opt, ['bal', 'mpf', 'mpf-raw'
-                ], drawextrapolation=False, binborders=True)
+            ratioplot_mikko(files, opt, ['bal', 'mpf', 'mpf-raw'],
+                drawextrapolation=False, binborders=True)
     opt.algorithm = al
     opt.correction = co
 
@@ -50,14 +50,12 @@ def responseplot_mikko(files, opt, types, labels=None,
                  over='zpt',
                  binborders=False,
                  drawextrapolation=False):
-    
+
     if labels is None:
         labels = types
 
-    et_strings = ["_eta00_13", "_eta00_08","_eta08_13", "_eta13_19", "_eta19_25", "_eta25_30", "_eta30_32", "_eta32_52"
-                  ]
-    cu_strings = ["_a10", "_a15", "_a20", "_a30"
-                   ]
+    et_strings = ["_eta00_13", "_eta00_08","_eta08_13", "_eta13_19", "_eta19_25", "_eta25_30", "_eta30_32", "_eta32_52"]
+    cu_strings = ["_a10", "_a15", "_a20", "_a30"]
 
     for et, et_str in zip(([""]+getroot.etastrings(opt.eta)),et_strings):
         for cu, cu_str in zip(getroot.cutstrings(opt.cut), cu_strings):
@@ -68,7 +66,7 @@ def responseplot_mikko(files, opt, types, labels=None,
                 #elif len(t) > 3:
                 #    extrapolation = t[3:]
                 #    t = t[:3]
-                if extrapolation in ['ex', 'data', 'mc', 'datamc']:        
+                if extrapolation in ['ex', 'data', 'mc', 'datamc']:
                     extrapolation = 'data'
                 if 'Gen' not in t:
                     rgraph = plotresponse.getresponse(t+'resp', over, opt, files[0], None, {'var': cu+"_"+et}, extrapolation)
@@ -84,9 +82,9 @@ def responseplot_mikko(files, opt, types, labels=None,
                     string = string.replace("AK5PFJetsCHS_", "CHS")
                     string = string.replace("_AK5PFJets_", "")
                     rgraph.SetTitle(string)
-                    rgraph.SetName(string)  
+                    rgraph.SetName(string)
   
-                    f = ROOT.TFile("/home/dhaitz/git/CalibFW/rootfiles/"+string+".root", "RECREATE")
+                    f = ROOT.TFile(opt.out + "/rootfiles/" + string + ".root", "RECREATE")
                     rgraph.Write()
                     f.Close()
                 if extrapolation == 'data':
@@ -106,7 +104,7 @@ def responseplot_mikko(files, opt, types, labels=None,
                 rgraph.SetTitle(string)
                 rgraph.SetName(string)
 
-                f = ROOT.TFile("/home/dhaitz/git/CalibFW/rootfiles/"+string+".root", "RECREATE")
+                f = ROOT.TFile(opt.out + "/rootfiles/" + string + ".root", "RECREATE")
                 rgraph.Write()
                 f.Close()
 
@@ -125,10 +123,8 @@ def ratioplot_mikko(files, opt, types, labels=None,
     if labels is None:
         labels = types
 
-    et_strings = ["_eta00_13", "_eta00_08","_eta08_13", "_eta13_19", "_eta19_25", "_eta25_30", "_eta30_32", "_eta32_52"
-                       ]
-    cu_strings = ["_a10", "_a15", "_a20", "_a30"
-                   ]
+    et_strings = ["_eta00_13", "_eta00_08","_eta08_13", "_eta13_19", "_eta19_25", "_eta25_30", "_eta30_32", "_eta32_52"]
+    cu_strings = ["_a10", "_a15", "_a20", "_a30"]
 
     for et, et_str in zip(([""]+getroot.etastrings(opt.eta)),et_strings):
         for cu, cu_str in zip(getroot.cutstrings(opt.cut), cu_strings):
@@ -150,7 +146,7 @@ def ratioplot_mikko(files, opt, types, labels=None,
                 rgraph.SetTitle(string)
                 rgraph.SetName(string)
 
-                f = ROOT.TFile("/home/dhaitz/git/CalibFW/rootfiles/"+string+".root", "RECREATE")
+                f = ROOT.TFile(opt.out + "/rootfiles/" + string + ".root", "RECREATE")
                 rgraph.Write()
                 f.Close()
 
