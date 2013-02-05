@@ -36,6 +36,8 @@ def dbasic(files, opt):
     plotbase.plotdatamc.datamcplot('balresp', files, local_opt, fit='gauss')
     plotbase.plotdatamc.datamcplot('mpfresp', files, local_opt, fit='gauss')
 
+    plotbase.plot2d.twoD("2D_cut-all_npv_zpt", files, local_opt)
+
     # PU rew
     local_opt.out = "out/diplomarbeit/basic/PU-unrew"
     local_opt.files = ["/storage/8/dhaitz/CalibFW/work/data_2012_534/out/closure.root",
@@ -72,8 +74,17 @@ def dex(files, opt):
     local_opt.cut = [0.35]
     plotbase.plotresponse.extrapol(files, local_opt)
 
-    #local_opt.correction = "L1L2L3Res"
-    #plotbase.plotresponse.extrapol(files, local_opt)
+    local_opt.correction = "L1L2L3Res"
+    plotbase.plotresponse.extrapol(files, local_opt)
+
+    local_opt.out = "out/diplomarbeit/extrapolation/Summer12"
+    local_opt.files = ["/storage/8/dhaitz/CalibFW/work/data_2012_534_Summer12/out/closure.root",
+            "/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_534_Summer12/out/closure.root"]
+    files = [plotbase.getroot.openfile(f, opt.verbose) for f in local_opt.files]
+    plotbase.plotresponse.extrapol(files, local_opt)
+
+
+
 
 def dresp(files, opt):
     local_opt = copy.deepcopy(opt)
