@@ -644,7 +644,7 @@ def responseratio_all(files, opt, types=['balresp']):
             fig.add_axes(ax1)
             fig.add_axes(ax2)
 
-            if over== 'jet1eta' and typ == 'balresp': legloc = 'upper right'
+            if over == 'jet1eta' and typ == 'balresp': legloc = 'upper right'
             else: legloc = 'lower left'
 
             responseplot(files, opt, [typ], over=over, figaxes=(fig,ax1), legloc=legloc, subplot = True)
@@ -656,7 +656,7 @@ def responseratio_all(files, opt, types=['balresp']):
             if col > 0:
                 ax1.set_ylabel("")
                 ax2.set_ylabel("")
-                
+
     title="                               Jet Response ($p_T$ balance / MPF) vs. Z $p_T$, $N_{vtx}$ ,  Jet $\eta$   ("  +opt.algorithm+" "+opt.correction+")"
     fig.suptitle(title, size='x-large')
 
@@ -723,7 +723,7 @@ def extrapol(files, opt,
         variations = ["var_CutSecondLeadingToZPt_0_3__"+var for var in getroot.npvstrings(opt.npv)]
         variation_label="npv"
         variation='var'
-    
+
 
     l = len(variations)
     fig, axes = plotbase.newplot(subplots=2*l, subplots_Y=2)
@@ -761,9 +761,9 @@ def extrapol(files, opt,
                 mpfmeanerror_data = getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMeanError()
                 mpfmeanerror_mc = getroot.getobjectfromnick('mpfresp', files[1], changes, rebin=1).GetMeanError()
                 ax1.axhline(mpfmean_data, color=local_opt.colors[0])
-		ax1.axhspan(mpfmean_data + mpfmeanerror_data, mpfmean_data - mpfmeanerror_data, color=local_opt.colors[0], alpha=0.2)
+                ax1.axhspan(mpfmean_data + mpfmeanerror_data, mpfmean_data - mpfmeanerror_data, color=local_opt.colors[0], alpha=0.2)
                 ax1.axhline(mpfmean_mc, color=local_opt.colors[1])
-		ax1.axhspan(mpfmean_mc + mpfmeanerror_mc, mpfmean_mc - mpfmeanerror_mc, color=local_opt.colors[1], alpha=0.2)
+                ax1.axhspan(mpfmean_mc + mpfmeanerror_mc, mpfmean_mc - mpfmeanerror_mc, color=local_opt.colors[1], alpha=0.2)
 
         pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30$ GeV   $\eta^\mathrm{Jet1}<1.3$"
         ax1.text(0.97, 0.98, pt_eta_label, va='top', ha='right', color='black', transform=ax1.transAxes, size='large')
@@ -817,7 +817,7 @@ def extrapol(files, opt,
 
     del changes[variation] # delete changes so this isn't included in the file names
     if extrapolate_mpf:
-	    mpflabel = "extrapol" + mpflabel
+        mpflabel = "extrapol" + mpflabel
     file_name = plotbase.getdefaultfilename("extrapolation_%s_%s" % (mpflabel, variation_label), opt, changes)
     plotbase.Save(fig, file_name, opt)
 
