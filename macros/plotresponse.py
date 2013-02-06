@@ -929,7 +929,11 @@ def response_run(files, opt):
                        subplot=True, fit=False, changes=changes, xy_names=['run','response'],
                        fig_axes=(fig, ax))
     ax.axhline(1.0, color='black', linestyle=':')
-    plotbase.Save(fig, "response_run", opt)
+    if 'var' in changes:
+        filename = "response_run" + "_" + changes['var'] +"_"+opt.algorithm+opt.correction
+    else:
+        filename = "response_run" +"_"+opt.algorithm+opt.correction
+    plotbase.Save(fig, filename, opt)
 
 
 plots = [
