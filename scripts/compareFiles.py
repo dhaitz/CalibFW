@@ -109,6 +109,58 @@ def compareTH3(directory1, directory2, histoID):
 		return False
 	return True
 
+def compareGraph(directory1, directory2, histoID):
+	result = True
+	histo1 = directory1.Get(histoID)
+	histo2 = directory2.Get(histoID)
+	if histo1.GetN() != histo2.GetN():
+		print "number of points not identical"
+		if not opt_all:
+			return False
+		result = False
+
+	for point in range(histo1.GetN()):
+		if not comparePoint(histo1, histo2, point):
+			if not opt_all:
+				return False
+			result = False
+	return result
+
+def comparePoint(graph1, graph2, point):
+	result = True
+	x1 = ROOT.Double(+1.0)
+	x2 = ROOT.Double(-1.0)
+	y1 = ROOT.Double(+0.5)
+	y2 = ROOT.Double(-0.5)
+	graph1.GetPoint(point, x1, y1)
+	graph2.GetPoint(point, x2, y2)
+	if x1 != x2:
+		print "x value of point %d in %s not identical: %f vs %f" % (point, graph1.GetName(), x1, x2)
+		if not opt_all:
+			return False
+		result = False
+	if y1 != y2:
+		print "y value of point %d in %s not identical: %f vs %f" % (point, graph1.GetName(), y1, y2)
+		if not opt_all:
+			return False
+		result = False
+	x1 = graph1.GetErrorX(point)
+	y1 = graph1.GetErrorY(point)
+	x2 = graph2.GetErrorX(point)
+	y2 = graph2.GetErrorY(point)
+	if x1 != x2:
+		print "x error of point %d in %s not identical: %f vs %f" % (point, graph1.GetName(), x1, x2)
+		if not opt_all:
+			return False
+		result = False
+	if y1 != y2:
+		print "y error of point %d in %s not identical: %f vs %f" % (point, graph1.GetName(), y1, y2)
+		if not opt_all:
+			return False
+		result = False
+	return result
+
+
 def compareTree(directory1, directory2):
 	result = True
 	for i in directory2.GetListOfKeys():
@@ -146,6 +198,12 @@ def compareTree(directory1, directory2):
 			identified = True
 			if not compareTH2(directory1, directory2, i.GetName()):
 				print "problem with %s in %s" % (i.GetName(), directory1.GetPath().split(":")[1])
+				if not opt_all:
+					return False
+				result = False
+		if obj.IsA().GetName() == "TGraphErrors":
+			identified = True
+			if not compareGraph(directory1, directory2, i.GetName()):
 				if not opt_all:
 					return False
 				result = False
