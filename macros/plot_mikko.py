@@ -57,6 +57,7 @@ def responseplot_mikko(files, opt, types, labels=None,
     et_strings = ["_eta00_13", "_eta00_08","_eta08_13", "_eta13_19", "_eta19_25", "_eta25_30", "_eta30_32", "_eta32_52"]
     cu_strings = ["_a10", "_a15", "_a20", "_a30"]
 
+    f = ROOT.TFile(opt.out + "/responseplots_mikko.root", "RECREATE")
     for et, et_str in zip(([""]+getroot.etastrings(opt.eta)),et_strings):
         for cu, cu_str in zip(getroot.cutstrings(opt.cut), cu_strings):
             for t, l, m, c, in zip(types, labels, markers, colors):
@@ -104,9 +105,8 @@ def responseplot_mikko(files, opt, types, labels=None,
                 rgraph.SetTitle(string)
                 rgraph.SetName(string)
 
-                f = ROOT.TFile(opt.out + "/rootfiles/" + string + ".root", "RECREATE")
                 rgraph.Write()
-                f.Close()
+    f.Close()
 
 def ratioplot_mikko(files, opt, types, labels=None,
                  colors=["FireBrick", 'blue', 'green', 'red']*7,
@@ -125,7 +125,7 @@ def ratioplot_mikko(files, opt, types, labels=None,
 
     et_strings = ["_eta00_13", "_eta00_08","_eta08_13", "_eta13_19", "_eta19_25", "_eta25_30", "_eta30_32", "_eta32_52"]
     cu_strings = ["_a10", "_a15", "_a20", "_a30"]
-
+    f = ROOT.TFile(opt.out + "/ratioplots_mikko.root", "RECREATE")
     for et, et_str in zip(([""]+getroot.etastrings(opt.eta)),et_strings):
         for cu, cu_str in zip(getroot.cutstrings(opt.cut), cu_strings):
             for t, l, m, c in zip(types, labels, markers, colors):
@@ -146,9 +146,8 @@ def ratioplot_mikko(files, opt, types, labels=None,
                 rgraph.SetTitle(string)
                 rgraph.SetName(string)
 
-                f = ROOT.TFile(opt.out + "/rootfiles/" + string + ".root", "RECREATE")
                 rgraph.Write()
-                f.Close()
+    f.Close()
 
 
             if over == 'jet1eta':
