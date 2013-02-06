@@ -36,7 +36,7 @@ def dbasic(files, opt):
     plotbase.plotdatamc.datamcplot('balresp', files, local_opt, fit='gauss')
     plotbase.plotdatamc.datamcplot('mpfresp', files, local_opt, fit='gauss')
 
-    plotbase.plot2d.twoD("2D_cut-all_npv_zpt", files, local_opt)
+    plotbase.plot2d.twoD("2D_cut-all_npv_zpt", files, local_opt, x_limits=[0, 40], y_limits=[0, 400])
 
     # PU rew
     local_opt.out = "out/diplomarbeit/basic/PU-unrew"
@@ -139,7 +139,8 @@ def dresprun(files, opt):
     local_opt = copy.deepcopy(opt)
     local_opt.out = "out/diplomarbeit/response_run"
     plotbase.plotresponse.response_run(files, local_opt)
-    plotbase.plotresponse.response_run(files, local_opt, changes = {'var':'var_JetEta_2_5to2_964'})
+    for eta in plotbase.getroot.etastrings(local_opt.eta):
+        plotbase.plotresponse.response_run(files, local_opt, changes = {'var':eta})
 
 def dak7(files, opt):
     local_opt = copy.deepcopy(opt)
