@@ -113,8 +113,9 @@ def compareTree(directory1, directory2):
 	result = True
 	for i in directory2.GetListOfKeys():
 		obj = directory1.Get(i.GetName())
+		obj2 = directory2.Get(i.GetName())
 		if not obj:
-			print "Object %s of type %s in %s is not available in first file" % (i.GetName(), obj.IsA().GetName(), directory2.GetPath().split(":")[1])
+			print "Object %s of type %s in %s is not available in first file" % (i.GetName(), obj2.IsA().GetName(), directory2.GetPath().split(":")[1])
 			if not opt_all:
 				return False
 			result = False
