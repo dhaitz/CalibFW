@@ -249,7 +249,7 @@ def options(
         help="do a ratio plot from the first two input files")
     parser.add_argument('-F', '--fit', type=str,
         default=fit,
-        help="Fit option")
+        help="Do a fit. Options: vertical, chi2, no.")
     parser.add_argument('-g', '--legloc', type=str,
         default=legloc,
         help="Location of the legend")
@@ -259,13 +259,13 @@ def options(
         help="Select Eta bin i (integer argument)")
     parser.add_argument('--alphabin', type=int,
         default=alphabin,
-        help="Alpha bin bin i (integer argument)")
+        help="Select alpha bin i (integer argument)")
     parser.add_argument('--zptbin', type=int,
         default=zptbin,
-        help="ZpT bin bin i (integer argument)")
+        help="Select Z-pT bin i (integer argument)")
     parser.add_argument('--npvbin', type=int,
         default=npvbin,
-        help="NPV bin bin i (integer argument)")
+        help="Select NPV bin i (integer argument)")
 
 
     opt = parser.parse_args()
@@ -506,7 +506,8 @@ def fit(fit, ax, quantity, rootfile, change, rebin, color, index,
         offset=0, label="", used_rebin = 1, limits = [0,1], scalefactor=1):
     """One of several fits is added to an axis element, fit parameters are added as text element"""
     if color == '#CBDBF9': color = 'blue'
-    if fit=='vertical': return
+    if fit == 'vertical': return
+    if fit == 'no': return
 
     if rootobject is None:
         rootobject = getroot.getobjectfromnick(quantity, rootfile, change, rebin=5)
