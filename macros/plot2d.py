@@ -17,7 +17,9 @@ def twoD_all(quantity, datamc, opt):
 
 # Main 2d Plotting function:
 def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, rebin=[1,1],
-           file_name = "", subplot=False, subtext="", fig_axes=(), xy_names=None, normalize=True, folder=None, axtitle=None):
+           file_name = "", subplot=False, subtext="", fig_axes=(),
+             xy_names=None, normalize=True, folder=None, axtitle=None,
+            x_limits=None, y_limits=None):
 
     change= plotbase.getchanges(opt, changes)
 
@@ -106,6 +108,8 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
                                         sub_plot=subplot, mc=mc, color='white', energy_label=(not subplot))
 
     plotbase.axislabels(ax, xy_names[0], xy_names[1])
+    if x_limits is not None: ax.set_xlim(x_limits[0], x_limits[1])
+    if y_limits is not None: ax.set_ylim(y_limits[0], y_limits[1])
 
     if subplot: return
 
