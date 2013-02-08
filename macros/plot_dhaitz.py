@@ -27,6 +27,7 @@ import plotdatamc
 import plotfractions
 import plotresponse
 import plot_resolution
+import plot_resolution_new
 import plot_mikko
 import plot2d
 import plot_sandbox
@@ -62,7 +63,8 @@ def plot(cluster=False):
                #+plot_resolution.plots
                #plot_mikko.plots
         )
-    module_list = [plots_diplomarbeit, plotresponse, plotfractions, plot2d, plotdatamc, plot_resolution, plot_mikko, plot_sandbox]
+    module_list = [plots_diplomarbeit, plotresponse, plotfractions, plot2d, 
+                    plotdatamc, plot_resolution, plot_resolution_new, plot_mikko, plot_sandbox]
     
     print "Number of files:", len(op.files)
     files=[]

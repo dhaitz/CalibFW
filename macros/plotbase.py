@@ -26,6 +26,7 @@ import getroot
 import plotrc
 import plotdatamc
 import plotresponse
+import plot_resolution_new
 import plotfractions
 import plot2d
 import plotresponse
