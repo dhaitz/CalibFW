@@ -11,6 +11,7 @@ def dipl(files, opt):
     dfrac(files, opt)
     dresp(files, opt)
     dresprun(files, opt)
+    dresol(files, opt)
     dpowheg(files, opt)
     dak7(files, opt)
     dl1(files, opt)
@@ -116,7 +117,13 @@ def dresp(files, opt):
             local_opt.algorithm = algo
             plotbase.plotresponse.bal_responseratio_npv(files, local_opt)
 
-    
+    # resolution
+def dresol(files, opt):
+    local_opt = copy.deepcopy(opt)
+    #local_opt.colors = ['black', 'blue']
+    local_opt.out = "out/diplomarbeit/resolution"
+    plotbase.plot_resolution_new.mpf_resolution_zpt(files, local_opt)
+    plotbase.plot_resolution_new.bal_resolution_zpt(files, local_opt)
 
     # powheg
 def dpowheg(files, opt):
