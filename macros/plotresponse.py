@@ -246,6 +246,8 @@ def labelformat(label):
         result = "$p_{\mathrm{T}}$ balance"
     elif 'mpfresp' in label:
         result = "MPF"
+    elif 'mpf-rawresp' in label:
+        result = "MPF-raw"
     if 'ratio' in label:
         result += " (ratio extrapol.)"
     elif 'seperate' in label:
@@ -483,7 +485,7 @@ def extrapol(files, opt,
         variations = getroot.binstrings(opt.bins)
         variation_label="zpt"
         variation='bin'
-        changes['var']="_var_CutSecondLeadingToZPt_0_3"
+        changes['var']="_var_CutSecondLeadingToZPt_0_35"
     elif variation=='alpha':
         variations = getroot.cutstrings(opt.cut)
         variation_label="alpha"
@@ -493,7 +495,7 @@ def extrapol(files, opt,
         variation_label="eta"
         variation='var'
     elif variation=='npv':
-        variations = ["var_CutSecondLeadingToZPt_0_3__"+var for var in getroot.npvstrings(opt.npv)]
+        variations = ["var_CutSecondLeadingToZPt_0_35__"+var for var in getroot.npvstrings(opt.npv)]
         variation_label="npv"
         variation='var'
 
