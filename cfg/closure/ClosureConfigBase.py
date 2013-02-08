@@ -1008,6 +1008,15 @@ def Add2DProfiles(config, algos, forIncut = True, forAllevents=False, forIncutVa
                 AddConsumerEasy(pval, {
                     'Name': "generic_profile2d_consumer",
                     'RunUnfiltered': 1,
+                    'XSource': "npv",
+                    'YSource': "zpt",
+                    'ZSource': "cutvalue", 'ZCutId': "16",
+                    'ProductName': "2D_cut-jet2toZpt_npv_zpt_" + algo
+                })
+
+                AddConsumerEasy(pval, {
+                    'Name': "generic_profile2d_consumer",
+                    'RunUnfiltered': 1,
                     'XSource': "jet2phi",
                     'YSource': "jet2eta",
                     'ZSource': "cutvalue", 'ZCutId': "-1",
