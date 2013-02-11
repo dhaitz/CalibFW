@@ -93,13 +93,16 @@ def dresp(files, opt):
     plotbase.plotresponse.mpf_responseratio_zpt(files, local_opt)
     plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
 
+    local_opt.correction = "L1L2L3Res"
+    plotbase.plotresponse.mpf_responseratio_eta(files, local_opt)
+    plotbase.plotresponse.bal_responseratio_eta(files, local_opt)
+
     # L1
     local_opt.out = "out/diplomarbeit/response/L1"
     local_opt.correction = ""
     plotbase.plotresponse.bal_responseratio_npv(files, local_opt)
     local_opt.correction = "L1"
     plotbase.plotresponse.bal_responseratio_npv(files, local_opt)
-
     # L2L3
     local_opt.out = "out/diplomarbeit/response/L2L3"
     plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
