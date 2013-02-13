@@ -231,13 +231,49 @@ def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw
     """
     assert method in ['balresp', 'mpfresp', 'recogen', 'mpf-rawresp']
     assert type(changes) == dict
-    assert extrapol in [False, '', 'data', 'mc', 'ratio', 'separate']
+    #assert extrapol in [False, '', 'data', 'mc', 'ratio', 'separate']
     #print "getresp", changes
     if method == 'mpf-rawresp': method = 'mpfresp-raw'
     
     graph = getroot.getgraphratio(over, method, f1, f2, opt, changes, absmean=(over=='jet1_eta'))
     if extrapol:
-        if over == 'zpt':
+        var_dict = {    
+            'zpt':{
+                    'binstrings':getroot.binstrings(opt.bins),
+                    'x_quantity':"zpt",
+                    'changekey':'bin',
+                    },
+            'jet1eta':{
+                    'binstrings':getroot.etastrings(opt.eta),
+                    'x_quantity':"jet1abs",
+                    'changekey':'var'
+                    },
+            'npv':{
+                    'binstrings':getroot.npvstrings(opt.npv),
+                    'x_quantity':"npv",
+                    'changekey':'var'
+                    }
+        }
+
+        method_dict = {'balresp':'ptbalance', 'mpfresp':'mpf'}
+        changes['var'] = "var_CutSecondLeadingToZPt_0_35"
+
+        for string, i in zip(var_dict[over]['binstrings'], range(len(var_dict[over]['binstrings']))):
+            changes[var_dict[over]['changekey']] = string
+            resp, resperr =  getextrapolated(method_dict[method], f1, changes=changes)
+            if f2 is not None:
+                resp2, resperr2 =  getextrapolated(method_dict[method], f2, changes=changes)
+                resp = resp / resp2
+                resperr =  abs(resp / resp2) * math.sqrt((resperr / resp)**2 + (resperr2 / resp2)**2)
+
+            x, y, dx, dy = getroot.getgraphpoint(graph, i)
+            graph.SetPoint(i, x, resp)
+            graph.SetPointError(i, dx, resperr)
+        del changes[var_dict[over]['changekey']]
+        if 'var' in changes: del changes['var']
+
+
+        """if over == 'zpt':
             bins = getroot.binstrings(opt.bins)
             #bins.pop(0)
         elif over == 'jet1eta':
@@ -253,7 +289,7 @@ def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw
             x, y, dx, dy = getroot.getgraphpoint(graph, i)
             y, dy = extrapolatebin(method, bins[i], changes, opt, f1, f2, source=extrapol, draw=draw, over=over)
             graph.SetPoint(i, x, y)
-            graph.SetPointError(i, dx, dy)
+            graph.SetPointError(i, dx, dy)"""
     return graph
 
 
@@ -280,7 +316,8 @@ def responseplot(files, opt, types, labels=None,
                  legloc='lower left',
                  changes = {},
                  subtext = "",
-                 subplot = False):
+                 subplot = False,
+                 extrapol=False):
     """type: bal|mpf[:ratio,seperate,data,mc,ex]
     """
     if figaxes == None: figaxes = plotbase.newplot()
@@ -300,7 +337,7 @@ def responseplot(files, opt, types, labels=None,
         if extrapolation in ['ex', 'data', 'mc', 'datamc']:
             extrapolation = 'data'
         if 'gen' not in t:
-            plot = getroot.root2histo(getresponse(t, over, opt, files[0], None, changes, extrapolation))
+            plot = getroot.root2histo(getresponse(t, over, opt, files[0], None, changes, extrapol))
             ax.errorbar(plot.x, plot.y, plot.yerr, color='black', fmt=m, label=l+" ("+opt.labels[0]+")")
             plotbinborders(ax, over, plot.y, opt)
         if extrapolation == 'data':
@@ -308,10 +345,10 @@ def responseplot(files, opt, types, labels=None,
 
         if (len(files)>1 and len(types)<2):
             for f, label, color, mark in zip(files[1:], opt.labels[1:], colors, markers[1:]):
-                plot = getroot.root2histo(getresponse(t, over, opt, f, None, changes, extrapolation))
+                plot = getroot.root2histo(getresponse(t, over, opt, f, None, changes, extrapol))
                 ax.errorbar(plot.x, plot.y, plot.yerr, color=color, fmt=mark, label=l+" ("+label+")")
         else:
-            plot = getroot.root2histo(getresponse(t, over, opt, files[1], None, changes, extrapolation))
+            plot = getroot.root2histo(getresponse(t, over, opt, files[1], None, changes, extrapol))
             if l == 'recogen': l = "Reco/Gen"
             else: l = l+" ("+opt.labels[1]+")"
             ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
@@ -367,7 +404,8 @@ def ratioplot(files, opt, types, labels=None,
                  changes = {},
                  subtext = "",
                  ratiosubplot=False,
-                 subplot = False):
+                 subplot = False,
+                 extrapol=False):
     """type: bal|mpf[ratio|seperate]
     """
     if figaxes == None: figaxes = plotbase.newplot()
@@ -381,7 +419,7 @@ def ratioplot(files, opt, types, labels=None,
             pass #ax.axvline(x, color='gray')
 
     for t, l, m, c in zip(types, labels, markers, colors):
-        rgraph = getresponse(t[:3]+'resp', over, opt, files[0], files[1], changes, extrapol=False, draw=False)
+        rgraph = getresponse(t, over, opt, files[0], files[1], changes, extrapol=extrapol, draw=False)
         if fit:
             line, err, chi2, ndf = getroot.fitline(rgraph)
             if ratiosubplot:
@@ -586,28 +624,30 @@ def response_all(files, opt):
 
 
 # response + ratio
-def bal_responseratio_eta(files, opt):
-    responseratio(files, opt, over='jet1eta', fit=False, types=['balresp'])
+def bal_responseratio_eta(files, opt, extrapol=False):
+    responseratio(files, opt, over='jet1eta', fit=False, types=['balresp'], extrapol=extrapol)
 
-def bal_responseratio_zpt(files, opt):
-    responseratio(files, opt, fit=True, types=['balresp'])
+def bal_responseratio_zpt(files, opt, extrapol=False):
+    responseratio(files, opt, fit=True, types=['balresp'], extrapol=extrapol)
 
-def bal_responseratio_npv(files, opt):
-    responseratio(files, opt, over='npv', fit=True, types=['balresp'])
-
-
-def mpf_responseratio_eta(files, opt):
-    responseratio(files, opt, over='jet1eta', fit=False, types=['mpfresp'])
-
-def mpf_responseratio_zpt(files, opt):
-    responseratio(files, opt, fit=True, types=['mpfresp'])
-
-def mpf_responseratio_npv(files, opt):
-    responseratio(files, opt, over='npv', fit=True, types=['mpfresp'])
+def bal_responseratio_npv(files, opt, extrapol=False):
+    responseratio(files, opt, over='npv', fit=True, types=['balresp'], extrapol=extrapol)
 
 
+def mpf_responseratio_eta(files, opt, extrapol=False):
+    responseratio(files, opt, over='jet1eta', fit=False, types=['mpfresp'], extrapol=extrapol)
 
-def responseratio(files, opt, over='zpt', fit=False, types=['balresp']):
+def mpf_responseratio_zpt(files, opt, extrapol=False):
+    responseratio(files, opt, fit=True, types=['mpfresp'], extrapol=extrapol)
+def mpfraw_responseratio_zpt(files, opt, extrapol=False):
+    responseratio(files, opt, fit=True, types=['mpf-rawresp'], extrapol=extrapol)
+
+def mpf_responseratio_npv(files, opt, extrapol=False):
+    responseratio(files, opt, over='npv', fit=True, types=['mpfresp'], extrapol=extrapol)
+
+
+
+def responseratio(files, opt, over='zpt', fit=False, types=['balresp'], extrapol=True):
 
     fig = plotbase.plt.figure(figsize=[7, 7])
     fig.suptitle(opt.title, size='xx-large')
@@ -619,8 +659,8 @@ def responseratio(files, opt, over='zpt', fit=False, types=['balresp']):
     if over== 'jet1eta' and types == ['balresp']: legloc = 'upper right'
     else: legloc = 'lower right'
 
-    responseplot(files, opt, types, over=over, figaxes=(fig,ax1), legloc=legloc, subplot = True)
-    ratioplot(files, opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True, legloc='lower right')
+    responseplot(files, opt, types, over=over, figaxes=(fig,ax1), legloc=legloc, subplot = True, extrapol=extrapol)
+    ratioplot(files, opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True, legloc='lower right', extrapol=extrapol)
     fig.subplots_adjust(hspace=0.05)
 
     ax1.set_xticks([])
@@ -690,7 +730,7 @@ def extrapol(files, opt,
            variation='alpha',
            use_rawMET=False, # use raw MET instead of type-I MET
            extrapolate_mpf = True, # if false, use average for MET
-           save_individually = True):  # save each plot indivually, not as a subplot
+           save_individually = False):  # save each plot indivually, not as a subplot
 
     rebin = 10
     if opt.rebin is not None: rebin = opt.rebin
