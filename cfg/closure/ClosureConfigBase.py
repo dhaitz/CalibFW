@@ -866,14 +866,17 @@ def AddQuantityPlots(config, algos, forIncut=True, forAllevents=False, forIncutV
 
     y_quantities = [
         'jet1pt', 'jet1abseta', 'jet2pt', 'jet2abseta', 'zpt', 'zabseta', 'npv',
-        'METpt-diff', 'METphi-diff', 'mpf-diff', 'jetsvalid', 'ptbalance',
-        'mpf', 'mpf-raw', 'METpt', 'sumEt', 'METfraction', 'zphi', 'METphi',
+        #'METpt-diff', 'METphi-diff', 'mpf-diff', 'jetsvalid',
+         'ptbalance',
+        'mpf', 'mpf-raw', 'METpt', 'sumEt',# 'METfraction',
+         'zphi', 'METphi',
         'zmass'
     ]
 
     x_quantities = [
         'jet1pt', 'npv', 'jet1eta', 'jet1phi', 'jet2pt', 'jet2eta', 'jet2phi',
-        'zpt', 'zeta', 'zphi', 'METpt', 'METphi', 'sumEt', 'jetsvalid', 'alpha'
+        'zpt', 'zeta', 'zphi', 'METpt', 'METphi'#, 'sumEt',
+         'jetsvalid', 'alpha'
     ]
 
     objects = ['z', 'jet1', 'jet2', 'MET']
@@ -896,20 +899,20 @@ def AddQuantityPlots(config, algos, forIncut=True, forAllevents=False, forIncutV
                         if x is not y:
                             AddGenericProfileConsumer(x,y)
 
-                    AddGenericProfileConsumer(x, "jetptratio", jets=[algo, algo, 0, 1])
-                    AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo, algo, 0, 1])
+                    #AddGenericProfileConsumer(x, "jetptratio", jets=[algo, algo, 0, 1])
+                    #AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo, algo, 0, 1])
 
                 for y in y_quantities:
-                    AddGenericProfileConsumer("jetptratio", y, jets=[algo, algo, 0, 1])
-                    AddGenericProfileConsumer("jetptabsdiff", y, jets=[algo, algo, 0, 1])
-                    AddAbsDiff("eta", y, 'jet1', 'z')
+                    #AddGenericProfileConsumer("jetptratio", y, jets=[algo, algo, 0, 1])
+                    #AddGenericProfileConsumer("jetptabsdiff", y, jets=[algo, algo, 0, 1])
+                    #AddAbsDiff("eta", y, 'jet1', 'z')
 
-                for obj1 in objects:
+                """for obj1 in objects:
                     for obj2 in objects:
                         if obj1 is not obj2:
                             AddAbsDiff("eta", 'ptbalance', obj1, obj2)
                             for quantity in ['ptbalance', 'mpf', 'mpf-raw', 'zpt', 'METpt', 'jet1pt', 'alpha']:
-                                AddAbsDiff("phi", quantity, obj1, obj2)
+                                AddAbsDiff("phi", quantity, obj1, obj2)"""
 
 def Add2DHistograms(config, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
     for algo in algos:

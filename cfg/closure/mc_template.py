@@ -26,7 +26,7 @@ def get_template(algo="AK5PFJets"):
 
     algo_list = [algo+"L1L2L3", algo+"CHSL1L2L3"]
 
-    cbase.AddQuantityPlots(conf, [algo+"L1L2L3", algo+"CHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
+    cbase.AddQuantityPlots(conf, algorithms, forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
 
     cbase.Add2DHistograms(conf, [algo+"L1L2L3", algo+"CHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
     cbase.Add2DProfiles(conf, [algo+"L1L2L3", algo+"CHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
