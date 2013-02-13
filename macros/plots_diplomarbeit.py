@@ -7,11 +7,11 @@ plots = [
 
 def dipl(files, opt):
 
-    dbasic(files, opt)
-    dfrac(files, opt)
+    #dbasic(files, opt)
+    #dfrac(files, opt)
     dresp(files, opt)
     dresprun(files, opt)
-    dresol(files, opt)
+    #dresol(files, opt)
     dpowheg(files, opt)
     dak7(files, opt)
     dl1(files, opt)
@@ -89,13 +89,14 @@ def dex(files, opt):
 
 def dresp(files, opt):
     local_opt = copy.deepcopy(opt)
+
     local_opt.out = "out/diplomarbeit/response"
-    plotbase.plotresponse.mpf_responseratio_zpt(files, local_opt)
-    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
+    plotbase.plotresponse.mpf_responseratio_zpt(files, local_opt, extrapol=True)
+    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt, extrapol=True)
 
     local_opt.correction = "L1L2L3Res"
-    plotbase.plotresponse.mpf_responseratio_eta(files, local_opt)
-    plotbase.plotresponse.bal_responseratio_eta(files, local_opt)
+    plotbase.plotresponse.mpf_responseratio_eta(files, local_opt, extrapol=True)
+    plotbase.plotresponse.bal_responseratio_eta(files, local_opt, extrapol=True)
 
     # L1
     local_opt.out = "out/diplomarbeit/response/L1"
@@ -108,8 +109,10 @@ def dresp(files, opt):
     plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
     plotbase.plotresponse.bal_responseratio_eta(files, local_opt)
     local_opt.correction = "L1L2L3"
-    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
-    plotbase.plotresponse.bal_responseratio_eta(files, local_opt)
+    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt, extrapol=True)
+    plotbase.plotresponse.bal_responseratio_eta(files, local_opt, extrapol=True)
+
+
 
     # CHS
     local_opt.out = "out/diplomarbeit/response/chs"
@@ -118,7 +121,7 @@ def dresp(files, opt):
         for algo in ['AK5PFJets', 'AK5PFJetsCHS']:
             local_opt.correction = corr
             local_opt.algorithm = algo
-            plotbase.plotresponse.bal_responseratio_npv(files, local_opt)
+            plotbase.plotresponse.bal_responseratio_npv(files, local_opt, extrapol=False)
 
     # resolution
 def dresol(files, opt):
@@ -133,16 +136,16 @@ def dpowheg(files, opt):
     local_opt = copy.deepcopy(opt)
 
     local_opt.out = "out/diplomarbeit/response/madgraph"
-    plotbase.plotresponse.mpf_responseratio_zpt(files, local_opt)
-    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
+    plotbase.plotresponse.mpf_responseratio_zpt(files, local_opt, extrapol=True)
+    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt, extrapol=True)
 
     local_opt.out = "out/diplomarbeit/response/powheg"
     local_opt.files = ["/storage/8/dhaitz/CalibFW/work/data_2012_534/out/closure.root",
             "/storage/8/dhaitz/CalibFW/work/mc_powhegSummer12_534/out/closure.root"]
     files = [plotbase.getroot.openfile(f, opt.verbose) for f in local_opt.files]
 
-    plotbase.plotresponse.mpf_responseratio_zpt(files, local_opt)
-    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
+    plotbase.plotresponse.mpf_responseratio_zpt(files, local_opt, extrapol=True)
+    plotbase.plotresponse.bal_responseratio_zpt(files, local_opt, extrapol=True)
 
 
 def dresprun(files, opt):
@@ -154,6 +157,7 @@ def dresprun(files, opt):
 
 def dak7(files, opt):
     local_opt = copy.deepcopy(opt)
+
     local_opt.out = "out/diplomarbeit/AK7"
     plotbase.plotresponse.bal_responseratio_zpt(files, local_opt)
 
@@ -166,14 +170,14 @@ def dak7(files, opt):
 def dl1(files, opt):
     local_opt = copy.deepcopy(opt)
     local_opt.out = "out/diplomarbeit/L1Fastjet"
-    plotbase.plotresponse.bal_responseratio_npv(files, local_opt)
+    plotbase.plotresponse.bal_responseratio_npv(files, local_opt, extrapol=True)
     plotbase.plotdatamc.L1('L1abs_npv', files, local_opt, rebin=1)
 
     local_opt.out = "out/diplomarbeit/L1Offset"
     local_opt.files = ["/storage/8/dhaitz/CalibFW/work/data_2012_534_L1Offset/out/closure.root",
             "/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_534_L1Offset/out/closure.root"]
     files = [plotbase.getroot.openfile(f, opt.verbose) for f in local_opt.files]
-    plotbase.plotresponse.bal_responseratio_npv(files, local_opt)
+    plotbase.plotresponse.bal_responseratio_npv(files, local_opt, extrapol=True)
     plotbase.plotdatamc.L1('L1abs_npv', files, local_opt, rebin=1)
 
 
