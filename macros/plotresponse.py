@@ -215,7 +215,7 @@ def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ra
         return fitd.f(0) / fitm.f(0), fitd.ferr(0) / fitm.f(0) + fitm.ferr(0) * fitd.f(0) / fitm.f(0) / fitm.f(0)
 
 
-def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw=True):
+def getresponse(method, over, opt, f1, f2=None, changes=None, extrapol=False, draw=True):
     """
        If 2 files are given the response ratio is returned!
        This is using fillgraph, fitextrapolation and draw_extra
@@ -235,7 +235,8 @@ def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw
     #assert extrapol in [False, '', 'data', 'mc', 'ratio', 'separate']
     #print "getresp", changes
     if method == 'mpf-rawresp': method = 'mpfresp-raw'
-    
+    changes = plotbase.getchanges(opt, changes)
+
     graph = getroot.getgraphratio(over, method, f1, f2, opt, changes, absmean=(over=='jet1_eta'))
     if extrapol is not False:
         var_dict = {    
@@ -330,7 +331,7 @@ def responseplot(files, opt, types, labels=None,
                  figaxes = None,
                  drawextrapolation=False,
                  legloc='lower left',
-                 changes = {},
+                 changes = None,
                  subtext = "",
                  subplot = False,
                  extrapol=False):
@@ -341,6 +342,9 @@ def responseplot(files, opt, types, labels=None,
     ax=figaxes[1]
     if labels is None:
         labels = types
+
+    if changes is None: changes = plotbase.createchanges(opt)
+    else: changes = plotbase.getchanges(opt, changes)
 
     labels = [string.replace("mpfresp", "MPF").replace("balresp","$p_{\mathrm{T}}$ Balance") for string in labels] 
     for t, l, m, c in zip(types, labels, markers, colors):
@@ -417,13 +421,16 @@ def ratioplot(files, opt, types, labels=None,
                  figaxes = None,
                  fit=True,
                  legloc='lower right',
-                 changes = {},
+                 changes = None,
                  subtext = "",
                  ratiosubplot=False,
                  subplot = False,
                  extrapol=False):
     """type: bal|mpf[ratio|seperate]
     """
+    if changes is None: changes = plotbase.createchanges(opt)
+    else: changes = plotbase.getchanges(opt, changes)
+
     if figaxes == None: figaxes = plotbase.newplot()
     fig =figaxes[0]
     ax=figaxes[1]

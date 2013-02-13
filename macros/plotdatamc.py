@@ -16,13 +16,14 @@ from dictionaries import d_plots
 
 
 def datamcplot(quantity, files, opt, legloc='center right',
-               changes={}, log=False, xlog=False, rebin=5, file_name = "", subplot=False, 
-               subtext="", fig_axes=(), xy_names=None, normalize=True, runplot_diff=False, fit=None, ratio=False, fit_offset=0):
+               changes=None, log=False, xlog=False, rebin=5, file_name = "", subplot=False, 
+               subtext="", fig_axes=(), xy_names=None, normalize=True, runplot_diff=False, fit=None, ratio=False, fit_offset=0, x_limits=None, y_limits=None):
     """Template for all data/MC comparison plots for basic quantities."""
     # read the values
     if opt.verbose:
         print quantity
-    change= plotbase.getchanges(opt, changes)
+    if changes is None: change = plotbase.createchanges(opt)
+    else: change = plotbase.getchanges(opt, changes)
     if opt.rebin is not None: rebin = opt.rebin
     if opt.ratio is not False: ratio = opt.ratio
     if opt.fit is not None: fit = opt.fit
