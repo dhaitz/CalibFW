@@ -20,6 +20,7 @@ import math
 import copy
 from ROOT import TGraphErrors, TCanvas, TF1, TFile
 import ROOT
+from uncertainties import ufloat
 
 import plotbase
 import getroot
@@ -236,7 +237,7 @@ def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw
     if method == 'mpf-rawresp': method = 'mpfresp-raw'
     
     graph = getroot.getgraphratio(over, method, f1, f2, opt, changes, absmean=(over=='jet1_eta'))
-    if extrapol:
+    if extrapol is not False:
         var_dict = {    
             'zpt':{
                     'binstrings':getroot.binstrings(opt.bins),
@@ -256,40 +257,55 @@ def getresponse(method, over, opt, f1, f2=None, changes={}, extrapol=False, draw
         }
 
         method_dict = {'balresp':'ptbalance', 'mpfresp':'mpf'}
-        changes['var'] = "var_CutSecondLeadingToZPt_0_35"
 
-        for string, i in zip(var_dict[over]['binstrings'], range(len(var_dict[over]['binstrings']))):
-            changes[var_dict[over]['changekey']] = string
-            resp, resperr =  getextrapolated(method_dict[method], f1, changes=changes)
+        if extrapol == 'globalfactor':
+            # get the factor
+            k = ufloat((getextrapolated(method_dict[method], f1, changes=changes, getfactor = True)))
             if f2 is not None:
-                resp2, resperr2 =  getextrapolated(method_dict[method], f2, changes=changes)
-                resp = resp / resp2
-                resperr =  abs(resp / resp2) * math.sqrt((resperr / resp)**2 + (resperr2 / resp2)**2)
+                k2 = ufloat((getextrapolated(method_dict[method], f2, changes=changes, getfactor = True)))
+                k = k / k2
 
-            x, y, dx, dy = getroot.getgraphpoint(graph, i)
-            graph.SetPoint(i, x, resp)
-            graph.SetPointError(i, dx, resperr)
-        del changes[var_dict[over]['changekey']]
-        if 'var' in changes: del changes['var']
+            for i in range(len(var_dict[over]['binstrings'])):
+                x, y, dx, dy = getroot.getgraphpoint(graph, i)
+                yu = ufloat((y, dy))
+                ex = k * yu
 
-
-        """if over == 'zpt':
-            bins = getroot.binstrings(opt.bins)
-            #bins.pop(0)
-        elif over == 'jet1eta':
-            bins = getroot.etastrings(opt.eta)
-        elif over == 'npv':
-            bins = getroot.npvstrings(opt.npv)
-        elif over == 'alpha':
-            bins = getroot.cutstrings(opt.cut)
+                graph.SetPoint(i, x, ex.nominal_value)
+                graph.SetPointError(i, dx, ex.std_dev())
         else:
-            print "The 'over' value", repr(over), "is not known."
-            exit(0)
-        for i in range(len(bins)):
-            x, y, dx, dy = getroot.getgraphpoint(graph, i)
-            y, dy = extrapolatebin(method, bins[i], changes, opt, f1, f2, source=extrapol, draw=draw, over=over)
-            graph.SetPoint(i, x, y)
-            graph.SetPointError(i, dx, dy)"""
+            changes['var'] = "var_CutSecondLeadingToZPt_0_35"
+            for string, i in zip(var_dict[over]['binstrings'], range(len(var_dict[over]['binstrings']))):
+                changes[var_dict[over]['changekey']] = string
+                resp, resperr =  getextrapolated(method_dict[method], f1, changes=changes)
+                if f2 is not None:
+                    resp2, resperr2 =  getextrapolated(method_dict[method], f2, changes=changes)
+                    resp = resp / resp2
+                    resperr =  abs(resp / resp2) * math.sqrt((resperr / resp)**2 + (resperr2 / resp2)**2)
+
+                x, y, dx, dy = getroot.getgraphpoint(graph, i)
+                graph.SetPoint(i, x, resp)
+                graph.SetPointError(i, dx, resperr)
+            del changes[var_dict[over]['changekey']]
+            if 'var' in changes: del changes['var']
+     
+
+            """if over == 'zpt':
+                bins = getroot.binstrings(opt.bins)
+                #bins.pop(0)
+            elif over == 'jet1eta':
+                bins = getroot.etastrings(opt.eta)
+            elif over == 'npv':
+                bins = getroot.npvstrings(opt.npv)
+            elif over == 'alpha':
+                bins = getroot.cutstrings(opt.cut)
+            else:
+                print "The 'over' value", repr(over), "is not known."
+                exit(0)
+            for i in range(len(bins)):
+                x, y, dx, dy = getroot.getgraphpoint(graph, i)
+                y, dy = extrapolatebin(method, bins[i], changes, opt, f1, f2, source=extrapol, draw=draw, over=over)
+                graph.SetPoint(i, x, y)
+                graph.SetPointError(i, dx, dy)"""
     return graph
 
 
@@ -862,12 +878,25 @@ def extrapol(files, opt,
     plotbase.Save(fig, file_name, opt)
 
 
-def getextrapolated(balancetype, rootfile, changes={}, quadratic=False):
+def getextrapolated(balancetype, rootfile, changes={}, quadratic=False, getfactor=False):
     quantity = balancetype + "_alpha"
     if "gen" in quantity:
         quantity = quantity.replace("alpha", "genalpha")
-    rootobject = getroot.getobjectfromnick(quantity, rootfile, changes, rebin=1)
+
+    #temporarily copy changes to get the intercept, ierr values from the alpha=0.35 plot
+    changes2 = copy.deepcopy(changes)
+    changes2['var'] = "var_CutSecondLeadingToZPt_0_35"
+    rootobject = getroot.getobjectfromnick(quantity, rootfile, changes2, rebin=1)
     intercept, ierr = getroot.fitline2(rootobject, quadratic)[:2]
+    if getfactor:
+        method_dict = {'ptbalance':'balresp', 'mpf':'mpfresp'}
+        rootobject = getroot.getobjectfromnick(method_dict[balancetype], rootfile, changes, rebin=1)
+        mean = rootobject.GetMean()
+        merr = rootobject.GetMeanError()
+        # get the extrapolation factor k
+        k = intercept / mean
+        kerr = k * math.sqrt(abs((ierr/intercept)**2 - (merr/mean)**2))
+        return k, kerr
     return intercept, ierr
 
 def response_run(files, opt):

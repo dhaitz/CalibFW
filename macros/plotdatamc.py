@@ -199,7 +199,13 @@ def runplot(quantity, files, opt, legloc='center right',
 
     for f, l, c, s in reversed(zip(files, opt.labels, opt.colors, opt.style)):
         if 'data' in l or fractions:
+
+            if quantity == 'ptbalance_run' or quantity == 'mpf_run':
+                k = plotbase.plotresponse.getextrapolated(quantity[:-4], f, changes=changes, quadratic=False, getfactor=True)[0]
+            else: k=1
+
             plot = getroot.getplotfromnick(quantity, f, change, rebin)
+            plot.y = [k * y for y in plot.y]
             #remove empty elements:
             for x_elem, y_elem, yerr_elem in zip(plot.xc, plot.y, plot.yerr):
                 if y_elem == 0.0:
@@ -217,7 +223,7 @@ def runplot(quantity, files, opt, legloc='center right',
             else:
                 mc_mean = None
 
-            plotbase.fit(fit, ax, quantity, f, changes, rebin, c, files.index(f), runplot_diff, mc_mean, run_min, run_max)
+            plotbase.fit(fit, ax, quantity, f, changes, rebin, c, files.index(f), runplot_diff, mc_mean, run_min, run_max, scalefactor=k)
             
             ax.errorbar(plot.xc, plot.y, plot.yerr, drawstyle='steps-mid', color=c, fmt=s, capsize=0 ,label=l)
 

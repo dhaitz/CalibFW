@@ -743,14 +743,14 @@ def fit(fit, ax, quantity, rootfile, change, rebin, color, index,
             intercept = intercept - mc_mean
 
         # fit line:
-        line_fit = ax.plot([run_min, run_max],[intercept+run_min*slope, intercept+run_max*slope], color = color, linestyle='--')
+        line_fit = ax.plot([run_min, run_max],[(intercept+run_min*slope)*scalefactor, (intercept+run_max*slope)*scalefactor], color = color, linestyle='--')
 
         # insert a (0, 0) bin because the conf_intervals list also contains an additional (0., conf)-point
         plot = getroot.root2histo(rootobject)
         plot.xc.insert(0, 0.)
 
         # display confidence intervals
-        ax.fill_between(plot.xc[:-1], [intercept+x*slope + c for x, c in zip(plot.xc[:-1], conf_intervals)], [intercept+x*slope - c for x, c in zip(plot.xc[:-1], conf_intervals)], facecolor=color, edgecolor=color, interpolate=True, alpha=0.2)
+        ax.fill_between(plot.xc[:-1], [(intercept+x*slope + c)*scalefactor for x, c in zip(plot.xc[:-1], conf_intervals)], [(intercept+x*slope - c)*scalefactor for x, c in zip(plot.xc[:-1], conf_intervals)], facecolor=color, edgecolor=color, interpolate=True, alpha=0.2)
 
 
         if fit == 'slope':
