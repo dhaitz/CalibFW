@@ -107,7 +107,7 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
         if not subplot: plotbase.labels(ax, opt, legloc=False, frame=True, changes=change, jet=False,
                                         sub_plot=subplot, mc=mc, color='white', energy_label=(not subplot))
 
-    plotbase.axislabels(ax, xy_names[0], xy_names[1])
+        plotbase.axislabels(ax, xy_names[0], xy_names[1])
     if x_limits is not None: ax.set_xlim(x_limits[0], x_limits[1])
     if y_limits is not None: ax.set_ylim(y_limits[0], y_limits[1])
 
