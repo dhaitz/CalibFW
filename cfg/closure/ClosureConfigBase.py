@@ -875,8 +875,8 @@ def AddQuantityPlots(config, algos, forIncut=True, forAllevents=False, forIncutV
 
     x_quantities = [
         'jet1pt', 'npv', 'jet1eta', 'jet1phi', 'jet2pt', 'jet2eta', 'jet2phi',
-        'zpt', 'zeta', 'zphi', 'METpt', 'METphi'#, 'sumEt',
-         'jetsvalid', 'alpha'
+        'zpt', 'zeta', 'zphi', 'METpt', 'METphi',# 'sumEt', 'jetsvalid',
+       
     ]
 
     objects = ['z', 'jet1', 'jet2', 'MET']
@@ -902,7 +902,7 @@ def AddQuantityPlots(config, algos, forIncut=True, forAllevents=False, forIncutV
                     #AddGenericProfileConsumer(x, "jetptratio", jets=[algo, algo, 0, 1])
                     #AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo, algo, 0, 1])
 
-                for y in y_quantities:
+                #for y in y_quantities:
                     #AddGenericProfileConsumer("jetptratio", y, jets=[algo, algo, 0, 1])
                     #AddGenericProfileConsumer("jetptabsdiff", y, jets=[algo, algo, 0, 1])
                     #AddAbsDiff("eta", y, 'jet1', 'z')
