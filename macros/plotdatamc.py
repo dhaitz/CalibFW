@@ -163,7 +163,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
 
     # save it
     if not file_name:
-        file_name = plotbase.getdefaultfilename(quantity, opt, changes)
+        file_name = plotbase.getdefaultfilename(quantity, opt, change)
 
     if subplot is not True: 
         if not (y is 'events' or y is ""):
