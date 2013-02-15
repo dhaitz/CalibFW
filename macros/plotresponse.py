@@ -898,8 +898,10 @@ def getextrapolated(balancetype, rootfile, changes={}, quadratic=False, getfacto
     if getfactor:
         method_dict = {'ptbalance':'balresp', 'mpf':'mpfresp'}
         rootobject = getroot.getobjectfromnick(method_dict[balancetype], rootfile, changes, rebin=1)
-        mean = rootobject.GetMean()
-        merr = rootobject.GetMeanError()
+        mean, merr = getroot.fitline2(rootobject, gauss=True, limits=[0.,2.])[2:4]
+        print " gauss: ", round(mean,3), round(merr,3),
+        print " extra: ", round(intercept,3), round(ierr,3),
+
         # get the extrapolation factor k
         k = intercept / mean
         kerr = k * math.sqrt(abs((ierr/intercept)**2 - (merr/mean)**2))
