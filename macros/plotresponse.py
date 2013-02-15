@@ -88,12 +88,12 @@ def responseplot(files, opt, types, labels=None,
     if subtext is not 'None':
         ax.text(-0.04, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
     
-    #label with pt and eta cut
+    """#label with pt and eta cut
     if over == 'jet1eta':
         pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}$>30 GeV"
     else:
         pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}$>30 GeV    $\eta^\mathrm{Jet1}$<1.3"
-    ax.text(0.02, 0.98, pt_eta_label, va='top', ha='left', color='black', transform=ax.transAxes, size='small')
+    ax.text(0.02, 0.98, pt_eta_label, va='top', ha='left', color='black', transform=ax.transAxes, size='small')"""
 
     if subplot == True:
         return fig
