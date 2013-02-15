@@ -4,18 +4,26 @@ import getroot
 
 plots = ['bal_resolution_zpt', 'bal_resolution_eta', 'mpf_resolution_zpt', 'mpf_resolution_eta']
 
+# ptbalance:
 def bal_resolution_zpt(files, opt):
     resolution_new(files, opt, 'balresp', 'zpt')
 
 def bal_resolution_eta(files, opt):
     resolution_new(files, opt, 'balresp', 'jet1eta')
 
+def bal_resolution_npv(files, opt):
+    resolution_new(files, opt, 'balresp', 'npv')
 
+
+# MPF
 def mpf_resolution_zpt(files, opt):
     resolution_new(files, opt, 'mpfresp', 'zpt')
 
 def mpf_resolution_eta(files, opt):
     resolution_new(files, opt, 'mpfresp', 'jet1eta')
+
+def mpf_resolution_npv(files, opt):
+    resolution_new(files, opt, 'mpfresp', 'npv')
 
 
 def resolution_new(files, opt, quantity='mpfresp', x='zpt'):
@@ -31,8 +39,13 @@ def resolution_new(files, opt, quantity='mpfresp', x='zpt'):
                 'changekey':'bin',
                 },
         'jet1eta':{
-                'binstrings':getroot.etastrings(opt.bins),
-                'x_quantity':"jet1abs",
+                'binstrings':getroot.etastrings(opt.eta),
+                'x_quantity':"jet1abseta",
+                'changekey':'var'
+                },
+        'npv':{
+                'binstrings':getroot.npvstrings(opt.npv),
+                'x_quantity':"npv",
                 'changekey':'var'
                 }
     }
