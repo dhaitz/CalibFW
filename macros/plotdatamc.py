@@ -240,7 +240,7 @@ def runplot(quantity, files, opt, legloc='center right',
                 ax.bar(run_min, mc_mean, (run_max - run_min), bottom=0., fill=True, facecolor=c, edgecolor=c)
                 ax.axhspan(mc_mean+mc_meanerr,mc_mean-mc_meanerr, color=c, alpha=0.2)
 
-    runs = [['2012B', 193834.], ['2012C', 197770.], ['2012D', 203773.]]
+    runs = [['2012A', 190456.],['2012B', 193834.], ['2012C', 197770.], ['2012D', 203773.]]
     for [runlabel, runnumber] in runs:
         ax.axvline(runnumber, color='gray', linestyle='--', alpha=0.2)
         ax.text((runnumber-run_min) / (run_max - run_min),  0.92, runlabel, transform=ax.transAxes,
