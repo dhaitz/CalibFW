@@ -690,7 +690,15 @@ def responseratio(files, opt, over='zpt', fit=False, types=['balresp'], extrapol
     ax1.set_xlabel("")
     #ax2.set_yticks([1.02,1.01, 1.00, 0.99, 0.98])
 
-    file_name = "responseratio_"+"_".join(types)+"_"+over+"_"+opt.algorithm+opt.correction
+    if opt.x_limits is not None: ax1.set_xlim(opt.x_limits[0], opt.x_limits[1])
+    if opt.y_limits is not None: ax1.set_ylim(opt.y_limits[0], opt.y_limits[1])
+
+    if opt.x_limits is not None: ax2.set_xlim(opt.x_limits[0], opt.x_limits[1])
+    if opt.y_limits is not None: ax2.set_ylim(opt.y_limits[2], opt.y_limits[3])
+
+    extrapolation_dict = {None:'_', 'bin':'_bin-extrapol_', 'global':'_global-extrapol_'}
+
+    file_name = "responseratio_"+"_".join(types)+"_"+over+"_"+extrapolation_dict[extrapol]+opt.algorithm+opt.correction
     plotbase.Save(fig, file_name, opt)
 
 
