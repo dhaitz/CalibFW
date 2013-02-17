@@ -215,7 +215,7 @@ def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ra
         return fitd.f(0) / fitm.f(0), fitd.ferr(0) / fitm.f(0) + fitm.ferr(0) * fitd.f(0) / fitm.f(0) / fitm.f(0)
 
 
-def getresponse(method, over, opt, f1, f2=None, changes=None, extrapol=False, draw=True):
+def getresponse(method, over, opt, f1, f2=None, changes=None, extrapol=None, draw=True):
     """
        If 2 files are given the response ratio is returned!
        This is using fillgraph, fitextrapolation and draw_extra
@@ -233,12 +233,13 @@ def getresponse(method, over, opt, f1, f2=None, changes=None, extrapol=False, dr
     assert method in ['balresp', 'mpfresp', 'recogen', 'mpf-rawresp']
     assert type(changes) == dict
     #assert extrapol in [False, '', 'data', 'mc', 'ratio', 'separate']
-    #print "getresp", changes
     if method == 'mpf-rawresp': method = 'mpfresp-raw'
     changes = plotbase.getchanges(opt, changes)
 
     graph = getroot.getgraphratio(over, method, f1, f2, opt, changes, absmean=(over=='jet1_eta'))
-    if extrapol is not False:
+
+    # extrapolation options: None, 'bin' -> binwise extrapolation, 'global; -> global extrapol. factor
+    if extrapol is not None:
         var_dict = {    
             'zpt':{
                     'binstrings':getroot.binstrings(opt.bins),
@@ -247,7 +248,7 @@ def getresponse(method, over, opt, f1, f2=None, changes=None, extrapol=False, dr
                     },
             'jet1eta':{
                     'binstrings':getroot.etastrings(opt.eta),
-                    'x_quantity':"jet1abs",
+                    'x_quantity':"jet1abseta",
                     'changekey':'var'
                     },
             'npv':{
@@ -258,8 +259,7 @@ def getresponse(method, over, opt, f1, f2=None, changes=None, extrapol=False, dr
         }
 
         method_dict = {'balresp':'ptbalance', 'mpfresp':'mpf'}
-
-        if extrapol == 'globalfactor':
+        if extrapol == 'global':
             # get the factor
             k = ufloat((getextrapolated(method_dict[method], f1, changes=changes, getfactor = True)))
             if f2 is not None:
@@ -273,7 +273,7 @@ def getresponse(method, over, opt, f1, f2=None, changes=None, extrapol=False, dr
 
                 graph.SetPoint(i, x, ex.nominal_value)
                 graph.SetPointError(i, dx, ex.std_dev())
-        else:
+        elif extrapol == 'bin':
             changes['var'] = "var_CutSecondLeadingToZPt_0_35"
             for string, i in zip(var_dict[over]['binstrings'], range(len(var_dict[over]['binstrings']))):
                 changes[var_dict[over]['changekey']] = string
@@ -334,7 +334,7 @@ def responseplot(files, opt, types, labels=None,
                  changes = None,
                  subtext = "",
                  subplot = False,
-                 extrapol=False):
+                 extrapol=None):
     """type: bal|mpf[:ratio,seperate,data,mc,ex]
     """
     if figaxes == None: figaxes = plotbase.newplot()
@@ -425,7 +425,7 @@ def ratioplot(files, opt, types, labels=None,
                  subtext = "",
                  ratiosubplot=False,
                  subplot = False,
-                 extrapol=False):
+                 extrapol=None):
     """type: bal|mpf[ratio|seperate]
     """
     if changes is None: changes = plotbase.createchanges(opt)
@@ -647,30 +647,30 @@ def response_all(files, opt):
 
 
 # response + ratio
-def bal_responseratio_eta(files, opt, extrapol=False):
+def bal_responseratio_eta(files, opt, extrapol=None):
     responseratio(files, opt, over='jet1eta', fit=False, types=['balresp'], extrapol=extrapol)
 
-def bal_responseratio_zpt(files, opt, extrapol=False):
+def bal_responseratio_zpt(files, opt, extrapol=None):
     responseratio(files, opt, fit=True, types=['balresp'], extrapol=extrapol)
 
-def bal_responseratio_npv(files, opt, extrapol=False):
+def bal_responseratio_npv(files, opt, extrapol=None):
     responseratio(files, opt, over='npv', fit=True, types=['balresp'], extrapol=extrapol)
 
 
-def mpf_responseratio_eta(files, opt, extrapol=False):
+def mpf_responseratio_eta(files, opt, extrapol=None):
     responseratio(files, opt, over='jet1eta', fit=False, types=['mpfresp'], extrapol=extrapol)
 
-def mpf_responseratio_zpt(files, opt, extrapol=False):
+def mpf_responseratio_zpt(files, opt, extrapol=None):
     responseratio(files, opt, fit=True, types=['mpfresp'], extrapol=extrapol)
-def mpfraw_responseratio_zpt(files, opt, extrapol=False):
+def mpfraw_responseratio_zpt(files, opt, extrapol=None):
     responseratio(files, opt, fit=True, types=['mpf-rawresp'], extrapol=extrapol)
 
-def mpf_responseratio_npv(files, opt, extrapol=False):
+def mpf_responseratio_npv(files, opt, extrapol=None):
     responseratio(files, opt, over='npv', fit=True, types=['mpfresp'], extrapol=extrapol)
 
 
 
-def responseratio(files, opt, over='zpt', fit=False, types=['balresp'], extrapol=True):
+def responseratio(files, opt, over='zpt', fit=False, types=['balresp'], extrapol=None):
 
     fig = plotbase.plt.figure(figsize=[7, 7])
     fig.suptitle(opt.title, size='xx-large')
