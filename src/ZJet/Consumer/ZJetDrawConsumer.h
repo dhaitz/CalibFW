@@ -206,6 +206,9 @@ public:
 		m_2dalphadeltaphi = new Hist2D("2D_alpha_deltaphi-z-jet1_" + m_algoname,
 				GetPipelineSettings().GetRootFileFolder(), 0.0f, 5.0f, 0.0f, 3.14159f);
 
+		m_2dnpvzpt = new Hist2D("2D_npv_zpt_" + m_algoname,
+				GetPipelineSettings().GetRootFileFolder(), 0.0f, 50.f, 0.0f, 1000.f);
+
 		AddPlot(m_2dz);
 		AddPlot(m_2djet1);
 		AddPlot(m_2djet2);
@@ -217,12 +220,19 @@ public:
 		AddPlot(m_2djet1met);
 
 		AddPlot(m_2dalphadeltaphi);
+
+		AddPlot(m_2dnpvzpt);
 	}
 
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
 			ZJetMetaData const& metaData)
 	{
 		ZJetMetaConsumer::ProcessFilteredEvent(event, metaData);
+
+        m_2dnpvzpt->Fill(
+				event.m_vertexSummary->nVertices,
+				metaData.GetRefZ().p4.Pt(),
+				metaData.GetWeight());
 
 		if (metaData.GetValidJetCount(this->GetPipelineSettings(), event, m_algoname) > 0)
 		{
@@ -302,6 +312,8 @@ private:
 	Hist2D* m_2djet1met;
 
 	Hist2D* m_2dalphadeltaphi;
+
+	Hist2D* m_2dnpvzpt;
 
 	std::string m_algoname;
 };
