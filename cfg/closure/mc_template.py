@@ -28,21 +28,9 @@ def get_template(algo="AK5PFJets"):
 
     cbase.AddQuantityPlots(conf, algorithms, forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
 
-    cbase.Add2DHistograms(conf, [algo+"L1L2L3", algo+"CHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
-    cbase.Add2DProfiles(conf, [algo+"L1L2L3", algo+"CHSL1L2L3"], forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
+    cbase.Add2DHistograms(conf, algo_list, forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
+    cbase.Add2DProfiles(conf, algo_list, forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False)
 
-    for algo in algorithms:
-        for p, pval in conf["Pipelines"].items():
-            if cbase.check_if_add(p, algo, forIncut=True, forAllevents=True, forIncutVariations=True, forAlleventsVariations=False):
-                for y in ['mpf', 'ptbalance']:
-                    x = 'alpha'
-                    d = {
-                        'Name': "generic_profile_consumer",
-                        'YSource': y,
-                        'XSource': x,
-                        'ProductName': "_".join([y, x, algo]),
-                      }
-                    cbase.AddConsumerEasy(pval, d)
     return conf
 
 

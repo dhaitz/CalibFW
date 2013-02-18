@@ -873,7 +873,7 @@ def AddQuantityPlots(config, algos, forIncut=True, forAllevents=False, forIncutV
         'zmass'
     ]
 
-    x_quantities = [
+    x_quantities = ['alpha',
         'jet1pt', 'npv', 'jet1eta', 'jet1phi', 'jet2pt', 'jet2eta', 'jet2phi',
         'zpt', 'zeta', 'zphi', 'METpt', 'METphi',# 'sumEt', 'jetsvalid',
        
@@ -884,35 +884,39 @@ def AddQuantityPlots(config, algos, forIncut=True, forAllevents=False, forIncutV
     for algo in algos:
         for p, pval in config["Pipelines"].items():
             if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
-                if (config['InputType'] == 'mc'):
-                    AddGenericProfileConsumer('genalpha','genbalance')
-                    AddGenericProfileConsumer('alpha','genbalance')
-                    AddGenericProfileConsumer('genzpt','genzmass')
-                    AddGenericProfileConsumer('genzrapidity','genzmass')
-                    AddGenericProfileConsumer('genzrapidity','genzpt')
-                    AddGenericProfileConsumer('genzeta','genzmass')
-                    AddGenericProfileConsumer('genzeta','genzpt')
-                    AddGenericProfileConsumer('genzpt','zpt')
+                if "L3" in algo:
+                    if (config['InputType'] == 'mc'):
+                        AddGenericProfileConsumer('genalpha','genbalance')
+                        AddGenericProfileConsumer('alpha','genbalance')
+                        AddGenericProfileConsumer('genzpt','genzmass')
+                        AddGenericProfileConsumer('genzrapidity','genzmass')
+                        AddGenericProfileConsumer('genzrapidity','genzpt')
+                        AddGenericProfileConsumer('genzeta','genzmass')
+                        AddGenericProfileConsumer('genzeta','genzpt')
+                        AddGenericProfileConsumer('genzpt','zpt')
 
-                for x in x_quantities:
-                    for y in y_quantities:
-                        if x is not y:
-                            AddGenericProfileConsumer(x,y)
+                    for x in x_quantities:
+                        for y in y_quantities:
+                            if x is not y:
+                                AddGenericProfileConsumer(x,y)
 
-                    #AddGenericProfileConsumer(x, "jetptratio", jets=[algo, algo, 0, 1])
-                    #AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo, algo, 0, 1])
+                        #AddGenericProfileConsumer(x, "jetptratio", jets=[algo, algo, 0, 1])
+                        #AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo, algo, 0, 1])
 
-                #for y in y_quantities:
-                    #AddGenericProfileConsumer("jetptratio", y, jets=[algo, algo, 0, 1])
-                    #AddGenericProfileConsumer("jetptabsdiff", y, jets=[algo, algo, 0, 1])
-                    #AddAbsDiff("eta", y, 'jet1', 'z')
+                    #for y in y_quantities:
+                        #AddGenericProfileConsumer("jetptratio", y, jets=[algo, algo, 0, 1])
+                        #AddGenericProfileConsumer("jetptabsdiff", y, jets=[algo, algo, 0, 1])
+                        #AddAbsDiff("eta", y, 'jet1', 'z')
 
-                """for obj1 in objects:
-                    for obj2 in objects:
-                        if obj1 is not obj2:
-                            AddAbsDiff("eta", 'ptbalance', obj1, obj2)
-                            for quantity in ['ptbalance', 'mpf', 'mpf-raw', 'zpt', 'METpt', 'jet1pt', 'alpha']:
-                                AddAbsDiff("phi", quantity, obj1, obj2)"""
+                    """for obj1 in objects:
+                        for obj2 in objects:
+                            if obj1 is not obj2:
+                                AddAbsDiff("eta", 'ptbalance', obj1, obj2)
+                                for quantity in ['ptbalance', 'mpf', 'mpf-raw', 'zpt', 'METpt', 'jet1pt', 'alpha']:
+                                    AddAbsDiff("phi", quantity, obj1, obj2)"""
+                else:
+                    AddGenericProfileConsumer('alpha','ptbalance')
+                    AddGenericProfileConsumer('alpha','mpf')
 
 def Add2DHistograms(config, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
     for algo in algos:
