@@ -575,6 +575,33 @@ def fit(fit, ax, quantity, rootfile, change, rebin, color, index,
                 va='top', ha='right', transform=ax.transAxes, color=color, size='x-large')
 
 
+def setaxislimits(ax, changes=None, opt=None, ax2=None):
+    """
+    Set the axis limits from changes and or options. Default operation mode is:
+        1. By default, axis limits are taken from the dictionary
+        2. If limits are given in changes, override the dictionary values
+        3. If limits are given in opt (command line values), override the values
+            from dictionary or changes
+    """
+    if changes is not None and 'x_limits' in changes:
+        ax.set_xlim(changes['x_limits'][0], changes['x_limits'][1])
+    if opt.x_limits is not None: ax.set_xlim(opt.x_limits[0], opt.x_limits[1])
+
+    if changes is not None and 'y_limits' in changes:
+        ax.set_ylim(changes['y_limits'][0], changes['y_limits'][1])
+    if opt.y_limits is not None: ax.set_ylim(opt.y_limits[0], opt.y_limits[1])
+
+    if ax2 is not None:
+        if changes is not None and 'x_limits' in changes:
+            ax2.set_xlim(changes['x_limits'][2], changes['x_limits'][3])
+        if opt.x_limits is not None: ax2.set_xlim(opt.x_limits[2], opt.x_limits[3])
+
+        if changes is not None and 'y_limits' in changes:
+            ax2.set_ylim(changes['y_limits'][2], changes['y_limits'][3])
+        if opt.y_limits is not None: ax2.set_ylim(opt.y_limits[2], opt.y_limits[3])
+
+
+
 
 def getdefaultfilename(quantity, opt, change):
     #create a default filename based on quantity, changes and algorithm/correction

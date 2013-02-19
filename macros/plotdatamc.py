@@ -17,7 +17,7 @@ from dictionaries import d_plots
 
 def datamcplot(quantity, files, opt, legloc='center right',
                changes=None, log=False, xlog=False, rebin=5, file_name = "", subplot=False, 
-               subtext="", fig_axes=(), xy_names=None, normalize=True, runplot_diff=False, fit=None, ratio=False, fit_offset=0, x_limits=None, y_limits=None):
+               subtext="", fig_axes=(), xy_names=None, normalize=True, runplot_diff=False, fit=None, ratio=False, fit_offset=0):
     """Template for all data/MC comparison plots for basic quantities."""
     # read the values
     if opt.verbose:
@@ -152,8 +152,8 @@ def datamcplot(quantity, files, opt, legloc='center right',
             ax = plotbase.axislabels(ax, x, y)
             if (y in ['balresp', 'mpfresp', 'ptbalance', 'L1', 'L2', 'L3', 'mpf', 'mpfresp']) or 'cut' in y:
                 ax.axhline(1.0, color='black', linestyle=':')
-    if opt.x_limits is not None: ax.set_xlim(opt.x_limits[0], opt.x_limits[1])
-    if opt.y_limits is not None: ax.set_ylim(opt.y_limits[0], opt.y_limits[1])
+    plotbase.setaxislimits(ax, changes, opt)
+
     if ratio:
         ax.axhline(1.0, color='black', linestyle=':')
         ax.set_ylabel(y +" Data/MC ratio", va="top", y=1)
@@ -253,8 +253,8 @@ def runplot(quantity, files, opt, legloc='center right',
     else:
         y, x = quantity.split("_")
         ax = plotbase.axislabels(ax, x, y)
-    if opt.x_limits is not None: ax.set_xlim(opt.x_limits[0], opt.x_limits[1])
-    if opt.y_limits is not None: ax.set_ylim(opt.y_limits[0], opt.y_limits[1])
+
+    plotbase.setaxislimits(ax, changes, opt)
 
     if subtext is not 'None':
         ax.text(-0.03, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')

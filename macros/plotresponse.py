@@ -82,9 +82,9 @@ def responseplot(files, opt, types, labels=None,
     ax.axhline(1.0, color="black", linestyle='--')
     plotbase.labels(ax, opt, legloc=legloc, jet=True, sub_plot=subplot, changes=changes)
     if over == 'jet1eta':
-        plotbase.axislabels(ax, 'jet1abseta', 'response')
+        plotbase.axislabels(ax, 'jet1abseta', 'response', labels=opt.labels)
     else:
-        plotbase.axislabels(ax, over, 'response')
+        plotbase.axislabels(ax, over, 'response', labels=opt.labels)
     if subtext is not 'None':
         ax.text(-0.04, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
     
@@ -169,9 +169,9 @@ def ratioplot(files, opt, types, labels=None,
     else: label = 'responseratio'
 
     if over == 'jet1eta':
-        plotbase.axislabels(ax, 'jet1abseta', label)
+        plotbase.axislabels(ax, 'jet1abseta', label, labels=opt.labels)
     else:
-        plotbase.axislabels(ax, over, label)
+        plotbase.axislabels(ax, over, label, labels=opt.labels)
 
     if subtext is not 'None':
         ax.text(-0.04, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
@@ -374,7 +374,8 @@ def mpf_responseratio_npv(files, opt, extrapol=None):
 
 
 
-def responseratio(files, opt, over='zpt', fit=False, types=['balresp'], extrapol=None):
+def responseratio(files, opt, over='zpt', fit=False, types=['balresp'],
+        extrapol=None, changes=None):
 
     fig = plotbase.plt.figure(figsize=[7, 7])
     fig.suptitle(opt.title, size='xx-large')
@@ -394,11 +395,7 @@ def responseratio(files, opt, over='zpt', fit=False, types=['balresp'], extrapol
     ax1.set_xlabel("")
     #ax2.set_yticks([1.02,1.01, 1.00, 0.99, 0.98])
 
-    if opt.x_limits is not None: ax1.set_xlim(opt.x_limits[0], opt.x_limits[1])
-    if opt.y_limits is not None: ax1.set_ylim(opt.y_limits[0], opt.y_limits[1])
-
-    if opt.x_limits is not None: ax2.set_xlim(opt.x_limits[0], opt.x_limits[1])
-    if opt.y_limits is not None: ax2.set_ylim(opt.y_limits[2], opt.y_limits[3])
+    plotbase.setaxislimits(ax1, changes, opt, ax2)
 
     extrapolation_dict = {None:'_', 'bin':'_bin-extrapol_', 'global':'_global-extrapol_'}
 
@@ -407,7 +404,7 @@ def responseratio(files, opt, over='zpt', fit=False, types=['balresp'], extrapol
 
 
 
-def responseratio_all(files, opt, types=['balresp']):
+def responseratio_all(files, opt, types=['balresp'], changes=None):
     
     fig = plotbase.plt.figure(figsize=[21, 14])
     fig.suptitle(opt.title, size='xx-large')
@@ -431,6 +428,8 @@ def responseratio_all(files, opt, types=['balresp']):
             if col > 0:
                 ax1.set_ylabel("")
                 ax2.set_ylabel("")
+
+            plotbase.setaxislimits(ax1, ax2, changes, opt)
 
     title="                               Jet Response ($p_T$ balance / MPF) vs. Z $p_T$, $N_{vtx}$ ,  Jet $\eta$   ("  +opt.algorithm+" "+opt.correction+")"
     fig.suptitle(title, size='x-large')
