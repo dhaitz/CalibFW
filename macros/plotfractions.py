@@ -93,12 +93,14 @@ def fractions(files, opt, over='zpt', fa=() , subplot=False, changes={}, subtext
     # get x values and bar widths
     if over == 'zpt':
         bins = copy.deepcopy(opt.bins)
+        fit = True
         x = bins[:-1]
         barWidth = []
         for i in range(len(bins)-1):
             barWidth.append(bins[i+1] - bins[i])
     elif over == 'jet1eta':
         bins = copy.deepcopy(opt.eta)
+        fit = False
         x = bins[:-1]
         print x
         barWidth = []
@@ -106,6 +108,7 @@ def fractions(files, opt, over='zpt', fa=() , subplot=False, changes={}, subtext
             barWidth.append(bins[i+1] - bins[i])
     elif over == 'npv':
         bins = [0]+[b+0.5 for a,b in opt.npv]
+        fit = True
         x = bins[:-1]
         print x
         barWidth = []
@@ -214,7 +217,7 @@ def fractions(files, opt, over='zpt', fa=() , subplot=False, changes={}, subtext
         else: label = r"%s: $%+1.3f(%d)$" % (labels[i],fitd[i]-fitm[i],math.ceil(1000*(fitderr[i]+fitmerr[i])))
         ax.errorbar( mcG[i].x, diff[i], dataG[i].yerr, label=label,
             fmt="o", capsize=2, color=colours[i], zorder=15+i)
-        ax.plot([30.0*(over == 'zpt'), 1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
+        if fit: ax.plot([30.0*(over == 'zpt'), 1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
     ax = plotbase.labels(ax, opt, legloc='lower right', frame=True, sub_plot=subplot, jet=subplot, changes=changes)
     ax = plotbase.axislabels(ax, axisname, 'components_diff')
     if subplot is not True: plotbase.Save(fig, "fractions_diff_" + over+ "_" + algoname, opt, False)
