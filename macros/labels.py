@@ -21,7 +21,7 @@ def labels(ax, opt=None, jet=False, bin=None, result=None, legloc='upper right',
         authorlabel(ax, opt.author)
         datelabel(ax, opt.date)
     if legloc is not False:
-        legend = ax.legend(loc=legloc, numpoints=1, frameon=frame)
+        legend = ax.legend(loc=legloc, numpoints=1, frameon=frame, fancybox=True, shadow=True)
     return ax
 
 
