@@ -360,7 +360,6 @@ def bal_responseratio_zpt(files, opt, extrapol=None):
 def bal_responseratio_npv(files, opt, extrapol=None):
     responseratio(files, opt, over='npv', fit=True, types=['balresp'], extrapol=extrapol)
 
-
 def mpf_responseratio_eta(files, opt, extrapol=None):
     responseratio(files, opt, over='jet1eta', fit=False, types=['mpfresp'], extrapol=extrapol)
 
