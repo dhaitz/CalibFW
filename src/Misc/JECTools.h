@@ -65,22 +65,22 @@ inline void correctSingleJet(KDataPFJet &jet, FactorizedJetCorrector *jec, doubl
 {
 	setupFactorProvider(jet, jec);
 	jec->setJetA(jet.area);
-	if (jet.p4.Eta() <= 2.500 || jet.p4.Eta() > 2.964)
+	if (std::abs(jet.p4.Eta()) <= 2.500 || std::abs(jet.p4.Eta()) > 2.964)
 		hcalcorr = 0.0;
-	double factor = 1.0 + hcalcorr;
-	double newsum = 1.0 + hcalcorr * jet.neutralHadFraction;
+	double c = 1.0 + hcalcorr * jet.neutralHadFraction;
+	double cfraction = (1.0 + hcalcorr) / c;
 
-	jet.HFEMFraction /= newsum;
-	jet.HFHadFraction /= newsum;
-	jet.chargedEMFraction /= newsum;
-	jet.chargedHadFraction /= newsum;
-	jet.electronFraction /= newsum;
-	jet.muonFraction /= newsum;
-	jet.neutralEMFraction /= newsum;
-	jet.photonFraction /= newsum;
+	jet.HFEMFraction /= c;
+	jet.HFHadFraction /= c;
+	jet.chargedEMFraction /= c;
+	jet.chargedHadFraction /= c;
+	jet.electronFraction /= c;
+	jet.muonFraction /= c;
+	jet.neutralEMFraction /= c;
+	jet.photonFraction /= c;
 
-	jet.neutralHadFraction *= factor/newsum;
-	jet.p4 *= jec->getCorrection() * newsum;
+	jet.neutralHadFraction *= cfraction;
+	jet.p4 *= jec->getCorrection() * c;
 }
 
 // Functions to apply correction + uncertainty to a single jet:
