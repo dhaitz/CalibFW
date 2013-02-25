@@ -50,7 +50,7 @@ def responseplot(files, opt, types, labels=None,
     if changes is None: changes = plotbase.createchanges(opt)
     else: changes = plotbase.getchanges(opt, changes)
 
-    labels = [string.replace("mpfresp", "MPF").replace("balresp","$p_{\mathrm{T}}$ Balance") for string in labels] 
+    labels = [string.replace("mpfresp", "MPF").replace("balresp","$p_{\mathrm{T}}$ balance") for string in labels] 
     for t, l, m, c in zip(types, labels, markers, colors):
         extrapolation = False
         #if t == 'recogen':
@@ -129,7 +129,9 @@ def ratioplot(files, opt, types, labels=None,
                  subtext = "",
                  ratiosubplot=False,
                  subplot = False,
-                 extrapol=None):
+                 extrapol=None,
+                 tworatios=False,
+                 legendlabel=None):
     """type: bal|mpf[ratio|seperate]
     """
     if changes is None: changes = plotbase.createchanges(opt)
@@ -153,19 +155,31 @@ def ratioplot(files, opt, types, labels=None,
                 fitlabel_offset=0.65
             else:
                 fitlabel_offset=0.0
-            ax.text(0.97, fitlabel_offset+0.20+0.07*colors.index(c), r"R = {0:.4f} $\pm$ {1:.4f}".format(line, err),
+            if tworatios:
+                x_offset = 0.55
+            else:
+                x_offset = 0.
+
+            ax.text(0.97-x_offset, fitlabel_offset+0.20+0.07*colors.index(c), r"R = {0:.4f} $\pm$ {1:.4f}".format(line, err),
                 va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=14)
-            ax.text(0.97, fitlabel_offset+0.05+0.07*colors.index(c), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f}".format(chi2, ndf),
+            ax.text(0.97-x_offset, fitlabel_offset+0.05+0.07*colors.index(c), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f}".format(chi2, ndf),
                 va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=14)
             ax.axhline(line, color=c)
             ax.axhspan(line-err, line+err, color=c, alpha=0.2)
+
+        if legendlabel is not None:
+            l = legendlabel
         plot = getroot.root2histo(rgraph)
         ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
         plotbinborders(ax, over, plot.y, opt)
 
     # format plot
-    plotbase.labels(ax, opt, jet=True, legloc=legloc, sub_plot=subplot, changes=changes, ratiosubplot=ratiosubplot)
-    if ratiosubplot: label = 'ratio'
+    if tworatios:
+        ncol=2
+    else:
+        ncol=1
+    plotbase.labels(ax, opt, jet=True, legloc=legloc, sub_plot=subplot, changes=changes, ratiosubplot=ratiosubplot, ncol=ncol)
+    if ratiosubplot and not tworatios: label = 'ratio'
     else: label = 'responseratio'
 
     if over == 'jet1eta':
@@ -389,7 +403,14 @@ def responseratio(files, opt, over='zpt', fit=False, types=['balresp'],
     else: legloc = 'lower right'
 
     responseplot(files, opt, types, over=over, figaxes=(fig,ax1), legloc=legloc, subplot = True, extrapol=extrapol)
-    ratioplot(files, opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True, legloc='lower right', extrapol=extrapol)
+
+    if len(files)> 2:
+        print "AAAAAAAAAA", opt.labels[1]
+        ratioplot(files, opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True, legloc='lower right', extrapol=extrapol, colors = ['blue'], legendlabel=opt.labels[1])
+        ratioplot([files[0],files[2]], opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True, legloc='lower right', extrapol=extrapol, tworatios=True, colors = [opt.colors[2]],  markers = ['*'], legendlabel=opt.labels[2])
+    else:
+        ratioplot(files, opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True, legloc='lower right', extrapol=extrapol)
+
     fig.subplots_adjust(hspace=0.05)
 
     ax1.set_xticks([])
