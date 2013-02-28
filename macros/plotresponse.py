@@ -38,7 +38,8 @@ def responseplot(files, opt, types, labels=None,
                  changes = None,
                  subtext = "",
                  subplot = False,
-                 extrapol=None):
+                 extrapol=None,
+                 residual_trick = None):
     """type: bal|mpf[:ratio,seperate,data,mc,ex]
     """
     if figaxes == None: figaxes = plotbase.newplot()
@@ -62,8 +63,12 @@ def responseplot(files, opt, types, labels=None,
             extrapolation = 'data'
         if 'gen' not in t:
             plot = getroot.root2histo(getresponse(t, over, opt, files[0], None, changes, extrapol))
-            ax.errorbar(plot.x, plot.y, plot.yerr, color='black', fmt=m, label=l+" ("+opt.labels[0]+")")
-            plotbinborders(ax, over, plot.y, opt)
+            if residual_trick:
+                ax.errorbar(plot.x, [0.98 * y for y in plot.y], [0.98 * yerr for yerr in plot.yerr], color='black', fmt=m, label=l+" ("+opt.labels[0]+")")
+                plotbinborders(ax, over, [0.98 * y for y in plot.y], opt)
+            else:
+                ax.errorbar(plot.x, plot.y, plot.yerr, color='black', fmt=m, label=l+" ("+opt.labels[0]+")")
+                plotbinborders(ax, over, plot.y, opt)
         if extrapolation == 'data':
             extrapolation = 'mc'
 
@@ -131,7 +136,8 @@ def ratioplot(files, opt, types, labels=None,
                  subplot = False,
                  extrapol=None,
                  tworatios=False,
-                 legendlabel=None):
+                 legendlabel=None,
+                 residual_trick=False):
     """type: bal|mpf[ratio|seperate]
     """
     if changes is None: changes = plotbase.createchanges(opt)
@@ -166,6 +172,11 @@ def ratioplot(files, opt, types, labels=None,
                 va='bottom', ha='right', color=c, transform=ax.transAxes, fontsize=14)
             ax.axhline(line, color=c)
             ax.axhspan(line-err, line+err, color=c, alpha=0.2)
+        if residual_trick:
+            for i in range(rgraph.GetN()):
+                x, y, dx, dy = getroot.getgraphpoint(rgraph, i)
+                rgraph.SetPoint(i, x, y*0.98)
+                rgraph.SetPointError(i, dx, dy*0.98)
 
         if legendlabel is not None:
             l = legendlabel
@@ -390,7 +401,7 @@ def mpf_responseratio_npv(files, opt, extrapol=None):
 
 
 def responseratio(files, opt, over='zpt', fit=False, types=['balresp'],
-        extrapol=None, changes=None):
+        extrapol=None, changes=None, residual_trick=False):
 
     fig = plotbase.plt.figure(figsize=[7, 7])
     fig.suptitle(opt.title, size='xx-large')
@@ -402,14 +413,13 @@ def responseratio(files, opt, over='zpt', fit=False, types=['balresp'],
     if over== 'jet1eta' and types == ['balresp']: legloc = 'upper right'
     else: legloc = 'lower right'
 
-    responseplot(files, opt, types, over=over, figaxes=(fig,ax1), legloc=legloc, subplot = True, extrapol=extrapol)
+    responseplot(files, opt, types, over=over, figaxes=(fig,ax1), legloc=legloc, subplot = True, extrapol=extrapol, residual_trick=residual_trick)
 
     if len(files)> 2:
-        print "AAAAAAAAAA", opt.labels[1]
         ratioplot(files, opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True, legloc='lower right', extrapol=extrapol, colors = ['blue'], legendlabel=opt.labels[1])
         ratioplot([files[0],files[2]], opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True, legloc='lower right', extrapol=extrapol, tworatios=True, colors = [opt.colors[2]],  markers = ['*'], legendlabel=opt.labels[2])
     else:
-        ratioplot(files, opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True, legloc='lower right', extrapol=extrapol)
+        ratioplot(files, opt, types, drawextrapolation=True, binborders=True, fit=fit, over=over, subplot=True, figaxes=(fig,ax2), ratiosubplot = True, legloc='lower right', extrapol=extrapol, residual_trick=residual_trick)
 
     fig.subplots_adjust(hspace=0.05)
 
