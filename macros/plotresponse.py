@@ -378,7 +378,7 @@ def response_all(files, opt):
 
 
 # response + ratio
-def bal_responseratio_eta(files, opt, extrapol=None):
+def bal_responseratio_eta(files, opt, extrapol='bin'):
     responseratio(files, opt, over='jet1eta', fit=False, types=['balresp'], extrapol=extrapol)
 
 def bal_responseratio_zpt(files, opt, extrapol=None):
@@ -629,11 +629,11 @@ def extrapol(files, opt,
 
 
 
-def response_run(files, opt):
+def response_run(files, opt, changes=None):
     fig, ax = plotbase.newplot(run=True)
 
     local_opt = copy.deepcopy(opt)
-    changes = {}
+    if changes is None: changes = {}
 
     for label, color, quantity in zip(['PtBalance (data)', 'MPF (data)'], ['blue', 'red'], ['ptbalance_run', 'mpf_run']):
         local_opt.labels = [label]
