@@ -109,15 +109,22 @@ def dresp(files, opt):
     plotbase.plotresponse.bal_responseratio_npv(files, local_opt, extrapol='global')
     # L2L3
     local_opt.out = "out/diplomarbeit/response/L2L3"
+
+    limits_eta = [0.561, 1.269, 0.66, 1.02]
+
     local_opt.y_limits = [0.91, 1.05, 0.96, 1.01]
     plotbase.plotresponse.bal_responseratio_zpt(files, local_opt, extrapol='global')
-    local_opt.y_limits = [0.70, 1.05, 0.70, 1.01]
-    plotbase.plotresponse.bal_responseratio_eta(files, local_opt, extrapol='global')
+    local_opt.y_limits = limits_eta
+    plotbase.plotresponse.bal_responseratio_eta(files, local_opt, extrapol='bin')
     local_opt.correction = "L1L2L3"
     local_opt.y_limits = [0.91, 1.05, 0.96, 1.01]
     plotbase.plotresponse.bal_responseratio_zpt(files, local_opt, extrapol='global')
-    local_opt.y_limits = [0.70, 1.05, 0.70, 1.01]
-    plotbase.plotresponse.bal_responseratio_eta(files, local_opt, extrapol='global')
+    local_opt.y_limits = limits_eta
+    plotbase.plotresponse.bal_responseratio_eta(files, local_opt, extrapol='bin')
+
+    local_opt.correction = "L1L2L3Res"
+    plotbase.plotresponse.responseratio(files, local_opt, over='jet1eta', 
+                                fit=False, types=['balresp'], extrapol='bin', residual_trick = True)
 
 
 
@@ -160,13 +167,16 @@ def dpowheg(files, opt):
 def dresprun(files, opt):
     local_opt = copy.deepcopy(opt)
     local_opt.out = "out/diplomarbeit/response_run"
-    local_opt.y_limits = [0.8, 1.05]
-    plotbase.plotresponse.response_run(files, local_opt)
-    for eta in plotbase.getroot.etastrings(local_opt.eta):
-        plotbase.plotresponse.response_run(files, local_opt, changes = {'var':eta})
+    local_opt.y_limits = [0.801, 1.05]
+    for corr in ["L1L2L3", "L1L2L3Res"]:
+        local_opt.correction = corr
+        plotbase.plotresponse.response_run(files, local_opt)
+        for eta in plotbase.getroot.etastrings(local_opt.eta):
+            plotbase.plotresponse.response_run(files, local_opt, changes = {'var':eta})
 
 def dak7(files, opt):
     local_opt = copy.deepcopy(opt)
+    local_opt.y_limits = [0.961, 1.099, 0.921, 1.019]
 
     local_opt.out = "out/diplomarbeit/AK7"
     plotbase.plotresponse.bal_responseratio_zpt(files, local_opt, extrapol='global')
@@ -179,8 +189,11 @@ def dak7(files, opt):
 
 def dl1(files, opt):
     local_opt = copy.deepcopy(opt)
+    local_opt.y_limits = [0.941, 1.029, 0.946, 1.009]
     local_opt.out = "out/diplomarbeit/L1Fastjet"
     plotbase.plotresponse.bal_responseratio_npv(files, local_opt, extrapol='global')
+
+    local_opt.y_limits = None
     plotbase.plotdatamc.L1('L1abs_npv', files, local_opt, rebin=1)
 
     local_opt.out = "out/diplomarbeit/L1Offset"
@@ -189,6 +202,21 @@ def dl1(files, opt):
     files = [plotbase.getroot.openfile(f, opt.verbose) for f in local_opt.files]
     plotbase.plotresponse.bal_responseratio_npv(files, local_opt, extrapol='global')
     plotbase.plotdatamc.L1('L1abs_npv', files, local_opt, rebin=1)
+
+
+
+def dintro(files, opt):
+    local_opt = copy.deepcopy(opt)
+    local_opt.out = "out/diplomarbeit/intro"
+    local_opt.y_limits = [0.89, 1.04, 0.95, 1.04]
+
+    local_opt.correction = ""
+    plotbase.plotresponse.responseratio(files, local_opt, over='zpt', 
+                                fit=True, types=['balresp'], extrapol='global')
+    local_opt.correction = "L1L2L3Res"
+    plotbase.plotresponse.responseratio(files, local_opt, over='zpt', 
+                                fit=True, types=['balresp'], extrapol='global')
+
 
 
 
