@@ -190,7 +190,7 @@ def runplot(quantity, files, opt, legloc='center right',
     datamc=[]
     events=[]
     run_min = 190000
-    run_max = 210000
+    run_max = 210500
 
     # create the plot
     if subplot==True: fig, ax = fig_axes
