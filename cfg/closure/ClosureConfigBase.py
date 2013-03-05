@@ -874,8 +874,9 @@ def AddQuantityPlots(config, algos, forIncut=True, forAllevents=False, forIncutV
     ]
 
     x_quantities = ['alpha',
-        'jet1pt', 'npv', 'jet1eta', 'jet1phi', 'jet2pt', 'jet2eta', 'jet2phi',
-        'zpt', 'zeta', 'zphi', 'METpt', 'METphi',# 'sumEt', 'jetsvalid',
+        'jet1pt', 'npv', 'jet1eta', 'jet1phi',# 'jet2pt', 'jet2eta', 'jet2phi',
+        'zpt',# 'zeta', 'zphi', 
+        'METpt',# 'METphi',# 'sumEt', 'jetsvalid',
        
     ]
 
