@@ -915,8 +915,11 @@ def AddQuantityPlots(config, algos, forIncut=True, forAllevents=False, forIncutV
                                 for quantity in ['ptbalance', 'mpf', 'mpf-raw', 'zpt', 'METpt', 'jet1pt', 'alpha']:
                                     AddAbsDiff("phi", quantity, obj1, obj2)"""
                 else:
-                    AddGenericProfileConsumer('alpha','ptbalance')
-                    AddGenericProfileConsumer('alpha','mpf')
+                    for x in ['alpha',
+                        'jet1chargedemfraction', 'jet1neutralhadfraction', 'jet1chargedhadfraction',
+                        'jet1HFhadfraction', 'jet1HFemfraction', 'jet1photonfraction', 'jet1electronfraction']:
+                        AddGenericProfileConsumer(x,'ptbalance')
+                        AddGenericProfileConsumer(x,'mpf')
 
 def Add2DHistograms(config, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
     for algo in algos:

@@ -247,6 +247,25 @@ public:
 		else if ( ref == "genalpha" )
 			this->SetXSource ( new SourceGenAlpha() );
 
+
+		else if ( ref == "jet1neutralemfraction" )
+			this->SetXSource ( new SourceJet1NeutralEMFraction() );
+		else if ( ref == "jet1chargedemfraction" )
+			this->SetXSource ( new SourceJet1ChargedEMFraction() );
+		else if ( ref == "jet1neutralhadfraction" )
+			this->SetXSource ( new SourceJet1NeutralHadFraction() );
+		else if ( ref == "jet1chargedhadfraction" )
+			this->SetXSource ( new SourceJet1ChargedHadFraction() );
+		else if ( ref == "jet1HFhadfraction" )
+			this->SetXSource ( new SourceJet1HFHadFraction() );
+		else if ( ref == "jet1HFemfraction" )
+			this->SetXSource ( new SourceJet1HFEMFraction() );
+		else if ( ref == "jet1photonfraction" )
+			this->SetXSource ( new SourceJet1photonFraction() );
+		else if ( ref == "jet1electronfraction" )
+			this->SetXSource ( new SourceJet1electronFraction() );
+
+
 		else if ( ref == "deltarsecondjettoz" )
 			this->SetXSource ( new SourceDeltaRSecondJetToZ() );
 		else if ( ref == "deltarsecondjettoleadingjet" )
