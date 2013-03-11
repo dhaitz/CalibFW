@@ -17,7 +17,7 @@ from dictionaries import d_plots
 
 def datamcplot(quantity, files, opt, legloc='center right',
                changes=None, log=False, xlog=False, rebin=5, file_name = "", subplot=False, 
-               subtext="", fig_axes=(), xy_names=None, normalize=True, runplot_diff=False, fit=None, ratio=False, fit_offset=0):
+               subtext="", fig_axes=(), xy_names=None, normalize=True, runplot_diff=False, fit=None, ratio=False, fit_offset=0, german=False):
     """Template for all data/MC comparison plots for basic quantities."""
     # read the values
     if opt.verbose:
@@ -131,7 +131,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
 
 
 
-    plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot)
+    plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot, german=german)
 
     if opt.eventnumberlabel is True: plotbase.eventnumberlabel(ax, opt, events)
 
@@ -184,7 +184,8 @@ def datamcplot(quantity, files, opt, legloc='center right',
 
 def runplot(quantity, files, opt, legloc='center right',
                changes={}, log=False, rebin=500, file_name = "", subplot=False, subtext="", fig_axes=(), xy_names=None, normalize=True,           
-               fractions=False, runplot_diff=False, fit='slope', response=False):
+               fractions=False, runplot_diff=False, fit='slope', response=False,
+                german=False):
 
     change= plotbase.getchanges(opt, changes)
     datamc=[]
@@ -240,13 +241,16 @@ def runplot(quantity, files, opt, legloc='center right',
                 ax.bar(run_min, mc_mean, (run_max - run_min), bottom=0., fill=True, facecolor=c, edgecolor=c)
                 ax.axhspan(mc_mean+mc_meanerr,mc_mean-mc_meanerr, color=c, alpha=0.2)
 
-    runs = [['2012A', 190456.],['2012B', 193834.], ['2012C', 197770.], ['2012D', 203773.]]
-    for [runlabel, runnumber] in runs:
-        ax.axvline(runnumber, color='gray', linestyle='--', alpha=0.2)
-        ax.text((runnumber-run_min) / (run_max - run_min),  0.92, runlabel, transform=ax.transAxes,
-                     va='top', ha='left', color='gray', alpha=0.5, size='medium')
+    if not german:
+        runs = [['2012A', 190456.],['2012B', 193834.], ['2012C', 197770.], ['2012D', 203773.]]
+        for [runlabel, runnumber] in runs:
+            ax.axvline(runnumber, color='gray', linestyle='--', alpha=0.2)
+            ax.text((runnumber-run_min) / (run_max - run_min),  0.92, runlabel, transform=ax.transAxes,
+                         va='top', ha='left', color='gray', alpha=0.5, size='medium')
 
-    plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot)
+    plotbase.labels(ax, opt, legloc=legloc, frame=True, changes=change, jet=False, sub_plot=subplot, german=german)
+    if german: ax.legend(bbox_to_anchor=(0, 1.02, 1., 0.102), loc=3,
+       ncol=2, mode="expand", borderaxespad=0., shadow=True, fancybox=True)
 
     if xy_names is not None:
         plotbase.axislabels(ax, xy_names[0], xy_names[1])

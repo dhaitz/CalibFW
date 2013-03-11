@@ -3,7 +3,7 @@ import copy
 from dictionaries import d_axes, d_plots
 
 def labels(ax, opt=None, jet=False, bin=None, result=None, legloc='upper right',
-           frame=True, sub_plot=False, changes={}, ratiosubplot=False, mc='False', color='black', energy_label=True, ncol=1):
+           frame=True, sub_plot=False, changes={}, ratiosubplot=False, mc='False', color='black', energy_label=True, ncol=1, german=False):
     """This function prints all labels and captions in a plot.
 
     Several functions are called for each type of label.
@@ -15,7 +15,7 @@ def labels(ax, opt=None, jet=False, bin=None, result=None, legloc='upper right',
         #if opt.energy is not None and energy_label==True:
         #    energylabel(ax, opt.energy)
         #if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
-        if changes.has_key('var') or changes.has_key('bin'): binlabel(ax, bin, changes=changes, color=color)
+        if (changes.has_key('var') or changes.has_key('bin')) and not german: binlabel(ax, bin, changes=changes, color=color)
         if 'incut' in changes: incutlabel(ax, color, changes['incut'])
         resultlabel(ax, result)
         authorlabel(ax, opt.author)
