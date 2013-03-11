@@ -496,7 +496,7 @@ def extrapol(files, opt,
            variation='alpha',
            use_rawMET=False, # use raw MET instead of type-I MET
            extrapolate_mpf = True, # if false, use average for MET
-           save_individually = False):  # save each plot indivually, not as a subplot
+           save_individually = True):  # save each plot indivually, not as a subplot
 
     rebin = 10
     if opt.rebin is not None: rebin = opt.rebin
@@ -571,8 +571,8 @@ def extrapol(files, opt,
                 ax1.axhline(mpfmean_mc, color=local_opt.colors[1])
                 ax1.axhspan(mpfmean_mc + mpfmeanerror_mc, mpfmean_mc - mpfmeanerror_mc, color=local_opt.colors[1], alpha=0.2)
 
-        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30$ GeV   $\eta^\mathrm{Jet1}<1.3$"
-        ax1.text(0.97, 0.98, pt_eta_label, va='top', ha='right', color='black', transform=ax1.transAxes, size='large')
+        #pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30$ GeV   $\eta^\mathrm{Jet1}<1.3$"
+        #ax1.text(0.97, 0.98, pt_eta_label, va='top', ha='right', color='black', transform=ax1.transAxes, size='large')
 
         if save_individually:
             file_name = plotbase.getdefaultfilename("extrapolation_%s" % (variation_label), opt, changes)
@@ -590,7 +590,7 @@ def extrapol(files, opt,
         local_opt.colors = ['blue']
         plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, local_opt, legloc='lower left',
                    changes=changes, rebin=rebin, file_name = "", subplot=True, xy_names=['alpha','datamcratio'],
-                   subtext="", fig_axes=(fig, ax2),fit='intercept', ratio=True)
+                   subtext="", fig_axes=(fig, ax2),fit='intercept', ratio=True, fit_offset=-0.12)
 
         #   mpf
         local_opt.labels = [mpflabel]
@@ -598,7 +598,7 @@ def extrapol(files, opt,
         if extrapolate_mpf ==True:
             plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, local_opt, legloc='lower left',
                            changes=changes, rebin=rebin, file_name = "", subplot=True, xy_names=['alpha','datamcratio'],
-                           subtext=subtext2, fig_axes=(fig, ax2),fit='intercept', ratio=True, fit_offset=-0.1)
+                           subtext=subtext2, fig_axes=(fig, ax2),fit='intercept', ratio=True, fit_offset=-0.22)
         else:
             if (mpfmean_mc != 0.0): R = mpfmean_data/mpfmean_mc
             else: R =0
@@ -610,8 +610,8 @@ def extrapol(files, opt,
             ax2.text(0.97, 0.67, r" Ratio $=%1.4f\pm%1.4f$" %(R, Rerr), va='top', ha='right', transform=ax2.transAxes, color='maroon')
 
 
-        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30$ GeV   $\eta^\mathrm{Jet1}<1.3$"
-        ax2.text(0.97, 0.95, pt_eta_label, va='center', ha='right', color='black', transform=ax2.transAxes, size='large')
+        #pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30$ GeV   $\eta^\mathrm{Jet1}<1.3$"
+        #ax2.text(0.97, 0.95, pt_eta_label, va='center', ha='right', color='black', transform=ax2.transAxes, size='large')
 
         if save_individually:
             file_name = plotbase.getdefaultfilename("ratio_extrapolation_%s" % (variation_label), opt, changes)
