@@ -16,6 +16,7 @@ def dipl(files, opt):
     dak7(files, opt)
     dl1(files, opt)
     dex(files, opt)
+    dintro(files, opt)
 
 
 def dbasic(files, opt):
@@ -208,14 +209,20 @@ def dl1(files, opt):
 def dintro(files, opt):
     local_opt = copy.deepcopy(opt)
     local_opt.out = "out/diplomarbeit/intro"
+    local_opt.labels = ['Messdaten','Simulation']
     local_opt.y_limits = [0.89, 1.04, 0.95, 1.04]
 
     local_opt.correction = ""
     plotbase.plotresponse.responseratio(files, local_opt, over='zpt', 
-                                fit=True, types=['balresp'], extrapol='global')
+                                fit=True, types=['balresp'], extrapol='global', german=True)
     local_opt.correction = "L1L2L3Res"
     plotbase.plotresponse.responseratio(files, local_opt, over='zpt', 
-                                fit=True, types=['balresp'], extrapol='global')
+                               fit=True, types=['balresp'], extrapol='global', german=True)
+    local_opt.y_limits = None
+
+    plotbase.plotfractions.fractions_run_all(files, local_opt, response=True, diff=True, german=True)
+
+    plotbase.plotresponse.extrapol(files, local_opt, german=True)
 
 
 
