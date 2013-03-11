@@ -21,7 +21,7 @@ d_axes={
         'constituents':[0, 60, r"Number of Jet Constituents", ""],
         'correction':[0.85, 1.02, "Correction factor", ""],
         'cut':[0, 1.1, r"Cut Inefficiency (%s)", ""],
-        'datamcratio':[0.94, 1.03, r"data/MC ratio", ""],
+        'datamcratio':[0.951, 1.02, r"data/MC ratio", ""],
         'deltaeta':[0, 15, r"$\Delta \eta(\mathrm{%s})$", ""],
         'deltaeta':[0, 5, r"$\Delta \eta(\mathrm{%s,\/ %s})$", ""],
         'deltaphi':[0, 3.141593, r"$\Delta \phi(\mathrm{%s,\/%s})$", ""],
