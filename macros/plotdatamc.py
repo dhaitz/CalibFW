@@ -156,7 +156,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
 
     if ratio:
         ax.axhline(1.0, color='black', linestyle=':')
-        ax.set_ylabel(y +" Data/MC ratio", va="top", y=1)
+        #ax.set_ylabel(y +" Data/MC ratio", va="top", y=1)
 
     if subtext is not 'None':
         ax.text(-0.03, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')

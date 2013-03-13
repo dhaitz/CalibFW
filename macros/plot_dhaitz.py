@@ -37,23 +37,25 @@ def plot(cluster=False):
     # settings (1):
     op = plotbase.options(
         files=[     # First file must be data, other files MC
-            "/storage/8/dhaitz/CalibFW/work/data_2012_534/out/closure.root",
-            "/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_534/out/closure.root",
+            "/storage/8/dhaitz/CalibFW/work/data_2012_534_11fb/out/closure.root",
+            "/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_534_11fb/out/closure.root",
         ],
         #specify output path
-        out="out/534/",
+        out="out/francesco_1903_2/",
+        status="    CMS Preliminary",
+        formats=["pdf", "png"],
 
         #extend colors, labels, styles:
         labels=["data", "MC", "MC 5.0" , "MC 7 TeV (powheg)" , "MC 7 TeV (madgraph)"],
         colors=['black', '#CBDBF9','#800000', 'blue', '#00FFFF'],
         style=["o","f","-","-","-"],
         
-        lumi=19490,
+        lumi=11000,
 
-        plots= plotresponse.plots
-               +plotfractions.plots
-               +plot2d.plots
-               +plotdatamc.plots
+        plots= ["extrapol"]#plotresponse.plots
+               #+plotfractions.plots
+               #+plot2d.plots
+               #+plotdatamc.plots
                #+plot_resolution.plots
                #plot_mikko.plots
         )

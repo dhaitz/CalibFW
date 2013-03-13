@@ -562,7 +562,7 @@ def fit(fit, ax, quantity, rootfile, change, rebin, color, index,
                size='x-large')
         elif fit == 'intercept':
             #display intercept ...
-            ax.text(0.97, 0.35-(index/10.)+offset, r"$\mathrm{y(0)} = %1.3f\pm%1.3f$" % (intercept, conf_intervals[0]),
+            ax.text(0.99, 0.35-(index/10.)+offset, r"$\mathrm{y(0)} = %1.3f\pm%1.3f$" % (intercept, conf_intervals[0]),
                va='top', ha='right', transform=ax.transAxes, color=color, size='x-large')
 
             # ... and chi2 (smaller)
