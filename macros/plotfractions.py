@@ -223,7 +223,7 @@ def fractions(files, opt, over='zpt', fa=() , subplot=False, changes={}, subtext
     if subplot is not True: plotbase.Save(fig, "fractions_diff_" + over+ "_" + algoname, opt, False)
 
 #fractions_run: a plot for the time dependence of the various jet components
-def fractions_run(files, opt, changes={}, fig_ax=None, subplot=False, diff=False, response=False, german=False):
+def fractions_run(files, opt, changes={}, fig_ax=None, subplot=False, diff=False, response=False, german=False, date=False):
     # Name everything you want and take only the first <nbr> entries of them
     nbr = 6
     labels =     ["CHad","photon", "NHad", "electron", "HFem", "HFhad"][:nbr]
@@ -261,7 +261,7 @@ def fractions_run(files, opt, changes={}, fig_ax=None, subplot=False, diff=False
         plotdatamc.runplot("jet1%s%sfraction_run" % (quantity, suffix), files, opt_change, changes=changes,
                     fractions=True, xy_names=['run', y_name], fig_axes = (fig, ax), subplot=True, 
                     rebin=500, legloc = 'lower right', runplot_diff = diff, fit='slope_noLabel',
-                    response=response, german=german)
+                    response=response, german=german, date=date)
     if subplot: return
 
     filename = plotbase.getdefaultfilename(title, opt_change, changes)
@@ -274,7 +274,7 @@ def fractions_run(files, opt, changes={}, fig_ax=None, subplot=False, diff=False
         plotbase.Save(fig, filename, opt_change)
 
 #fractions_run for variations
-def fractions_run_all(files, opt, change={}, diff=False, response=False, german=False):
+def fractions_run_all(files, opt, change={}, diff=False, response=False, german=False, date=False):
 
     for quantity, variation_strings, var_bin in zip(['jet1eta']#, 'zpt', 'npv']
             , [getroot.etastrings(opt.eta), getroot.binstrings(opt.bins), getroot.npvstrings(opt.npv)], ['var', 'bin', 'var']):
@@ -294,7 +294,7 @@ def fractions_run_all(files, opt, change={}, diff=False, response=False, german=
 
         for var, ax_element in zip(variation_strings, ax):
             change[var_bin] = var
-            fractions_run(files, opt, changes=change, subplot=False, diff=diff, response=response, german=german)
+            fractions_run(files, opt, changes=change, subplot=False, diff=diff, response=response, german=german, date=date)
         del change[var_bin]
 
         fig.suptitle(title+opt.algorithm+opt.correction, size='xx-large')

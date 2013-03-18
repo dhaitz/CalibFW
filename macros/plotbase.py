@@ -107,11 +107,11 @@ def function_selector(plots, datamc, opt):
         elif plot in plotlist_alleta:
             plotdatamc.datamcplot(plot[:-7], datamc, opt, changes={'incut':'alleta'})
         elif "_all" in plot:# and plot in plotlist_all:
-            if '_run' in plot:
+            if ('_run' in plot) or ('_date' in plot):
                 plotdatamc.datamc_all(plot[:-4], datamc, opt, run=True)
             else:
                 plotdatamc.datamc_all(plot[:-4], datamc, opt)
-        elif '_run' in plot:
+        elif ('_run' in plot) or ('_date' in plot):
             if '_nocuts' in plot:
                 plotdatamc.runplot(plot[:-7], datamc, opt, changes={'incut':'allevents'})
             else:
@@ -562,7 +562,6 @@ def fit(fit, ax, quantity, rootfile, change, rebin, color, index,
         # insert a (0, 0) bin because the conf_intervals list also contains an additional (0., conf)-point
         plot = getroot.root2histo(rootobject)
         plot.xc.insert(0, 0.)
-
         # display confidence intervals
         ax.fill_between(plot.xc[:-1], [(intercept+x*slope + c)*scalefactor for x, c in zip(plot.xc[:-1], conf_intervals)], [(intercept+x*slope - c)*scalefactor for x, c in zip(plot.xc[:-1], conf_intervals)], facecolor=color, edgecolor=color, interpolate=True, alpha=0.2)
 

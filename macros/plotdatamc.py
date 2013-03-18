@@ -13,6 +13,7 @@ import sys
 import multiprocessing as mp
 import os
 from dictionaries import d_plots
+import matplotlib.dates as md
 
 
 def datamcplot(quantity, files, opt, legloc='center right',
@@ -31,6 +32,7 @@ def datamcplot(quantity, files, opt, legloc='center right',
 
     datamc=[]
     events=[]
+
 
     #create list with histograms
     if change.has_key('algorithm') and 'Gen' in change['algorithm']:
@@ -64,7 +66,6 @@ def datamcplot(quantity, files, opt, legloc='center right',
         datamc = [getroot.root2histo(rootobjects[0], files[0].GetName(), rebin=1)]
     else:
         rootobject = None
-
 
     # create the plot
     if subplot==True: fig, ax = fig_axes
@@ -185,13 +186,22 @@ def datamcplot(quantity, files, opt, legloc='center right',
 def runplot(quantity, files, opt, legloc='center right',
                changes={}, log=False, rebin=500, file_name = "", subplot=False, subtext="", fig_axes=(), xy_names=None, normalize=True,           
                fractions=False, runplot_diff=False, fit='slope', response=False,
-                german=False):
+                german=False, 
+                date=False): #special options for plots with the date on the x-axis
 
     change= plotbase.getchanges(opt, changes)
     datamc=[]
     events=[]
     run_min = 190000
     run_max = 210500
+
+    #activate date options
+    if 'date' in quantity: date = True
+    if date:
+        run_min = 734578.568657
+        run_max = 734861.708819
+        if 'run' in quantity: 
+            quantity = quantity.replace('run', 'date')
 
     # create the plot
     if subplot==True: fig, ax = fig_axes
@@ -203,7 +213,7 @@ def runplot(quantity, files, opt, legloc='center right',
         if 'data' in l or fractions:
 
             if quantity == 'ptbalance_run' or quantity == 'mpf_run':
-                k = plotbase.plotresponse.getextrapolated(quantity[:-4], f, changes=changes, quadratic=False, getfactor=True)[0]
+                k = plotbase.plotresponse.getextrapolated(quantity.split("_")[0], f, changes=changes, quadratic=False, getfactor=True)[0]
             else: k=1
 
             plot = getroot.getplotfromnick(quantity, f, change, rebin)
@@ -218,9 +228,9 @@ def runplot(quantity, files, opt, legloc='center right',
 
             if runplot_diff:
                 if response:
-                    mc_mean = getroot.getplotfromnick(quantity[:-4].replace("response",""), files[1], change, rebin=1).mean * getroot.getplotfromnick("balresp", files[1], change, rebin=1).mean
+                    mc_mean = getroot.getplotfromnick(quantity.split("_")[0].replace("response",""), files[1], change, rebin=1).mean * getroot.getplotfromnick("balresp", files[1], change, rebin=1).mean
                 else:
-                    mc_mean = getroot.getplotfromnick(quantity[:-4], files[1], change, rebin=1).mean
+                    mc_mean = getroot.getplotfromnick(quantity.split("_")[0], files[1], change, rebin=1).mean
                 plot.y = [y - mc_mean for y in plot.y]
             else:
                 mc_mean = None
@@ -231,12 +241,12 @@ def runplot(quantity, files, opt, legloc='center right',
 
         elif ('MC' in l  or fractions) and quantity[:-4] in plotlist:
             if runplot_diff:
-                mc_mean = getroot.getplotfromnick(quantity[:-4], f, change, rebin=1).mean
+                mc_mean = getroot.getplotfromnick(quantity.split("_")[0], f, change, rebin=1).mean
                 plot.y = [y_data - mc_mean for y_data in plot.y]
                 datamc.append(plot)
             else:
-                mc_mean = getroot.getplotfromnick(quantity[:-4], f, change, rebin=1).mean
-                mc_meanerr = getroot.getplotfromnick(quantity[:-4], f, change, rebin=1).meanerr
+                mc_mean = getroot.getplotfromnick(quantity.split("_")[0], f, change, rebin=1).mean
+                mc_meanerr = getroot.getplotfromnick(quantity.split("_")[0], f, change, rebin=1).meanerr
                 ax.errorbar(0.5*(run_min+ run_max), mc_mean, mc_meanerr, drawstyle='steps-mid', color=c, fmt='-', capsize=0 ,label=l)
                 ax.bar(run_min, mc_mean, (run_max - run_min), bottom=0., fill=True, facecolor=c, edgecolor=c)
                 ax.axhspan(mc_mean+mc_meanerr,mc_mean-mc_meanerr, color=c, alpha=0.2)
@@ -253,12 +263,22 @@ def runplot(quantity, files, opt, legloc='center right',
        ncol=2, mode="expand", borderaxespad=0., shadow=True, fancybox=True)
 
     if xy_names is not None:
-        plotbase.axislabels(ax, xy_names[0], xy_names[1])
+        x, y = (xy_names[0], xy_names[1])
     else:
         y, x = quantity.split("_")
-        ax = plotbase.axislabels(ax, x, y)
+
+    if date: x = 'date'
+    ax = plotbase.axislabels(ax, x, y)
 
     plotbase.setaxislimits(ax, changes, opt)
+
+    #special options for 'date' as x-quantity
+    if date:
+        hfmt = md.DateFormatter('%d/%m')
+        ax.xaxis.set_major_locator(md.MonthLocator())
+        ax.xaxis.set_major_formatter(hfmt)
+        labels = ax.get_xticklabels()
+
 
     if subtext is not 'None':
         ax.text(-0.03, 1.01, subtext, va='bottom', ha='right', transform=ax.transAxes, size='xx-large', color='black')
