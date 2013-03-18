@@ -216,6 +216,8 @@ public:
 
 	IMPL_PROPERTY(std::string, SelectedHlt)
 
+	IMPL_PROPERTY(double, RunDate)
+
 	KDataMuons const& GetValidMuons() const
 	{
 		return m_listValidMuons;

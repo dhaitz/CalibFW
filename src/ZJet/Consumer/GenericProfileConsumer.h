@@ -273,6 +273,8 @@ public:
 
 		else if ( ref == "run")
 			this->SetXSource ( new SourceRunNumber());
+		else if ( ref == "date")
+			this->SetXSource ( new SourceRunDate());
 		else if ( ref == "intlumi")
 			this->SetXSource ( new SourceIntegratedLumi() );
 		else

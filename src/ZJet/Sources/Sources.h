@@ -13,6 +13,9 @@
 #include "../ZJetMetaData.h"
 #include "../ZJetPipelineSettings.h"
 
+#include <boost/assign/list_of.hpp>
+
+
 namespace CalibFW
 {
 typedef SourceBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
@@ -797,7 +800,7 @@ public:
 	// hardcoded for now ...
 	virtual unsigned int GetDefaultBinCount() const
 	{
-		return 10000;
+		return 100;
 	}
 	virtual double GetDefaultLowBin() const
 	{
@@ -1783,6 +1786,40 @@ public:
 	virtual double GetDefaultLowBin() const { return 0.f; }
 	virtual double GetDefaultHighBin() const { return 2.f; }
 };
+
+
+class SourceRunDate: public ZJetSourceBase
+{
+public:
+
+	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
+			ZJetPipelineSettings const& settings, double & val) const
+	{
+        if (metaData.GetRunDate() != 0)
+            {
+                val = metaData.GetRunDate();
+                return true;
+            }
+        else
+            return false;
+	}
+
+	// hardcoded for now ...
+	virtual unsigned int GetDefaultBinCount() const
+	{
+		return 100;
+	}
+	virtual double GetDefaultLowBin() const
+	{
+	  
+		return 734578.568657f;
+	}
+	virtual double GetDefaultHighBin() const
+	{
+		return 734861.708819f;
+	}
+};
+
 
 }
 

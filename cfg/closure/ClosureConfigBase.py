@@ -101,7 +101,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
         'GlobalProducer': [    # The order of these producers is important!
             'valid_muon_producer', 'z_producer', 'valid_jet_producer',
             'corr_jet_producer', 'typeImet_producer', 'jet_sorter_producer',
-            'pu_reweighting_producer'
+            'pu_reweighting_producer', 'run_date_producer'
         ],
         'L1Correction': 'L1FastJet',
         'EnableMetPhiCorrection': False,
@@ -702,6 +702,7 @@ def AddLumiConsumer( pipelineDict, algos, forIncut = True, forAllevents=False, f
                                 'jet1neutralemresponsefraction', 'jet1chargedemresponsefraction', 'jet1neutralhadresponsefraction', 
                                 'jet1chargedhadresponsefraction', 'jet1HFhadresponsefraction', 'jet1HFemresponsefraction', 'jet1photonresponsefraction','jet1electronresponsefraction']:
                     AddLumiConsumerEasy(quantity, "run")
+                    AddLumiConsumerEasy(quantity, "date")
 
 
 def AddHltConsumer( pipelineDict, algoNames, hlt_names):
