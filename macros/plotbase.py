@@ -302,6 +302,15 @@ def printfiles(filelist):
 def createchanges(opt, change={}):
     change["correction"] = opt.correction
     change["algorithm"] = opt.algorithm
+
+    for variation, key, strings in zip([opt.alphabin, opt.etabin, opt.npvbin, opt.zptbin], ['var', 'var', 'var', 'bin'], [getroot.cutstrings(opt.cut), getroot.etastrings(opt.eta), getroot.npvstrings(opt.npv), getroot.binstrings(opt.bins)] ):
+
+        if variation is not None:
+            if key in change and strings[variation] not in change[key]:
+                change[key] += "_"+strings[variation]
+            else:
+                change[key] = strings[variation]
+
     return change
 
 def getchanges(opt, change={}):
