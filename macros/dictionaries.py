@@ -21,6 +21,7 @@ d_axes={
         'constituents':[0, 60, r"Number of Jet Constituents", ""],
         'correction':[0.85, 1.02, "Correction factor", ""],
         'cut':[0, 1.1, r"Cut Inefficiency (%s)", ""],
+        'cut-all':[0, 1, r"Fraction of events filtered by selection cuts", ""],
         'datamcratio':[0.951, 1.02, r"data/MC ratio", ""],
         'date':[734578.568657, 734854.708819, r"Tag/Monat (2012)", ""],
         'deltaeta':[0, 15, r"$\Delta \eta(\mathrm{%s})$", ""],
