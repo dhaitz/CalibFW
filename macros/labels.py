@@ -1,7 +1,7 @@
 import plotbase
 import copy
 from dictionaries import d_axes, d_plots
-fontsize=20
+
 def labels(ax, opt=None, jet=False, bin=None, result=None, legloc='upper right',
            frame=True, sub_plot=False, changes={}, ratiosubplot=False, mc='False', color='black', energy_label=True):
     """This function prints all labels and captions in a plot.
@@ -21,8 +21,7 @@ def labels(ax, opt=None, jet=False, bin=None, result=None, legloc='upper right',
         authorlabel(ax, opt.author)
         datelabel(ax, opt.date)
     if legloc is not False:
-        legend = ax.legend(loc=legloc, numpoints=1, frameon=frame, fancybox=True,
-         shadow=True, prop={'size':fontsize})
+        legend = ax.legend(loc=legloc, numpoints=1, frameon=frame, fancybox=True, shadow=True)
     return ax
 
 
@@ -48,7 +47,7 @@ def eventnumberlabel(ax, opt, events):
 def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
     if lumi >= 1000.0:
         ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{fb}^{-1}$" %
-            (lumi / 1000.0), va='bottom', ha='left', transform=ax.transAxes, size='large')
+            (lumi / 1000.0), va='bottom', ha='left', transform=ax.transAxes)
     elif lumi > 0.0:
         ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{pb}^{-1}$" %
             (lumi), va='bottom', ha='left', transform=ax.transAxes)
@@ -58,7 +57,7 @@ def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
 def energylabel(ax, energy, xpos=1.00, ypos=1.01):
     if energy is not None:
         ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
-            va='bottom', ha='right', transform=ax.transAxes, size='large')
+            va='bottom', ha='right', transform=ax.transAxes)
 
 def jetlabel_string( changes, opt):
     if changes.has_key('algorithm'): algorithm = changes['algorithm']
@@ -170,7 +169,7 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.95, changes={}, colo
         else:
             text = r"$%1.3f < |\eta_\mathrm{jet}| < %1.3f$" % (low, high)
     elif bin == 'alpha':
-        text = ""#r"$ \alpha < %1.2f$" % (low)
+        text = r"$ \alpha < %1.2f$" % (low)
     elif bin == 'ptbin':
         #text = r"%1.0f < $|\pt_\mathrm{jet}|$ < %1.0f" % (low, high)
         text = r"%1.0f GeV < $p_T^\mathrm{Jet}$ < %1.0f GeV" % (low, high)
@@ -187,7 +186,7 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.95, changes={}, colo
 def statuslabel(ax, status=None, xpos=0.25, ypos=1.018):
     if status is not None:
         ax.text(xpos, ypos, r"%s" % status, va='bottom', ha='left',
-                transform=ax.transAxes, size='large')
+                transform=ax.transAxes)
 
 
 def resultlabel(ax, text=None, xpos=0.05, ypos=0.05):
@@ -213,17 +212,15 @@ def axislabels(ax, x='z_pt', y='events', brackets=False, labels=['','']):
     """
 
     def setxaxis(limits=(0, 200), quantity="x", unit=""):
-        ax.set_xlabel(unitformat(quantity, unit, brackets), ha="right", x=1, size=fontsize)
+        ax.set_xlabel(unitformat(quantity, unit, brackets), ha="right", x=1)
         ax.set_xlim(limits)
-        plotbase.plt.setp(ax.get_xticklabels(), fontsize=fontsize)
 
     def setyaxis(limits=(0, 1), quantity="y", unit="", bottom=None):
-        ax.set_ylabel(unitformat(quantity, unit, brackets), va="top", y=1, size=fontsize)
+        ax.set_ylabel(unitformat(quantity, unit, brackets), va="top", y=1)
         if bottom is not None:
             ax.set_ylim(bottom=bottom)
         else:
             ax.set_ylim(limits)
-        plotbase.plt.setp(ax.get_yticklabels(), fontsize=fontsize)
 
     for quantity, function in zip([x,y],[[setxaxis, ax.set_xticks, ax.set_xticklabels], [setyaxis, ax.set_yticks, ax.set_yticklabels]]):
     # special formatting options for some quantities ...
