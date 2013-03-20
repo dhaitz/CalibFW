@@ -630,7 +630,10 @@ def extrapol(files, opt,
         #pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30$ GeV   $\eta^\mathrm{Jet1}<1.3$"
         #ax2.text(0.97, 0.95, pt_eta_label, va='center', ha='right', color='black', transform=ax2.transAxes, size='large')
 
-        if german: ax2.set_ylabel(u"Jet-Response: Verhältnis Messdaten / Simulation")
+        if german: 
+            ax2.set_ylabel(u"Jet-Response: Verhältnis Messdaten / Simulation")
+            ax2.set_ylim(0.977, 1.02)
+            ax2.set_yticks([0.98, 0.99, 1.00, 1.01, 1.02])
         if save_individually:
             file_name = plotbase.getdefaultfilename("ratio_extrapolation_%s" % (variation_label), opt, changes)
             file_name = file_name.replace('var_CutSecondLeadingToZPt__','')

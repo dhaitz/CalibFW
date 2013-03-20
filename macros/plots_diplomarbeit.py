@@ -220,9 +220,9 @@ def dintro(files, opt):
     #                           fit=True, types=['balresp'], extrapol='global', german=True)
     local_opt.y_limits = None
 
-    plotbase.plotfractions.fractions_run_all(files, local_opt, response=True, diff=True, german=True, date=True)
+    #plotbase.plotfractions.fractions_run_all(files, local_opt, response=True, diff=True, german=True, date=True)
 
-    #plotbase.plotresponse.extrapol(files, local_opt, german=True)
+    plotbase.plotresponse.extrapol(files, local_opt, german=True)
 
 
 

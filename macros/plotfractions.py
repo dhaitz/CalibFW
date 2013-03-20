@@ -267,7 +267,7 @@ def fractions_run(files, opt, changes={}, fig_ax=None, subplot=False, diff=False
     filename = plotbase.getdefaultfilename(title, opt_change, changes)
     if german:
         ax.set_ylim(-0.11, 0.08)
-        ax.set_xlabel("Laufnummer", ha="right", x=1)
+        #ax.set_xlabel("Laufnummer", ha="right", x=1)
         ax.set_ylabel("Energiebeitrag zur Jet-Response: \n Differenz zwischen Messdaten und Simulation", va="top", y=1)
         plotbase.Save(fig, filename, opt_change, crop=True, pad=0.6)
     else:
