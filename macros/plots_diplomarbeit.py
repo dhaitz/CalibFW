@@ -38,7 +38,12 @@ def dbasic(files, opt):
     plotbase.plotdatamc.datamcplot('balresp', files, local_opt, fit='gauss', changes={'x_limits':[0.2, 1.8]})
     plotbase.plotdatamc.datamcplot('mpfresp', files, local_opt, fit='gauss', changes={'x_limits':[0.2, 1.8]})
 
-    plotbase.plot2d.twoD("2D_cut-all_npv_zpt", files, local_opt, changes={'x_limits':[0, 40], 'y_limits':[0, 400]})
+    local_opt.y_limits = [0, 400]
+    local_opt.x_limits = [0, 40]
+    plotbase.plot2d.twoD("2D_cut-all_npv_zpt", files, local_opt)
+
+    local_opt.y_limits = None
+    local_opt.x_limits = None
 
     # PU rew
     local_opt.out = "out/diplomarbeit/basic/PU-unrew"
@@ -66,7 +71,7 @@ def dfrac(files, opt):
     local_opt.out = "out/diplomarbeit/fractions_run"
     plotbase.plotfractions.fractions_diff_run_all(files, local_opt)
     plotbase.plotfractions.fractions_diff_run(files, local_opt)
-    plotbase.plotfractions.fractions_run_response_diff_all(files, local_opt)
+    plotbase.plotfractions.fractions_run_all(files, local_opt, response=True, diff=True, german=False, date=False)
     plotbase.plotfractions.fractions_run_response_diff(files, local_opt)
 
     #extrapolation
@@ -190,7 +195,8 @@ def dak7(files, opt):
 
 def dl1(files, opt):
     local_opt = copy.deepcopy(opt)
-    local_opt.y_limits = [0.941, 1.029, 0.946, 1.009]
+    lim = [0.901, 1.029, 0.946, 1.009]
+    local_opt.y_limits = lim
     local_opt.out = "out/diplomarbeit/L1Fastjet"
     plotbase.plotresponse.bal_responseratio_npv(files, local_opt, extrapol='global')
 
@@ -201,7 +207,9 @@ def dl1(files, opt):
     local_opt.files = ["/storage/8/dhaitz/CalibFW/work/data_2012_534_L1Offset/out/closure.root",
             "/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_534_L1Offset/out/closure.root"]
     files = [plotbase.getroot.openfile(f, opt.verbose) for f in local_opt.files]
+    local_opt.y_limits = lim
     plotbase.plotresponse.bal_responseratio_npv(files, local_opt, extrapol='global')
+    local_opt.y_limits = None
     plotbase.plotdatamc.L1('L1abs_npv', files, local_opt, rebin=1)
 
 
@@ -220,7 +228,7 @@ def dintro(files, opt):
     #                           fit=True, types=['balresp'], extrapol='global', german=True)
     local_opt.y_limits = None
 
-    #plotbase.plotfractions.fractions_run_all(files, local_opt, response=True, diff=True, german=True, date=True)
+    plotbase.plotfractions.fractions_run_all(files, local_opt, response=True, diff=True, german=True, date=True)
 
     plotbase.plotresponse.extrapol(files, local_opt, german=True)
 
