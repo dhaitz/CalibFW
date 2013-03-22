@@ -69,7 +69,7 @@ def fractions(files, opt, over='zpt', fa=() , subplot=False, changes={}, subtext
     # Name everything you want and take only the first <nbr> entries of them
     if over == 'jet1eta': nbr=7
     else: nbr = 5
-    labels =     ["charged hadrons", "photons", "neutral hadrons", r"electrons", r"muons", "HF em.", "HF had."][:nbr]
+    labels =     ["CHad", r"$\gamma$       ", "NHad", r"$e$       ", r"$\mu$       ", "HFem", "HFhad"][:nbr]
     colours =    ['Orange', 'LightSkyBlue', 'YellowGreen', 'MediumBlue',
                   'Darkred', 'yellow', 'grey'][:nbr]
     markers =    ['o','x','*','^','d','D','>'][:nbr]
@@ -226,7 +226,8 @@ def fractions(files, opt, over='zpt', fa=() , subplot=False, changes={}, subtext
 def fractions_run(files, opt, changes={}, fig_ax=None, subplot=False, diff=False, response=False, german=False, date=False):
     # Name everything you want and take only the first <nbr> entries of them
     nbr = 6
-    labels =     ["charged hadrons","photons", "neutral hadrons", "electrons", "HF em.", "HF had."][:nbr]
+    labels =     ["CHad","photon", "NHad", "electron", "HFem", "HFhad"][:nbr]
+
     if german: labels =     ["Geladene Hadronen","Photonen", "Ungeladene Hadronen", "Elektronen", u"Vorwärtskalorimeter-elektromagnetisch", u"Vorwärtskalorimeter-hadronisch"][:nbr]
     colours =    ['Orange', 'LightSkyBlue', 'YellowGreen', 'MediumBlue',
                   'Darkred', 'grey', 'black'][:nbr]
@@ -335,10 +336,10 @@ def fractions_run_response_diff(files, opt):
     fractions_run(files, opt, response=True, diff=True)
 
 def fractions_run_response_all(files, opt):
-    fractions_run_all(files, opt, response=True, change={'var':'var_CutSecondLeadingToZPt__0_4'})
+    fractions_run_all(files, opt, response=True)
 
 def fractions_run_response_diff_all(files, opt):
-    fractions_run_all(files, opt, response=True, diff=True, change={'var':'var_CutSecondLeadingToZPt__0_4'})
+    fractions_run_all(files, opt, response=True, diff=True)
 
 
 

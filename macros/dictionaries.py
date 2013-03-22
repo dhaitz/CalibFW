@@ -15,7 +15,7 @@ d_axes={
         'chargedem':[0,1, r"%s charged em fraction", ""],
         'chargedhad':[0,1, r"%s charged hadron fraction", ""],
         'components_diff':[-0.05, 0.05, r"Data-MC of Leading Jet Components", ""],
-        'components_diff_response':[-0.1, 0.1, r"Data-MC of jet fraction * response", ""],
+        'components_diff_response':[-0.149, 0.1, r"Data-MC of jet fraction multiplied with jet response", ""],
         'components':[0, 1, r"Leading Jet Component Fraction", ""],
         'components_response':[0, 1.2, r"Leading Jet Component Fraction * Response", ""],
         'constituents':[0, 60, r"Number of Jet Constituents", ""],
