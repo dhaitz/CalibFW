@@ -4,6 +4,18 @@ import plotdatamc
 import getroot
 import math
 import plotresponse
+import listofruns
+
+
+
+def gif(files, opt):
+    local_opt = copy.deepcopy(opt)
+    runlist = listofruns.runlist[::10]
+    for run, number in zip(runlist, range(len(runlist))):
+        local_opt.lumi = (run-190456) * 19500 / (209465 - 190456)
+        print 
+        plotbase.plotdatamc.datamcplot('balresp',  files, local_opt,
+             changes={'var':'var_RunRange_0to%s' % run}, filename="%03d" % number)
 
 
 def closure(files, opt):

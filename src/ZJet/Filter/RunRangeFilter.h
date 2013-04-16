@@ -23,7 +23,7 @@ public:
 		if ( run > settings.GetFilterRunRangeHigh() )
 			bPass = false;
 
-		if ( settings.GetFilterRunRangeLumiLow() > 0 )
+		/*if ( settings.GetFilterRunRangeLumiLow() > 0 )
 		{
 		    // also check for the lumi section 
 		    if ( event.m_eventmetadata->nLumi < settings.GetFilterRunRangeLumiLow() )
@@ -41,7 +41,7 @@ public:
 
 		    if ( event.m_eventmetadata->nEvent > settings.GetFilterRunRangeEventHigh() )
 			    bPass = false;
-		}
+		}*/
 
 		
 		return bPass;
