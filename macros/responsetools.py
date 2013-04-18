@@ -1,6 +1,5 @@
 import plotbase
 import getroot
-
 import math
 import copy
 from ROOT import TGraphErrors, TCanvas, TF1, TFile
@@ -8,33 +7,39 @@ import ROOT
 
 from uncertainties import ufloat
 
+def getextrapolated(balancetype, rootfile, settings=None, changes=None,
+                                             quadratic=False, getfactor=False):
 
+    # no extrapolation for recogen
+    if balancetype=='recogen':
+        return 1., 0.
 
-def getextrapolated(balancetype, rootfile, changes={}, quadratic=False, getfactor=False):
+    settings = plotbase.get_local_settings(settings, changes)
+
     quantity = balancetype + "_alpha"
     if "gen" in quantity:
         quantity = quantity.replace("alpha", "genalpha")
 
-    #temporarily copy changes to get the intercept, ierr values from the alpha=0.35 plot
-    changes2 = copy.deepcopy(changes)
-    if 'var' in changes2:
-        changes2['var'] = "var_CutSecondLeadingToZPt_0_35__" + changes2['var']
-    else:
-        changes2['var'] = "var_CutSecondLeadingToZPt_0_35"
-    rootobject = getroot.getobjectfromnick(quantity, rootfile, changes2, rebin=1)
-    intercept, ierr = getroot.fitline2(rootobject, quadratic)[:2]
-    if getfactor:
-        method_dict = {'ptbalance':'balresp', 'mpf':'mpfresp'}
-        rootobject = getroot.getobjectfromnick(method_dict[balancetype], rootfile, changes, rebin=1)
-        mean, merr = getroot.fitline2(rootobject, gauss=True, limits=[0.,2.])[2:4]
-        print " gauss: ", round(mean,3), round(merr,3),
-        print " extra: ", round(intercept,3), round(ierr,3),
+    # get the extrapolation values:
+    changes = {'selection':'jet2pt/zpt<0.3', 'allalpha':'True'}
+    rootobject = getroot.getobjectfromtree(quantity, rootfile, settings, changes)
+    intercept, ierr, slope, serr = plotbase.fitline2(rootobject, quadratic)[:4]
+    print "extrapolated value:", round(intercept,3), round(ierr,3)
 
+    if getfactor:
+        # get the mean of the balance distribution:
+        method_dict = {'ptbalance':'balresp', 'mpf':'mpfresp'}
+        rootobject = getroot.getobjectfromtree(balancetype, rootfile, settings)
+        mean, merr = rootobject.GetMean(), rootobject.GetMeanError()
+        print "normal mean:       ", mean
+       
         # get the extrapolation factor k
         k = intercept / mean
         kerr = k * math.sqrt(abs((ierr/intercept)**2 - (merr/mean)**2))
+        print "kfsr factor:       ", k
         return k, kerr
-    return intercept, ierr
+    else:
+        return intercept, ierr
 
 
 # global variables for extrapolation factors:
@@ -44,15 +49,15 @@ k_fsr = {}
 extrapolation_is_done = False
 
 
-def fillgraph(method, changes, file_numerator, file_denominator=None, #extrapolateRatio=True,
-        var=[0.2, 0.4], varstr = "var_CutSecondLeadingToZPt_%s",
+"""def fillgraph(method, changes, file_numerator, file_denominator=None, #extrapolateRatio=True,
+        var=[0.2, 0.4], varstr = "var_CutSecondLeadingToZPt__%s",
         median=False):
-    """Fill a TGraphErrors with the cut variation values for extrapolation
+    ""Fill a TGraphErrors with the cut variation values for extrapolation
 
        var: variation values (list)
        if a file_denominator is given, the ratio is extrapolated
        the errors are uncorrelated in this function
-    """
+    ""
     print "fillgraph", method, var
     graph = TGraphErrors(len(var))
     ch = copy.deepcopy(changes)
@@ -141,8 +146,8 @@ def fitextrapolation(graph, verbose=True):
 
 
 def draw_extrapolation(graph, fit, ptbin, opt):
-    """
-    """
+    ""
+    ""
     fig, ax = plotbase.newplot()
     ax.fill_between(fit.plotx(), fit.plotyl(), fit.plotyh(), facecolor='CornflowerBlue',
                     edgecolor='white', interpolate=True, alpha=0.3)
@@ -174,7 +179,7 @@ def draw_extrapolation(graph, fit, ptbin, opt):
 
 
 def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ratio', over='zpt'):
-    """The extrapolation
+    ""The extrapolation
 
        This is using fillgraph, fitextrapolation and draw_extra
        4 use cases:
@@ -184,7 +189,7 @@ def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ra
        2     'ratio'   => ratio (first ratio, then extrapolate)
        2     'separate'=> ratio (first extrapolate, then ratio)
         TODO: for npv, eta etc.
-    """
+    ""
     ch = copy.deepcopy(changes)
     if over == 'zpt':
         ch['bin'] = bin
@@ -225,9 +230,9 @@ def extrapolatebin(method, bin, changes, opt, f1, f2=None, draw=True, source='ra
         k_fsr[str(changes)+method+source].append(10, True, fitd.f(0) / fitm.f(0) / (fitd.f(0.2) / fitm.f(0.2)))
         print "k(%s) =" % bin, fitd.f(0) / fitm.f(0) / (fitd.f(0.2) / fitm.f(0.2))
         return fitd.f(0) / fitm.f(0), fitd.ferr(0) / fitm.f(0) + fitm.ferr(0) * fitd.f(0) / fitm.f(0) / fitm.f(0)
+"""
 
-
-def getresponse(method, over, opt, f1, f2=None, changes=None, extrapol=None, draw=True):
+def getresponse(method, over, opt, settings, f1, f2=None, changes=None, extrapol=None, draw=True):
     """
        If 2 files are given the response ratio is returned!
        This is using fillgraph, fitextrapolation and draw_extra
@@ -242,43 +247,31 @@ def getresponse(method, over, opt, f1, f2=None, changes=None, extrapol=None, dra
 
        TODO: for npv, eta etc.
     """
-    assert method in ['balresp', 'mpfresp', 'recogen', 'mpf-rawresp']
-    assert type(changes) == dict
-    #assert extrapol in [False, '', 'data', 'mc', 'ratio', 'separate']
-    if method == 'mpf-rawresp': method = 'mpfresp-raw'
-    changes = plotbase.getchanges(opt, changes)
+    assert method in ['balresp', 'mpfresp', 'recogen', 'mpf-rawresp', 'mpf',
+                                                         'mpfraw', 'ptbalance']
 
-    graph = getroot.getgraphratio(over, method, f1, f2, opt, changes, absmean=(over=='jet1_eta'))
+    if changes is not None:
+        settings = copy.deepcopy(settings)
+        settings.update(changes)
 
+    graph = getroot.getgraphratio(over, method, f1, f2, opt, settings, changes=None, absmean=(over=='jet1_eta'))
     # extrapolation options: None, 'bin' -> binwise extrapolation, 'global; -> global extrapol. factor
     if extrapol is not None:
         var_dict = {    
-            'zpt':{
-                    'binstrings':getroot.binstrings(opt.bins),
-                    'x_quantity':"zpt",
-                    'changekey':'bin',
-                    },
-            'jet1eta':{
-                    'binstrings':getroot.etastrings(opt.eta),
-                    'x_quantity':"jet1abseta",
-                    'changekey':'var'
-                    },
-            'npv':{
-                    'binstrings':getroot.npvstrings(opt.npv),
-                    'x_quantity':"npv",
-                    'changekey':'var'
-                    }
+            'zpt'       :getroot.ptcuts(opt.bins),
+            'jet1abseta':getroot.etacuts(opt.eta),
+            'npv'       :getroot.npvcuts(opt.npv)
         }
 
-        method_dict = {'balresp':'ptbalance', 'mpfresp':'mpf'}
         if extrapol == 'global':
-            # get the factor
-            k = ufloat((getextrapolated(method_dict[method], f1, changes=changes, getfactor = True)))
+            # get the global factor
+            k = ufloat((getextrapolated(method, f1, settings=settings, changes=changes,
+                     getfactor = True)))
             if f2 is not None:
-                k2 = ufloat((getextrapolated(method_dict[method], f2, changes=changes, getfactor = True)))
+                k2 = ufloat((getextrapolated(method, f2,  settings=settings,
+                                            changes=changes, getfactor = True)))
                 k = k / k2
-
-            for i in range(len(var_dict[over]['binstrings'])):
+            for i in range(len(var_dict[over])):
                 x, y, dx, dy = getroot.getgraphpoint(graph, i)
                 yu = ufloat((y, dy))
                 ex = k * yu
@@ -286,46 +279,29 @@ def getresponse(method, over, opt, f1, f2=None, changes=None, extrapol=None, dra
                 graph.SetPoint(i, x, ex.nominal_value)
                 graph.SetPointError(i, dx, ex.std_dev())
         elif extrapol == 'bin':
-            changes['var'] = "var_CutSecondLeadingToZPt_0_35"
-            for string, i in zip(var_dict[over]['binstrings'], range(len(var_dict[over]['binstrings']))):
-                changes[var_dict[over]['changekey']] = string
-                resp, resperr =  getextrapolated(method_dict[method], f1, changes=changes)
+            for string, i in zip(var_dict[over], range(len(var_dict[over]))):
+                resp, resperr =  getextrapolated(method, f1, settings, {'selection':string})
                 if f2 is not None:
-                    resp2, resperr2 =  getextrapolated(method_dict[method], f2, changes=changes)
+                    resp2, resperr2 =  getextrapolated(method, f2, settings, {'selection':string})
                     resp = resp / resp2
                     resperr =  abs(resp / resp2) * math.sqrt((resperr / resp)**2 + (resperr2 / resp2)**2)
 
                 x, y, dx, dy = getroot.getgraphpoint(graph, i)
                 graph.SetPoint(i, x, resp)
                 graph.SetPointError(i, dx, resperr)
-            del changes[var_dict[over]['changekey']]
-            if 'var' in changes: del changes['var']
      
-
-            """if over == 'zpt':
-                bins = getroot.binstrings(opt.bins)
-                #bins.pop(0)
-            elif over == 'jet1eta':
-                bins = getroot.etastrings(opt.eta)
-            elif over == 'npv':
-                bins = getroot.npvstrings(opt.npv)
-            elif over == 'alpha':
-                bins = getroot.cutstrings(opt.cut)
-            else:
-                print "The 'over' value", repr(over), "is not known."
-                exit(0)
-            for i in range(len(bins)):
-                x, y, dx, dy = getroot.getgraphpoint(graph, i)
-                y, dy = extrapolatebin(method, bins[i], changes, opt, f1, f2, source=extrapol, draw=draw, over=over)
-                graph.SetPoint(i, x, y)
-                graph.SetPointError(i, dx, dy)"""
     return graph
 
 
 def plotbinborders(ax, quantity, y, opt):
-    if quantity == 'jet1eta':
+    if quantity == 'jet1abseta':
         l_borders = opt.eta[:-1]
         r_borders = opt.eta[1:]
+    elif quantity == 'jet1eta':
+        bins = [-a for a in opt.eta[1:]]
+        bins = bins[::-1]+opt.eta
+        l_borders = bins[:-1]
+        r_borders = bins[1:]
     elif quantity == 'npv':
         l_borders = [bin[0]-0.5 for bin in opt.npv]
         r_borders = bins1 = [bin[1]+0.5 for bin in opt.npv]

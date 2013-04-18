@@ -1,6 +1,75 @@
 # This module contains the dictionaries for the plotting framework
 
 
+default_settings =  {
+        'algorithm'       :'AK5PFJetsCHS',# 
+        'correction'      : 'L1L2L3Res',  # 
+        'lumi'            : 19790,            # 
+        'energy'          : 8,        # 
+
+
+        'labels'          : ["data", "MC"],
+        'colors'          : ['black', '#CBDBF9'],
+        'markers'         : ["o","f"],
+
+        
+        'text'            : None,         # place text at locatio
+
+
+        'root'            : False,        # If not False: Save the histogram 
+                                          # in a root file. The value of this
+                                          # variable is used as the histogram
+                                          # name/title
+    
+        'legloc'          :'center right',# Location of the plot legend. 
+                                          # Set "False" for no legend
+
+        'subtext'         : None,         # Subtext that is added at the top 
+                                          # left corner 
+
+        'xynames'         : None,         # x-y-axis label names,
+                                          # e.g. ['zpt', 'ptbalance']
+        
+        'rebin'           : 5,            # x-axis rebinning
+
+        'ratio'           : False,        # if true, create a ratio plot
+        'ratiosubplot'    : False,        # create an addtional ratio subplot at the bottom
+
+        'selection'       : None,         # selection (cut) expression for 
+                                          # C++ expressions are valid e.g.
+
+        'special_binning' : False,        # special binning for npv, zpt, eta
+        'extrapolation'   : False,        # alpha-extrapolation: bin, global or false
+
+        'log'             : False,        # logarithmic y-axis
+        'xlog'            : False,        # logarithmic x-axis
+
+        'filename'        : None,         # specify filename
+
+        'fit'             : None,         # type of fit
+        'fit_offset'      : 0,
+
+        'eventnumberlabel': None,         # add label with number of events
+
+        'save_individually':False,        # for plot functions with several subplots:
+                                          # save each plot separately
+
+        'x'               : None,         # x-axis limits [upper, lower]
+        'y'               : None,         # y-axis limits [upper, lower]
+
+        'run'             : False,        # 'True': Some special formatting options for runplots
+                                          # 'diff': additionaly, subtract MC-mean from data
+
+        'subplot'         : False,        #
+
+        
+        'allalpha'        : False,        #
+        'alleta'        : False,          #
+        'folder'          : 'incut',      # folder in rootfile. 'incut', 'allevents'
+
+
+    }
+
 #   Quantity:[ax_min, ax_max, Name, unit, z_min, z_max]
 d_axes={
         'abseta':[0.0, 5.5, r"$|\eta^\mathrm{%s}|$", ""],
@@ -21,7 +90,7 @@ d_axes={
         'constituents':[0, 60, r"Number of Jet Constituents", ""],
         'correction':[0.85, 1.02, "Correction factor", ""],
         'cut':[0, 1.1, r"Cut Inefficiency (%s)", ""],
-        'datamcratio':[0.94, 1.03, r"data/MC ratio", ""],
+        'datamcratio':[0.98, 1.01, r"data/MC ratio", ""],
         'deltaeta':[0, 15, r"$\Delta \eta(\mathrm{%s})$", ""],
         'deltaeta':[0, 5, r"$\Delta \eta(\mathrm{%s,\/ %s})$", ""],
         'deltaphi':[0, 3.141593, r"$\Delta \phi(\mathrm{%s,\/%s})$", ""],
@@ -29,6 +98,7 @@ d_axes={
         'electron':[0,1, r"%s electron fraction", ""],
         'eta':[-5, 5, r"$\eta^\mathrm{%s}$", ""],
         'eventcount':[0, 1.1, r"Eventcount", ""],
+        'events':[0, 1, r"Events", ""],
         'extrapol':[0.86, 1.04, r"Response", ""],
         'filters': [-0.5, 12.5, r"Filters", ""],
         'flavourfrc': [0.0, 1.0, r"Flavour fraction", ""],
@@ -37,6 +107,7 @@ d_axes={
         'genbal-toparton':[0.501, 1.501, r"Parton Response $p_\mathrm{T}^\mathrm{GenJet}/p_\mathrm{T}^\mathrm{Parton_1}$", ""],
         'genbalance':[0.501, 1.501, r"$p_\mathrm{T}$ balance (Gen Jet / Gen Z)", ""],
         'genbal':[0.501, 1.501, r"$p_\mathrm{T}$ balance (Gen Jet / Gen Z)", ""],
+        'genjet2pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{GenJet2}$", 'GeV'],
         'genmpf':[0.501, 1.501, r"Gen MPF Response", ""],
         'genzep':[0.0, 3.0, r"Zeppenfeld variable (Gen level)", ""],
         'genzetarapidityratio':[-4, 4, r"$\eta^\mathrm{GenZ} / y^\mathrm{GenZ}$", ""],
@@ -87,15 +158,16 @@ d_axes={
         'numpu':[0, 35, r"Number of Primary Vertices", ""],
         'numputruth':[0, 35, r"Pile-up Truth (Poisson mean)", ""],
         'parton':[0.0, 1.8, r"Leading parton$p_\mathrm{T}$ / $p_\mathrm{T}^\mathrm{GenZ}$ ", ""],
-        'phi':[-3.2, 3.2, r"$\phi^\mathrm{%s}$", ""],
+        'phi':[-3.141592653, 3.141592653, r"$\phi^\mathrm{%s}$", ""],
         'photon':[0,1., r"%s photon fraction", ""],
+        'photonresponse':[0,1., r"%s photon fraction * response", ""],
         'pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{%s}$", 'GeV'],        
         'ptbalance':[0.74, 1.04, r"$p_\mathrm{T}$ balance", ""],
         'ratio':[0.95, 1.05, r"%s / %s ratio", ""],
         'rawMETpt':[ 0, 80, r"$E_\mathrm{T}^\mathrm{miss}$ (RAW)", 'GeV'],
         'reco':[0, 35, r"Number of Reconstructed Vertices $n$",""],
         'recogen':[0.501, 1.501, r"Jet Response $p_\mathrm{T}^\mathrm{RecoJet}/p_\mathrm{T}^\mathrm{GenJet}$", ""],
-        'response':[0.86, 1.11, r"Jet Response", ""],
+        'response':[0.86, 1.06, r"Jet Response", ""],
         'responseratio':[0.88, 1.03, r"data/MC ratio", ""],
         'resolution':[0, 0.3, r"Jet response resolution", ""],
         'resolutionratio':[.5, 1.5, r"Jet response resolution data/MC ratio", ""],
@@ -118,26 +190,14 @@ d_axes={
         }
 
 d_plots={ 
-       # plot:[arguments, function, name]'L1L2L3_npv':['rebin=1', 'L1'],
-    'L1L2L3abs_npv':['rebin=1', 'L1'],
-    'L1_npv':['rebin=1', 'L1'],
-    'L1abs_npv':['rebin=1', 'L1'],
-    'L2_npv':['rebin=1', 'L1'],
-    'L2abs_npv':['rebin=1', 'L1'],
-    'METeta':['legloc="lower center"'],
-    'METfraction':["'center right', rebin=2, log=True"],
-    'METphi':["'lower center'"],
-    'METphi_all':['', 'datamc_all', 'METphi'],
-    'METpt':["legloc='center right', log=True"],
-    'METpt_METphi':["'lower right'"],
-    'METpt_all':['', 'datamc_all', 'METpt'],
-    'METsumEt':["'center right', rebin=10"],
+       # plot:[arguments, function, name]
+    'L1L2L3_npv':["changes={'rebin':1}"],
+    'L1L2L3abs_npv':["changes={'rebin':1}"],
+    'L1_npv':["changes={'rebin':1}"],
+    'L2_npv':["changes={'rebin':1}"],
     'bal_twojet':['legloc="lower right"'],
-    'balresp':['fit="vertical"'],
-    'balresp_all':['fit="vertical"', 'datamc_all', 'balresp'],
-    'deltaphi-leadingjet-MET_all':['', 'datamc_all', 'deltaphi-leadingjet-MET'],
-    'deltaphi-leadingjet-z_all':['', 'datamc_all', 'deltaphi-leadingjet-z'],
-    'deltaphi-z-MET_all':["legloc='lower left'", 'datamc_all', 'deltaphi-z-MET'],
+    'balresp':['changes={"fit":"vertical"}'],
+    'balresp_all':['changes={"fit":"vertical"}', 'datamc_all', 'balresp'],
     'filters': ['rebin=1, legloc="upper left"'],
     'filters_all': ['rebin=1, legloc="upper left"', 'datamc_all', 'filters'],
     'genzmass_genzpt':['fit="chi2", legloc="lower center"'],
@@ -146,46 +206,28 @@ d_plots={
     'genbal':['fit="vertical"'],
     'genbalance_genalpha':['fit="intercept", rebin=5'],
     'genbalance_genalpha_alpha03':['fit="intercept", fit_offset=0.3, rebin=5, changes={"var":"var_CutSecondLeadingToZPt_0_3"}', 'datamcplot', 'genbalance_genalpha'],
-    'jet1pt':['log=True'],
+    'jet1pt':['changes={"log":True}'],
     'jet2eta_jet2phi':['rebin=2'],
-    'jet2pt':['log=True, rebin=2'],
     'jet3pt':['log=True, rebin=2'],
     'jeteta_jetphi':['rebin=2'],
     'jetpt_zeta':['rebin=5, legloc="upper left"'],
     'mpf-diff_alpha':['rebin=2, changes={"var":"var_CutSecondLeadingToZPt_0_3"}'],
     'mpf_deltaphi-jet1-MET_all':['', 'datamc_all', 'mpf_deltaphi-jet1-MET'],
     'mpf_deltaphi-z-MET_all':['', 'datamc_all', 'mpf_deltaphi-z-MET'],
-    'mpfresp':['fit="vertical"'],
+    'mpfresp':['changes={"fit":"vertical"}'],
     'mpfresp-raw':['fit="vertical"'],
     'mpfresp_all':['', 'datamc_all', 'mpfresp'],
-    'mpf_alpha':['rebin=10, fit="chi2"'],
-    'mpf_alpha03':['rebin=5, fit="chi2", changes={"var":"var_CutSecondLeadingToZPt_0_3"}', 'datamcplot', 'mpf_alpha'],
-    'mpf_alpha_all':['rebin=10, fit="slope"', 'datamc_all', 'mpf_alpha'],
     'muminusphi':['legloc="lower center"'],
     'muonsinvalid':['legloc="lower center", rebin=1'],
     'muonsvalid':['legloc="lower center", rebin=1'],
     'mupluseta':['legloc="lower center"'],
     'muplusphi':['legloc="lower center"'],
     'mupluspt':['legloc="center right"'],
-    'npv':['rebin=1'],
-    'npv_nocuts':['rebin=1, changes={"incut":"allevents"}', 'datamcplot', 'npv'],
-    'ptbalance_alpha':['rebin=10, changes={"var":"var_CutSecondLeadingToZPt_0_3"}, ratio=True, fit="intercept", legloc="lower center"'],
-    'ptbalance_alpha_ratio':['rebin=2, fit="chi2",legloc="lower center", ratio=True', 'datamcplot', 'ptbalance_alpha'],
-    'ptbalance_alpha_alpha04':['rebin=2, changes={"var":"var_CutSecondLeadingToZPt_0_4"}, fit="intercept", legloc="lower center"', 'datamcplot', 'ptbalance_alpha'],
-    'ptbalance_alpha_alpha03':['rebin=2, changes={"var":"var_CutSecondLeadingToZPt_0_3"}, fit="intercept", legloc="lower center"', 'datamcplot', 'ptbalance_alpha'],
-    'ptbalance_alpha_all':['rebin=4, fit="intercept"', 'datamc_all', 'ptbalance_alpha'],
-    'ptbalance_jetsvalid':['rebin=1, legloc="lower center"'],
+    'npv':["changes={'rebin':1}"],
+    'npv_nocuts':["changes={'rebin':1, 'folder':'allevents'}", 'datamcplot', 'npv'],
     'tworesp':['legloc="lower right"', 'datamcplot', 'bal_twojet'],
-    'zmass_zcutsonly':['rebin=2, log=True, changes={"incut":"zcutsonly"}', 'datamcplot', 'zmass'],
-    'zmass_npv':["legloc='lower center', fit='chi2'"],
-    'zmass_npv_zcutsonly':['legloc="lower center", fit="chi2", changes={"incut":"zcutsonly"}', 'datamcplot', 'zmass_npv'],
-    'zmass_zpt':["legloc='lower center', fit='chi2'"],
-    'zmass_zpt_zcutsonly':["legloc='lower center', changes={'incut':'zcutsonly'}, fit='chi2'", 'datamcplot', 'zmass_zpt'],
-    'zmass_zeta_nocuts':['legloc="lower center", changes={"incut":"allevents"}', 'datamcplot', 'zmass_zeta'],
-    'zpt':["legloc='center right', log=True"],
+    'zpt':["changes={'legloc':'center right', 'rebin':1}"],
     'zpt_all':['', 'datamc_all', 'zpt'],
-    'zpt_npv':["legloc='lower center', fit='chi2'"],
-    'zpt_npv_zcutsonly':["legloc='lower center', changes={'incut':'zcutsonly'}, fit='chi2'", 'datamcplot', 'zpt_npv'],
     'zresp':['rebin=1, fit="vertical"'],
     'parton':['fit="vertical"'],
     'balparton':['fit="vertical"'],

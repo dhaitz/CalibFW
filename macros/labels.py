@@ -2,27 +2,63 @@ import plotbase
 import copy
 from dictionaries import d_axes, d_plots
 
-def labels(ax, opt=None, jet=False, bin=None, result=None, legloc='upper right',
-           frame=True, sub_plot=False, changes={}, ratiosubplot=False, mc='False', color='black', energy_label=True):
+def labels(ax, opt, settings, subplot=False):
     """This function prints all labels and captions in a plot.
 
     Several functions are called for each type of label.
     """
-    if not ratiosubplot:
-        if opt.lumi is not None and mc is not True:
-            lumilabel(ax, opt.lumi)    # always (if given) pure MC plots?
+    if not (settings['ratio'] and settings['subplot']):
+        if settings['lumi'] is not None:
+            lumilabel(ax, settings['lumi'])    # always (if given) pure MC plots?
         statuslabel(ax, opt.status)
-        if opt.energy is not None and energy_label==True:
-            energylabel(ax, opt.energy)
+        if settings['energy'] is not None:
+            energylabel(ax, settings['energy'])
         #if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
-        if changes.has_key('var') or changes.has_key('bin'): binlabel(ax, bin, changes=changes, color=color)
-        if 'incut' in changes: incutlabel(ax, color, changes['incut'])
-        resultlabel(ax, result)
+        #if changes.has_key('var') or changes.has_key('bin'): 
+        #    binlabel(ax, bin, changes=changes, color=color)
+        #if 'incut' in changes: incutlabel(ax, color, changes['incut'])
+        #resultlabel(ax, result)
         authorlabel(ax, opt.author)
         datelabel(ax, opt.date)
-    if legloc is not False:
-        legend = ax.legend(loc=legloc, numpoints=1, frameon=frame, fancybox=True, shadow=True)
+        if settings['eventnumberlabel'] is True:
+            plotbase.eventnumberlabel(ax, opt, events)
+        if settings['run'] is True:
+            plotbase.runlabel(ax, settings)
+        if 'selection' in opt.settings:
+            ax.text(0.98, 0.98, opt.settings['selection'], va='top', ha='right', 
+                         transform=ax.transAxes, size='small', color='black')
+        if settings['subtext'] is not None:
+            ax.text(-0.03, 1.01, settings['subtext'], va='bottom', ha='right', 
+                    transform=ax.transAxes, size='xx-large', color='black')
+        if settings['extrapolation'] is not False:
+            ax.text(0.02, 0.02, "%s extrapolation applied" % settings['extrapolation'],
+                                 va='bottom', ha='left', transform=ax.transAxes,
+                                 size='small', color='black')
+
+        if settings['text'] is not None:
+            textlabel(ax, settings['text'])
+    if settings['legloc'] is not False:
+        legend = ax.legend(loc=settings['legloc'], numpoints=1, fancybox=True, 
+                                                                    shadow=True)
+    if settings['subtext'] is not None:
+        ax.text(-0.04, 1.01, settings['subtext'], va='bottom', ha='right', 
+                         transform=ax.transAxes, size='xx-large', color='black')
     return ax
+
+def runlabel(ax, settings):
+    runs = [['2012A', 190456.],['2012B', 193834.], ['2012C', 197770.], ['2012D', 203773.]]
+    for [runlabel, runnumber] in runs:
+        ax.axvline(runnumber, color='gray', linestyle='--', alpha=0.2)
+        ax.text((runnumber-settings['x'][0]) / (settings['x'][1] - settings['x'][0]), 
+                              0.92, runlabel, transform=ax.transAxes, va='top',
+                              ha='left', color='gray', alpha=0.5, size='medium')
+
+def textlabel(ax, text, x=0.02, y=0.02):
+    if type(text) is list:
+        text, x, y = text
+    ax.text(x, y, text, va='bottom', ha='left', transform=ax.transAxes,
+                                 size='small', color='black')
+
 
 
 def incutlabel(ax, color='black', incut=''):
@@ -216,7 +252,12 @@ def axislabels(ax, x='zpt', y='events', brackets=False, labels=['','']):
         ax.set_xlim(limits)
 
     def setyaxis(limits=(0, 1), quantity="y", unit="", bottom=None):
-        ax.set_ylabel(unitformat(quantity, unit, brackets), va="top", y=1)
+        string = unitformat(quantity, unit, brackets)
+        if settings['ratio'] and y is not "datamcratio":
+            string += "   Data/MC ratio"
+        if settings['run'] == "diff":
+            string += "   Data-MC"
+        ax.set_ylabel(string, va="top", y=1)
         if bottom is not None:
             ax.set_ylim(bottom=bottom)
         else:

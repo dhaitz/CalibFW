@@ -11,23 +11,26 @@ import os
 import os.path
 import sys
 import copy
-import numpy
 import matplotlib
 import matplotlib.pyplot as plt
-import matplotlib.mlab as mlab
 from time import localtime, strftime, clock
 import argparse
 import math
-
-
 from ROOT import gROOT, PyConfig
 
-import getroot
 import plotrc
 import plotdatamc
-import plot2d
+import plotfractions
 import plotresponse
+import plot_resolution
+import plot_mikko
+import plot2d
+import plot_sandbox
+
+import getroot
 from labels import *
+from dictionaries import default_settings
+from fit import *
 
 PyConfig.IgnoreCommandLineOptions = True #prevents Root from reading argv
 gROOT.SetBatch(True)
@@ -47,10 +50,10 @@ def plot(modules, plots, datamc, op):
             print "Nothing to do. Please list the plots you want!"
             plots = []
         for p in plots:
-            if hasattr(module, p):                                                        #plot directly as a function
+            if hasattr(module, p):    #plot directly as a function
                 getattr(module, p)(datamc, op)
                 remaining_plots.remove(p)
-            elif module == plotdatamc and p in d_plots:        #if no function available, try dictionary
+            elif module == plotdatamc and p in d_plots:    #if no function available, try dictionary
                 print "New plot: (from dictionary)", p, 
                 plotdatamc.plotfromdict(datamc, op, p)
                 remaining_plots.remove(p)
@@ -78,49 +81,28 @@ def plot(modules, plots, datamc, op):
 
 # function_selector: takes a list of plots and assigns them to the according funtion
 def function_selector(plots, datamc, opt):
-
-    plotlist = getroot.getplotlist(datamc, algorithm=opt.algorithm, filenames=opt.files)
-    plotlist_nocuts = [i+"_nocuts" for i in getroot.getplotlist(datamc, folder="NoBinning_allevents", algorithm=opt.algorithm, filenames=opt.files)]
-    plotlist_zcutsonly = [i+"_zcutsonly" for i in getroot.getplotlist(datamc,
-                                        folder="NoBinning_zcutsonly", algorithm=opt.algorithm, filenames=opt.files)]
-
-    plotlist_alleta = [i+"_alleta" for i in getroot.getplotlist(datamc,
-                                        folder="NoBinning_alleta", algorithm=opt.algorithm, filenames=opt.files)]
-    plotlist_all = [i+"_all" for i in getroot.getplotlist(datamc, 'all', algorithm=opt.algorithm, filenames=opt.files)]
     for plot in plots:
-        if ('L1' in plot or 'L2' in plot) and plot in plotlist:
-            plotdatamc.L1(plot, datamc, opt)
-        elif '2D' in plot:
-            if plot in plotlist:
-                plot2d.twoD(plot, datamc, opt)
-            elif plot in plotlist_nocuts:
-                plot2d.twoD(plot[:-7], datamc, opt, changes={'incut':'allevents'})
-            elif plot in plotlist_alleta:
-                plot2d.twoD(plot[:-7], datamc, opt, changes={'incut':'alleta'})
-            elif "_all" in plot and plot in plotlist_all:
-                plot2d.twoD_all(plot[:-4], datamc, opt)
-        elif plot in plotlist:
+        if '2D' in plot:
+            plot2d.twoD(plot, datamc, opt)
+        elif "_all" in plot:
+            plotdatamc.datamc_all(plot[:-4], datamc, opt)
+        elif 'responseratio' in plot:
+            plot = plot.replace('bal','balresp')
+            plotresponse.responseratio(datamc, opt, 
+                            types=plot.split('_responseratio_')[0].split('_'),
+                            over=plot.split('_responseratio_')[1])
+        elif 'response' in plot:
+            plot = plot.replace('bal','balresp')
+            plotresponse.responseplot(datamc, opt, 
+                            types=plot.split('_response_')[0].split('_'),
+                            over=plot.split('_response_')[1])
+        elif 'ratio' in plot:
+            plot = plot.replace('bal','balresp')
+            plotresponse.ratioplot(datamc, opt, 
+                            types=plot.split('_ratio_')[0].split('_'),
+                            over=plot.split('_ratio_')[1])
+        else:
             plotdatamc.datamcplot(plot, datamc, opt)
-        elif plot in plotlist_nocuts:
-            plotdatamc.datamcplot(plot[:-7], datamc, opt, changes={'incut':'allevents'})
-        elif plot in plotlist_zcutsonly:
-            plotdatamc.datamcplot(plot[:-10], datamc, opt, changes={'incut':'zcutsonly'})
-        elif plot in plotlist_alleta:
-            plotdatamc.datamcplot(plot[:-7], datamc, opt, changes={'incut':'alleta'})
-        elif "_all" in plot:# and plot in plotlist_all:
-            if '_run' in plot:
-                plotdatamc.datamc_all(plot[:-4], datamc, opt, run=True)
-            else:
-                plotdatamc.datamc_all(plot[:-4], datamc, opt)
-        elif '_run' in plot:
-            if '_nocuts' in plot:
-                plotdatamc.runplot(plot[:-7], datamc, opt, changes={'incut':'allevents'})
-            else:
-                plotdatamc.runplot(plot, datamc, opt)
-        elif '_AllX' in plot:
-            plotdatamc.plot_YvsAll(datamc, opt, plot[:-5])
-        elif 'AllY_' in plot:
-            plotdatamc.plot_AllvsX(datamc, opt, plot[5:])
 
 
 def options(
@@ -140,22 +122,12 @@ def options(
             layout='generic',
             files=None,
             title="",
-            eventnumberlabel=None,
             plots=None,
-            x_limits=None,
-            y_limits=None,
-            rebin=None,
-            ratio=False,
-            fit=None,
-            legloc=None,
             npv=[(0, 4), (5, 8), (9, 15), (16, 21), (22, 100)],
-            cut=[0.2, 0.4],
+            cut=[0.3, 0.35],
             eta=[0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
             bins=[30, 40, 50, 60, 75, 95, 125, 180, 300, 1000],
-            etabin=None,
-            npvbin=None,
-            zptbin=None,
-            alphabin=None,):
+            settings=None,):
     """Set standard options and read command line arguments
 
     To be turned into a class with str method and init
@@ -233,47 +205,22 @@ def options(
              "to data/MC comparisons")
     parser.add_argument('-v', '--verbose', action='store_true',
         help="verbosity")
-    parser.add_argument('-E', '--eventnumberlabel', action='store_true',
-        help="add event number label")
     parser.add_argument('-t', '--title', type=str,
         default=title,
         help="plot title")
-    parser.add_argument('-y', '--y_limits', type=float, nargs='+',
-        default=y_limits,
-        help="upper and lower limit for y-axis")
-    parser.add_argument('-x', '--x_limits', type=float, nargs='+',
-        default=x_limits,
-        help="upper and lower limit for x-axis")
-    parser.add_argument('-r', '--rebin', type=int,
-        default=rebin,
-        help="Rebinning value n")
-    parser.add_argument('-R', '--ratio', action='store_true',
-        help="do a ratio plot from the first two input files")
-    parser.add_argument('-F', '--fit', type=str,
-        default=fit,
-        help="Do a fit. Options: vertical, chi2, no.")
-    parser.add_argument('-g', '--legloc', type=str,
-        default=legloc,
-        help="Location of the legend")
-
-    parser.add_argument('--etabin', type=int,
-        default=etabin,
-        help="Select Eta bin i (integer argument)")
-    parser.add_argument('--alphabin', type=int,
-        default=alphabin,
-        help="Select alpha bin i (integer argument)")
-    parser.add_argument('--zptbin', type=int,
-        default=zptbin,
-        help="Select Z-pT bin i (integer argument)")
-    parser.add_argument('--npvbin', type=int,
-        default=npvbin,
-        help="Select NPV bin i (integer argument)")
+    parser.add_argument('--settings', type=str, nargs='+',
+        default=settings,
+        help="Modify the entries in the settings dictionary. "
+             "Usage: --set key1=value1 key2='1, 2, 3' ...")
 
 
     opt = parser.parse_args()
     # to be substituted by commandline arguments (perhaps changed,
     # no formatting options here? but for multiple MC,
     # colors (predefined sequence?) and labels are needed)
+
+    opt.default_settings =  default_settings
+
     opt.factor = 1.0
     opt.bins = bins
     opt.brackets = False
@@ -283,11 +230,66 @@ def options(
     if opt.verbose:
         showoptions(opt)
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
+
+    #turn "settings" into a dictionary
+    settings = {}
+    if (type(opt.settings) == list):
+        for element in opt.settings:
+            key, value = element.split("=", 1)
+            if "," in value:
+                settings[key] = [autoconvert(n) for n in value.split(",")]
+            else:
+                settings[key] = autoconvert(value)
+    opt.settings = settings
+
     return opt
+
+# command line arguments for "settings" are saved as strings, use this 
+# function to convert to int or float:
+def autoconvert(s):
+    for fn in (int, float, stringtobool):
+        try:
+            return fn(s)
+        except ValueError:
+            pass
+    return s
+
+def stringtobool(string):
+    if (string == "True"):
+        return True
+    elif (string == "False"):
+        return False
+    elif (string == "None"):
+        return None
+    else:
+        return string
+
+"""prepare the selections"""
+def get_selection(settings):
+
+    if settings['selection'] is not None:
+        selections = settings['selection'].split(" && ")
+    else:
+        selections = []
+    return " && ".join(list(set(selections)))
+
 
 def fail(fail_message):
     print fail_message
     exit(0)
+
+def get_local_settings(settings, changes):
+    settings2 = copy.deepcopy(settings)
+    if changes is not None:
+        if 'selection' in changes and settings['selection'] not in [None, ""]:
+            changes['selection'] = " && ".join([changes['selection'],
+                                                         settings['selection']])
+
+        settings2.update(changes)
+        changes=None
+    changes = {}
+    return settings2
+
 
 def printfiles(filelist):
     if len(filelist) > 0:
@@ -300,42 +302,34 @@ def printfiles(filelist):
     elif len(filelist) > 2:
         print "MC files:", ", ".join(filelist[1:])
 
-def createchanges(opt, change={}):
-    change["correction"] = opt.correction
-    change["algorithm"] = opt.algorithm
-    return change
+def createsettings(opt, changes=None, quantity=None):
 
-def getchanges(opt, change={}):
-    if 'algorithm' not in change: change['algorithm'] = opt.algorithm
-    if 'correction' not in change: change['correction'] = opt.correction
+    # 1. create a local copy of the default_settings (and assign axis labels and limits)
+    settings =  copy.deepcopy(opt.default_settings)
+    # 2. overwrite the default_settings with settings(function argument, e.g. from dictionary):
+    if changes is not None:
+        settings.update(changes)
+    # 3. overwrite the default_settings with options-settings (=command line arguments):
+    settings.update(opt.settings)
 
-    for variation, key, strings in zip([opt.alphabin, opt.etabin, opt.npvbin, opt.zptbin], ['var', 'var', 'var', 'bin'], [getroot.cutstrings(opt.cut), getroot.etastrings(opt.eta), getroot.npvstrings(opt.npv), getroot.binstrings(opt.bins)] ):
+    #command-line selection and changes selection are ADDED
+    if changes is not None and 'selection' in changes:
+        settings['selection'] = " && ".join([settings['selection'], changes['selection']])
 
-        if variation is not None:
-            if key in change and strings[variation] not in change[key]:
-                change[key] += "_"+strings[variation]
-            else:
-                change[key] = strings[variation]
+    settings['selection'] = get_selection(settings)
 
-    return change
+    if quantity is not None and settings['xynames'] is None:
+        settings['xynames'] = quantity.split("_")[::-1]
 
-def getvariationlist (quantity, opt):
-    # returns a list with 'changes'-dictionaries, to be used
-    # to vary over a certain quantity in the closure root file
-    if quantity == 'zpt':
-        key = 'bin'
-        var=getroot.binstrings(opt.bins)
-    elif quantity == 'npv':
-        key = 'var'
-        var=getroot.npvstrings(opt.npv)
-    elif quantity == 'alpha':
-        key = 'var'
-        var=getroot.cutstrings(opt.cut)
-    else:
-        key = 'var'
-        var=getroot.etastrings(opt.eta)
-    ch_list = [{key:v} for v in var]
-    return ch_list
+        if  len(settings['xynames'])<2:
+            settings['xynames'] += ['events']
+    if settings['x'] is None:
+        settings['x'] = plotbase.getaxislabels_list(settings['xynames'][0])[:2]
+
+    if settings['y'] is None:
+        settings['y'] = plotbase.getaxislabels_list(settings['xynames'][1])[:2]
+    
+    return settings 
 
 def getcorralgovariations():
     # returns a list with 'changes'-dictionaries, to be used
@@ -503,84 +497,8 @@ def newplot(ratio=False, run=False, subplots=1, opt=options(), subplots_X=None, 
     return fig
 
 
-def fit(fit, ax, quantity, rootfile, change, rebin, color, index, 
-        runplot_diff=False, mc_mean = None, run_min=0, run_max=1, rootobject=None,
-        offset=0, label="", used_rebin = 1, limits = [0,1], scalefactor=1):
-    """One of several fits is added to an axis element, fit parameters are added as text element"""
-    if color == '#CBDBF9': color = 'blue'
-    if fit == 'vertical': return
-    if fit == 'no': return
 
-    if rootobject is None:
-        rootobject = getroot.getobjectfromnick(quantity, rootfile, change, rebin=5)
-
-    if fit == 'chi2':
-        # fit a horizontal line
-        intercept, ierr, chi2, ndf = getroot.fitline(rootobject, limits)
-        #account for scaling and rebinning:
-        intercept = used_rebin * scalefactor * intercept
-        ax.axhline(intercept, color=color, linestyle='--')
-        ax.axhspan(intercept+ierr, intercept-ierr, color=color, alpha=0.2)
-
-        # and display chi^2
-        ax.text(0.97, 0.20+(index/20.)+offset, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
-        va='top', ha='right', transform=ax.transAxes, color=color)
-         
-
-    elif fit == 'gauss':
-        p0, p0err, p1, p1err, p2, p2err, chi2, ndf, conf_intervals = getroot.fitline2(rootobject, gauss=True, limits=limits)
-
-        x = numpy.linspace(limits[0], limits[1], 500)
-
-        ymax = max(mlab.normpdf(x, p1, p2))
-        ax.plot(x,scalefactor * p0 * used_rebin / ymax * mlab.normpdf(x, p1, p2), color = color)
-
-        ax.text(0.03, 0.97-(index/20.)+offset, r"$\mathrm{%s:}$" % label,
-               va='top', ha='left', transform=ax.transAxes, color=color)
-        ax.text(0.20, 0.97-(index/20.)+offset, r"$\mu = %1.3f\pm%1.3f$" % (p1, p1err),
-               va='top', ha='left', transform=ax.transAxes, color=color)
-        ax.text(0.60, 0.97-(index/20.)+offset, r"$\sigma = %1.3f\pm%1.3f$" % (p2, p2err),
-               va='top', ha='left', transform=ax.transAxes, color=color)
-
-
-    else:
-        intercept, ierr, slope, serr,  chi2, ndf, conf_intervals = getroot.fitline2(rootobject)
-        mean = rootobject.GetMean()
-        if runplot_diff:
-            intercept = intercept - mc_mean
-
-        # fit line:
-        line_fit = ax.plot([run_min, run_max],[(intercept+run_min*slope)*scalefactor, (intercept+run_max*slope)*scalefactor], color = color, linestyle='--')
-
-        # insert a (0, 0) bin because the conf_intervals list also contains an additional (0., conf)-point
-        plot = getroot.root2histo(rootobject)
-        plot.xc.insert(0, 0.)
-
-        # display confidence intervals
-        ax.fill_between(plot.xc[:-1], [(intercept+x*slope + c)*scalefactor for x, c in zip(plot.xc[:-1], conf_intervals)], [(intercept+x*slope - c)*scalefactor for x, c in zip(plot.xc[:-1], conf_intervals)], facecolor=color, edgecolor=color, interpolate=True, alpha=0.2)
-
-
-        if fit == 'slope':
-            #display slope
-            ax.text(0.97, 0.95-(index/10.)+offset, r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{-3}$" % (slope*1000, serr*1000),
-               va='top', ha='right', transform=ax.transAxes, color=color,
-               size='x-large')
-        elif fit == 'intercept':
-            #display intercept ...
-            ax.text(0.97, 0.35-(index/10.)+offset, r"$\mathrm{y(0)} = %1.3f\pm%1.3f$" % (intercept, conf_intervals[0]),
-               va='top', ha='right', transform=ax.transAxes, color=color, size='x-large')
-
-            # ... and chi2 (smaller)
-            ax.text(0.97, 0.30-(index/10.)+offset, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
-                va='top', ha='right', transform=ax.transAxes, color=color, size='small')
-        elif fit == 'chi2_linear':
-
-            # display chi2
-            ax.text(0.97, 0.20-(index/10.)+offset, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
-                va='top', ha='right', transform=ax.transAxes, color=color, size='x-large')
-
-
-def setaxislimits(ax, changes=None, opt=None, ax2=None):
+def setaxislimits(ax, settings, ax2=None):
     """
     Set the axis limits from changes and or options. Default operation mode is:
         1. By default, axis limits are taken from the dictionary
@@ -588,53 +506,33 @@ def setaxislimits(ax, changes=None, opt=None, ax2=None):
         3. If limits are given in opt (command line values), override the values
             from dictionary or changes
     """
-    if changes is not None and 'x_limits' in changes:
-        ax.set_xlim(changes['x_limits'][0], changes['x_limits'][1])
-    if opt.x_limits is not None: ax.set_xlim(opt.x_limits[0], opt.x_limits[1])
-
-    if changes is not None and 'y_limits' in changes:
-        ax.set_ylim(changes['y_limits'][0], changes['y_limits'][1])
-    if opt.y_limits is not None: ax.set_ylim(opt.y_limits[0], opt.y_limits[1])
+    ax.set_xlim(settings['x'][0], settings['x'][1])
+    ax.set_ylim(settings['y'][0], settings['y'][1])
 
     if ax2 is not None:
-        if changes is not None and 'x_limits' in changes:
-            ax2.set_xlim(changes['x_limits'][2], changes['x_limits'][3])
-        if opt.x_limits is not None: ax2.set_xlim(opt.x_limits[2], opt.x_limits[3])
-
-        if changes is not None and 'y_limits' in changes:
-            ax2.set_ylim(changes['y_limits'][2], changes['y_limits'][3])
-        if opt.y_limits is not None: ax2.set_ylim(opt.y_limits[2], opt.y_limits[3])
+        if len(settings['x']) > 2:
+            ax2.set_xlim(settings['x'][2], settings['x'][3])
+        if len(settings['y']) > 2:
+            ax2.set_ylim(settings['y'][2], settings['y'][3])
 
 
+def getdefaultfilename(quantity, opt, settings):
 
+    if 'filename' in settings:
+        return settings['filename']
 
-def getdefaultfilename(quantity, opt, change):
     #create a default filename based on quantity, changes and algorithm/correction
-    filename = quantity
+    filename = quantity + "_"
 
-    if 'bin' in change:
-        filename += "_"+change['bin']
+    if settings['folder'] is 'allevents':
+        filename += "_%s_" % 'allevents'
 
-    if 'var' in change:
-        filename += "_"+change['var']
+    filename += settings['algorithm'] + settings['correction']
 
-    if 'incut' in change:
-        if change['incut'] == 'allevents':
-            filename += "_nocuts"
-        elif change['incut'] is not 'incut':
-            filename += "_"+change['incut']
-
-    if 'algorithm' in change:
-        filename += "__"+change['algorithm']
-    else:
-        filename += "__"+opt.algorithm
-
-    if 'correction' in change:
-        filename += change['correction']
-    else:
-        filename += opt.correction
-
-    return filename    
+    #remove special characters:
+    for char in ["*", "/", " "]:
+        filename = filename.replace(char,"_")
+    return filename
 
 def Save(figure, name, opt, alsoInLogScale=False, crop=True, pad=None):
     _internal_Save(figure, name, opt, pad=pad)
@@ -687,4 +585,18 @@ def _internal_Save(figure, name, opt, crop=True, pad=None):
         else:
             print f, "failed. Output type is unknown or not supported."
     print
+
+
+
+if __name__ == "__main__":
+    op = options()
+    module_list = [plotresponse, plotfractions, plot2d, plotdatamc, plot_resolution, plot_mikko, plot_sandbox]
+    
+    print "Number of files:", len(op.files)
+    files=[]
+    for f in op.files:
+        print "Using as file", 1+op.files.index(f) ,":" , f
+        files += [getroot.openfile(f, op.verbose)]
+
+    plot(module_list, op.plots, files, op)
 

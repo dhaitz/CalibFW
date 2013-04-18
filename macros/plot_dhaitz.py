@@ -32,46 +32,17 @@ import plot2d
 import plot_sandbox
 import plotflavour
 
-def plot(cluster=False):
+def plot():
     """Run all plots with the given settings"""
 
-    # settings (1):
-    op = plotbase.options(
-        files=[     # First file must be data, other files MC
-            "/storage/8/dhaitz/CalibFW/work/data_2012_534/out/closure.root",
-            "/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_534/out/closure.root",
-        ],
-        #specify output path
-        out="out/534/",
-
-        #extend colors, labels, styles:
-        labels=["data", "MC", "MC 5.0" , "MC 7 TeV (powheg)" , "MC 7 TeV (madgraph)"],
-        colors=['black', '#CBDBF9','#800000', 'blue', '#00FFFF'],
-        style=["o","f","-","-","-"],
-        
-        lumi=19790,
-
-        plots= plotresponse.plots
-               +plotfractions.plots
-               +plot2d.plots
-               +plotdatamc.plots
-               #+plot_resolution.plots
-               #plot_mikko.plots
-        )
-    module_list = [plotflavour,plotresponse, plotfractions, plot2d, plotdatamc, plot_resolution, plot_mikko, plot_sandbox]
+    op = plotbase.options()
+    module_list = [plotresponse, plotfractions, plot2d, plotdatamc, plot_resolution, plot_mikko, plot_sandbox]
     
     print "Number of files:", len(op.files)
     files=[]
     for f in op.files:
         print "Using as file", 1+op.files.index(f) ,":" , f
         files += [getroot.openfile(f, op.verbose)]
-
-    if cluster: return op, files
-
-    op.bins = getroot.getbins(files[0], op.bins)
-    op.eta = getroot.getetabins(files[0], op.eta)
-    op.npv = getroot.getnpvbins(files[0], op.npv)
-    op.cut = getroot.getcutbins(files[0], op.cut)
 
     plotbase.plot(module_list, op.plots, files, op)
 

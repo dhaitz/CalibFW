@@ -28,88 +28,21 @@ import math
 import os
 import array
 import numpy as np
+import plotbase
+from labels import getaxislabels_list as getaxis
+
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True #prevents Root from reading argv
 
-# converts a integer list of bins [1, 30, 70] to a
-# string representation ["Pt1to30", "Pt30to70"]
-def binstrings(bins):
-    return ["Pt{0}to{1}".format(*b) for b in zip(bins[:-1], bins[1:])]
 
-
-def npvstrings(npv):
-    return ["var_Npv_{0}to{1}".format(*n) for n in npv]
-
-
-def etastrings(eta):
-    etastr = map(lambda x: str(x).replace(".", "_"), eta)
-    return ["var_JetEta_%sto%s" % h for h in zip(etastr[:-1], etastr[1:]) ]
-
-def cutstrings(cuts):
-    return ["var_CutSecondLeadingToZPt__%s" % str(c).replace(".", "_") for c in cuts]
-
-def getetabins(rootfile, fallbackbins):
-    """ guess the eta binning from the folders in a rootfile"""
-    result = []
-    try:
-        for key in rootfile.GetListOfKeys():
-            name = key.GetName()
-            name = name.replace("_",".")
-            if name.find("NoBinning.incut.var.JetEta.") == 0 and "to" in name:
-                low, high = [float(x) for x in name[27:].split("to")]
-                if low  not in result:
-                    if low == 0.0: 
-                        low = int(0)
-                    result.append(low)
-                if high not in result:
-                    result.append(high)
-        assert result != [], "No eta bins found in " + rootfile.GetName()
-    except AssertionError:
-        print "Eta bins could not be determined from root file."
-        print "Fall-back binning used:", fallbackbins
-        result = fallbackbins
-        assert result != []
-    result.sort()
-    return result
-
-def getcutbins(rootfile, fallbackbins):
-    """ guess the 2nd jet cut binning from the folders in a rootfile"""
-    result = []
-    try:
-        for key in rootfile.GetListOfKeys():
-            name = key.GetName()
-            name = name.replace("_",".")
-            if name.find("NoBinning.incut.var.CutSecondLeadingToZPt.") == 0 and len(name) < 47:
-                #low  = [float(name[42:])] Floating point error! for now, save as string:
-                low  = float(name[42:])
-                result.append(low)
-        assert result != [], "No cut bins found in " + rootfile.GetName()
-    except AssertionError:
-        print "cut bins could not be determined from root file."
-        print "Fall-back binning used:", fallbackbins
-        result = fallbackbins
-        assert result != []
-    result.sort()
-    return result
-
-def getnpvbins(rootfile, fallbackbins):
-    """ guess the NPV binning from the folders in a rootfile"""
-    result = []
-    try:
-        for key in rootfile.GetListOfKeys():
-            name = key.GetName()
-            if name.find("NoBinning_incut_var_Npv_") == 0 and "to" in name:
-                low, high = [int(x) for x in name[24:].split("to")]
-                if [low, high]  not in result:
-                    result.append((low, high))
-        assert result != [], "No NPV bins found in " + rootfile.GetName()
-    except AssertionError:
-        print "NPV bins could not be determined from root file."
-        print "Fall-back binning used:", fallbackbins
-        result = fallbackbins
-        assert result != []
-    result.sort()
-    return result
+def ptcuts(ptvalues):
+    return ["{0}<=zpt && zpt<{1}".format(*b) for b in zip(ptvalues[:-1], ptvalues[1:])]
+def npvcuts(npvvalues):
+    return ["{0}<=npv && npv<={1}".format(*b) for b in npvvalues]
+def etacuts(etavalues):
+    return ["{0}<=abs(jet1eta) && abs(jet1eta)<{1}".format(*b) for b in zip(etavalues[:-1], etavalues[1:])]
+def alphacuts(alphavalues):
+    return ["(jet2pt/zpt)<%1.2f"  % b for b in alphavalues]
 
 
 def openfile(filename, verbose=False, exitonfail=True):
@@ -128,71 +61,147 @@ def openfile(filename, verbose=False, exitonfail=True):
         print " * Inputfile:", filename
     return f
 
-def getplotlist(files, folder="NoBinning_incut", algorithm="AK5PFJetsCHS", filenames=None, run=False):
-    """Idea: Get a list of the avaible plots in all input files and return the matching plots.
-    As getting the list from the root file is CPU-intensive, save it in a txt file after first retrieval"""
-
-    setlist = []
-    plotlist = []
-
-    # Get the paths of the txt files (which might not exist yet)
-    txtpaths =  [os.path.dirname(filename)+"/%s_%s.txt" % (os.path.basename(filename), folder) for filename in filenames]
-
-    if files == None:
-        files=[]
-        for f in filenames:
-            files += [openfile(f)]
-
-    for rootfile, txtpath in zip(files, txtpaths):
-        if folder == "all":     
-            folders = [key.GetName() for key in rootfile.GetListOfKeys() if "NoBinning_incut" in key.GetName()] 
-            folders.remove("NoBinning_incut")
-        else:
-            if folder in [key.GetName() for key in rootfile.GetListOfKeys()]:
-                folders = [folder]
-            else:
-                return []
-
-        if os.path.exists(txtpath):   # if txt file exists, get list from file
-            f = open(txtpath, 'r')
-            p_list = f.read().splitlines()
-            f.close()
-        else:                         # if file doesn't exist, get list from rootfile and save as txt
-            p_list = []
-            for folder in folders:
-                p_list = []
-                for plot in rootfile.Get(folder).GetListOfKeys():
-                    plotname = str(plot.GetName())
-                    if plotname not in p_list and algorithm in plotname: p_list.append(plotname[:(plotname.find(algorithm)-1)])
-            p_list.sort()
-            f = open(txtpath, 'w+')
-            [f.write("%s\n" % p) for p in p_list]
-            f.close()
-
-        if run==True: 
-            # get the run plots
-            plotlist += [plot for plot in p_list if '_run' in plot]
-        else: 
-            #get the matches of the lists from all files
-            setlist.append(set(p_list))
-            plotlist = list(set.intersection(*setlist))  
-
-    return plotlist
 
 def getplot(name, rootfile, changes={}, rebin=1):
     rootobject = getobject(name, rootfile, changes)
     return root2histo(rootobject, rootfile.GetName(), rebin)
 
 
-def getplotfromnick(nickname, rootfile, changes, rebin=1):
+def getplotfromnick(nickname, rootfile, changes, settings):
     objectname = getobjectname(nickname, changes)
     rootobject = getobject(objectname, rootfile, changes)
     return root2histo(rootobject, rootfile.GetName(), rebin)
 
 
-def getobjectfromnick(nickname, rootfile, changes, rebin=1):
+def getplotfromtree(nickname, rootfile, settings, twoD=False, changes=None):
+    rootobject = getobjectfromtree(nickname, rootfile, settings, twoD=False, changes=None)
+    histo = root2histo(rootobject, rootfile.GetName(), settings['rebin'])
+    rootobject.Delete()
+    return histo
+
+def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
+
+    settings = plotbase.get_local_settings(settings, changes)
+
+
+    # get the tree:
+    treename = "_".join([settings['folder'], settings['algorithm']+settings['correction']])
+    ntuple = rootfile.Get(treename)
+    # for MC, we can use L1L2L3 if L1L2L3Res is specified:
+    if not ntuple and "Res" in treename:
+        ntuple = rootfile.Get(treename.replace("Res", ""))
+
+    quantities = nickname.split("_")
+
+    x_dict = {'zpt':[0, 1000],
+              'alpha':[0, 0.5]   
+             }
+    if quantities[-1] in x_dict:
+        settings['x'] = x_dict[quantities[-1]]
+
+
+    #for npv we need bins with width=1
+    bins = []
+    for quantity, limits in zip(quantities[::-1], [settings['x'], settings['y']]):
+        if quantity == 'npv': 
+            bins +=  [limits[1] - limits[0]]
+        else:
+            bins += [100]
+
+    #special binning for certain quantities:
+    bin_dict = {'zpt': [30, 40, 50, 60, 75, 95, 125, 180, 300, 1000],
+                'jet1abseta':[0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
+                'jet1eta':[-5.191, -3.139, -2.964, -2.5, -1.93, -1.305, -0.783,
+                                0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
+                'npv':[0, 4.5, 8.5, 15.5, 21.5, 100]}
+
+    if settings['special_binning'] is True and quantities[-1] in bin_dict:
+        bin_array = array.array('d', bin_dict[quantities[-1]])
+        bins[0] = len(bin_dict[quantities[-1]])-1
+
+    name = nickname + rootfile.GetName()
+    name = name.replace("/","").replace(")","").replace("(","")
+
+    rootfile.Delete("%s;*" % name)
+    
+    # create the final selection from the settings
+    selection = []
+    if settings['allalpha'] is not True and settings['folder'] != 'allevents':
+        selection += ["(jet2pt/zpt < 0.2 || jet2pt<12)"]
+    if settings['alleta'] is not True and settings['folder'] != 'allevents':
+        selection += ["abs(jet1eta) < 1.3"]
+    if settings['selection'] not in [None, "", False]:
+        selection += [settings['selection']]
+    if len(selection) > 0:
+        settings['selection'] =   "weight * (%s)" % " && ".join(selection) 
+    else:
+        settings['selection'] = "weight"
+
+    #create a copy of quantities to iterate over:
+    copy_of_quantities = quantities
+    for key in source_dictionary.keys():
+        if key in settings['selection']:
+            settings['selection'] = settings['selection'].replace(key, 
+                                                            dictconvert(key))
+        for quantity, i in zip(copy_of_quantities, range(len(copy_of_quantities))):
+            if key in quantity:
+                quantities[i] = quantities[i].replace(key, dictconvert(key))
+
+    #print "Selection: ", settings['selection']
+
+    if len(quantities)==1:
+        rootobject = ROOT.TH1D(name, nickname, bins[0], settings['x'][0], settings['x'][1])
+        ntuple.Project(name, "%s" % quantities[0], settings['selection'])
+    elif len(quantities)==2:
+        if twoD:
+            rootobject = ROOT.TH2D(name, nickname, bins[0], settings['x'][0],settings['x'][1], 
+                                                        bins[1], settings['y'][0], settings['y'][1])
+            ntuple.Project(name, "%s:%s" % (quantities[1],
+                                           quantities[0]), settings['selection'])
+        else:
+            if settings['special_binning']:
+                rootobject = ROOT.TProfile(name, nickname, bins[0], bin_array)
+            else:
+                rootobject = ROOT.TProfile(name, nickname, bins[0], settings['x'][0],settings['x'][1])
+            ntuple.Project(name, "%s:%s" % (quantities[0],
+                                                 quantities[1]), settings['selection'])
+    elif len(quantities)==3:
+        rootobject = ROOT.TProfile2D(name, nickname, bins[0], settings['x'][0],settings['x'][1], 
+                                                    bins[1], settings['y'][0], settings['y'][1])
+        ntuple.Project(name, "%s:%s:%s" % (quantities[0],
+             quantities[2], quantities[1]), settings['selection'])
+
+    return rootobject
+
+
+def dictconvert(quantity):
+    if quantity in source_dictionary:
+        return source_dictionary[quantity]
+    else:
+        return quantity
+
+source_dictionary = {
+            'ptbalance':'jet1pt/zpt',
+            'balresp':'jet1pt/zpt',
+            'mpfresp':'mpf',
+            'alpha':'jet2pt/zpt',
+            'genalpha':'jet2pt/zpt',
+            'mpf-raw':'rawmpf',
+            'recogen':'genjet1pt/jet1pt',
+            'jet1photonresponsefraction':'jet1photonfraction*jet1pt/zpt',
+            'jet1chargedemresponsefraction':'jet1chargedemfraction*jet1pt/zpt',
+            'jet1chargedhadresponsefraction':'jet1chargedhadfraction*jet1pt/zpt',
+            'jet1neutralhadresponsefraction':'jet1neutralhadfraction*jet1pt/zpt',
+            'jet1HFemresponsefraction':'jet1HFemfraction*jet1pt/zpt',
+            'jet1HFhadresponsefraction':'jet1HFhadfraction*jet1pt/zpt',
+            'deltaphi-jet1-jet2':'abs(abs(abs(jet1phi-jet2phi)-TMath::Pi())-TMath::Pi())',
+            'deltaphi-z-met':'abs(abs(abs(zphi-METphi)-TMath::Pi())-TMath::Pi())',
+            'jet1abseta':'abs(jet1eta)',
+            }
+
+def getobjectfromnick(nickname, rootfile, changes, rebin=1, selection=""):
     objectname = getobjectname(nickname, changes)
-    return getobject(objectname, rootfile, changes)
+    return getobject(objectname, rootfile, changes, selection=selection)
 
 
 def getbins(rootfile, fallbackbins):
@@ -224,7 +233,7 @@ def getbins(rootfile, fallbackbins):
     return result
 
 
-def getobject(name, rootfile, changes={}, exact=True):
+def getobject(name, rootfile, changes={}, exact=True, selection=""):
     """get a root object by knowing the exact name
 
     'exact' could be used to enforce the loading of exactly this histogram and
@@ -233,6 +242,9 @@ def getobject(name, rootfile, changes={}, exact=True):
     oj = rootfile.Get(name)
     if not oj and "Res" in name: # and not exact
         oj = rootfile.Get(name.replace("Res", ""))
+    if not oj:
+        quantity = name[name.find("/")+1:name.find("_AK")]
+        oj = getobjectfromtree(quantity, rootfile, changes, selection=selection)
     if not oj:
         print "Can't load object", name, "from root file", rootfile.GetName()
         exit(0)
@@ -254,7 +266,7 @@ def getobjectname(quantity='z_mass', change={}):
     keys = ['bin', 'incut', 'var', 'quantity', 'algorithm', 'correction']
     selection = {'bin': 'NoBinning', 'incut': 'incut', 'var': '',
                  'quantity': '<quantity>', 'algorithm': 'AK5PFJetsCHS',
-                 'correction': 'L1L2L3Res' }
+                 'correction': 'L1L2L3Res'}
 
     hst = ''
     for k in change:
@@ -269,6 +281,17 @@ def getobjectname(quantity='z_mass', change={}):
     hst = hst.replace('Jets_', 'Jets').replace('__', '_').replace('_L1', 'L1')[:-1]
     hst = hst.replace('_<quantity>', '/' + quantity)
     return hst
+
+def saveasroot(rootobjects, opt, settings):
+    filename = opt.out + "/%s.root" % settings['filename']
+    f = ROOT.TFile(filename, "UPDATE")
+    for rgraph, name in zip(rootobjects, opt.labels):
+        plotname = "_".join([settings['root'], name])
+        print "Saving %s in ROOT-file %s" % (plotname, filename)
+        rgraph.SetTitle(plotname)
+        rgraph.SetName(plotname)
+        rgraph.Write()
+    f.Close()
 
 
 def root2histo(histo, rootfile='', rebin=1):
@@ -333,7 +356,7 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.yborderlow = hst.yc[0] - hst.yerr[0]
         hst.mean = histo.GetMean()
         hst.meanerr = histo.GetMeanError()
-    elif histo.ClassName() == 'TGraphErrors':
+    elif histo.ClassName() == 'TGraphErrors' or histo.ClassName() == 'TGraph':
         # histo is a graph, read it
         hst.source = rootfile
         hst.name = histo.GetName()
@@ -358,6 +381,25 @@ def root2histo(histo, rootfile='', rebin=1):
         exit(0)
     return hst
 
+def rootdivision(rootobjects):
+    #convert TProfiles into TH1Ds because ROOT cannot correctly divide TProfiles
+    if (rootobjects[0].ClassName() != 'TH1D' and 
+           rootobjects[1].ClassName() != 'TH1D'):
+        rootobjects[0] = ROOT.TH1D(rootobjects[0].ProjectionX())
+        rootobjects[1] = ROOT.TH1D(rootobjects[1].ProjectionX())
+    else:
+        rootobjects[1].Scale(rootobjects[0].Integral() /
+                             rootobjects[1].Integral())
+    rootobjects[0].Divide(rootobjects[1])
+
+    #account for error in empty bins:
+    for n in range(rootobjects[0].GetNbinsX()):
+        if ((rootobjects[0].GetBinError(n) < 1e-3 
+                                and rootobjects[0].GetBinContent(n) > 0.1) 
+                                or rootobjects[0].GetBinContent(n) > 1.15):
+            rootobjects[0].SetBinError(n, 0.1)
+
+    return(rootobjects[0])
 
 class Histo:
     """Reduced Histogramm or Graph
@@ -634,48 +676,6 @@ class Fitfunction:
         return [self.f(x) - self.ferr(x) for x in self.plotx(left, right)]
 
 
-def fitline(rootgraph, limits=[0, 1]):
-    if 'Profile' in rootgraph.ClassName():
-        rootgraph.Approximate() # call this function so zero-error (one entry) bins don't distort the fit
-    fitf = ROOT.TF1("fit1", "1*[0]", limits[0], 250)
-    fitres = rootgraph.Fit(fitf,"SQN")
-    if 'Profile' in rootgraph.ClassName():
-        rootgraph.Approximate(0)
-    return (fitf.GetParameter(0), fitf.GetParError(0), fitres.Chi2(), fitres.Ndf())
-
-def fitline2(rootgraph, quadratic=False, gauss=False, limits = [0, 1000]):
-    if 'Profile' in rootgraph.ClassName():
-        rootgraph.Approximate() # call this function so zero-error (one entry) bins don't distort the fit
-    if quadratic:
-        fitf = ROOT.TF1("fit1", "1*[0]+x*[1]+x*x*[2]", 1.0, 1000.0)
-    elif gauss:
-        fitf = ROOT.TF1("fit1", "gaus", limits[0], limits[1])
-    else:
-        fitf = ROOT.TF1("fit1", "1*[0]+x*[1]", 1.0, 1000.0)
-    fitres = rootgraph.Fit(fitf,"SQN")
-    if 'Profile' in rootgraph.ClassName():
-        rootgraph.Approximate(0)
-    #Get conf intervals as an array and then convert to list
-    points = []
-    for n in range(1, rootgraph.GetSize() - 1):
-        points.append(rootgraph.GetBinCenter(n))
-    points.insert(0, 0.)
-    x = array.array('d', points)
-    y = array.array('d', [0.]*len(points))
-    fitres.GetConfidenceIntervals(len(points), 1, 1, x, y, 0.683)
-    conf_intervals = [i for i in y]
-
-    if quadratic or gauss:
-        return (fitf.GetParameter(0), fitf.GetParError(0),
-            fitf.GetParameter(1), fitf.GetParError(1),
-            fitf.GetParameter(2), fitf.GetParError(2),
-            fitres.Chi2(), fitres.Ndf(), conf_intervals)
-    else:
-        return (fitf.GetParameter(0), fitf.GetParError(0),
-            fitf.GetParameter(1), fitf.GetParError(1),
-            fitres.Chi2(), fitres.Ndf(), conf_intervals)
-
-
 def dividegraphs(graph1, graph2):
     assert graph1.ClassName() == 'TGraphErrors'
     assert graph2.ClassName() == 'TGraphErrors'
@@ -730,105 +730,44 @@ def writePlotToRootfile(plot, filename, plotname=None):
         
 
 
-def getgraph(x, y, f, opt, change={}, key='var', var=None, drop=True, root=True, median=False, absmean=False):
+def getgraph(x, y, f, opt, settings, changes=None, key='var', var=None, drop=True, root=True, median=False, absmean=False):
     """get a Histo easily composed from different folders
 
-       x ['z_pt', 'npv', 'alpha', 'jet1_eta', 'var'(list), 'custom'(custom)]
-       y any quantity (ratio?)
-       var
-       #result = root, py, both (idee: x könnte bin grenzen beinhalten, xc mean)
        get a Histo with quantity 'y' plotted over quantity 'x' from file 'f'
        and the settings in 'changes'. The x axis is the variation in 'var'.
-         var = ["_var_SecondJetCut_0_3", ...] (stringlist)
-         var = {'var': ["_var_SecondJetCut_0_3", ...]} (dictionary)
-       Optionally a straight line can be fitted to it.
-       If var is Pt-bins, the first datapoint can be dropped (default).
-       x,y,var(x)
     """
-    changes = {"correction": opt.correction, "algorithm": opt.algorithm}
-    changes.update(change)
-    print "Get a", y, "over", x, "plot from file:", f.GetName()
+
+    settings = plotbase.get_local_settings(settings, changes)
     try:
         f1 = f[0]
         f2 = f[1]
     except:
         f1 = f
         f2 = None
-    # Determine the value to be varied/to be looped over:
-    if x == 'zpt':
-        # x = mean(z_pt), var = Pt0to30
-        key = 'bin'
-        var = binstrings(opt.bins)
-        #x = [getobjectfromnick('zpt', f1, {'bin':v}).GetMean() for v in var] #TODO implement xerr
-        #if drop:
-        #    var.pop(0)
-    elif x == 'npv':
-        # x = mitte(npvbin) from opt, var = var_Npv_0to1
-        var = npvstrings(opt.npv)
-        x = [getobjectfromnick('npv', f1, {'var':v}).GetMean() for v in var]
-        xerr = [0.5 * (b - a) for a, b in opt.npv]
-    elif x == 'alpha':
-        # x = alpha from opt, var mit
-        var = cutstrings(opt.cut)
-        x = opt.cut
-        xerr = [0 for a in x]
-    elif x == 'jet1eta':
-        var = etastrings(opt.eta)
-        # Get list of eta bins and their means
-        etabins = [(a, b) for a, b in zip(opt.eta[:-1], opt.eta[1:])]
-        x = [getobjectfromnick('jet1abseta', f1, {'var':v}).GetMean() for v in var]
-        xerr = [0.5 * (b - a) for a, b in etabins]
-    elif type(var) == list:
-        # x is a list of variations in the var key
-        print "Plot", x, "over this list:", var
-    elif type(var) == dict:
-        # x is a dictionary of variations
-        print "Plot", x, "over this dictionary:", var
-        key = var.keys()[0]
-        var = var.values()[0]
-    else:
-        print "The value to be varied is unknown! x =", x, "var =", var
-        exit(0)
-    assert type(var) == list
-    assert len(var) > 1
-    assert type(var[0]) == str
 
-    # loop over variation (x-axis)
-    ch = copy.deepcopy(changes)
+    settings['special_binning']=True
+    settings['rebin']=1
+
+    settings['x'] = plotbase.getaxislabels_list(x)[:2]
+    xvals = getplotfromtree('_'.join([x,x]), f, settings) 
+    settings['x'] = plotbase.getaxislabels_list(y)[:2]
+    yvals = getplotfromtree('_'.join([y,x]), f, settings)
 
     graph = ROOT.TGraphErrors()
-    for i in range(len(var)):
-        # read the values from folders
-        ch[key] = var[i]
-        # get x (histogram mean or from list)
-        if type(x) == str:
-            ojx = getobjectfromnick(x, f1, ch)
-            if absmean:
-                xi = histoabsmean(ojx)
-            else:
-                xi = ojx.GetMean()
-            xerri = ojx.GetMeanError()
-        else:
-            xi = x[i]
-            xerri = xerr[i]
-        # get y (single histogram mean or ratio)
-        ojy = getobjectfromnick(y, f1, ch)
-        # store them in a root graph
-        if median:
-            graph.SetPoint(i, xi, histomedian(ojy))
-        else:
-            graph.SetPoint(i, xi, ojy.GetMean())
-        graph.SetPointError(i, xerri, ojy.GetMeanError())
-    if not root:
-        return root2histo(graph)
+
+    for i, x, y, xerr, yerr in zip(range(len(yvals.y)-1), xvals.y, yvals.y, xvals.yerr, yvals.yerr):
+        graph.SetPoint(i, x, y)
+        graph.SetPointError(i, xerr, yerr)
+
     return graph
 
 
-def getgraphratio(x, y, f1, f2, opt, changes={}, key='var', var=None, drop=True, median=False, absmean=False):
+
+def getgraphratio(x, y, f1, f2, opt, settings, changes={}, key='var', var=None, drop=True, median=False, absmean=False):
     if f2 is None:
-        return getgraph(x, y, f1, opt, changes, key, var, drop, True, median, absmean)
-    graph1 = getgraph(x, y, f1, opt, changes, key, var, drop, True, median, absmean)
-    graph2 = getgraph(x, y, f2, opt, changes, key, var, drop, True, median, absmean)
+        return getgraph(x, y, f1, opt, settings, changes, key, var, drop, True, median, absmean)
+    graph1 = getgraph(x, y, f1, opt, settings, changes, key, var, drop, True, median, absmean)
+    graph2 = getgraph(x, y, f2, opt, settings, changes, key, var, drop, True, median, absmean)
     return dividegraphs(graph1, graph2)
 
 

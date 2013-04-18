@@ -16,14 +16,18 @@ def twoD_all(quantity, datamc, opt):
 
 
 # Main 2d Plotting function:
-def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, rebin=[1,1],
+def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, rebin=[4,4],
            file_name = "", subplot=False, subtext="", fig_axes=(),
              xy_names=None, normalize=True, folder=None, axtitle=None,
             x_limits=None, y_limits=None):
 
     change= plotbase.getchanges(opt, changes)
+    #change['incut'] = 'alleta'
 
-    datamc = [getroot.getplotfromnick(quantity, f, change, rebin) for f in files]
+    #datamc = [getroot.getplotfromnick(quantity, f, change, rebin) for f in files]
+
+    datamc=[getroot.getplotfromtree(quantity[3:], f, change,
+                                        rebin, twoD=True) for f in files]
     
     # special dictionary for z-axis scaling (do we need this??)
     # 'quantity':[z_min(incut), z_max(incut), z_min(allevents), z_max(allevents)]
@@ -38,6 +42,7 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
 
     #determine plot type: 2D Histogram or 2D Profile, and get the axis properties
     names = quantity[3:].split('_')
+
     if len(names) == 3:
         xy_names = names[1:3]
         #xy_names.reverse()
@@ -65,7 +70,6 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
         z_name = 'Events'
         z_min = 0.0
         z_max = np.max(datamc[0].BinContents)
-
 
     if subplot==True:
         fig = fig_axes[0]
