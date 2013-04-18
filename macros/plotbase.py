@@ -93,6 +93,8 @@ def function_selector(plots, datamc, opt):
                 plot2d.twoD(plot, datamc, opt)
             elif plot in plotlist_nocuts:
                 plot2d.twoD(plot[:-7], datamc, opt, changes={'incut':'allevents'})
+            elif plot in plotlist_alleta:
+                plot2d.twoD(plot[:-7], datamc, opt, changes={'incut':'alleta'})
             elif "_all" in plot and plot in plotlist_all:
                 plot2d.twoD_all(plot[:-4], datamc, opt)
         elif plot in plotlist:
