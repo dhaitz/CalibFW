@@ -39,7 +39,8 @@ for (( i=0; i<${tLen};)); do
 
     # run the job
     echo -e "Job ${JOBS}: $out \c "
-    echo "ROOTSYS=${ROOTPATH} PATH=$PATH:$ROOTSYS/bin LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTSYS/lib:$ROOTSYS/lib/root hadd -f ${out} ${ifiles}" | qsub -q express -cwd
+    #echo "ROOTSYS=${ROOTPATH} PATH=$PATH:$ROOTSYS/bin LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTSYS/lib:$ROOTSYS/lib/root hadd -f ${out} ${ifiles}" | qsub -q express -cwd
+    echo "PATH=$PATH:/wlcg/sw/cms/slc5_amd64_gcc462/cms/cmssw/CMSSW_5_3_4/external/slc5_amd64_gcc462/bin LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/wlcg/sw/cms/slc5_amd64_gcc462/cms/cmssw/CMSSW_5_3_4/external/slc5_amd64_gcc462/lib:/lib64:/wlcg/sw/cms/slc5_amd64_gcc462/external/gcc/4.6.2/lib64 hadd -f ${out} ${ifiles}" | qsub -q express -cwd
 
     let i+=$INC
     let JOBS+=1
