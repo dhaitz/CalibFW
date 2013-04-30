@@ -1168,6 +1168,7 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
     config.set("jobs", "shuffle", True)
     config.set("jobs", "wall time", "1:50:00" )
     config.set("jobs", "monitor", "scripts" )
+    #config.set("jobs", "memory", 3000)
 
     config.add_section("local")
     config.set("local", "queue", "short")
