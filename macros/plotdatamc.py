@@ -13,6 +13,7 @@ import sys
 import multiprocessing as mp
 import os
 from dictionaries import d_plots
+import plotresponse
 
 
 def datamcplot(quantity, files, opt, legloc='center right',
@@ -206,7 +207,7 @@ def runplot(quantity, files, opt, legloc='center right',
         if 'data' in l or fractions:
 
             if quantity == 'ptbalance_run' or quantity == 'mpf_run':
-                k = plotbase.plotresponse.getextrapolated(quantity[:-4], f, changes=changes, quadratic=False, getfactor=True)[0]
+                k = plotresponse.getextrapolated(quantity[:-4], f, changes=changes, quadratic=False, getfactor=True)[0]
             else: k=1
 
             plot = getroot.getplotfromnick(quantity, f, change, rebin)

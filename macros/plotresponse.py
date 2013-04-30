@@ -22,6 +22,7 @@ from ROOT import TGraphErrors, TCanvas, TF1, TFile
 import ROOT
 
 import plotbase
+import plotdatamc
 import getroot
 
 from responsetools import *
@@ -605,7 +606,7 @@ def response_run(files, opt):
     for label, color, quantity in zip(['PtBalance (data)', 'MPF (data)'], ['blue', 'red'], ['ptbalance_run', 'mpf_run']):
         local_opt.labels = [label]
         local_opt.colors = [color]
-        plotbase.plotdatamc.runplot(quantity, files, local_opt, legloc='upper right',
+        plotdatamc.runplot(quantity, files, local_opt, legloc='upper right',
                        subplot=True, fit=False, changes=changes, xy_names=['run','response'],
                        fig_axes=(fig, ax))
     ax.axhline(1.0, color='black', linestyle=':')
