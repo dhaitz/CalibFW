@@ -30,7 +30,7 @@ from responsetools import *
 
 def responseplot(files, opt, types, labels=None,
                  colors=['blue', 'maroon', 'green', 'red']*7,
-                 markers=['o', 'x', 'x']*8,
+                 markers=['o', 's', 'v', '^', '>']*8,
                  over='zpt',
                  binborders=False,
                  figaxes = None,
@@ -63,7 +63,7 @@ def responseplot(files, opt, types, labels=None,
             extrapolation = 'data'
         if 'gen' not in t:
             plot = getroot.root2histo(getresponse(t, over, opt, files[0], None, changes, extrapol))
-            ax.errorbar(plot.x, plot.y, plot.yerr, color='black', fmt=m, label=l+" ("+opt.labels[0]+")")
+            ax.errorbar(plot.x, plot.y, plot.yerr, color='black' if len(files)>1 else c, fmt=m, label=l+" ("+opt.labels[0]+")" if len(files)>1 else l)
             plotbinborders(ax, over, plot.y, opt)
         if extrapolation == 'data':
             extrapolation = 'mc'
@@ -72,7 +72,7 @@ def responseplot(files, opt, types, labels=None,
             for f, label, color, mark in zip(files[1:], opt.labels[1:], colors, markers[1:]):
                 plot = getroot.root2histo(getresponse(t, over, opt, f, None, changes, extrapol))
                 ax.errorbar(plot.x, plot.y, plot.yerr, color=color, fmt=mark, label=l+" ("+label+")")
-        else:
+        elif len(files)>1:
             plot = getroot.root2histo(getresponse(t, over, opt, files[1], None, changes, extrapol))
             if l == 'recogen': l = "Reco/Gen"
             else: l = l+" ("+opt.labels[1]+")"
@@ -299,6 +299,18 @@ def response_npv(files, opt):
     responseplot(files, opt, ['balresp', 'mpfresp', 'recogen'], over='npv')
 def response_eta(files, opt):
     responseplot(files, opt, ['balresp', 'mpfresp', 'recogen'], over='jet1eta', legloc='lower left')
+
+def balflavors(files, opt):
+    responseplot(files, opt, ['balgluon', 'baluds', 'balc', 'balb'])
+
+def mpfflavors(files, opt):
+    responseplot(files, opt, ['mpfgluon', 'mpfuds', 'mpfc', 'mpfb'])
+
+def balflavors_eta(files, opt):
+    responseplot(files, opt, ['balgluon', 'baluds', 'balc', 'balb'], over='jet1eta')
+
+def mpfflavors_eta(files, opt):
+    responseplot(files, opt, ['mpfgluon', 'mpfuds', 'mpfc', 'mpfb'], over='jet1eta')
 
 def bal_eta(files, opt):
     responseplot(files, opt, ['balresp'], over='jet1eta', legloc='lower left')
