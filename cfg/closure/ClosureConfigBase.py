@@ -394,7 +394,8 @@ def ExpandRange2(pipelines, filtername, low, high=None,
                 and (not onlyOnIncut or "incut" in subdict["RootFileFolder"]) 
                 and (alsoForPtBins or "NoBinning_incut" in subdict["RootFileFolder"])
                 and (not onlyForNocuts or 'allevents' in subdict["RootFileFolder"]) ):
-            for l, h in zip(low, high):
+
+            for l, h in zip(low, high or low):
                 # copy existing pipeline (subdict) and modify it
                 newpipe = copy.deepcopy(subdict)
 
@@ -406,8 +407,14 @@ def ExpandRange2(pipelines, filtername, low, high=None,
 
                 #print(new_pipe)
                 newpipe["Filter"].append(filtername.lower())
-                newpipe["Filter" + filtername + "Low"] = l
-                newpipe["Filter" + filtername + "High"] = h
+                if high is None:
+                    foldername = foldername.replace("to{high}", "")
+                    newpipe["Filter" + filtername] = l
+                    if filtername == "Flavor":
+                        l = {1:"u", 2:"d", 3:"s", 4:"c", 5:"b", 6:"t", 21:"g", 123: "uds", 123456:"q"}[l]
+                else:
+                    newpipe["Filter" + filtername + "Low"] = l
+                    newpipe["Filter" + filtername + "High"] = h
                 f = foldername.format(name=filtername, low=l, high=h)
                 f = "_" + f.replace(".", "_")
 
