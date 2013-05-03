@@ -49,7 +49,6 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			else if ( sid == JsonFilter().GetFilterId())
 				pLine->AddFilter( new JsonFilter( pset.Global()->GetJsonFile()));
 			else if (sid == MetFilter().GetFilterId())
-				//pLine->AddFilter(new MetFilter(pset.Global()->GetMetFilters()));
 				pLine->AddFilter(new MetFilter());
 			else if ( sid == InCutFilter().GetFilterId())
 				pLine->AddFilter( new InCutFilter);
@@ -190,8 +189,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 			if (pset.IsMC())
 			{
-				pLine->AddConsumer( new GenZTwoDConsumer( pset.GetJetAlgorithm() ));
-
+				pLine->AddConsumer(new GenZTwoDConsumer(pset.GetJetAlgorithm()));
+				pLine->AddConsumer(new FlavorConsumer());
 				std::string genName = JetType::GetGenName(pset.GetJetAlgorithm());
 				//pLine->AddConsumer( new BasicTwoDConsumer( genName ));
 				pLine->AddConsumer(new GenMetadataConsumer());
@@ -208,7 +207,10 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		{
 			pLine->AddConsumer(new DataZConsumer(pset.GetJetAlgorithm()));
 			pLine->AddConsumer(new PrimaryVertexConsumer());
-
+			if (pset.IsMC())
+			{
+				pLine->AddConsumer(new FlavorConsumer());
+			}
 			if (JetType::IsPF(pset.GetJetAlgorithm()))
 			{
 				pLine->AddConsumer(new DataPFJetsConsumer(pset.GetJetAlgorithm(), 0));

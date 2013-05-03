@@ -616,6 +616,36 @@ private:
 	Hist1D* m_invalid;
 };
 
+class FlavorConsumer: public ZJetMetaConsumer
+{
+public:
+
+	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData,
+			ZJetPipelineSettings> * pset)
+	{
+		ZJetMetaConsumer::Init(pset);
+
+		m_flavor = new Hist1D("flavor_" + this->GetPipelineSettings().GetJetAlgorithm(),
+				GetPipelineSettings().GetRootFileFolder(),
+				Hist1D::GetCountModifier(25, -1));
+		AddPlot(m_flavor);
+
+	}
+
+	virtual void ProcessFilteredEvent(ZJetEventData const& event,
+			ZJetMetaData const& metaData)
+	{
+		ZJetMetaConsumer::ProcessFilteredEvent(event, metaData);
+		int pdg = std::abs(metaData.GetBalancedParton().pdgId());
+		if (pdg > 25)
+			pdg = -1;
+		m_flavor->Fill(pdg, metaData.GetWeight());
+	}
+
+private:
+	Hist1D* m_flavor;
+};
+
 
 class MetadataConsumer: public ZJetMetaConsumer
 {
