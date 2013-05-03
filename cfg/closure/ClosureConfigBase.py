@@ -610,6 +610,55 @@ def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False):
                 'ProductName': "genquality_" + algo,
                 'ResponseType': "quality",
             },
+            # Flavor responses, JetNumber is misused as flavor
+           'bin_gluonbal_response': {
+                'Name': "bin_response",
+                'ProductName': "balgluon_" + algo,
+                'ResponseType': "flavorbal",
+                'JetNumber': 21,
+            },
+           'bin_udsbal_response': {
+                'Name': "bin_response",
+                'ProductName': "baluds_" + algo,
+                'ResponseType': "flavorbal",
+                'JetNumber': 123,
+            },
+           'bin_cbal_response': {
+                'Name': "bin_response",
+                'ProductName': "balc_" + algo,
+                'ResponseType': "flavorbal",
+                'JetNumber': 4,
+            },
+           'bin_bbal_response': {
+                'Name': "bin_response",
+                'ProductName': "balb_" + algo,
+                'ResponseType': "flavorbal",
+                'JetNumber': 5,
+            },
+           'bin_gluonmpf_response': {
+                'Name': "bin_response",
+                'ProductName': "mpfgluon_" + algo,
+                'ResponseType': "flavormpf",
+                'JetNumber': 21,
+            },
+           'bin_udsmpf_response': {
+                'Name': "bin_response",
+                'ProductName': "mpfuds_" + algo,
+                'ResponseType': "flavormpf",
+                'JetNumber': 123,
+            },
+           'bin_cmpf_response': {
+                'Name': "bin_response",
+                'ProductName': "mpfc_" + algo,
+                'ResponseType': "flavormpf",
+                'JetNumber': 4,
+            },
+           'bin_bmpf_response': {
+                'Name': "bin_response",
+                'ProductName': "mpfb_" + algo,
+                'ResponseType': "flavormpf",
+                'JetNumber': 5,
+            },
         }
 
         if isMC:
