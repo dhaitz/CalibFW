@@ -38,7 +38,7 @@ public:
 		}
 
 		return (response >= settings.GetFilterResponseLow() &&
-		        response < settings.GetFilterResponseHigh());
+				response < settings.GetFilterResponseHigh());
 	}
 
 	virtual std::string GetFilterId() { return "response"; }

@@ -30,6 +30,7 @@
 #include "ZJet/Filter/ResponseFilter.h"
 #include "ZJet/Filter/DeltaEtaFilter.h"
 #include "ZJet/Filter/JetPtFilter.h"
+#include "ZJet/Filter/FlavorFilter.h"
 
 using namespace CalibFW;
 
@@ -70,6 +71,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddFilter( new DeltaEtaFilter);
 			else if ( sid == JetPtFilter().GetFilterId())
 				pLine->AddFilter( new JetPtFilter);
+			else if ( sid == FlavorFilter().GetFilterId())
+				pLine->AddFilter( new FlavorFilter);
 			else
 				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 		}
@@ -78,8 +81,6 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		fvec = pset.GetCuts();
 		BOOST_FOREACH(std::string sid, fvec)
 		{		// make this more beautiful :)
-
-
 			if ( sid == MuonEtaCut().GetCutShortName())
 				pLine->AddMetaDataProducer( new MuonEtaCut() );
 			else if ( sid == MuonPtCut().GetCutShortName())

@@ -95,6 +95,7 @@ public:
 	IMPL_SETTING(unsigned int, FilterRunRangeLumiHigh)
 	IMPL_SETTING(unsigned int, FilterRunRangeEventLow)
 	IMPL_SETTING(unsigned int, FilterRunRangeEventHigh)
+	IMPL_SETTING(unsigned int, FilterFlavor)
 
 	IMPL_SETTING(double, FilterResponseLow)
 	IMPL_SETTING(double, FilterResponseHigh)
