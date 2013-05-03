@@ -75,6 +75,10 @@ public:
 			m_respType = GenBalanceToBalancedParton;
 		else if (sType == "quality")
 			m_respType = BalanceQuality;
+		else if (sType == "flavorbal")
+			m_respType = FlavorBal;
+		else if (sType == "flavormpf")
+			m_respType = FlavorMpf;
 		else
 			CALIB_LOG_FATAL("Unknown Response type " << sType << "!");
 	}
@@ -276,6 +280,48 @@ public:
 			m_histo->Fill(metaData.GetMuonResponse(), metaData.GetWeight());
 		}
 
+		else if (m_respType == FlavorBal)
+		{
+			if (metaData.GetValidJetCount(set, event) == 0
+				|| !metaData.HasValidZ()
+				|| !metaData.HasBalancedParton()
+			)
+				return;
+
+			// m_jetnum is misused as flavor
+			int flavor = m_jetnum + 1;
+			int pdg = std::abs(metaData.GetBalancedParton().pdgId());
+			bool good = (flavor == 123456) &&
+				(pdg == 1 || pdg == 2 || pdg == 3 || pdg == 4 || pdg == 5 || pdg == 6);
+			good = good || (flavor == 123) && (pdg == 1 || pdg == 2 || pdg == 3);
+			good = good || (flavor == pdg);
+
+			if (!good)
+				return;
+
+			KDataLV* jet = metaData.GetValidJet(set, event, 0);
+			m_histo->Fill(metaData.GetBalance(jet), metaData.GetWeight());
+		}
+
+		else if (m_respType == FlavorMpf)
+		{
+			if (!metaData.HasValidZ() || !metaData.HasBalancedParton())
+				return;
+
+			// m_jetnum is misused as flavor
+			int flavor = m_jetnum + 1;
+			int pdg = std::abs(metaData.GetBalancedParton().pdgId());
+			bool good = (flavor == 123456) &&
+				(pdg == 1 || pdg == 2 || pdg == 3 || pdg == 4 || pdg == 5 || pdg == 6);
+			good = good || (flavor == 123) && (pdg == 1 || pdg == 2 || pdg == 3);
+			good = good || (flavor == pdg);
+
+			if (!good)
+				return;
+
+			m_histo->Fill(metaData.GetMPF(metaData.GetMet(event, set)), metaData.GetWeight());
+		}
+
 		else
 			CALIB_LOG_FATAL("Response type " << m_respType << " not implemented!")
 	}
@@ -302,8 +348,8 @@ private:
 		// gen level
 		GenMpf, GenBalance, GenTwoBalance, GenZeppenfeld, Parton, BalancedParton,
 		GenBalanceToParton, GenBalanceToBalancedParton,
-		BalanceQuality
-		//Matched Balances
+		BalanceQuality,
+		FlavorBal, FlavorMpf
 	} m_respType;
 };
 
