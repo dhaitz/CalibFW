@@ -62,6 +62,12 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='mc'):
     process.kt4PFJets.srcPVs = cms.InputTag('goodOfflinePrimaryVertices')
     process.kt6PFJets.srcPVs = cms.InputTag('goodOfflinePrimaryVertices')
 
+    # Add Cambridge/Aachen algorithm ------------------------------------------
+    process.ca8PFJets = process.ak5PFJets.clone(
+        jetAlgorithm = cms.string('CambridgeAachen'),
+        rParam = cms.double(0.8)
+    )
+
     # CHS Jets with the NoPU sequence -----------------------------------------
     process.load('CommonTools.ParticleFlow.PFBRECO_cff')
     process.pfPileUp.Vertices = cms.InputTag('goodOfflinePrimaryVertices')
@@ -71,11 +77,12 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='mc'):
     process.ak7PFJetsCHS = process.ak7PFJets.clone( src = cms.InputTag('pfNoPileUp') )
     process.kt4PFJetsCHS = process.kt4PFJets.clone( src = cms.InputTag('pfNoPileUp') )
     process.kt6PFJetsCHS = process.kt6PFJets.clone( src = cms.InputTag('pfNoPileUp') )
+    process.ca8PFJetsCHS = process.ca8PFJets.clone( src = cms.InputTag('pfNoPileUp') )
 
     # Path to Redo all Jets
     process.jetsRedo = cms.Path(
-        process.ak5PFJets * process.ak7PFJets * process.kt4PFJets * process.kt6PFJets *
-        process.ak5PFJetsCHS * process.ak7PFJetsCHS * process.kt4PFJetsCHS * process.kt6PFJetsCHS
+        process.ak5PFJets * process.ak7PFJets * process.kt4PFJets * process.kt6PFJets * process.ca8PFJets *
+        process.ak5PFJetsCHS * process.ak7PFJetsCHS * process.kt4PFJetsCHS * process.kt6PFJetsCHS * process.ca8PFJetsCHS
     )
 
     # MET filters -------------------------------------------------------------
@@ -147,7 +154,7 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='mc'):
 
     # MET correction ----------------------------------------------------------
     process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
-    process.selectedVerticesForMEtCorr.src = cms.InputTag('goodOfflinePrimaryVertices')
+    process.pfchsMETcorr.src = cms.InputTag('goodOfflinePrimaryVertices')
     # Type-0
     process.pfMETCHS = process.pfType1CorrectedMet.clone(
         applyType1Corrections = cms.bool(False),
