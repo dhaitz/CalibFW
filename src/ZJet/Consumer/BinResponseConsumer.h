@@ -101,6 +101,18 @@ public:
 		ZJetPipelineSettings const& set = this->GetPipelineSettings();
 		std::string genName(JetType::GetGenName(set.GetJetAlgorithm()));
 
+		bool goodflavor = metaData.HasBalancedParton();
+		if (goodflavor)
+		{
+			// m_jetnum is misused as flavor
+			int flavor = m_jetnum + 1;
+			int pdg = std::abs(metaData.GetBalancedParton().pdgId());
+			goodflavor = goodflavor || (flavor == pdg);
+			goodflavor = goodflavor || (flavor == 123) && (pdg == 1 || pdg == 2 || pdg == 3);
+			goodflavor = goodflavor || (flavor == 123456) &&
+				(pdg == 1 || pdg == 2 || pdg == 3 || pdg == 4 || pdg == 5 || pdg == 6);
+		}
+
 		if (m_respType == Balance)
 		{
 			if (m_jetnum >= metaData.GetValidJetCount(set, event)
@@ -280,46 +292,32 @@ public:
 			m_histo->Fill(metaData.GetMuonResponse(), metaData.GetWeight());
 		}
 
-		else if (m_respType == FlavorBal)
+		else if (m_respType == FlavorBal && goodflavor)
 		{
-			if (metaData.GetValidJetCount(set, event) == 0
-				|| !metaData.HasValidZ()
-				|| !metaData.HasBalancedParton()
-			)
-				return;
-
-			// m_jetnum is misused as flavor
-			int flavor = m_jetnum + 1;
-			int pdg = std::abs(metaData.GetBalancedParton().pdgId());
-			bool good = (flavor == 123456) &&
-				(pdg == 1 || pdg == 2 || pdg == 3 || pdg == 4 || pdg == 5 || pdg == 6);
-			good = good || (flavor == 123) && (pdg == 1 || pdg == 2 || pdg == 3);
-			good = good || (flavor == pdg);
-
-			if (!good)
+			if (metaData.GetValidJetCount(set, event) == 0 || !metaData.HasValidZ())
 				return;
 
 			KDataLV* jet = metaData.GetValidJet(set, event, 0);
 			m_histo->Fill(metaData.GetBalance(jet), metaData.GetWeight());
 		}
 
-		else if (m_respType == FlavorMpf)
+		else if (m_respType == FlavorMpf && goodflavor)
 		{
-			if (!metaData.HasValidZ() || !metaData.HasBalancedParton())
-				return;
-
-			// m_jetnum is misused as flavor
-			int flavor = m_jetnum + 1;
-			int pdg = std::abs(metaData.GetBalancedParton().pdgId());
-			bool good = (flavor == 123456) &&
-				(pdg == 1 || pdg == 2 || pdg == 3 || pdg == 4 || pdg == 5 || pdg == 6);
-			good = good || (flavor == 123) && (pdg == 1 || pdg == 2 || pdg == 3);
-			good = good || (flavor == pdg);
-
-			if (!good)
+			if (!metaData.HasValidZ())
 				return;
 
 			m_histo->Fill(metaData.GetMPF(metaData.GetMet(event, set)), metaData.GetWeight());
+		}
+
+		else if (m_respType == FlavorGenBal && goodflavor)
+		{
+			if (m_jetnum >= metaData.GetValidJetCount(set, event, genName)
+					|| !metaData.HasValidGenZ())
+				return;
+
+			KDataLV* genjet = metaData.GetValidJet(set, event, m_jetnum, genName);
+			assert(genjet != NULL);
+			m_histo->Fill(metaData.GetGenBalance(genjet), metaData.GetWeight());
 		}
 
 		else
@@ -349,7 +347,7 @@ private:
 		GenMpf, GenBalance, GenTwoBalance, GenZeppenfeld, Parton, BalancedParton,
 		GenBalanceToParton, GenBalanceToBalancedParton,
 		BalanceQuality,
-		FlavorBal, FlavorMpf
+		FlavorBal, FlavorMpf, FlavorGenBal
 	} m_respType;
 };
 
