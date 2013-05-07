@@ -492,7 +492,8 @@ def AddMetaDataProducerEasy( pline, producer_name):
     pline["MetaDataProducer"][ consumer["Name"] ] = producer_name
 
 
-def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False):
+def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False, 
+                   addResponse=True, nocutFolder=True):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
@@ -713,13 +714,15 @@ def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False):
             },
         }
 
-        if isMC:
-            cutPipe["Consumer"].update(consumers_mc)
-            cutPipe["Consumer"].update(consumers_gen)
-        cutPipe["Consumer"].update(consumers)
+        if addResponse:
+            if isMC:
+                cutPipe["Consumer"].update(consumers_mc)
+                cutPipe["Consumer"].update(consumers_gen)
+            cutPipe["Consumer"].update(consumers)
         # only add the nocut pipeline for the default (no binning)
         #if name == "default":
-        newDict[name + "nocuts" ] = nocutPipe
+        if nocutFolder:
+            newDict[name + "nocuts" ] = nocutPipe
         newDict[name] = cutPipe
 
         # a pipe without leadingjet eta cut
@@ -1120,7 +1123,8 @@ def ReplaceWithQuantitiesBasic(pline):
 
 
 def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
-        binning=GetDefaultBinning(), onlyBasicQuantities=False, expandptbins=True, alletaFolder=False, zcutsFolder=False):
+        binning=GetDefaultBinning(), onlyBasicQuantities=False, expandptbins=True,
+        alletaFolder=False, zcutsFolder=False, addResponse=True, nocutsFolder=True):
     conf = copy.deepcopy(conf_template)
 
     # get globalalgorithms
@@ -1144,7 +1148,8 @@ def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
             pline["JetAlgorithm"] = algo
             algoPipelines[p + "_" + algo] = pline
 
-    conf["Pipelines"] = ExpandCutNoCut(algoPipelines, alletaFolder, zcutsFolder, conf['InputType'] == 'mc')
+    conf["Pipelines"] = ExpandCutNoCut(algoPipelines, alletaFolder, 
+        zcutsFolder, conf['InputType'] == 'mc', addResponse, nocutsFolder)
 
     # create pipelines for all bins
     if expandptbins:
