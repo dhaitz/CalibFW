@@ -118,20 +118,20 @@ public:
 	{
 		MetaConsumerDataLV::Init(pset);
 
-		m_histY = new Hist1D(GenName(GetPhysicsObjectName(), "Y_"),
-				GetPipelineSettings().GetRootFileFolder(),
-				Hist1D::GetEtaModifier());
+		//m_histY = new Hist1D(GenName(GetPhysicsObjectName(), "Y_"),
+		//		GetPipelineSettings().GetRootFileFolder(),
+		//		Hist1D::GetEtaModifier());
 
-		AddPlot(m_histY);
+		//AddPlot(m_histY);
 
 	}
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
 			ZJetMetaData const& metaData)
 	{
 		PlotDataLVQuantities(metaData.GetPtZ(), metaData);
-		m_histY->Fill(metaData.GetRefZ().p4.Rapidity(), metaData.GetWeight());
+		//m_histY->Fill(metaData.GetRefZ().p4.Rapidity(), metaData.GetWeight());
 	}
-	Hist1D* m_histY;
+	//Hist1D* m_histY;
 };
 
 
@@ -379,7 +379,7 @@ public:
 	{
 		DataLVsConsumer::Init(pset);
 
-		if (! m_onlyBasic)
+		/*if (! m_onlyBasic)
 		{
 			m_neutralEmFraction = new Hist1D(GenName(GetPhysicsObjectName(), "neutralemfraction_"),
 					GetPipelineSettings().GetRootFileFolder(),
@@ -451,13 +451,13 @@ public:
 					GetPipelineSettings().GetRootFileFolder(),
 					Hist1D::GetAreaModifier());
 			AddPlot(m_area);
-		}
+		}*/
 	}
 
 	virtual void ProcessFilteredEvent_specific(ZJetEventData const& event,
 			ZJetMetaData const& metaData, KDataLV* jet)
 	{
-		if (!m_onlyBasic)
+		/*if (!m_onlyBasic)
 		{
 			KDataPFJet* pfJet = static_cast<KDataPFJet*>(jet);
 
@@ -490,10 +490,10 @@ public:
 					pfJet->HFHadFraction + pfJet->HFEMFraction +
 					pfJet->muonFraction,
 					metaData.GetWeight());
-		}
+		}*/
 	}
 
-	Hist1D* m_summedFraction;
+	/*Hist1D* m_summedFraction;
 	Hist1D* m_neutralEmFraction;
 	Hist1D* m_chargedEMFraction;
 	Hist1D* m_chargedHadFraction;
@@ -508,7 +508,7 @@ public:
 
 	Hist1D* m_const;
 	Hist1D* m_charged;
-	Hist1D* m_area;
+	Hist1D* m_area;*/
 
 	bool m_onlyBasic;
 };

@@ -125,6 +125,8 @@ public:
 	}
 
 	IMPL_SETTING(std::string, RootFileFolder)
+	IMPL_SETTING(std::string, Treename)
+	IMPL_SETTING(std::string, QuantitiesString)
 	IMPL_SETTING(std::string, SecondLevelFolderTemplate)
 
 	// only level 1 runs directly on data
@@ -263,6 +265,14 @@ public:
 	{
 		RETURN_CACHED(m_metaDataProducers, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".MetaDataProducers"))
 	}
+
+    VarCache<stringvector> m_quantities;
+	stringvector GetQuantities() const
+	{
+		RETURN_CACHED(m_quantities, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".QuantitiesVector"))
+	}
+
+
 /*
 	void AddFilter(std::string sFilterId)
 	{

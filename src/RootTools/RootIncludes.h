@@ -3,6 +3,7 @@
 #include "TROOT.h"
 #include "TText.h"
 #include "TTree.h"
+#include "TNtuple.h"
 #include "TParticle.h"
 #include "TChain.h"
 #include "TH1D.h"

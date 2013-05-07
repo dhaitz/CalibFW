@@ -18,6 +18,8 @@
 #include "ZJet/Consumer/MetaConsumerDataLV.h"
 #include "ZJet/Consumer/JetMatchingPlots.h"
 
+#include "ZJet/Consumer/TreeConsumer.h"
+
 #include "ZJet/Filter/ValidZFilter.h"
 #include "ZJet/Filter/InCutFilter.h"
 #include "ZJet/Filter/PtWindowFilter.h"
@@ -147,22 +149,22 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		if (sName == "quantities_all" )
 		{
 			pLine->AddConsumer( new DataZConsumer( pset.GetJetAlgorithm() ));
-			pLine->AddConsumer( new DataMuonConsumer(+1, pset.GetJetAlgorithm()));
-			pLine->AddConsumer( new DataMuonConsumer(-1, pset.GetJetAlgorithm()));
-			pLine->AddConsumer( new ValidMuonsConsumer());
-			pLine->AddConsumer( new ValidJetsConsumer());
-			pLine->AddConsumer( new DataMETConsumer( pset.GetJetAlgorithm() ));
-			pLine->AddConsumer( new DataRawMETConsumer( pset.GetJetAlgorithm() ));
-			pLine->AddConsumer( new DeltaConsumer( pset.GetJetAlgorithm() ));
+			//pLine->AddConsumer( new DataMuonConsumer(+1, pset.GetJetAlgorithm()));
+			//pLine->AddConsumer( new DataMuonConsumer(-1, pset.GetJetAlgorithm()));
+			//pLine->AddConsumer( new ValidMuonsConsumer());
+			//pLine->AddConsumer( new ValidJetsConsumer());
+			//pLine->AddConsumer( new DataMETConsumer( pset.GetJetAlgorithm() ));
+			//pLine->AddConsumer( new DataRawMETConsumer( pset.GetJetAlgorithm() ));
+			//pLine->AddConsumer( new DeltaConsumer( pset.GetJetAlgorithm() ));
 			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
-			pLine->AddConsumer( new RhoConsumer( ) );
-			pLine->AddConsumer(new FilterSummaryConsumer());
+			//pLine->AddConsumer( new RhoConsumer( ) );
+			//pLine->AddConsumer(new FilterSummaryConsumer());
 
 			if (JetType::IsPF(pset.GetJetAlgorithm()))
 			{
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 0));
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 1, pset.GetJetAlgorithm(), true));
-				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 2, pset.GetJetAlgorithm(), true));
+				//pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 2, pset.GetJetAlgorithm(), true));
 
 				/*if (JetType::IsRaw(pset.GetJetAlgorithm()))
 				{
@@ -217,6 +219,10 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			}
 		}
 
+		else if (sName == "tree" )
+        {
+			pLine->AddConsumer( new TreeConsumer( ) );
+        }
 		// optional 1st Level Producer
 		else if (sName == BinResponseConsumer::GetName())
 			pLine->AddConsumer(new BinResponseConsumer(pset.GetPropTree(), consPath));
