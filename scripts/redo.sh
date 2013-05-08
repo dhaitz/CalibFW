@@ -25,10 +25,9 @@ mkdir ${CLOSURE_WORK}/work/${NAME}/work.${NAME}/
 cd ${CLOSURE_WORK}/work/${NAME}/
 
 echo "Start grid control ..."
+echo -en "\033]0;gc is running: ${NAME}\a"
 /home/${USER}/git/grid-control/go.py  ${CLOSURE_WORK}/work/${NAME}/${NAME}.conf -cG
 
 echo "Merge files ... "
-. parallelmerge.sh
-
-
+hadd out/closure.root out/*.root
 
