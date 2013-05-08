@@ -4,7 +4,7 @@ import ClosureConfigBase as cbase
 conf = cbase.BaseConfig('data', '2012')
 conf["InputFiles"] = cbase.CreateFileList("/storage/8/dhaitz/Winter13ReReco_2/*.root", sys.argv)
 conf["OutputPath"] = "closure_data2012_537_mikko"
-conf["JsonFile"] = cbase.GetBasePath() + "data/json/Cert_190456-208686_8TeV_Combined22JanReReco_Collisions12_JSON.txt"
+conf["JsonFile"] = cbase.GetBasePath() + "data/json/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt"
 
 algorithms = ["AK5PFJetsL1L2L3", "AK5PFJetsL1L2L3Res"]
 cbase.addCHS(algorithms)
