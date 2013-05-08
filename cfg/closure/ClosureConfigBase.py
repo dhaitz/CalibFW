@@ -787,11 +787,6 @@ def AddCutConsumer( pipelineDict, algos):
                 # for every intersting cut
                 AddSingleCutConsumer(pval, "all", -1, algo )
                 AddSingleCutConsumer(pval, "jet2toZpt", 16, algo )
-                #AddSingleCutConsumer(pval, "backtoback", 32, algo )
-                #AddSingleCutConsumer(pval, "zmass", 64, algo )
-                #AddSingleCutConsumer(pval, "muonpt", 2, algo )
-                #AddSingleCutConsumer(pval, "muoneta", 4, algo )
-                #AddSingleCutConsumer(pval, "jeteta", 8, algo )
 
 def AddLumiConsumer( pipelineDict, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
     for algo in algos:
@@ -973,19 +968,14 @@ def AddQuantityPlots(config, algos, forIncut=True, forAllevents=False, forIncutV
         })
 
     y_quantities = [
-        'jet1pt', 'jet1abseta', 'jet2pt', 'jet2abseta', 'zpt', 'zabseta', 'npv',
-        #'METpt-diff', 'METphi-diff', 'mpf-diff', 'jetsvalid',
-         'ptbalance',
-        'mpf', 'mpf-raw', 'METpt', 'sumEt',# 'METfraction',
-         'zphi', 'METphi',
-        'zmass'
-    ]
+        'jet1pt', 'jet1abseta', 'jet2pt',  'zpt', 'ptbalance', 'mpf', 'mpf-raw', 
+        'METpt', 'zmass'
+         ]
 
     x_quantities = ['alpha',
-        'jet1pt', 'npv', 'jet1eta', 'jet1phi',# 'jet2pt', 'jet2eta', 'jet2phi',
-        'zpt',# 'zeta', 'zphi', 
-        'METpt',# 'METphi',# 'sumEt', 'jetsvalid',
-       
+        'jet1pt', 'npv', 'jet1eta',
+        'zpt',
+        
     ]
 
     objects = ['z', 'jet1', 'jet2', 'MET']
@@ -1008,27 +998,6 @@ def AddQuantityPlots(config, algos, forIncut=True, forAllevents=False, forIncutV
                         for y in y_quantities:
                             if x is not y:
                                 AddGenericProfileConsumer(x,y)
-
-                        #AddGenericProfileConsumer(x, "jetptratio", jets=[algo, algo, 0, 1])
-                        #AddGenericProfileConsumer(x, "jetptabsdiff", jets=[algo, algo, 0, 1])
-
-                    #for y in y_quantities:
-                        #AddGenericProfileConsumer("jetptratio", y, jets=[algo, algo, 0, 1])
-                        #AddGenericProfileConsumer("jetptabsdiff", y, jets=[algo, algo, 0, 1])
-                        #AddAbsDiff("eta", y, 'jet1', 'z')
-
-                    """for obj1 in objects:
-                        for obj2 in objects:
-                            if obj1 is not obj2:
-                                AddAbsDiff("eta", 'ptbalance', obj1, obj2)
-                                for quantity in ['ptbalance', 'mpf', 'mpf-raw', 'zpt', 'METpt', 'jet1pt', 'alpha']:
-                                    AddAbsDiff("phi", quantity, obj1, obj2)"""
-                else:
-                    for x in ['alpha',
-                        'jet1chargedemfraction', 'jet1neutralhadfraction', 'jet1chargedhadfraction',
-                        'jet1HFhadfraction', 'jet1HFemfraction', 'jet1photonfraction', 'jet1electronfraction']:
-                        AddGenericProfileConsumer(x,'ptbalance')
-                        AddGenericProfileConsumer(x,'mpf')
 
 def Add2DHistograms(config, algos, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
     for algo in algos:
