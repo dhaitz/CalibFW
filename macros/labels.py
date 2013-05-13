@@ -201,7 +201,7 @@ def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
     print "Please use axislabels instead of axislabel_2d."
     return axislabels(ax, x_q, y_q, brackets)
 
-def axislabels(ax, x='z_pt', y='events', brackets=False, labels=['','']):
+def axislabels(ax, x='zpt', y='events', brackets=False, labels=['','']):
     """same as the old version, but can handle and and y axis indpendetly
 
        new idea: improve automatic scaling:

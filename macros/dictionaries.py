@@ -31,6 +31,7 @@ d_axes={
         'eventcount':[0, 1.1, r"Eventcount", ""],
         'extrapol':[0.86, 1.04, r"Response", ""],
         'filters': [-0.5, 12.5, r"Filters", ""],
+        'flavourfrc': [0.0, 1.0, r"Flavour fraction", ""],
         'genalpha':[0, 0.4, r"$p_\mathrm{T}^\mathrm{GenJet 2}/p_\mathrm{T}^\mathrm{GenZ}$", ""],
         'genbal-tobalparton':[0.501, 1.501, r"Parton Response $p_\mathrm{T}^\mathrm{GenJet}/p_\mathrm{T}^\mathrm{Parton}$", ""],
         'genbal-toparton':[0.501, 1.501, r"Parton Response $p_\mathrm{T}^\mathrm{GenJet}/p_\mathrm{T}^\mathrm{Parton_1}$", ""],

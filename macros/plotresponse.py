@@ -243,6 +243,7 @@ def plotkfsr(files, opt, method='balresp', label=None,
 
 
 def labelformat(label):
+    result = ""
     if 'balresp' in label:
         result = "$p_{\mathrm{T}}$ balance"
     elif 'mpfresp' in label:
@@ -300,16 +301,16 @@ def response_npv(files, opt):
 def response_eta(files, opt):
     responseplot(files, opt, ['balresp', 'mpfresp', 'recogen'], over='jet1eta', legloc='lower left')
 
-def balflavors(files, opt):
+def balflavours(files, opt):
     responseplot(files, opt, ['balgluon', 'baluds', 'balc', 'balb'])
 
-def mpfflavors(files, opt):
+def mpfflavours(files, opt):
     responseplot(files, opt, ['mpfgluon', 'mpfuds', 'mpfc', 'mpfb'])
 
-def balflavors_eta(files, opt):
+def balflavours_eta(files, opt):
     responseplot(files, opt, ['balgluon', 'baluds', 'balc', 'balb'], over='jet1eta')
 
-def mpfflavors_eta(files, opt):
+def mpfflavours_eta(files, opt):
     responseplot(files, opt, ['mpfgluon', 'mpfuds', 'mpfc', 'mpfb'], over='jet1eta')
 
 def bal_eta(files, opt):
