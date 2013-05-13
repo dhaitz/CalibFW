@@ -113,6 +113,53 @@ public:
 				(pdg == 1 || pdg == 2 || pdg == 3 || pdg == 4 || pdg == 5 || pdg == 6);
 		}
 
+		KDataLV* matched_genjet = NULL;
+		if (m_respType == RecoGen || (m_respType == FlavourRecoGen && goodflavour))
+		{
+			if (m_jetnum >= metaData.GetValidJetCount(set, event, genName)
+					|| m_jetnum >= metaData.GetValidJetCount(set, event))
+				return;
+
+			// function GetMatchedJet(genname)
+			if (metaData.m_matchingResults.find(genName) == metaData.m_matchingResults.end())
+				return;
+			std::vector<int> const& matchList = metaData.m_matchingResults.at(genName);
+			int recojetnum = m_jetnum;
+			if (m_respType == FlavourRecoGen)
+				recojetnum = 0;
+
+			if (unlikely(recojetnum >= matchList.size()))
+			{
+				CALIB_LOG("\nJetnum: " << recojetnum << ">= listsize: " << matchList.size()
+					<< ", Matchlist: " << matchList)
+				CALIB_LOG("nGenJets: " << metaData.GetValidJetCount(set, event, genName)
+					<< ", nPFJets: " << metaData.GetValidJetCount(set, event))
+				for (int i = 0; i < metaData.GetValidJetCount(set, event, genName); i++)
+					CALIB_LOG("Gen" << i << ": " << *metaData.GetValidJet(set, event, i, genName))
+
+				for (int i = 0; i < metaData.GetValidJetCount(set, event); i++)
+					CALIB_LOG("PF" << i << ": " << *((KDataPFJet*) metaData.GetValidJet(set, event, i)))
+
+				CALIB_LOG("Reco to gen matching: Not enough jets (looking for jet_"
+					<< recojetnum << " but only " << matchList.size() << " jet(s) are matched)!")
+				return;
+			}
+			int iMatchedGen = matchList.at(recojetnum);
+			if (iMatchedGen <= -1)
+			{
+				if (unlikely(recojetnum < 0)) // that happens very often for 2nd jet and leading vbf jets!
+					CALIB_LOG("Reco to gen matching: No gen jet matches jet_" << recojetnum)
+				return;
+			}
+			if (iMatchedGen >= metaData.GetValidJetCount(set, event, genName))
+			{
+				CALIB_LOG_FATAL("Reco to gen matching: No reference gen jet found! "
+					<< iMatchedGen <<" >= " << metaData.GetValidJetCount(set, event, genName))
+				return;
+			}
+			matched_genjet = metaData.GetValidJet(set, event, iMatchedGen, genName);
+		}
+
 		if (m_respType == Balance)
 		{
 			if (m_jetnum >= metaData.GetValidJetCount(set, event)
@@ -124,48 +171,10 @@ public:
 
 		else if (m_respType == RecoGen)
 		{
-			if (m_jetnum >= metaData.GetValidJetCount(set, event, genName)
-					|| m_jetnum >= metaData.GetValidJetCount(set, event))
+			if (matched_genjet == NULL)
 				return;
-
-			// function GetMatchedJet(genname)
-			if (metaData.m_matchingResults.find(genName) == metaData.m_matchingResults.end())
-				return;
-			std::vector<int> const& matchList = metaData.m_matchingResults.at(genName);
-
-			if (unlikely(m_jetnum >= matchList.size()))
-			{
-				CALIB_LOG("\nJetnum: " << m_jetnum << ">= listsize: " << matchList.size()
-					<< ", Matchlist: " << matchList)
-				CALIB_LOG("nGenJets: " << metaData.GetValidJetCount(set, event, genName)
-					<< ", nPFJets: " << metaData.GetValidJetCount(set, event))
-				for (int i = 0; i < metaData.GetValidJetCount(set, event, genName); i++)
-					CALIB_LOG("Gen" << i << ": " << *metaData.GetValidJet(set, event, i, genName))
-
-				for (int i = 0; i < metaData.GetValidJetCount(set, event); i++)
-					CALIB_LOG("PF" << i << ": " << *((KDataPFJet*) metaData.GetValidJet(set, event, i)))
-
-				CALIB_LOG("Reco to gen matching: Not enough jets (looking for jet_"
-					<< m_jetnum << " but only " << matchList.size() << " jet(s) are matched)!")
-				return;
-			}
-			int iMatchedGen = matchList.at(m_jetnum);
-			if (iMatchedGen <= -1)
-			{
-				if (unlikely(m_jetnum < 0)) // that happens very often for 2nd jet and leading vbf jets!
-					CALIB_LOG("Reco to gen matching: No gen jet matches jet_" << m_jetnum)
-				return;
-			}
-			if (iMatchedGen >= metaData.GetValidJetCount(set, event, genName))
-			{
-				CALIB_LOG_FATAL("Reco to gen matching: No reference gen jet found! "
-					<< iMatchedGen <<" >= " << metaData.GetValidJetCount(set, event, genName))
-				return;
-			}
-			KDataLV* genjet = metaData.GetValidJet(set, event, iMatchedGen, genName);
 			KDataLV* jet = metaData.GetValidJet(set, event, m_jetnum);
-			assert(genjet !=NULL);
-			m_histo->Fill(metaData.GetBalance(jet, genjet), metaData.GetWeight());
+			m_histo->Fill(metaData.GetBalance(jet, matched_genjet), metaData.GetWeight());
 		}
 
 		else if (m_respType == GenBalance)
