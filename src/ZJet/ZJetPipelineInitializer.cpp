@@ -30,7 +30,7 @@
 #include "ZJet/Filter/ResponseFilter.h"
 #include "ZJet/Filter/DeltaEtaFilter.h"
 #include "ZJet/Filter/JetPtFilter.h"
-#include "ZJet/Filter/FlavorFilter.h"
+#include "ZJet/Filter/FlavourFilter.h"
 
 using namespace CalibFW;
 
@@ -70,8 +70,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddFilter( new DeltaEtaFilter);
 			else if ( sid == JetPtFilter().GetFilterId())
 				pLine->AddFilter( new JetPtFilter);
-			else if ( sid == FlavorFilter().GetFilterId())
-				pLine->AddFilter( new FlavorFilter);
+			else if ( sid == FlavourFilter().GetFilterId())
+				pLine->AddFilter( new FlavourFilter);
 			else
 				CALIB_LOG_FATAL( "Filter " << sid << " not found." )
 		}
@@ -190,7 +190,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			if (pset.IsMC())
 			{
 				pLine->AddConsumer(new GenZTwoDConsumer(pset.GetJetAlgorithm()));
-				pLine->AddConsumer(new FlavorConsumer());
+				pLine->AddConsumer(new FlavourConsumer());
 				std::string genName = JetType::GetGenName(pset.GetJetAlgorithm());
 				//pLine->AddConsumer( new BasicTwoDConsumer( genName ));
 				pLine->AddConsumer(new GenMetadataConsumer());
@@ -209,7 +209,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			pLine->AddConsumer(new PrimaryVertexConsumer());
 			if (pset.IsMC())
 			{
-				pLine->AddConsumer(new FlavorConsumer());
+				pLine->AddConsumer(new FlavourConsumer());
 			}
 			if (JetType::IsPF(pset.GetJetAlgorithm()))
 			{

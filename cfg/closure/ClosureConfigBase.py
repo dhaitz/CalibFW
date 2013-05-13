@@ -413,7 +413,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
                 if high is None:
                     foldername = foldername.replace("to{high}", "")
                     newpipe["Filter" + filtername] = l
-                    if filtername == "Flavor":
+                    if filtername == "Flavour":
                         l = {1:"u", 2:"d", 3:"s", 4:"c", 5:"b", 6:"t", 21:"g", 123: "uds", 123456:"q"}[l]
                 else:
                     newpipe["Filter" + filtername + "Low"] = l
@@ -613,53 +613,53 @@ def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False):
                 'ProductName': "genquality_" + algo,
                 'ResponseType': "quality",
             },
-            # Flavor responses, JetNumber is misused as flavor
+            # flavour responses, JetNumber is misused as flavour
            'bin_gluonbal_response': {
                 'Name': "bin_response",
                 'ProductName': "balgluon_" + algo,
-                'ResponseType': "flavorbal",
+                'ResponseType': "flavourbal",
                 'JetNumber': 21,
             },
            'bin_udsbal_response': {
                 'Name': "bin_response",
                 'ProductName': "baluds_" + algo,
-                'ResponseType': "flavorbal",
+                'ResponseType': "flavourbal",
                 'JetNumber': 123,
             },
            'bin_cbal_response': {
                 'Name': "bin_response",
                 'ProductName': "balc_" + algo,
-                'ResponseType': "flavorbal",
+                'ResponseType': "flavourbal",
                 'JetNumber': 4,
             },
            'bin_bbal_response': {
                 'Name': "bin_response",
                 'ProductName': "balb_" + algo,
-                'ResponseType': "flavorbal",
+                'ResponseType': "flavourbal",
                 'JetNumber': 5,
             },
            'bin_gluonmpf_response': {
                 'Name': "bin_response",
                 'ProductName': "mpfgluon_" + algo,
-                'ResponseType': "flavormpf",
+                'ResponseType': "flavourmpf",
                 'JetNumber': 21,
             },
            'bin_udsmpf_response': {
                 'Name': "bin_response",
                 'ProductName': "mpfuds_" + algo,
-                'ResponseType': "flavormpf",
+                'ResponseType': "flavourmpf",
                 'JetNumber': 123,
             },
            'bin_cmpf_response': {
                 'Name': "bin_response",
                 'ProductName': "mpfc_" + algo,
-                'ResponseType': "flavormpf",
+                'ResponseType': "flavourmpf",
                 'JetNumber': 4,
             },
            'bin_bmpf_response': {
                 'Name': "bin_response",
                 'ProductName': "mpfb_" + algo,
-                'ResponseType': "flavormpf",
+                'ResponseType': "flavourmpf",
                 'JetNumber': 5,
             },
         }

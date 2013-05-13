@@ -616,7 +616,7 @@ private:
 	Hist1D* m_invalid;
 };
 
-class FlavorConsumer: public ZJetMetaConsumer
+class FlavourConsumer: public ZJetMetaConsumer
 {
 public:
 
@@ -625,10 +625,10 @@ public:
 	{
 		ZJetMetaConsumer::Init(pset);
 
-		m_flavor = new Hist1D("flavor_" + this->GetPipelineSettings().GetJetAlgorithm(),
+		m_flavour = new Hist1D("flavour_" + this->GetPipelineSettings().GetJetAlgorithm(),
 				GetPipelineSettings().GetRootFileFolder(),
 				Hist1D::GetCountModifier(25, -1));
-		AddPlot(m_flavor);
+		AddPlot(m_flavour);
 
 	}
 
@@ -639,11 +639,11 @@ public:
 		int pdg = std::abs(metaData.GetBalancedParton().pdgId());
 		if (pdg > 25)
 			pdg = -1;
-		m_flavor->Fill(pdg, metaData.GetWeight());
+		m_flavour->Fill(pdg, metaData.GetWeight());
 	}
 
 private:
-	Hist1D* m_flavor;
+	Hist1D* m_flavour;
 };
 
 
