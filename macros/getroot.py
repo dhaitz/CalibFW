@@ -29,6 +29,8 @@ import os
 import array
 import numpy as np
 
+ROOT.PyConfig.IgnoreCommandLineOptions = True #prevents Root from reading argv
+
 # converts a integer list of bins [1, 30, 70] to a
 # string representation ["Pt1to30", "Pt30to70"]
 def binstrings(bins):

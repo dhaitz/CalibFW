@@ -20,7 +20,7 @@ import argparse
 import math
 
 
-from ROOT import gROOT
+from ROOT import gROOT, PyConfig
 
 import getroot
 import plotrc
@@ -29,6 +29,8 @@ import plot2d
 import plotresponse
 from labels import *
 
+PyConfig.IgnoreCommandLineOptions = True #prevents Root from reading argv
+gROOT.SetBatch(True)
 
 def plot(modules, plots, datamc, op):
     """Search for plots in the module and run them."""
