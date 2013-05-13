@@ -79,6 +79,10 @@ public:
 			m_respType = FlavourBal;
 		else if (sType == "flavourmpf")
 			m_respType = FlavourMpf;
+		else if (sType == "flavourgenbal")
+			m_respType = FlavourGenBal;
+		else if (sType == "flavourrecogen")
+			m_respType = FlavourRecoGen;
 		else
 			CALIB_LOG_FATAL("Unknown Response type " << sType << "!");
 	}
@@ -328,6 +332,14 @@ public:
 			KDataLV* genjet = metaData.GetValidJet(set, event, 0, genName);
 			assert(genjet != NULL);
 			m_histo->Fill(metaData.GetGenBalance(genjet), metaData.GetWeight());
+		}
+
+		else if (m_respType == FlavourRecoGen && goodflavour)
+		{
+			if (matched_genjet == NULL)
+				return;
+			KDataLV* jet = metaData.GetValidJet(set, event, 0);
+			m_histo->Fill(metaData.GetBalance(jet, matched_genjet), metaData.GetWeight());
 		}
 
 		else
