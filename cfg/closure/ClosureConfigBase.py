@@ -381,7 +381,8 @@ def ExpandRange2(pipelines, filtername, low, high=None,
                  includeSource=False, onlyOnIncut=True,
                  alsoForPtBins=True,
                  onlyForNocuts=False,
-                 onlyBasicQuantities = True):
+                 onlyBasicQuantities = True,
+                 forAlleta=False):
     """Add pipelines with values between low and high for filtername
 
     This only works if the filter is lowercase and it uses two variables
@@ -393,7 +394,9 @@ def ExpandRange2(pipelines, filtername, low, high=None,
         if (subdict["Level"] == 1
                 and (not onlyOnIncut or "incut" in subdict["RootFileFolder"]) 
                 and (alsoForPtBins or "NoBinning_incut" in subdict["RootFileFolder"])
-                and (not onlyForNocuts or 'allevents' in subdict["RootFileFolder"]) ):
+                and (not onlyForNocuts or 'allevents' in subdict["RootFileFolder"])
+                or (forAlleta and 'alleta' in subdict["RootFileFolder"])
+                ):
 
             for l, h in zip(low, high or low):
                 # copy existing pipeline (subdict) and modify it
