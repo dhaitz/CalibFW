@@ -94,24 +94,15 @@ public:
 		else
 			corr = corr.substr(std::max(corr.find("Jets") + 4, corr.find("CHS") + 3), std::string::npos);
 
-		if (corr == "" || corr == "L1")
-			return m_pfMet;
-		else if (corr == "L1L2" || corr == "L1L2L3") // || (corr == "L1L2L3Res" && psettings.IsMC())
-			return m_pfMetL2L3;
-		else if (corr == "L1L2L3Res") // && psettings.IsData())
-			return m_pfMetL2L3Res;
 
-		else if (corr == "CHS" || corr == "CHSL1")
+        if (std::string::npos != corr.find("CHS"))
 			return m_pfMetChs;
-		else if (corr == "CHSL1L2" || corr == "CHSL1L2L3")
-			return m_pfMetChsL2L3;
-		else if (corr == "CHSL1L2L3Res")
-			return m_pfMetChsL2L3Res;
+        else
+			return m_pfMet;
 
 		CALIB_LOG_FATAL("The correction level \"" << corr << "\" for MET is unknown.");
 		return NULL;
 	}
-
 
 	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
 			unsigned int index) const

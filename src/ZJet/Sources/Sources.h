@@ -583,7 +583,7 @@ public:
 	bool GetValue(ZJetEventData const& event, ZJetMetaData const& metaData,
 			ZJetPipelineSettings const& settings, double & val) const
 	{
-		val = metaData.GetMPF(event.m_pfMet);
+		val = metaData.GetMPF(event.GetMet(settings));
 		return true;
 	}
 };

@@ -21,6 +21,7 @@ public:
 		std::string algoname_raw;
 		KDataPFMET * rawmet;
 		std::vector<std::string> algorithms;
+        float sumEt_correction;
 
 		//check if CHS or no CHS
 		if (std::string::npos == m_basealgorithms[i].find("chs"))
@@ -52,14 +53,15 @@ public:
 				if (corrjet->p4.Pt() > 10)
 				{
 					KDataPFJet * l1jet = &metaData.m_validPFJets.at(algoname_l1).at(i);
-					correction.p4 = correction.p4 - corrjet->p4 + l1jet->p4;
-
+					correction.p4 +=  l1jet->p4 - corrjet->p4;
+                    sumEt_correction += correction.p4.Pt();
 				}
 			}
 
 			KDataPFMET corrmet;
 			corrmet.p4 = rawmet->p4 + correction.p4;
 			corrmet.p4.SetEta(0.0f);
+			corrmet.sumEt = rawmet->sumEt + sumEt_correction;
 
 			//apply MET-phi-corrections
 			if (metphi)
