@@ -49,7 +49,7 @@ def plot(cluster=False):
         colors=['black', '#CBDBF9','#800000', 'blue', '#00FFFF'],
         style=["o","f","-","-","-"],
         
-        lumi=19490,
+        lumi=19790,
 
         plots= plotresponse.plots
                +plotfractions.plots
