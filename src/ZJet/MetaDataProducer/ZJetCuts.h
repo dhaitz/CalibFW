@@ -201,8 +201,8 @@ public:
 		KDataLV* jet2 = metaData.GetValidJet(m_pipelineSettings, data, 1);
 
 		localMetaData.SetCutResult(this->GetId(),
-			metaData.GetBalance(jet2, metaData.GetPtKindZ(m_pipelineSettings.GetGenCuts()))
-				< m_pipelineSettings.GetCutSecondLeadingToZPt());
+			(metaData.GetBalance(jet2, metaData.GetPtKindZ(m_pipelineSettings.GetGenCuts()))
+				< m_pipelineSettings.GetCutSecondLeadingToZPt()) || (jet2->p4.Pt() < m_pipelineSettings.GetCutLeadingJetPt()));
 	}
 
 	unsigned long GetId() const { return SecondLeadingToZPtCut::CutId; }
