@@ -154,7 +154,7 @@ def SetMcSpecific(cfg, run='2012'):
     elif run == '2012':
         cfg['Jec'] = GetBasePath() + "data/jec_data/Summer13_V5_MC"
         cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
-        ApplyPUReweighting(cfg, 'kappa534_MC12_madgraph_190456-208686_8TeV_CombinedReco')
+        ApplyPUReweighting(cfg, 'kappa539_MC12_madgraph_190456-208686_8TeV_22Jan2013ReReco')
     else:
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
@@ -191,7 +191,7 @@ def SetDataSpecific(cfg, run='2012'):
     elif run == '2012':
         cfg['Jec'] = GetBasePath() + "data/jec_data/Summer13_V5_DATA"
         cfg['MetPhiCorrectionParameters'] = [0.2661, 0.3217, -0.2251, -0.1747]
-        cfg['JsonFile'] = GetBasePath() + "data/json/Cert_190456-208686_8TeV_CombinedReco_Collisions12_JSON.txt"
+        cfg['JsonFile'] = GetBasePath() + "data/json/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt"
         cfg['HltPaths'] = [
             "HLT_Mu17_Mu8_v1", "HLT_Mu17_Mu8_v2", "HLT_Mu17_Mu8_v3", "HLT_Mu17_Mu8_v4", "HLT_Mu17_Mu8_v5",
             "HLT_Mu17_Mu8_v6", "HLT_Mu17_Mu8_v7", "HLT_Mu17_Mu8_v8", "HLT_Mu17_Mu8_v9", "HLT_Mu17_Mu8_v10",
