@@ -272,6 +272,30 @@ def GetCuts(analysis='zjet'):
     return cuts[analysis]
 
 
+def treeconfig(conf):
+    for p, pval in conf["Pipelines"].items():
+        pval['QuantitiesVector'] = ["zpt", "zeta", "zphi", "zmass", "npv", "rho",
+                 "run", "weight", "jet1pt", "jet1eta", "jet1phi", "mpf", "rawmpf",
+                 "METpt", "METphi", "rawMETpt", "rawMETphi", "sumEt", "jet1photonfraction",
+                 "jet1chargedemfraction", "jet1chargedhadfraction", "jet1neutralhadfraction",
+                 "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
+                 "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta"]
+
+        if conf['InputType'] == 'mc':
+            pval['QuantitiesVector'] += ["genjet1pt","genjet2pt","flavour",
+                                                   "matchedgenjet1pt", "genmpf"]
+        pval['Cuts'].remove("leadingjet_eta")
+        pval['Cuts'].remove("secondleading_to_zpt")
+
+        pval['QuantitiesString'] = ":".join(pval['QuantitiesVector'])
+        pval['Treename'] = pval['RootFileFolder'][10:]
+        pval['RootFileFolder'] = ""
+        RemoveConsumer(pval, "quantities_all")
+
+        AddConsumerNoConfig(pval, "tree")
+    return conf
+
+
 def ApplyPUReweighting(conf, dataset, weightfile="data/pileup/puweights.json"):
     """Use pile-up reweighting.
 
