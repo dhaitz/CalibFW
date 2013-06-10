@@ -214,13 +214,13 @@ def GetCuts(analysis='zjet'):
         'zjet': {
             'GenCuts': False,
             'Cuts': [
-                'muon_eta',
-                'muon_pt',
+                'secondleading_to_zpt',
                 'zpt',
-                'zmass_window',
                 'leadingjet_pt',
                 'leadingjet_eta',
-                'secondleading_to_zpt',
+                'muon_eta',
+                'muon_pt',
+                'zmass_window',
                 'back_to_back',
             ],
             'CutMuonEta': 2.3,
