@@ -15,19 +15,46 @@ def twoD_all(quantity, datamc, opt):
             twoD(quantity, datamc, opt, changes=change, folder=variation_quantity)
 
 
-# Main 2d Plotting function:
-def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, rebin=[4,4],
-           file_name = "", subplot=False, subtext="", fig_axes=(),
-             xy_names=None, normalize=True, folder=None, axtitle=None,
-            x_limits=None, y_limits=None):
+# Main 2d Plotting module
+def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
 
-    change= plotbase.getchanges(opt, changes)
-    #change['incut'] = 'alleta'
+    # if no settings are given, create:
+    settings = plotbase.getsettings(opt, changes, settings, quantity)   
+    print "A %s plot is created with the following selection: %s" % (quantity, 
+                                                          settings['selection'])
 
-    #datamc = [getroot.getplotfromnick(quantity, f, change, rebin) for f in files]
+    settings['legloc'] = None
 
-    datamc=[getroot.getplotfromtree(quantity[3:], f, change,
-                                        rebin, twoD=True) for f in files]
+    datamc, rootobjects = [], []
+    settings['events'] = []
+    for f in files:
+        rootobjects += [getroot.getobjectfromtree(quantity, f, settings, twoD=True)]
+        rootobjects[-1].Sumw2()
+        rootobjects[-1].Rebin2D(settings['rebin'], settings['rebin'])
+        datamc += [getroot.root2histo(rootobjects[-1], f.GetName(), [1, 1])]
+        settings['events'] += [datamc[-1].ysum()]
+
+    if settings['ratio'] and len(datamc)==2:
+        print "hallo"
+        scaling_factor = datamc[0].binsum() / datamc[1].binsum()
+        rootobjects[1].Scale(scaling_factor)
+        rootobjects[0].Divide(rootobjects[1])
+        rootobjects = [rootobjects[0]]       
+        datamc = [getroot.root2histo(rootobjects[0], f.GetName(), [1, 1])]
+
+    if len(quantity.split("_")) == 2:
+        # normalize to the same number of events
+        if len(datamc) > 1 and settings['normalize']:
+            for d in datamc[1:]:
+                if d.binsum() > 0.0 and datamc[0].binsum() > 0:
+                    d.scale(datamc[0].binsum() / d.binsum() )
+        z_name = 'Events'
+        if settings['z'] is None:
+            settings['z'] = [0, np.max(datamc[0].BinContents)]
+    else:
+        if settings['z'] is None:
+            settings['z'] = plotbase.getaxislabels_list(quantity.split("_")[0])[:2]
+        z_name = quantity.split("_")[0]
     
     # special dictionary for z-axis scaling (do we need this??)
     # 'quantity':[z_min(incut), z_max(incut), z_min(allevents), z_max(allevents)]
@@ -41,37 +68,8 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
     }
 
     #determine plot type: 2D Histogram or 2D Profile, and get the axis properties
-    names = quantity[3:].split('_')
 
-    if len(names) == 3:
-        xy_names = names[1:3]
-        #xy_names.reverse()
-        z_name = names[0]
-        if z_name in z_dict:
-            if 'incut' in changes and changes['incut']=='allevents':
-                z_min = z_dict[z_name][2]
-                z_max = z_dict[z_name][3]
-            else:
-                z_min = z_dict[z_name][0]
-                z_max = z_dict[z_name][1]
-            labels_list = plotbase.getaxislabels_list(z_name)
-            z_name = plotbase.unitformat(labels_list[2], labels_list[3])
-        else:
-            labels_list = plotbase.getaxislabels_list(z_name)
-            z_min = labels_list[0]
-            z_max = labels_list[1]
-            z_name = labels_list[2]
-    elif len(names) == 2:
-        # normalize to the same number of events
-        if len(datamc) > 1:
-            for d in datamc[1:]:
-                if d.binsum() > 0.0: d.scale(datamc[0].binsum() / d.binsum() )
-        xy_names = names
-        z_name = 'Events'
-        z_min = 0.0
-        z_max = np.max(datamc[0].BinContents)
-
-    if subplot==True:
+    if settings['subplot']==True:
         fig = fig_axes[0]
         grid = [fig_axes[1]]
     else: 
@@ -88,12 +86,9 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
                         cbar_mode='single',
                         )
 
-    for plot, label, ax in zip(datamc, opt.labels, grid):
-
-        if axtitle is not None:
-            ax.set_title(axtitle)
-        else:
-            ax.set_title(label)
+       
+    for plot, label, ax in zip(datamc, settings['labels'], grid):
+        ax.set_title(label)
 
         cmap1 = matplotlib.cm.get_cmap('jet')
         image = ax.imshow(plot.BinContents,
@@ -102,20 +97,22 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
             origin='lower',
             aspect = 'auto',
             extent = [plot.xborderlow, plot.xborderhigh, plot.yborderlow, plot.yborderhigh],
-            vmin=z_min,
-            vmax=z_max)
+            vmin=settings['z'][0],
+            vmax=settings['z'][1])
 
         # labels:
-        if 'data' not in label: mc = True
+        """if 'data' not in label: mc = True
         else: mc = False
         if not subplot: plotbase.labels(ax, opt, legloc=False, frame=True, changes=change, jet=False,
                                         sub_plot=subplot, mc=mc, color='white', energy_label=(not subplot))
+        """
+ 
+        plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1], 
+                                                            settings=settings)
+        plotbase.labels(ax, opt, settings, settings['subplot'])
+        plotbase.setaxislimits(ax, settings)
 
-        plotbase.axislabels(ax, xy_names[0], xy_names[1])
-    if x_limits is not None: ax.set_xlim(x_limits[0], x_limits[1])
-    if y_limits is not None: ax.set_ylim(y_limits[0], y_limits[1])
-
-    if subplot: return
+    if settings['subplot']: return
 
     #add the colorbar
     cb = fig.colorbar(image, cax = grid.cbar_axes[0], ax=ax)
@@ -123,13 +120,9 @@ def twoD(quantity, files, opt, legloc='center right', changes={}, log=False, reb
 
 
     # create filename + folder
-    file_name = plotbase.getdefaultfilename(quantity, opt, change)
-    if folder is not None:
-        file_name = quantity+"/"+folder+"/"+file_name
-        plotbase.EnsurePathExists(opt.out+"/"+quantity)
-        plotbase.EnsurePathExists(opt.out+"/"+quantity+"/"+folder)
+    settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
 
-    plotbase.Save(fig, file_name, opt)
+    plotbase.Save(fig, settings['filename'], opt)
 
 
 

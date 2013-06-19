@@ -64,7 +64,7 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
         intercept -= offset
 
         # fit line:
-        line_fit = ax.plot(limits,[(intercept+limits[0]*slope)*scalefactor, 
+        line_fit = ax.plot(limits[:2],[(intercept+limits[0]*slope)*scalefactor, 
             (intercept+limits[1]*slope)*scalefactor], color = color, linestyle='--')
 
         # insert a (0, 0) bin because the conf_intervals list also contains an additional (0., conf)-point
@@ -117,14 +117,13 @@ def fitline2(rootgraph, quadratic=False, gauss=False, limits = [0, 1000]):
     if 'Profile' in rootgraph.ClassName():
         rootgraph.Approximate() # call this function so zero-error (one entry) bins don't distort the fit
     if quadratic:
-        fitf = ROOT.TF1("fit1", "1*[0]+x*[1]+x*x*[2]", *limits)
+        f = "1*[0]+x*[1]+x*x*[2]"
     elif gauss:
-        fitf = ROOT.TF1("fit1", "gaus", *limits)
+        f = "gaus"
     else:
-        fitf = ROOT.TF1("fit1", "1*[0]+x*[1]", *limits)
+        f = "1*[0]+x*[1]"
+    fitf = ROOT.TF1("fit1", f, *limits)
     fitres = rootgraph.Fit(fitf,"SQN")
-    if 'Profile' in rootgraph.ClassName():
-        rootgraph.Approximate(0)
     #Get conf intervals as an array and then convert to list
     points = []
     for n in range(1, rootgraph.GetSize() - 1):

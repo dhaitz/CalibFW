@@ -15,8 +15,16 @@ import matplotlib
 import matplotlib.pyplot as plt
 from time import localtime, strftime, clock
 import argparse
+import inspect
 import math
 from ROOT import gROOT, PyConfig
+PyConfig.IgnoreCommandLineOptions = True #prevents Root from reading argv
+gROOT.SetBatch(True)
+
+# include the 'tools' subfolder:
+cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(
+                        inspect.getfile( inspect.currentframe() ))[0],"tools")))
+if cmd_subfolder not in sys.path: sys.path.insert(0, cmd_subfolder)
 
 import plotrc
 import plotdatamc
@@ -29,11 +37,8 @@ import plot_sandbox
 
 import getroot
 from labels import *
-from dictionaries import default_settings
 from fit import *
 
-PyConfig.IgnoreCommandLineOptions = True #prevents Root from reading argv
-gROOT.SetBatch(True)
 
 def plot(modules, plots, datamc, op):
     """Search for plots in the module and run them."""
@@ -43,7 +48,7 @@ def plot(modules, plots, datamc, op):
     whichfunctions = []
     remaining_plots = copy.deepcopy(plots)
     for module in modules:
-        print "Doing plots in", module.__name__, "..."
+        #print "Doing plots in", module.__name__, "..."
         if op.verbose:
             print "%1.2f | Start plotting" % clock()
         if not plots:
@@ -51,6 +56,7 @@ def plot(modules, plots, datamc, op):
             plots = []
         for p in plots:
             if hasattr(module, p):    #plot directly as a function
+                print "Doing %s in %s" % (p, module.__name__)
                 getattr(module, p)(datamc, op)
                 remaining_plots.remove(p)
             elif module == plotdatamc and p in d_plots:    #if no function available, try dictionary
@@ -63,7 +69,7 @@ def plot(modules, plots, datamc, op):
             print "%1.2f | End" % clock()
     # remaining plots are given to the function_selector
     if len(remaining_plots) > 0:
-        print "Doing remaining plots ..."
+        print "Doing remaining plots via function selector..."
         function_selector(remaining_plots, datamc, op)
 
     # check whether the options have changed and warn
@@ -83,20 +89,22 @@ def plot(modules, plots, datamc, op):
 def function_selector(plots, datamc, opt):
     for plot in plots:
         if '2D' in plot:
-            plot2d.twoD(plot, datamc, opt)
+            plot2d.twoD(plot[3:], datamc, opt)
         elif "_all" in plot:
             plotdatamc.datamc_all(plot[:-4], datamc, opt)
-        elif 'responseratio' in plot:
-            plot = plot.replace('bal','balresp')
+
+        # for responseratio-plots
+        elif 'responseratio' in plot and len(plot.split('_'))>2:
+            #plot = plot.replace('bal','balresp')
             plotresponse.responseratio(datamc, opt, 
                             types=plot.split('_responseratio_')[0].split('_'),
                             over=plot.split('_responseratio_')[1])
-        elif 'response' in plot:
+        elif 'response' in plot and len(plot.split('_'))>2:
             plot = plot.replace('bal','balresp')
             plotresponse.responseplot(datamc, opt, 
                             types=plot.split('_response_')[0].split('_'),
                             over=plot.split('_response_')[1])
-        elif 'ratio' in plot:
+        elif 'ratio' in plot and len(plot.split('_'))>2:
             plot = plot.replace('bal','balresp')
             plotresponse.ratioplot(datamc, opt, 
                             types=plot.split('_ratio_')[0].split('_'),
@@ -107,119 +115,195 @@ def function_selector(plots, datamc, opt):
 
 def options(
             # standard values go here:
+
+            files=None,
+
+            plots=None,
+
             algorithm="AK5PFJetsCHS",
             correction="L1L2L3Res",
-            lumi=None,
+
+            out="out",
+            formats=['png'],
+
+            labels=["data", "MC"],
+            colors=['black', '#CBDBF9'],
+            markers=["o","f"],
+            lumi=19790,
             energy=8,
             status=None,
             author=None,
             date=None,
-            out="out",
-            labels=["data", "MC"],
-            colors=['black', '#CBDBF9'],
-            style=["o","f"],
-            formats=['png'],
             layout='generic',
-            files=None,
             title="",
-            plots=None,
+            eventnumberlabel=None,
+            legloc='center right',
+
+            rebin=5,
+            ratio=False,
+            fit=None,
+            filename=None,
+
             npv=[(0, 4), (5, 8), (9, 15), (16, 21), (22, 100)],
-            cut=[0.3, 0.35],
+            cut=[0.3],
             eta=[0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
             bins=[30, 40, 50, 60, 75, 95, 125, 180, 300, 1000],
-            settings=None,):
-    """Set standard options and read command line arguments
+    ):
+    """Set standard options and read command line arguments.
 
     To be turned into a class with str method and init
     """
+
     parser = argparse.ArgumentParser(
         description="%(prog)s does all the plotting.",
         epilog="Have fun.")
 
-    # input files with colors and labels
+    # input files
     parser.add_argument('files', metavar='file', type=str, nargs='*',
         default=files,
         help="data and Monte Carlo input root file(s). One data file and at " +
              "least one Monte Carlo file is assumed.")
-    parser.add_argument('-C', '--colors', type=str, nargs='+',
-        default=colors,
-        help="colors for the plots in the order of the files. Default is: "+
-             ", ".join(colors))
-    parser.add_argument('-k', '--labels', type=str, nargs='+',
-        default=labels,
-        help="labels for the plots in the order of the files. Default is: "+
-             ", ".join(labels))
-    parser.add_argument('-S', '--style', type=str, nargs='+',
-        default=style,
-        help="style for the plot in the order of the files. 'o' for points, '-' for lines, 'f' for fill. Default is: "+
-             ", ".join(style))
-    parser.add_argument('-p', '--pudist', type=str, nargs='+',
-        help="pile-up distributions")
+    #plots
+    parser.add_argument('-P', '--plots', type=str, nargs='+', default=plots,
+        help="do only this plot/these plots. " +
+             "The function names are required here.")
 
-    # lumi and energy settings
-    parser.add_argument('-a', '--algorithm', type=str,
-        default=algorithm,
-        help="jet algorithm")
 
-    parser.add_argument('-c', '--correction', type=str,
-        default=correction,
-        help="jet energy correction")
-    parser.add_argument('-l', '--lumi', type=float,
-        default=lumi,
-        help="luminosity for the given data in /pb")
-    parser.add_argument('-e', '--energy', type=int,
-        default=energy,
-        help="centre-of-mass energy for the given samples in TeV")
+    # source options
+    source = parser.add_argument_group('Source options')
+    source.add_argument('--selection', '-S', type=str,
+        default=None,
+        help='selection (cut) expression for C++ expressions are valid')
+    source.add_argument('--folder', type=str,
+        default='incut',
+        help="folder in rootfile: 'incut' or 'allevents'")
+    source.add_argument('--allalpha', action='store_true',
+        default=False,
+        help='Extend the alpha range up to 0.4')
+    source.add_argument('--alleta', action='store_true',
+        default=False,
+        help='Extend the eta range beyond 1.3')
+    source.add_argument('-a', '--algorithm', type=str,
+        default=algorithm, help="Jet algorithm. Default is %(default)s")
+    source.add_argument('-c', '--correction', type=str, default=correction,
+        help="Jet energy correction level. Default is %(default)s")
 
-    # plot decoration
-    parser.add_argument('-s', '--status', type=str,
-        default=status,
+
+    # more general options
+    general = parser.add_argument_group('General options')
+    general.add_argument('-r', '--rebin', type=int, default=rebin,
+        help="Rebinning value n")
+    general.add_argument('-R', '--ratio', action='store_true',
+        help="do a ratio plot from the first two input files")
+    general.add_argument('--ratiosubplot', action='store_true',
+        help="Add a ratio subplot")
+    general.add_argument('-F', '--fit', type=str, default=fit,
+        help="Do a fit. Options: vertical, chi2, gauss, slope, intercept")
+    general.add_argument('--extrapolation', type=str, default=False,
+        help='For response plots: Apply alpha-extrapolation. Possible values \
+              are bin or global')
+    general.add_argument('--run', type=str, default=False,
+        help='Some special options for runplots. Valid options are true or diff')
+    general.add_argument('--special_binning', action='store_true', default=False,
+        help='special binning for npv, zpt, eta')
+    general.add_argument('-n', '--normalize', action='store_false',
+        help="don't normalize Monte Carlo samples to the event count in data ")
+
+
+    # output settings
+    output = parser.add_argument_group('Output options')
+    output.add_argument('-o', '--out', type=str, default=out,
+        help="output directory for plots")
+    output.add_argument('-f', '--formats', type=str, nargs='+', default=formats,
+        help="output format for the plots.  Default is %(default)s")
+    output.add_argument('--filename', type=str, default=filename,
+        help='specify a filename')
+    output.add_argument('--root', type=str, default=False,
+        help="Name of the histogramm which is then saved into a root file")
+    output.add_argument('--save_individually', action='store_true',
+        default=False,
+        help='save each plot separately')
+
+
+    # plot labelling 
+    formatting = parser.add_argument_group('Formatting options')
+    formatting.add_argument('-l', '--lumi', type=float, default=lumi,
+        help="luminosity for the given data in /pb. Default is %(default)s")
+    formatting.add_argument('-e', '--energy', type=int, default=energy,
+        help="centre-of-mass energy for the given samples in TeV. \
+                                                       Default is %(default)s" )
+
+    formatting.add_argument('-s', '--status', type=str, default=status,
         help="status of the plot (e.g. CMS preliminary)")
-    parser.add_argument('-A', '--author', type=str,
-        default=author,
+    formatting.add_argument('-A', '--author', type=str, default=author,
         help="author name of the plot")
-    parser.add_argument('--date', type=str,
-        default=date,
+    formatting.add_argument('--date', type=str, default=date,
         help="show the date in the top left corner. 'iso' is YYYY-MM-DD, " +
              "'today' is DD Mon YYYY and 'now' is DD Mon YYYY HH:MM.")
-    # output and selection settings
-    parser.add_argument('-o', '--out', type=str,
-        default=out,
-        help="output directory for plots")
-    parser.add_argument('-f', '--formats', type=str, nargs='+',
-        default=formats,
-        help="output format for the plots")
-    parser.add_argument('-L', '--layout', type=str,
+    formatting.add_argument('-E', '--eventnumberlabel', action='store_true',
+        help="add event number label")
+    formatting.add_argument('-t', '--title', type=str, default=title,
+         help="plot title")
+    formatting.add_argument('-L', '--layout', type=str,
         default='generic',
         help="layout for the plots. E.g. 'document': serif, LaTeX, pdf; " +
              "'slides': sans serif, big, png; 'generic': slides + pdf. " +
              "This is not implemented yet.")
+    formatting.add_argument('-g', '--legloc', type=str, nargs="?", default=legloc,
+        help="Location of the legend. Default is %(default)s")
+    formatting.add_argument('--subtext', type=str, default=None,
+        help='Add subtext')
+    formatting.add_argument('-C', '--colors', type=str, nargs='+', default=colors,
+        help="colors for the plots in the order of the files. Default is: "+
+             ", ".join(colors))
+    formatting.add_argument('-k', '--labels', type=str, nargs='+', default=labels,
+        help="labels for the plots in the order of the files. Default is: "+
+             ", ".join(labels))
+    formatting.add_argument('-m', '--markers', type=str, nargs='+', default=markers,
+        help="style for the plot in the order of the files. 'o' for points, \
+              '-' for lines, 'f' for fill. Default is: %s" % ", ".join(markers))
+    formatting.add_argument('--text', type=str,
+        default=None,
+        help='Place a text at a certain location. Syntax is --text="abs" or \
+                                                          --text="abc,0.5,0.9"')
+        
 
-    parser.add_argument('-P', '--plots', type=str, nargs='+',
-        default=plots,
-        help="do only this plot/these plots. " +
-             "The function names are required here.")
-    parser.add_argument('-n', '--normalize', action='store_false',
-        help="don't normalize Monte Carlo samples to the event count in data " +
-             "and regardless of the given luminosity. This is only applied " +
-             "to data/MC comparisons")
-    parser.add_argument('-v', '--verbose', action='store_true',
+    # AXIS
+    axis = parser.add_argument_group('Axis options')
+    axis.add_argument('--log', action='store_true', default=None,
+         help="log plot")
+    axis.add_argument('--xlog', action='store_true', default=None,
+         help="xlog plot")
+    axis.add_argument('-y', type=float, nargs='+', default=None,
+        help="upper and lower limit for y-axis")
+    axis.add_argument('-x', type=float, nargs='+', default=None,
+        help="upper and lower limit for x-axis")
+    axis.add_argument('-z', type=float, nargs='+', default=None,
+        help="upper and lower limit for z-axis")
+    axis.add_argument('--xynames', type=str, nargs='+', default=None,
+        help='x-y-axis label names,')
+
+    group = parser.add_argument_group('Other options')
+    group.add_argument('-v', '--verbose', action='store_true',
         help="verbosity")
-    parser.add_argument('-t', '--title', type=str,
-        default=title,
-        help="plot title")
-    parser.add_argument('--settings', type=str, nargs='+',
-        default=settings,
-        help="Modify the entries in the settings dictionary. "
-             "Usage: --set key1=value1 key2='1, 2, 3' ...")
 
 
     opt = parser.parse_args()
-    # to be substituted by commandline arguments (perhaps changed,
-    # no formatting options here? but for multiple MC,
-    # colors (predefined sequence?) and labels are needed)
 
-    opt.default_settings =  default_settings
+    opt.fit_offset = 0
+    parser.set_defaults(fit_offset = 0)
+    opt.subplot = False
+    parser.set_defaults(subplot = False)
+
+    # get a separate dictionary with only the user-set values
+    user_options = {}
+    default_options = {}
+    for key in vars(opt):
+        default_options[key] = parser.get_default(key)
+        if vars(opt)[key] is not parser.get_default(key):
+            user_options[key] = vars(opt)[key]
+    opt.user_options = user_options
+    opt.default_options = default_options
 
     opt.factor = 1.0
     opt.bins = bins
@@ -227,69 +311,25 @@ def options(
     opt.npv = npv
     opt.cut = cut
     opt.eta = eta
+
     if opt.verbose:
         showoptions(opt)
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
 
-    #turn "settings" into a dictionary
-    settings = {}
-    if (type(opt.settings) == list):
-        for element in opt.settings:
-            key, value = element.split("=", 1)
-            if "," in value:
-                settings[key] = [autoconvert(n) for n in value.split(",")]
-            else:
-                settings[key] = autoconvert(value)
-    opt.settings = settings
-
     return opt
 
-# command line arguments for "settings" are saved as strings, use this 
-# function to convert to int or float:
-def autoconvert(s):
-    for fn in (int, float, stringtobool):
-        try:
-            return fn(s)
-        except ValueError:
-            pass
-    return s
 
-def stringtobool(string):
-    if (string == "True"):
-        return True
-    elif (string == "False"):
-        return False
-    elif (string == "None"):
-        return None
-    else:
-        return string
 
-"""prepare the selections"""
-def get_selection(settings):
-
-    if settings['selection'] is not None:
-        selections = settings['selection'].split(" && ")
-    else:
-        selections = []
-    return " && ".join(list(set(selections)))
+def debug(string):
+    """Print a string and the line number + file of function call."""
+    frame,filename,line_number,function_name,lines,index=\
+        inspect.getouterframes(inspect.currentframe())[1]
+    print "%s  (line %s in %s)" % (string, line_number, filename)
 
 
 def fail(fail_message):
     print fail_message
     exit(0)
-
-def get_local_settings(settings, changes):
-    settings2 = copy.deepcopy(settings)
-    if changes is not None:
-        if 'selection' in changes and settings['selection'] not in [None, ""]:
-            changes['selection'] = " && ".join([changes['selection'],
-                                                         settings['selection']])
-
-        settings2.update(changes)
-        changes=None
-    changes = {}
-    return settings2
-
 
 def printfiles(filelist):
     if len(filelist) > 0:
@@ -302,49 +342,71 @@ def printfiles(filelist):
     elif len(filelist) > 2:
         print "MC files:", ", ".join(filelist[1:])
 
-def createsettings(opt, changes=None, quantity=None):
+def get_selection(settings):
+    """Prepare the selections."""
 
-    # 1. create a local copy of the default_settings (and assign axis labels and limits)
-    settings =  copy.deepcopy(opt.default_settings)
+    if 'selection' in settings and settings['selection'] is not None:
+        selections = settings['selection'].split(" && ")
+    else:
+        selections = []
+    return " && ".join(list(set(selections)))
+
+def apply_changes(settings, changes):
+    """This function updates the settings dictionary with the changes function 
+       in a way that the selection is not overwritten but combined.
+    """
+    settings = copy.deepcopy(settings)
+    if changes is not None:
+        if 'selection' in changes and settings['selection'] is not None:
+            
+            changes['selection'] = " && ".join([changes['selection'],
+                                                         settings['selection']])
+
+        settings.update(changes)
+        changes=None
+    return settings
+
+
+def getsettings(opt, changes=None, settings=None, quantity=None):
+    """Create the local settings dictionary.
+
+       The customizable parameters can be accessed via the settings directory 
+       that is created from the global 'opt' module and optional other arguments.
+    """
+    opt = copy.deepcopy(opt)
+    
+    # if a setting dictionary is given, apply changes (if any)
+    if settings is not None:
+        apply_changes(settings, changes)
+
+    # 1. create a local copy of the default_settings 
+    settings =  copy.deepcopy(opt.default_options)
     # 2. overwrite the default_settings with settings(function argument, e.g. from dictionary):
     if changes is not None:
-        settings.update(changes)
-    # 3. overwrite the default_settings with options-settings (=command line arguments):
-    settings.update(opt.settings)
+        settings = apply_changes(settings, changes)
 
-    #command-line selection and changes selection are ADDED
-    if changes is not None and 'selection' in changes:
-        settings['selection'] = " && ".join([settings['selection'], changes['selection']])
+    # 3. overwrite the default_settings with user-settings (=command line arguments):
+    if opt.user_options is not {}:
+        settings = apply_changes(settings, opt.user_options)
 
-    settings['selection'] = get_selection(settings)
-
+    # 4. create the local settings for quantites and axes:
     if quantity is not None and settings['xynames'] is None:
         settings['xynames'] = quantity.split("_")[::-1]
 
-        if  len(settings['xynames'])<2:
+        if len(settings['xynames'])<2:
             settings['xynames'] += ['events']
     if settings['x'] is None:
         settings['x'] = plotbase.getaxislabels_list(settings['xynames'][0])[:2]
 
     if settings['y'] is None:
         settings['y'] = plotbase.getaxislabels_list(settings['xynames'][1])[:2]
-    
-    return settings 
 
-def getcorralgovariations():
-    # returns a list with 'changes'-dictionaries, to be used
-    # to vary over a all agorithms / correction levels in the closure root file
-    list_ac = []
-    for a in ['AK5PFJets','AK5PFJetsCHS']:
-        for c in ["", "L1", "L1L2L3", "L1L2L3Res"]:
-            ch={}
-            ch['algorithm'] = a
-            ch['correction'] = c
-            list_ac.append(ch)
-    return list_ac
+    return settings
+
 
 def getdefaultsubtexts():
-    return ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)", "k)", "l)", "m)", "n)", "o)", "p)", "q)", "r)"]
+    return ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)", "k)", 
+                                      "l)", "m)", "n)", "o)", "p)", "q)", "r)"]
 
 def showoptions(opt):
     print "Options:"
@@ -456,9 +518,10 @@ def getpath():
     return datapath
 
 
-def newplot(ratio=False, run=False, subplots=1, opt=options(), subplots_X=None, subplots_Y=None):
+def newplot(ratio=False, run=False, subplots=1, subplots_X=None, 
+                                                            subplots_Y=None):
     fig = plt.figure(figsize=[7, 7])
-    fig.suptitle(opt.title, size='xx-large')
+    #fig.suptitle(opt.title, size='xx-large')
     if subplots is not 1: #Get 4 config numbers: FigXsize, FigYsize, NaxesY, NaxesX
         d = {3:3, 2:2, 7:2}
         if subplots in d:
@@ -484,21 +547,25 @@ def newplot(ratio=False, run=False, subplots=1, opt=options(), subplots_X=None, 
         return fig, ax
     elif ratio: 
         ax = fig.add_subplot(111, position=[0.13, 0.35, 0.83, 0.58])
+        ax.number = 1
         ratio = fig.add_subplot(111, position=[0.13, 0.12, 0.83, 0.22], sharex=ax)
+        ax.number = 2
         ratio.axhline(1.0, color='black', lw=1)
         return fig, ax, ratio
     elif run:
         fig = plt.figure(figsize=[14, 7])
         ax = fig.add_subplot(111)
+        ax.number = 1
         return fig, ax
     else:
         ax = fig.add_subplot(111)
+        ax.number = 1
         return fig, ax
     return fig
 
 
 
-def setaxislimits(ax, settings, ax2=None):
+def setaxislimits(ax, settings):
     """
     Set the axis limits from changes and or options. Default operation mode is:
         1. By default, axis limits are taken from the dictionary
@@ -506,28 +573,35 @@ def setaxislimits(ax, settings, ax2=None):
         3. If limits are given in opt (command line values), override the values
             from dictionary or changes
     """
-    ax.set_xlim(settings['x'][0], settings['x'][1])
-    ax.set_ylim(settings['y'][0], settings['y'][1])
+    if hasattr(ax, 'number') and (len(settings['x']) >= 2*ax.number):
+        ax.set_xlim(settings['x'][2*ax.number-2:][0], 
+                                               settings['x'][2*ax.number-2:][1])
+    elif not hasattr(ax, 'number'):
+        ax.set_xlim(settings['x'][0], settings['x'][1])
 
-    if ax2 is not None:
-        if len(settings['x']) > 2:
-            ax2.set_xlim(settings['x'][2], settings['x'][3])
-        if len(settings['y']) > 2:
-            ax2.set_ylim(settings['y'][2], settings['y'][3])
+    if hasattr(ax, 'number') and (len(settings['y']) >= 2*ax.number):
+        ax.set_ylim(settings['y'][2*ax.number-2:][0], 
+                                               settings['y'][2*ax.number-2:][1])
+    elif not hasattr(ax, 'number'):
+        ax.set_ylim(settings['y'][0], settings['y'][1])
 
 
 def getdefaultfilename(quantity, opt, settings):
-
-    if 'filename' in settings:
+    """This function creates a default filename based on quantity, changes and 
+       algorithm/correction.
+    """
+    if 'filename' in settings and settings['filename'] is not None:
         return settings['filename']
-
-    #create a default filename based on quantity, changes and algorithm/correction
-    filename = quantity + "_"
+    else:
+        filename = quantity
 
     if settings['folder'] is 'allevents':
         filename += "_%s_" % 'allevents'
 
-    filename += settings['algorithm'] + settings['correction']
+    if 'algorithm' in opt.user_options:
+        filename += "_%s" % settings['algorithm']
+    if 'correction' in opt.user_options:
+        filename += "_%s" % settings['correction']
 
     #remove special characters:
     for char in ["*", "/", " "]:
@@ -549,7 +623,7 @@ def EnsurePathExists(path):
         if not os.path.exists(full_path):
             print "Creating " + full_path
             os.mkdir(full_path)
-        
+
 def _internal_Save(figure, name, opt, crop=True, pad=None):
     """Save this figure in all listed data formats.
 
@@ -584,14 +658,13 @@ def _internal_Save(figure, name, opt, crop=True, pad=None):
 
         else:
             print f, "failed. Output type is unknown or not supported."
-    print
 
 
 
 if __name__ == "__main__":
     op = options()
-    module_list = [plotresponse, plotfractions, plot2d, plotdatamc, plot_resolution, plot_mikko, plot_sandbox]
-    
+    module_list = [plotresponse, plotfractions, plot2d, plotdatamc, 
+                                      plot_resolution, plot_mikko, plot_sandbox]
     print "Number of files:", len(op.files)
     files=[]
     for f in op.files:

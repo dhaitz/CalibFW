@@ -8,6 +8,111 @@ import listofruns
 
 
 
+def ineff(files, opt):    
+    settings = plotbase.getsettings(opt, changes=None, settings=None, quantity="flavour_zpt") 
+
+    fig, ax = plotbase.newplot()
+    labels = ["no matching partons", "two matching partons"]
+    colors = ['red', 'blue']
+    markers = ['o', 'd']
+    changes = {'subplot':True,
+                'lumi':0,
+                'xynames':['zpt', 'physflavourfrac'],
+                'legloc':'upper left',
+            }
+
+    for n, l, c, m in zip([0, 2], labels, colors, markers):
+        quantity = "(nmatchingpartons3==%s)_zpt" % n
+        changes['labels'] = [l]
+        changes['colors'] = c
+        changes['markers'] = m
+
+        plotdatamc.datamcplot(quantity, files, opt,fig_axes=(fig, ax), changes=changes)
+    settings['filename'] = plotbase.getdefaultfilename("physflavourfrac_zpt", opt, settings)
+    plotbase.Save(fig, settings['filename'], opt)
+
+
+def flav2(files, opt):    
+    settings = plotbase.getsettings(opt, changes=None, settings=None, quantity="flavour_zpt") 
+
+    flavourdefs = ["physflavour"]#, "algoflavour"]
+    flavourdefinitions = ["algorithmic", "physics"]
+
+    flist = ["(flavour>0&&flavour<4)", # uds
+        "((flavour>0&&flavour<4)|| flavour==4)", #c
+        "((flavour>0&&flavour<4)|| flavour==4 || flavour==5)", #b
+        "((flavour>0&&flavour<4)|| flavour==4 || flavour==5 || flavour==21)", #g
+        "((flavour>-1&&flavour<4)|| flavour==4 || flavour==5 || flavour==21)", #unmatched
+        ]
+    flist.reverse()
+    q_names =['uds', 'c','b','gluon', 'unmatched']
+    q_names.reverse()
+    colors = ['mediumseagreen', 'lightcoral', 'cornflowerblue', 'grey', 'maroon']
+    colors.reverse()
+    
+    changes = {'subplot':True,
+                'markers':['f'],
+                'x':[30,1000],
+                'legloc':'lower left',
+                'lumi':0,
+               }
+
+    for flavourdef in flavourdefs:
+        fig, ax = plotbase.newplot()
+        for f_id, quantity, c in zip(q_names, flist, colors):
+                changes['labels']=[f_id]
+                changes['colors']=[c]
+                changes['xynames'] = ['zpt', "%sfrac" % flavourdef]
+                q = quantity.replace("flavour", 
+                                    flavourdef)
+                plotdatamc.datamcplot("%s_zpt" % q, files, opt,fig_axes=(fig, ax), changes=changes)
+        ax.set_xscale('log')
+        
+        settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
+        plotbase.Save(fig, settings['filename'], opt)
+    
+    
+
+def flav(files, opt):
+
+    etabins = [0, 1.3, 2.5, 3, 3.2, 5.2]
+    etastrings =['0-1_3','1_3-2_5', '2_5-3', '3-3_2', '3_2-5_2']
+    flavourdefs = ["algoflavour", "physflavour"]
+    flavourdefinitions = ["algorithmic", "physics"]
+
+    flist = ["(flavour>0&&flavour<4)","(flavour==1)","(flavour==2)","(flavour==3)",
+        "(flavour==4)", "(flavour==5)", "(flavour==21)", "(flavour==0)"]
+    q_names = ['uds','u', 'd', 's', 'c','b','gluon', 'unmatched']
+    changes = {}
+
+    ############### FLAVOUR NOT 0!!!!!
+
+    # barrel:
+    """changes['rebin'] = 1
+    changes['filename']="flavour"
+    changes['filename']="flavour"
+    for f_id, quantity in zip(['uds','c','b','gluon'], flist):
+            changes['root']=f_id
+            plotdatamc.datamcplot("%s_zpt" % quantity, files, opt, changes=changes)
+    """
+    for flavourdef, flavourdefinition in zip(flavourdefs, flavourdefinitions):
+    # iterate over eta bins:
+        for filename, selection in zip(etastrings, getroot.etacuts(etabins)):
+            changes['filename']="_".join([filename, flavourdefinition])
+            changes['alleta'] = True
+            changes['selection'] = "%s && %s" % ( selection,
+                                                                    "alpha<0.2")
+            changes['rebin'] = 1
+
+            for f_id, quantity in zip(q_names, flist):
+
+                changes['root']=f_id
+
+                plotdatamc.datamcplot("%s_zpt" % quantity.replace("flavour", 
+                                    flavourdef), files, opt, changes=changes)
+
+
+
 def gif(files, opt):
     local_opt = copy.deepcopy(opt)
     runlist = listofruns.runlist[::10]

@@ -14,27 +14,25 @@ from dictionaries import d_plots
 import plotresponse
 import copy
 
-"""Template for all data/MC comparison plots for basic quantities."""
 def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
+    """Template for all data/MC comparison plots for basic quantities."""
 
     # if no settings are given, create:
-    if settings==None:
-        settings = plotbase.createsettings(opt, changes, quantity)
-    else:
-        settings = plotbase.get_local_settings(settings, changes)
-    
+    settings = plotbase.getsettings(opt, changes, settings, quantity)   
     print "A %s plot is created with the following selection: %s" % (quantity, 
                                                           settings['selection'])
 
+
     # create list with histograms from a ttree/tntuple 
-    datamc, rootobjects, events = [], [], []
+    datamc, rootobjects = [], []
+    settings['events'] = []
     for f in files:
         rootobjects += [getroot.getobjectfromtree(quantity, f, settings)]
         if settings['special_binning'] is False:
             rootobjects[-1].Rebin(settings['rebin'])
         rootobjects[-1].Sumw2()
         datamc += [getroot.root2histo(rootobjects[-1], f.GetName(), 1)]
-        events += [datamc[-1].ysum]
+        settings['events'] += [datamc[-1].ysum()]
 
     # if true, create a ratio plot:
     if settings['ratio'] and len(datamc) == 2:
@@ -68,31 +66,34 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         return
 
     #loop over histograms: scale and plot 
-    for f, l, c, s, rootfile, rootobject in reversed(zip(datamc, settings['labels'],
+    for f, l, c, s, rootfile, rootobj in reversed(zip(datamc,settings['labels'],
                   settings['colors'], settings['markers'], files, rootobjects)):
         scalefactor = 1
         if 'Profile' in f.classname:
             scalefactor=1
-            s.replace('f','o')
-        else:
-            if 'cut_' not in quantity and f.ysum()!=0:
+            s = s.replace('f','o')
+        elif settings['normalize']:
+            if ('cut_' not in quantity and f.ysum()!=0 and datamc[0].ysum()!=0):
                 scalefactor = datamc[0].ysum() / f.ysum()
                 f.scale(scalefactor)
             elif 'cut_' not in quantity and opt.lumi !=None:
                 f.scale(opt.lumi)
 
         if s=='f':
-            ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, 
-                                                    fmt='-', capsize=0 ,label=l)
-            ax.bar(f.x, f.y, (f.x[2] - f.x[1]), bottom=numpy.ones(len(f.x)) 
-                                    * 1e-6, fill=True, facecolor=c, edgecolor=c)
+            if settings['special_binning']:
+                widths = [(a-b) for a,b in zip(f.x[1:], f.x[:-1])]
+                widths += [0]
+            else:
+                widths = (f.x[2] - f.x[1])            
+            ax.bar(f.x, f.y, widths, bottom=numpy.ones(len(f.x)) 
+              * 1e-6, yerr=f.yerr, ecolor=c, label=l, fill=True, facecolor=c, edgecolor=c)
         else:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, 
                                                     fmt=s, capsize=0 ,label=l)
 
         if settings['fit'] is not None and ("MC" not in l or settings['run'] is 
                                                                     not "diff"):
-            plotbase.fit(ax, quantity, rootobject, settings, c, l, 
+            plotbase.fit(ax, quantity, rootobj, settings, c, l, 
                                            datamc.index(f), scalefactor, offset)
 
     # set the axis labels and limits
@@ -100,16 +101,17 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1], 
                                                             settings=settings)
     plotbase.setaxislimits(ax, settings)
-    if settings['xynames'][1] == 'events' and 'y' not in opt.settings:
+    if settings['xynames'][1] == 'events' and 'y' not in opt.user_options:
         ax.set_ylim(top=max(d.ymax() for d in datamc) * 1.2)
 
     #plot a vertical line at 1.0 for certain y-axis quantities:
-    if ((settings['xynames'][1] in ['response', 'balresp', 'mpfresp',
+    if ((settings['xynames'][1] in ['response', 'balresp', 'mpfresp', 'recogen',
                           'ptbalance', 'L1', 'L2', 'L3', 'mpf', 'mpfresp']) or
                           'cut' in settings['xynames'][1] or settings['ratio']):
         ax.axhline(1.0, color='black', linestyle=':')
 
-
+    if 'flavour' in settings['xynames'][0]:
+        ax.set_xticks([0,1,2,3,4,5,21])
 
     # save it
     if settings['subplot']:
@@ -171,7 +173,7 @@ def runplot_diff(files, datamc, ax, settings):
     
     datamc[0].y = new_y
     ax.axhspan(mc.GetMeanError(),-mc.GetMeanError(), 
-                                                 color=opt.colors[1], alpha=0.4)
+                                        color=settings2['colors'][1], alpha=0.4)
     return datamc, ax, offset
 
 
@@ -233,7 +235,9 @@ def ratiosubplot(quantity, files, opt, settings):
 
     fig = plotbase.plt.figure(figsize=[7, 10])
     ax1 = plotbase.plt.subplot2grid((3,1),(0,0), rowspan=2)
+    ax1.number=1
     ax2 = plotbase.plt.subplot2grid((3,1),(2,0))
+    ax2.number=2
     fig.add_axes(ax1)
     fig.add_axes(ax2)
 
@@ -246,12 +250,11 @@ def ratiosubplot(quantity, files, opt, settings):
     changes['ratio']=True
     changes['legloc']=False
     changes['y']=[0.5, 1.5]
-    changes['fit']=None
+    changes['labels']=['Ratio']
     changes['xynames']=[settings['xynames'][0], 'datamcratio']
     
     datamcplot(quantity, files, opt, fig_axes=(fig, ax2), changes=changes, settings=settings)
-
-    plotbase.setaxislimits(ax1, settings, ax2)
+    
     fig.subplots_adjust(hspace=0.05)
     ax1.set_xticks([])
     ax1.set_xlabel("")

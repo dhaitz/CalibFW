@@ -7,7 +7,8 @@ def labels(ax, opt, settings, subplot=False):
 
     Several functions are called for each type of label.
     """
-    if not (settings['ratio'] and settings['subplot']):
+    if not (settings['ratio'] and settings['subplot']
+                                        and not settings['fit']=='intercept'):
         if settings['lumi'] is not None:
             lumilabel(ax, settings['lumi'])    # always (if given) pure MC plots?
         statuslabel(ax, opt.status)
@@ -36,7 +37,7 @@ def labels(ax, opt, settings, subplot=False):
                                  size='small', color='black')
         if settings['text'] is not None:
             textlabel(ax, settings['text'])
-    if settings['legloc'] is not None:
+    if settings['legloc'] != "None":
         legend = ax.legend(loc=settings['legloc'], numpoints=1, fancybox=True, 
                                                                     shadow=True)
 

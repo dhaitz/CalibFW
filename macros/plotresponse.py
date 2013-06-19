@@ -34,9 +34,9 @@ def responseplot(files, opt, types=None, over=None, settings=None,
         else:
             changes['alleta'] = True
 
-    if settings is None:
-        settings = plotbase.createsettings(opt, changes, 'response_%s' % over)
-
+    settings = plotbase.getsettings(opt, changes=changes, settings=settings, 
+                                                  quantity="response_%s" % over)
+    
     if figaxes == None: 
         figaxes = plotbase.newplot()
     fig =figaxes[0]
@@ -48,7 +48,7 @@ def responseplot(files, opt, types=None, over=None, settings=None,
     # iterate over types:
     for t, l, m in zip(types, labels, markers):
         # iterate over files:        
-        for f, label, color in zip(files, opt.labels, 
+        for f, label, color in zip(files, settings['labels'], 
                                             colors[len(files)*types.index(t):]):
 
             plot = getroot.root2histo(getresponse(t, over, opt, settings, f, 
@@ -60,14 +60,14 @@ def responseplot(files, opt, types=None, over=None, settings=None,
     # format plot
     ax.axhline(1.0, color="black", linestyle='--')
     plotbase.labels(ax, opt, settings)
-    plotbase.axislabels(ax, over, 'response', labels=opt.labels, settings=settings)
+    plotbase.axislabels(ax, over, 'response', labels=settings['labels'], settings=settings)
     plotbase.setaxislimits(ax, settings)
 
     #label with pt and eta cut
     if over in ['jet1eta', 'jet1abseta'] :
         pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}$>30 GeV"
     else:
-        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}$>30 GeV    $\eta^\mathrm{Jet1}$<1.3     $\alpha$ < 0.2"# or  $p_{\mathrm{T}}^{\mathrm{Jet2}}$<12 GeV"
+        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}$>30 GeV    $\eta^\mathrm{Jet1}$<1.3"#     $\alpha$ < 0.2"# or  $p_{\mathrm{T}}^{\mathrm{Jet2}}$<12 GeV"
     ax.text(0.02, 0.98, pt_eta_label, va='top', ha='left', color='black', 
                                         transform=ax.transAxes, size='small')
 
@@ -104,8 +104,8 @@ def ratioplot(files, opt, types, labels=None,
         else:
             changes['alleta'] = True
 
-    if settings is None:
-        settings = plotbase.createsettings(opt, changes, 'datamcratio_%s' % over)
+    settings = plotbase.getsettings(opt, changes=changes, settings=settings, 
+                                               quantity="datamcratio_%s" % over)
 
 
     if figaxes == None: figaxes = plotbase.newplot()
@@ -140,6 +140,7 @@ def ratioplot(files, opt, types, labels=None,
     # format plot
     plotbase.labels(ax, opt, settings)
     plotbase.setaxislimits(ax, settings)
+    plotbase.axislabels(ax, over, 'datamcratio', labels=settings['labels'], settings=settings)
 
     if ratiosubplot: label = 'ratio'
     else: label = 'responseratio'
@@ -153,48 +154,6 @@ def ratioplot(files, opt, types, labels=None,
     plotbase.Save(fig, file_name, opt)
 
 
-"""def plotkfsr(files, opt, method='balresp', label=None,
-                 colors=["FireBrick", 'blue', 'green', 'orange']*7,
-                 markers=['o', 'D', 's']*8,
-                 over='zpt',
-                 binborders=False,
-                 drawextrapolation=False,
-                 fit=True):
-    #type: bal|mpf[ratio|seperate]
-    
-    fig, ax = plotbase.newplot()
-    label = label or labelformat(method)
-
-    grExt = getresponse(method, over, opt, files[0], files[1], {}, extrapol='seperate')
-    grStd = getresponse(method, over, opt, files[0], files[1], {}, extrapol=False)
-    grK = getroot.dividegraphs(grExt, grStd)
-    if fit:
-            line, err, chi2, ndf = plotbase.fitline(grK)
-            ax.text(0.1, 0.27+0.07*0, r"$k_\mathrm{{FSR}} = {0:.3f} \pm {1:.3f}$ ".format(line, err),
-                va='bottom', ha='left', color=colors[0], transform=ax.transAxes, fontsize=16)
-            ax.text(0.1, 0.2+0.07*0, r"$\mathrm{\chi^2}$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
-                va='bottom', ha='left', color=colors[0], transform=ax.transAxes, fontsize=16)
-            ax.axhline(line, color=colors[0])
-            ax.axhspan(line-err, line+err, color=colors[0], alpha=0.2)
-    plot = getroot.root2histo(grK)
-    ax.axhline(1.0, color="black", linestyle='--')
-    ax.errorbar(plot.x, plot.y, plot.yerr, color=colors[0], fmt=markers[0], label=label)
-
-
-    # format plot
-    if over == 'jet1eta':
-        over_name = "jet1abseta"
-    else:
-        over_name=over
-
-    plotbase.labels(ax, opt, jet=True, legloc='lower left')
-    plotbase.axislabels(ax, over_name, 'kfsrratio')
-
-    file_name = "kfsr_" + "_".join([method])
-    file_name += "_"+over+"_" + opt.algorithm + opt.correction
-
-    plotbase.Save(fig, file_name, opt)
-"""
 
 def labelformat(label):
     labeldict = {
@@ -241,101 +200,6 @@ def plot_all(files, opt, plottype='response'):
 
         file_name = strings[1]+"_all_"+o+"_"+"_".join(types)+"_"+opt.algorithm
         plotbase.Save(fig_axes[0], file_name, opt)
-"""
-# responses
-def response(files, opt):
-    responseplot(files, opt, ['balresp', 'mpfresp'])#, 'recogen'])
-    for key in k_fsr:
-        print key, k_fsr[key]
-def response_npv(files, opt):
-    responseplot(files, opt, ['balresp', 'mpfresp', 'recogen'], over='npv')
-def response_eta(files, opt):
-    responseplot(files, opt, ['balresp', 'mpfresp', 'recogen'], over='jet1eta', legloc='lower left')
-
-def balflavours(files, opt):
-    responseplot(files, opt, ['balgluon', 'baluds', 'balc', 'balb'])
-
-def mpfflavours(files, opt):
-    responseplot(files, opt, ['mpfgluon', 'mpfuds', 'mpfc', 'mpfb'])
-
-def balflavours_eta(files, opt):
-    responseplot(files, opt, ['balgluon', 'baluds', 'balc', 'balb'], over='jet1eta')
-
-def mpfflavours_eta(files, opt):
-    responseplot(files, opt, ['mpfgluon', 'mpfuds', 'mpfc', 'mpfb'], over='jet1eta')
-
-def bal_eta(files, opt):
-    responseplot(files, opt, ['balresp'], over='jet1eta', legloc='lower left')
-def bal_npv(files, opt):
-    responseplot(files, opt, ['balresp'], over='npv')
-def bal_zpt(files, opt):
-    responseplot(files, opt, ['balresp'], over='zpt')
-
-def mpf_eta(files, opt):
-    responseplot(files, opt, ['mpfresp'], over='jet1eta', legloc='lower left')
-
-
-def mpf_zpt(files, opt):
-    responseplot(files, opt, ['mpfresp'], over='zpt', legloc='lower left')
-
-
-
-
-# ratios
-def balratio(files, opt):
-    ratioplot(files, opt, ['balresp', 'balratio', 'balseparate'], drawextrapolation=True, binborders=True)
-
-def mpfratio(files, opt):
-    ratioplot(files, opt, ['mpfresp', 'mpfratio', 'mpfseperate'])
-
-
-def ratio(files, opt):
-    ratioplot(files, opt, ['balresp', 'mpfresp'], drawextrapolation=True, binborders=True)
-
-def ratio_npv(files, opt):
-    ratioplot(files, opt, ['balresp', 'mpfresp'], drawextrapolation=True, binborders=True, over='npv')
-
-def ratio_eta(files, opt):
-    ratioplot(files, opt, ['balresp', 'mpfresp'], drawextrapolation=True, binborders=True, over='jet1eta', fit=False)
-
-#kfsr
-def kfsr(files, opt):
-    plotkfsr(files, opt)
-
-def kfsr_eta(files, opt):
-    plotkfsr(files, opt, over='jet1eta')
-
-
-# subplots
-def ratio_all(files, opt):
-    plot_all(files, opt, plottype='ratio')
-
-def response_all(files, opt):
-    plot_all(files, opt)
-
-
-
-# response + ratio
-def bal_responseratio_eta(files, opt, extrapol=None):
-    responseratio(files, opt, over='jet1eta', fit=False, types=['balresp'], extrapol=extrapol)
-
-#def bal_responseratio_zpt(files, opt, extrapol=None):
-#    responseratio(files, opt, types=['balresp'], fit=True)
-
-def bal_responseratio_npv(files, opt, extrapol=None):
-    responseratio(files, opt, over='npv', fit=True, types=['balresp'], extrapol=extrapol)
-
-def mpf_responseratio_eta(files, opt, extrapol=None):
-    responseratio(files, opt, over='jet1eta', fit=False, types=['mpfresp'], extrapol=extrapol)
-
-def mpf_responseratio_zpt(files, opt, extrapol=None):
-    responseratio(files, opt, fit=True, types=['mpfresp'], extrapol=extrapol)
-def mpfraw_responseratio_zpt(files, opt, extrapol=None):
-    responseratio(files, opt, fit=True, types=['mpf-rawresp'], extrapol=extrapol)
-
-def mpf_responseratio_npv(files, opt, extrapol=None):
-    responseratio(files, opt, over='npv', fit=True, types=['mpfresp'], extrapol=extrapol)
-"""
 def respbal(files, opt):
     for zpt in getroot.binstrings(opt.bins):
         changes = {'bin':zpt}
@@ -348,27 +212,30 @@ def respmpf(files, opt):
         responseplot(files, opt, ['mpfresp'], over='npv', changes=changes)
 
 
-def responseratio(files, opt, over='zpt', types=['balresp'], fit=False):
+def responseratio(files, opt, over='zpt', types=['balresp'], fit=False, 
+                                                                  changes=None):
 
-    settings = plotbase.createsettings(opt, None, 'response_%s' % over)
+    settings = plotbase.getsettings(opt, changes=changes, settings=None, 
+                                                  quantity="response_%s" % over)
 
-    changes = {}
-    changes['subplot'] = True
+    changes = {'subplot':True,
+                'legloc':'lower right'
+                }
 
     fig = plotbase.plt.figure(figsize=[7, 7])
     fig.suptitle(opt.title, size='xx-large')
     ax1 = plotbase.plt.subplot2grid((3,1),(0,0), rowspan=2)
+    #ax1.number = 1
     ax2 = plotbase.plt.subplot2grid((3,1),(2,0))
+    #ax2.number = 2
     fig.add_axes(ax1)
     fig.add_axes(ax2)
 
-    #if over== 'jet1eta' and types == ['balresp']: changes['legloc'] = 'upper right'
-    #else: changes['legloc'] = 'lower right'
-
     responseplot(files, opt, types, over, changes=changes, figaxes=(fig,ax1))
 
-    changes['energy']=None
-    changes['lumi']=None
+    changes['energy'] = None
+    changes['lumi']   = None
+    changes['legloc']   = "lower left"
 
     ratioplot(files, opt, types, changes=changes, over=over, figaxes=(fig,ax2))
 
@@ -376,12 +243,15 @@ def responseratio(files, opt, over='zpt', types=['balresp'], fit=False):
     ax1.set_xticks([])
     ax1.set_xlabel("")
 
-    plotbase.setaxislimits(ax1, settings, ax2)
+    for ax in [ax1, ax2]:
+        plotbase.setaxislimits(ax, settings)
 
-    extrapolation_dict = {None:'_', 'bin':'_bin-extrapol_', 'global':'_global-extrapol_'}
+    extrapolation_dict = {None:'_', 'bin':'_bin-extrapol_', 
+                                                'global':'_global-extrapol_'}
 
     if settings['filename'] == None:
-        settings['filename'] = "responseratio_"+"_".join(types)+"_"+over+"_"+opt.algorithm+opt.correction
+        settings['filename'] = "responseratio_%s_%s_%s%s" % ("_".join(types),
+                                            over, opt.algorithm, opt.correction)
     plotbase.Save(fig, settings['filename'], opt)
 
 
@@ -445,8 +315,7 @@ def extrapol(files, opt,
            use_rawMET=False,       # use raw MET instead of type-I MET
            extrapolate_mpf=True): # if false, use average for MET
 
-    settings = plotbase.createsettings(opt, None, "response_%s" % variation)
-    local_opt=copy.deepcopy(opt)
+    settings = plotbase.getsettings(opt, None, None, "response_%s" % variation)   
 
 
     if use_rawMET==True:
@@ -468,7 +337,8 @@ def extrapol(files, opt,
     fig, axes = plotbase.newplot(subplots=2*l, subplots_Y=2)
     subtexts = plotbase.getdefaultsubtexts()
 
-    for cut, ax1, ax2, subtext1, subtext2 in zip(variations, axes[:l], axes[l:], subtexts[:l], subtexts[l:]):
+    for cut, ax1, ax2, subtext1, subtext2 in zip(variations, axes[:l], axes[l:],
+                                                    subtexts[:l], subtexts[l:]):
         
 
         files = [getroot.openfile(f, opt.verbose) for f in opt.files]
@@ -479,26 +349,28 @@ def extrapol(files, opt,
 
         #Response
         #   balance
-        local_opt.colors = ['black', 'blue']
-        local_opt.style = ['o', '*']
-        local_opt.labels = [r'$p_T$ balance (data)', r'$p_T$ balance (MC)']
 
         changes = {'legloc'     : 'lower left',
                     'xynames'   : ['alpha','response'],
                     'fit'       : True,
                     'rebin'     : 10,
-                    'selection' : cut,
+                    'selection' : cut + "&& alpha>0",
                     'subplot'   : True,
-                    'allalpha'  : True}
+                    'allalpha'  : True,
+                    'colors'    : ['black', 'blue'],
+                    'markers'   : ['o', '*'],
+                    'labels'    : [r'$p_T$ balance (data)', 
+                                                       r'$p_T$ balance (MC)'],
+                  }
 
-        plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, local_opt,
+        plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, opt,
                 changes=changes, fig_axes=(fig, ax1))
 
         #   mpf
-        local_opt.colors = ['red', 'maroon']
-        local_opt.labels = [mpflabel+' (data)',mpflabel+' (MC)']
+        changes['colors'] = ['red', 'maroon']
+        changes['labels'] = [mpflabel+' (data)',mpflabel+' (MC)']
         if extrapolate_mpf ==True:
-            plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, local_opt,
+            plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, opt,
                 changes=changes, fig_axes=(fig, ax1))
 
         else:
@@ -506,13 +378,13 @@ def extrapol(files, opt,
             mpfmean_mc = getroot.getobjectfromnick('mpfresp', files[1], changes, rebin=1).GetMean()
             mpfmeanerror_data = getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMeanError()
             mpfmeanerror_mc = getroot.getobjectfromnick('mpfresp', files[1], changes, rebin=1).GetMeanError()
-            ax1.axhline(mpfmean_data, color=local_opt.colors[0])
+            ax1.axhline(mpfmean_data, color=changes['colors'][0])
             ax1.axhspan(mpfmean_data + mpfmeanerror_data, mpfmean_data - mpfmeanerror_data, color=local_opt.colors[0], alpha=0.2)
-            ax1.axhline(mpfmean_mc, color=local_opt.colors[1])
+            ax1.axhline(mpfmean_mc, color=changes['colors'][1])
             ax1.axhspan(mpfmean_mc + mpfmeanerror_mc, mpfmean_mc - mpfmeanerror_mc, color=local_opt.colors[1], alpha=0.2)
 
-        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30$ GeV   $\eta^\mathrm{Jet1}<1.3$"
-        ax1.text(0.97, 0.98, pt_eta_label, va='top', ha='right', color='black', transform=ax1.transAxes, size='large')
+        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad  |\eta^\mathrm{Jet1}|<1.3  \quad  \alpha<0.3$"
+        ax1.text(0.97, 0.97, pt_eta_label, va='top', ha='right', color='black', transform=ax1.transAxes, size='large')
 
         if settings['save_individually']:
             file_name = plotbase.getdefaultfilename("extrapolation", opt, settings)
@@ -525,24 +397,24 @@ def extrapol(files, opt,
 
         #Ratio
         #   balance
-        changes['ratio'] = True
+        changes['ratio']   = True
         changes['xynames'] = ['alpha','datamcratio']
-        changes['fit'] ='intercept'
-        changes['legloc'] ='lower left'
-
-        local_opt.labels = [r'$p_T$ balance']
-        local_opt.colors = ['blue']
-        plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, local_opt,
+        changes['fit']     = 'intercept'
+        changes['legloc']  = 'lower left'
+        changes['labels']  = [r'$p_T$ balance']
+        changes['colors']  = ['blue']
+        changes['fitlabel_offset'] = -0.0
+        plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, opt,
                 changes=changes, fig_axes=(fig, ax2))
 
         changes['fitlabel_offset'] = -0.1
 
         #   mpf
-        local_opt.labels = [mpflabel]
-        local_opt.colors = ['red']
+        changes['labels'] = [mpflabel]
+        changes['colors'] = ['red']
         if extrapolate_mpf ==True:
             settings['fit_offset'] = 0.1
-            plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, local_opt,
+            plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, opt,
                 changes=changes, fig_axes=(fig, ax2))
         else:
             if (mpfmean_mc != 0.0): R = mpfmean_data/mpfmean_mc
@@ -550,13 +422,12 @@ def extrapol(files, opt,
             if (R != 0.0):
                 Rerr=abs(mpfmean_data / mpfmean_mc)*math.sqrt((mpfmeanerror_data / mpfmean_data)**2 + (mpfmeanerror_mc / mpfmean_mc)**2)
             else: Rerr=0
-            ax2.axhline(R, color=local_opt.colors[0])
-            ax2.axhspan(R+Rerr, R-Rerr, color=local_opt.colors[0], alpha=0.2)
+            ax2.axhline(R, color=changes['colors'][0])
+            ax2.axhspan(R+Rerr, R-Rerr, color=changes['colors'][0], alpha=0.2)
             ax2.text(0.97, 0.67, r" Ratio $=%1.4f\pm%1.4f$" %(R, Rerr), va='top', ha='right', transform=ax2.transAxes, color='maroon')
 
 
-        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30$ GeV   $\eta^\mathrm{Jet1}<1.3$"
-        ax2.text(0.97, 0.95, pt_eta_label, va='center', ha='right', color='black', transform=ax2.transAxes, size='large')
+        ax2.text(0.97, 0.97, pt_eta_label, va='top', ha='right', color='black', transform=ax2.transAxes, size='large')
 
         if settings['save_individually']:
             file_name = plotbase.getdefaultfilename("ratio_extrapolation", opt, settings)
@@ -583,25 +454,57 @@ def response_run(files, opt, changes=None, settings=None):
                 'fit':'slope',
                 'xynames':['run', 'response']}
 
-    # if no settings are given, create:
-    if settings==None:
-        settings = plotbase.createsettings(opt, changes, 'response_run')
+    settings = plotbase.getsettings(opt, changes, settings, "response_run")
 
     fig, ax = plotbase.newplot(run=True)
-
-    local_opt = copy.deepcopy(opt)
-    
  
     for label, color, quantity in zip(['PtBalance (data)', 'MPF (data)'], 
                                 ['blue', 'red'], ['ptbalance_run', 'mpf_run']):
-        local_opt.labels = [label]
-        local_opt.colors = [color]
+        changes['labels'] = [label]
+        changes['colors'] = [color]
         settings['fitlabel_offset']=-0.08*['blue', 'red'].index(color)
-        plotdatamc.datamcplot(quantity, files, local_opt, fig_axes=(fig, ax), 
+        plotdatamc.datamcplot(quantity, files, opt, fig_axes=(fig, ax), 
                                             settings=settings)
   
     settings['filename'] = plotbase.getdefaultfilename("response_run", opt, settings)
 
+    plotbase.Save(fig, settings['filename'], opt)
+
+
+def response_algoflavour(files, opt, changes=None, settings=None):
+    response_physflavour(files, opt, changes=None, settings=None, definition='algo')
+
+def response_physflavour(files, opt, changes=None, settings=None, definition='phys'):
+    """Get response vs. flavour. This function only works with MC."""
+    settings = plotbase.getsettings(opt, changes, settings, "response_flavour")
+
+    x = '%sflavour' % definition
+    
+    markers = ['o', 's', 'd', '*']
+    colors = ['red', 'black', 'yellowgreen', 'lightskyblue', ]
+    quantities = ['ptbalance', 'mpf', 'recogen', 'genbalance', ]
+    labels = ['PtBalance', 'MPF', 'RecoJet/GenJet', 'GenJet/RecoZ']
+    
+    changes = {
+        'legloc':'upper center',
+        'xynames':[x, 'response'],
+        'subplot':True,
+        'lumi':0,
+        'rebin':4,
+            }
+
+    fig, ax = plotbase.newplot()
+
+    for m, c, q, l in zip(markers, colors, quantities, labels):
+        changes['markers'] = [m]
+        changes['colors'] = [c]
+        changes['labels'] = [l]
+        plotdatamc.datamcplot("%s_%s" % (q, x), files, opt, fig_axes=(fig, ax), 
+                                            changes=changes, settings=settings)
+
+    settings['filename'] = plotbase.getdefaultfilename("response_%s" % x, opt,
+                                                                 settings)
+    ax.set_xticks([0,1,2,3,4,5,21])
     plotbase.Save(fig, settings['filename'], opt)
 
 

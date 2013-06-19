@@ -1,74 +1,25 @@
 # This module contains the dictionaries for the plotting framework
 
-
-default_settings =  {
-        'algorithm'       :'AK5PFJetsCHS',# 
-        'correction'      : 'L1L2L3Res',  # 
-        'lumi'            : 19790,            # 
-        'energy'          : 8,        # 
-
-
-        'labels'          : ["data", "MC"],
-        'colors'          : ['black', '#CBDBF9'],
-        'markers'         : ["o","f"],
-
-        
-        'text'            : None,         # place text at locatio
-
-
-        'root'            : False,        # If not False: Save the histogram 
-                                          # in a root file. The value of this
-                                          # variable is used as the histogram
-                                          # name/title
-    
-        'legloc'          :'center right',# Location of the plot legend. 
-                                          # Set "False" for no legend
-
-        'subtext'         : None,         # Subtext that is added at the top 
-                                          # left corner 
-
-        'xynames'         : None,         # x-y-axis label names,
-                                          # e.g. ['zpt', 'ptbalance']
-        
-        'rebin'           : 5,            # x-axis rebinning
-
-        'ratio'           : False,        # if true, create a ratio plot
-        'ratiosubplot'    : False,        # create an addtional ratio subplot at the bottom
-
-        'selection'       : None,         # selection (cut) expression for 
-                                          # C++ expressions are valid e.g.
-
-        'special_binning' : False,        # special binning for npv, zpt, eta
-        'extrapolation'   : False,        # alpha-extrapolation: bin, global or false
-
-        'log'             : False,        # logarithmic y-axis
-        'xlog'            : False,        # logarithmic x-axis
-
-        'filename'        : None,         # specify filename
-
-        'fit'             : None,         # type of fit
-        'fit_offset'      : 0,
-
-        'eventnumberlabel': None,         # add label with number of events
-
-        'save_individually':False,        # for plot functions with several subplots:
-                                          # save each plot separately
-
-        'x'               : None,         # x-axis limits [upper, lower]
-        'y'               : None,         # y-axis limits [upper, lower]
-
-        'run'             : False,        # 'True': Some special formatting options for runplots
-                                          # 'diff': additionaly, subtract MC-mean from data
-
-        'subplot'         : False,        #
-
-        
-        'allalpha'        : False,        #
-        'alleta'        : False,          #
-        'folder'          : 'incut',      # folder in rootfile. 'incut', 'allevents'
-
-
-    }
+# Dictionary for the interaction with the root tuple
+ntuple_dict = {
+            'ptbalance':'jet1pt/zpt',
+            'balresp':'jet1pt/zpt',
+            'mpfresp':'mpf',
+            'alpha':'jet2pt/zpt',
+            'genbalance':'matchedgenjet1pt/zpt',
+            'mpf-raw':'rawmpf',
+            'jet1photonresponsefraction':'jet1photonfraction*jet1pt/zpt',
+            'jet1chargedemresponsefraction':'jet1chargedemfraction*jet1pt/zpt',
+            'jet1chargedhadresponsefraction':'jet1chargedhadfraction*jet1pt/zpt',
+            'jet1neutralhadresponsefraction':'jet1neutralhadfraction*jet1pt/zpt',
+            'jet1HFemresponsefraction':'jet1HFemfraction*jet1pt/zpt',
+            'jet1HFhadresponsefraction':'jet1HFhadfraction*jet1pt/zpt',
+            'deltaphi-jet1-jet2':'abs(abs(abs(jet1phi-jet2phi)-TMath::Pi())-TMath::Pi())',
+            'deltaphi-z-MET':'abs(abs(abs(zphi-METphi)-TMath::Pi())-TMath::Pi())',
+            'jet1abseta':'abs(jet1eta)',
+            'jet2abseta':'abs(jet2eta)',
+            'recogen':'jet1pt/matchedgenjet1pt',
+            }
 
 #   Quantity:[ax_min, ax_max, Name, unit, z_min, z_max]
 d_axes={
@@ -83,14 +34,14 @@ d_axes={
         'baltwojet':[0.0, 1.8, r"$p_\mathrm{T}$ balance for 2 jets", ""],
         'chargedem':[0,1, r"%s charged em fraction", ""],
         'chargedhad':[0,1, r"%s charged hadron fraction", ""],
-        'components_diff':[-0.05, 0.05, r"Data-MC of Leading Jet Components", ""],
-        'components_diff_response':[-0.1, 0.1, r"Data-MC of jet fraction * response", ""],
+        'components-diff':[-0.05, 0.05, r"Data-MC of Leading Jet Components", ""],
+        'components-response-diff':[-0.1, 0.1, r"Data-MC of jet fraction * response", ""],
         'components':[0, 1, r"Leading Jet Component Fraction", ""],
-        'components_response':[0, 1.2, r"Leading Jet Component Fraction * Response", ""],
+        'components-response':[0, 1.2, r"Leading Jet Component Fraction * Response", ""],
         'constituents':[0, 60, r"Number of Jet Constituents", ""],
         'correction':[0.85, 1.02, "Correction factor", ""],
         'cut':[0, 1.1, r"Cut Inefficiency (%s)", ""],
-        'datamcratio':[0.98, 1.01, r"data/MC ratio", ""],
+        'datamcratio':[0.967, 1.032, r"data/MC ratio", ""],
         'deltaeta':[0, 15, r"$\Delta \eta(\mathrm{%s})$", ""],
         'deltaeta':[0, 5, r"$\Delta \eta(\mathrm{%s,\/ %s})$", ""],
         'deltaphi':[0, 3.141593, r"$\Delta \phi(\mathrm{%s,\/%s})$", ""],
@@ -101,12 +52,17 @@ d_axes={
         'events':[0, 1, r"Events", ""],
         'extrapol':[0.86, 1.04, r"Response", ""],
         'filters': [-0.5, 12.5, r"Filters", ""],
-        'flavourfrc': [0.0, 1.0, r"Flavour fraction", ""],
+        'flavour': [0, 25, r"Flavour", ""],
+        'physflavour': [-0.5, 24.5, r"Flavour (Physics definition)", ""],
+        'physflavourfrac': [0, 1, r"Flavour fraction (Physics definition)", ""],
+        'algoflavour': [-0.5, 24.5, r"Flavour (Algorithmic definition)", ""],
+        'algoflavourfrac': [0, 1, r"Flavour fraction (Algorithmic definition)", ""],
         'genalpha':[0, 0.4, r"$p_\mathrm{T}^\mathrm{GenJet 2}/p_\mathrm{T}^\mathrm{GenZ}$", ""],
         'genbal-tobalparton':[0.501, 1.501, r"Parton Response $p_\mathrm{T}^\mathrm{GenJet}/p_\mathrm{T}^\mathrm{Parton}$", ""],
         'genbal-toparton':[0.501, 1.501, r"Parton Response $p_\mathrm{T}^\mathrm{GenJet}/p_\mathrm{T}^\mathrm{Parton_1}$", ""],
-        'genbalance':[0.501, 1.501, r"$p_\mathrm{T}$ balance (Gen Jet / Gen Z)", ""],
+        'genbalance':[0.7, 1.1, r"$p_\mathrm{T}$ balance (Gen Jet / Reco Z)", ""],
         'genbal':[0.501, 1.501, r"$p_\mathrm{T}$ balance (Gen Jet / Gen Z)", ""],
+        'genjet1pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Leading Gen Jet}$", 'GeV'],
         'genjet2pt':[ 0, 100, r"$p_\mathrm{T}^\mathrm{GenJet2}$", 'GeV'],
         'genmpf':[0.501, 1.501, r"Gen MPF Response", ""],
         'genzep':[0.0, 3.0, r"Zeppenfeld variable (Gen level)", ""],
@@ -136,6 +92,7 @@ d_axes={
         'L2abs':[-25, 25, r"L2 absolute correction","GeV"],
         'L3':[0, 1.2, r"L3 correction factor",""],
         'L3abs':[-25, 25, r"L3 absolute correction","GeV"],
+        'matchedgenjet1pt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Matched Leading Gen Jet}$", 'GeV'],
         'METeta':[-0.1, 0.1, r"$\eta^\mathrm{MET}$", ""],
         'METfraction':[0, 0.2, r"MET / $E^T_Total$", ""],
         'METpt':[ 0, 80, r"$E_\mathrm{T}^\mathrm{miss}$", 'GeV'],
@@ -167,7 +124,7 @@ d_axes={
         'rawMETpt':[ 0, 80, r"$E_\mathrm{T}^\mathrm{miss}$ (RAW)", 'GeV'],
         'reco':[0, 35, r"Number of Reconstructed Vertices $n$",""],
         'recogen':[0.501, 1.501, r"Jet Response $p_\mathrm{T}^\mathrm{RecoJet}/p_\mathrm{T}^\mathrm{GenJet}$", ""],
-        'response':[0.86, 1.06, r"Jet Response", ""],
+        'response':[0.84, 1.06, r"Jet Response", ""],
         'responseratio':[0.88, 1.03, r"data/MC ratio", ""],
         'resolution':[0, 0.3, r"Jet response resolution", ""],
         'resolutionratio':[.5, 1.5, r"Jet response resolution data/MC ratio", ""],
@@ -176,10 +133,13 @@ d_axes={
         'sumEt':[0, 2500, r"$\sum E^\mathrm{T}$", "GeV"],
         'summedf':[0.8,1.2, r"$%s$ fraction sum", ""],
         'summedfr':[0.8,1.2, r"$%s$ fraction sum2", ""],
+
+        'uept':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Unclustered Energy}$", 'GeV'],   
+
         'xsec':[0, 20, r"$n_\mathrm{Events} / \mathcal{L}$", "pb$^{-1}$"],
         'zeppenfeld':[0.0, 3, r"Zeppenfeld variable", ""],
         'zmass':[70, 110, r"$m^\mathrm{Z}$", "GeV"],
-        'zpt':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],
+        'zpt':[ 0, 1000, r"$p_\mathrm{T}^\mathrm{Z}$", 'GeV'],
         'oldbalresp':[0.0, 1.8, r"$p_\mathrm{T}$ balance (old version)", ""],
         'genbal_tobalparton':[0.0, 1.8, r"", ""],
         'genbal_toparton':[0.0, 1.8, r"", ""],
@@ -200,12 +160,6 @@ d_plots={
     'balresp_all':['changes={"fit":"vertical"}', 'datamc_all', 'balresp'],
     'filters': ['rebin=1, legloc="upper left"'],
     'filters_all': ['rebin=1, legloc="upper left"', 'datamc_all', 'filters'],
-    'genzmass_genzpt':['fit="chi2", legloc="lower center"'],
-    'genzmass_genzpt_zcutsonly':['legloc="lower center", fit="chi2", changes={"incut":"zcutsonly"}', 'datamcplot', 'genzmass_genzpt'],
-    'genzmass_genzpt_nocuts':['legloc="lower center", fit="chi2", changes={"incut":"allevents"}', 'datamcplot', 'genzmass_genzpt'],
-    'genbal':['fit="vertical"'],
-    'genbalance_genalpha':['fit="intercept", rebin=5'],
-    'genbalance_genalpha_alpha03':['fit="intercept", fit_offset=0.3, rebin=5, changes={"var":"var_CutSecondLeadingToZPt_0_3"}', 'datamcplot', 'genbalance_genalpha'],
     'jet1pt':['changes={"log":True}'],
     'jet2eta_jet2phi':['rebin=2'],
     'jet3pt':['log=True, rebin=2'],
@@ -233,6 +187,4 @@ d_plots={
     'balparton':['fit="vertical"'],
     'genbal-tobalparton':['fit="vertical"'],
     'genbal-tobalparton_alpha03':['fit="vertical", changes={"var":"var_CutSecondLeadingToZPt_0_3"}', 'datamcplot', 'genbal-tobalparton'],
-    'recogen':['fit="vertical"'],
-    'recogen_alpha03':['fit="vertical", changes={"var":"var_CutSecondLeadingToZPt_0_3"}', 'datamcplot', 'recogen'],
     } 

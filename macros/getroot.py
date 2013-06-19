@@ -30,6 +30,7 @@ import array
 import numpy as np
 import plotbase
 from labels import getaxislabels_list as getaxis
+from dictionaries import ntuple_dict
 
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True #prevents Root from reading argv
@@ -40,9 +41,9 @@ def ptcuts(ptvalues):
 def npvcuts(npvvalues):
     return ["{0}<=npv && npv<={1}".format(*b) for b in npvvalues]
 def etacuts(etavalues):
-    return ["{0}<=abs(jet1eta) && abs(jet1eta)<{1}".format(*b) for b in zip(etavalues[:-1], etavalues[1:])]
+    return ["{0}<=jet1abseta && jet1abseta<{1}".format(*b) for b in zip(etavalues[:-1], etavalues[1:])]
 def alphacuts(alphavalues):
-    return ["(jet2pt/zpt)<%1.2f"  % b for b in alphavalues]
+    return ["alpha<%1.2f"  % b for b in alphavalues]
 
 
 def openfile(filename, verbose=False, exitonfail=True):
@@ -62,7 +63,7 @@ def openfile(filename, verbose=False, exitonfail=True):
     return f
 
 
-def getplot(name, rootfile, changes={}, rebin=1):
+def getplot(name, rootfile, changes=None, rebin=1):
     rootobject = getobject(name, rootfile, changes)
     return root2histo(rootobject, rootfile.GetName(), rebin)
 
@@ -80,9 +81,10 @@ def getplotfromtree(nickname, rootfile, settings, twoD=False, changes=None):
     return histo
 
 def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
+    """This function returns a root object 
 
-    settings = plotbase.get_local_settings(settings, changes)
-
+    """
+    settings = plotbase.apply_changes(settings, changes)
 
     # get the tree:
     treename = "_".join([settings['folder'], settings['algorithm']+settings['correction']])
@@ -93,13 +95,6 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
 
     quantities = nickname.split("_")
 
-    x_dict = {'zpt':[0, 1000],
-              'alpha':[0, 0.5]   
-             }
-    if quantities[-1] in x_dict:
-        settings['x'] = x_dict[quantities[-1]]
-
-
     #for npv we need bins with width=1
     bins = []
     for quantity, limits in zip(quantities[::-1], [settings['x'], settings['y']]):
@@ -109,13 +104,19 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
             bins += [100]
 
     #special binning for certain quantities:
+    # TODO make this dependent on the list in "opt" !
+    #'zpt': settings['bins'],
+    #'jet1abseta':settings['eta'],
+    #'jet1eta':[-elem for elem in settings['eta'][1:][::-1]]+settings['eta'],
+    #'npv':[a-0.5 for a,b in settings['npv']]+[settings['npv'][-1][1]-0.5]}
     bin_dict = {'zpt': [30, 40, 50, 60, 75, 95, 125, 180, 300, 1000],
                 'jet1abseta':[0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
                 'jet1eta':[-5.191, -3.139, -2.964, -2.5, -1.93, -1.305, -0.783,
                                 0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
                 'npv':[0, 4.5, 8.5, 15.5, 21.5, 100]}
 
-    if settings['special_binning'] is True and quantities[-1] in bin_dict:
+
+    if settings['special_binning'] and quantities[-1] in bin_dict:
         bin_array = array.array('d', bin_dict[quantities[-1]])
         bins[0] = len(bin_dict[quantities[-1]])-1
 
@@ -123,7 +124,7 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
     name = name.replace("/","").replace(")","").replace("(","")
 
     rootfile.Delete("%s;*" % name)
-    
+
     # create the final selection from the settings
     selection = []
     if settings['allalpha'] is not True and settings['folder'] != 'allevents':
@@ -137,17 +138,15 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
     else:
         settings['selection'] = "weight"
 
-    #create a copy of quantities to iterate over:
+    #create a copy of quantities to iterate over (to replace the from the dict):
     copy_of_quantities = quantities
-    for key in source_dictionary.keys():
+    for key in ntuple_dict.keys():
         if key in settings['selection']:
             settings['selection'] = settings['selection'].replace(key, 
                                                             dictconvert(key))
         for quantity, i in zip(copy_of_quantities, range(len(copy_of_quantities))):
             if key in quantity:
                 quantities[i] = quantities[i].replace(key, dictconvert(key))
-
-    #print "Selection: ", settings['selection']
 
     if len(quantities)==1:
         rootobject = ROOT.TH1D(name, nickname, bins[0], settings['x'][0], settings['x'][1])
@@ -156,8 +155,12 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
         if twoD:
             rootobject = ROOT.TH2D(name, nickname, bins[0], settings['x'][0],settings['x'][1], 
                                                         bins[1], settings['y'][0], settings['y'][1])
-            ntuple.Project(name, "%s:%s" % (quantities[1],
-                                           quantities[0]), settings['selection'])
+            ntuple.Project(name, "%s:%s" % (quantities[0],
+                                           quantities[1]), settings['selection'])
+            # also print the correlation:
+            print "Correlation between %s and %s in %s in the selected range:  %1.5f" % (quantities[1], 
+                            quantities[0], rootfile.GetName().split("/")[-3], 
+                                          rootobject.GetCorrelationFactor())
         else:
             if settings['special_binning']:
                 rootobject = ROOT.TProfile(name, nickname, bins[0], bin_array)
@@ -169,68 +172,21 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
         rootobject = ROOT.TProfile2D(name, nickname, bins[0], settings['x'][0],settings['x'][1], 
                                                     bins[1], settings['y'][0], settings['y'][1])
         ntuple.Project(name, "%s:%s:%s" % (quantities[0],
-             quantities[2], quantities[1]), settings['selection'])
+             quantities[1], quantities[2]), settings['selection'])
 
     return rootobject
 
 
 def dictconvert(quantity):
-    if quantity in source_dictionary:
-        return source_dictionary[quantity]
+    if quantity in ntuple_dict:
+        return ntuple_dict[quantity]
     else:
         return quantity
 
-source_dictionary = {
-            'ptbalance':'jet1pt/zpt',
-            'balresp':'jet1pt/zpt',
-            'mpfresp':'mpf',
-            'alpha':'jet2pt/zpt',
-            'genalpha':'jet2pt/zpt',
-            'mpf-raw':'rawmpf',
-            'recogen':'genjet1pt/jet1pt',
-            'jet1photonresponsefraction':'jet1photonfraction*jet1pt/zpt',
-            'jet1chargedemresponsefraction':'jet1chargedemfraction*jet1pt/zpt',
-            'jet1chargedhadresponsefraction':'jet1chargedhadfraction*jet1pt/zpt',
-            'jet1neutralhadresponsefraction':'jet1neutralhadfraction*jet1pt/zpt',
-            'jet1HFemresponsefraction':'jet1HFemfraction*jet1pt/zpt',
-            'jet1HFhadresponsefraction':'jet1HFhadfraction*jet1pt/zpt',
-            'deltaphi-jet1-jet2':'abs(abs(abs(jet1phi-jet2phi)-TMath::Pi())-TMath::Pi())',
-            'deltaphi-z-met':'abs(abs(abs(zphi-METphi)-TMath::Pi())-TMath::Pi())',
-            'jet1abseta':'abs(jet1eta)',
-            }
 
 def getobjectfromnick(nickname, rootfile, changes, rebin=1, selection=""):
     objectname = getobjectname(nickname, changes)
     return getobject(objectname, rootfile, changes, selection=selection)
-
-
-def getbins(rootfile, fallbackbins):
-    """ guess the binning from the folders in a rootfile
-
-    this function assumes that the binning is reflected in the naming
-    scheme of the folders in the rootfile in the following way:
-    Pt<low>to<high>_* where <low> and <high> are the bin borders.
-    If this fails the value of fallbackbins is returned.
-    """
-    result = []
-    try:
-        for key in rootfile.GetListOfKeys():
-            name = key.GetName()
-            if name.find("Pt") == 0 and "to" in name:
-                low, high = [int(x) for x in name[2:name.find("_")].split("to")]
-                if low  not in result:
-                    result.append(low)
-                if high not in result:
-                    result.append(high)
-        assert result != [], "No bins found in " + rootfile.GetName()
-    except AssertionError:
-        print result
-        print "Bins could not be determined from root file."
-        print "Fall-back binning used:", fallbackbins
-        result = fallbackbins
-        assert result != []
-    result.sort()
-    return result
 
 
 def getobject(name, rootfile, changes={}, exact=True, selection=""):
@@ -285,8 +241,8 @@ def getobjectname(quantity='z_mass', change={}):
 def saveasroot(rootobjects, opt, settings):
     filename = opt.out + "/%s.root" % settings['filename']
     f = ROOT.TFile(filename, "UPDATE")
-    for rgraph, name in zip(rootobjects, opt.labels):
-        plotname = "_".join([settings['root'], name])
+    for rgraph, name in zip(rootobjects, settings['labels']):
+        plotname = settings['root']#"_".join([settings['root'], name])
         print "Saving %s in ROOT-file %s" % (plotname, filename)
         rgraph.SetTitle(plotname)
         rgraph.SetName(plotname)
@@ -737,7 +693,7 @@ def getgraph(x, y, f, opt, settings, changes=None, key='var', var=None, drop=Tru
        and the settings in 'changes'. The x axis is the variation in 'var'.
     """
 
-    settings = plotbase.get_local_settings(settings, changes)
+    settings = plotbase.apply_changes(settings, changes)
     try:
         f1 = f[0]
         f2 = f[1]
