@@ -61,6 +61,7 @@
 #include "ZJet/MetaDataProducer/HltSelector.h"
 #include "ZJet/MetaDataProducer/JetMatcher.h"
 #include "ZJet/MetaDataProducer/TypeIMETProducer.h"
+#include "ZJet/MetaDataProducer/UnclusteredEnergyProducer.h"
 #include "ZJet/ZJetPipelineInitializer.h"
 
 #include "KappaTools/RootTools/HLTTools.h"
@@ -127,6 +128,10 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 		else if (TypeIMETProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new TypeIMETProducer(
 					globalSettings.get<bool>("EnableMetPhiCorrection"),
+					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
+
+		else if (UnclusteredEnergyProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new UnclusteredEnergyProducer(
 					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else
 			CALIB_LOG_FATAL("Global MetaData producer of name " << *it << " not found")

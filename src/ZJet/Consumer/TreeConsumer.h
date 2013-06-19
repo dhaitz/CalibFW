@@ -155,6 +155,13 @@ private:
     else if (string =="rawMETphi")
         return event.GetMet(s)->p4.Phi();
 
+    else if (string =="uept")
+        return metaData.GetUE(event, s)->p4.Pt();
+    else if (string =="uephi")
+        return metaData.GetUE(event, s)->p4.Phi();
+    else if (string =="ueeta")
+        return metaData.GetUE(event, s)->p4.Eta();
+
     else if (string =="mpf")
         return metaData.GetMPF(metaData.GetMet(event, s));
     else if (string =="rawmpf")

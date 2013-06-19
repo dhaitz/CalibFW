@@ -290,6 +290,18 @@ public:
 	typedef std::map<std::string, KDataPFMET> MetaMETContainer;
 	mutable MetaMETContainer m_MET;
 
+	//Unclustered Energy
+	mutable KDataLV UE;
+	mutable KDataLV UEchs;
+
+	KDataLV* GetUE(ZJetEventData const& event, ZJetPipelineSettings const& psettings) const
+	{
+		if (std::string::npos != psettings.GetJetAlgorithm().find("CHS"))
+			return &UEchs;
+        else
+			return &UE;
+	}
+
 	KDataPFMET* GetMet(ZJetEventData const& event, ZJetPipelineSettings const& psettings) const
 	{
 		if (std::string::npos != psettings.GetJetAlgorithm().find("L3"))
