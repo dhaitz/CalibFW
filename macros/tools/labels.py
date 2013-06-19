@@ -21,12 +21,12 @@ def labels(ax, opt, settings, subplot=False):
         authorlabel(ax, opt.author)
         datelabel(ax, opt.date)
         if settings['eventnumberlabel'] is True:
-            plotbase.eventnumberlabel(ax, opt, events)
+            plotbase.eventnumberlabel(ax, settings)
         if settings['run'] is True:
             plotbase.runlabel(ax, settings)
-        if 'selection' in opt.settings:
-            ax.text(0.98, 0.98, opt.settings['selection'], va='top', ha='right', 
-                         transform=ax.transAxes, size='small', color='black')
+        if 'selection' in opt.user_options:
+            ax.text(0.98, 0.98, opt.user_options['selection'], va='top', ha='right', 
+                            transform=ax.transAxes, size='small', color='black')
         if settings['subtext'] is not None:
             ax.text(-0.03, 1.01, settings['subtext'], va='bottom', ha='right', 
                     transform=ax.transAxes, size='xx-large', color='black')
@@ -34,12 +34,12 @@ def labels(ax, opt, settings, subplot=False):
             ax.text(0.02, 0.02, "%s extrapolation applied" % settings['extrapolation'],
                                  va='bottom', ha='left', transform=ax.transAxes,
                                  size='small', color='black')
-
         if settings['text'] is not None:
             textlabel(ax, settings['text'])
-    if settings['legloc'] is not False:
+    if settings['legloc'] is not None:
         legend = ax.legend(loc=settings['legloc'], numpoints=1, fancybox=True, 
                                                                     shadow=True)
+
     if settings['subtext'] is not None:
         ax.text(-0.04, 1.01, settings['subtext'], va='bottom', ha='right', 
                          transform=ax.transAxes, size='xx-large', color='black')
@@ -54,8 +54,8 @@ def runlabel(ax, settings):
                               ha='left', color='gray', alpha=0.5, size='medium')
 
 def textlabel(ax, text, x=0.02, y=0.02):
-    if type(text) is list:
-        text, x, y = text
+    if len(text.split(",")) is 3:
+        text, x, y = text.split(",")
     ax.text(x, y, text, va='bottom', ha='left', transform=ax.transAxes,
                                  size='small', color='black')
 
@@ -73,11 +73,14 @@ def incutlabel(ax, color='black', incut=''):
     ax.text(0.97, 0.97, text, va='top', ha='right', transform=ax.transAxes, color=color)
     return ax
 
-def eventnumberlabel(ax, opt, events):
+def eventnumberlabel(ax, settings):
+    if 'events' not in settings:
+        return
     text=""
-    for f, l in zip(events, opt.labels):
-        text += "\n" + l + " Events: " + str("%1.1e"% f)
-    ax.text(0.7,1.01, text, size='xx-small', va='bottom', ha='right',transform=ax.transAxes)
+    for f, l in zip(settings['events'], settings['labels']):
+        text += "\n %s Events: %1.1e" % (l, f)
+    ax.text(0.7,1.01, text, size='xx-small', va='bottom', ha='right',
+                                                         transform=ax.transAxes)
         
 
 def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):

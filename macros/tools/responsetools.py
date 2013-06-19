@@ -14,7 +14,7 @@ def getextrapolated(balancetype, rootfile, settings=None, changes=None,
     if balancetype=='recogen':
         return 1., 0.
 
-    settings = plotbase.get_local_settings(settings, changes)
+    settings = plotbase.apply_changes(settings, changes)
 
     quantity = balancetype + "_alpha"
     if "gen" in quantity:

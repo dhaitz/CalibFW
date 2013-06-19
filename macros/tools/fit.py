@@ -26,14 +26,17 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
 
     elif settings['fit'] == 'chi2':
         # fit a horizontal line
-        intercept, ierr, chi2, ndf = fitline(rootobject, limits)
+        try:
+            intercept, ierr, chi2, ndf = fitline(rootobject, limits)
+        except:
+            print "hallo"
         #account for scaling and rebinning:
         intercept = scalefactor * intercept
         ax.axhline(intercept, color=color, linestyle='--')
         ax.axhspan(intercept+ierr, intercept-ierr, color=color, alpha=0.2)
 
         # and display chi^2
-        ax.text(0.97, 0.25-(index/10.), r"average: %1.3f" % intercept,
+        ax.text(0.97, 0.25-(index/10.), r"y average: %1.3f$\pm$%1.3f" % (intercept, ierr),
         va='top', ha='right', transform=ax.transAxes, color=color)
         ax.text(0.97, 0.20-(index/10.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
         va='top', ha='right', transform=ax.transAxes, color=color)
@@ -76,8 +79,15 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
 
         #display slope:
         if settings['fit'] == 'slope':
-            a = int(math.log10(abs(slope)))-1
-            ax.text(0.97, 0.95-(index/10.)+offset, r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{%g}$" % (slope/(10**a), serr/(10**a), a),
+            if 'fit_slope_exponent' in settings:
+                fit_slope_exponent = settings['fit_slope_exponent']
+            else:
+                try:
+                    fit_slope_exponent = int(math.log10(abs(slope)))-1
+                    settings['fit_slope_exponent'] = fit_slope_exponent                
+                except:
+                    return
+            ax.text(0.97, 0.95-(index/10.)+offset, r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{%g}$" % (slope/(10**fit_slope_exponent), serr/(10**fit_slope_exponent), fit_slope_exponent),
                va='top', ha='right', transform=ax.transAxes, color=color,
                size='x-large')
         elif settings['fit'] == 'intercept':
