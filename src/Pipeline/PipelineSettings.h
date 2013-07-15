@@ -172,6 +172,43 @@ static doublevector GetAsDoubleList(boost::property_tree::ptree & propTree,
 	}
 	return fvec;
 }
+
+static intvector GetAsIntList(boost::property_tree::ptree & propTree,
+		std::string path)
+{
+	intvector fvec;
+	try
+	{
+		BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
+				propTree.get_child(path))
+		{
+			fvec.push_back(atof(v.second.data().c_str()));
+		}
+	}
+	catch (boost::property_tree::ptree_bad_path& e)
+	{
+		// no problem, node optional
+	}
+	return fvec;
+}
+static intvector GetAsIntList(boost::property_tree::ptree * propTree,
+		std::string path)
+{
+	intvector fvec;
+	try
+	{
+		BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
+				propTree->get_child(path))
+		{
+			fvec.push_back(atof(v.second.data().c_str()));
+		}
+	}
+	catch (boost::property_tree::ptree_bad_path& e)
+	{
+		// no problem, node optional
+	}
+	return fvec;
+}
 };
 
 }

@@ -29,6 +29,7 @@ extern std::ofstream * g_logFile;
 // vectors
 typedef std::vector<std::string> stringvector;
 typedef std::vector<double> doublevector;
+typedef std::vector<int> intvector;
 
 /// Implements a property with Get, Set and Has Methods
 #define IMPL_PROPERTY(TYPE, SNAME)                          \

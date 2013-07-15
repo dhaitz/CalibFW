@@ -266,10 +266,10 @@ public:
 		RETURN_CACHED(m_metaDataProducers, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".MetaDataProducers"))
 	}
 
-    VarCache<stringvector> m_quantities;
-	stringvector GetQuantities() const
+    VarCache<intvector> m_quantities;
+	intvector GetQuantities() const
 	{
-		RETURN_CACHED(m_quantities, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".QuantitiesVector"))
+		RETURN_CACHED(m_quantities, PropertyTreeSupport::GetAsIntList(GetPropTree(), GetSettingsRoot() + ".QuantitiesVector"))
 	}
 
 

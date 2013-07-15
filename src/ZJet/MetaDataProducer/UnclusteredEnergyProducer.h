@@ -36,14 +36,17 @@ public:
 			ue = &metaData.UEchs;
 		}
 
+        // UE is the negative of MET ...
         ue->p4 -= rawmet->p4;
 
-
+        // ... sum over all jets ...
 		for (int j=0; j < metaData.m_listValidJets[algoname_raw].size(); j++)
 		{
             int n = metaData.m_listValidJets[algoname_raw].at(j);
             ue->p4 -= event.m_pfJets.at(algoname_raw)->at(n).p4;
         }
+        // ... and Z.
+        ue->p4 -= metaData.GetRefZ().p4;
 
 	}
 		return true;

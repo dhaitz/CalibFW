@@ -289,9 +289,14 @@ public:
 		// Loop over particles
 		for (auto it = data.m_particles->begin(); it != data.m_particles->end(); ++it)
 		{
-			// Take only stable final particles and check for children
-			if (it->status() != 3)
-				continue;
+			// Take only stable final particles
+			//if (it->status() != 3)
+			//    continue;
+
+            // ignore first 6 particles (because that is what CMSSW does)
+            if (it-data.m_particles->begin() < 6)
+                continue;
+
 			if (it->children != 0)
 				CALIB_LOG("Particle has " << it->children << " children.")
 
@@ -307,14 +312,14 @@ public:
 			else if (std::abs(it->pdgId()) < 7 || std::abs(it->pdgId()) == 21)	// parton
 			{
 				metaData.m_genPartons.push_back(*it);
-				//CALIB_LOG("parton: " << it->pdgId() << " pt=" << it->p4.Pt()<< " eta=" << it->p4.Eta())
 			}
 			else if (it->pdgId() == 2212 && it->p4.Pt() < 1e-6) // ignore incoming protons
 			{
 			}
 			else // unexpected particles
 			{
-				CALIB_LOG("Unexpected particle with id: " << it->pdgId() << ", status: " << it->status())
+				if (it->status() != 3 && std::abs(it->pdgId()) < 7)//CALIB_LOG("Unexpected particle with id: " << it->pdgId() << ", status: " << it->status())
+                    CALIB_LOG(it->status() << "   id: " << it->pdgId())
 			}
 		}
 
@@ -325,8 +330,8 @@ public:
 			CALIB_LOG("There is no parton!")
 		if (metaData.m_genMuons.size() < 1)
 			CALIB_LOG("There are no gen muons!")
-		if (metaData.m_genMuons.size() > 2)
-			CALIB_LOG("There are more than 2 gen muons (" << metaData.m_genMuons.size() << ")!")
+		//if (metaData.m_genMuons.size() > 2)
+		//	CALIB_LOG("There are more than 2 gen muons (" << metaData.m_genMuons.size() << ")!")
 
 		return true;
 	}
@@ -367,7 +372,7 @@ public:
 		}
 		if (metaData.m_genZs.size() > 1)
 		{
-			CALIB_LOG("More than one gen Z in the event.")
+			//CALIB_LOG("More than one gen Z in the event.")
 			// Could be resolved, but this case is currently not present.
 			metaData.SetValidGenZ(false);
 			return true;
