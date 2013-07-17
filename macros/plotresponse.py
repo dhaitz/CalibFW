@@ -483,6 +483,12 @@ def response_physflavour(files, opt, changes=None, settings=None, definition='ph
     markers = ['o', 's', 'd', '*']
     colors = ['red', 'black', 'yellowgreen', 'lightskyblue', ]
     quantities = ['ptbalance', 'mpf', 'recogen', 'genbalance', ]
+
+    plotbase.debug("neutrino-inclusive quantities are used")
+    ################################################################################
+    quantities = ['jet1npt/zpt', 'mpfn', 'jet1npt/matchedgenjet1pt', 'genbalance', ]
+    ################################################################################
+
     labels = ['PtBalance', 'MPF', 'RecoJet/GenJet', 'GenJet/RecoZ']
     
     changes = {
@@ -505,6 +511,118 @@ def response_physflavour(files, opt, changes=None, settings=None, definition='ph
     settings['filename'] = plotbase.getdefaultfilename("response_%s" % x, opt,
                                                                  settings)
     ax.set_xticks([0,1,2,3,4,5,21])
+    plotbase.Save(fig, settings['filename'], opt)
+
+
+def physflavour_extrapol_all(files, opt, changes=None, settings=None):
+    for quantity in ['jet1npt/zpt', 'mpfn', 'jet1npt/matchedgenjet1pt', 'genbalance']:
+        physflavour_extrapol(files, opt, definition='phys', responsetype = quantity)
+
+
+def physflavour_extrapol(files, opt, changes=None, settings=None,
+        definition='phys', responsetype = 'jet1npt/zpt'):
+
+    flavour = "%sflavour" % definition
+
+    changes = {'legloc':'lower center'}
+    settings = plotbase.getsettings(opt, changes, settings, "response_alpha")
+
+    markers = ['o', 's', 'd', '*']
+    colors = ['red', 'black', 'yellowgreen', 'lightskyblue', ]
+    qlabels = ['PtBalance', 'MPF', 'RecoJet/GenJet', 'GenJet/RecoZ']
+
+    labels = ['u & d', 's', 'c & b', 'gluon']
+    x = [1,2,3,4]
+    selections = ["%s>0 && %s<3" % (flavour, flavour),
+                    "%s==3" % flavour,
+                    "%s>3 && %s<6" % (flavour, flavour),
+                    "%s==21" % flavour,
+                 ]
+
+    axisdict = {'jet1npt/zpt': "$p_T$ balance (incl. neutrinos)",
+                'mpfn': "MPF response (incl. neutrinos)",
+                'jet1npt/matchedgenjet1pt' :"$p_\mathrm{T}^\mathrm{RecoJet}/p_\mathrm{T}^\mathrm{GenJet}$ (incl. neutrinos)"
+                }
+
+    namedict= {'jet1npt/zpt': "ptbalance",
+                'mpfn': "mpf",
+                'jet1npt/matchedgenjet1pt' :"recogen"
+                }
+
+    changes = {
+        'legloc':'lower center',
+        'xynames':['alpha', 'response'],
+        'lumi':0,
+        'y':[0.84, 1.05],
+        'rebin':5,
+        'fit':'intercept',
+            }
+
+    fig, ax = plotbase.newplot()
+
+    #add neutrinos t genjets
+    genneutrinos = False
+    if genneutrinos:
+        responses = ['jet1npt/zpt', 'mpfn', 'jet1npt/(matchedgenjet1pt+neutrinopt)', '(matchedgenjet1pt+neutrinopt)/zpt']
+    else:
+        responses = ['jet1npt/zpt', 'mpfn', 'jet1npt/matchedgenjet1pt', 'genbalance']
+
+    for m, c, responsetype, l in zip(markers, colors, responses, qlabels):
+        changes['markers'] = [m]
+        changes['colors'] = [c]
+
+        y = []
+        yerr = []
+
+        for s in  selections:
+            if settings['extrapolation']:
+                changes['selection'] = "%s && %s" % ("alpha<0.3", s)
+                changes['allalpha'] = True
+            
+                quantity = "%s_alpha" % responsetype
+
+                rsettings = {}
+                rsettings = plotbase.getsettings(opt, changes, settings, quantity)
+
+                rootobject = getroot.getobjectfromtree(quantity, files[0], rsettings)
+                rootobject.Rebin(rsettings['rebin'])
+
+                intercept, ierr = plotbase.fitline2(rootobject)[:2]
+                y += [intercept]
+                yerr += [ierr]
+            else:
+                changes['selection'] = "%s && %s" % ("alpha<0.3", s)
+                quantity = responsetype
+
+                rsettings = {}
+                rsettings = plotbase.getsettings(opt, changes, settings, quantity)
+                rsettings['x'] = [0, 2]
+
+                rootobject = getroot.getobjectfromtree(quantity, files[0], rsettings)
+                rootobject.Rebin(rsettings['rebin'])
+
+                y += [rootobject.GetMean()]
+                yerr += [rootobject.GetMeanError()]
+
+
+        ax.errorbar(x, y, yerr, drawstyle='steps-mid', color=c, fmt=m, 
+                          capsize=0 ,label=l)
+
+
+    # set the axis labels and limits
+    plotbase.labels(ax, opt, settings, settings['subplot'])
+    plotbase.axislabels(ax, flavour, settings['xynames'][1], 
+                                                            settings=settings)
+    plotbase.setaxislimits(ax, settings)
+    ax.set_xlim(0, 5)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.axhline(1.0, color='black', linestyle=':')
+
+    
+
+    settings['filename'] = plotbase.getdefaultfilename("%s_alpha" % 
+                    namedict.get(responsetype, responsetype), opt, settings)
     plotbase.Save(fig, settings['filename'], opt)
 
 
