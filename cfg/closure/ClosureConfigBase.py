@@ -1151,12 +1151,11 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
     config.set("local", "delay output", "True")
 
     config.add_section("UserMod")
-    # we can run more data files with one MC job as they don't contain that many
-    # events
+    # use 40 jobs for the MC, 80 for data
     if settings["InputType"] == "mc":
-        config.set("UserMod", "files per job", 15)
+        config.set("UserMod", "files per job", int(round(len(settings["InputFiles"])/40.+0.4999))) 
     else:
-        config.set("UserMod", "files per job", 25)
+        config.set("UserMod", "files per job", int(round(len(settings["InputFiles"])/80.+0.4999)))
     config.set("UserMod", "executable", "gc-run-closure.sh")
     config.set("UserMod", "subst files", "gc-run-closure.sh")
     config.set("UserMod", "input files", GetBasePath() + "external/lib/libboost_regex.so.1.45.0")
