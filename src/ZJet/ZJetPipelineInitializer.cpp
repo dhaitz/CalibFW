@@ -7,6 +7,7 @@
 #include "ZJet/MetaDataProducer/ZJetMetaDataProducer.h"
 #include "ZJet/MetaDataProducer/HltSelector.h"
 
+/* remove these - not needed anymore
 #include "ZJet/Consumer/ZJetDrawConsumer.h"
 #include "ZJet/Consumer/CutStatistics.h"
 #include "ZJet/Consumer/FilterStatistics.h"
@@ -17,6 +18,7 @@
 #include "ZJet/Consumer/BinResponseConsumer.h"
 #include "ZJet/Consumer/MetaConsumerDataLV.h"
 #include "ZJet/Consumer/JetMatchingPlots.h"
+*/
 
 #include "ZJet/Consumer/TreeConsumer.h"
 
@@ -146,7 +148,12 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		std::string sName = v.second.get<std::string>("Name");
 		std::string consPath = pset.GetSettingsRoot() + ".Consumer." + v.first.data();
 
-		if (sName == "quantities_all" )
+
+        if (sName == "tree" )
+        {
+			pLine->AddConsumer( new TreeConsumer( ) );
+        }
+		/*if (sName == "quantities_all" )
 		{
 			pLine->AddConsumer( new DataZConsumer( pset.GetJetAlgorithm() ));
 			//pLine->AddConsumer( new DataMuonConsumer(+1, pset.GetJetAlgorithm()));
@@ -166,13 +173,13 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 1, pset.GetJetAlgorithm(), true));
 				//pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 2, pset.GetJetAlgorithm(), true));
 
-				/*if (JetType::IsRaw(pset.GetJetAlgorithm()))
+				if (JetType::IsRaw(pset.GetJetAlgorithm()))
 				{
 					// plot the invalid jet 0
 					pLine->AddConsumer(new DataPFJetsConsumer(pset.GetJetAlgorithm(),
 							0, pset.GetJetAlgorithm(), false, false, "jets_invalid_"));
 				}
-				*/
+				
 			}
 
 			if (pset.IsMC() && (pset.GetJetAlgorithm() == "AK5PFJetsL1L2L3" ||
@@ -245,7 +252,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		// 2nd Level Producer
 		else if( sName == JetRespConsumer::GetName() )
 			pLine->AddConsumer( new JetRespConsumer( pset.GetPropTree(), consPath ) );
-		else
+		*/
+        else
 			CALIB_LOG_FATAL("Consumer " << sName << " not found.")
 	}
 
