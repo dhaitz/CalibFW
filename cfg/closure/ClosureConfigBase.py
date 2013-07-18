@@ -309,10 +309,10 @@ def treeconfig(conf, quantities = None):
         pval['QuantitiesString'] = ":".join(pval['QuantitiesVector'])
 
         # replace the quantites_vector with integers according to the dictionary
-        new_quantities = []
-        for q in pval['QuantitiesVector']:
-            new_quantities += [closure_dict[q]]
-        pval['QuantitiesVector'] = new_quantities
+        #new_quantities = []
+        #for q in pval['QuantitiesVector']:
+        #    new_quantities += [closure_dict[q]]
+        #pval['QuantitiesVector'] = new_quantities
             
         pval['Cuts'].remove("leadingjet_eta")
         pval['Cuts'].remove("secondleading_to_zpt")
@@ -323,79 +323,6 @@ def treeconfig(conf, quantities = None):
 
         AddConsumerNoConfig(pval, "tree")
     return conf
-
-closure_dict = {
-        'npv' : 0,
-        'rho' : 1,
-        'run' : 2,
-        'weight' : 3,
-        'zpt' : 4,
-        'zeta' : 5,
-        'zphi' : 6,
-        'zmass' : 7,
-        'jet1pt' : 8,
-        'jet1eta' : 9,
-        'jet1phi' : 10,
-        'jet1photonfraction' : 11,
-        'jet1chargedemfraction' : 12,
-        'jet1chargedhadfraction' : 13,
-        'jet1neutralhadfraction' : 14,
-        'jet1muonfraction' : 15,
-        'jet1HFhadfraction' : 16,
-        'jet1HFemfraction' : 17,
-        'jet2pt' : 18,
-        'jet2phi' : 19,
-        'jet2eta' : 20,
-        'METpt' : 21,
-        'METphi' : 22,
-        'sumEt' : 23,
-        'rawMETpt' : 24,
-        'rawMETphi' : 25,
-        'uept' : 26,
-        'uephi' : 27,
-        'ueeta' : 28,
-        'mpf' : 29,
-        'rawmpf' : 30,
-        'otherjetspt' : 31,
-        'otherjetsphi' : 32,
-        'otherjetseta' : 33,
-        'genjet1pt' : 34,
-        'genjet1eta' : 35,
-        'genjet1phi' : 36,
-        'matchedgenjet1pt' : 37,
-        'genjet2pt' : 40,
-        'genzpt' : 42,
-        'genmpf' : 43,
-
-        'algoflavour' : 44,
-        'physflavour' : 45,
-
-        'nmatchingpartons' : 46,
-        'nmatchingpartons3' : 47,
-        'npartons' : 48,
-        'npartons3' : 49,
-        
-        'partonratio': 50,
-
-        'leadinggenparticle': 51,
-
-        'firstpartonflavour': 53,
-        'secondpartonflavour': 54,
-
-        'nneutrinos' : 55,
-        'nmatchingneutrinos' : 56,
-
-        'leadinggenparticle5': 99,
-
-        'klongpt':100,
-
-        'neutrinopt':150,
-        'neutrinophi':151,
-
-        'firstpartonpt': 101,
-        'partonsumpt': 102,
-
-}
 
 def ApplyPUReweighting(conf, dataset, weightfile="data/pileup/puweights.json"):
     """Use pile-up reweighting.
