@@ -4,8 +4,46 @@ import plotdatamc
 import getroot
 import math
 import plotresponse
-import listofruns
 
+
+
+def flavour_comp(files, opt):
+
+    quantity = "components_physflavour"
+    settings = plotbase.getsettings(opt, changes=None, settings=None, 
+                                            quantity=quantity) 
+    nbr = 5 
+    labels =     ["NHad", r"$\gamma$       ", "CHad", r"$e$       ",
+                                        r"$\mu$       ", "HFem", "HFhad"][:nbr]
+    labels.reverse()
+    colours =    ['YellowGreen', 'LightSkyBlue', 'Orange', 'MediumBlue',
+                  'Darkred', 'yellow', 'grey'][:nbr]
+    colours.reverse()
+    components = ["neutralhad", "photon", "chargedhad", "chargedem", "muon",
+                                                         "HFem", "HFhad"][:nbr]
+    components.reverse()
+    names = ["jet1" + component + "fraction" for component in components]
+
+    stacked = []
+    for i in range(len(names)):
+        stacked += ["(%s)" % "+".join(names[i:])]
+    fig, ax = plotbase.newplot()
+
+    changes = {'subplot':True,
+                'rebin':4,
+                'xynames':['physflavour', 'components'],
+                'markers':['f']}
+
+    for n, l, c in zip(stacked, labels, colours):
+        changes['labels'] = [l]
+        changes['colors'] = [c]
+        
+        plotdatamc.datamcplot("%s_physflavour" % n, files, opt, 
+                                            fig_axes=(fig, ax), changes=changes)
+
+
+    settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
+    plotbase.Save(fig, settings['filename'], opt)
 
 
 def ineff(files, opt):    
