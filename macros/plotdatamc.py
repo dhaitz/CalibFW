@@ -121,17 +121,6 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         ax.axvline(0.5, color='black', linestyle=':')
 
 
-    # log and xlog settings
-    if settings['log']:
-        ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in datamc) * 2)
-        ax.set_yscale('log')
-
-
-    if settings['xticks'] is not None:
-        ax.set_xticks(settings['xticks'])
-        strs = [str(s) for s in settings['xticks']]
-        ax.set_xticklabels(strs)
-
     # save it
     if settings['subplot']:
         del rootobjects
@@ -139,6 +128,14 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     else:
         plotbase.Save(fig, settings['filename'], opt)
 
+        # log and xlog plots are saved separately
+        if settings['log']:
+            ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in datamc) * 2)
+            ax.set_yscale('log')
+            plotbase.Save(fig, settings['filename'] + '_log', opt)
+        if settings['xlog']:
+            ax.set_xscale('log')
+            plotbase.Save(fig, settings['filename'] + '_xlog', opt)
 
 
 def getPUindata(version=''):
