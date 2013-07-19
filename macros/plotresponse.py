@@ -510,7 +510,6 @@ def response_physflavour(files, opt, changes=None, settings=None, definition='ph
 
     settings['filename'] = plotbase.getdefaultfilename("response_%s" % x, opt,
                                                                  settings)
-    ax.set_xticks([0,1,2,3,4,5,21])
     plotbase.Save(fig, settings['filename'], opt)
 
 
@@ -619,11 +618,44 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
     ax.set_xticklabels(labels)
     ax.axhline(1.0, color='black', linestyle=':')
 
-    
-
     settings['filename'] = plotbase.getdefaultfilename("%s_alpha" % 
                     namedict.get(responsetype, responsetype), opt, settings)
     plotbase.Save(fig, settings['filename'], opt)
+
+
+
+def response_components(files, opt, changes=None, settings=None):
+
+
+    settings = plotbase.getsettings(opt, changes, settings, "response_components")
+
+    components = ["jet1chargedhadfraction", "jet1photonfraction", 
+        "jet1neutralhadfraction", "jet1chargedemfraction", "jet1HFemfraction", 
+        "jet1HFhadfraction"]
+
+    responsetype = "recogen"
+
+    markers = ['o', 's', 'd', '*']
+    colors = ['red', 'black', 'yellowgreen', 'lightskyblue', ]
+    labels = ["CHad","photon", "NHad", "electron", "HFem", "HFhad"]
+
+    
+    fig, ax = plotbase.newplot()
+
+    changes = {'subplot':True}
+    for m, c, comp, l in zip(markers, colors, components, labels):
+        changes['markers'] = [m]
+        changes['colors'] = [c]
+        changes['labels'] = [l]
+        changes['xynames'] = ['components', responsetype]
+        plotdatamc.datamcplot("%s_%s" % (responsetype, comp), files, opt, fig_axes=(fig, ax), 
+                                            changes=changes, settings=settings)
+
+
+    settings['filename'] = plotbase.getdefaultfilename("response_components",
+                                                                opt, settings)
+    plotbase.Save(fig, settings['filename'], opt)
+
 
 
 plots = [
