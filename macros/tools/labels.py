@@ -241,7 +241,7 @@ def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
     print "Please use axislabels instead of axislabel_2d."
     return axislabels(ax, x_q, y_q, brackets)
 
-def axislabels(ax, x='zpt', y='events', brackets=False, labels=['','']):
+def axislabels(ax, x='zpt', y='events', brackets=False, labels=['',''], settings=None):
     """same as the old version, but can handle and and y axis indpendetly
 
        new idea: improve automatic scaling:
@@ -254,6 +254,10 @@ def axislabels(ax, x='zpt', y='events', brackets=False, labels=['','']):
     def setxaxis(limits=(0, 200), quantity="x", unit=""):
         ax.set_xlabel(unitformat(quantity, unit, brackets), ha="right", x=1)
         ax.set_xlim(limits)
+        if settings['xlog']:
+            ax.set_xscale('log')
+        if settings['xticks'] is not None:
+            ax.set_xticks(settings['xticks'])
 
     def setyaxis(limits=(0, 1), quantity="y", unit="", bottom=None):
         string = unitformat(quantity, unit, brackets)

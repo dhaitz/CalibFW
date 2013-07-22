@@ -283,6 +283,9 @@ def options(
     axis.add_argument('--xynames', type=str, nargs='+', default=None,
         help='x-y-axis label names,')
 
+    axis.add_argument('--xticks', type=float, nargs='+', default=None,
+        help="add custom xticks")
+
     group = parser.add_argument_group('Other options')
     group.add_argument('-v', '--verbose', action='store_true',
         help="verbosity")
