@@ -152,7 +152,7 @@ def SetMcSpecific(cfg, run='2012'):
         cfg['Jec'] = GetBasePath() + "data/jec_data/START44_V12"
         ApplyPUReweighting(cfg, 'kappa44_MC11_powheg_160404-180252_7TeV_ReRecoNov08')
     elif run == '2012':
-        cfg['Jec'] = GetBasePath() + "data/jec_data/Fall12_V5_MC"
+        cfg['Jec'] = GetBasePath() + "data/jec_data/Summer13_V5_MC"
         cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
         ApplyPUReweighting(cfg, 'kappa534_MC12_madgraph_190456-208686_8TeV_CombinedReco')
     else:
@@ -189,7 +189,7 @@ def SetDataSpecific(cfg, run='2012'):
             "HLT_Mu13_Mu8_v11", "HLT_Mu13_Mu8_v12", "HLT_Mu13_Mu8_v13", "HLT_Mu13_Mu8_v14",
             ]
     elif run == '2012':
-        cfg['Jec'] = GetBasePath() + "data/jec_data/Fall12_V5_DATA"
+        cfg['Jec'] = GetBasePath() + "data/jec_data/Summer13_V5_DATA"
         cfg['MetPhiCorrectionParameters'] = [0.2661, 0.3217, -0.2251, -0.1747]
         cfg['JsonFile'] = GetBasePath() + "data/json/Cert_190456-208686_8TeV_CombinedReco_Collisions12_JSON.txt"
         cfg['HltPaths'] = [
@@ -565,6 +565,79 @@ def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False):
                 'ResponseType': "recogen",
                 'JetNumber': 2,
             },
+            # flavour responses, JetNumber is misused as flavour
+           'bin_gluonbal_response': {
+                'Name': "bin_response",
+                'ProductName': "balgluon_" + algo,
+                'ResponseType': "flavourbal",
+                'JetNumber': 21,
+            },
+           'bin_udsbal_response': {
+                'Name': "bin_response",
+                'ProductName': "baluds_" + algo,
+                'ResponseType': "flavourbal",
+                'JetNumber': 123,
+            },
+           'bin_cbal_response': {
+                'Name': "bin_response",
+                'ProductName': "balc_" + algo,
+                'ResponseType': "flavourbal",
+                'JetNumber': 4,
+            },
+           'bin_bbal_response': {
+                'Name': "bin_response",
+                'ProductName': "balb_" + algo,
+                'ResponseType': "flavourbal",
+                'JetNumber': 5,
+            },
+           'bin_gluonmpf_response': {
+                'Name': "bin_response",
+                'ProductName': "mpfgluon_" + algo,
+                'ResponseType': "flavourmpf",
+                'JetNumber': 21,
+            },
+           'bin_udsmpf_response': {
+                'Name': "bin_response",
+                'ProductName': "mpfuds_" + algo,
+                'ResponseType': "flavourmpf",
+                'JetNumber': 123,
+            },
+           'bin_cmpf_response': {
+                'Name': "bin_response",
+                'ProductName': "mpfc_" + algo,
+                'ResponseType': "flavourmpf",
+                'JetNumber': 4,
+            },
+           'bin_bmpf_response': {
+                'Name': "bin_response",
+                'ProductName': "mpfb_" + algo,
+                'ResponseType': "flavourmpf",
+                'JetNumber': 5,
+            },
+           'bin_gluonrecogen_response': {
+                'Name': "bin_response",
+                'ProductName': "recogengluon_" + algo,
+                'ResponseType': "flavourrecogen",
+                'JetNumber': 21,
+            },
+           'bin_udsrecogen_response': {
+                'Name': "bin_response",
+                'ProductName': "recogenuds_" + algo,
+                'ResponseType': "flavourrecogen",
+                'JetNumber': 123,
+            },
+           'bin_crecogen_response': {
+                'Name': "bin_response",
+                'ProductName': "recogenc_" + algo,
+                'ResponseType': "flavourrecogen",
+                'JetNumber': 4,
+            },
+           'bin_brecogen_response': {
+                'Name': "bin_response",
+                'ProductName': "recogenb_" + algo,
+                'ResponseType': "flavourrecogen",
+                'JetNumber': 5,
+            },
         }
 
         consumers_gen = {
@@ -613,53 +686,29 @@ def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False):
                 'ProductName': "genquality_" + algo,
                 'ResponseType': "quality",
             },
-            # flavour responses, JetNumber is misused as flavour
-           'bin_gluonbal_response': {
+            # gen flavour responses
+           'bin_gluongen_response': {
                 'Name': "bin_response",
-                'ProductName': "balgluon_" + algo,
-                'ResponseType': "flavourbal",
+                'ProductName': "gengluon_" + algo,
+                'ResponseType': "flavourgenbal",
                 'JetNumber': 21,
             },
-           'bin_udsbal_response': {
+           'bin_udsgen_response': {
                 'Name': "bin_response",
-                'ProductName': "baluds_" + algo,
-                'ResponseType': "flavourbal",
+                'ProductName': "genuds_" + algo,
+                'ResponseType': "flavourgenbal",
                 'JetNumber': 123,
             },
-           'bin_cbal_response': {
+           'bin_cgen_response': {
                 'Name': "bin_response",
-                'ProductName': "balc_" + algo,
-                'ResponseType': "flavourbal",
+                'ProductName': "genc_" + algo,
+                'ResponseType': "flavourgenbal",
                 'JetNumber': 4,
             },
-           'bin_bbal_response': {
+           'bin_bgen_response': {
                 'Name': "bin_response",
-                'ProductName': "balb_" + algo,
-                'ResponseType': "flavourbal",
-                'JetNumber': 5,
-            },
-           'bin_gluonmpf_response': {
-                'Name': "bin_response",
-                'ProductName': "mpfgluon_" + algo,
-                'ResponseType': "flavourmpf",
-                'JetNumber': 21,
-            },
-           'bin_udsmpf_response': {
-                'Name': "bin_response",
-                'ProductName': "mpfuds_" + algo,
-                'ResponseType': "flavourmpf",
-                'JetNumber': 123,
-            },
-           'bin_cmpf_response': {
-                'Name': "bin_response",
-                'ProductName': "mpfc_" + algo,
-                'ResponseType': "flavourmpf",
-                'JetNumber': 4,
-            },
-           'bin_bmpf_response': {
-                'Name': "bin_response",
-                'ProductName': "mpfb_" + algo,
-                'ResponseType': "flavourmpf",
+                'ProductName': "genb_" + algo,
+                'ResponseType': "flavourgenbal",
                 'JetNumber': 5,
             },
         }
