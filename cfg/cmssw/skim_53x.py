@@ -79,7 +79,7 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='mc'):
     process.kt6PFJetsCHS = process.kt6PFJets.clone( src = cms.InputTag('pfNoPileUp') )
     process.ca8PFJetsCHS = process.ca8PFJets.clone( src = cms.InputTag('pfNoPileUp') )
 
-    # Gen Jets without neutrinos
+    # Gen Jets without neutrinos ----------------------------------------------
     process.load('RecoJets.JetProducers.ak5GenJets_cfi')
     process.ca8GenJets = process.ca4GenJets.clone( rParam = cms.double(0.8) )
     process.ca8GenJetsNoNu = process.ca8GenJets.clone( src = cms.InputTag("genParticlesForJetsNoNu") )
@@ -91,7 +91,7 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='mc'):
         process.ca8GenJetsNoNu * process.ca8GenJets
     )
 
-    # Path to Redo all Jets
+    # Path to Redo all Jets ---------------------------------------------------
     process.jetsRedo = cms.Path(
         process.ak5PFJets * process.ak7PFJets * process.kt4PFJets * process.kt6PFJets * process.ca8PFJets *
         process.ak5PFJetsCHS * process.ak7PFJetsCHS * process.kt4PFJetsCHS * process.kt6PFJetsCHS * process.ca8PFJetsCHS
