@@ -20,7 +20,7 @@ void CorrJetProducer::PopulateMetaData(ZJetEventData const& data,
 
 
 void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorrectionAlias,
-		ZJetEventData const& event, double hcal, std::string prefix) const
+		ZJetEventData const& event, double rcorr, std::string prefix) const
 {
 	if (m_corrService.find(algoName) != m_corrService.end())
 		// already loaded
@@ -37,7 +37,7 @@ void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorre
 
 	m_corrService[algoCorrectionAlias].m_l1.reset(new JECService(
 			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
-			event.m_eventmetadata, 0, 0, hcal)
+			event.m_eventmetadata, 0, 0, 0)
 			);
 
 	// only apply one correction step in a round !
@@ -64,7 +64,7 @@ void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorre
 
 	m_corrService[algoCorrectionAlias].m_l2l3res.reset(new JECService(
 			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
-			event.m_eventmetadata, 0, 0, 0)
+			event.m_eventmetadata, 0, 0, rcorr)
 			);
 }
 
@@ -76,7 +76,7 @@ void CorrJetProducer::CreateCorrections(
 		ZJetPipelineSettings const& settings,
 		std::string algoCorrectionAlias) const
 {
-	std::string algoName_raw =algoName + algoPostfix;
+	std::string algoName_raw = algoName + algoPostfix;
 	std::string algoName_l1 = algoName_raw + "L1";
 	std::string algoName_l2 = algoName_raw + "L1L2";
 	std::string algoName_l3 = algoName_raw + "L1L2L3";
@@ -109,19 +109,19 @@ bool CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
 {
 	for (int i = 0; i < m_basealgorithms.size(); i++)
 	{
-		double hcalcorr = settings.Global()->GetHcalCorrection();
+		double runcorr = settings.Global()->GetHcalCorrection();
 		if (m_basealgorithms[i].find("chs") == std::string::npos)
 		{
-			InitCorrection(m_basealgorithms[i], m_basealgorithms[i], event, hcalcorr);
+			InitCorrection(m_basealgorithms[i], m_basealgorithms[i], event, runcorr);
 			CreateCorrections(m_basealgorithms[i], "Jets", event, metaData, settings, m_basealgorithms[i]);
 		}
 		else
 		{
-			InitCorrection(m_basealgorithms[i], m_basealgorithms[i], event, hcalcorr);
+			InitCorrection(m_basealgorithms[i], m_basealgorithms[i], event, runcorr);
 			CreateCorrections(m_basealgorithms[i].substr(0, 5), "JetsCHS", event, metaData, settings, m_basealgorithms[i]);
 		}
 	}
-    return true;
+	return true;
 }
 
 void CorrJetProducer::CorrectJetCollection(
@@ -134,7 +134,7 @@ void CorrJetProducer::CorrectJetCollection(
 {
 	unsigned int jetcount = metaData.GetValidJetCount(settings, event, algoName);
 
-    // copy the jet collection
+	// copy the jet collection
 	for (unsigned int i = 0; i < jetcount; ++i)
 	{
 		KDataPFJet* jet = static_cast<KDataPFJet*>(metaData.GetValidJet(
@@ -145,7 +145,7 @@ void CorrJetProducer::CorrectJetCollection(
 		metaData.AddValidJet(jet_corr, newAlgoName);
 	}
 
-    // correct the copied jet collection
+	// correct the copied jet collection
 	corrService->correct(&metaData.m_validPFJets[newAlgoName]);
 }
 

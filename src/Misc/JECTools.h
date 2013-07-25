@@ -46,14 +46,14 @@ inline void setupFactorProvider(const KDataPFJet &jet, Tprov *prov)
 // Functions to correct a single jet with the FactorizedJetCorrector
 
 template<typename T>
-inline void correctSingleJet(T &jet, FactorizedJetCorrector *jec, double hcalcorr)
+inline void correctSingleJet(T &jet, FactorizedJetCorrector *jec, double rundiff)
 {
 	setupFactorProvider(jet, jec);
 	jet.p4 *= jec->getCorrection();
 }
 
 template<>
-inline void correctSingleJet(KDataJet &jet, FactorizedJetCorrector *jec, double hcalcorr)
+inline void correctSingleJet(KDataJet &jet, FactorizedJetCorrector *jec, double rundiff)
 {
 	setupFactorProvider(jet, jec);
 	jec->setJetA(jet.area);
@@ -61,25 +61,38 @@ inline void correctSingleJet(KDataJet &jet, FactorizedJetCorrector *jec, double 
 }
 
 template<>
-inline void correctSingleJet(KDataPFJet &jet, FactorizedJetCorrector *jec, double hcalcorr)
+inline void correctSingleJet(KDataPFJet &jet, FactorizedJetCorrector *jec, double rundiff)
 {
 	setupFactorProvider(jet, jec);
 	jec->setJetA(jet.area);
-	if (std::abs(jet.p4.Eta()) <= 2.500 || std::abs(jet.p4.Eta()) > 2.964)
-		hcalcorr = 0.0;
-	double c = 1.0 + hcalcorr * jet.neutralHadFraction;
-	double cfraction = (1.0 + hcalcorr) / c;
+	// double timedependenceCorrectionFactor(double jeteta, int runnumber) {
+	const double corrs[5] = {0.0, -0.454e-6, -0.952e-6, 1.378e-6, 0.0};
+	double eta = std::abs(jet.p4.Eta());
+	double corr = 0.0;
+	if (eta < 1.3)
+		corr = corrs[0];
+	else if (eta < 2.0)
+		corr = corrs[1];
+	else if (eta < 2.5)
+		corr = corrs[2];
+	else if (eta < 3.0)
+		corr = corrs[3];
+	else
+		corr = corrs[4];
+	double c = 1.0 + corr * rundiff;
+//	std::cout << "eta=" << eta << ", rundiff=" << rundiff << ", corr=" << corr << ", c=" << c << std::endl;
+//	double cfraction = (1.0 + hcalcorr) / c;
 
-	jet.HFEMFraction /= c;
-	jet.HFHadFraction /= c;
-	jet.chargedEMFraction /= c;
-	jet.chargedHadFraction /= c;
-	jet.electronFraction /= c;
-	jet.muonFraction /= c;
-	jet.neutralEMFraction /= c;
-	jet.photonFraction /= c;
+//	jet.HFEMFraction /= c;
+//	jet.HFHadFraction /= c;
+//	jet.chargedEMFraction /= c;
+//	jet.chargedHadFraction /= c;
+//	jet.electronFraction /= c;
+//	jet.muonFraction /= c;
+//	jet.neutralEMFraction /= c;
+//	jet.photonFraction /= c;
 
-	jet.neutralHadFraction *= cfraction;
+//	jet.neutralHadFraction *= cfraction;
 	jet.p4 *= jec->getCorrection() * c;
 }
 
@@ -135,8 +148,8 @@ class JECService
 public:
 	JECService(FileInterface &fi, const std::string prefix,
 			const std::vector<std::string> &level, const std::string algo,
-			const double R, const int jeuDir = 0, double hcal = 0.0)
-		: area(-1), jeuType(jec_center), JEC(0), JEU(0), hcalCorr(hcal),
+			const double R, const int jeuDir = 0, double rcorr = 0.0)
+		: area(-1), jeuType(jec_center), JEC(0), JEU(0), runCorr(rcorr),
 			vs(fi.Get<KVertexSummary>("goodOfflinePrimaryVerticesSummary", false)),
 			ja(fi.Get<KJetArea>("KT6Area", true, true))
 	{
@@ -146,10 +159,11 @@ public:
 	JECService(KVertexSummary * vertexSummary,  KJetArea * jetArea, const std::string prefix,
 			const std::vector<std::string> &level, const std::string algo,
 			KEventMetadata* eventmetadata,
-			const double R, const int jeuDir = 0, double hcal = 0.0, unsigned int* run = 0)
+			const double R, const int jeuDir = 0, double rcorr = 0.0, unsigned int* run = 0)
 		: area(-1), jeuType(jec_center), JEC(0), JEU(0), vs(vertexSummary),
-			ja(jetArea), hcalCorr(hcal), evtMeta(eventmetadata), nRun0(192000)
+			ja(jetArea), runCorr(rcorr), evtMeta(eventmetadata), nRun0(201000)
 	{
+		CALIB_LOG("RCORR SET TO " << rcorr << " " << runCorr)
 		init(level, jeuDir, prefix , algo);
 	}
 
@@ -166,7 +180,7 @@ public:
 		//		<< " = " << ((signed int) evtMeta->nRun - nRun0) << " * " << hcalCorr
 		//		<< " = " << (((signed int) evtMeta->nRun - nRun0) * hcalCorr))
 		correctJets(jets, JEC, JEU, ja->median, vs->nVertices, area, jeuType,
-				((signed int) evtMeta->nRun-nRun0) * hcalCorr);
+				((signed int) evtMeta->nRun-nRun0)*runCorr);
 
 	}
 
@@ -196,7 +210,7 @@ private:
 	}
 
 	double area;
-	double hcalCorr;
+	double runCorr;
 	JECValueType jeuType;
 	FactorizedJetCorrector *JEC;
 	JetCorrectionUncertainty *JEU;
