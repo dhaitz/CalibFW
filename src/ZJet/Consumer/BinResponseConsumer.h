@@ -105,7 +105,7 @@ public:
 		ZJetPipelineSettings const& set = this->GetPipelineSettings();
 		std::string genName(JetType::GetGenName(set.GetJetAlgorithm()));
 
-		bool goodflavour = metaData.GetBalancedParton().pdgid;
+		bool goodflavour = metaData.HasValidParton(); //.pdgid;
 		if (goodflavour)
 		{
 			// m_jetnum is misused as flavour
@@ -325,7 +325,7 @@ public:
 
 		else if (m_respType == FlavourGenBal && goodflavour)
 		{
-			if (0 > metaData.GetValidJetCount(set, event, genName)
+			if (0 == metaData.GetValidJetCount(set, event, genName)
 					|| !metaData.HasValidGenZ())
 				return;
 
@@ -338,7 +338,11 @@ public:
 		{
 			if (matched_genjet == NULL)
 				return;
+			if (metaData.GetValidJetCount(set, event) <= 0)
+				return;
 			KDataLV* jet = metaData.GetValidJet(set, event, 0);
+			assert(jet != NULL);
+			assert(matched_genjet != NULL);
 			m_histo->Fill(metaData.GetBalance(jet, matched_genjet), metaData.GetWeight());
 		}
 

@@ -18,13 +18,17 @@ public:
 			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
 	{
 		// other option: metaData.GetLeadingParton().pdgId())
+		try {
 		if (!metaData.GetRefValidParton())
 			return false;
 
-		int flavour = std::abs(metaData.GetBalancedParton().pdgId());
+		if (metaData.GetPtLeadingParton() == NULL)
+			return false;
+
+		int flavour = std::abs(metaData.GetRefLeadingParton().pdgId());
 		const int request = settings.GetFilterFlavour();
 		if (unlikely(flavour > 5 && flavour != 21))
-			CALIB_LOG_FATAL("Strange flavour in event: " << flavour);
+			return false; //CALIB_LOG_FATAL("Strange flavour in event: " << flavour);
 
 		if (request == 123)  // light quarks uds
 			return (flavour == 1 || flavour == 2 || flavour == 3);
@@ -34,6 +38,10 @@ public:
 		if (unlikely(request > 5 && request != 21))
 			CALIB_LOG("Are you sure to request flavour " << request << "?")
 		return (flavour == request);
+		} catch (...) { 
+			CALIB_LOG("There was a flavour error (UNXPCT)");
+			return false;
+		};
 	}
 
 	virtual std::string GetFilterId()
