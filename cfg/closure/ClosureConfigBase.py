@@ -289,19 +289,7 @@ def treeconfig(conf, quantities = None):
                 pval['QuantitiesVector'] += [
                             "genjet1pt","genjet1eta","genjet1phi","genjet2pt",
                             "matchedgenjet1pt", "genmpf",
-                            "algoflavour", "physflavour",
-                            "nmatchingpartons", "nmatchingpartons3",
-                            "npartons", "npartons3",
-                            "partonratio",
-                            "leadinggenparticle",
-                            "firstpartonflavour", "secondpartonflavour",
-                            "nneutrinos", "nmatchingneutrinos",
-                            "leadinggenparticle5",
-                            "klongpt",
-                            "neutrinopt", "neutrinophi",
-
-                            'firstpartonpt', 'partonsumpt',
-                
+                            "algoflavour", "physflavour"
                          ]
         else:
             pval['QuantitiesVector'] = quantities
