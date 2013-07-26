@@ -128,7 +128,8 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
     # create the final selection from the settings
     selection = []
     if settings['allalpha'] is not True and settings['folder'] != 'allevents':
-        selection += ["(jet2pt/zpt < 0.2 || jet2pt<12)"]
+        #selection += ["(jet2pt/zpt < 0.2 || jet2pt<12)"]
+        selection += ["(jet2pt/zpt < 0.2)"]
     if settings['alleta'] is not True and settings['folder'] != 'allevents':
         selection += ["abs(jet1eta) < 1.3"]
     if settings['selection'] not in [None, "", False]:
