@@ -10,7 +10,7 @@ import matplotlib.mlab as mlab
 def fit(ax, quantity, rootobject, settings, color='black', label="", index=0, 
                                                                 scalefactor=1, offset=None):
     """One of several fits is added to an axis element, fit parameters are added as text element"""
-    if color == '#CBDBF9': color = 'blue'
+    if color in ['#CBDBF9', 'lightskyblue']: color = 'blue'
 
     limits = settings['x']
 
@@ -19,17 +19,14 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
         else: unit = ""
         ax.axvline(rootobject.GetMean(), color=color, linestyle='-')
         ax.axvspan(rootobject.GetMean()-rootobject.GetMeanError(), rootobject.GetMean()+rootobject.GetMeanError(), color=color, alpha=0.1)
-        ax.text(0.45, 0.97-(index/20.)+offset, r"$\langle \mathrm{%s} \rangle = %1.4f\pm%1.4f" % (label, rootobject.GetMean(), rootobject.GetMeanError())+"\mathrm{%s}$" % unit,
+        ax.text(0.5, 0.97-(index/20.)+offset, r"$\langle \mathrm{%s} \rangle = %1.3f\pm%1.3f" % (label, rootobject.GetMean(), rootobject.GetMeanError())+"\mathrm{%s}$" % unit,
                va='top', ha='right', transform=ax.transAxes, color=color)
 
         ax.text(0.97, 0.97-(index/20.)+offset, r"$\mathrm{RMS (%s)} = %1.3f$" % (label, rootobject.GetRMS()), va='top', ha='right', transform=ax.transAxes, color=color)
 
     elif settings['fit'] == 'chi2':
         # fit a horizontal line
-        try:
-            intercept, ierr, chi2, ndf = fitline(rootobject, limits)
-        except:
-            print "hallo"
+        intercept, ierr, chi2, ndf = fitline(rootobject, limits)
         #account for scaling and rebinning:
         intercept = scalefactor * intercept
         ax.axhline(intercept, color=color, linestyle='--')
