@@ -23,7 +23,7 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     print "A %s plot is created with the following selection: %s" % (quantity, 
                                                           settings['selection'])
 
-    settings['legloc'] = None
+    settings['legloc'] = "None"
 
     datamc, rootobjects = [], []
     settings['events'] = []
