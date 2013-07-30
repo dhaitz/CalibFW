@@ -31,7 +31,7 @@ and execute 'scripts/ClosureEnv.sh' from your main CalibFW directory.
 
 
 -- Basic structure of the config file
-In its basic form, a config file data.py must contain a call to the BaseConfig, 
+In its basic form, a config file data.py must contain a call of the BaseConfig, 
 ExpandConfig and treeconfig functions (to create and modify the configuration
 dictionary), a list of files and the Run command:
 
@@ -61,13 +61,13 @@ description of parameter arguments.
 
 At its most basic level of usage, the arguments include links to a data (and MC) 
 file and one (or a list of) plotname:
-    python macros/plotbase.py $PATH/closure.root -P npv
+    python macros/plotbase.py path-to-file/closure.root -P plot1 plot2
 
 
 -- Plotnames
 Plotnames can be predefined functions available in the collection of plotting 
 scripts in the macros/ directory (e.g. 'fractions_zpt', 'extrapol') or custom
-combinations of quantites like:
+combinations of quantities like:
  'x'  to produce a simple Histogram
  'y_x' to produce a profile histogram (e.g. '-P zpt_npv')
  '2D_y_x' to produce a 2D histogramm
@@ -75,10 +75,10 @@ combinations of quantites like:
  'y1_y2_..._response/ratio/responseratio_x' to produce response plots, 
     e.g ('mpf_responseratio_zpt', 'ptbalance_recogen_ratio_npv', etc.)
 
-The quantities can be plain variable names (that of course must be present in 
-the NTuple) or logical expressions, e.g.  -P "(npv=1)_zpt" ,
-  -P "(jet1pt<zpt)_npv" . They can also be combined, e.g.
- -P "jet1pt>100 && zpt>100",  -P "(zpt<50 || npv>15)".
+The quantities can be plain variable names (that must be present in the input
+NTuple) or logical expressions, e.g.  -P "(npv=1)_zpt" ,  -P "(jet1pt<zpt)_npv".
+They can also be combined, e.g.  -P "jet1pt>100 && zpt>100",
+ -P "(zpt<50 || npv>15)".
 
 
 -- Cuts and selections
