@@ -71,8 +71,8 @@ private:
         jet1photonfraction, jet1chargedemfraction, jet1chargedhadfraction, 
         jet1neutralhadfraction, jet1muonfraction, jet1HFhadfraction, 
         jet1HFemfraction, jet2pt, jet2phi, jet2eta, METpt, METphi, sumEt, 
-        rawMETpt, rawMETphi, uept, uephi, ueeta, mpf, rawmpf, otherstuffpt, 
-        otherstuffphi, otherstuffeta, genjet1pt, genjet1eta, genjet1phi, 
+        rawMETpt, rawMETphi, uept, uephi, ueeta, mpf, rawmpf, otherjetspt, 
+        otherjetsphi, otherjetseta, genjet1pt, genjet1eta, genjet1phi, 
         matchedgenjet1pt, genjet2pt, genzpt, genmpf, algoflavour, physflavour
     } var;
     
@@ -398,4 +398,13 @@ private:
 
         return std::abs(flavour);
     }
+    else
+        CALIB_LOG_FATAL("TTreeConsumer: Quantity "<< n <<" not available!")
+};
+
+};
+
+}
+
+
 

@@ -123,24 +123,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			else
 				CALIB_LOG_FATAL("Cut " << sid << " not found.")
 		}
-
-		// Other MetaDataProducers
-		/*
-		BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
-		pset.GetPropTree()->get_child( pset.GetSettingsRoot() + ".Consumer") )
-		{
-			std::string sName = v.second.get<std::string>("Name");
-			std::string consPath = pset.GetSettingsRoot() + ".MetaDataProducer." + v.first.data();
-
-			if ( sName == HltSelector::GetName() )
-				pLine->AddMetaDataProducer( new HltSelector(  pset.GetPropTree(), consPath  ) );
-			else
-				CALIB_LOG_FATAL( "MetaDataProducer " << sName << " not found." )
-		}*/
 	}
-
-	// add this for debugging output ...
-	//pLine->AddConsumer( new Dumper() );
 
 	BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
 			pset.GetPropTree()->get_child( pset.GetSettingsRoot() + ".Consumer") )
@@ -150,111 +133,13 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 
 
         if (sName == "tree" )
-        {
 			pLine->AddConsumer( new TreeConsumer( ) );
-        }
-		/*if (sName == "quantities_all" )
-		{
-			pLine->AddConsumer( new DataZConsumer( pset.GetJetAlgorithm() ));
-			//pLine->AddConsumer( new DataMuonConsumer(+1, pset.GetJetAlgorithm()));
-			//pLine->AddConsumer( new DataMuonConsumer(-1, pset.GetJetAlgorithm()));
-			//pLine->AddConsumer( new ValidMuonsConsumer());
-			//pLine->AddConsumer( new ValidJetsConsumer());
-			//pLine->AddConsumer( new DataMETConsumer( pset.GetJetAlgorithm() ));
-			//pLine->AddConsumer( new DataRawMETConsumer( pset.GetJetAlgorithm() ));
-			//pLine->AddConsumer( new DeltaConsumer( pset.GetJetAlgorithm() ));
-			pLine->AddConsumer( new PrimaryVertexConsumer( ) );
-			//pLine->AddConsumer( new RhoConsumer( ) );
-			//pLine->AddConsumer(new FilterSummaryConsumer());
 
-			if (JetType::IsPF(pset.GetJetAlgorithm()))
-			{
-				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 0));
-				pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 1, pset.GetJetAlgorithm(), true));
-				//pLine->AddConsumer( new DataPFJetsConsumer( pset.GetJetAlgorithm(), 2, pset.GetJetAlgorithm(), true));
-
-				if (JetType::IsRaw(pset.GetJetAlgorithm()))
-				{
-					// plot the invalid jet 0
-					pLine->AddConsumer(new DataPFJetsConsumer(pset.GetJetAlgorithm(),
-							0, pset.GetJetAlgorithm(), false, false, "jets_invalid_"));
-				}
-				
-			}
-
-			if (pset.IsMC() && (pset.GetJetAlgorithm() == "AK5PFJetsL1L2L3" ||
-					pset.GetJetAlgorithm() == "AK7PFJetsL1L2L3"))
-			{
-				std::string genName = JetType::GetGenName(pset.GetJetAlgorithm());
-				pLine->AddConsumer(new DataGenMuonConsumer(+1, pset.GetJetAlgorithm()));
-				pLine->AddConsumer(new DataGenMuonConsumer(-1, pset.GetJetAlgorithm()));
-				// add gen jets plots
-				pLine->AddConsumer(new DataGenJetConsumer(genName, 0, genName));
-				pLine->AddConsumer(new DataGenJetConsumer(genName, 1, genName));
-				pLine->AddConsumer(new DataGenJetConsumer(genName, 2, genName));
-				pLine->AddConsumer(new DeltaConsumer(genName));
-
-			}
-
-			if (pset.IsMC())
-			{
-				pLine->AddConsumer(new GenZTwoDConsumer(pset.GetJetAlgorithm()));
-				pLine->AddConsumer(new FlavourConsumer());
-				std::string genName = JetType::GetGenName(pset.GetJetAlgorithm());
-				//pLine->AddConsumer( new BasicTwoDConsumer( genName ));
-				pLine->AddConsumer(new GenMetadataConsumer());
-				// rate the matching
-				pLine->AddConsumer(new JetMatchingConsumer());
-			}
-			else
-			{
-				pLine->AddConsumer(new MetadataConsumer());
-			}
-		}
-
-		else if (sName == "quantities_basic" )
-		{
-			pLine->AddConsumer(new DataZConsumer(pset.GetJetAlgorithm()));
-			pLine->AddConsumer(new PrimaryVertexConsumer());
-			if (pset.IsMC())
-			{
-				pLine->AddConsumer(new FlavourConsumer());
-			}
-			if (JetType::IsPF(pset.GetJetAlgorithm()))
-			{
-				pLine->AddConsumer(new DataPFJetsConsumer(pset.GetJetAlgorithm(), 0));
-			}
-		}
-
-		else if (sName == "tree" )
-        {
-			pLine->AddConsumer( new TreeConsumer( ) );
-        }
-		// optional 1st Level Producer
-		else if (sName == BinResponseConsumer::GetName())
-			pLine->AddConsumer(new BinResponseConsumer(pset.GetPropTree(), consPath));
-
-		else if (sName == BasicTwoDConsumer::GetName())
-			pLine->AddConsumer( new BasicTwoDConsumer( pset.GetJetAlgorithm() ));
-
-		else if (sName == GenericProfileConsumer::GetName())
-			pLine->AddConsumer( new GenericProfileConsumer( pset.GetPropTree(), consPath ) );
-
-		else if (sName == GenericTwoDConsumer::GetName())
-			pLine->AddConsumer( new GenericTwoDConsumer( pset.GetPropTree(), consPath ) );
-
-		else if (sName == CutStatisticsConsumer::GetName())
-			pLine->AddConsumer( new CutStatisticsConsumer());
-
-		else if (sName == FilterStatisticsConsumer::GetName())
-			pLine->AddConsumer( new FilterStatisticsConsumer());
-
-		// 2nd Level Producer
-		else if( sName == JetRespConsumer::GetName() )
-			pLine->AddConsumer( new JetRespConsumer( pset.GetPropTree(), consPath ) );
-		*/
         else
 			CALIB_LOG_FATAL("Consumer " << sName << " not found.")
 	}
 
 }
+
+
+
