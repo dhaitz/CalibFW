@@ -73,7 +73,8 @@ private:
         jet1HFemfraction, jet2pt, jet2phi, jet2eta, METpt, METphi, sumEt, 
         rawMETpt, rawMETphi, uept, uephi, ueeta, mpf, rawmpf, otherjetspt, 
         otherjetsphi, otherjetseta, genjet1pt, genjet1eta, genjet1phi, 
-        matchedgenjet1pt, genjet2pt, genzpt, genmpf, algoflavour, physflavour
+        matchedgenjet1pt, genjet2pt, genzpt, genmpf, algoflavour, physflavour,
+        mupluspt, mupluseta, muplusphi, muminuspt, muminuseta, muminusphi 
     } var;
     
     float returnvalue(std::string string, ZJetEventData const& event,
@@ -84,10 +85,12 @@ private:
     else if (string=="rho") var=rho;
     else if (string=="run") var=run;
     else if (string=="weight") var=weight;
+
     else if (string=="zpt") var=zpt;
     else if (string=="zeta") var=zeta;
     else if (string=="zphi") var=zphi;
     else if (string=="zmass") var=zmass;
+
     else if (string=="jet1pt") var=jet1pt;
     else if (string=="jet1eta") var=jet1eta;
     else if (string=="jet1phi") var=jet1phi;
@@ -124,6 +127,15 @@ private:
     else if (string=="algoflavour") var=algoflavour;
     else if (string=="physflavour") var=physflavour;
 
+    else if (string=="mupluspt") var=mupluspt;
+    else if (string=="mupluseta") var=mupluseta;
+    else if (string=="muplusphi") var=muplusphi;
+
+    else if (string=="muminuspt") var=muminuspt;
+    else if (string=="muminuseta") var=muminuseta;
+    else if (string=="muminusphi") var=muminusphi;
+
+
     // general quantities
     if (var == npv)
         return event.m_vertexSummary->nVertices;
@@ -142,6 +154,32 @@ private:
         return metaData.GetRefZ().p4.Phi();
     else if (var == zmass)
         return metaData.GetRefZ().p4.mass();
+
+    // muons
+    else if (var == mupluspt)
+    {   for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				it != metaData.m_listValidMuons.end(); it ++)
+    		{    if (it->charge == 1) return it->p4.Pt();    }    }
+    else if (var == mupluseta)
+    {   for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				it != metaData.m_listValidMuons.end(); it ++)
+    		{    if (it->charge == 1) return it->p4.Eta();    }    }
+    else if (var == muplusphi)
+    {   for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				it != metaData.m_listValidMuons.end(); it ++)
+    		{    if (it->charge == 1) return it->p4.Phi();    }    }
+    else if (var == muminuspt)
+    {   for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				it != metaData.m_listValidMuons.end(); it ++)
+    		{    if (it->charge == -1) return it->p4.Pt();    }    }
+    else if (var == muminuseta)
+    {   for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				it != metaData.m_listValidMuons.end(); it ++)
+    		{    if (it->charge == -1) return it->p4.Eta();    }    }
+    else if (var == muminusphi)
+    {   for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				it != metaData.m_listValidMuons.end(); it ++)
+    		{    if (it->charge == -1) return it->p4.Phi();    }    }
 
     // leading jet
     else if (var == jet1pt)

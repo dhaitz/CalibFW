@@ -282,8 +282,8 @@ def treeconfig(conf, quantities = None):
                  "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
                  "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta",
                  "otherjetspt", "otherjetseta", "otherjetsphi",
-
-
+                 "mupluspt", "mupluseta", "muplusphi", 
+                 "muminuspt", "muminuseta", "muminusphi"
                   ]
             if conf['InputType'] == 'mc':
                 pval['QuantitiesVector'] += [
