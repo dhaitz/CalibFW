@@ -532,31 +532,31 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='data'):
                 srcJetID = cms.InputTag("kt6JetID")
             ),
         ),
-        PFJetsTagged = cms.PSet(
+        PFTaggedJets = cms.PSet(
             process.kappaNoCut,
             process.kappaNoRegEx,
-            AK5PFJetsTagged = cms.PSet(
+            AK5PFTaggedJets = cms.PSet(
                 src = cms.InputTag("ak5PFJets"),
                 QGtagger = cms.InputTag("AK5PFJetsQGTagger"),
                 Btagger = cms.InputTag("ak5PF"),
                 PUJetID = cms.InputTag("ak5PFPuJetMva"),
                     PUJetID_full = cms.InputTag("full53x"),
             ),
-            AK5PFJetsCHSTagged = cms.PSet(
+            AK5PFTaggedJetsCHS = cms.PSet(
                 src = cms.InputTag("ak5PFJetsCHS"),
                 QGtagger = cms.InputTag("AK5PFJetsCHSQGTagger"),
                 Btagger = cms.InputTag("ak5PFCHS"),
                 PUJetID = cms.InputTag("ak5PFCHSPuJetMva"),
                     PUJetID_full = cms.InputTag("full"),
             ),
-            AK7PFJetsTagged = cms.PSet(
+            AK7PFTaggedJets = cms.PSet(
                 src = cms.InputTag("ak7PFJets"),
                 QGtagger = cms.InputTag("AK7PFJetsQGTagger"),
                 Btagger = cms.InputTag("ak7PF"),
                 PUJetID = cms.InputTag("ak7PFPuJetMva"),
                     PUJetID_full = cms.InputTag("full53x"),
             ),
-            AK7PFJetsCHSTagged = cms.PSet(
+            AK7PFTaggedJetsCHS = cms.PSet(
                 src = cms.InputTag("ak7PFJetsCHS"),
                 QGtagger = cms.InputTag("AK7PFJetsCHSQGTagger"),
                 Btagger = cms.InputTag("ak7PFCHS"),
@@ -569,7 +569,7 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='data'):
     process.kappatuple.active = cms.vstring(
         'LV', 'Muons', 'TrackSummary', 'VertexSummary', 'BeamSpot',
         'JetArea', 'PFMET', 'PFJets', 'CaloJets', 'FilterSummary',
-        'PFJetsTagged',
+        'PFTaggedJets',
     )
     if data:
         additional_actives = ['DataMetadata']
