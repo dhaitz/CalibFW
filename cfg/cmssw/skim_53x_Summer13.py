@@ -166,14 +166,12 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='data'):
     process.ak5PFSoftMuonByPtBJetTags.tagInfos = cms.VInputTag( cms.InputTag("ak5PFSoftMuonTagInfos") )
 
     # prepare a path running the ak5PF modules
-     # prepare a path running the modules
     process.ak5PFJetTracksAssociator = cms.Sequence(process.ak5PFJetTracksAssociatorAtVertex)
     process.ak5PFJetBtaggingIP = cms.Sequence( process.ak5PFImpactParameterTagInfos * ( process.ak5PFTrackCountingHighEffBJetTags + process.ak5PFTrackCountingHighPurBJetTags + process.ak5PFJetProbabilityBJetTags + process.ak5PFJetBProbabilityBJetTags))
     process.ak5PFJetBtaggingSV = cms.Sequence(process.ak5PFImpactParameterTagInfos * process.ak5PFSecondaryVertexTagInfos * ( process.ak5PFSimpleSecondaryVertexBJetTags + process.ak5PFCombinedSecondaryVertexBJetTags + process.ak5PFCombinedSecondaryVertexMVABJetTags ) )
     process.ak5PFJetBtaggingEle = cms.Sequence( process.softElectronBJetTags * process.ak5PFSoftElectronTagInfos * process.ak5PFSoftElectronBJetTags )
     process.ak5PFJetBtaggingMu = cms.Sequence( process.ak5PFSoftMuonTagInfos * ( process.ak5PFSoftMuonBJetTags + process.ak5PFSoftMuonByIP3dBJetTags + process.ak5PFSoftMuonByPtBJetTags ) )
-    process.ak5PFJetBtagging = cms.Sequence( process.ak5PFJetBtaggingIP + process.ak5PFJetBtaggingSV + process.ak5PFJetBtaggingEle +
-            process.ak5PFJetBtaggingMu)
+    process.ak5PFJetBtagging = cms.Sequence( process.ak5PFJetBtaggingIP + process.ak5PFJetBtaggingSV + process.ak5PFJetBtaggingEle + process.ak5PFJetBtaggingMu)
 
 
     # AK5 CHS
@@ -227,9 +225,7 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='data'):
     process.ak5PFCHSJetBtaggingSV = cms.Sequence(process.ak5PFCHSImpactParameterTagInfos * process.ak5PFCHSSecondaryVertexTagInfos * ( process.ak5PFCHSSimpleSecondaryVertexBJetTags + process.ak5PFCHSCombinedSecondaryVertexBJetTags + process.ak5PFCHSCombinedSecondaryVertexMVABJetTags ) )
     process.ak5PFCHSJetBtaggingEle = cms.Sequence( process.softElectronBJetTags * process.ak5PFCHSSoftElectronTagInfos * process.ak5PFCHSSoftElectronBJetTags )
     process.ak5PFCHSJetBtaggingMu = cms.Sequence( process.ak5PFCHSSoftMuonTagInfos * ( process.ak5PFCHSSoftMuonBJetTags + process.ak5PFCHSSoftMuonByIP3dBJetTags + process.ak5PFCHSSoftMuonByPtBJetTags ) )
-    process.ak5PFCHSJetBtagging = cms.Sequence( process.ak5PFCHSJetBtaggingIP + process.ak5PFCHSJetBtaggingSV + process.ak5PFCHSJetBtaggingEle +
-            process.ak5PFCHSJetBtaggingMu)
-
+    process.ak5PFCHSJetBtagging = cms.Sequence( process.ak5PFCHSJetBtaggingIP + process.ak5PFCHSJetBtaggingSV + process.ak5PFCHSJetBtaggingEle + process.ak5PFCHSJetBtaggingMu)
 
     # AK7
     process.ak7PFJetTracksAssociatorAtVertex = process.ic5JetTracksAssociatorAtVertex.clone()
@@ -275,14 +271,12 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='data'):
     process.ak7PFSoftMuonByPtBJetTags.tagInfos = cms.VInputTag( cms.InputTag("ak7PFSoftMuonTagInfos") )
 
     # prepare a path running the ak7PF modules
-     # prepare a path running the modules
     process.ak7PFJetTracksAssociator = cms.Sequence(process.ak7PFJetTracksAssociatorAtVertex)
     process.ak7PFJetBtaggingIP = cms.Sequence( process.ak7PFImpactParameterTagInfos * ( process.ak7PFTrackCountingHighEffBJetTags + process.ak7PFTrackCountingHighPurBJetTags + process.ak7PFJetProbabilityBJetTags + process.ak7PFJetBProbabilityBJetTags))
     process.ak7PFJetBtaggingSV = cms.Sequence(process.ak7PFImpactParameterTagInfos * process.ak7PFSecondaryVertexTagInfos * ( process.ak7PFSimpleSecondaryVertexBJetTags + process.ak7PFCombinedSecondaryVertexBJetTags + process.ak7PFCombinedSecondaryVertexMVABJetTags ) )
     process.ak7PFJetBtaggingEle = cms.Sequence( process.softElectronBJetTags * process.ak7PFSoftElectronTagInfos * process.ak7PFSoftElectronBJetTags )
     process.ak7PFJetBtaggingMu = cms.Sequence( process.ak7PFSoftMuonTagInfos * ( process.ak7PFSoftMuonBJetTags + process.ak7PFSoftMuonByIP3dBJetTags + process.ak7PFSoftMuonByPtBJetTags ) )
-    process.ak7PFJetBtagging = cms.Sequence( process.ak7PFJetBtaggingIP + process.ak7PFJetBtaggingSV + process.ak7PFJetBtaggingEle +
-            process.ak7PFJetBtaggingMu)
+    process.ak7PFJetBtagging = cms.Sequence( process.ak7PFJetBtaggingIP + process.ak7PFJetBtaggingSV + process.ak7PFJetBtaggingEle + process.ak7PFJetBtaggingMu)
 
 
     # ak7 CHS
@@ -336,8 +330,7 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='data'):
     process.ak7PFCHSJetBtaggingSV = cms.Sequence(process.ak7PFCHSImpactParameterTagInfos * process.ak7PFCHSSecondaryVertexTagInfos * ( process.ak7PFCHSSimpleSecondaryVertexBJetTags + process.ak7PFCHSCombinedSecondaryVertexBJetTags + process.ak7PFCHSCombinedSecondaryVertexMVABJetTags ) )
     process.ak7PFCHSJetBtaggingEle = cms.Sequence( process.softElectronBJetTags * process.ak7PFCHSSoftElectronTagInfos * process.ak7PFCHSSoftElectronBJetTags )
     process.ak7PFCHSJetBtaggingMu = cms.Sequence( process.ak7PFCHSSoftMuonTagInfos * ( process.ak7PFCHSSoftMuonBJetTags + process.ak7PFCHSSoftMuonByIP3dBJetTags + process.ak7PFCHSSoftMuonByPtBJetTags ) )
-    process.ak7PFCHSJetBtagging = cms.Sequence( process.ak7PFCHSJetBtaggingIP + process.ak7PFCHSJetBtaggingSV + process.ak7PFCHSJetBtaggingEle +
-            process.ak7PFCHSJetBtaggingMu)
+    process.ak7PFCHSJetBtagging = cms.Sequence( process.ak7PFCHSJetBtaggingIP + process.ak7PFCHSJetBtaggingSV + process.ak7PFCHSJetBtaggingEle + process.ak7PFCHSJetBtaggingMu)
 
 
 
