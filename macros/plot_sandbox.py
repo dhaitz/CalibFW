@@ -6,6 +6,40 @@ import math
 import plotresponse
 
 
+def rootfile(files, opt):
+
+    list_of_quantities = ['ptbalance_alpha', 'mpf_alpha',
+        'ptbalance', 'mpf', 'zpt', 'npv', 'zmass', 'zpt_alpha', 'npv_alpha',
+    'ptbalance_zpt', 'mpf_zpt',
+    'ptbalance_npv', 'mpf_npv',
+    ]
+
+    for muon in [["zmumu", "1"], ["zmumu_muoncuts", 
+            "(mupluspt>25 && muminuspt>25 && abs(mupluseta)<1.0 && abs(muminuseta)<1.0)"]]:
+        for alpha in [[0,"alpha<0.2","alpha0_2"], [1,"alpha<0.3","alpha0_3"], 
+                                                [1,"alpha<0.4","alpha0_4"]]:
+            for quantity in list_of_quantities:
+
+                changes = {'rebin':1,
+                        'out':'out/root/',
+                        'allalpha':True,
+                        'root':"__".join([quantity, alpha[2]]),
+                        'filename':muon[0],
+                        'selection':"&&".join([alpha[1], muon[1]]),
+                }
+
+                if ("_zpt" in quantity) or ("_npv" in quantity):
+                    changes['special_binning'] = True
+
+                if "alpha" in quantity:
+                    changes['rebin'] = 10
+
+                plotdatamc.datamcplot(quantity, files, opt, changes=changes)
+
+                changes['ratio'] = True
+                changes['labels'] = ['ratio']
+                plotdatamc.datamcplot(quantity, files, opt, changes=changes)
+
 
 def flavour_comp(files, opt):
 
