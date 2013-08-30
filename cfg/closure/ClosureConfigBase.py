@@ -1069,9 +1069,9 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
     config.add_section("UserMod")
     # use 40 jobs for the MC, 80 for data
     if settings["InputType"] == "mc":
-        config.set("UserMod", "files per job", int(round(len(settings["InputFiles"])/40.+0.4999))) 
+        config.set("UserMod", "files per job", int(round(len(settings["InputFiles"])/80.+0.4999))) 
     else:
-        config.set("UserMod", "files per job", int(round(len(settings["InputFiles"])/80.+0.4999)))
+        config.set("UserMod", "files per job", int(round(len(settings["InputFiles"])/120.+0.4999)))
     config.set("UserMod", "executable", "gc-run-closure.sh")
     config.set("UserMod", "subst files", "gc-run-closure.sh")
     config.set("UserMod", "input files", GetBasePath() + "external/lib/libboost_regex.so.1.45.0")
