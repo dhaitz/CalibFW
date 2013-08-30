@@ -99,7 +99,7 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
     bins = []
     for quantity, limits in zip(quantities[::-1], [settings['x'], settings['y']]):
         if quantity == 'npv': 
-            bins +=  [limits[1] - limits[0]]
+            bins +=  [int(limits[1] - limits[0])]
         else:
             bins += [100]
 
