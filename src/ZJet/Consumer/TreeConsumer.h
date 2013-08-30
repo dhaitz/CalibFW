@@ -67,7 +67,7 @@ private:
     TNtuple * m_tree;
 
     enum type {
-        npv, rho, run, weight, zpt, zeta, zphi, zmass, jet1pt, jet1eta, jet1phi,
+        npv, rho, run, weight, zpt, zeta, zphi, zy, zmass, jet1pt, jet1eta, jet1phi,
         jet1photonfraction, jet1chargedemfraction, jet1chargedhadfraction, 
         jet1neutralhadfraction, jet1muonfraction, jet1HFhadfraction, 
         jet1HFemfraction, jet2pt, jet2phi, jet2eta, METpt, METphi, sumEt, 
@@ -90,6 +90,7 @@ private:
     else if (string=="zeta") var=zeta;
     else if (string=="zphi") var=zphi;
     else if (string=="zmass") var=zmass;
+    else if (string=="zy") var=zy;
 
     else if (string=="jet1pt") var=jet1pt;
     else if (string=="jet1eta") var=jet1eta;
@@ -152,6 +153,8 @@ private:
         return metaData.GetRefZ().p4.Eta();
     else if (var == zphi)
         return metaData.GetRefZ().p4.Phi();
+    else if (var == zy)
+        return metaData.GetRefZ().p4.Rapidity();
     else if (var == zmass)
         return metaData.GetRefZ().p4.mass();
 

@@ -275,7 +275,8 @@ def GetCuts(analysis='zjet'):
 def treeconfig(conf, quantities = None):
     for p, pval in conf["Pipelines"].items():
         if quantities == None:
-            pval['QuantitiesVector'] = ["zpt", "zeta", "zphi", "zmass", "npv", "rho",
+            pval['QuantitiesVector'] = ["zpt",  "zeta", "zy",
+             "zphi", "zmass", "npv", "rho",
                  "run", "weight", "jet1pt", "jet1eta", "jet1phi", "mpf", "rawmpf",
                  "METpt", "METphi", "rawMETpt", "rawMETphi", "sumEt", "jet1photonfraction",
                  "jet1chargedemfraction", "jet1chargedhadfraction", "jet1neutralhadfraction",
