@@ -90,6 +90,18 @@ def rootfile(files, opt):
                 plotdatamc.datamcplot(quantity, files, opt, changes=changes)
 
 
+def mpfx(files, opt):
+
+    factor = 1.
+    newMETpt='sqrt(factor*factor*otherstuffpt*otherstuffpt+METpt*METpt-2*factor*otherstuffpt*'\
+             'METpt*cos(TMath::Pi()+METphi+otherstuffphi))'
+    newMETphi = 'METphi+asin(factor*otherstuffpt/(%s)*(TMath::Pi()+METphi-otherstuffphi))' % newMETpt
+    mpfx='(1+(zpt*sin(zphi)*%s*sin(%s)+zpt*cos(zphi)*%s*cos(%s))/(zpt*zpt)'\
+        ')' % (newMETpt, newMETphi, newMETpt, newMETphi)
+    mpfx = quantity.replace('factor', str(factor))
+
+    plotdatamc.datamcplot(quantity, files, opt)
+
 def flavour_comp(files, opt):
     """Plot the PF composition as a function of the MC truth flavour."""
 

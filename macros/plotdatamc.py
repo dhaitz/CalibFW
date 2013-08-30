@@ -22,12 +22,83 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     print "A %s plot is created with the following selection: %s" % (quantity, 
                                                           settings['selection'])
 
+    #####################
+    if 'mdpf' in quantity:
+        if settings['text'] == None:
+            factor = 0
+        else:
+            factor = settings['text']
+            settings['text'] = None
+
+        #the object the MET should be corrected with
+        obj = 'otherstuff'
+
+        # calculate the new met: otherstuff
+        newMETpt='sqrt(factor*factor*otherstuffpt*otherstuffpt+METpt*METpt-2*'\
+                'factor*otherstuffpt*METpt*cos(METphi-otherstuffphi))'
+        newMETphi = 'METphi+asin(factor*otherstuffpt/(%s)*(METphi+otherstuffphi))' % newMETpt
+
+        # propagate change to mpf
+        mpfx='(1+(zpt*sin(zphi)*%s*sin(%s)+zpt*cos(zphi)*%s*cos(%s))/(zpt*zpt)'\
+            ')' % (newMETpt, newMETphi, newMETpt, newMETphi)
+        
+        mpfx = mpfx.replace('factor', str(factor))
+        mpfx = mpfx.replace('otherstuff', obj)
+    ###################
+
+    if 'METphi' in quantity:
+        pars = ["0.2661", "0.3217", "(-0.2251)", "(-0.1747)"]
+        px = "(2*METpt * sin(METphi)) - (%s) - (%s * npv)" % (pars[0], pars[2])
+        py = "(2*METpt * cos(METphi)) - (%s) - (%s * npv)" % (pars[1], pars[3])
+        q = "atan2((%s),(%s))" % (px, py)
+        quantity = quantity.replace('METphi', q)
+
+    """if 'mfpf' in quantity:
+
+        mpfx = "(1+(zpt*sin(zphi)*METpt*sin(METphi)+zpt*cos(zphi)*METpt*cos(METphi))/(zpt*zpt))"
+
+        #px = "((METpt * sin(METphi)) - (aa) - (bb * npv))"
+        #py = "((METpt * cos(METphi)) - (cc) - (dd * npv))"
+        #phi = "(atan2((%s), (%s)))" % (px, py)
+        #pt = "sqrt(%s*%s+%s*%s)" % (px, px, py, py)
+        #quantity = quantity.replace('METphi', )
+
+        #mpfx='(1+(zpt*sin(zphi)*%s*sin(%s)+zpt*cos(zphi)*%s*cos(%s))/(zpt*zpt)'\
+        #    ')' % (pt, phi, pt, phi)"""
+
+    
+        
+   
+
+    ###################
     if 'flavour' in settings['xynames'][0]:
         settings['rebin'] = 4
     # create list with histograms from a ttree/tntuple 
     datamc, rootobjects = [], []
     settings['events'] = []
     for f in files:
+        """if files.index(f)<1:#==0:#only for data!
+            if 'mpf' in quantity:
+                quantityx = quantity.replace('mpf', mpfx)
+                if files.index(f)<1:
+                    pass#quantityx = quantityx.replace('METphi', "(-0.5)")
+                else:
+                    pass#quantityx = quantityx.replace('METphi', "(0.5)")
+            elif 'METsphi' in quantity:
+                if files.index(f)==0:
+                    pars = [0]*4#["-0.23", "-0.6", "0.3", "1."]
+                else:
+                    pars = [0]*4
+                quantityx = quantity
+                for p, string in zip(pars, ['aa', 'bb', 'cc', 'dd']):
+                    quantityx = quantityx.replace(string,str(p))
+            elif 'M4ETpt' in quantity and files.index(f)==0:
+                quantityx = "(0.92 * METpt)"
+            else:
+                quantityx = quantity
+            print quantityx
+            rootobjects += [getroot.getobjectfromtree(quantityx, f, settings)]
+        else:"""
         rootobjects += [getroot.getobjectfromtree(quantity, f, settings)]
         if settings['special_binning'] is False:
             rootobjects[-1].Rebin(settings['rebin'])
