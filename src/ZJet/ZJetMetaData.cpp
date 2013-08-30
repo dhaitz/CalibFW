@@ -53,7 +53,6 @@ KDataLV* ZJetMetaData::GetValidJet(ZJetPipelineSettings const& psettings,
 		ZJetEventData const& evtData, unsigned int index, std::string algoName) const
 {
 	backtrace_assert(GetValidJetCount(psettings, evtData, algoName) > index);
-
 	if (IsMetaJetAlgo(algoName))
 	{
 		return &(m_validPFJets.at(algoName).at(index));
@@ -104,7 +103,7 @@ unsigned int ZJetMetaData::GetValidJetCount(ZJetPipelineSettings const& psetting
 {
 	if (IsMetaJetAlgo(algoName))
 	{
-		return SafeMap<std::string, std::vector<KDataPFJet> >::GetPtrMap(algoName, m_validPFJets).size();
+		return SafeMap<std::string, std::vector<KDataPFTaggedJet> >::GetPtrMap(algoName, m_validPFJets).size();
 	}
 	else if (JetType::IsGen(algoName))
 	{
@@ -180,7 +179,7 @@ void ZJetMetaData::SortJetCollections()
 	for (MetaPFJetContainer::iterator it = m_validPFJets.begin();
 			it != m_validPFJets.end(); ++ it)
 	{
-		std::vector<KDataPFJet>* jet_vect = it->second;
+		std::vector<KDataPFTaggedJet>* jet_vect = it->second;
 		std::sort( jet_vect->begin(), jet_vect->end(), cmpPFJetPt);
 		std::reverse( jet_vect->begin(), jet_vect->end() );
 	}

@@ -82,13 +82,14 @@ public:
 	}
 
 
-	void AddValidJet(KDataPFJet const& jet, std::string algoName)
+	void AddValidJet(KDataPFTaggedJet const& jet, std::string algoName)
 	{
-		m_validPFJets[algoName].push_back(jet);
+   	m_validPFJets[algoName].push_back(jet);
+   
 	}
 
 
-	std::vector<KDataPFJet> & GetPFValidJetCollection(std::string const& algoName)
+	std::vector<KDataPFTaggedJet> & GetPFValidJetCollection(std::string const& algoName)
 	{
 		return m_validPFJets.at(algoName);
 	}
@@ -228,7 +229,7 @@ public:
 
 	void InitMetaJetCollection(std::string algoname)
 	{
-		m_validPFJets[algoname] = std::vector<KDataPFJet>();
+		m_validPFJets[algoname] = std::vector<KDataPFTaggedJet>();
 	}
 
 	void SortJetCollections();
@@ -282,9 +283,11 @@ public:
 	mutable JetMapping m_listValidJets;
 	mutable JetMapping m_listInvalidJets;
 
+
 	// create a complete copy of the jet collections ??
-	typedef boost::ptr_map<std::string, std::vector<KDataPFJet> > MetaPFJetContainer;
+	typedef boost::ptr_map<std::string, std::vector<KDataPFTaggedJet> > MetaPFJetContainer;
 	mutable MetaPFJetContainer m_validPFJets;
+
 
 	//MET collection
 	typedef std::map<std::string, KDataPFMET> MetaMETContainer;

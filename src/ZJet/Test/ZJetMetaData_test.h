@@ -20,8 +20,8 @@ BOOST_AUTO_TEST_CASE( test_meta_data_meta_jet )
 	TestZJetEventData evt;
 	ZJetMetaData mData;
 
-	KDataPFJet pjet1;
-	KDataPFJet pjet2;
+	KDataPFTaggedJet pjet1;
+	KDataPFTaggedJet pjet2;
 
 	pjet1.area = 23.0f;
 	pjet2.area = 42.0f;
@@ -60,9 +60,9 @@ BOOST_AUTO_TEST_CASE( test_meta_data_sort_jets )
 	TestZJetEventData evt;
 	ZJetMetaData mData;
 
-	KDataPFJet pjet1;
-	KDataPFJet pjet2;
-	KDataPFJet pjet3;
+	KDataPFTaggedJet pjet1;
+	KDataPFTaggedJet pjet2;
+	KDataPFTaggedJet pjet3;
 
 	pjet1.p4.SetPt(23.0f );
 	pjet2.p4.SetPt(2.0f );

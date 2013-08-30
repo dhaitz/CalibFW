@@ -34,6 +34,10 @@ public:
 	KDataPFMET * m_pfMetChsL2L3Res;
 	KGenParticles * m_particles;
 
+	//typedef std::map<std::string, KDataPFJets *> PfMap;
+	typedef std::map<std::string, KDataPFTaggedJets *> PfTaggedMap;
+	typedef PfTaggedMap::const_iterator PfTaggedMapIterator;
+
 	typedef std::map<std::string, KDataPFJets *> PfMap;
 	typedef PfMap::const_iterator PfMapIterator;
 
@@ -47,9 +51,15 @@ public:
 	typedef JetMap::const_iterator JetMapIterator;
 
 	PfMap m_pfJets;
+	PfTaggedMap m_pfTaggedJets;
 	CaloMap m_caloJets;
 	JetMap m_jets;
 	GenJetMap m_genJets;
+
+    typedef std::map<std::string, std::vector<KDataPFJet*>*> PfPointerMap;
+	typedef PfPointerMap::const_iterator PfPointerMapIterator;
+    mutable PfPointerMap m_pfPointerJets;
+
 
 	virtual KDataLVs * GetGenJetCollection (std::string const& name) const
 	{
@@ -115,12 +125,13 @@ public:
 	{
 		if (JetType::IsPF(algoName))
 		{
-			KDataPFJets * pfJets =
-				SafeMap<std::string, KDataPFJets*>::Get(algoName, m_pfJets);
+			std::vector<KDataPFJet*> * pfJets =
+				SafeMap<std::string, std::vector<KDataPFJet*> *>::Get(algoName, m_pfPointerJets);
+        
 
 			if (pfJets->size() <= index)
 				return NULL;
-			return &pfJets->at(index);
+			return pfJets->at(index);
 		}
 		else if (JetType::IsGen(algoName))
 		{

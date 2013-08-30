@@ -98,9 +98,44 @@ public:
 	{
 		// all gen jets are valid ...
 
+
+        //CALIB_LOG("before at")
+	    KDataPFTaggedJets * tjets = event.m_pfTaggedJets.at("AK5PFTaggedJets");
+	
+
+    event.m_pfPointerJets["AK5PFJets"] = new std::vector<KDataPFJet*>;
+
+	    for (KDataPFTaggedJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
+	    {
+//CALIB_LOG("qg raw " << (&(*it))->qgMLP)
+
+		    //KDataPFJet * jet = dynamic_cast<KDataPFJet*> (&(*it));
+		    //event.m_pfPointerJets["AK5PFJets"]->push_back(jet);
+		    event.m_pfPointerJets["AK5PFJets"]->push_back(dynamic_cast<KDataPFJet*> (&(*it)));
+
+//CALIB_LOG("qg converted " << static_cast<KDataPFTaggedJet*>(jet)->qgMLP)
+	    }
+
+
+
+	    tjets = event.m_pfTaggedJets.at("AK5PFTaggedJetsCHS");
+        event.m_pfPointerJets["AK5PFJetsCHS"] = new std::vector<KDataPFJet*>;
+ 	
+
+	    for (KDataPFTaggedJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
+	    {
+		    //KDataPFJet * jet = dynamic_cast<KDataPFJet*> (&(*it));
+		    //event.m_pfPointerJets["AK5PFJetsCHS"]->push_back(jet);
+
+		    event.m_pfPointerJets["AK5PFJetsCHS"]->push_back(dynamic_cast<KDataPFJet*> (&(*it)));
+	    }
+
+
+
+
 		// validate PF Jets
-		for (ZJetEventData::PfMapIterator italgo = event.m_pfJets.begin(); italgo
-				!= event.m_pfJets.end(); ++italgo)
+		for (ZJetEventData::PfPointerMapIterator italgo = event.m_pfPointerJets.begin(); italgo
+				!= event.m_pfPointerJets.end(); ++italgo)
 		{
 			// init collections for this algorithm
 			std::string sAlgoName = italgo->first;
@@ -109,7 +144,9 @@ public:
 
 			int i = 0;
 			float lastpt = -1.0f;
-			for (KDataPFJets::iterator itjet = italgo->second->begin();
+//CALIB_LOG("italgo size" << italgo->second->size())
+
+			for (std::vector<KDataPFJet*>::iterator itjet = italgo->second->begin();
 					itjet != italgo->second->end(); ++itjet)
 			{
 				bool good_jet = true;
@@ -121,33 +158,33 @@ public:
 
 				if (metaData.HasValidZ())
 				{
-					dr1 = ROOT::Math::VectorUtil::DeltaR(itjet->p4,
+					dr1 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
 							metaData.GetValidMuons().at(0).p4);
-					dr2 = ROOT::Math::VectorUtil::DeltaR(itjet->p4,
+					dr2 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
 							metaData.GetValidMuons().at(1).p4);
 				}
 				good_jet = good_jet && (dr1 > 0.5) && (dr2 > 0.5);
 
 				// Ensure the jets are ordered by pt!
-				if ((lastpt > 0.0f) && (lastpt < itjet->p4.Pt()))
-					CALIB_LOG("Jet pt unsorted " << lastpt << " to " << itjet->p4.Pt())
+				//if ((lastpt > 0.0f) && (lastpt < (*itjet)->p4.Pt()))
+				//	CALIB_LOG("Jet pt unsorted " << lastpt << " to " << (*itjet)->p4.Pt())
 
-				lastpt = itjet->p4.Pt();
+				lastpt = (*itjet)->p4.Pt();
 
 				// JetID
 				// https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
 				// PFJets, all eta
 				good_jet = good_jet
-					&& (itjet->neutralHadFraction + itjet->HFHadFraction < 0.99)
-					&& (itjet->neutralEMFraction < 0.99)
-					&& (itjet->nConst > 1);
+					&& ((*itjet)->neutralHadFraction + (*itjet)->HFHadFraction < 0.99)
+					&& ((*itjet)->neutralEMFraction < 0.99)
+					&& ((*itjet)->nConst > 1);
 				// PFJets, |eta| < 2.4 (tracker)
-				if (std::abs(itjet->p4.eta()) < 2.4)
+				if (std::abs((*itjet)->p4.eta()) < 2.4)
 				{
 					good_jet = good_jet
-						&& (itjet->chargedHadFraction > 0.0)
-						&& (itjet->nCharged > 0)
-						&& (itjet->chargedEMFraction < 0.99);
+						&& ((*itjet)->chargedHadFraction > 0.0)
+						&& ((*itjet)->nCharged > 0)
+						&& ((*itjet)->chargedEMFraction < 0.99);
 				}
 
 				if (good_jet)

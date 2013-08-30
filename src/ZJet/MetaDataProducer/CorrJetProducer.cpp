@@ -137,12 +137,14 @@ void CorrJetProducer::CorrectJetCollection(
 	// copy the jet collection
 	for (unsigned int i = 0; i < jetcount; ++i)
 	{
-		KDataPFJet* jet = static_cast<KDataPFJet*>(metaData.GetValidJet(
+		KDataPFTaggedJet* jet = static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(
 				settings, event, i, algoName));
 
 		// create a copy
-		KDataPFJet jet_corr = *jet;
+        KDataPFTaggedJet jet_corr = * jet;
+ 
 		metaData.AddValidJet(jet_corr, newAlgoName);
+
 	}
 
 	// correct the copied jet collection

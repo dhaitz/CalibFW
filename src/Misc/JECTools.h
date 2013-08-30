@@ -34,7 +34,7 @@ inline void setupFactorProvider(const KDataJet &jet, Tprov *prov)
 }
 
 template<typename Tprov>
-inline void setupFactorProvider(const KDataPFJet &jet, Tprov *prov)
+inline void setupFactorProvider(const KDataPFTaggedJet &jet, Tprov *prov)
 {
 	prov->setJetEta(jet.p4.eta());
 	prov->setJetPt(jet.p4.pt());
@@ -61,7 +61,7 @@ inline void correctSingleJet(KDataJet &jet, FactorizedJetCorrector *jec, double 
 }
 
 template<>
-inline void correctSingleJet(KDataPFJet &jet, FactorizedJetCorrector *jec, double rundiff)
+inline void correctSingleJet(KDataPFTaggedJet &jet, FactorizedJetCorrector *jec, double rundiff)
 {
 	setupFactorProvider(jet, jec);
 	jec->setJetA(jet.area);

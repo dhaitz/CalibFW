@@ -8,6 +8,7 @@ typedef KappaEventProvider<ZJetEventData> ZJetEventProvider;
 /*
  * Template specialization for the ZJet related event data
  */
+
 template<>
 void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 {
@@ -20,11 +21,16 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 	m_event.m_pfMetChs = m_fi.Get<KDataPFMET>("PFMETCHS");
 	m_event.m_pfMetL2L3 = m_fi.Get<KDataPFMET>("ak5PFMETL2L3");
 	m_event.m_pfMetChsL2L3 = m_fi.Get<KDataPFMET>("ak5PFMETCHSL2L3");
+
 	InitPFJets(m_event, "AK5PFJets");
 	InitPFJets(m_event, "AK5PFJetsCHS");
 
-	InitPFJets(m_event, "AK7PFJets");
-	InitPFJets(m_event, "AK7PFJetsCHS");
+	
+    m_event.m_pfTaggedJets["AK5PFTaggedJets"] = m_fi.Get<KDataPFTaggedJets>("AK5PFTaggedJets");
+    m_event.m_pfTaggedJets["AK5PFTaggedJetsCHS"] = m_fi.Get<KDataPFTaggedJets>("AK5PFTaggedJetsCHS");
+	
+    //InitPFJets(m_event, "AK7PFJets");
+	//InitPFJets(m_event, "AK7PFJetsCHS");
 
 	InitCaloJets(m_event, "AK5CaloJets");
 	InitCaloJets(m_event, "AK7CaloJets");

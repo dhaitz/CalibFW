@@ -14,7 +14,6 @@ public:
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
 			ZJetMetaData & metaData, ZJetPipelineSettings const& globalsettings) const
 	{
-
 	for (int i = 0; i < m_basealgorithms.size(); i++)
 	{
 
@@ -43,7 +42,7 @@ public:
 		for (int j=0; j < metaData.m_listValidJets[algoname_raw].size(); j++)
 		{
             int n = metaData.m_listValidJets[algoname_raw].at(j);
-            ue->p4 -= event.m_pfJets.at(algoname_raw)->at(n).p4;
+            ue->p4 -= event.m_pfPointerJets.at(algoname_raw)->at(n)->p4;
         }
         // ... and Z.
         ue->p4 -= metaData.GetRefZ().p4;
