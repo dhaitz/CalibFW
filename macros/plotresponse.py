@@ -488,10 +488,17 @@ def response_physflavour(files, opt, changes=None, settings=None, definition='ph
     colors = ['red', 'black', 'yellowgreen', 'lightskyblue', ]
     quantities = ['ptbalance', 'mpf', 'recogen', 'genbalance', ]
 
-    plotbase.debug("neutrino-inclusive quantities are used")
-    ################################################################################
-    quantities = ['jet1npt/zpt', 'mpfn', 'jet1npt/matchedgenjet1pt', 'genbalance', ]
-    ################################################################################
+    ############################################################################
+    #plotbase.debug("neutrino-inclusive quantities are used")
+    quantities = ['jet1npt/zpt', 'mpfn', 'jet1npt/matchedgenjet1pt', '(genbalance+neutrinopt/zpt)', ]
+    ############################################################################
+
+    #plotbase.debug("added ef and mu quantities are used")
+    #q2 = [r if r=="genbalance" else 
+    #    "(%s+jet1muonfraction+jet1chargedemfraction+0.35*jet1neutralhadfraction)" 
+    #                                            % r for r in quantities]
+    #quantities = q2
+    ############################################################################
 
     labels = ['PtBalance', 'MPF', 'RecoJet/GenJet', 'GenJet/RecoZ']
     
@@ -563,12 +570,13 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
 
     fig, ax = plotbase.newplot()
 
-    #add neutrinos t genjets
-    genneutrinos = False
+    #add neutrinos to genjets
+    genneutrinos = True############
     if genneutrinos:
+        print "using neutrino-inclusive quantities"
         responses = ['jet1npt/zpt', 'mpfn', 'jet1npt/(matchedgenjet1pt+neutrinopt)', '(matchedgenjet1pt+neutrinopt)/zpt']
     else:
-        responses = ['jet1npt/zpt', 'mpfn', 'jet1npt/matchedgenjet1pt', 'genbalance']
+        responses = ['jet1pt/zpt', 'mpf', 'jet1pt/matchedgenjet1pt', 'genbalance']
 
     for m, c, responsetype, l in zip(markers, colors, responses, qlabels):
         changes['markers'] = [m]
@@ -578,7 +586,9 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
         yerr = []
 
         for s in  selections:
-            if settings['extrapolation']:
+            if settings['extrapolation'] and (('PtBalance' in l) 
+                                                    or ('GenJet/RecoZ' in l)):
+                print l
                 changes['selection'] = "%s && %s" % ("alpha<0.3", s)
                 changes['allalpha'] = True
             
@@ -594,7 +604,7 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
                 y += [intercept]
                 yerr += [ierr]
             else:
-                changes['selection'] = "%s && %s" % ("alpha<0.3", s)
+                changes['selection'] = "%s && %s" % ("alpha<0.2", s)
                 quantity = responsetype
 
                 rsettings = {}
@@ -637,6 +647,7 @@ def response_components(files, opt, changes=None, settings=None):
     components = ["jet1chargedhadfraction", "jet1photonfraction", 
         "jet1neutralhadfraction", "jet1chargedemfraction", "jet1HFemfraction", 
         "jet1HFhadfraction"]
+    components = ["(%s*ptbalance)" % c for c in components]
 
     responsetype = "recogen"
 
