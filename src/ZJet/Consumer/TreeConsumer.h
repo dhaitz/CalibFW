@@ -74,7 +74,16 @@ private:
         rawMETpt, rawMETphi, uept, uephi, ueeta, mpf, rawmpf, otherjetspt, 
         otherjetsphi, otherjetseta, genjet1pt, genjet1eta, genjet1phi, 
         matchedgenjet1pt, genjet2pt, genzpt, genmpf, algoflavour, physflavour,
-        mupluspt, mupluseta, muplusphi, muminuspt, muminuseta, muminusphi 
+        mupluspt, mupluseta, muplusphi, muminuspt, muminuseta, muminusphi,
+        pionpt, kshortpt, neutralpt, neutralptnocut, algopartonpt,
+        subleadingjetspt, subleadingjetsphi,
+        qglikelihood, qgmlp, trackcountinghigheffbjettag,  
+        trackcountinghighpurbjettag, jetprobabilitybjettag,
+        jetbprobabilitybjettag, softelectronbjettag, softmuonbjettag,
+        softmuonbyip3dbjettag, softmuonbyptbjettag, simplesecondaryvertexbjettag,
+        combinedsecondaryvertexbjettag,  combinedsecondaryvertexmvabjettag,
+        puJetFull, puJetIDFull, puJetIDFullLoose, puJetIDFullMedium, puJetIDFullTight,
+        puJetCutbased, puJetIDCutbased, puJetIDCutbasedLoose, puJetIDCutbasedMedium, puJetIDCutbasedTight
     } var;
     
     float returnvalue(std::string string, ZJetEventData const& event,
@@ -136,10 +145,93 @@ private:
     else if (string=="muminuseta") var=muminuseta;
     else if (string=="muminusphi") var=muminusphi;
 
+    else if (string=="qglikelihood") var=qglikelihood;
+    else if (string=="qgmlp") var=qgmlp;
+
+    else if (string=="trackcountinghigheffbjettag") var=trackcountinghigheffbjettag;
+    else if (string=="trackcountinghighpurbjettag") var=trackcountinghighpurbjettag;
+    else if (string=="jetprobabilitybjettag") var=jetprobabilitybjettag;
+    else if (string=="jetbprobabilitybjettag") var=jetbprobabilitybjettag;
+    else if (string=="softelectronbjettag") var=softelectronbjettag;
+    else if (string=="softmuonbjettag") var=softmuonbjettag;
+    else if (string=="softmuonbyip3dbjettag") var=softmuonbyip3dbjettag;
+    else if (string=="softmuonbyptbjettag") var=softmuonbyptbjettag;
+    else if (string=="simplesecondaryvertexbjettag") var=simplesecondaryvertexbjettag;
+    else if (string=="combinedsecondaryvertexbjettag") var=combinedsecondaryvertexbjettag;
+    else if (string=="combinedsecondaryvertexmvabjettag") var=combinedsecondaryvertexmvabjettag;
+
+    else if (string=="puJetFull") var=puJetFull;
+    else if (string=="puJetIDFull") var=puJetIDFull;
+    else if (string=="puJetIDFullLoose") var=puJetIDFullLoose;
+    else if (string=="puJetIDFullMedium") var=puJetIDFullMedium;
+    else if (string=="puJetIDFullTight") var=puJetIDFullTight;
+    else if (string=="puJetCutbased") var=puJetCutbased;
+    else if (string=="puJetIDCutbased") var=puJetIDCutbased;
+    else if (string=="puJetIDCutbasedLoose") var=puJetIDCutbasedLoose;
+    else if (string=="puJetIDCutbasedMedium") var=puJetIDCutbasedMedium;
+    else if (string=="puJetIDCutbasedTight") var=puJetIDCutbasedTight;
+
+
 
     // general quantities
     if (var == npv)
         return event.m_vertexSummary->nVertices;
+
+    // QG tag
+    else if (var == qglikelihood)
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->qgLikelihood;
+    else if (var == qgmlp)
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->qgMLP;
+
+    // b tags
+    else if (var==trackcountinghigheffbjettag) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->trackCountingHighEffBTag;
+    else if (var==trackcountinghighpurbjettag) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->trackCountingHighPurBTag;
+    else if (var==jetprobabilitybjettag) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->jetProbabilityBTag;
+    else if (var==jetbprobabilitybjettag) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->jetBProbabilityBTag;
+    else if (var==softelectronbjettag) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softElectronBTag;
+    else if (var==softmuonbjettag) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softMuonBTag;
+    else if (var==softmuonbyip3dbjettag) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softMuonByIP3dBTag;
+    else if (var==softmuonbyptbjettag) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softMuonByPtBTag;
+    else if (var==simplesecondaryvertexbjettag) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->simpleSecondaryVertexBTag;
+    else if (var==combinedsecondaryvertexbjettag) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->combinedSecondaryVertexBTag;
+    else if (var==combinedsecondaryvertexmvabjettag) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->combinedSecondaryVertexMVABTag;
+
+    else if (var==puJetFull) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetFull;
+    else if (var==puJetIDFull) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDFull;
+    else if (var==puJetIDFullLoose) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDFullLoose;
+    else if (var==puJetIDFullMedium) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDFullMedium;
+    else if (var==puJetIDFullTight) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDFullTight;
+
+
+    else if (var==puJetCutbased) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetCutbased;
+    else if (var==puJetIDCutbased) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDCutbased;
+    else if (var==puJetIDCutbasedLoose) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDCutbasedLoose;
+    else if (var==puJetIDCutbasedMedium) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDCutbasedMedium;
+    else if (var==puJetIDCutbasedTight) 
+        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDCutbasedTight;
+
+
+
     else if (var == rho)
         return event.m_jetArea->median;
     else if (var == run)
