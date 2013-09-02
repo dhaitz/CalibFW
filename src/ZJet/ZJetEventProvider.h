@@ -37,8 +37,9 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 
 	if (m_fi.isMC()) {
 		// nice, we have the all-mighty TRUTH !
-		InitGenJets(m_event, "AK5GenJets");
+		//InitGenJets(m_event, "AK5GenJets");
 		InitGenJets(m_event, "AK7GenJets");
+		m_event.m_genJets["AK5GenJets"] = m_fi.Get<KDataLVs>("AK5GenJetsNoNu");
 		m_event.m_particles = m_fi.Get<KGenParticles>("genParticles");
 	} else {
 		// we need to read the residual MET corrections for data
