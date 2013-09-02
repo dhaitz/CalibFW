@@ -19,6 +19,8 @@ ntuple_dict = {
             'jet1abseta':'(abs(jet1eta))',
             'jet2abseta':'(abs(jet2eta))',
             'recogen':'(jet1pt/matchedgenjet1pt)',
+            'btag':'combinedsecondaryvertexmvabjettag',
+            'qgtag':'qglikelihood',
             }
 
 #   Quantity:[ax_min, ax_max, Name, unit, z_min, z_max]
