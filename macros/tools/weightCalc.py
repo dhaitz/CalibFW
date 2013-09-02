@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import argparse
 import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True #prevents Root from reading argv
+import argparse
 import subprocess
 import json
 import os
