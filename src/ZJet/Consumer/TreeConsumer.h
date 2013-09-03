@@ -179,34 +179,98 @@ private:
 
     // QG tag
     else if (var == qglikelihood)
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->qgLikelihood;
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->qgLikelihood == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->qgLikelihood;
+    }
     else if (var == qgmlp)
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->qgMLP;
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->qgLikelihood == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->qgLikelihood;
+    }
 
     // b tags
-    else if (var==trackcountinghigheffbjettag) 
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->trackCountingHighEffBTag;
-    else if (var==trackcountinghighpurbjettag) 
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->trackCountingHighPurBTag;
-    else if (var==jetprobabilitybjettag) 
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->jetProbabilityBTag;
-    else if (var==jetbprobabilitybjettag) 
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->jetBProbabilityBTag;
-    else if (var==softelectronbjettag) 
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softElectronBTag;
-    else if (var==softmuonbjettag) 
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softMuonBTag;
-    else if (var==softmuonbyip3dbjettag) 
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softMuonByIP3dBTag;
-    else if (var==softmuonbyptbjettag) 
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softMuonByPtBTag;
-    else if (var==simplesecondaryvertexbjettag) 
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->simpleSecondaryVertexBTag;
-    else if (var==combinedsecondaryvertexbjettag) 
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->combinedSecondaryVertexBTag;
-    else if (var==combinedsecondaryvertexmvabjettag) 
-        return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->combinedSecondaryVertexMVABTag;
-
+    else if (var==trackcountinghigheffbjettag)
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->trackCountingHighEffBTag == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->trackCountingHighEffBTag;
+    }
+    else if (var==trackcountinghighpurbjettag)
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->trackCountingHighPurBTag == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->trackCountingHighPurBTag;
+    }
+    else if (var==jetprobabilitybjettag)
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->jetProbabilityBTag == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->jetProbabilityBTag;
+    }
+    else if (var==jetbprobabilitybjettag)
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->jetBProbabilityBTag == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->jetBProbabilityBTag;
+    }
+    else if (var==softelectronbjettag)
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softElectronBTag == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softElectronBTag;
+    }
+    else if (var==softmuonbjettag)
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softMuonBTag == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softMuonBTag;
+    }
+    else if (var==softmuonbyip3dbjettag)
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softMuonByIP3dBTag == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softMuonByIP3dBTag;
+    }
+    else if (var==softmuonbyptbjettag)
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softMuonByPtBTag == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->softMuonByPtBTag;
+    }
+    else if (var==simplesecondaryvertexbjettag)
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->simpleSecondaryVertexBTag == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->simpleSecondaryVertexBTag;
+    }
+    else if (var==combinedsecondaryvertexbjettag)
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->combinedSecondaryVertexBTag == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->combinedSecondaryVertexBTag;
+    }
+    else if (var==combinedsecondaryvertexmvabjettag)
+    {
+        if (static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->combinedSecondaryVertexMVABTag == -1)
+            return -999;
+        else
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->combinedSecondaryVertexMVABTag;
+    }
     else if (var==puJetFull) 
         return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetFull;
     else if (var==puJetIDFull) 
