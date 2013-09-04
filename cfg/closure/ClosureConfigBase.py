@@ -123,6 +123,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
             }
         },
         'InputType': inputtype,
+        'Tagged':True,
     }
 
     config['Pipelines']['default'].update(GetCuts(analysis))
@@ -286,12 +287,23 @@ def treeconfig(conf, quantities = None):
                  "mupluspt", "mupluseta", "muplusphi", 
                  "muminuspt", "muminuseta", "muminusphi"
                   ]
+            if conf['Tagged'] == True:
+                pval['QuantitiesVector'] += [
+                    "qglikelihood", "qgmlp", "trackcountinghigheffbjettag",
+                    "trackcountinghighpurbjettag", "jetprobabilitybjettag",
+                    "jetbprobabilitybjettag", "softelectronbjettag",
+                    "softmuonbjettag", "softmuonbyip3dbjettag",
+                    "softmuonbyptbjettag", "simplesecondaryvertexbjettag",
+                    "combinedsecondaryvertexbjettag", "combinedsecondaryvertexmvabjettag",
+                    "puJetFull", "puJetIDFull", "puJetIDFullLoose", "puJetIDFullMedium", "puJetIDFullTight",
+                    "puJetCutBased", "puJetIDCutBased", "puJetIDCutBasedLoose", "puJetIDCutBasedMedium", "puJetIDCutBasedTight",
+                ]
             if conf['InputType'] == 'mc':
                 pval['QuantitiesVector'] += [
-                            "genjet1pt","genjet1eta","genjet1phi","genjet2pt",
-                            "matchedgenjet1pt", "genmpf",
-                            "algoflavour", "physflavour"
-                         ]
+                    "genjet1pt","genjet1eta","genjet1phi","genjet2pt",
+                    "matchedgenjet1pt", "genmpf",
+                    "algoflavour", "physflavour",
+                            ]
         else:
             pval['QuantitiesVector'] = quantities
 
