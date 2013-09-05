@@ -83,7 +83,9 @@ public:
 */
 class ValidJetProducer: public ZJetGlobalMetaDataProducerBase
 {
+
 public:
+	ValidJetProducer(bool Tagged) : ZJetGlobalMetaDataProducerBase(), tagged(Tagged){}
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
 			ZJetMetaData & metaData,
@@ -96,42 +98,35 @@ public:
 			ZJetMetaData & metaData,
 			ZJetPipelineSettings const& globalSettings) const
 	{
-		// all gen jets are valid ...
 
+  		for (ZJetEventData::PfMapIterator italgo = event.m_pfJets.begin(); italgo
+			    != event.m_pfJets.end(); ++italgo)
+        {
+            
+		    std::string sAlgoName = italgo->first;
+            event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
 
-        //CALIB_LOG("before at")
-	    KDataPFTaggedJets * tjets = event.m_pfTaggedJets.at("AK5PFTaggedJets");
-	
+            // for tagged PF jets: fill the m_pfPointerJets with a collection of 
+            // casted KDataPFJet pointers pointing to the KDataPFTaggedJet
+            if (tagged)
+            {
+		        std::string sAlgoNameTagged = italgo->first;
+                sAlgoNameTagged.replace(sAlgoName.find("Jets"), 4, "TaggedJets");
 
-    event.m_pfPointerJets["AK5PFJets"] = new std::vector<KDataPFJet*>;
-
-	    for (KDataPFTaggedJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
-	    {
-//CALIB_LOG("qg raw " << (&(*it))->qgMLP)
-
-		    //KDataPFJet * jet = dynamic_cast<KDataPFJet*> (&(*it));
-		    //event.m_pfPointerJets["AK5PFJets"]->push_back(jet);
-		    event.m_pfPointerJets["AK5PFJets"]->push_back(dynamic_cast<KDataPFJet*> (&(*it)));
-
-//CALIB_LOG("qg converted " << static_cast<KDataPFTaggedJet*>(jet)->qgMLP)
-	    }
-
-
-
-	    tjets = event.m_pfTaggedJets.at("AK5PFTaggedJetsCHS");
-        event.m_pfPointerJets["AK5PFJetsCHS"] = new std::vector<KDataPFJet*>;
- 	
-
-	    for (KDataPFTaggedJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
-	    {
-		    //KDataPFJet * jet = dynamic_cast<KDataPFJet*> (&(*it));
-		    //event.m_pfPointerJets["AK5PFJetsCHS"]->push_back(jet);
-
-		    event.m_pfPointerJets["AK5PFJetsCHS"]->push_back(dynamic_cast<KDataPFJet*> (&(*it)));
-	    }
-
-
-
+                KDataPFTaggedJets * tjets = event.m_pfTaggedJets.at(sAlgoNameTagged);
+                event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
+                for (KDataPFTaggedJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
+	                event.m_pfPointerJets[sAlgoName]->push_back(dynamic_cast<KDataPFJet*> (&(*it)));
+            }
+            // for regular (non-tagged) PF jets: fill the m_pfPointerJets with simple pointers
+            else
+            {
+                KDataPFJets * tjets = event.m_pfJets.at(sAlgoName);
+                event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
+                for (KDataPFJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
+	                event.m_pfPointerJets[sAlgoName]->push_back(&(*it));
+            }
+        }
 
 		// validate PF Jets
 		for (ZJetEventData::PfPointerMapIterator italgo = event.m_pfPointerJets.begin(); italgo
@@ -199,6 +194,7 @@ public:
 	}
 
 	static std::string Name() { return "valid_jet_producer"; }
+	bool tagged;
 };
 
 

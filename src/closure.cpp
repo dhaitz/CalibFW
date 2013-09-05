@@ -107,7 +107,8 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 		else if (PuReweightingProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new PuReweightingProducer());
 		else if (ValidJetProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new ValidJetProducer());
+			runner.AddGlobalMetaProducer(new ValidJetProducer(
+					globalSettings.get<bool>("Tagged")));
 		else if (CorrJetProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new CorrJetProducer(
 					globalSettings.get<std::string>("Jec"),
@@ -222,7 +223,7 @@ int main(int argc, char** argv)
 
 	gset.SetInputType(g_inputType);
 
-	ZJetEventProvider evtProvider(finterface, g_inputType, g_propTree.get<bool>("EnableMetPhiCorrection"));
+	ZJetEventProvider evtProvider(finterface, g_inputType, g_propTree.get<bool>("EnableMetPhiCorrection"), g_propTree.get<bool>("Tagged"));
 	gset.m_metphi = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "MetPhiCorrectionParameters");
 
 	// removes the old file

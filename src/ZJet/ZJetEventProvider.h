@@ -10,7 +10,7 @@ typedef KappaEventProvider<ZJetEventData> ZJetEventProvider;
  */
 
 template<>
-void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
+void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection, bool tagged)
 {
 	m_event.m_vertexSummary = m_fi.Get<KVertexSummary>(
 			"goodOfflinePrimaryVerticesSummary");
@@ -25,9 +25,11 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 	InitPFJets(m_event, "AK5PFJets");
 	InitPFJets(m_event, "AK5PFJetsCHS");
 
-	
+	if (tagged)
+    {
     m_event.m_pfTaggedJets["AK5PFTaggedJets"] = m_fi.Get<KDataPFTaggedJets>("AK5PFTaggedJets");
     m_event.m_pfTaggedJets["AK5PFTaggedJetsCHS"] = m_fi.Get<KDataPFTaggedJets>("AK5PFTaggedJetsCHS");
+    }
 	
     //InitPFJets(m_event, "AK7PFJets");
 	//InitPFJets(m_event, "AK7PFJetsCHS");
@@ -39,7 +41,12 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection)
 		// nice, we have the all-mighty TRUTH !
 		//InitGenJets(m_event, "AK5GenJets");
 		InitGenJets(m_event, "AK7GenJets");
-		m_event.m_genJets["AK5GenJets"] = m_fi.Get<KDataLVs>("AK5GenJetsNoNu");
+
+        if (tagged)
+    		m_event.m_genJets["AK5GenJets"] = m_fi.Get<KDataLVs>("AK5GenJetsNoNu");
+        else
+    		m_event.m_genJets["AK5GenJets"] = m_fi.Get<KDataLVs>("AK5GenJets");
+
 		m_event.m_particles = m_fi.Get<KGenParticles>("genParticles");
 	} else {
 		// we need to read the residual MET corrections for data
