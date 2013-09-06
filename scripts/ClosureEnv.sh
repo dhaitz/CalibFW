@@ -5,8 +5,16 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CLOSURE_BASE:$CLOSURE_BASE/../Kappa/lib
 
 # Set some user specific variables
 if [ $USER = "dhaitz" ]; then
-    export DATA='/storage/a/dhaitz/CalibFW/work/data/out/closure.root'
-    export MC='/storage/a/dhaitz/CalibFW/work/mc/out/closure.root'
+    if [ -f /storage/a/dhaitz/CalibFW/work/data/out/closure.root ]; then
+        export DATA='/storage/a/dhaitz/CalibFW/work/data/out/closure.root'
+    else
+        export DATA='/storage/a/dhaitz/CalibFW/work/data_old/out/closure.root'
+    fi
+    if [ -f /storage/a/dhaitz/CalibFW/work/mc/out/closure.root ]; then
+        export MC='/storage/a/dhaitz/CalibFW/work/mc/out/closure.root'
+    else
+        export MC='/storage/a/dhaitz/CalibFW/work/mc_old/out/closure.root'
+    fi
     export USERPC="ekplx26"
 elif [ $USER = "berger" ]; then
     export DATA='/storage/a/dhaitz/CalibFW/work/data/out/closure.root'
