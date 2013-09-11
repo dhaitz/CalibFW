@@ -17,6 +17,10 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
     if settings['fit']=='vertical':
         if quantity == 'METpt': unit = r' \/ / \/ GeV'
         else: unit = ""
+
+        if 'fitlabel_offset' in settings:
+            offset += settings['fitlabel_offset']
+
         ax.axvline(rootobject.GetMean(), color=color, linestyle='-')
         ax.axvspan(rootobject.GetMean()-rootobject.GetMeanError(), rootobject.GetMean()+rootobject.GetMeanError(), color=color, alpha=0.1)
         ax.text(0.5, 0.97-(index/20.)+offset, r"$\langle \mathrm{%s} \rangle = %1.3f\pm%1.3f" % (label, rootobject.GetMean(), rootobject.GetMeanError())+"\mathrm{%s}$" % unit,
