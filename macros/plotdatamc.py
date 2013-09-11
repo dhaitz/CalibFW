@@ -77,7 +77,9 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
             scalefactor=1
             #s = s.replace('f','o')
         elif settings['normalize']:
-            if (f.ysum()!=0 and datamc[0].ysum()!=0):
+            if 'scalefactor' in settings:
+                f.scale(settings['scalefactor'])
+            elif (f.ysum()!=0 and datamc[0].ysum()!=0):
                 scalefactor = datamc[0].ysum() / f.ysum()
                 f.scale(scalefactor)
             elif settings['lumi'] !=None:
