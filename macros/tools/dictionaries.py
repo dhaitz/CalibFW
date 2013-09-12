@@ -136,7 +136,7 @@ d_axes={
         'sumEt':[0, 2500, r"$\sum E^\mathrm{T}$", "GeV"],
         'summedf':[0.8,1.2, r"$%s$ fraction sum", ""],
         'summedfr':[0.8,1.2, r"$%s$ fraction sum2", ""],
-
+        'tagflavour': [-0.5, 24.5, r"Flavour (from tagging)", ""],
         'uept':[ 0, 250, r"$p_\mathrm{T}^\mathrm{Unclustered Energy}$", 'GeV'],   
 
         'xsec':[0, 20, r"$n_\mathrm{Events} / \mathcal{L}$", "pb$^{-1}$"],

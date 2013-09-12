@@ -34,6 +34,7 @@ import plot_resolution
 import plot_mikko
 import plot2d
 import plot_sandbox
+import plot_tagging
 
 import getroot
 from labels import *
@@ -667,7 +668,7 @@ def _internal_Save(figure, name, opt, crop=True, pad=None):
 if __name__ == "__main__":
     op = options()
     module_list = [plotresponse, plotfractions, plot2d, plotdatamc, 
-                                      plot_resolution, plot_mikko, plot_sandbox]
+                        plot_resolution, plot_mikko, plot_sandbox, plot_tagging]
     print "Number of files:", len(op.files)
     files=[]
     for f in op.files:
