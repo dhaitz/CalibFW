@@ -7,6 +7,7 @@ import plotresponse
 
 
 def rootfile(files, opt):
+    """Function for the rootfile sent to the JEC group in early August 2013."""
 
     list_of_quantities = ['ptbalance_alpha', 'mpf_alpha',
         'ptbalance', 'mpf', 'zpt', 'npv', 'zmass', 'zpt_alpha', 'npv_alpha',
@@ -42,6 +43,7 @@ def rootfile(files, opt):
 
 
 def flavour_comp(files, opt):
+    """Plot the PF composition as a function of the MC truth flavour."""
 
     quantity = "components_physflavour"
     settings = plotbase.getsettings(opt, changes=None, settings=None, 

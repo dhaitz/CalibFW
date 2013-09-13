@@ -27,6 +27,7 @@ zones = ['(btag<0.1 && qgtag>0.95   && btag>-1 && qgtag>-1)',
 colors = ['#236BB2', '#CC2828', '#458E2F', '#E5AD3D']
 
 def tagging(files, opt):
+    """Do all the plots in the tagging module."""
     tagging_truthfraction(files, opt)
     tagging_truthflavour(files, opt)
     tagging_2D(files, opt)
@@ -37,10 +38,10 @@ def tagging(files, opt):
 
 
 def tagging_truthfraction(files, opt):
+    """Simple plots: Fraction of MC-Truth b/uds vs. btag/qgtag."""
 
-    #simple plots: truth fraction vs taggers
     for tagger, flavour, selection in zip(['qgtag', 'btag'], ['uds', 'b'], 
-['(%s<4)' % flavourdef,'(%s==5)' % flavourdef]):
+                                ['(%s<4)' % flavourdef,'(%s==5)' % flavourdef]):
        changes = {'selection':'%s>0' % flavourdef,
                 'xynames':[tagger, "Fraction of %s" % flavour],
                 'filename':"_".join([flavour, tagger]),
@@ -51,7 +52,7 @@ def tagging_truthfraction(files, opt):
 
 
 def tagging_truthflavour(files, opt):
-    # simple plots: tagging value vs. MC truth flavour
+    """Simple plots: Average tagger value vs. MC Truth flavour."""
     for tagger in taggers:
         changes = {'selection':'%s > -1' % tagger, 'legloc':'None', 'colors':['maroon'],
                     'filename':'tagger-TRUTHtest_%s' % tagger,
@@ -59,7 +60,7 @@ def tagging_truthflavour(files, opt):
         plotdatamc.datamcplot('%s_%s' % (tagger, flavourdef), files[1:], opt, changes=changes)
 
 def tagging_2D(files, opt):
-    # 2D tagging plots
+    """2D plots of the btag and qgtag distribution."""
     for selection, title in zip(selections, titles):
         changes = {'selection':'%s' % selection, 'labels':[title], 
                     'filename':"2D_%s" % title, 'rebin':10,
@@ -68,6 +69,7 @@ def tagging_2D(files, opt):
 
     
 def tagging_mpf(files, opt):
+    """MPF plots for the 4 tagging zones, simple (data/MC) and with stacked fractions."""
     for l in [selections, titles, colors]:
         l.reverse()
 
@@ -114,6 +116,7 @@ def tagging_mpf(files, opt):
 
         
 def tagging_stacked(files, opt):
+    """Tagger distribution plots with the flavour composition stacked."""
     for l in [selections, titles, colors]:
         l.reverse()
 
@@ -121,7 +124,6 @@ def tagging_stacked(files, opt):
     for i in range(len(selections)):
         stacked += ["(%s)" % "||".join(selections[i:])]
 
-    # tagger plots with the flavour composition stacked
     for tagger in ['qgtag', 'btag']:
 
         fig, ax = plotbase.newplot()
@@ -150,12 +152,12 @@ def tagging_stacked(files, opt):
 
     
 def tagging_response_corrected(files, opt):
+    """Same as tagging_response but with an additional PF-based response correction."""
     tagging_response(files, opt, PFcorrection = True)
 
 def tagging_response(files, opt, PFcorrection = False):
-
-    # Determine the response for each flavour from the response and 
-    # flavour composition in each tagging zone
+    """Determine the response for each flavour from the response and
+       flavour composition in each tagging zone."""
 
     fig, ax = plotbase.newplot()
     labels = titles

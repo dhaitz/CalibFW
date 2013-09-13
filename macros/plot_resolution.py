@@ -341,14 +341,14 @@ def combined_resolution( files, opt,
 def resolution(files, opt):
 
     # balance
-    """combined_resolution(files, opt,
-                        folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
-                        algo = "AK5PFJets",
-                        corr = "L1L2L3",
-                        method_name = "balresp",
-                        filename_postfix = "_plus_gen",
-                        subtract_gen = False )"""
-    print ">>>>>>>>>>>>>>>>>>>combined1"
+    #combined_resolution(files, opt,
+    #                    folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
+    #                    algo = "AK5PFJets",
+    #                    corr = "L1L2L3",
+    #                    method_name = "balresp",
+    #                    filename_postfix = "_plus_gen",
+    #                    subtract_gen = False )"""
+    #print ">>>>>>>>>>>>>>>>>>>combined1"
     combined_resolution(files, opt,
                         folder_template = "YYY_incut_var_CutSecondLeadingToZPt_XXX",
                         algo = "AK5PFJetsCHS",

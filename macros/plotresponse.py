@@ -472,10 +472,11 @@ def response_run(files, opt, changes=None, settings=None):
 
 
 def response_algoflavour(files, opt, changes=None, settings=None):
+    """Get response vs. flavour (algorithmic definition). This function only works with MC."""
     response_physflavour(files, opt, changes=None, settings=None, definition='algo')
 
 def response_physflavour(files, opt, changes=None, settings=None, definition='phys'):
-    """Get response vs. flavour. This function only works with MC."""
+    """Get response vs. flavour (physics definition). This function only works with MC."""
     settings = plotbase.getsettings(opt, changes, settings, "response_flavour")
 
     x = '%sflavour' % definition
@@ -625,7 +626,8 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
 
 
 def response_components(files, opt, changes=None, settings=None):
-
+    """Get the response as a function of the PF fractions.
+        Default responsetype is recogen, this can be changed in the code."""
 
     settings = plotbase.getsettings(opt, changes, settings, "response_components")
 
