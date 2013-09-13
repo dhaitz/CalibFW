@@ -290,6 +290,8 @@ def options(
     group = parser.add_argument_group('Other options')
     group.add_argument('-v', '--verbose', action='store_true',
         help="verbosity")
+    group.add_argument('--list', action='store_true',
+        help="Show a list of the available predefined functions with docstrings")
 
 
     opt = parser.parse_args()
@@ -345,6 +347,17 @@ def printfiles(filelist):
         print "MC file:", filelist[1]
     elif len(filelist) > 2:
         print "MC files:", ", ".join(filelist[1:])
+
+
+def printfunctions(module_list):
+    for module in module_list:
+        print '\033[92m%s' % module.__name__
+        for elem in inspect.getmembers(module, inspect.isfunction):
+            if (inspect.getargspec(elem[1])[0][:2] == ['files', 'opt']):
+                print "\033[93m  %s \033[0m" % elem[0]
+                if (elem[1].__doc__ is not None):
+                    print "     ", elem[1].__doc__
+
 
 def get_selection(settings):
     """Prepare the selections."""
@@ -669,6 +682,11 @@ if __name__ == "__main__":
     op = options()
     module_list = [plotresponse, plotfractions, plot2d, plotdatamc, 
                         plot_resolution, plot_mikko, plot_sandbox, plot_tagging]
+    
+    if op.list:
+        printfunctions(module_list)
+        sys.exit()
+
     print "Number of files:", len(op.files)
     files=[]
     for f in op.files:
