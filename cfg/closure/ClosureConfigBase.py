@@ -1066,10 +1066,12 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
     config.add_section("global")
     config.set("global", "module", "UserMod")
     config.set("global", "backend", "local")
+    config.set("global", "cmdargs", "-G -c")
+
 
     config.add_section("jobs")
     config.set("jobs", "in queue", 50)
-    config.set("jobs", "shuffle", True)
+    #config.set("jobs", "shuffle", True)
     config.set("jobs", "wall time", "1:50:00" )
     config.set("jobs", "monitor", "scripts" )
     #config.set("jobs", "memory", 3000)
@@ -1187,7 +1189,7 @@ def Run(settings, arguments):
         StoreGCDataset(settings, nickname, work_path + "work/" + nickname + "/" + nickname + ".dbs")
         StoreGCConfig(settings, nickname, work_path + "work/" + nickname + "/" + nickname + ".conf")
         StoreGCCommon(settings, nickname, work_path + "work/" + nickname + "/gc_common.conf", work_path + "work/" + nickname + "/out/")
-        StoreMergeScript(settings, nickname, work_path + "work/" + nickname + "/merge.sh", work_path + "work/" + nickname + "/out/")
+        #StoreMergeScript(settings, nickname, work_path + "work/" + nickname + "/merge.sh", work_path + "work/" + nickname + "/out/")
         StoreShellRunner(settings, nickname, work_path + "work/" + nickname + "/gc-run-closure.sh")
 
         # generate merge script
