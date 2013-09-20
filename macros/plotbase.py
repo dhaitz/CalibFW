@@ -226,7 +226,7 @@ def options(
         help='save each plot separately')
 
 
-    # plot labelling 
+    # plot labelling and formatting
     formatting = parser.add_argument_group('Formatting options')
     formatting.add_argument('-l', '--lumi', type=float, default=lumi,
         help="luminosity for the given data in /pb. Default is %(default)s")
@@ -267,6 +267,8 @@ def options(
         default=None,
         help='Place a text at a certain location. Syntax is --text="abs" or \
                                                           --text="abc,0.5,0.9"')
+    formatting.add_argument('-G', '--grid', action='store_true', default=False,
+        help="Place an axes grid on the plot.")
         
 
     # AXIS

@@ -116,6 +116,9 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
                           'cut' in settings['xynames'][1] or settings['ratio']):
         ax.axhline(1.0, color='black', linestyle=':')
 
+    if settings['grid']:
+        ax.grid(True)
+
     if 'flavour' in settings['xynames'][0]:
         ax.set_xlim(-0.5, 7.5)
         ax.set_xticks([0,1,2,3,4,5,7])
