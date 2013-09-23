@@ -138,7 +138,7 @@ def options(
             layout='generic',
             title="",
             eventnumberlabel=None,
-            legloc='center right',
+            legloc='best',
 
             rebin=5,
             ratio=False,
