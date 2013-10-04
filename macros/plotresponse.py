@@ -448,9 +448,8 @@ def extrapol(files, opt,
 
 def response_run(files, opt, changes=None, settings=None):
     changes = {'runplot': True,
-                'legloc':'upper right',
                 'subplot':True,
-                'legloc':'upper left',
+                'legloc':'lower left',
                 'fit':'slope',
                 'xynames':['run', 'response']}
 
@@ -462,10 +461,10 @@ def response_run(files, opt, changes=None, settings=None):
                                 ['blue', 'red'], ['ptbalance_run', 'mpf_run']):
         changes['labels'] = [label]
         changes['colors'] = [color]
-        settings['fitlabel_offset']=-0.08*['blue', 'red'].index(color)
+        changes['fitlabel_offset']=-0.06*['blue', 'red'].index(color)
         plotdatamc.datamcplot(quantity, files, opt, fig_axes=(fig, ax), 
-                                            settings=settings)
-  
+                                           changes=changes, settings=settings)
+
     settings['filename'] = plotbase.getdefaultfilename("response_run", opt, settings)
 
     plotbase.Save(fig, settings['filename'], opt)
