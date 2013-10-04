@@ -21,7 +21,7 @@ def getextrapolated(balancetype, rootfile, settings=None, changes=None,
         quantity = quantity.replace("alpha", "genalpha")
 
     # get the extrapolation values:
-    changes = {'selection':'jet2pt/zpt<0.3', 'allalpha':'True'}
+    changes = {'selection':'jet2pt/zpt<0.3', 'allalpha':True, 'x':[0, 0.3]}
     rootobject = getroot.getobjectfromtree(quantity, rootfile, settings, changes)
     intercept, ierr, slope, serr = plotbase.fitline2(rootobject, quadratic)[:4]
     print "extrapolated value:", round(intercept,3), round(ierr,3)
