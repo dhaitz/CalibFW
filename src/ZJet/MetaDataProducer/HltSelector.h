@@ -73,7 +73,7 @@ public:
 						CALIB_LOG( (*it) << " prescale: " << metaData.m_hltInfo->getPrescale(*it) )
 					}
 
-					CALIB_LOG_FATAL("No unprescaled trigger found for " << bestHltName << ", prescale: " << metaData.m_hltInfo->getPrescale(bestHltName))
+					CALIB_LOG_FATAL("No unprescaled trigger found for " << bestHltName << ", prescale: " << metaData.m_hltInfo->getPrescale(bestHltName) << ", event: " << data.m_eventmetadata->nRun)
 				}
 
 				if (m_verbose)
