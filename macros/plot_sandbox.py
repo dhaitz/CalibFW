@@ -4,6 +4,54 @@ import plotdatamc
 import getroot
 import math
 import plotresponse
+import plotfractions
+
+
+def eleven(files, opt):
+    """ Summary of the plots for the response studies with 2011 rereco. """
+
+    runrange = [160000, 183000]
+    plotdatamc.datamcplot('npv', files, opt, changes = {'rebin':1})
+    plotdatamc.datamcplot('zmass', files, opt, changes = {'fit':'vertical', 'legloc':'center right'})
+    plotresponse.extrapol(files, opt)
+
+    plotresponse.responseratio(files, opt, over='zpt', types=['mpf'],
+                     changes={'y': [0.98, 1.03, 0.96, 1.03], 'x': [0, 400, 0, 400]})
+    plotresponse.responseratio(files, opt, over='jet1abseta', types=['mpf'],
+                     changes={'y': [0.95, 1.1, 0.93, 1.1]})
+    plotresponse.responseratio(files, opt, over='npv', types=['mpf'],
+                     changes={'y': [0.95, 1.05, 0.92, 1.03], 'x': [0, 18, 0, 18]})
+
+    plotresponse.responseratio(files, opt, over='zpt', types=['ptbalance'],
+                     changes={'y': [0.93, 1.01, 0.96, 1.03], 'x': [0, 400, 0, 400]})
+    plotresponse.responseratio(files, opt, over='jet1abseta', types=['ptbalance'],
+                     changes={'y': [0.91, 1.01, 0.93, 1.1]})
+    plotresponse.responseratio(files, opt, over='npv', types=['ptbalance'],
+                     changes={'y': [0.91, 1.01, 0.92, 1.03], 'x': [0, 18, 0, 18]})
+
+    plotdatamc.datamcplot('npv_run', files, opt, changes={'x': runrange,
+                'y': [0, 15], 'run': True, 'fit': True})
+
+    plotfractions.fractions(files, opt, over='zpt', changes={'x': [0, 400]})
+    plotfractions.fractions(files, opt, over='jet1abseta')
+    plotfractions.fractions(files, opt, over='npv', changes={'x': [-0.5, 24.5]})
+
+    for changes in [{'x': runrange, 'rebin':10, 'title':'|$\eta^{\mathrm{jet}}$|<1.3'}, 
+                {'x': runrange, 'alleta':True, 'rebin':10,
+                'selection':'jet1abseta>2.5 && jet1abseta<2.964',
+                'title':'2.5<|$\eta^{\mathrm{jet}}$|<2.964'}]:
+
+        if 'alleta' in changes:
+            opt.out += '/ECOT'
+            plotfractions.fractions_run(files, opt, diff=True, response=True, changes=changes, nbr=6)
+            plotfractions.fractions_run(files, opt, diff=False, response=True, changes=changes, nbr=6)
+            plotfractions.fractions_run(files, opt, diff=True, response=False, changes=changes, nbr=6)
+        else:
+            plotfractions.fractions_run(files, opt, diff=True, response=True, changes=changes)
+            plotfractions.fractions_run(files, opt, diff=False, response=True, changes=changes)
+            plotfractions.fractions_run(files, opt, diff=True, response=False, changes=changes)
+        changes['y'] = [0.84, 1.2]
+        plotresponse.response_run(files, opt, changes=changes)
 
 
 def rootfile(files, opt):
