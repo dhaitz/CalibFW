@@ -85,19 +85,21 @@ def eventnumberlabel(ax, settings):
         
 
 def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
-    if lumi >= 1000.0:
-        ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{fb}^{-1}$" %
-            (lumi / 1000.0), va='bottom', ha='left', transform=ax.transAxes)
-    elif lumi > 0.0:
-        ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{pb}^{-1}$" %
-            (lumi), va='bottom', ha='left', transform=ax.transAxes)
+    if hasattr(ax, 'number') and ax.number != 2:
+        if lumi >= 1000.0:
+            ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{fb}^{-1}$" %
+                (lumi / 1000.0), va='bottom', ha='left', transform=ax.transAxes)
+        elif lumi > 0.0:
+            ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{pb}^{-1}$" %
+                (lumi), va='bottom', ha='left', transform=ax.transAxes)
     return ax
 
 
 def energylabel(ax, energy, xpos=1.00, ypos=1.01):
-    if energy is not None:
-        ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
-            va='bottom', ha='right', transform=ax.transAxes)
+    if hasattr(ax, 'number') and ax.number != 2:
+        if energy is not None:
+            ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
+                va='bottom', ha='right', transform=ax.transAxes)
 
 def jetlabel_string( changes, opt):
     if changes.has_key('algorithm'): algorithm = changes['algorithm']

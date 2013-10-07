@@ -60,7 +60,7 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
 
     # if runplot_diff, get the mean from mc:
     if settings['run'] == 'diff':
-        datamc, ax, offset = runplot_diff(files, datamc, ax, settings)
+        datamc, ax, offset = runplot_diff(files, datamc, ax, settings, quantity)
     else:
         offset=0
 
@@ -167,11 +167,16 @@ def getPUindata(version=''):
     assert len(result) > 10
     return result
 
-def runplot_diff(files, datamc, ax, settings):      
+def runplot_diff(files, datamc, ax, settings, quantity):      
 
     settings2 = copy.deepcopy(settings)
-    settings2['x'] = plotbase.getaxislabels_list(settings['xynames'][1])[:2]
-    mc = getroot.getobjectfromtree(settings2['xynames'][1], files[1], settings2)
+    if 'components' in settings['xynames'][1]:
+        settings2['x'] = [0, 1.5]
+    else:
+        settings2['x'] = plotbase.getaxislabels_list(settings['xynames'][1])[:2]
+    
+
+    mc = getroot.getobjectfromtree(quantity.split("_")[0], files[1], settings2)
     offset = mc.GetMean()
 
     new_y = []
@@ -185,8 +190,8 @@ def runplot_diff(files, datamc, ax, settings):
             new_y.append(y_elem - offset)
     
     datamc[0].y = new_y
-    ax.axhspan(mc.GetMeanError(),-mc.GetMeanError(), 
-                                        color=settings2['colors'][1], alpha=0.4)
+    #ax.axhspan(mc.GetMeanError(),-mc.GetMeanError(), 
+    #                                    color=settings2['colors'][0], alpha=0.4)
     return datamc, ax, offset
 
 

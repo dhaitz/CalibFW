@@ -105,16 +105,12 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
 
     #special binning for certain quantities:
     # TODO make this dependent on the list in "opt" !
-    #'zpt': settings['bins'],
-    #'jet1abseta':settings['eta'],
-    #'jet1eta':[-elem for elem in settings['eta'][1:][::-1]]+settings['eta'],
-    #'npv':[a-0.5 for a,b in settings['npv']]+[settings['npv'][-1][1]-0.5]}
-    bin_dict = {'zpt': [30, 40, 50, 60, 75, 95, 125, 180, 300, 1000],
-                'jet1abseta':[0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
-                'jet1eta':[-5.191, -3.139, -2.964, -2.5, -1.93, -1.305, -0.783,
-                                0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
-                'npv':[0, 4.5, 8.5, 15.5, 21.5, 100]}
-
+    bin_dict = {
+        'zpt': settings['bins'],
+        'jet1abseta':settings['eta'],
+        'jet1eta':[-elem for elem in settings['eta'][1:][::-1]]+settings['eta'],
+        'npv':[a-0.5 for a,b in settings['npv']]+[settings['npv'][-1][1]-0.5]
+    }
 
     if settings['special_binning'] and quantities[-1] in bin_dict:
         bin_array = array.array('d', bin_dict[quantities[-1]])
@@ -150,7 +146,10 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
                 quantities[i] = quantities[i].replace(key, dictconvert(key))
 
     if len(quantities)==1:
-        rootobject = ROOT.TH1D(name, nickname, bins[0], settings['x'][0], settings['x'][1])
+        if settings['special_binning']:
+            rootobject = ROOT.TH1D(name, nickname, bins[0], bin_array)
+        else:
+            rootobject = ROOT.TH1D(name, nickname, bins[0], settings['x'][0], settings['x'][1])
         ntuple.Project(name, "%s" % quantities[0], settings['selection'])
     elif len(quantities)==2:
         if twoD:

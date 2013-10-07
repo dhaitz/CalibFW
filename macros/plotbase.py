@@ -382,16 +382,17 @@ def apply_changes(settings, changes):
     """This function updates the settings dictionary with the changes function 
        in a way that the selection is not overwritten but combined.
     """
-    settings = copy.deepcopy(settings)
+    nsettings = copy.deepcopy(settings)
     if changes is not None:
         if 'selection' in changes and settings['selection'] is not None:
             
-            changes['selection'] = " && ".join([changes['selection'],
+            selection = " && ".join([changes['selection'],
                                                          settings['selection']])
-
-        settings.update(changes)
-        changes=None
-    return settings
+            nsettings.update(changes)
+            nsettings['selection'] = selection
+        else:
+            nsettings.update(changes)
+    return nsettings
 
 
 def getsettings(opt, changes=None, settings=None, quantity=None):
@@ -400,14 +401,16 @@ def getsettings(opt, changes=None, settings=None, quantity=None):
        The customizable parameters can be accessed via the settings directory 
        that is created from the global 'opt' module and optional other arguments.
     """
-    opt = copy.deepcopy(opt)
-    
+    #opt = copy.deepcopy(opt)
+   
     # if a setting dictionary is given, apply changes (if any)
     if settings is not None:
-        apply_changes(settings, changes)
+        settings = apply_changes(settings, changes)
+        return settings
 
     # 1. create a local copy of the default_settings 
     settings =  copy.deepcopy(opt.default_options)
+
     # 2. overwrite the default_settings with settings(function argument, e.g. from dictionary):
     if changes is not None:
         settings = apply_changes(settings, changes)
@@ -635,12 +638,12 @@ def getdefaultfilename(quantity, opt, settings):
         filename = filename.replace(char,"_")
     return filename
 
-def Save(figure, name, opt, alsoInLogScale=False, crop=True, pad=None):
-    _internal_Save(figure, name, opt, pad=pad)
+def Save(figure, name, opt, alsoInLogScale=False, crop=True, pad=None, settings=None):
+    _internal_Save(figure, name, opt, pad=pad, settings=settings)
 
     if alsoInLogScale:
         figure.get_axes()[0].set_yscale('log')
-        _internal_Save(figure, name + "_log_scale", opt, crop, pad=pad)
+        _internal_Save(figure, name + "_log_scale", opt, crop, pad=pad, settings=settings)
 
 def EnsurePathExists(path):
     full_path = ""
@@ -651,7 +654,7 @@ def EnsurePathExists(path):
             print "Creating " + full_path
             os.mkdir(full_path)
 
-def _internal_Save(figure, name, opt, crop=True, pad=None):
+def _internal_Save(figure, name, opt, crop=True, pad=None, settings=None):
     """Save this figure in all listed data formats.
 
     The standard data formats are png and pdf.
@@ -662,7 +665,8 @@ def _internal_Save(figure, name, opt, crop=True, pad=None):
     name = opt.out + '/' + name
     name = name.replace("PFJets", "PF")
     print ' -> Saving as',
-    if opt.title is not "": figure.suptitle(opt.title, size='xx-large')
+    if settings is not None and settings['title'] is not "":
+        figure.suptitle(settings['title'], size='xx-large')
     # this helps not to crop labels
     if crop:
         title = figure.suptitle("I", color='white')

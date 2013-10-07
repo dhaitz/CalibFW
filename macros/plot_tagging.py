@@ -182,12 +182,13 @@ def tagging_response(files, opt, PFcorrection = False):
             flavours = []
             mean = []
             mean_error = []
-            changes = {'range(5)[1:]':[-1, 2], 'selection':zone}
+            changes = {'x':[-1, 2], 'selection':zone}
 
             # get the fraction for each TRUTH flavour:
             for quantity, label in zip(selections, label_extended):
                 
                 if name == 'mc':
+                    changes = {'x':[-1, 2], 'selection':zone}
                     changes['selection'] = '(%s && %s>0)' % (changes['selection'], flavourdef)
                     settings = plotbase.getsettings(opt, changes, quantity=quantity)
                     obj = getroot.getobjectfromtree(quantity, ffile, settings)

@@ -225,9 +225,9 @@ def responseratio(files, opt, over='zpt', types=['balresp'], fit=False,
     fig = plotbase.plt.figure(figsize=[7, 7])
     fig.suptitle(opt.title, size='xx-large')
     ax1 = plotbase.plt.subplot2grid((3,1),(0,0), rowspan=2)
-    #ax1.number = 1
+    ax1.number = 1
     ax2 = plotbase.plt.subplot2grid((3,1),(2,0))
-    #ax2.number = 2
+    ax2.number = 2
     fig.add_axes(ax1)
     fig.add_axes(ax2)
 
@@ -316,7 +316,6 @@ def extrapol(files, opt,
            extrapolate_mpf=True): # if false, use average for MET
 
     settings = plotbase.getsettings(opt, None, None, "response_%s" % variation)   
-
 
     if use_rawMET==True:
         mpftype='mpf-raw'
@@ -447,11 +446,16 @@ def extrapol(files, opt,
 
 
 def response_run(files, opt, changes=None, settings=None):
-    changes = {'runplot': True,
+    if len(files) > 1:
+        files = files[:1]
+    if changes is None:
+        changes = {}
+
+    changes.update({'run': True,
                 'subplot':True,
                 'legloc':'lower left',
                 'fit':'slope',
-                'xynames':['run', 'response']}
+                'xynames':['run', 'response']})
 
     settings = plotbase.getsettings(opt, changes, settings, "response_run")
 
@@ -467,7 +471,7 @@ def response_run(files, opt, changes=None, settings=None):
 
     settings['filename'] = plotbase.getdefaultfilename("response_run", opt, settings)
 
-    plotbase.Save(fig, settings['filename'], opt)
+    plotbase.Save(fig, settings['filename'], opt, settings=settings)
 
 
 def response_algoflavour(files, opt, changes=None, settings=None):

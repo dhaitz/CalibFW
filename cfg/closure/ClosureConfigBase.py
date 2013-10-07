@@ -412,7 +412,7 @@ def ApplySampleReweighting(conf, sample="herwig"):
     }
 
     if sample not in d:
-        print "No sample weights for this dataset:", dataset
+        print "No sample weights for this dataset:", sample
         print "Weights are available for:", ", ".join(d.keys())
         print "Please add them in ClosureConfigBase or do not use ApplySampleReweighting."
         exit(0)

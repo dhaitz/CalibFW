@@ -168,6 +168,7 @@ def fractions(files, opt, over='npv', fig_axes=None, settings=None, changes=None
     plotbase.labels(ax, opt, settings, settings['subplot'])
     plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1], 
                                                             settings=settings)
+    plotbase.setaxislimits(ax, settings)
 
     if settings['subplot'] is not True:
         settings['filename'] = plotbase.getdefaultfilename(
@@ -191,7 +192,7 @@ def fractions(files, opt, over='npv', fig_axes=None, settings=None, changes=None
             fmt="o", capsize=2, color=colours[i], zorder=15+i)
         if fit: ax.plot([30.0*(over == 'zpt'), 1000.0], [fitd[i]-fitm[i]]*2, color=colours[i])
 
-    settings['xynames'][1] = 'components_diff'
+    settings['xynames'][1] = 'components-diff'
     settings['y'] = plotbase.getaxislabels_list(settings['xynames'][1])[:2]
     plotbase.labels(ax, opt, settings, settings['subplot'])
     plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1], 
@@ -203,9 +204,9 @@ def fractions(files, opt, over='npv', fig_axes=None, settings=None, changes=None
 
 #fractions_run: a plot for the time dependence of the various jet components
 def fractions_run(files, opt, changes=None, fig_ax=None, subplot=False, 
-                                                    diff=False, response=False):
+                                                    diff=False, response=False, nbr=4):
     # Name everything you want and take only the first <nbr> entries of them
-    nbr = 4
+    #nbr = 4
     labels =     ["CHad","photon", "NHad", "electron", "HFem", "HFhad"][:nbr]
     colours =    ['Orange', 'LightSkyBlue', 'YellowGreen', 'MediumBlue',
                   'Darkred', 'grey', 'black'][:nbr]
@@ -213,19 +214,21 @@ def fractions_run(files, opt, changes=None, fig_ax=None, subplot=False,
     components = ["chargedhad", "photon", "neutralhad", "chargedem", "HFem",
                                                                   "HFhad"][:nbr]
 
-    changes = {}
+    if changes is None:
+        changes = {}
     if diff:
         quantity = 'components-diff_run'
-        changes['xynames'] = ["run", "components_diff"]
-        changes['runplot'] = 'diff'
+        changes['xynames'] = ["run", "components-diff"]
+        changes['run'] = 'diff'
     else:
         quantity = 'components_run'
         changes['xynames'] = ["run", "components"]
-        changes['runplot'] = True
+        changes['run'] = True
+        files = [files[0]]
 
     if response:
         changes['xynames'][1] += "-response"
-        suffix = "response"
+        suffix = "*ptbalance"
         quantity = quantity.replace('components', 'components-response')
     else:
         suffix = ""
@@ -233,34 +236,31 @@ def fractions_run(files, opt, changes=None, fig_ax=None, subplot=False,
     settings = plotbase.getsettings(opt, changes=changes, settings=None, 
                                                               quantity=quantity)
 
-
     if fig_ax is None:
         fig, ax = plotbase.newplot(run=True)
     else:
         fig, ax = fig_ax[0], fig_ax[1]
     
     changes = {}
-    changes['subplot']=True
+    changes['subplot'] = True
     changes['legloc'] = 'lower right'
     changes['fit']=True
-    files = [files[0]]
    
 
-    for quant , label, color, marker in zip(components, labels, colours, 
+    for quant, label, color, marker in zip(components, labels, colours, 
                                                                        markers):
         changes['labels'] = [label]
         changes['colors'] = [color]
         changes['marker'] = [marker]
-        plotdatamc.datamcplot("jet1%s%sfraction_run" % (quant, suffix), 
+        plotdatamc.datamcplot("(jet1%sfraction%s)_run" % (quant, suffix), 
              files, opt, fig_axes=(fig, ax), changes=changes, settings=settings)
 
     if subplot:
         return
     else:
-        print plotbase.debug(quantity)
         settings['filename'] = plotbase.getdefaultfilename(quantity, opt, 
                                                                        settings)
-        plotbase.Save(fig, settings['filename'], opt)
+        plotbase.Save(fig, settings['filename'], opt, settings=settings)
 
 
 #fractions_run for variations
@@ -302,7 +302,7 @@ def fractions_npv (files, opt):
 
 # run plots for fractions and data/mc difference
 def fractions_diff_run(files, opt):
-    fractions_run(files, opt, diff=True),
+    fractions_run(files, opt, diff=True)
 
 def fractions_diff_run_nocuts(files, opt):
     fractions_run(files, opt, changes={'incut':'allevents'}, diff=True)
