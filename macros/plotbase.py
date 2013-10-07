@@ -209,6 +209,8 @@ def options(
         help='special binning for npv, zpt, eta')
     general.add_argument('-n', '--normalize', action='store_false',
         help="don't normalize Monte Carlo samples to the event count in data ")
+    general.add_argument('-Y', '--year', type=int, default=2012,
+        help="Year of data-taking. Default is %(default)s")
 
 
     # output settings
@@ -302,6 +304,16 @@ def options(
     parser.set_defaults(fit_offset = 0)
     opt.subplot = False
     parser.set_defaults(subplot = False)
+    opt.bins = bins
+    opt.npv = npv
+    opt.cut = cut
+    opt.eta = eta
+
+    if opt.year == 2011:
+        opt.npv = [(0, 3), (4, 5), (6, 7), (8, 10), (11, 24)]
+        opt.lumi = 5100
+        opt.energy = 7
+
 
     # get a separate dictionary with only the user-set values
     user_options = {}
@@ -314,11 +326,7 @@ def options(
     opt.default_options = default_options
 
     opt.factor = 1.0
-    opt.bins = bins
     opt.brackets = False
-    opt.npv = npv
-    opt.cut = cut
-    opt.eta = eta
 
     if opt.verbose:
         showoptions(opt)
