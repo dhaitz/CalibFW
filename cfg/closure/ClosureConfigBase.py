@@ -17,6 +17,7 @@ import stat
 import getpass
 import json
 
+
 def CreateFileList(wildcardExpression, args=None):
     print "Creating file list from " + wildcardExpression
     inputfiles = glob.glob(wildcardExpression)
@@ -79,7 +80,7 @@ def addCHS(algorithms):
 
 
 def getNewestJson(variant="PromptReco_Collisions12"):
-    jsons = glob.glob('data/json/Cert*'+variant+'*.txt')
+    jsons = glob.glob('data/json/Cert*' + variant + '*.txt')
     jsons.sort()
     print "JSON:", jsons[-1]
     return jsons[-1]
@@ -113,7 +114,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
         'JsonFile': "default",
         'InputFiles': [],
         'OutputPath': "closure_" + inputtype + "_" + run,
-        'MuonID2011': (run=='2011'),
+        'MuonID2011': (run == '2011'),
         'Pipelines': {
             'default': {
                 'Level': 1,
@@ -123,7 +124,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
             }
         },
         'InputType': inputtype,
-        'Tagged':True,
+        'Tagged': True,
     }
 
     config['Pipelines']['default'].update(GetCuts(analysis))
@@ -203,8 +204,8 @@ def SetDataSpecific(cfg, run='2012'):
         print "Run period", run, "is undefined. No json and jet corrections known."
         exit(1)
 
-    cfg['Pipelines']['default']['Filter'].append ('json')
-    cfg['Pipelines']['default']['Filter'].append ('hlt')
+    cfg['Pipelines']['default']['Filter'].append('json')
+    cfg['Pipelines']['default']['Filter'].append('hlt')
     cfg['GlobalProducer'] += ['hlt_selector']
     return cfg
 
@@ -273,10 +274,10 @@ def GetCuts(analysis='zjet'):
     return cuts[analysis]
 
 
-def treeconfig(conf, quantities = None):
+def treeconfig(conf, quantities=None):
     for p, pval in conf["Pipelines"].items():
         if quantities == None:
-            pval['QuantitiesVector'] = ["zpt",  "zeta", "zy",
+            pval['QuantitiesVector'] = ["zpt", "zeta", "zy",
              "zphi", "zmass", "npv", "rho",
                  "run", "weight", "jet1pt", "jet1eta", "jet1phi", "mpf", "rawmpf",
                  "METpt", "METphi", "rawMETpt", "rawMETphi", "sumEt", "jet1photonfraction",
@@ -284,7 +285,7 @@ def treeconfig(conf, quantities = None):
                  "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
                  "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta",
                  "otherjetspt", "otherjetseta", "otherjetsphi",
-                 "mupluspt", "mupluseta", "muplusphi", 
+                 "mupluspt", "mupluseta", "muplusphi",
                  "muminuspt", "muminuseta", "muminusphi"
                   ]
             if conf['Tagged'] == True:
@@ -300,7 +301,7 @@ def treeconfig(conf, quantities = None):
                 ]
             if conf['InputType'] == 'mc':
                 pval['QuantitiesVector'] += [
-                    "genjet1pt","genjet1eta","genjet1phi","genjet2pt",
+                    "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
                     "matchedgenjet1pt", "genmpf",
                     "algoflavour", "physflavour",
                             ]
@@ -314,7 +315,7 @@ def treeconfig(conf, quantities = None):
         #for q in pval['QuantitiesVector']:
         #    new_quantities += [closure_dict[q]]
         #pval['QuantitiesVector'] = new_quantities
-            
+
         pval['Cuts'].remove("leadingjet_eta")
         pval['Cuts'].remove("secondleading_to_zpt")
 
@@ -324,6 +325,7 @@ def treeconfig(conf, quantities = None):
 
         AddConsumerNoConfig(pval, "tree")
     return conf
+
 
 def ApplyPUReweighting(conf, dataset, weightfile="data/pileup/puweights.json"):
     """Use pile-up reweighting.
@@ -356,7 +358,7 @@ def ApplyPUReweighting(conf, dataset, weightfile="data/pileup/puweights.json"):
 
     conf["EnablePuReweighting"] = True
     conf["XSection"] = d[dataset]["xsection"]
-    conf["RecovertWeight"] = d[dataset]["weights"] + [0.0]*(100 - len(d[dataset]["weights"]))
+    conf["RecovertWeight"] = d[dataset]["weights"] + [0.0] * (100 - len(d[dataset]["weights"]))
     return conf
 
 
@@ -370,10 +372,10 @@ def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
     """
     dataset += method
     d = {
-        "powhegFall11reco" : [
+        "powhegFall11reco": [
             0, 0.96536, 0.97422, 0.975501, 0.973764, 0.96829, 0.969685, 0.969604, 0.972737, 0.976535, 0.990866, 1.02419, 1.04679, 1.08599, 1.1336, 1.1822, 1.26187, 1.34441, 1.4002, 1.52207, 1.59072, 1.67645, 1.74138, 1.80121, 1.88832, 2.08175, 2.18035, 2.25052, 2.24159, 2.34084, 2.3689, 2.45192, 2.78853, 2.84746, 2.61017, 2.94621, 2.99416, 3.05079, 3.11726, 3.19477, 3.28448, 3.38738, 3.50409, 3.63468, 3.77839, 3.93348, 4.09711, 4.26547, 4.43417, 4.59885, 4.75591, 4.90319, 5.04036, 5.16897, 5.29211, 5.41395, 5.53907, 5.67196, 5.81657, 5.97596, 6.1521, 6.34568, 6.55601, 6.78098, 7.01707, 7.25955, 7.50277, 7.74067, 7.96735, 8.17781, 8.36858, 8.53827, 8.68774, 8.82011, 8.94029, 9.05447, 9.16935, 9.2915, 9.42673, 9.57961, 9.75315, 9.9486, 10.1653, 10.4008, 10.6507, 10.9093, 11.1696, 11.4243, 11.6664, 11.8901, 12.0917, 12.2701, 12.4271, 12.5672, 12.6968, 12.8239, 12.9568, 13.1035, 13.2713, 13.4669, 13.696, 13.964, 14.2762, 14.6382, 15.0559, 15.5362, 16.0862, 16.7128, 17.4218, 18.216, 19.0937, 20.0461, 21.0556, 22.0957, 23.1321, 24.1272, 25.0463, 25.8648, 26.5738, 27.1835, 27.7231, 28.2382, 28.7879, 29.4432, 30.2872, 31.4189, 32.9606, 35.0708
         ],
-        "powhegSummer12reco" : [],
+        "powhegSummer12reco": [],
     }
 
     if dataset not in d:
@@ -383,16 +385,18 @@ def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
         exit(0)
 
     conf["Enable2ndJetReweighting"] = 1
-    conf["2ndJetWeight"] = d[dataset] + [1.0]*(300 - len(d[dataset]))
+    conf["2ndJetWeight"] = d[dataset] + [1.0] * (300 - len(d[dataset]))
     return conf
 
-def check_if_add(pipelinename, algo, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
+
+def check_if_add(pipelinename, algo, forIncut=True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
     #function that determines whether a consumer/variation is added to a pipeline
-    check = ((forIncut and (pipelinename == "default_"+algo or pipelinename == "default_"+algo+"zcutsonly" or pipelinename == "default_"+algo+"alleta" ))
+    check = ((forIncut and (pipelinename == "default_" + algo or pipelinename == "default_" + algo + "zcutsonly" or pipelinename == "default_" + algo + "alleta"))
         or (forAllevents and pipelinename == "default_" + algo + "nocuts")
-        or (forIncutVariations and pipelinename is not "default_"+algo and "default_"+algo+"_" in pipelinename and "nocut" not in pipelinename)
-        or (forAlleventsVariations and pipelinename is not "default_"+algo + "nocuts" and "default_"+algo + "nocuts" in pipelinename) )
+        or (forIncutVariations and pipelinename is not "default_" + algo and "default_" + algo + "_" in pipelinename and "nocut" not in pipelinename)
+        or (forAlleventsVariations and pipelinename is not "default_" + algo + "nocuts" and "default_" + algo + "nocuts" in pipelinename))
     return check
+
 
 def ExpandRange(pipelineDict, varName, vals,
                 setRootFolder=True, includeSource=True,
@@ -410,7 +414,7 @@ def ExpandRange(pipelineDict, varName, vals,
                 and ('alleta' not in name)):
             for v in vals:
                 newPipe = copy.deepcopy(elem)
-                newPipe[ varName ] = v
+                newPipe[varName] = v
 
                 #only do basic plots
                 if onlyBasicQuantities:
@@ -418,7 +422,7 @@ def ExpandRange(pipelineDict, varName, vals,
 
                 varadd = "_var_" + varName + "_" + str(v).replace(".", "_")
                 newName = name + varadd
-                newRootFileFolder =  newPipe["RootFileFolder"] + varadd
+                newRootFileFolder = newPipe["RootFileFolder"] + varadd
                 newDict[newName] = newPipe
                 if setRootFolder:
                     newDict[newName]["RootFileFolder"] = newRootFileFolder
@@ -434,7 +438,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
                  includeSource=False, onlyOnIncut=True,
                  alsoForPtBins=True,
                  onlyForNocuts=False,
-                 onlyBasicQuantities = True,
+                 onlyBasicQuantities=True,
                  forAlleta=False):
     """Add pipelines with values between low and high for filtername
 
@@ -445,7 +449,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
     newDict = {}
     for pipeline, subdict in pipelines.items():
         if (subdict["Level"] == 1
-                and (not onlyOnIncut or "incut" in subdict["RootFileFolder"]) 
+                and (not onlyOnIncut or "incut" in subdict["RootFileFolder"])
                 and (alsoForPtBins or "NoBinning_incut" in subdict["RootFileFolder"])
                 and (not onlyForNocuts or 'allevents' in subdict["RootFileFolder"])
                 or (forAlleta and 'alleta' in subdict["RootFileFolder"])
@@ -457,7 +461,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
 
                 #only do basic plots
                 if onlyBasicQuantities:
-                    ReplaceWithQuantitiesBasic( newpipe )
+                    ReplaceWithQuantitiesBasic(newpipe)
                 if filtername == "JetEta":
                     newpipe["CutLeadingJetEta"] = 5.0
 
@@ -467,7 +471,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
                     foldername = foldername.replace("to{high}", "")
                     newpipe["Filter" + filtername] = l
                     if filtername == "Flavour":
-                        l = {1:"u", 2:"d", 3:"s", 4:"c", 5:"b", 6:"t", 21:"g", 123: "uds", 123456:"q"}[l]
+                        l = {1: "u", 2: "d", 3: "s", 4: "c", 5: "b", 6: "t", 21: "g", 123: "uds", 123456: "q"}[l]
                 else:
                     newpipe["Filter" + filtername + "Low"] = l
                     newpipe["Filter" + filtername + "High"] = h
@@ -480,7 +484,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
                 if foldername is not None:
                     newDict[newName]["RootFileFolder"] = newRootFileFolder
     if includeSource:
-        return dict(pipelines.items() +  newDict.items())
+        return dict(pipelines.items() + newDict.items())
     else:
         return newDict
 
@@ -488,7 +492,7 @@ def ExpandRange2(pipelines, filtername, low, high=None,
 def ExpandRange2Cut(pipelines, cutname, low, high=None,
                 foldername="var_{name}_{low}to{high}",
                 includeSource=True, onlyOnIncut=True,
-                onlyBasicQuantities = True):
+                onlyBasicQuantities=True):
     """Add pipelines with values between low and high for filtername.
 
     This only works if the filter is lowercase and it uses two variables
@@ -505,7 +509,7 @@ def ExpandRange2Cut(pipelines, cutname, low, high=None,
 
                 #only do basic plots
                 if onlyBasicQuantities:
-                    ReplaceWithQuantitiesBasic( newpipe )
+                    ReplaceWithQuantitiesBasic(newpipe)
 
                 #print(new_pipe)
                 newpipe["Cut" + cutname.replace("_", "") + "Low"] = l
@@ -514,38 +518,43 @@ def ExpandRange2Cut(pipelines, cutname, low, high=None,
                 f = "_" + f.replace(".", "_")
 
                 newName = pipeline + f
-                newRootFileFolder =  newpipe["RootFileFolder"] + f
+                newRootFileFolder = newpipe["RootFileFolder"] + f
                 newDict[newName] = newpipe
                 if foldername is not None:
                     newDict[newName]["RootFileFolder"] = newRootFileFolder
     if includeSource:
-        return dict(pipelines.items() +  newDict.items())
+        return dict(pipelines.items() + newDict.items())
     else:
         return newDict
 
 
-def AddConsumer( pline, name, config):
+def AddConsumer(pline, name, config):
     pline["Consumer"][name] = config
 
-def AddMetaDataProducer( pline, name, config):
+
+def AddMetaDataProducer(pline, name, config):
     pline["MetaDataProducer"][name] = config
 
-def AddConsumerEasy( pline, consumer):
-    pline["Consumer"][ consumer["ProductName"] ] = consumer
 
-def AddConsumerNoConfig( pline, consumer_name):
-    cons_dict = { "Name" : consumer_name }
-    pline["Consumer"][ consumer_name ] = cons_dict
-
-def RemoveConsumer( pline, consumer_name):
-    if consumer_name in pline["Consumer"] :
-        del pline["Consumer"][ consumer_name ]
-
-def AddMetaDataProducerEasy( pline, producer_name):
-    pline["MetaDataProducer"][ consumer["Name"] ] = producer_name
+def AddConsumerEasy(pline, consumer):
+    pline["Consumer"][consumer["ProductName"]] = consumer
 
 
-def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False, 
+def AddConsumerNoConfig(pline, consumer_name):
+    cons_dict = {"Name": consumer_name}
+    pline["Consumer"][consumer_name] = cons_dict
+
+
+def RemoveConsumer(pline, consumer_name):
+    if consumer_name in pline["Consumer"]:
+        del pline["Consumer"][consumer_name]
+
+
+def AddMetaDataProducerEasy(pline, producer_name):
+    pline["MetaDataProducer"][consumer["Name"]] = producer_name
+
+
+def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False,
                    addResponse=True, nocutFolder=True):
     newDict = dict()
 
@@ -556,7 +565,7 @@ def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False,
         algo = cutPipe["JetAlgorithm"]
 
         cutPipe["FilterInCutIgnored"] = 0
-        cutPipe["Filter"].append ("incut")
+        cutPipe["Filter"].append("incut")
 
         consumers = {
             'bin_balance_response': {
@@ -582,7 +591,7 @@ def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False,
             },
             'bin_mpf-notypeI_response': {
                 'Name': "bin_response",
-                'ProductName': "mpfresp-raw_" +  algo,
+                'ProductName': "mpfresp-raw_" + algo,
                 'ResponseType': "mpfraw",
             },
             'bin_twojet_response': {
@@ -775,153 +784,155 @@ def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False,
         # only add the nocut pipeline for the default (no binning)
         #if name == "default":
         if nocutFolder:
-            newDict[name + "nocuts" ] = nocutPipe
+            newDict[name + "nocuts"] = nocutPipe
         newDict[name] = cutPipe
 
         # a pipe without leadingjet eta cut
         if alletaFolder:
             alletaPipe = copy.deepcopy(cutPipe)
             alletaPipe["Cuts"].remove('leadingjet_eta')
-            newDict[name + "alleta" ] = alletaPipe
+            newDict[name + "alleta"] = alletaPipe
 
         # a pipe with only muon and Z cuts
         if zcutsFolder:
             zcutsPipe = copy.deepcopy(cutPipe)
-            zcutsPipe["Cuts"]=['muon_eta', 'muon_pt', 'zpt', 'zmass_window']
-            newDict[name + "zcutsonly" ] = zcutsPipe
+            zcutsPipe["Cuts"] = ['muon_eta', 'muon_pt', 'zpt', 'zmass_window']
+            newDict[name + "zcutsonly"] = zcutsPipe
 
     return newDict
 
-def Expand( pipelineDict, expandCount, includeSource):
+
+def Expand(pipelineDict, expandCount, includeSource):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
-        for i in range( expandCount):
+        for i in range(expandCount):
             newPipe = copy.deepcopy(elem)
-            newDict[name + str(i) ] = newPipe
+            newDict[name + str(i)] = newPipe
 
     if includeSource:
-        return dict( pipelineDict.items() +  newDict.items() )
+        return dict(pipelineDict.items() + newDict.items())
     else:
         return newDict
 
-def AddHltConsumer( pipelineDict, algoNames, hlt_names):
+
+def AddHltConsumer(pipelineDict, algoNames, hlt_names):
     for algo in algoNames:
         for hname in hlt_names:
             for p, pval in pipelineDict["Pipelines"].items():
                 #print p
                 if p == "default_" + algo + "nocuts":
                     AddConsumer(pval, "hlt_" + hname + "_prescale_run_" + algo,
-                                                { "Name" : "generic_profile_consumer",
-                                                  "YSource" : "hltprescale",
-                                                  "YSourceConfig" : hname,
-                                                  "XSource" : "run",
-                                                  "ProductName" : "hlt-" + hname + "-prescale_run_" + algo})
+                                                {"Name": "generic_profile_consumer",
+                                                  "YSource": "hltprescale",
+                                                  "YSourceConfig": hname,
+                                                  "XSource": "run",
+                                                  "ProductName": "hlt-" + hname + "-prescale_run_" + algo})
                     AddConsumer(pval, "hlt_" + hname + "_prescale_lumi" + algo,
-                                                { "Name" : "generic_profile_consumer",
-                                                  "YSource" : "hltprescale",
-                                                  "YSourceConfig" : hname,
-                                                  "XSource" : "intlumi",
-                                                  "ProductName" : "hlt-" + hname + "-prescale_lumi_" + algo})
+                                                {"Name": "generic_profile_consumer",
+                                                  "YSource": "hltprescale",
+                                                  "YSourceConfig": hname,
+                                                  "XSource": "intlumi",
+                                                  "ProductName": "hlt-" + hname + "-prescale_lumi_" + algo})
     # plot the selcted hlt
     for algo in algoNames:
         for p, pval in pipelineDict["Pipelines"].items():
             #print p
             if p == "default_" + algo + "nocuts":
                 AddConsumer(pval, "hlt_selected_prescale_lumi" + algo,
-                                            { "Name" : "generic_profile_consumer",
-                                              "YSource" : "selectedhltprescale",
-                                              "YSourceConfig" : hname,
-                                              "XSource" : "intlumi",
-                                              "ProductName" : "hltselectedprescale_lumi" + algo})
+                                            {"Name": "generic_profile_consumer",
+                                              "YSource": "selectedhltprescale",
+                                              "YSourceConfig": hname,
+                                              "XSource": "intlumi",
+                                              "ProductName": "hltselectedprescale_lumi" + algo})
                 AddConsumer(pval, "hlt_selected_prescale_run" + algo,
-                                            { "Name" : "generic_profile_consumer",
-                                              "YSource" : "selectedhltprescale",
-                                              "YSourceConfig" : hname,
-                                              "XSource" : "run",
-                                              "ProductName" : "hltselectedprescale_run" + algo})
+                                            {"Name": "generic_profile_consumer",
+                                              "YSource": "selectedhltprescale",
+                                              "YSourceConfig": hname,
+                                              "XSource": "run",
+                                              "ProductName": "hltselectedprescale_run" + algo})
 
 
-def ExpandPtBins( pipelineDict, ptbins, includeSource):
+def ExpandPtBins(pipelineDict, ptbins, includeSource):
     newDict = dict()
 
     for name, elem in pipelineDict.items():
         # dont do this for uncut events
-        if ((not "nocuts" in name) and (not "alleta" in name) and (not "zcutsonly" in name)) :
+        if ((not "nocuts" in name) and (not "alleta" in name) and (not "zcutsonly" in name)):
             i = 0
             for upper in ptbins[1:]:
-                ptbinsname =  "Bin" + str(ptbins[i]) + "To" + str(upper)
+                ptbinsname = "Bin" + str(ptbins[i]) + "To" + str(upper)
 
                 newPipe = copy.deepcopy(elem)
 
-                newPipe["Filter"].append( "ptbin")
+                newPipe["Filter"].append("ptbin")
 
                 newPipe["FilterPtBinLow"] = ptbins[i]
                 newPipe["FilterPtBinHigh"] = upper
 
-                newDict[name + "_" + ptbinsname ] = newPipe
+                newDict[name + "_" + ptbinsname] = newPipe
                 i = i + 1
 
     if includeSource:
-        return dict( pipelineDict.items() +  newDict.items() )
+        return dict(pipelineDict.items() + newDict.items())
     else:
         return newDict
 
-def AddCorrectionPlots( conf, algoNames, l3residual = False, level = 3, forIncut = True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
+
+def AddCorrectionPlots(conf, algoNames, l3residual=False, level=3, forIncut=True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
 
     def AddCorrectionConsumer(pval, algo, level0, level1):
-                name = level1.replace(level0,"")
-                AddConsumer(pval, name+"_npv_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptratio", "Jet1Num":0, "Jet2Num":0,
-                              "Jet1Name" : algo + level1,
-                              "Jet2Name" : algo + level0,
-                              "XSource" : "npv",
-                              "ProductName" : name+"_npv_" + algo})
-                AddConsumer(pval, name+"_zpt_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptratio", "Jet1Num":0, "Jet2Num":0,
-                              "Jet1Name" : algo + level1,
-                              "Jet2Name" : algo + level0,
-                              "XSource" : "zpt",
-                              "ProductName" : name+"_zpt_" + algo})
-                AddConsumer(pval, name+"_jet1pt_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptratio", "Jet1Num":0, "Jet2Num":0,
-                              "Jet1Name" : algo + level1,
-                              "Jet2Name" : algo + level0,
-                              "XSource" : "jet1pt",
-                              "ProductName" : name+"_jet1pt_" + algo})
-                AddConsumer(pval, name+"_eta_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptratio", "Jet1Num":0, "Jet2Num":0,
-                              "Jet1Name" : algo + level1,
-                              "Jet2Name" : algo + level0,
-                              "XSource" : "jet1eta",
-                              "ProductName" : name+"_jet1eta_" + algo})
+                name = level1.replace(level0, "")
+                AddConsumer(pval, name + "_npv_" + algo,
+                            {"Name": "generic_profile_consumer",
+                              "YSource": "jetptratio", "Jet1Num": 0, "Jet2Num": 0,
+                              "Jet1Name": algo + level1,
+                              "Jet2Name": algo + level0,
+                              "XSource": "npv",
+                              "ProductName": name + "_npv_" + algo})
+                AddConsumer(pval, name + "_zpt_" + algo,
+                            {"Name": "generic_profile_consumer",
+                              "YSource": "jetptratio", "Jet1Num": 0, "Jet2Num": 0,
+                              "Jet1Name": algo + level1,
+                              "Jet2Name": algo + level0,
+                              "XSource": "zpt",
+                              "ProductName": name + "_zpt_" + algo})
+                AddConsumer(pval, name + "_jet1pt_" + algo,
+                            {"Name": "generic_profile_consumer",
+                              "YSource": "jetptratio", "Jet1Num": 0, "Jet2Num": 0,
+                              "Jet1Name": algo + level1,
+                              "Jet2Name": algo + level0,
+                              "XSource": "jet1pt",
+                              "ProductName": name + "_jet1pt_" + algo})
+                AddConsumer(pval, name + "_eta_" + algo,
+                            {"Name": "generic_profile_consumer",
+                              "YSource": "jetptratio", "Jet1Num": 0, "Jet2Num": 0,
+                              "Jet1Name": algo + level1,
+                              "Jet2Name": algo + level0,
+                              "XSource": "jet1eta",
+                              "ProductName": name + "_jet1eta_" + algo})
 
-                AddConsumer(pval, name+"abs_npv_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptabsdiff", "Jet1Num":0, "Jet2Num":0,
-                              "Jet1Name" : algo + level0,
-                              "Jet2Name" : algo + level1,
-                              "XSource" : "npv",
-                              "ProductName" : name+"abs_npv_" + algo})
-                AddConsumer(pval, name+"abs_jet1pt_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptabsdiff", "Jet1Num":0, "Jet2Num":0,
-                              "Jet1Name" : algo + level0,
-                              "Jet2Name" : algo + level1,
-                              "XSource" : "jet1pt",
-                              "ProductName" : name+"abs_jet1pt_" + algo})
-                AddConsumer(pval, name+"abs_zpt_" + algo,
-                            { "Name" : "generic_profile_consumer",
-                              "YSource" : "jetptabsdiff", "Jet1Num":0, "Jet2Num":0,
-                              "Jet1Name" : algo + level0,
-                              "Jet2Name" : algo + level1,
-                              "XSource" : "zpt",
-                              "ProductName" : name+"abs_zpt_" + algo})
-
+                AddConsumer(pval, name + "abs_npv_" + algo,
+                            {"Name": "generic_profile_consumer",
+                              "YSource": "jetptabsdiff", "Jet1Num": 0, "Jet2Num": 0,
+                              "Jet1Name": algo + level0,
+                              "Jet2Name": algo + level1,
+                              "XSource": "npv",
+                              "ProductName": name + "abs_npv_" + algo})
+                AddConsumer(pval, name + "abs_jet1pt_" + algo,
+                            {"Name": "generic_profile_consumer",
+                              "YSource": "jetptabsdiff", "Jet1Num": 0, "Jet2Num": 0,
+                              "Jet1Name": algo + level0,
+                              "Jet2Name": algo + level1,
+                              "XSource": "jet1pt",
+                              "ProductName": name + "abs_jet1pt_" + algo})
+                AddConsumer(pval, name + "abs_zpt_" + algo,
+                            {"Name": "generic_profile_consumer",
+                              "YSource": "jetptabsdiff", "Jet1Num": 0, "Jet2Num": 0,
+                              "Jet1Name": algo + level0,
+                              "Jet2Name": algo + level1,
+                              "XSource": "zpt",
+                              "ProductName": name + "abs_zpt_" + algo})
 
     for algo in algoNames:
         for p, pval in conf["Pipelines"].items():
@@ -958,19 +969,19 @@ def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
 
     # generate folder names
     srcFolder = []
-    for i in range( len(binning) - 1):
-        srcFolder += ["Pt" + str(binning[i]) + "to" + str(binning[i+1]) + "_incut"]
+    for i in range(len(binning) - 1):
+        srcFolder += ["Pt" + str(binning[i]) + "to" + str(binning[i + 1]) + "_incut"]
 
     algoPipelines = {}
 
     # generate pipelines for all algorithms
     for algo in algoNames:
         for p, pval in conf["Pipelines"].items():
-            pline = copy.deepcopy( pval )
+            pline = copy.deepcopy(pval)
             pline["JetAlgorithm"] = algo
             algoPipelines[p + "_" + algo] = pline
 
-    conf["Pipelines"] = ExpandCutNoCut(algoPipelines, alletaFolder, 
+    conf["Pipelines"] = ExpandCutNoCut(algoPipelines, alletaFolder,
         zcutsFolder, conf['InputType'] == 'mc', addResponse, nocutsFolder)
 
     # create pipelines for all bins
@@ -983,7 +994,8 @@ def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
 
         if "ptbin" in pval["Filter"]:
             ptVal = "Pt" + str(pval["FilterPtBinLow"]) + "to" + str(pval["FilterPtBinHigh"])
-            if onlyBasicQuantities: ReplaceWithQuantitiesBasic ( pval )
+            if onlyBasicQuantities:
+                ReplaceWithQuantitiesBasic(pval)
 
         if "incut" in pval["Filter"]:
             if  pval["Cuts"] == ['muon_eta', 'muon_pt', 'zpt', 'zmass_window']:
@@ -994,7 +1006,8 @@ def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
                 ptVal = ptVal + "_incut"
 
             if not ptVal == "NoBinning_incut":
-                if onlyBasicQuantities: ReplaceWithQuantitiesBasic(pval)
+                if onlyBasicQuantities:
+                    ReplaceWithQuantitiesBasic(pval)
         else:
             ptVal = ptVal + "_allevents"
 
@@ -1008,7 +1021,7 @@ def StoreSettings(settings, filename):
 
     jsonOut = str(settings)
     # make it json conform
-    jsonOut = jsonOut.replace( "\'", "\"")
+    jsonOut = jsonOut.replace("\'", "\"")
 
     try:
         import json
@@ -1023,12 +1036,12 @@ def StoreSettings(settings, filename):
     print "Configured", len(settings["Pipelines"]), "Pipelines"
 
 
-def StoreGCDataset( settings, nickname, filename ):
+def StoreGCDataset(settings, nickname, filename):
     print "Generating " + filename
 
     # ordering is important in the .dbs file format
     cfile = open(filename, 'wb')
-    cfile.write("[" +  nickname + "]\n")
+    cfile.write("[" + nickname + "]\n")
     cfile.write("nickname = " + nickname + "\n")
     cfile.write("events = " + str(-len(settings['InputFiles'])) + "\n")
 
@@ -1036,11 +1049,12 @@ def StoreGCDataset( settings, nickname, filename ):
     cfile.write("prefix = " + path + "\n")
 
     for f in settings['InputFiles']:
-        cfile.write(os.path.split(f)[1] +  " = -1\n")
+        cfile.write(os.path.split(f)[1] + " = -1\n")
 
     cfile.close()
 
-def StoreGCConfig ( settings, nickname, filename ):
+
+def StoreGCConfig(settings, nickname, filename):
     print "Generating " + filename
 
     config = ConfigParser.RawConfigParser()
@@ -1050,12 +1064,13 @@ def StoreGCConfig ( settings, nickname, filename ):
     config.set("global", "include", "gc_common.conf")
     config.set("global", "workdir space", "0")
     config.add_section("UserMod")
-    config.set("UserMod", "dataset", nickname + " : " + nickname + ".dbs" )
+    config.set("UserMod", "dataset", nickname + " : " + nickname + ".dbs")
 
     # Writing our configuration file to 'example.cfg'
     cfile = open(filename, 'wb')
     config.write(cfile)
     cfile.close()
+
 
 def StoreGCCommon(settings, nickname, filename, output_folder):
     print "Generating " + filename
@@ -1068,12 +1083,11 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
     config.set("global", "backend", "local")
     config.set("global", "cmdargs", "-G -c")
 
-
     config.add_section("jobs")
     config.set("jobs", "in queue", 50)
     #config.set("jobs", "shuffle", True)
-    config.set("jobs", "wall time", "1:50:00" )
-    config.set("jobs", "monitor", "scripts" )
+    config.set("jobs", "wall time", "1:50:00")
+    config.set("jobs", "monitor", "scripts")
     #config.set("jobs", "memory", 3000)
 
     config.add_section("local")
@@ -1083,9 +1097,9 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
     config.add_section("UserMod")
     # use 40 jobs for the MC, 80 for data
     if settings["InputType"] == "mc":
-        config.set("UserMod", "files per job", int(round(len(settings["InputFiles"])/80.+0.4999))) 
+        config.set("UserMod", "files per job", int(round(len(settings["InputFiles"]) / 80. + 0.4999)))
     else:
-        config.set("UserMod", "files per job", int(round(len(settings["InputFiles"])/120.+0.4999)))
+        config.set("UserMod", "files per job", int(round(len(settings["InputFiles"]) / 120. + 0.4999)))
     config.set("UserMod", "executable", "gc-run-closure.sh")
     config.set("UserMod", "subst files", "gc-run-closure.sh")
     config.set("UserMod", "input files", GetBasePath() + "external/lib/libboost_regex.so.1.45.0")
@@ -1101,23 +1115,24 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
     cfile.close()
 
 
-def StoreMergeScript ( settings, nickname, filename, output_folder, merge_folder='temp'):
+def StoreMergeScript(settings, nickname, filename, output_folder, merge_folder='temp'):
     print "Generating", filename
     cfile = open(filename, 'wb')
-    cfile.write("hadd " + output_folder + settings["OutputPath"] + ".root " + output_folder + nickname + "_job_*.root\n" )
+    cfile.write("hadd " + output_folder + settings["OutputPath"] + ".root " + output_folder + nickname + "_job_*.root\n")
     cfile.close()
     os.chmod(filename, stat.S_IRWXU)
     print "Generating", filename.replace("merge", "parallelmerge")
-    mfile = open(filename.replace("merge","parallelmerge"), 'wb')
+    mfile = open(filename.replace("merge", "parallelmerge"), 'wb')
     #mfile.write("mkdir -p " + output_folder.replace("out", merge_folder) + "\n")
-    mfile.write(GetBasePath()+"scripts/parallelmerge.sh " + output_folder + " 10")
-    os.chmod(filename.replace("merge","parallelmerge"), stat.S_IRWXU)
+    mfile.write(GetBasePath() + "scripts/parallelmerge.sh " + output_folder + " 10")
+    os.chmod(filename.replace("merge", "parallelmerge"), stat.S_IRWXU)
+
 
 def StoreShellRunner(settings, nickname, filename):
     print "Generating " + filename
     cfile = open(filename, 'wb')
     cfile.write("echo $FILE_NAMES\n")
-    cfile.write("cd " + GetCMSSWPath() +"\n")
+    cfile.write("cd " + GetCMSSWPath() + "\n")
     if "CMSSW_5_" in GetCMSSWPath():
         cfile.write("export VO_CMS_SW_DIR=/wlcg/sw/cms\n")
         cfile.write("export SCRAM_ARCH=slc5_amd64_gcc462\n")
@@ -1126,10 +1141,10 @@ def StoreShellRunner(settings, nickname, filename):
         cfile.write("source /wlcg/sw/cms/experimental/cmsset_default.sh\n")
     cfile.write("eval `scram runtime -sh`\n")
     cfile.write("cd -\n")
-    cfile.write("cd "+GetBasePath()+"\n")
-    cfile.write("source "+ GetBasePath() + "scripts/ClosureEnv.sh\n")
+    cfile.write("cd " + GetBasePath() + "\n")
+    cfile.write("source " + GetBasePath() + "scripts/ClosureEnv.sh\n")
     cfile.write("cd -\n")
-    cfile.write( GetBasePath() + "closure " + GetBasePath() + "cfg/closure/" + nickname + ".py.json" )
+    cfile.write(GetBasePath() + "closure " + GetBasePath() + "cfg/closure/" + nickname + ".py.json")
     cfile.close()
     os.chmod(filename, stat.S_IRWXU)
 
@@ -1173,18 +1188,18 @@ def Run(settings, arguments):
         exit(0)
 
     if len(arguments) <= 1 or "--batch" not in arguments[1]:
-        subprocess.call(["./closure",filename])
+        subprocess.call(["./closure", filename])
     else:
         nickname = os.path.split(filename)[1]
         nickname = nickname.split(".")[0]
         print "Generating GC configs with nickname " + nickname + " ..."
         # store the input files in gc format
-        if not os.path.exists( work_path + "work/" ) :
-            os.mkdir( work_path + "work/" )
-        if not os.path.exists( work_path + "work/" + nickname ) :
-            os.mkdir( work_path + "work/" + nickname )
-        if not os.path.exists( work_path + "work/" + nickname + "/out/" ) :
-            os.mkdir( work_path + "work/" + nickname + "/out/" )
+        if not os.path.exists(work_path + "work/"):
+            os.mkdir(work_path + "work/")
+        if not os.path.exists(work_path + "work/" + nickname):
+            os.mkdir(work_path + "work/" + nickname)
+        if not os.path.exists(work_path + "work/" + nickname + "/out/"):
+            os.mkdir(work_path + "work/" + nickname + "/out/")
 
         StoreGCDataset(settings, nickname, work_path + "work/" + nickname + "/" + nickname + ".dbs")
         StoreGCConfig(settings, nickname, work_path + "work/" + nickname + "/" + nickname + ".conf")
@@ -1202,4 +1217,3 @@ def Run(settings, arguments):
             n.show()
     except:
         pass
-
