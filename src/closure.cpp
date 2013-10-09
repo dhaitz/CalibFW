@@ -85,7 +85,7 @@ long g_lOverallNumberOfProcessedEvents = 0;
 
 std::map<std::string, std::string> g_l2CorrData;
 
-TFile * g_resFile;
+TFile* g_resFile;
 
 typedef std::vector<ZJetPipelineSettings*> PipelineSettingsVector;
 
@@ -135,7 +135,7 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new UnclusteredEnergyProducer(
 					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else
-			CALIB_LOG_FATAL("Global MetaData producer of name " << *it << " not found")
+			CALIB_LOG_FATAL("Global MetaData producer of name " << *it << " not found");
 	}
 }
 /* did not work
@@ -176,7 +176,7 @@ int main(int argc, char** argv)
 	// input files
 
 	// hast GC the file list ?
-	char * pPath;
+	char* pPath;
 	pPath = getenv("FILE_NAMES");
 	if (pPath != NULL)
 	{
@@ -189,13 +189,13 @@ int main(int argc, char** argv)
 		CALIB_LOG_FILE("Loading " << g_sourcefiles.size() << " input files.")
 
 		if (g_sourcefiles.size() == 0)
-			CALIB_LOG_FATAL("No Kappa input files specified")
+			CALIB_LOG_FATAL("No Kappa input files specified");
 
-//		BOOST_FOREACH(std::string s, g_sourcefiles)
-//		{
-//			CALIB_LOG_FILE("Input File " << s)
-//		}
-	}
+		//BOOST_FOREACH(std::string s, g_sourcefiles)
+		//{
+		//    CALIB_LOG_FILE("Input File " << s)
+		//}
+		}
 	FileInterface2 finterface(g_sourcefiles);
 
 
@@ -234,13 +234,13 @@ int main(int argc, char** argv)
 	CALIB_LOG_FILE("Writing to the root file " << sRootOutputFilename)
 
 	// insert config into log file
-	CALIB_LOG_FILE( "Configuration file " << jsonConfig << " dump:" );
+	CALIB_LOG_FILE("Configuration file " << jsonConfig << " dump:");
 	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
 
 
 	ZJetPipelineInitializer plineInit;
 
-	ZJetPipelineSettings * pset = NULL;
+	ZJetPipelineSettings* pset = NULL;
 
 	EventPipelineRunner<ZJetPipeline, ZJetGlobalMetaDataProducerBase> pRunner;
 
@@ -273,7 +273,7 @@ int main(int argc, char** argv)
 
 		if ((*it)->GetLevel() == 1)
 		{
-			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
+			ZJetPipeline* pLine = new ZJetPipeline; //CreateDefaultPipeline();
 
 			pLine->InitPipeline(**it, plineInit);
 			pRunner.AddPipeline(pLine);
@@ -281,7 +281,7 @@ int main(int argc, char** argv)
 
 		if ((*it)->GetLevel() == 2)
 		{
-			ZJetPipeline * pLine = new ZJetPipeline;//CreateDefaultPipeline();
+			ZJetPipeline* pLine = new ZJetPipeline; //CreateDefaultPipeline();
 
 			pLine->InitPipeline(**it, plineInit);
 			pRunner.AddPipeline(pLine);
@@ -296,7 +296,7 @@ int main(int argc, char** argv)
 	}
 
 	if (g_propTree.get<bool>("EnablePuReweighting", false))
-		CALIB_LOG_FILE("\n" << blue << "Pile-up reweighting enabled." << reset << "\n")
+		CALIB_LOG_FILE("\n" << blue << "Pile-up reweighting enabled." << reset << "\n");
 
 	ZJetPipelineSettings settings;
 	settings.m_globalSettings = &gset;
