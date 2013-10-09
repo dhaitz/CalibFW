@@ -20,7 +20,7 @@ unpad-paren					# no spaces around parenthesis
 pad-oper					# spaces around operators
 pad-header					# spaces after if, while, ...
 
-convert-tabs				# use spaces for non indentation whitespace
+#convert-tabs				# use spaces for non indentation whitespace
 
 # pointer
 align-pointer=type			# int* i

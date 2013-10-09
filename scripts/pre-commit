@@ -29,7 +29,7 @@ do
 	fi
 
 	# check C++
-	if [[ "$F" =~ ^.+(cc|h)$ ]]
+	if [[ "$F" =~ ^.+(cc|h|cpp|hxx|hh|c|C)$ ]]
 	then
 		which astyle > /dev/null || continue
 		OUT="${F}.formatted"
