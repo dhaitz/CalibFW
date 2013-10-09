@@ -1,7 +1,8 @@
 #!/bin/bash
 # -*- coding: utf8 -*-
 
-IGNORE=W191,E501
+PEPIGNORE=W191,E501
+CPPOPTIONS=$CLOSURE_BASE/scripts/astylerc
 PATH=$PATH:/home/berger/sw/bin
 
 # check for executables
@@ -16,7 +17,7 @@ do
 	if [[ "$F" =~ ^.+py$ ]]
 	then
 		which pep8 > /dev/null || continue
-		pep8 -qq --ignore=$IGNORE $F
+		pep8 -qq --ignore=$PEPIGNORE $F
 		R=$?
 		if [ "$R" != "0" ]
 		then 
