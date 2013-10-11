@@ -109,6 +109,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
         'MetPhiCorrectionParameters': [],
         'EnablePuReweighting': False,
         'Enable2ndJetReweighting': False,
+        'EnableSampleReweighting': False,
         'HcalCorrection': 0.0,
         'Jec': "default",
         'JsonFile': "default",
@@ -388,8 +389,36 @@ def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
         print "Please add them in ClosureConfigBase or do not use Apply2ndJetReweighting."
         exit(0)
 
-    conf["Enable2ndJetReweighting"] = 1
+    conf["Enable2ndJetReweighting"] = True
     conf["2ndJetWeight"] = d[dataset] + [1.0] * (300 - len(d[dataset]))
+    return conf
+
+
+def ApplySampleReweighting(conf, sample="herwig"):
+    """Weights for pt hat binned samples"""
+    d = {
+        "herwig": [
+            0.0,  # 400.8834/6167020,# 0-15 (not existing, prep/das inconsistent)
+            70.55123   /  200000,  #  15-20
+            77.53533   /  150154,  #  20-30 (old sample)
+            62.74567   /  150000,  #  30-50
+            28.73806   /  100160,  #  50-80 (old sample)
+            9.745931   /   96000,  #  80-120
+            2.810025   /   98560,  # 120-170
+            0.7702934  /  100000,  # 170-230
+            0.214268   /   96640,  # 230-300
+            0.08858213 /   90517,  # 300-inf
+        ],
+    }
+
+    if sample not in d:
+        print "No sample weights for this dataset:", dataset
+        print "Weights are available for:", ", ".join(d.keys())
+        print "Please add them in ClosureConfigBase or do not use ApplySampleReweighting."
+        exit(0)
+
+    conf["EnableSampleReweighting"] = True
+    conf["SampleWeight"] = d[sample]
     return conf
 
 
