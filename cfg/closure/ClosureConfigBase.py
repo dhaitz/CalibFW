@@ -394,8 +394,9 @@ def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
     return conf
 
 
-def ApplySampleReweighting(conf, sample="herwig"):
+def ApplySampleReweighting(conf, sample="herwig", referencelumi_fbinv=1.0):
     """Weights for pt hat binned samples"""
+    picobarn2femtobarn = 1000
     d = {
         "herwig": [
             0.0,  # 400.8834/6167020,# 0-15 (not existing, prep/das inconsistent)
@@ -417,8 +418,9 @@ def ApplySampleReweighting(conf, sample="herwig"):
         print "Please add them in ClosureConfigBase or do not use ApplySampleReweighting."
         exit(0)
 
+	result = [picobarn2femtobarn * referencelumi_fbinv * w for w in d[sample]]
     conf["EnableSampleReweighting"] = True
-    conf["SampleWeight"] = d[sample]
+    conf["SampleWeight"] = result
     return conf
 
 
