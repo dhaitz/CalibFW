@@ -42,6 +42,32 @@ public:
 		m_mon->Update();
 		m_fi.eventdata.GetEntry(lEvent);
 
+		// this should be avoided, weights should be in skim!
+		m_event.m_pthatbin = -1;
+		std::string filename = m_fi.eventdata.GetFile()->GetName();
+		if (boost::algorithm::contains(filename, "_Pt-0to15_"))
+			m_event.m_pthatbin = 0;
+		else if (boost::algorithm::contains(filename, "_Pt-15to20_"))
+			m_event.m_pthatbin = 1;
+		else if (boost::algorithm::contains(filename, "_Pt-20to30_"))
+			m_event.m_pthatbin = 2;
+		else if (boost::algorithm::contains(filename, "_Pt-30to50_"))
+			m_event.m_pthatbin = 3;
+		else if (boost::algorithm::contains(filename, "_Pt-50to80_"))
+			m_event.m_pthatbin = 4;
+		else if (boost::algorithm::contains(filename, "_Pt-80to120_"))
+			m_event.m_pthatbin = 5;
+		else if (boost::algorithm::contains(filename, "_Pt-120to170_"))
+			m_event.m_pthatbin = 6;
+		else if (boost::algorithm::contains(filename, "_Pt-170to230_"))
+			m_event.m_pthatbin = 7;
+		else if (boost::algorithm::contains(filename, "_Pt-230to300_"))
+			m_event.m_pthatbin = 8;
+		else if (boost::algorithm::contains(filename, "_Pt-300_"))
+			m_event.m_pthatbin = 9;
+		else if (boost::algorithm::contains(filename, "_Herwig_"))
+			CALIB_LOG_FATAL("nothing matches but sample weights expected: " << filename);
+
 		if (m_prevRun != m_event.m_eventmetadata->nRun)
 		{
 			m_prevRun = m_event.m_eventmetadata->nRun;
@@ -67,7 +93,7 @@ public:
 			}
 			else
 			{
-				CALIB_LOG_FATAL("Unknown input type")
+				CALIB_LOG_FATAL("Unknown input type");
 			}
 
 			//std::cout << "Loading new lumi info" << std::endl;

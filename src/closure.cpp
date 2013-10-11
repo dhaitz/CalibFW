@@ -204,6 +204,7 @@ int main(int argc, char** argv)
 
 	gset.SetEnablePuReweighting(g_propTree.get<bool>("EnablePuReweighting", false));
 	gset.SetEnable2ndJetReweighting(g_propTree.get<bool>("Enable2ndJetReweighting", false));
+	gset.SetEnableSampleReweighting(g_propTree.get<bool>("EnableSampleReweighting", false));
 	gset.SetMuonID2011(g_propTree.get<bool>("MuonID2011", false));
 	gset.SetHcalCorrection(g_propTree.get<double>("HcalCorrection", 0.0));
 	gset.SetSkipEvents(g_propTree.get<long long>("SkipEvents", 0));
@@ -218,6 +219,10 @@ int main(int argc, char** argv)
 	{
 		gset.m_recovertWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
 		gset.m_2ndJetWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "2ndJetWeight");
+		gset.m_sampleWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "SampleWeight");
+		if (gset.GetEnableSampleReweighting() && gset.m_sampleWeight.size() == 0)
+			CALIB_LOG_FATAL("Sample reweighting is enabled but no weights given!");
+
 		g_inputType = McInput;
 	}
 
@@ -316,7 +321,7 @@ int main(int argc, char** argv)
 	g_resFile->Close();
 	g_logFile->close();
 
-	CALIB_LOG_FILE("Output file " << sRootOutputFilename << " closed.")
+	CALIB_LOG_FILE("Output file " << sRootOutputFilename << " closed.");
 
 	delete g_logFile;
 

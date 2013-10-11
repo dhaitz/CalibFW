@@ -27,8 +27,14 @@ public:
 		return m_2ndJetWeight;
 	}
 
+	doublevector const& GetSampleReweighting() const
+	{
+		return m_sampleWeight;
+	}
+
 	IMPL_PROPERTY(bool, EnablePuReweighting)
 	IMPL_PROPERTY(bool, Enable2ndJetReweighting)
+	IMPL_PROPERTY(bool, EnableSampleReweighting)
 	IMPL_PROPERTY(bool, MuonID2011)
 	IMPL_PROPERTY(double, HcalCorrection)
 	IMPL_PROPERTY(long long, SkipEvents)
@@ -40,6 +46,7 @@ public:
 
 	doublevector m_recovertWeight;
 	doublevector m_2ndJetWeight;
+	doublevector m_sampleWeight;
 };
 
 

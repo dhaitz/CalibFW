@@ -212,6 +212,7 @@ public:
 	KVertexSummary* m_vertexSummary;
 	KDataBeamSpot* m_beamSpot;
 	KJetArea* m_jetArea;
+	int m_pthatbin;
 
 	KGenLumiMetadata * GetGenLumiMetadata() const
 	{
