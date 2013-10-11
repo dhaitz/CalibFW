@@ -21,33 +21,33 @@ class ZJetEventData
 {
 
 public:
-	KDataPFJets * PF_jets;// = fi.Get<KDataPFJets>(names[0]);
+	KDataPFJets* PF_jets; // = fi.Get<KDataPFJets>(names[0]);
 
 	// contains
-	KDataPFJets * m_primaryJetCollection;
-	KDataMuons * m_muons;
-	KDataPFMET * m_pfMet;
-	KDataPFMET * m_pfMetL2L3;
-	KDataPFMET * m_pfMetL2L3Res;
-	KDataPFMET * m_pfMetChs;
-	KDataPFMET * m_pfMetChsL2L3;
-	KDataPFMET * m_pfMetChsL2L3Res;
-	KGenParticles * m_particles;
+	KDataPFJets* m_primaryJetCollection;
+	KDataMuons* m_muons;
+	KDataPFMET* m_pfMet;
+	KDataPFMET* m_pfMetL2L3;
+	KDataPFMET* m_pfMetL2L3Res;
+	KDataPFMET* m_pfMetChs;
+	KDataPFMET* m_pfMetChsL2L3;
+	KDataPFMET* m_pfMetChsL2L3Res;
+	KGenParticles* m_particles;
 
 	//typedef std::map<std::string, KDataPFJets *> PfMap;
-	typedef std::map<std::string, KDataPFTaggedJets *> PfTaggedMap;
+	typedef std::map<std::string, KDataPFTaggedJets*> PfTaggedMap;
 	typedef PfTaggedMap::const_iterator PfTaggedMapIterator;
 
-	typedef std::map<std::string, KDataPFJets *> PfMap;
+	typedef std::map<std::string, KDataPFJets*> PfMap;
 	typedef PfMap::const_iterator PfMapIterator;
 
 	typedef std::map<std::string, KDataJets*> CaloMap;
 	typedef CaloMap::const_iterator CaloMapIterator;
 
-	typedef std::map<std::string, KDataLVs *> GenJetMap;
+	typedef std::map<std::string, KDataLVs*> GenJetMap;
 	typedef GenJetMap::const_iterator GenJetMapIterator;
 
-	typedef std::map<std::string, KDataJets *> JetMap;
+	typedef std::map<std::string, KDataJets*> JetMap;
 	typedef JetMap::const_iterator JetMapIterator;
 
 	PfMap m_pfJets;
@@ -56,18 +56,18 @@ public:
 	JetMap m_jets;
 	GenJetMap m_genJets;
 
-    typedef std::map<std::string, std::vector<KDataPFJet*>*> PfPointerMap;
+	typedef std::map<std::string, std::vector<KDataPFJet*>*> PfPointerMap;
 	typedef PfPointerMap::const_iterator PfPointerMapIterator;
-    mutable PfPointerMap m_pfPointerJets;
+	mutable PfPointerMap m_pfPointerJets;
 
 
-	virtual KDataLVs * GetGenJetCollection (std::string const& name) const
+	virtual KDataLVs* GetGenJetCollection(std::string const& name) const
 	{
-		return SafeMap<std::string, KDataLVs *>::Get(name, m_genJets);
+		return SafeMap<std::string, KDataLVs*>::Get(name, m_genJets);
 	}
 
 	// May return null, if no primary jet is available
-	virtual KDataLV * GetPrimaryJet(ZJetPipelineSettings const& psettings) const
+	virtual KDataLV* GetPrimaryJet(ZJetPipelineSettings const& psettings) const
 	{
 		return GetJet(psettings, 0);
 	}
@@ -82,20 +82,20 @@ public:
 	{
 		if (JetType::IsPF(algoName))
 		{
-			return SafeMap<std::string, KDataPFJets *>::Get(algoName, m_pfJets)->size();
+			return SafeMap<std::string, KDataPFJets*>::Get(algoName, m_pfJets)->size();
 		}
 		if (JetType::IsGen(algoName))
 		{
-			return SafeMap<std::string, KDataLVs *>::Get(algoName, m_genJets)->size();
+			return SafeMap<std::string, KDataLVs*>::Get(algoName, m_genJets)->size();
 		}
 		else
 		{
-			return SafeMap<std::string, KDataJets *>::Get(algoName, m_jets)->size();
+			return SafeMap<std::string, KDataJets*>::Get(algoName, m_jets)->size();
 		}
 	}
 
 	// return MET, depending on which correction level we are looking at right now
-	virtual KDataPFMET * GetMet(ZJetPipelineSettings const& psettings) const
+	virtual KDataPFMET* GetMet(ZJetPipelineSettings const& psettings) const
 	{
 		std::string corr = psettings.GetJetAlgorithm();
 		//to do: implement MET for all algorithms while ensuring backwards-compatibility
@@ -105,29 +105,28 @@ public:
 			corr = corr.substr(std::max(corr.find("Jets") + 4, corr.find("CHS") + 3), std::string::npos);
 
 
-        if (std::string::npos != corr.find("CHS"))
+		if (std::string::npos != corr.find("CHS"))
 			return m_pfMetChs;
-        else
+		else
 			return m_pfMet;
 
 		CALIB_LOG_FATAL("The correction level \"" << corr << "\" for MET is unknown.");
 		return NULL;
 	}
 
-	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
-			unsigned int index) const
+	virtual KDataLV* GetJet(ZJetPipelineSettings const& psettings,
+							unsigned int index) const
 	{
 		return GetJet(psettings, index, psettings.GetJetAlgorithm());
 	}
 
-	virtual KDataLV * GetJet(ZJetPipelineSettings const& psettings,
-			unsigned int index, std::string algoName) const
+	virtual KDataLV* GetJet(ZJetPipelineSettings const& psettings,
+							unsigned int index, std::string algoName) const
 	{
 		if (JetType::IsPF(algoName))
 		{
-			std::vector<KDataPFJet*> * pfJets =
+			std::vector<KDataPFJet*>* pfJets =
 				SafeMap<std::string, std::vector<KDataPFJet*> *>::Get(algoName, m_pfPointerJets);
-        
 
 			if (pfJets->size() <= index)
 				return NULL;
@@ -135,7 +134,7 @@ public:
 		}
 		else if (JetType::IsGen(algoName))
 		{
-			KDataLVs * genJets =
+			KDataLVs* genJets =
 				SafeMap<std::string, KDataLVs*>::Get(algoName, m_genJets);
 
 			if (genJets->size() <= index)
@@ -144,7 +143,7 @@ public:
 		}
 		else if (JetType::IsCalo(algoName))
 		{
-			KDataJets * caloJets =
+			KDataJets* caloJets =
 				SafeMap<std::string, KDataJets*>::Get(algoName, m_caloJets);
 
 			if (caloJets->size() <= index)
@@ -154,7 +153,7 @@ public:
 		else
 		{
 			CALIB_LOG_FATAL("This jet type is not implemented." << algoName)
-			KDataJets * jets = m_jets.at(algoName);
+			KDataJets* jets = m_jets.at(algoName);
 
 			if (jets->size() >= index)
 				return NULL;
@@ -181,10 +180,10 @@ public:
 		{
 			s << it->first << " count " << it->second->size() <<  std::endl;
 
-			KDataPFJets * pfJets = it->second;
+			KDataPFJets* pfJets = it->second;
 			for (unsigned int i = 0; i < pfJets->size(); ++ i)
 			{
-				s << "Jet " << i << ":" << std::endl << pfJets->at(i) << std::endl; 
+				s << "Jet " << i << ":" << std::endl << pfJets->at(i) << std::endl;
 			}
 		}
 
@@ -192,11 +191,10 @@ public:
 		for (GenJetMapIterator it = m_genJets.begin(); it != m_genJets.end(); ++it)
 		{
 			s << it->first << " count " << it->second->size() <<  std::endl;
-			
-			KDataLVs * genJets = it->second;
+			KDataLVs* genJets = it->second;
 			for (unsigned int i = 0; i < genJets->size(); ++ i)
 			{
-				s << "Jet " << i << ":" << std::endl << genJets->at(i) << std::endl; 
+				s << "Jet " << i << ":" << std::endl << genJets->at(i) << std::endl;
 			}
 		}
 
@@ -214,14 +212,14 @@ public:
 	KJetArea* m_jetArea;
 	int m_pthatbin;
 
-	KGenLumiMetadata * GetGenLumiMetadata() const
+	KGenLumiMetadata* GetGenLumiMetadata() const
 	{
-		return (KGenLumiMetadata *) m_lumimetadata ;
+		return (KGenLumiMetadata*) m_lumimetadata ;
 	}
 
-	KDataLumiMetadata * GetDataLumiMetadata() const
+	KDataLumiMetadata* GetDataLumiMetadata() const
 	{
-		return (KDataLumiMetadata *) m_lumimetadata;
+		return (KDataLumiMetadata*) m_lumimetadata;
 	}
 
 };

@@ -178,7 +178,7 @@ public:
 
 	// if a cut is enabled, the bit corresponding to the cut id it set in this integer
 	IMPL_PROPERTY(unsigned long, CutEnabledBitmask)
-	IMPL_PROPERTY(TFile *, RootOutFile)
+	IMPL_PROPERTY(TFile*, RootOutFile)
 
 	bool IsMC() const
 	{
@@ -208,7 +208,7 @@ public:
 		else if (sInp == "gen")
 			inp = GenInput;
 		else
-			CALIB_LOG_FATAL("Input type " + sInp + " not supported.")
+			CALIB_LOG_FATAL("Input type " + sInp + " not supported.");
 
 		return inp;
 	}
@@ -221,7 +221,7 @@ public:
 	}
 
 
-	static std::vector<PtBin> GetAsPtBins(stringvector & sv)
+	static std::vector<PtBin> GetAsPtBins(stringvector& sv)
 	{
 		std::vector<PtBin> bins;
 
@@ -273,21 +273,11 @@ public:
 		RETURN_CACHED(m_metaDataProducers, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".MetaDataProducers"))
 	}
 
-    VarCache<stringvector> m_quantities;
+	VarCache<stringvector> m_quantities;
 	stringvector GetQuantities() const
 	{
 		RETURN_CACHED(m_quantities, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".QuantitiesVector"))
 	}
-
-
-/*
-	void AddFilter(std::string sFilterId)
-	{
-		m_filter.push_back(sFilterId);
-	}
-
-	stringvector m_filter;
-*/
 
 };
 
