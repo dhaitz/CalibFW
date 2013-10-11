@@ -3,11 +3,12 @@ import ClosureConfigBase as cbase
 
 
 def get_template(algo="AK5PFJets"):
-    conf = cbase.BaseConfig('data', '2011')
-    conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa539_Data11/*.root", sys.argv)
+    conf = cbase.BaseConfig('mc', '2011')
+    conf["InputFiles"] = cbase.CreateFileList("/storage/6/berger/zpj/kappa539_MC11/*.root", sys.argv)
     conf['OutputPath'] = __file__.split('/')[-1][:-3]
+    conf['Tagged'] = False
 
-    algorithms = [algo + "CHSL1L2L3", algo + "CHSL1L2L3Res"]
+    algorithms = [algo + "CHSL1L2L3"]
     base_algorithms = [algo, algo + "CHS"]
 
     conf = cbase.ExpandConfig(algorithms, conf, expandptbins=False, addResponse=False)
