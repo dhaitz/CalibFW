@@ -153,7 +153,7 @@ def SetMcSpecific(cfg, run='2012'):
     """
     if run == '2011':
         cfg['Jec'] = GetBasePath() + "data/jec_data/START44_V12"
-        ApplyPUReweighting(cfg, 'kappa44_MC11_powheg_160404-180252_7TeV_ReRecoNov08')
+        ApplyPUReweighting(cfg, 'mc11_160404-180252_7TeV_ReRecoNov08_v2')
     elif run == '2012':
         cfg['Jec'] = GetBasePath() + "data/jec_data/Summer13_V5_MC"
         cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
