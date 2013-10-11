@@ -30,13 +30,13 @@ public:
 										ZJetMetaData& metaData,
 										ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		double fact = 1.0;
+		double weight = 1.0;
 
 		// pu reweighting
 		if (m_pipelineSettings.Global()->GetEnablePuReweighting())
 		{
 			assert(data.m_geneventmetadata != NULL);
-			fact *= m_pipelineSettings.Global()->GetPuReweighting().at(
+			weight *= m_pipelineSettings.Global()->GetPuReweighting().at(
 						int(data.m_geneventmetadata->numPUInteractionsTruth + 0.5));
 		}
 
@@ -47,24 +47,50 @@ public:
 			KDataLV* jet2 = metaData.GetValidJet(m_pipelineSettings, data, 1, "AK5PFJetsCHSL1L2L3");
 			// apply a new weight for 2 GeV pt bins
 			if (m_pipelineSettings.Global()->Get2ndJetReweighting().size() > int(jet2->p4.Pt() / 2.0))
-				fact *= m_pipelineSettings.Global()->Get2ndJetReweighting().at(
+				weight *= m_pipelineSettings.Global()->Get2ndJetReweighting().at(
 							int(jet2->p4.Pt() / 2.0));
 			else
-				fact = 0.0;
+				weight = 0.0;
 		}
 
 		// sample reweighting (based on file name)
 		if (m_pipelineSettings.Global()->GetEnableSampleReweighting())
 		{
-			//CALIB_LOG(data.m_pthatbin);
 			int i = data.m_pthatbin; // sample index
 			if (m_pipelineSettings.Global()->GetSampleReweighting().size() > i)
-				fact *= m_pipelineSettings.Global()->GetSampleReweighting().at(i);
+				weight *= m_pipelineSettings.Global()->GetSampleReweighting().at(i);
 			else
 				CALIB_LOG_FATAL("No sample weight specified for sample " << i);
 		}
 
-		metaData.SetWeight(metaData.GetWeight() * fact);
+		// lumi reweighting
+		// not needed for every event, should be done once per lumi section
+		if (m_pipelineSettings.Global()->GetEnableLumiReweighting())
+		{
+			double xsec = 1.0;  // in pb
+			long long ntotal = 1.0e6;
+
+			//evaluate in this order: config, external, internal
+			if (m_pipelineSettings.Global()->GetXSection() > 0)
+				xsec = m_pipelineSettings.Global()->GetXSection();
+			else if (data.m_genlumimetadata->xSectionExt > 0)
+				xsec = data.m_genlumimetadata->xSectionExt;
+			else if (data.m_genlumimetadata->xSectionInt > 0)
+				xsec *= data.m_genlumimetadata->xSectionInt;
+			else
+				CALIB_LOG_FATAL("Lumi reweighting enabled but no cross section given");
+
+			if (data.m_genlumimetadata->filterEff > 0)
+				xsec *= data.m_genlumimetadata->filterEff;
+			assert(xsec > 0);
+			weight *= xsec / ntotal * 1000.0;  // normalize to 1/fb
+			//CALIB_LOG("ext=" << data.m_genlumimetadata->xSectionExt <<
+			//		", int=" << data.m_genlumimetadata->xSectionInt <<
+			//		", eff=" << data.m_genlumimetadata->filterEff <<
+			//		", xsec=" << xsec <<", weight=" << weight);
+		}
+
+		metaData.SetWeight(metaData.GetWeight() * weight);
 		return true;
 	}
 };

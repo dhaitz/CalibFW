@@ -205,6 +205,7 @@ public:
 	KGenEventMetadata* m_geneventmetadata;
 	KEventMetadata* m_eventmetadata;
 	KLumiMetadata* m_lumimetadata;
+	KGenLumiMetadata* m_genlumimetadata;
 	KFilterMetadata* m_filtermetadata;
 	KFilterSummary* m_filter;
 	KVertexSummary* m_vertexSummary;
@@ -214,7 +215,7 @@ public:
 
 	KGenLumiMetadata* GetGenLumiMetadata() const
 	{
-		return (KGenLumiMetadata*) m_lumimetadata ;
+		return (KGenLumiMetadata*) m_lumimetadata;
 	}
 
 	KDataLumiMetadata* GetDataLumiMetadata() const

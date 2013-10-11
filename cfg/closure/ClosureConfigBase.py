@@ -110,6 +110,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
         'EnablePuReweighting': False,
         'Enable2ndJetReweighting': False,
         'EnableSampleReweighting': False,
+        'EnableLumiReweighting': False,
         'HcalCorrection': 0.0,
         'Jec': "default",
         'JsonFile': "default",
@@ -163,6 +164,8 @@ def SetMcSpecific(cfg, run='2012'):
         exit(0)
 
     cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer']
+    cfg['EnableLumiReweighting'] = True
+    cfg['XSection'] = -1.0
     return cfg
 
 

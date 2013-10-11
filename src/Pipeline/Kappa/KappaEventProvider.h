@@ -86,19 +86,17 @@ public:
 		if (m_prevLumi != m_event.m_eventmetadata->nLumi)
 		{
 			m_prevLumi = m_event.m_eventmetadata->nLumi;
+			m_fi.GetMetaEntry();
 
 			// load the correct lumi information
 			if (m_inpType == McInput)
 			{
-				m_event.m_lumimetadata = m_fi.Get<KGenLumiMetadata> (
-						m_event.m_eventmetadata->nRun,
-						m_event.m_eventmetadata->nLumi);
+				m_event.m_genlumimetadata = m_fi.GetMeta<KGenLumiMetadata>("KLumiMetadata");
+				m_event.m_lumimetadata = m_fi.GetMeta<KGenLumiMetadata>("KLumiMetadata");
 			}
 			else if (m_inpType == DataInput)
 			{
-				m_event.m_lumimetadata = m_fi.Get<KDataLumiMetadata> (
-						m_event.m_eventmetadata->nRun,
-						m_event.m_eventmetadata->nLumi);
+				m_event.m_lumimetadata = m_fi.GetMeta<KDataLumiMetadata>("KLumiMetadata");
 			}
 			else
 			{
