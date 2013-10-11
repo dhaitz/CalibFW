@@ -15,7 +15,7 @@ template <class TEventType>
 class KappaEventProvider: public EventProvider<TEventType>
 {
 public:
-	KappaEventProvider(FileInterface2 & fi, InputTypeEnum inpType, bool phicorrection, bool tagged) :
+	KappaEventProvider(FileInterface2& fi, InputTypeEnum inpType, bool phicorrection, bool tagged) :
 		m_prevRun(-1), m_prevLumi(-1), m_inpType(inpType), m_fi(fi)
 	{
 		// setup pointer to collections
@@ -37,36 +37,40 @@ public:
 	// overwrite using template specialization
 	void WireEvent(bool phicorrection, bool tagged) {assert(false);}
 
-	virtual bool GotoEvent(long long lEvent, HLTTools * hltInfo)
+	virtual bool GotoEvent(long long lEvent, HLTTools* hltInfo)
 	{
 		m_mon->Update();
 		m_fi.eventdata.GetEntry(lEvent);
 
 		// this should be avoided, weights should be in skim!
-		m_event.m_pthatbin = -1;
-		std::string filename = m_fi.eventdata.GetFile()->GetName();
-		if (boost::algorithm::contains(filename, "_Pt-0to15_"))
-			m_event.m_pthatbin = 0;
-		else if (boost::algorithm::contains(filename, "_Pt-15to20_"))
-			m_event.m_pthatbin = 1;
-		else if (boost::algorithm::contains(filename, "_Pt-20to30_"))
-			m_event.m_pthatbin = 2;
-		else if (boost::algorithm::contains(filename, "_Pt-30to50_"))
-			m_event.m_pthatbin = 3;
-		else if (boost::algorithm::contains(filename, "_Pt-50to80_"))
-			m_event.m_pthatbin = 4;
-		else if (boost::algorithm::contains(filename, "_Pt-80to120_"))
-			m_event.m_pthatbin = 5;
-		else if (boost::algorithm::contains(filename, "_Pt-120to170_"))
-			m_event.m_pthatbin = 6;
-		else if (boost::algorithm::contains(filename, "_Pt-170to230_"))
-			m_event.m_pthatbin = 7;
-		else if (boost::algorithm::contains(filename, "_Pt-230to300_"))
-			m_event.m_pthatbin = 8;
-		else if (boost::algorithm::contains(filename, "_Pt-300_"))
-			m_event.m_pthatbin = 9;
-		else if (boost::algorithm::contains(filename, "_Herwig_"))
-			CALIB_LOG_FATAL("nothing matches but sample weights expected: " << filename);
+		if (m_event.m_pthatbin != -1)
+		{
+			//m_event.m_pthatbin = -1; set to -1 somewhere once if sample rew. is off set to -2 if enabled
+			std::string filename = m_fi.eventdata.GetFile()->GetName();
+			if (boost::algorithm::contains(filename, "_Pt-0to15_"))
+				m_event.m_pthatbin = 0;
+			else if (boost::algorithm::contains(filename, "_Pt-15to20_"))
+				m_event.m_pthatbin = 1;
+			else if (boost::algorithm::contains(filename, "_Pt-20to30_"))
+				m_event.m_pthatbin = 2;
+			else if (boost::algorithm::contains(filename, "_Pt-30to50_"))
+				m_event.m_pthatbin = 3;
+			else if (boost::algorithm::contains(filename, "_Pt-50to80_"))
+				m_event.m_pthatbin = 4;
+			else if (boost::algorithm::contains(filename, "_Pt-80to120_"))
+				m_event.m_pthatbin = 5;
+			else if (boost::algorithm::contains(filename, "_Pt-120to170_"))
+				m_event.m_pthatbin = 6;
+			else if (boost::algorithm::contains(filename, "_Pt-170to230_"))
+				m_event.m_pthatbin = 7;
+			else if (boost::algorithm::contains(filename, "_Pt-230to300_"))
+				m_event.m_pthatbin = 8;
+			else if (boost::algorithm::contains(filename, "_Pt-300_"))
+				m_event.m_pthatbin = 9;
+			else
+				//if (boost::algorithm::contains(filename, "_Herwig_"))
+				CALIB_LOG_FATAL("nothing matches but sample weights expected: " << filename);
+		}
 
 		if (m_prevRun != m_event.m_eventmetadata->nRun)
 		{
@@ -105,27 +109,27 @@ public:
 	}
 
 	virtual TEventType const& GetCurrentEvent() const
-			{
+	{
 		return m_event;
-			}
+	}
 
 	virtual long long GetOverallEventCount() const
-			{
+	{
 		return m_fi.eventdata.GetEntries();
-			}
+	}
 
 protected:
-	void InitPFJets(ZJetEventData & event, std::string algoName)
+	void InitPFJets(ZJetEventData& event, std::string algoName)
 	{
 		event.m_pfJets[algoName] = m_fi.Get<KDataPFJets> (algoName);
 	}
 
-	void InitCaloJets(ZJetEventData & event, std::string algoName)
+	void InitCaloJets(ZJetEventData& event, std::string algoName)
 	{
 		event.m_caloJets[algoName] = m_fi.Get<KDataJets>(algoName);
 	}
 
-	void InitGenJets(ZJetEventData & event, std::string algoName)
+	void InitGenJets(ZJetEventData& event, std::string algoName)
 	{
 		event.m_genJets[algoName] = m_fi.Get<KDataLVs> (algoName);
 	}
@@ -138,7 +142,7 @@ protected:
 	bool tagged;
 	boost::scoped_ptr<ProgressMonitor> m_mon;
 
-	FileInterface2 & m_fi;
+	FileInterface2& m_fi;
 };
 
 }
