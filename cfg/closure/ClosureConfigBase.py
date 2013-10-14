@@ -54,7 +54,7 @@ def GetCMSSWPath(variable='CMSSW_BASE'):
 
 
 def GetBasePath(variable='CLOSURE_BASE'):
-    """Return the path of the closure repository (CalibFW)."""
+    """Return the path of the closure repository (Excalibur)."""
     try:
         return os.environ[variable] + "/"
     except:
@@ -1199,13 +1199,24 @@ def Run(settings, arguments):
       --batch       Split into jobs for processing on a cluster
       --skip n [m]  skip first n events and run over the next m events [m=1]
     """
-    print "    ______     ___       __       __  .______    ___________    __    ____ "
-    print "   /      |   /   \     |  |     |  | |   _  \  |   ____\   \  /  \  /   / "
-    print "  |  ,----'  /  ^  \    |  |     |  | |  |_)  | |  |__   \   \/    \/   /  "
-    print "  |  |      /  /_\  \   |  |     |  | |   _  <  |   __|   \            /   "
-    print "  |  `----./  _____  \  |  `----.|  | |  |_)  | |  |       \    /\    /    "
-    print "   \______/__/     \__\ |_______||__| |______/  |__|        \__/  \__/     "
-    print ""
+
+    print "  _______ ___   ___  ______      ___       __       __  .______    __    __  .______      "
+    print " |   ____|\  \ /  / /      |    /   \     |  |     |  | |   _  \  |  |  |  | |   _  \ "     
+    print " |  |__    \  V  / |  ,----'   /  ^  \    |  |     |  | |  |_)  | |  |  |  | |  |_)  |    "
+    print " |   __|    >   <  |  |       /  /_\  \   |  |     |  | |   _  <  |  |  |  | |      /     "
+    print " |  |____  /  .  \ |  `----. /  _____  \  |  `----.|  | |  |_)  | |  `--'  | |  |\  \----."
+    print " |_______|/__/ \__\ \______|/__/     \__\ |_______||__| |______/   \______/  | _| `._____|"
+    print "                                                                      (previously CalibFW)"
+    print "                   (O)                                                               "
+    print "                   <M       The mighty broadsword of cut-based jet studies           "
+    print "        o          <M                                                                "
+    print "       /| ......  /:M\------------------------------------------------,,,,,,         "
+    print "     (O)[]XXXXXX[]I:K+}=====<{H}>================================------------>       "
+    print "       \| ^^^^^^  \:W/------------------------------------------------''''''         "
+    print "        o          <W                                                                "
+    print "                   <W                                                                "
+    print "                   (O)                 Calibrate like a king!                        "
+    print "                                                                                     "
 
     # skip first n events and run over the next m events: --skip n [m=1]
     if len(arguments) > 2 and "--skip" in arguments:
@@ -1253,8 +1264,8 @@ def Run(settings, arguments):
         print "Go there and start grid-control with", nickname + ".conf!"
     try:
         import pynotify
-        if pynotify.init("CalibFW resp_cuts"):
-            n = pynotify.Notification("CalibFW resp_cuts", "run with config " + filename + " done")
+        if pynotify.init("Excalibur resp_cuts"):
+            n = pynotify.Notification("Excalibur resp_cuts", "run with config " + filename + " done")
             n.show()
     except:
         pass
