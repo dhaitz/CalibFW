@@ -138,10 +138,6 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
             ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in datamc) * 2)
             ax.set_yscale('log')
             plotbase.Save(fig, settings['filename'] + '_log', opt)
-        if settings['xlog']:
-            ax.set_xscale('log')
-            plotbase.Save(fig, settings['filename'] + '_xlog', opt)
-
 
 def getPUindata(version=''):
     """Estimated pile-up distributions in data
