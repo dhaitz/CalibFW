@@ -258,8 +258,10 @@ def axislabels(ax, x='zpt', y='events', brackets=False, labels=['',''], settings
         ax.set_xlim(limits)
         if settings['xlog']:
             ax.set_xscale('log')
+            #ax.get_xaxis().get_major_formatter().labelOnlyBase = False
         if settings['xticks'] is not None:
             ax.set_xticks(settings['xticks'])
+            ax.get_xaxis().set_major_formatter(plotbase.matplotlib.ticker.ScalarFormatter())
 
     def setyaxis(limits=(0, 1), quantity="y", unit="", bottom=None):
         string = unitformat(quantity, unit, brackets)
