@@ -82,8 +82,10 @@ private:
         jetbprobabilitybjettag, softelectronbjettag, softmuonbjettag,
         softmuonbyip3dbjettag, softmuonbyptbjettag, simplesecondaryvertexbjettag,
         combinedsecondaryvertexbjettag,  combinedsecondaryvertexmvabjettag,
-        puJetFull, puJetIDFull, puJetIDFullLoose, puJetIDFullMedium, puJetIDFullTight,
-        puJetCutbased, puJetIDCutbased, puJetIDCutbasedLoose, puJetIDCutbasedMedium, puJetIDCutbasedTight
+        jet1puJetFull, jet1puJetIDFull, jet1puJetIDFullLoose, jet1puJetIDFullMedium, jet1puJetIDFullTight,
+        jet1puJetCutbased, jet1puJetIDCutbased, jet1puJetIDCutbasedLoose, jet1puJetIDCutbasedMedium, jet1puJetIDCutbasedTight,
+        jet2puJetFull, jet2puJetIDFull, jet2puJetIDFullLoose, jet2puJetIDFullMedium, jet2puJetIDFullTight,
+        jet2puJetCutbased, jet2puJetIDCutbased, jet2puJetIDCutbasedLoose, jet2puJetIDCutbasedMedium, jet2puJetIDCutbasedTight
     } var;
     
     float returnvalue(std::string string, ZJetEventData const& event,
@@ -160,16 +162,27 @@ private:
     else if (string=="combinedsecondaryvertexbjettag") var=combinedsecondaryvertexbjettag;
     else if (string=="combinedsecondaryvertexmvabjettag") var=combinedsecondaryvertexmvabjettag;
 
-    else if (string=="puJetFull") var=puJetFull;
-    else if (string=="puJetIDFull") var=puJetIDFull;
-    else if (string=="puJetIDFullLoose") var=puJetIDFullLoose;
-    else if (string=="puJetIDFullMedium") var=puJetIDFullMedium;
-    else if (string=="puJetIDFullTight") var=puJetIDFullTight;
-    else if (string=="puJetCutbased") var=puJetCutbased;
-    else if (string=="puJetIDCutbased") var=puJetIDCutbased;
-    else if (string=="puJetIDCutbasedLoose") var=puJetIDCutbasedLoose;
-    else if (string=="puJetIDCutbasedMedium") var=puJetIDCutbasedMedium;
-    else if (string=="puJetIDCutbasedTight") var=puJetIDCutbasedTight;
+    else if (string=="jet1puJetFull") var=jet1puJetFull;
+    else if (string=="jet1puJetIDFull") var=jet1puJetIDFull;
+    else if (string=="jet1puJetIDFullLoose") var=jet1puJetIDFullLoose;
+    else if (string=="jet1puJetIDFullMedium") var=jet1puJetIDFullMedium;
+    else if (string=="jet1puJetIDFullTight") var=jet1puJetIDFullTight;
+    else if (string=="jet1puJetCutbased") var=jet1puJetCutbased;
+    else if (string=="jet1puJetIDCutbased") var=jet1puJetIDCutbased;
+    else if (string=="jet1puJetIDCutbasedLoose") var=jet1puJetIDCutbasedLoose;
+    else if (string=="jet1puJetIDCutbasedMedium") var=jet1puJetIDCutbasedMedium;
+    else if (string=="jet1puJetIDCutbasedTight") var=jet1puJetIDCutbasedTight;
+
+    else if (string=="jet2puJetFull") var=jet2puJetFull;
+    else if (string=="jet2puJetIDFull") var=jet2puJetIDFull;
+    else if (string=="jet2puJetIDFullLoose") var=jet2puJetIDFullLoose;
+    else if (string=="jet2puJetIDFullMedium") var=jet2puJetIDFullMedium;
+    else if (string=="jet2puJetIDFullTight") var=jet2puJetIDFullTight;
+    else if (string=="jet2puJetCutbased") var=jet2puJetCutbased;
+    else if (string=="jet2puJetIDCutbased") var=jet2puJetIDCutbased;
+    else if (string=="jet2puJetIDCutbasedLoose") var=jet2puJetIDCutbasedLoose;
+    else if (string=="jet2puJetIDCutbasedMedium") var=jet2puJetIDCutbasedMedium;
+    else if (string=="jet2puJetIDCutbasedTight") var=jet2puJetIDCutbasedTight;
 
 
 
@@ -271,28 +284,92 @@ private:
         else
             return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->combinedSecondaryVertexMVABTag;
     }
-    else if (var==puJetFull) 
+
+    // jet 1 PU
+    else if (var==jet1puJetFull) 
         return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetFull;
-    else if (var==puJetIDFull) 
+    else if (var==jet1puJetIDFull) 
         return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDFull;
-    else if (var==puJetIDFullLoose) 
+    else if (var==jet1puJetIDFullLoose) 
         return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDFullLoose;
-    else if (var==puJetIDFullMedium) 
+    else if (var==jet1puJetIDFullMedium) 
         return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDFullMedium;
-    else if (var==puJetIDFullTight) 
+    else if (var==jet1puJetIDFullTight) 
         return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDFullTight;
 
-
-    else if (var==puJetCutbased) 
+    else if (var==jet1puJetCutbased) 
         return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetCutbased;
-    else if (var==puJetIDCutbased) 
+    else if (var==jet1puJetIDCutbased) 
         return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDCutbased;
-    else if (var==puJetIDCutbasedLoose) 
+    else if (var==jet1puJetIDCutbasedLoose) 
         return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDCutbasedLoose;
-    else if (var==puJetIDCutbasedMedium) 
+    else if (var==jet1puJetIDCutbasedMedium) 
         return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDCutbasedMedium;
-    else if (var==puJetIDCutbasedTight) 
+    else if (var==jet1puJetIDCutbasedTight) 
         return static_cast<KDataPFTaggedJet*>( metaData.GetValidPrimaryJet(s, event) )->puJetIDCutbasedTight;
+
+
+    // jet 2 PU
+    else if (var==jet2puJetFull) 
+    {
+        if (metaData.GetValidJetCount(s, event) > 1)
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidJet(s, event, 1) )->puJetFull;
+        else return 0;
+    }
+    else if (var==jet2puJetIDFull)
+    {
+        if (metaData.GetValidJetCount(s, event) > 1)
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidJet(s, event, 1) )->puJetIDFull;
+        else return 0;
+    }
+    else if (var==jet2puJetIDFullLoose)
+    {
+        if (metaData.GetValidJetCount(s, event) > 1)
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidJet(s, event, 1) )->puJetIDFullLoose;
+        else return 0;
+    }
+    else if (var==jet2puJetIDFullMedium)
+    {
+        if (metaData.GetValidJetCount(s, event) > 1)
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidJet(s, event, 1) )->puJetIDFullMedium;
+        else return 0;
+    }
+    else if (var==jet2puJetIDFullTight)
+    {
+        if (metaData.GetValidJetCount(s, event) > 1)
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidJet(s, event, 1) )->puJetIDFullTight;
+        else return 0;
+    }
+    else if (var==jet2puJetCutbased) 
+    {
+        if (metaData.GetValidJetCount(s, event) > 1)
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidJet(s, event, 1) )->puJetCutbased;
+        else return 0;
+    }
+    else if (var==jet2puJetIDCutbased)
+    {
+        if (metaData.GetValidJetCount(s, event) > 1)
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidJet(s, event, 1) )->puJetIDCutbased;
+        else return 0;
+    }
+    else if (var==jet2puJetIDCutbasedLoose)
+    {
+        if (metaData.GetValidJetCount(s, event) > 1)
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidJet(s, event, 1) )->puJetIDCutbasedLoose;
+        else return 0;
+    }
+    else if (var==jet2puJetIDCutbasedMedium)
+    {
+        if (metaData.GetValidJetCount(s, event) > 1)
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidJet(s, event, 1) )->puJetIDCutbasedMedium;
+        else return 0;
+    }
+    else if (var==jet2puJetIDCutbasedTight)
+    {
+        if (metaData.GetValidJetCount(s, event) > 1)
+            return static_cast<KDataPFTaggedJet*>( metaData.GetValidJet(s, event, 1) )->puJetIDCutbasedTight;
+        else return 0;
+    }
 
 
 

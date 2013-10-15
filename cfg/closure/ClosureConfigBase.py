@@ -301,8 +301,10 @@ def treeconfig(conf, quantities=None):
                     "softmuonbjettag", "softmuonbyip3dbjettag",
                     "softmuonbyptbjettag", "simplesecondaryvertexbjettag",
                     "combinedsecondaryvertexbjettag", "combinedsecondaryvertexmvabjettag",
-                    "puJetFull", "puJetIDFull", "puJetIDFullLoose", "puJetIDFullMedium", "puJetIDFullTight",
-                    "puJetCutBased", "puJetIDCutBased", "puJetIDCutBasedLoose", "puJetIDCutBasedMedium", "puJetIDCutBasedTight",
+                    "jet1puJetFull", "jet1puJetIDFull", "jet1puJetIDFullLoose", "jet1puJetIDFullMedium", "jet1puJetIDFullTight",
+                    "jet1puJetCutBased", "jet1puJetIDCutBased", "jet1puJetIDCutBasedLoose", "jet1puJetIDCutBasedMedium", "jet1puJetIDCutBasedTight",
+                    "jet2puJetFull", "jet2puJetIDFull", "jet2puJetIDFullLoose", "jet2puJetIDFullMedium", "jet2puJetIDFullTight",
+                    "jet2puJetCutBased", "jet2puJetIDCutBased", "jet2puJetIDCutBasedLoose", "jet2puJetIDCutBasedMedium", "jet2puJetIDCutBasedTight",
                 ]
             if conf['InputType'] == 'mc':
                 pval['QuantitiesVector'] += [
