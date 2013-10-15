@@ -24,6 +24,11 @@ public:
 		if (inpType == McInput)
 		{
 			m_event.m_geneventmetadata = fi.Get<KGenEventMetadata>();
+			m_event.m_pthatbin = -2;  // sample reweighting might be enabled
+		}
+		else
+		{
+			m_event.m_pthatbin = -1;  // sample reweighting is off
 		}
 		WireEvent(phicorrection, tagged);
 		m_fi.SpeedupTree();
@@ -37,10 +42,11 @@ public:
 	// overwrite using template specialization
 	void WireEvent(bool phicorrection, bool tagged) {assert(false);}
 
-	virtual bool GotoEvent(long long lEvent, HLTTools* hltInfo)
+	virtual bool GotoEvent(long long lEvent, HLTTools* hltInfo, int sampleinit)
 	{
 		m_mon->Update();
 		m_fi.eventdata.GetEntry(lEvent);
+		m_event.m_pthatbin = sampleinit;
 
 		// this should be avoided, weights should be in skim!
 		if (m_event.m_pthatbin != -1)
@@ -68,8 +74,7 @@ public:
 			else if (boost::algorithm::contains(filename, "_Pt-300_"))
 				m_event.m_pthatbin = 9;
 			else
-				//if (boost::algorithm::contains(filename, "_Herwig_"))
-				CALIB_LOG_FATAL("nothing matches but sample weights expected: " << filename);
+				CALIB_LOG_FATAL("No pthat bin found but sample weights expected: " << filename << " (bin: " << m_event.m_pthatbin << ")");
 		}
 
 		if (m_prevRun != m_event.m_eventmetadata->nRun)

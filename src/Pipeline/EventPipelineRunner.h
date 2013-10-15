@@ -20,7 +20,7 @@ public:
 	virtual ~EventProvider() { }
 
 	virtual TEvent const& GetCurrentEvent() const = 0;
-	virtual bool GotoEvent( long long lEventNumber, HLTTools * hltInfo ) = 0;
+	virtual bool GotoEvent(long long lEventNumber, HLTTools* hltInfo, int sampleinit) = 0;
 	virtual long long GetOverallEventCount() const = 0;
 };
 
@@ -81,16 +81,19 @@ public:
 		if (settings.Global()->GetEventCount() >= 0)
 			nEvents = firstEvent + settings.Global()->GetEventCount();
 		if (firstEvent != 0 || nEvents != evtProvider.GetOverallEventCount())
-			CALIB_LOG(red << "Warning: Custom range of events: " << firstEvent << " to " << nEvents << reset)
+			CALIB_LOG(red << "Warning: Custom range of events: " << firstEvent << " to " << nEvents << reset);
 
-		CALIB_LOG("Running over " << nEvents << " Events")
+		CALIB_LOG("Running over " << nEvents << " Events");
 		HLTTools* hltTools = new HLTTools;
 		bool bEventValid = true;
+		int sampleinit = -1;
+		if (settings.Global()->GetEnableSampleReweighting())
+			sampleinit = -2;
 
 		for (long long i = firstEvent; i < nEvents; ++i)
 		{
 			// TODO refactor the evtProvider to clean up this mess with the hltTools
-			evtProvider.GotoEvent(i , hltTools);
+			evtProvider.GotoEvent(i , hltTools, sampleinit);
 			TMetaData metaDataGlobal;
 			metaDataGlobal.m_hltInfo = hltTools;
 
@@ -111,7 +114,7 @@ public:
 					CALIB_LOG("Event "
 							<< evtProvider.GetCurrentEvent().m_eventmetadata->nRun << ":"
 							<< evtProvider.GetCurrentEvent().m_eventmetadata->nLumi << ":"
-							<< evtProvider.GetCurrentEvent().m_eventmetadata->nEvent)
+							<< evtProvider.GetCurrentEvent().m_eventmetadata->nEvent);
 				for (PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
 				{
 					if (it->GetSettings().GetLevel() == 1)
@@ -119,7 +122,7 @@ public:
 						if (unlikely(nEvents - firstEvent < 5)) // debug output
 							CALIB_LOG("Event:" << i
 								<< ", new pipeline: " << it->GetSettings().ToString()
-								<< ", algorithm: " << it->GetSettings().GetJetAlgorithm())
+								<< ", algorithm: " << it->GetSettings().GetJetAlgorithm());
 						it->RunEvent(evtProvider.GetCurrentEvent(), metaDataGlobal);
 					}
 				}

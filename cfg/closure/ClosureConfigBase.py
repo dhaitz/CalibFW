@@ -418,7 +418,7 @@ def ApplySampleReweighting(conf, sample="herwig", referencelumi_fbinv=1.0):
         print "Please add them in ClosureConfigBase or do not use ApplySampleReweighting."
         exit(0)
 
-	result = [picobarn2femtobarn * referencelumi_fbinv * w for w in d[sample]]
+    result = [picobarn2femtobarn * referencelumi_fbinv * w for w in d[sample]]
     conf["EnableSampleReweighting"] = True
     conf["SampleWeight"] = result
     return conf
