@@ -1,17 +1,23 @@
-      ______     ___       __       __   ______    ___________    __    ____
-     /      |   /   \     |  |     |  | |   _  \  |   ____\   \  /  \  /   /
-    |  ,----'  /  ^  \    |  |     |  | |  |_)  | |  |__   \   \/    \/   /
-    |  |      /  /_\  \   |  |     |  | |   _  <  |   __|   \            /
-    |  `----./  _____  \  |  `----.|  | |  |_)  | |  |       \    /\    /
-     \______/__/     \__\ |_______||__| |______/  |__|        \__/  \__/
-    
-         A sophisticated framework for jet energy calibration studies.
+  _______ ___   ___  ______      ___       __       __  .______    __    __  .______
+ |   ____|\  \ /  / /      |    /   \     |  |     |  | |   _  \  |  |  |  | |   _  \
+ |  |__    \  V  / |  ,----'   /  ^  \    |  |     |  | |  |_)  | |  |  |  | |  |_)  |
+ |   __|    >   <  |  |       /  /_\  \   |  |     |  | |   _  <  |  |  |  | |      /
+ |  |____  /  .  \ |  `----. /  _____  \  |  `----.|  | |  |_)  | |  `--'  | |  |\  \----.
+ |_______|/__/ \__\ \______|/__/     \__\ |_______||__| |______/   \______/  | _| `._____|
+                                                                      (previously CalibFW)
+                   (O)
+                   <M       The mighty broadsword of cut-based jet studies
+        o          <M
+       /| ......  /:M\------------------------------------------------,,,,,,
+     (O)[]XXXXXX[]I:K+}=====<{H}>================================------------>
+       \| ^^^^^^  \:W/------------------------------------------------''''''
+        o          <W
+                   <W
+                   (O)                 Calibrate like a king!
 
 --------------------------------------------------------------------------------
 
-*Xcalibur Excalibur*
-
-*CalibFW* provides a complete workflow for calibration studies, namely covering
+*Excalibur* provides a complete workflow for calibration studies, namely covering
 the following steps:
 
    1. Skimming: Creating a *Kappa* output file with CMSSW
@@ -25,8 +31,8 @@ Please also see the following pages:
 - http://www-ekp.physik.uni-karlsruhe.de/twiki/bin/view/EkpCms/Zmumujetanalysis
   for an overview on the Z->mumu+jet analysis
 
-- https://ekptrac.physik.uni-karlsruhe.de/trac/CalibFW/wiki
-  for information and installation of *CalibFW*
+- https://ekptrac.physik.uni-karlsruhe.de/trac/Excalibur/wiki
+  for information and installation of *Excalibur*
 
 
 1. Skimming: How to create Kappa files
@@ -45,8 +51,8 @@ executable.
 
 
 ## Setting the environment
-CMSSW must be sourced. Set `$CLOSURE_WORK` path (e.g. `/storage/a/$USER/CalibFW`)
-and execute `scripts/ClosureEnv.sh` from your main CalibFW directory.
+CMSSW must be sourced. Set `$CLOSURE_WORK` path (e.g. `/storage/a/$USER/Excalibur`)
+and execute `scripts/ClosureEnv.sh` from your main Excalibur directory.
 
 
 ## Basic structure of the config file
@@ -122,7 +128,7 @@ For example, to extend the alpha range from 0.2 to 0.3 you have to use
 
 
 ## Make your own functions
-To make use of the full power of the CalibFW plotting framework, you are advised
+To make use of the full power of the Excalibur plotting framework, you are advised
 to base your custom functions on the `datamcplot()` function. Examples can be
 found in the `plotting/plot_sandbox.py` file.
 
