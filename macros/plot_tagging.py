@@ -5,12 +5,12 @@ import plot2d
 import numpy as np
 import copy
 
-taggers = ["qgtag", "qgmlp", "trackcountinghigheffbjettag",
-                "trackcountinghighpurbjettag", "jetprobabilitybjettag",
-                "jetbprobabilitybjettag", "softelectronbjettag",
-                "softmuonbjettag", "softmuonbyip3dbjettag",
-                "softmuonbyptbjettag", "simplesecondaryvertexbjettag",
-                "combinedsecondaryvertexbjettag", 
+taggers = ["qgtag",# "qgmlp", "trackcountinghigheffbjettag",
+                #"trackcountinghighpurbjettag", "jetprobabilitybjettag",
+                #"jetbprobabilitybjettag", "softelectronbjettag",
+                #"softmuonbjettag", "softmuonbyip3dbjettag",
+                #"softmuonbyptbjettag", "simplesecondaryvertexbjettag",
+                #"combinedsecondaryvertexbjettag", 
                 "btag"]
 flavourdef = 'physflavour'
 selections = ['(%s >0 && %s < 4)' % (flavourdef, flavourdef),
@@ -19,10 +19,10 @@ titles = ['uds', 'c', 'b', 'gluon']
 label_extended = ['uds  ', 'c    ', 'b    ', 'gluon']
 response = 'mpf'
 
-zones = ['(btag<0.1 && qgtag>0.95   && btag>-1 && qgtag>-1)',
-        '(btag<0.8 && btag>0.4  &&  qgtag>0.2   && btag>-1 && qgtag>-1)',
-        '(btag>0.9   && btag>-1 && qgtag>-1)',
-        '(btag<0.1 && qgtag<0.05   && btag>-0.5 && qgtag>-0.5)'
+zones = ['(btag<0.3 && qgtag>0.9   && btag>-1 && qgtag>-1)', # uds
+        '(btag<0.9 && btag>0.7     && btag>-1 && qgtag>-1)', # c
+        '(btag>0.9   && btag>-1 && qgtag>-1)',               # b
+        '(btag<0.3 && qgtag<0.1   && btag>-1 && qgtag>-1)'   # g
         ]
 colors = ['#236BB2', '#CC2828', '#458E2F', '#E5AD3D']
 
