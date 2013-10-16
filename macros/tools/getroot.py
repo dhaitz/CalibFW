@@ -145,30 +145,42 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
             if key in quantity:
                 quantities[i] = quantities[i].replace(key, dictconvert(key))
 
+    #determine the type of histogram to be created
     if len(quantities)==1:
+        histtype = 'TH1D'
+    elif len(quantities)==2 and twoD:
+        histtype = 'TH2D'
+    elif len(quantities)==2 and not twoD:
+        histtype = 'TProfile'
+    elif len(quantities)==3:
+        histtype = 'TProfile2D'
+
+    if settings['verbose']:
+        plotbase.debug("Creating a %s with the following selection:\n   %s" % (histtype, settings['selection']))
+
+    if histtype == 'TH1D':
         if settings['special_binning']:
             rootobject = ROOT.TH1D(name, nickname, bins[0], bin_array)
         else:
             rootobject = ROOT.TH1D(name, nickname, bins[0], settings['x'][0], settings['x'][1])
         ntuple.Project(name, "%s" % quantities[0], settings['selection'])
-    elif len(quantities)==2:
-        if twoD:
-            rootobject = ROOT.TH2D(name, nickname, bins[0], settings['x'][0],settings['x'][1], 
-                                                        bins[1], settings['y'][0], settings['y'][1])
-            ntuple.Project(name, "%s:%s" % (quantities[0],
-                                           quantities[1]), settings['selection'])
-            # also print the correlation:
-            print "Correlation between %s and %s in %s in the selected range:  %1.5f" % (quantities[1], 
-                            quantities[0], rootfile.GetName().split("/")[-3], 
-                                          rootobject.GetCorrelationFactor())
+    elif histtype == 'TH2D':
+        rootobject = ROOT.TH2D(name, nickname, bins[0], settings['x'][0],settings['x'][1], 
+                                                    bins[1], settings['y'][0], settings['y'][1])
+        ntuple.Project(name, "%s:%s" % (quantities[0],
+                                       quantities[1]), settings['selection'])
+        # also print the correlation:
+        print "Correlation between %s and %s in %s in the selected range:  %1.5f" % (quantities[1], 
+                        quantities[0], rootfile.GetName().split("/")[-3], 
+                                      rootobject.GetCorrelationFactor())
+    elif histtype == 'TProfile':
+        if settings['special_binning']:
+            rootobject = ROOT.TProfile(name, nickname, bins[0], bin_array)
         else:
-            if settings['special_binning']:
-                rootobject = ROOT.TProfile(name, nickname, bins[0], bin_array)
-            else:
-                rootobject = ROOT.TProfile(name, nickname, bins[0], settings['x'][0],settings['x'][1])
-            ntuple.Project(name, "%s:%s" % (quantities[0],
-                                                 quantities[1]), settings['selection'])
-    elif len(quantities)==3:
+            rootobject = ROOT.TProfile(name, nickname, bins[0], settings['x'][0],settings['x'][1])
+        ntuple.Project(name, "%s:%s" % (quantities[0],
+                                             quantities[1]), settings['selection'])
+    elif histtype == 'TProfile2D':
         rootobject = ROOT.TProfile2D(name, nickname, bins[0], settings['x'][0],settings['x'][1], 
                                                     bins[1], settings['y'][0], settings['y'][1])
         ntuple.Project(name, "%s:%s:%s" % (quantities[0],
