@@ -162,8 +162,7 @@ def SetMcSpecific(cfg, run='2012'):
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
 
-    cfg['GlobalProducer'] += ['jet_matcher',
-        'gen_producer', 'gen_balance_producer', 'gen_dibalance_producer']
+    cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer']
     return cfg
 
 
