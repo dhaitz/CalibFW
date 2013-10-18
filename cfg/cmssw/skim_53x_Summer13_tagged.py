@@ -11,7 +11,7 @@ def getBaseConfig(globaltag, testfile="", maxevents=0, datatype='data'):
     data = (datatype == 'data')
     if data: 
         testfile = 'file:/storage/8/dhaitz/testfiles/data_AOD_2012A.root'
-        if '@' in globaltag: globaltag = 'FT53_V21A_AN5'
+        if '@' in globaltag: globaltag = 'FT53_V21A_AN6'
         maxevents = maxevents or 100
     else:
         testfile = 'file:/storage/6/berger/testfiles/mc_DYJets_V7D-v2.root' #/storage/8/dhaitz/testfiles/mc_RECO_madgraph.root'
