@@ -14,6 +14,7 @@ from dictionaries import d_plots
 import plotresponse
 import copy
 
+
 def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     """Template for all data/MC comparison plots for basic quantities."""
 
@@ -82,7 +83,7 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
             elif (f.ysum()!=0 and datamc[0].ysum()!=0):
                 scalefactor = datamc[0].ysum() / f.ysum()
                 f.scale(scalefactor)
-            elif settings['lumi'] !=None:
+            elif settings['lumi'] != None:
                 f.scale(opt.lumi)
 
         if s=='f':
@@ -138,6 +139,13 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
             ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in datamc) * 2)
             ax.set_yscale('log')
             plotbase.Save(fig, settings['filename'] + '_log', opt)
+
+
+try:
+	datamcplot = profile(datamcplot)
+except NameError:
+	pass  # not running with profiler, that's ok.
+
 
 def getPUindata(version=''):
     """Estimated pile-up distributions in data
