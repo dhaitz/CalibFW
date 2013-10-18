@@ -291,11 +291,14 @@ def options(
     axis.add_argument('--xticks', type=float, nargs='+', default=None,
         help="add custom xticks")
 
+    # Other options
     group = parser.add_argument_group('Other options')
     group.add_argument('-v', '--verbose', action='store_true',
         help="verbosity")
     group.add_argument('--list', action='store_true',
         help="Show a list of the available predefined functions with docstrings")
+    group.add_argument('--quantities', action='store_true',
+        help="Show a list of the available quantities in the NTuple in each file")
 
 
     opt = parser.parse_args()
@@ -367,6 +370,39 @@ def printfunctions(module_list):
                 print "\033[93m  %s \033[0m" % elem[0]
                 if (elem[1].__doc__ is not None):
                     print "     ", elem[1].__doc__
+
+def printquantities(files, opt):
+    quantities = {}
+    treename = "_".join([opt.folder, opt.algorithm+opt.correction])
+
+    for f, name in zip(files, opt.labels):
+        quantities[name] = []
+
+        # Get the ntuple
+        ntuple = f.Get(treename)
+        if not ntuple and "Res" in treename:
+            ntuple = f.Get(treename.replace("Res", ""))
+
+        # Get the list of quantities from the ntuple
+        for branch in ntuple.GetListOfBranches():
+            quantities[name] += [branch.GetTitle()]
+        quantities[name] = set(quantities[name])
+
+    # Print the list of quantities present in ALL Ntuples
+    common_set = quantities[quantities.keys()[0]]
+    for name in quantities.keys()[1:]:
+        common_set = common_set.intersection(quantities[name])
+    print '\033[92m%s\033[0m' % "Quantities in ALL files:"
+    for q in sorted(common_set, key=lambda v: (v.upper(), v[0].islower())):
+        print "  %s" % q
+
+    # Print the list of quantities that are present only in specific files
+    for name in quantities.keys():
+        quantities[name] =  quantities[name].difference(common_set)
+        if len(quantities[name]) > 0:
+            print '\033[92m%s\033[0m' % "Quantities only in '%s' file:" % name
+            for q in sorted(quantities[name], key=lambda v: (v.upper(), v[0].islower())):
+                print "  %s" % q
 
 
 def get_selection(settings):
@@ -706,6 +742,10 @@ if __name__ == "__main__":
     for f in op.files:
         print "Using as file", 1+op.files.index(f) ,":" , f
         files += [getroot.openfile(f, op.verbose)]
+
+    if op.quantities:
+        printquantities(files, op)
+        sys.exit()
 
     plot(module_list, op.plots, files, op)
 
