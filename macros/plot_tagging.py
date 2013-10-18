@@ -61,11 +61,13 @@ def tagging_truthflavour(files, opt):
 
 def tagging_2D(files, opt):
     """2D plots of the btag and qgtag distribution."""
-    for selection, title in zip(selections, titles):
-        changes = {'selection':'%s' % selection, 'labels':[title], 
-                    'filename':"2D_%s" % title, 'rebin':10,
-                'lumi':0}
-        plot2d.twoD('qgtag_btag', files[1:], opt, changes=changes)
+    for rebin in [1, 10]:
+        for selection, title in zip(selections, titles):
+            changes = {#'selection':'%s' % selection,
+                         'labels':['Fraction of %s' % title],
+                        'filename':"2D_%s_%s" % (title, rebin), 'rebin':rebin,
+                    'lumi':0}
+            plot2d.twoD('%s_qgtag_btag' % selection, files[1:], opt, changes=changes)
 
     
 def tagging_mpf(files, opt):
