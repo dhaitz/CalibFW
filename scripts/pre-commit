@@ -22,7 +22,7 @@ do
 		if [ "$R" != "0" ]
 		then 
 			if [ $COUNT -eq 0 ]; then echo "Please check these files for coding convention:"; fi
-			pep8 --ignore=$PEPIGNORE $F
+			pep8 -r --ignore=$PEPIGNORE $F
 			let COUNT++
 		fi
 		
