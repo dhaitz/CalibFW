@@ -33,17 +33,23 @@ from labels import getaxislabels_list as getaxis
 from dictionaries import ntuple_dict
 
 
-ROOT.PyConfig.IgnoreCommandLineOptions = True #prevents Root from reading argv
+ROOT.PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
 
 
 def ptcuts(ptvalues):
     return ["{0}<=zpt && zpt<{1}".format(*b) for b in zip(ptvalues[:-1], ptvalues[1:])]
+
+
 def npvcuts(npvvalues):
     return ["{0}<=npv && npv<={1}".format(*b) for b in npvvalues]
+
+
 def etacuts(etavalues):
     return ["{0}<=jet1abseta && jet1abseta<{1}".format(*b) for b in zip(etavalues[:-1], etavalues[1:])]
+
+
 def alphacuts(alphavalues):
-    return ["alpha<%1.2f"  % b for b in alphavalues]
+    return ["alpha<%1.2f" % b for b in alphavalues]
 
 
 def openfile(filename, verbose=False, exitonfail=True):
@@ -87,13 +93,13 @@ def getplotfromtree(nickname, rootfile, settings, twoD=False, changes=None):
 
 
 def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
-    """This function returns a root object 
+    """This function returns a root object
 
     """
     settings = plotbase.apply_changes(settings, changes)
 
     # get the tree:
-    treename = "_".join([settings['folder'], settings['algorithm']+settings['correction']])
+    treename = "_".join([settings['folder'], settings['algorithm'] + settings['correction']])
     ntuple = rootfile.Get(treename)
     # for MC, we can use L1L2L3 if L1L2L3Res is specified:
     if not ntuple and "Res" in treename:
@@ -104,8 +110,8 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
     #for npv we need bins with width=1
     bins = []
     for quantity, limits in zip(quantities[::-1], [settings['x'], settings['y']]):
-        if quantity == 'npv': 
-            bins +=  [int(limits[1] - limits[0])]
+        if quantity == 'npv':
+            bins += [int(limits[1] - limits[0])]
         else:
             bins += [100]
 
@@ -113,17 +119,17 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
     # TODO make this dependent on the list in "opt" !
     bin_dict = {
         'zpt': settings['bins'],
-        'jet1abseta':settings['eta'],
-        'jet1eta':[-elem for elem in settings['eta'][1:][::-1]]+settings['eta'],
-        'npv':[a-0.5 for a,b in settings['npv']]+[settings['npv'][-1][1]-0.5]
+        'jet1abseta': settings['eta'],
+        'jet1eta': [-elem for elem in settings['eta'][1:][::-1]] + settings['eta'],
+        'npv': [a - 0.5 for a, b in settings['npv']] + [settings['npv'][-1][1] - 0.5]
     }
 
     if settings['special_binning'] and quantities[-1] in bin_dict:
         bin_array = array.array('d', bin_dict[quantities[-1]])
-        bins[0] = len(bin_dict[quantities[-1]])-1
+        bins[0] = len(bin_dict[quantities[-1]]) - 1
 
     name = nickname + rootfile.GetName()
-    name = name.replace("/","").replace(")","").replace("(","")
+    name = name.replace("/", "").replace(")", "").replace("(", "")
 
     rootfile.Delete("%s;*" % name)
 
@@ -137,7 +143,7 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
     if settings['selection'] not in [None, "", False]:
         selection += [settings['selection']]
     if len(selection) > 0:
-        settings['selection'] =   "weight * (%s)" % " && ".join(selection) 
+        settings['selection'] = "weight * (%s)" % " && ".join(selection)
     else:
         settings['selection'] = "weight"
 
@@ -145,20 +151,20 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
     copy_of_quantities = quantities
     for key in ntuple_dict.keys():
         if key in settings['selection']:
-            settings['selection'] = settings['selection'].replace(key, 
+            settings['selection'] = settings['selection'].replace(key,
                                                             dictconvert(key))
         for quantity, i in zip(copy_of_quantities, range(len(copy_of_quantities))):
             if key in quantity:
                 quantities[i] = quantities[i].replace(key, dictconvert(key))
 
     #determine the type of histogram to be created
-    if len(quantities)==1:
+    if len(quantities) == 1:
         histtype = 'TH1D'
-    elif len(quantities)==2 and twoD:
+    elif len(quantities) == 2 and twoD:
         histtype = 'TH2D'
-    elif len(quantities)==2 and not twoD:
+    elif len(quantities) == 2 and not twoD:
         histtype = 'TProfile'
-    elif len(quantities)==3:
+    elif len(quantities) == 3:
         histtype = 'TProfile2D'
 
     if settings['verbose']:
@@ -171,21 +177,19 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
             rootobject = ROOT.TH1D(name, nickname, bins[0], settings['x'][0], settings['x'][1])
         ntuple.Project(name, "%s" % quantities[0], settings['selection'])
     elif histtype == 'TH2D':
-        rootobject = ROOT.TH2D(name, nickname, bins[0], settings['x'][0],settings['x'][1], 
+        rootobject = ROOT.TH2D(name, nickname, bins[0], settings['x'][0],settings['x'][1],
                                                     bins[1], settings['y'][0], settings['y'][1])
-        ntuple.Project(name, "%s:%s" % (quantities[0],
-                                       quantities[1]), settings['selection'])
+        ntuple.Project(name, "%s:%s" % (quantities[0], quantities[1]), settings['selection'])
         # also print the correlation:
-        print "Correlation between %s and %s in %s in the selected range:  %1.5f" % (quantities[1], 
-                        quantities[0], rootfile.GetName().split("/")[-3], 
+        print "Correlation between %s and %s in %s in the selected range:  %1.5f" % (quantities[1],
+                        quantities[0], rootfile.GetName().split("/")[-3],
                                       rootobject.GetCorrelationFactor())
     elif histtype == 'TProfile':
         if settings['special_binning']:
             rootobject = ROOT.TProfile(name, nickname, bins[0], bin_array)
         else:
-            rootobject = ROOT.TProfile(name, nickname, bins[0], settings['x'][0],settings['x'][1])
-        ntuple.Project(name, "%s:%s" % (quantities[0],
-                                             quantities[1]), settings['selection'])
+            rootobject = ROOT.TProfile(name, nickname, bins[0], settings['x'][0], settings['x'][1])
+        ntuple.Project(name, "%s:%s" % (quantities[0], quantities[1]), settings['selection'])
     elif histtype == 'TProfile2D':
         rootobject = ROOT.TProfile2D(name, nickname, bins[0], settings['x'][0],settings['x'][1], 
                                                     bins[1], settings['y'][0], settings['y'][1])
@@ -220,10 +224,10 @@ def getobject(name, rootfile, changes={}, exact=True, selection=""):
     not the MC version without 'Res' but it is not at the moment (strict version)
     """
     oj = rootfile.Get(name)
-    if not oj and "Res" in name: # and not exact
+    if not oj and "Res" in name:  # and not exact
         oj = rootfile.Get(name.replace("Res", ""))
     if not oj:
-        quantity = name[name.find("/")+1:name.find("_AK")]
+        quantity = name[name.find("/") + 1:name.find("_AK")]
         oj = getobjectfromtree(quantity, rootfile, changes, selection=selection)
     if not oj:
         print "Can't load object", name, "from root file", rootfile.GetName()
@@ -262,11 +266,12 @@ def getobjectname(quantity='z_mass', change={}):
     hst = hst.replace('_<quantity>', '/' + quantity)
     return hst
 
+
 def saveasroot(rootobjects, opt, settings):
     filename = opt.out + "/%s.root" % settings['filename']
     f = ROOT.TFile(filename, "UPDATE")
     for rgraph, name in zip(rootobjects, settings['labels']):
-        plotname = settings['root']#"_".join([settings['root'], name])
+        plotname = settings['root']  # "_".join([settings['root'], name])
         print "Saving %s in ROOT-file %s" % (plotname, filename)
         rgraph.SetTitle(plotname)
         rgraph.SetName(plotname)
@@ -317,16 +322,16 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.title = histo.GetTitle()
         hst.xlabel = histo.GetXaxis().GetTitle()
         hst.ylabel = histo.GetYaxis().GetTitle()
-        for x in range(1, histo.GetNbinsX()+1):
+        for x in range(1, histo.GetNbinsX() + 1):
             hst.x.append(histo.GetBinLowEdge(x))
             hst.xc.append(histo.GetBinCenter(x))
             hst.xerr.append(histo.GetBinWidth(x) / 2.0)
         a = np.zeros(shape=(histo.GetNbinsY(), histo.GetNbinsX()))
         hst.BinContents = np.ma.masked_equal(a, 0.0)
-        for y in range(1, histo.GetNbinsY()+1):
-            for x in range(1, histo.GetNbinsX()+1):
-                if (histo.ClassName() != 'TProfile2D') or histo.GetBinEntries(histo.GetBin(x,y)) > 0:
-                    hst.BinContents[y-1,x-1] = histo.GetBinContent(x,y)
+        for y in range(1, histo.GetNbinsY() + 1):
+            for x in range(1, histo.GetNbinsX() + 1):
+                if (histo.ClassName() != 'TProfile2D') or histo.GetBinEntries(histo.GetBin(x, y)) > 0:
+                    hst.BinContents[y - 1, x - 1] = histo.GetBinContent(x, y)
             hst.y.append(histo.GetYaxis().GetBinLowEdge(y))
             hst.yc.append(histo.GetYaxis().GetBinCenter(y))
             hst.yerr.append(histo.GetYaxis().GetBinWidth(y) / 2.0)
@@ -361,9 +366,10 @@ def root2histo(histo, rootfile='', rebin=1):
         exit(0)
     return hst
 
+
 def rootdivision(rootobjects):
     #convert TProfiles into TH1Ds because ROOT cannot correctly divide TProfiles
-    if (rootobjects[0].ClassName() != 'TH1D' and 
+    if (rootobjects[0].ClassName() != 'TH1D' and
            rootobjects[1].ClassName() != 'TH1D'):
         rootobjects[0] = ROOT.TH1D(rootobjects[0].ProjectionX())
         rootobjects[1] = ROOT.TH1D(rootobjects[1].ProjectionX())
@@ -374,12 +380,13 @@ def rootdivision(rootobjects):
 
     #account for error in empty bins:
     for n in range(rootobjects[0].GetNbinsX()):
-        if ((rootobjects[0].GetBinError(n) < 1e-3 
-                                and rootobjects[0].GetBinContent(n) > 0.1) 
+        if ((rootobjects[0].GetBinError(n) < 1e-3
+                                and rootobjects[0].GetBinContent(n) > 0.1)
                                 or rootobjects[0].GetBinContent(n) > 1.15):
             rootobjects[0].SetBinError(n, 0.1)
 
     return(rootobjects[0])
+
 
 class Histo:
     """Reduced Histogramm or Graph
@@ -404,7 +411,6 @@ class Histo:
         self.meanerr = 0.0
         self.RMS = 0.0
         self.RMSerr = 0.0
-
 
     def __len__(self):
         return len(self.y)
@@ -453,13 +459,12 @@ class Histo:
         if len(self) != len(other):
             print "Histos of different lengths! The shorter is taken."
         res = Histo()
-        res.x = [0.5*(a+b) for a, b in zip(self.x, other.x)]
-        res.xc = [0.5*(a+b) for a, b in zip(self.xc, other.xc)]
-        res.y = [a / b if b != 0 else 0. for a,b in zip(self.y, other.y)]
-        res.xerr = [0.5*(abs(da)+abs(db)) for da, db in zip(self.xerr, other.xerr)]
-        res.yerr = [abs(da/b)+abs(db*a/b/b) if b != 0 else 0. for a, da, b, db in zip(self.y, self.yerr, other.y, other.yerr)]
+        res.x = [0.5 * (a + b) for a, b in zip(self.x, other.x)]
+        res.xc = [0.5 * (a + b) for a, b in zip(self.xc, other.xc)]
+        res.y = [a / b if b != 0 else 0. for a, b in zip(self.y, other.y)]
+        res.xerr = [0.5 * (abs(da) + abs(db)) for da, db in zip(self.xerr, other.xerr)]
+        res.yerr = [abs(da / b) + abs(db * a / b / b) if b != 0 else 0. for a, da, b, db in zip(self.y, self.yerr, other.y, other.yerr)]
         return res
-
 
     def read(self, filename):
         """Read the histogram from a text file
@@ -558,6 +563,7 @@ class Histo:
             ax.plot(self.x, self.y)
         fig.savefig(filename)
 
+
 def getValue(line, key):
     value = line[line.rfind(key) + len(key):line.rfind('\n')]
     value = str.strip(value)
@@ -566,6 +572,7 @@ def getValue(line, key):
         return val
     except:
         return value
+
 
 class Histo2D(Histo):
     def __init__(self):
@@ -589,6 +596,7 @@ class Histo2D(Histo):
     def maxBin(self):
         a = max([max(l) for l in self.BinContents])
         return a
+
 
 class Fitfunction:
     """For now this can only handle linear functions intended for extrapolation"""
@@ -614,8 +622,8 @@ class Fitfunction:
         pass
 
     def __str__(self):
-        return "y = %s \n  Parameters: x = %s, y = %s, yerr = %s\n  Fit: chi2 / ndf = %1.5f / %d" %(
-            (self.function).replace('(y1-y0)/(x1-x0)', str(float(self.y[1]-self.y[0])/(self.x[1]-self.x[0]))).replace('y0', str(self.y[0])),
+        return "y = %s \n  Parameters: x = %s, y = %s, yerr = %s\n  Fit: chi2 / ndf = %1.5f / %d" % (
+            (self.function).replace('(y1-y0)/(x1-x0)', str(float(self.y[1] - self.y[0]) / (self.x[1] - self.x[0]))).replace('y0', str(self.y[0])),
             str(self.x),
             str(self.y),
             str(self.yerr),
@@ -626,22 +634,22 @@ class Fitfunction:
         return len(self.y)
 
     def f(self, x):
-        return float(self.y[1]-self.y[0])/(self.x[1]-self.x[0])*x + float(self.y[0])
+        return float(self.y[1] - self.y[0]) / (self.x[1] - self.x[0]) * x + float(self.y[0])
 
     def ferr(self, x):
-        result = float(self.yerr[1]-self.yerr[0])/(self.x[1]-self.x[0])*x + float(self.yerr[0])
+        result = float(self.yerr[1] - self.yerr[0]) / (self.x[1] - self.x[0]) * x + float(self.yerr[0])
         assert result >= 0
         return result
 
     def k(self):
-        return float(self.y[0]/self.f(0.2))
+        return float(self.y[0] / self.f(0.2))
 
     def kerr(self):
         return float(self.yerr[0]) / self.f(0.2) - self.y[0] / self.f(0.2) / self.f(0.2) * self.ferr(0.2)
 
     def plotx(self, left=0.0, right=0.34):
         assert left < right
-        return [left + x / 100.0 for x in range((right-left)*100)]
+        return [left + x / 100.0 for x in range((right - left) * 100)]
 
     def ploty(self, left=0.0, right=0.34):
         assert left < right
@@ -670,8 +678,9 @@ def dividegraphs(graph1, graph2):
         else:
             result.SetPoint(i, 0.5 * (x1 + x2), y1 / y2)
             result.SetPointError(i, 0.5 * (abs(dx1) + abs(dx2)),
-                abs(y1 / y2) * math.sqrt((dy1 / y1)**2 + (dy2 / y2)**2))
+                abs(y1 / y2) * math.sqrt((dy1 / y1) ** 2 + (dy2 / y2) ** 2))
     return result
+
 
 def getgraphpoint(graph, i):
         a = ROOT.Double(0.0)
@@ -682,7 +691,7 @@ def getgraphpoint(graph, i):
 
 def histo2root(plot):
     """Convert a Histo object to a root histogram (TH1D)"""
-    title = plot.title + ";" #+ plot.xlabel() + ";" + plot.ylabel()
+    title = plot.title + ";"  # + plot.xlabel() + ";" + plot.ylabel()
     print len(plot), title
     print min(plot.x), max(plot.x)
     th1d = ROOT.TH1D(plot.name, title, len(plot), min(plot.x), max(plot.x))
@@ -691,8 +700,8 @@ def histo2root(plot):
         print histo, "is no Histo. It could not be converted."
         exit(0)
     for i in range(0, len(plot)):
-            th1d.SetBinContent(i+1, plot.y[i])
-            th1d.SetBinError(i+1, plot.yerr[i])
+            th1d.SetBinContent(i + 1, plot.y[i])
+            th1d.SetBinError(i + 1, plot.yerr[i])
             #th1d.SetBin(i, plot.x[i])
             #th1d.SetBinWidth(i, plot.xerr[i]/2)
             #th1d.SetBinCenter(i, plot.xc[i])
@@ -707,7 +716,6 @@ def writePlotToRootfile(plot, filename, plotname=None):
         f = ROOT.TFile("file.root", "RECREATE")
         histo.Write()
         f.Close()
-        
 
 
 def getgraph(x, y, f, opt, settings, changes=None, key='var', var=None, drop=True, root=True, median=False, absmean=False):
@@ -725,22 +733,21 @@ def getgraph(x, y, f, opt, settings, changes=None, key='var', var=None, drop=Tru
         f1 = f
         f2 = None
 
-    settings['special_binning']=True
-    settings['rebin']=1
+    settings['special_binning'] = True
+    settings['rebin'] = 1
 
     settings['x'] = plotbase.getaxislabels_list(x)[:2]
-    xvals = getplotfromtree('_'.join([x,x]), f, settings) 
+    xvals = getplotfromtree('_'.join([x, x]), f, settings)
     settings['x'] = plotbase.getaxislabels_list(y)[:2]
-    yvals = getplotfromtree('_'.join([y,x]), f, settings)
+    yvals = getplotfromtree('_'.join([y, x]), f, settings)
 
     graph = ROOT.TGraphErrors()
 
-    for i, x, y, xerr, yerr in zip(range(len(yvals.y)-1), xvals.y, yvals.y, xvals.yerr, yvals.yerr):
+    for i, x, y, xerr, yerr in zip(range(len(yvals.y) - 1), xvals.y, yvals.y, xvals.yerr, yvals.yerr):
         graph.SetPoint(i, x, y)
         graph.SetPointError(i, xerr, yerr)
 
     return graph
-
 
 
 def getgraphratio(x, y, f1, f2, opt, settings, changes={}, key='var', var=None, drop=True, median=False, absmean=False):
@@ -762,16 +769,17 @@ def histomedian(histo):
         y += [ROOT.Double(histo.GetBinContent(i))]
     assert len(x) == len(y)
     assert len(x) == nBins
-    x=array.array('d', x)
-    y=array.array('d', y)
+    x = array.array('d', x)
+    y = array.array('d', y)
 
     return ROOT.TMath.Median(nBins, x, y)
+
 
 def histoabsmean(histo):
     absEta = histo.Clone()
     n = absEta.GetNbinsX()       # 200
     assert n % 2 == 0
-    for i in range(1, n/2+1):    # 1..100 : 200..101
-        absEta.SetBinContent(n+1-i, histo.GetBinContent(i) + histo.GetBinContent(n - i + 1))
+    for i in range(1, n / 2 + 1):    # 1..100 : 200..101
+        absEta.SetBinContent(n + 1 - i, histo.GetBinContent(i) + histo.GetBinContent(n - i + 1))
         absEta.SetBinContent(i, 0)
-    return absEta.GetMean();
+    return absEta.GetMean()

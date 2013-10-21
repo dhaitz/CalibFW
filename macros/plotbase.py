@@ -18,13 +18,14 @@ import argparse
 import inspect
 import math
 from ROOT import gROOT, PyConfig
-PyConfig.IgnoreCommandLineOptions = True #prevents Root from reading argv
+PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
 gROOT.SetBatch(True)
 
 # include the 'tools' subfolder:
 cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(
-                        inspect.getfile( inspect.currentframe() ))[0],"tools")))
-if cmd_subfolder not in sys.path: sys.path.insert(0, cmd_subfolder)
+                        inspect.getfile(inspect.currentframe()))[0], "tools")))
+if cmd_subfolder not in sys.path:
+    sys.path.insert(0, cmd_subfolder)
 
 import plotrc
 import plotdatamc
@@ -56,16 +57,16 @@ def plot(modules, plots, datamc, op):
             print "Nothing to do. Please list the plots you want!"
             plots = []
         for p in plots:
-            if hasattr(module, p):    #plot directly as a function
+            if hasattr(module, p):    # plot directly as a function
                 print "Doing %s in %s" % (p, module.__name__)
                 getattr(module, p)(datamc, op)
                 remaining_plots.remove(p)
-            elif module == plotdatamc and p in d_plots:    #if no function available, try dictionary
-                print "New plot: (from dictionary)", p, 
+            elif module == plotdatamc and p in d_plots:    # if no function available, try dictionary
+                print "New plot: (from dictionary)", p,
                 plotdatamc.plotfromdict(datamc, op, p)
                 remaining_plots.remove(p)
         if op != startop:
-            whichfunctions += [p+" in "+module.__name__]
+            whichfunctions += [p + " in " + module.__name__]
         if op.verbose:
             print "%1.2f | End" % clock()
     # remaining plots are given to the function_selector
@@ -101,19 +102,19 @@ def function_selector(plots, datamc, opt):
             plotdatamc.datamc_all(plot[:-4], datamc, opt)
 
         # for responseratio-plots
-        elif 'responseratio' in plot and len(plot.split('_'))>2:
+        elif 'responseratio' in plot and len(plot.split('_')) > 2:
             #plot = plot.replace('bal','balresp')
-            plotresponse.responseratio(datamc, opt, 
+            plotresponse.responseratio(datamc, opt,
                             types=plot.split('_responseratio_')[0].split('_'),
                             over=plot.split('_responseratio_')[1])
-        elif 'response' in plot and len(plot.split('_'))>2:
-            plot = plot.replace('bal','balresp')
-            plotresponse.responseplot(datamc, opt, 
+        elif 'response' in plot and len(plot.split('_')) > 2:
+            plot = plot.replace('bal', 'balresp')
+            plotresponse.responseplot(datamc, opt,
                             types=plot.split('_response_')[0].split('_'),
                             over=plot.split('_response_')[1])
-        elif 'ratio' in plot and len(plot.split('_'))>2:
-            plot = plot.replace('bal','balresp')
-            plotresponse.ratioplot(datamc, opt, 
+        elif 'ratio' in plot and len(plot.split('_')) > 2:
+            plot = plot.replace('bal', 'balresp')
+            plotresponse.ratioplot(datamc, opt,
                             types=plot.split('_ratio_')[0].split('_'),
                             over=plot.split('_ratio_')[1])
         else:
@@ -135,7 +136,7 @@ def options(
 
             labels=["data", "MC"],
             colors=['black', '#CBDBF9'],
-            markers=["o","f"],
+            markers=["o", "f"],
             lumi=19790,
             energy=8,
             status=None,
@@ -175,7 +176,6 @@ def options(
         help="do only this plot/these plots. " +
              "The function names are required here.")
 
-
     # source options
     source = parser.add_argument_group('Source options')
     source.add_argument('--selection', '-S', type=str,
@@ -194,7 +194,6 @@ def options(
         default=algorithm, help="Jet algorithm. Default is %(default)s")
     source.add_argument('-c', '--correction', type=str, default=correction,
         help="Jet energy correction level. Default is %(default)s")
-
 
     # more general options
     general = parser.add_argument_group('General options')
@@ -218,7 +217,6 @@ def options(
     general.add_argument('-Y', '--year', type=int, default=2012,
         help="Year of data-taking. Default is %(default)s")
 
-
     # output settings
     output = parser.add_argument_group('Output options')
     output.add_argument('-o', '--out', type=str, default=out,
@@ -233,14 +231,13 @@ def options(
         default=False,
         help='save each plot separately')
 
-
     # plot labelling and formatting
     formatting = parser.add_argument_group('Formatting options')
     formatting.add_argument('-l', '--lumi', type=float, default=lumi,
         help="luminosity for the given data in /pb. Default is %(default)s")
     formatting.add_argument('-e', '--energy', type=int, default=energy,
         help="centre-of-mass energy for the given samples in TeV. \
-                                                       Default is %(default)s" )
+                                                       Default is %(default)s")
 
     formatting.add_argument('-s', '--status', type=str, default=status,
         help="status of the plot (e.g. CMS preliminary)")
@@ -263,10 +260,10 @@ def options(
     formatting.add_argument('--subtext', type=str, default=None,
         help='Add subtext')
     formatting.add_argument('-C', '--colors', type=str, nargs='+', default=colors,
-        help="colors for the plots in the order of the files. Default is: "+
+        help="colors for the plots in the order of the files. Default is: " +
              ", ".join(colors))
     formatting.add_argument('-k', '--labels', type=str, nargs='+', default=labels,
-        help="labels for the plots in the order of the files. Default is: "+
+        help="labels for the plots in the order of the files. Default is: " +
              ", ".join(labels))
     formatting.add_argument('-m', '--markers', type=str, nargs='+', default=markers,
         help="style for the plot in the order of the files. 'o' for points, \
@@ -277,7 +274,6 @@ def options(
                                                           --text="abc,0.5,0.9"')
     formatting.add_argument('-G', '--grid', action='store_true', default=False,
         help="Place an axes grid on the plot.")
-        
 
     # AXIS
     axis = parser.add_argument_group('Axis options')
@@ -306,13 +302,12 @@ def options(
     group.add_argument('--quantities', action='store_true',
         help="Show a list of the available quantities in the NTuple in each file")
 
-
     opt = parser.parse_args()
 
     opt.fit_offset = 0
-    parser.set_defaults(fit_offset = 0)
+    parser.set_defaults(fit_offset=0)
     opt.subplot = False
-    parser.set_defaults(subplot = False)
+    parser.set_defaults(subplot=False)
     opt.bins = bins
     opt.npv = npv
     opt.cut = cut
@@ -322,7 +317,6 @@ def options(
         opt.npv = [(0, 3), (4, 5), (6, 7), (8, 10), (11, 24)]
         opt.lumi = 5100
         opt.energy = 7
-
 
     # get a separate dictionary with only the user-set values
     user_options = {}
@@ -344,10 +338,9 @@ def options(
     return opt
 
 
-
 def debug(string):
     """Print a string and the line number + file of function call."""
-    frame,filename,line_number,function_name,lines,index=\
+    frame, filename, line_number, function_name, lines, index =\
         inspect.getouterframes(inspect.currentframe())[1]
     print "%s  (line %s in %s)" % (string, line_number, filename)
 
@@ -355,6 +348,7 @@ def debug(string):
 def fail(fail_message):
     print fail_message
     exit(0)
+
 
 def printfiles(filelist):
     if len(filelist) > 0:
@@ -377,9 +371,10 @@ def printfunctions(module_list):
                 if (elem[1].__doc__ is not None):
                     print "     ", elem[1].__doc__
 
+
 def printquantities(files, opt):
     quantities = {}
-    treename = "_".join([opt.folder, opt.algorithm+opt.correction])
+    treename = "_".join([opt.folder, opt.algorithm + opt.correction])
 
     for f, name in zip(files, opt.labels):
         quantities[name] = []
@@ -404,7 +399,7 @@ def printquantities(files, opt):
 
     # Print the list of quantities that are present only in specific files
     for name in quantities.keys():
-        quantities[name] =  quantities[name].difference(common_set)
+        quantities[name] = quantities[name].difference(common_set)
         if len(quantities[name]) > 0:
             print '\033[92m%s\033[0m' % "Quantities only in '%s' file:" % name
             for q in sorted(quantities[name], key=lambda v: (v.upper(), v[0].islower())):
@@ -420,16 +415,15 @@ def get_selection(settings):
         selections = []
     return " && ".join(list(set(selections)))
 
+
 def apply_changes(settings, changes):
-    """This function updates the settings dictionary with the changes function 
+    """This function updates the settings dictionary with the changes function
        in a way that the selection is not overwritten but combined.
     """
     nsettings = copy.deepcopy(settings)
     if changes is not None:
         if 'selection' in changes and settings['selection'] is not None:
-            
-            selection = " && ".join([changes['selection'],
-                                                         settings['selection']])
+            selection = " && ".join([changes['selection'], settings['selection']])
             nsettings.update(changes)
             nsettings['selection'] = selection
         else:
@@ -440,18 +434,17 @@ def apply_changes(settings, changes):
 def getsettings(opt, changes=None, settings=None, quantity=None):
     """Create the local settings dictionary.
 
-       The customizable parameters can be accessed via the settings directory 
+       The customizable parameters can be accessed via the settings directory
        that is created from the global 'opt' module and optional other arguments.
     """
     #opt = copy.deepcopy(opt)
-   
     # if a setting dictionary is given, apply changes (if any)
     if settings is not None:
         settings = apply_changes(settings, changes)
         return settings
 
-    # 1. create a local copy of the default_settings 
-    settings =  copy.deepcopy(opt.default_options)
+    # 1. create a local copy of the default_settings
+    settings = copy.deepcopy(opt.default_options)
 
     # 2. overwrite the default_settings with settings(function argument, e.g. from dictionary):
     if changes is not None:
@@ -465,7 +458,7 @@ def getsettings(opt, changes=None, settings=None, quantity=None):
     if quantity is not None and settings['xynames'] is None:
         settings['xynames'] = quantity.split("_")[::-1]
 
-        if len(settings['xynames'])<2:
+        if len(settings['xynames']) < 2:
             settings['xynames'] += ['events']
     if settings['x'] is None:
         settings['x'] = plotbase.getaxislabels_list(settings['xynames'][0])[:2]
@@ -477,8 +470,9 @@ def getsettings(opt, changes=None, settings=None, quantity=None):
 
 
 def getdefaultsubtexts():
-    return ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)", "k)", 
+    return ["a)", "b)", "c)", "d)", "e)", "f)", "g)", "h)", "i)", "j)", "k)",
                                       "l)", "m)", "n)", "o)", "p)", "q)", "r)"]
+
 
 def showoptions(opt):
     print "Options:"
@@ -498,51 +492,90 @@ def getfactor(lumi, fdata, fmc, quantity='z_phi', change={}):
         histo_data.ysum() / histo_mc.ysum())
     return histo_data.ysum() / histo_mc.ysum()
 
+
 def getalgorithms(algorithm):
-    if "AK7" in algorithm: algorithms = ['AK7PFJets', 'AK7PFJetsCHS']
-    else: algorithms = ['AK5PFJets', 'AK5PFJetsCHS']
+    if "AK7" in algorithm:
+        algorithms = ['AK7PFJets', 'AK7PFJetsCHS']
+    else:
+        algorithms = ['AK5PFJets', 'AK5PFJetsCHS']
     return algorithms
 
+
 def getgenname(opt):
-    if "AK7" in opt.algorithm: gen = 'AK7GenJets'
-    else: gen = 'AK5GenJets'
+    if "AK7" in opt.algorithm:
+        gen = 'AK7GenJets'
+    else:
+        gen = 'AK5GenJets'
     return gen
+
 
 def nicetext(s):
     if "run" in s:
-        return r"Time dependence for "+nicetext(s[:-4])
-    elif s in ['z_pt', 'zpt']: return r"$p_\mathrm{T}^\mathrm{Z}$"
-    elif s in ['jet1_pt', 'jet1pt']: return r"$p_\mathrm{T}^\mathrm{Jet 1}$"
-    elif s in ['jet2_pt', 'jet2pt']: return r"$p_\mathrm{T}^\mathrm{Jet 2}$"
-    elif s in ['jet1eta', 'eta']: return r"$\eta^\mathrm{Jet1}$"
-    elif s in ['jets_valid', 'jetsvalid']: return r"Number of valid jets"
-    elif s == 'npv': return 'NPV'
-    elif s == 'alpha': return r"$\alpha$"
-    elif s == 'balresp': return r"$p_\mathrm{T}$ balance"
-    elif s == 'baltwojet': return r"two-jet balance"
-    elif s == 'mpfresp': return "MPF response"
-    elif s == 'sumEt': return r"$\sum E^\mathrm{T}$"
-    elif s == 'METsumEt': return r"Total transverse energy $\sum E^\mathrm{T}$"
-    elif s == 'METpt': return r"$p_\mathrm{T}^\mathrm{MET}$"
-    elif s == 'METphi': return r"$\phi^\mathrm{MET}$"
-    elif s == 'met': return r"E_\mathrm{T}^\mathrm{miss}"
-    elif s == 'MET': return r"E_\mathrm{T}^\mathrm{miss}"
-    elif s == 'muonsvalid': return "Number of valid muons"
-    elif s == 'muonsinvalid': return "Number of invalid muons"
-    elif s == 'muplus': return "mu plus"
-    elif s == 'muminus': return "mu minus"
-    elif s == 'leadingjet': return r"Leading \/Jet"
-    elif s == 'secondjet': return r"Second \/Jet"
-    elif s == 'leadingjetsecondjet': return r"Leading\/ Jet,\/ Second\/ Jet"
-    elif s == 'jet1': return r"Leading Jet"
-    elif s == 'jet2': return r"Second \/Jet"
-    elif s == 'z': return r"Z"
-    elif s == 'genz': return r"GenZ"
-    elif s == 'leadingjetMET': return r"Leading\/ Jet,\/ MET"
-    elif s == 'jet1MET': return r"Leading\/ Jet,\/ MET"
-    elif s == 'zMET': return r"Z, MET"
-    elif s == 'jet2toZpt': return r"2nd Jet Cut"
+        return r"Time dependence for " + nicetext(s[:-4])
+    elif s in ['z_pt', 'zpt']:
+        return r"$p_\mathrm{T}^\mathrm{Z}$"
+    elif s in ['jet1_pt', 'jet1pt']:
+        return r"$p_\mathrm{T}^\mathrm{Jet 1}$"
+    elif s in ['jet2_pt', 'jet2pt']:
+        return r"$p_\mathrm{T}^\mathrm{Jet 2}$"
+    elif s in ['jet1eta', 'eta']:
+        return r"$\eta^\mathrm{Jet1}$"
+    elif s in ['jets_valid', 'jetsvalid']:
+        return r"Number of valid jets"
+    elif s == 'npv':
+        return 'NPV'
+    elif s == 'alpha':
+        return r"$\alpha$"
+    elif s == 'balresp':
+        return r"$p_\mathrm{T}$ balance"
+    elif s == 'baltwojet':
+        return r"two-jet balance"
+    elif s == 'mpfresp':
+        return "MPF response"
+    elif s == 'sumEt':
+        return r"$\sum E^\mathrm{T}$"
+    elif s == 'METsumEt':
+        return r"Total transverse energy $\sum E^\mathrm{T}$"
+    elif s == 'METpt':
+        return r"$p_\mathrm{T}^\mathrm{MET}$"
+    elif s == 'METphi':
+        return r"$\phi^\mathrm{MET}$"
+    elif s == 'met':
+        return r"E_\mathrm{T}^\mathrm{miss}"
+    elif s == 'MET':
+        return r"E_\mathrm{T}^\mathrm{miss}"
+    elif s == 'muonsvalid':
+        return "Number of valid muons"
+    elif s == 'muonsinvalid':
+        return "Number of invalid muons"
+    elif s == 'muplus':
+        return "mu plus"
+    elif s == 'muminus':
+        return "mu minus"
+    elif s == 'leadingjet':
+        return r"Leading \/Jet"
+    elif s == 'secondjet':
+        return r"Second \/Jet"
+    elif s == 'leadingjetsecondjet':
+        return r"Leading\/ Jet,\/ Second\/ Jet"
+    elif s == 'jet1':
+        return r"Leading Jet"
+    elif s == 'jet2':
+        return r"Second \/Jet"
+    elif s == 'z':
+        return r"Z"
+    elif s == 'genz':
+        return r"GenZ"
+    elif s == 'leadingjetMET':
+        return r"Leading\/ Jet,\/ MET"
+    elif s == 'jet1MET':
+        return r"Leading\/ Jet,\/ MET"
+    elif s == 'zMET':
+        return r"Z, MET"
+    elif s == 'jet2toZpt':
+        return r"2nd Jet Cut"
     return s
+
 
 def getreweighting(datahisto, mchisto, drop=True):
     if drop:
@@ -590,34 +623,34 @@ def getpath():
     return datapath
 
 
-def newplot(ratio=False, run=False, subplots=1, subplots_X=None, 
+def newplot(ratio=False, run=False, subplots=1, subplots_X=None,
                                                             subplots_Y=None):
     fig = plt.figure(figsize=[7, 7])
     #fig.suptitle(opt.title, size='xx-large')
-    if subplots is not 1: #Get 4 config numbers: FigXsize, FigYsize, NaxesY, NaxesX
-        d = {3:3, 2:2, 7:2}
+    if subplots is not 1:  # Get 4 config numbers: FigXsize, FigYsize, NaxesY, NaxesX
+        d = {3: 3, 2: 2, 7: 2}
         if subplots in d:
-            x = d [subplots]
-            y = int(round(subplots/float(x)))
+            x = d[subplots]
+            y = int(round(subplots / float(x)))
         elif subplots_Y is not None:
             y = subplots_Y
-            x = int(round(subplots/float(y)))
+            x = int(round(subplots / float(y)))
         elif subplots_X is not None:
             x = subplots_X
-            y = int(round(subplots/float(x)))
+            y = int(round(subplots / float(x)))
         else:
             y = int(math.sqrt(subplots))
-            x = int(round(subplots/float(y)))
+            x = int(round(subplots / float(y)))
         if x * y < subplots:
-            x = x+1
+            x = x + 1
         if run:
-            a = [14*x, 7*y, y, x]
+            a = [14 * x, 7 * y, y, x]
         else:
-            a = [7*x, 7*y, y, x]
-        fig = plt.figure(figsize=[a[0], a[1]]) #apply config numbers
-        ax = [fig.add_subplot(a[2],a[3],n+1) for n in range(subplots)]
+            a = [7 * x, 7 * y, y, x]
+        fig = plt.figure(figsize=[a[0], a[1]])  # apply config numbers
+        ax = [fig.add_subplot(a[2], a[3], n + 1) for n in range(subplots)]
         return fig, ax
-    elif ratio: 
+    elif ratio:
         ax = fig.add_subplot(111, position=[0.13, 0.35, 0.83, 0.58])
         ax.number = 1
         ratio = fig.add_subplot(111, position=[0.13, 0.12, 0.83, 0.22], sharex=ax)
@@ -636,7 +669,6 @@ def newplot(ratio=False, run=False, subplots=1, subplots_X=None,
     return fig
 
 
-
 def setaxislimits(ax, settings):
     """
     Set the axis limits from changes and or options. Default operation mode is:
@@ -645,21 +677,21 @@ def setaxislimits(ax, settings):
         3. If limits are given in opt (command line values), override the values
             from dictionary or changes
     """
-    if hasattr(ax, 'number') and (len(settings['x']) >= 2*ax.number):
-        ax.set_xlim(settings['x'][2*ax.number-2:][0], 
-                                               settings['x'][2*ax.number-2:][1])
+    if hasattr(ax, 'number') and (len(settings['x']) >= 2 * ax.number):
+        ax.set_xlim(settings['x'][2 * ax.number - 2:][0],
+                    settings['x'][2 * ax.number - 2:][1])
     elif not hasattr(ax, 'number'):
         ax.set_xlim(settings['x'][0], settings['x'][1])
 
-    if hasattr(ax, 'number') and (len(settings['y']) >= 2*ax.number):
-        ax.set_ylim(settings['y'][2*ax.number-2:][0], 
-                                               settings['y'][2*ax.number-2:][1])
+    if hasattr(ax, 'number') and (len(settings['y']) >= 2 * ax.number):
+        ax.set_ylim(settings['y'][2 * ax.number - 2:][0],
+                    settings['y'][2 * ax.number - 2:][1])
     elif not hasattr(ax, 'number'):
         ax.set_ylim(settings['y'][0], settings['y'][1])
 
 
 def getdefaultfilename(quantity, opt, settings):
-    """This function creates a default filename based on quantity, changes and 
+    """This function creates a default filename based on quantity, changes and
        algorithm/correction.
     """
     if 'filename' in settings and settings['filename'] is not None:
@@ -677,8 +709,9 @@ def getdefaultfilename(quantity, opt, settings):
 
     #remove special characters:
     for char in ["*", "/", " "]:
-        filename = filename.replace(char,"_")
+        filename = filename.replace(char, "_")
     return filename
+
 
 def Save(figure, name, opt, alsoInLogScale=False, crop=True, pad=None, settings=None):
     _internal_Save(figure, name, opt, pad=pad, settings=settings)
@@ -686,6 +719,7 @@ def Save(figure, name, opt, alsoInLogScale=False, crop=True, pad=None, settings=
     if alsoInLogScale:
         figure.get_axes()[0].set_yscale('log')
         _internal_Save(figure, name + "_log_scale", opt, crop, pad=pad, settings=settings)
+
 
 def EnsurePathExists(path):
     full_path = ""
@@ -696,14 +730,15 @@ def EnsurePathExists(path):
             print "Creating " + full_path
             os.mkdir(full_path)
 
+
 def _internal_Save(figure, name, opt, crop=True, pad=None, settings=None):
     """Save this figure in all listed data formats.
 
     The standard data formats are png and pdf.
     Available graphics formats are: pdf, png, ps, eps and svg
     """
-    EnsurePathExists( opt.out )
-    
+    EnsurePathExists(opt.out)
+
     name = opt.out + '/' + name
     name = name.replace("PFJets", "PF")
     print ' -> Saving as',
@@ -722,9 +757,9 @@ def _internal_Save(figure, name, opt, crop=True, pad=None, settings=None):
             print name + '.' + f,
             if crop:
                 if pad is not None:
-                    figure.savefig(name + '.' + f,bbox_inches='tight', bbox_extra_artists=[title], pad_inches=pad)
+                    figure.savefig(name + '.' + f, bbox_inches='tight', bbox_extra_artists=[title], pad_inches=pad)
                 else:
-                    figure.savefig(name + '.' + f,bbox_inches='tight', bbox_extra_artists=[title])
+                    figure.savefig(name + '.' + f, bbox_inches='tight', bbox_extra_artists=[title])
             else:
                 figure.savefig(name + '.' + f)
             plt.close(figure)
@@ -733,20 +768,19 @@ def _internal_Save(figure, name, opt, crop=True, pad=None, settings=None):
             print f, "failed. Output type is unknown or not supported."
 
 
-
 if __name__ == "__main__":
     op = options()
-    module_list = [plotresponse, plotfractions, plot2d, plotdatamc, 
+    module_list = [plotresponse, plotfractions, plot2d, plotdatamc,
                         plot_resolution, plot_mikko, plot_sandbox, plot_tagging]
-    
+
     if op.list:
         printfunctions(module_list)
         sys.exit()
 
     print "Number of files:", len(op.files)
-    files=[]
+    files = []
     for f in op.files:
-        print "Using as file", 1+op.files.index(f) ,":" , f
+        print "Using as file", 1 + op.files.index(f), ":", f
         files += [getroot.openfile(f, op.verbose)]
 
     if op.quantities:
@@ -754,4 +788,3 @@ if __name__ == "__main__":
         sys.exit()
 
     plot(module_list, op.plots, files, op)
-
