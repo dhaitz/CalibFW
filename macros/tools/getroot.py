@@ -62,6 +62,11 @@ def openfile(filename, verbose=False, exitonfail=True):
         print " * Inputfile:", filename
     return f
 
+try:
+    openfile = profile(openfile)
+except NameError:
+    pass  # not running with profiler
+
 
 def getplot(name, rootfile, changes=None, rebin=1):
     rootobject = getobject(name, rootfile, changes)
@@ -79,6 +84,7 @@ def getplotfromtree(nickname, rootfile, settings, twoD=False, changes=None):
     histo = root2histo(rootobject, rootfile.GetName(), settings['rebin'])
     rootobject.Delete()
     return histo
+
 
 def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
     """This function returns a root object 
@@ -187,6 +193,12 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
              quantities[1], quantities[2]), settings['selection'])
 
     return rootobject
+
+
+try:
+    getobjectfromtree = profile(getobjectfromtree)
+except NameError:
+    pass  # not running with profiler
 
 
 def dictconvert(quantity):

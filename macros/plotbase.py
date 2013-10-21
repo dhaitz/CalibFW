@@ -86,6 +86,12 @@ def plot(modules, plots, datamc, op):
         print "A solution could invoke copy.deepcopy() in such a case."
 
 
+try:
+    getobjectfromtree = profile(getobjectfromtree)
+except NameError:
+    pass  # not running with profiler
+
+
 # function_selector: takes a list of plots and assigns them to the according funtion
 def function_selector(plots, datamc, opt):
     for plot in plots:
