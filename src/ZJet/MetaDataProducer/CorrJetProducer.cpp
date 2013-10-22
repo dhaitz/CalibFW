@@ -9,7 +9,7 @@ CorrJetProducer::CorrJetProducer(std::string corBase, std::string l1cor, std::ve
 		ZJetGlobalMetaDataProducerBase(), m_corectionFileBase(corBase),
 		m_l1correction (l1cor), m_basealgorithms (baseAlgos)
 {
-	CALIB_LOG("Loading JEC from " + m_corectionFileBase)
+	CALIB_LOG_FILE("Loading JEC from " << m_corectionFileBase);
 }
 
 void CorrJetProducer::PopulateMetaData(ZJetEventData const& data,
@@ -26,6 +26,8 @@ void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorre
 		// already loaded
 		return;
 
+	CALIB_LOG_FILE("Jet corrections enabled for " << algoName << " jets");
+	std::cout << "    Levels: ";
 	std::vector<std::string> corLevel;
 	if (prefix == "")
 		prefix = m_corectionFileBase;
@@ -66,6 +68,7 @@ void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorre
 			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
 			event.m_eventmetadata, 0, 0, rcorr)
 			);
+	CALIB_LOG_FILE("");
 }
 
 void CorrJetProducer::CreateCorrections(
@@ -96,8 +99,6 @@ void CorrJetProducer::CreateCorrections(
 	// residual for data
 	if (settings.Global()->GetInputType() == DataInput )
 	{
-		//CALIB_LOG_FATAL("Implement this ")
-		// do l2l3res here
 		CorrectJetCollection(algoName_l3, algoName_l3res,
 				this->m_corrService.at(algoCorrectionAlias).m_l2l3res,
 				event, metaData, settings);

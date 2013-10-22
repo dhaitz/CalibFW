@@ -1072,7 +1072,7 @@ def StoreSettings(settings, filename):
         print "No json Module found. Using fallback method ..."
 
     f.close()
-    print "Configured", len(settings["Pipelines"]), "Pipelines"
+    print len(settings["Pipelines"]), "pipelines configured."
 
 
 def StoreGCDataset(settings, nickname, filename):

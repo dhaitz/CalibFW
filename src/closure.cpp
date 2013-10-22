@@ -138,27 +138,16 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			CALIB_LOG_FATAL("Global MetaData producer of name " << *it << " not found");
 	}
 }
-/* did not work
-void handler(int sig) {
-	void *array[10];
-	size_t size;
-
-	// get void*'s for all entries on the stack
-	size = backtrace(array, 10);
-
-	// print out all the frames to stderr
-	fprintf(stderr, "Error: signal %d:\n", sig);
-	backtrace_symbols_fd(array, size, 2);
-	exit(1);
-}*/
 
 
 int main(int argc, char** argv)
 {
+	long long nevents = 0;
 	// install signal
 	// did not work
 	//signal(SIGSEGV, handler);   // install our handler
 
+	// usage
 	if (argc < 2)
 	{
 		std::cerr << "Usage: " << argv[0]
@@ -166,6 +155,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	// read config and check
 	std::string jsonConfig = argv[1];
 	boost::property_tree::json_parser::read_json(jsonConfig, g_propTree);
 
@@ -173,9 +163,13 @@ int main(int argc, char** argv)
 	std::string sLogFileName = g_sOutputPath + ".log";
 	g_logFile = new std::ofstream(sLogFileName.c_str(), std::ios_base::trunc);
 
+	// insert config into log file
+	CALIB_LOG_FILE("Configuration file: " << jsonConfig);
+	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
+
+
 	// input files
 
-	// hast GC the file list ?
 	char* pPath;
 	pPath = getenv("FILE_NAMES");
 	if (pPath != NULL)
@@ -186,18 +180,20 @@ int main(int argc, char** argv)
 	else
 	{
 		g_sourcefiles = PropertyTreeSupport::GetAsStringList(&g_propTree, "InputFiles");
-		CALIB_LOG_FILE("Loading " << g_sourcefiles.size() << " input files.")
-
 		if (g_sourcefiles.size() == 0)
-			CALIB_LOG_FATAL("No Kappa input files specified");
-
-		//BOOST_FOREACH(std::string s, g_sourcefiles)
-		//{
-		//    CALIB_LOG_FILE("Input File " << s)
-		//}
+		{
+			CALIB_LOG_FATAL("No Kappa input files specified.");
+		} else {
+			CALIB_LOG_FILE("Input files (" << g_sourcefiles.size() << "):");
 		}
-	FileInterface2 finterface(g_sourcefiles);
+	}
+	// removes the old file
+	std::string sRootOutputFilename = g_sOutputPath + ".root";
+	g_resFile = new TFile(sRootOutputFilename.c_str(), "RECREATE");
 
+	{
+	FileInterface2 finterface(g_sourcefiles);
+	CALIB_LOG_FILE("Output file: " << sRootOutputFilename);
 
 	// setup Global Settings
 	ZJetGlobalSettings gset;
@@ -207,10 +203,13 @@ int main(int argc, char** argv)
 	gset.SetEnableSampleReweighting(g_propTree.get<bool>("EnableSampleReweighting", false));
 	gset.SetEnableLumiReweighting(g_propTree.get<bool>("EnableLumiReweighting", false));
 	gset.SetXSection(g_propTree.get<double>("XSection", -1));
+	gset.SetEnableMetPhiCorrection(g_propTree.get<bool>("EnableMetPhiCorrection", false));
 	gset.SetMuonID2011(g_propTree.get<bool>("MuonID2011", false));
 	gset.SetHcalCorrection(g_propTree.get<double>("HcalCorrection", 0.0));
 	gset.SetSkipEvents(g_propTree.get<long long>("SkipEvents", 0));
 	gset.SetEventCount(g_propTree.get<long long>("EventCount", -1));
+
+
 
 	if (g_propTree.get<std::string>("InputType", "mc") == "data")
 	{
@@ -230,23 +229,13 @@ int main(int argc, char** argv)
 
 	gset.SetInputType(g_inputType);
 
-	ZJetEventProvider evtProvider(finterface, g_inputType, g_propTree.get<bool>("EnableMetPhiCorrection"), g_propTree.get<bool>("Tagged"));
+	ZJetEventProvider evtProvider(finterface, g_inputType, gset.GetEnableMetPhiCorrection(), g_propTree.get<bool>("Tagged"));
 	gset.m_metphi = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "MetPhiCorrectionParameters");
 
-	// removes the old file
-	std::string sRootOutputFilename = g_sOutputPath + ".root";
-
-	//TODO: close file to free memory of already written histos
-	g_resFile = new TFile(sRootOutputFilename.c_str(), "RECREATE");
-	CALIB_LOG_FILE("Writing to the root file " << sRootOutputFilename)
-
-	// insert config into log file
-	CALIB_LOG_FILE("Configuration file " << jsonConfig << " dump:");
-	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
 
 
+	// pipline settings
 	ZJetPipelineInitializer plineInit;
-
 	ZJetPipelineSettings* pset = NULL;
 
 	EventPipelineRunner<ZJetPipeline, ZJetGlobalMetaDataProducerBase> pRunner;
@@ -277,7 +266,7 @@ int main(int argc, char** argv)
 			it != g_pipeSettings.end(); it++)
 	{
 		(*it)->m_globalSettings = &gset;
-
+/*
 		if ((*it)->GetLevel() == 1)
 		{
 			ZJetPipeline* pLine = new ZJetPipeline; //CreateDefaultPipeline();
@@ -293,6 +282,7 @@ int main(int argc, char** argv)
 			pLine->InitPipeline(**it, plineInit);
 			pRunner.AddPipeline(pLine);
 		}
+		*/
 	}
 
 	// delete the pipeline settings
@@ -302,27 +292,40 @@ int main(int argc, char** argv)
 		delete *it;
 	}
 
-	if (g_propTree.get<bool>("EnablePuReweighting", false))
-		CALIB_LOG_FILE("\n" << blue << "Pile-up reweighting enabled." << reset << "\n");
-
+	// move to config read
+	if (gset.GetEnablePuReweighting())
+		CALIB_LOG_FILE(blue << "Pile-up reweighting enabled." << reset);
+	if (gset.GetEnableSampleReweighting())
+		CALIB_LOG_FILE(blue << "Sample reweighting enabled." << reset);
+	if (gset.GetEnableLumiReweighting())
+		CALIB_LOG_FILE(blue << "Lumi reweighting enabled." << reset);
+	if (gset.GetEnable2ndJetReweighting())
+		CALIB_LOG_FILE(blue << "2nd jet reweighting enabled." << reset);
+	if (gset.GetHcalCorrection())
+		CALIB_LOG_FILE(blue << "HCAL correction enabled." << reset);
+	if (gset.GetEnableMetPhiCorrection())
+		CALIB_LOG_FILE(blue << "MET phi correction enabled." << reset);
 	ZJetPipelineSettings settings;
 	settings.m_globalSettings = &gset;
-
+	CALIB_LOG_FILE("");
 
 #ifdef USE_PERFTOOLS
 	ProfilerStart("closure.prof");
 #endif
 	//HeapProfilerStart( "resp_cuts.heap");
-	pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>(evtProvider, settings);
+	nevents = pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>(evtProvider, settings);
 
 	//HeapProfilerStop();
 #ifdef USE_PERFTOOLS
 	ProfilerStop();
 #endif
-
+	}
 	g_resFile->Close();
 	g_logFile->close();
 
+	std::cout << std::endl;
+	int nc = 0;
+	CALIB_LOG_FILE("Events read: " << nevents << ", events in cut: unknown > " << nc << " (>" << (nc * 100. / nevents) << "%)");
 	CALIB_LOG_FILE("Output file " << sRootOutputFilename << " closed.");
 
 	delete g_logFile;

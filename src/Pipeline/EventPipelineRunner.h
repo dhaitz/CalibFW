@@ -74,7 +74,7 @@ public:
 	 * Run the GlobalMetaProducers and all pipelines.
 	 */
 	template<class TEvent, class TMetaData, class TSettings>
-	void RunPipelines(EventProvider<TEvent>& evtProvider, TSettings const& settings)
+	long long RunPipelines(EventProvider<TEvent>& evtProvider, TSettings const& settings)
 	{
 		long long firstEvent = settings.Global()->GetSkipEvents();
 		long long nEvents = evtProvider.GetOverallEventCount();
@@ -137,7 +137,7 @@ public:
 			if (it->GetSettings().GetLevel() == 1)
 				it->FinishPipeline();
 		}
-
+/*
 		// run the pipelines greater level one
 		for (unsigned int i = 2; i < 10; i++)
 		{
@@ -151,8 +151,10 @@ public:
 
 			}
 		}
+*/
 
 		delete hltTools;
+		return (nEvents - firstEvent);
 	}
 
 

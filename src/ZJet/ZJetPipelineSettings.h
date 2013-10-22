@@ -36,6 +36,7 @@ public:
 	IMPL_PROPERTY(bool, Enable2ndJetReweighting)
 	IMPL_PROPERTY(bool, EnableSampleReweighting)
 	IMPL_PROPERTY(bool, EnableLumiReweighting)
+	IMPL_PROPERTY(bool, EnableMetPhiCorrection)
 	IMPL_PROPERTY(bool, MuonID2011)
 	IMPL_PROPERTY(double, HcalCorrection)
 	IMPL_PROPERTY(double, XSection)

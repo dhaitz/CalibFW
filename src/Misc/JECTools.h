@@ -130,8 +130,7 @@ inline void correctJets(std::vector<T>* jets,
 		T& jet = jets->at(idx);
 		if (area > 0)
 		{
-			std::cout << "SETTING FIXED AREA! FAIL !" << std::endl;
-			assert(false);
+			CALIB_LOG_FATAL("SETTING FIXED AREA!");
 			jet.area = area;
 		}
 
@@ -163,9 +162,10 @@ public:
 		: area(-1), jeuType(jec_center), JEC(0), JEU(0), vs(vertexSummary),
 			ja(jetArea), runCorr(rcorr), evtMeta(eventmetadata), nRun0(201000)
 	{
-		if (rcorr != 0.0)
-			CALIB_LOG("RCORR SET TO " << rcorr << " " << runCorr);
 		init(level, jeuDir, prefix , algo);
+		if (rcorr != 0.0)
+			CALIB_LOG("HCAL correction = " << rcorr);
+
 	}
 
 	~JECService()
@@ -191,7 +191,7 @@ private:
 		assert(vs != NULL);
 		assert(ja != NULL);
 
-		std::cout << yellow << " * Loading jet energy corrections..." << reset << std::endl << "\t";
+		//std::cout << yellow << " * Loading jet energy corrections..." << reset << std::endl << "\t";
 		std::vector<JetCorrectorParameters> jecVec;
 		for (size_t i = 0; i < level.size(); ++i)
 		{
@@ -200,7 +200,7 @@ private:
 		}
 		JEC = new FactorizedJetCorrector(jecVec);
 
-		std::cout << yellow << " * Loading jet energy uncertainties..." << reset << std::endl << "\t";
+		//std::cout << yellow << " * Loading jet energy uncertainties..." << reset << std::endl << "\t";
 		JEU = new JetCorrectionUncertainty(prefix + "_" + "Uncertainty" + "_" + algo + ".txt");
 		if (jeuDir > 0)
 			jeuType = jec_up;
