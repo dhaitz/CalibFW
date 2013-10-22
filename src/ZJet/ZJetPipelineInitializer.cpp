@@ -7,19 +7,6 @@
 #include "ZJet/MetaDataProducer/ZJetMetaDataProducer.h"
 #include "ZJet/MetaDataProducer/HltSelector.h"
 
-/* remove these - not needed anymore
-#include "ZJet/Consumer/ZJetDrawConsumer.h"
-#include "ZJet/Consumer/CutStatistics.h"
-#include "ZJet/Consumer/FilterStatistics.h"
-#include "ZJet/Consumer/GenericProfileConsumer.h"
-#include "ZJet/Consumer/GenericTwoDConsumer.h"
-#include "ZJet/Consumer/JetRespConsumer.h"
-#include "ZJet/Consumer/Dumper.h"
-#include "ZJet/Consumer/BinResponseConsumer.h"
-#include "ZJet/Consumer/MetaConsumerDataLV.h"
-#include "ZJet/Consumer/JetMatchingPlots.h"
-*/
-
 #include "ZJet/Consumer/TreeConsumer.h"
 
 #include "ZJet/Filter/ValidZFilter.h"

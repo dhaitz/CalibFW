@@ -6,7 +6,6 @@
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-
 #include "FilterBase.h"
 
 namespace CalibFW

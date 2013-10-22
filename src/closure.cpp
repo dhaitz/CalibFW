@@ -1,18 +1,5 @@
 /** The main program Closure
 
-    HOWTO: Add a new Plot:
-
-    1. in DrawBase.h
-    Use the IMPL_HIST2D_MOD1 to generate a Consumer class which plots a
-    histogramm. If your plotting requirement is more complex, derive from the
-    class DrawHist1dConsumerBase<EventResult> (for 1d Histo) and implement
-    ProcessFilteredEvent.
-
-    2. CreateDefaultPipeline
-    Use the PLOT_HIST2D macro to add your histogram the default plotting
-    pipeline and give a name which is used to store the histo in the root file.
-
-    done
 */
 
 
@@ -51,8 +38,6 @@
 #include "Pipeline/JetTools.h"
 #include "ZJet/ZJetPipeline.h"
 #include "ZJet/ZJetEventProvider.h"
-#include "ZJet/Consumer/GenericProfileConsumer.h"
-#include "ZJet/Consumer/ZJetDrawConsumer.h"
 #include "ZJet/MetaDataProducer/ZJetMetaDataProducer.h"
 #include "ZJet/MetaDataProducer/ZJetCuts.h"
 #include "ZJet/MetaDataProducer/PuReweightingProducer.h"

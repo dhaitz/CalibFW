@@ -4,12 +4,7 @@
 #include <memory>
 
 #include "GlobalInclude.h"
-#include "Draw/Profile.h"
-
-#include "src/Pipeline/SourceBase.h"
 #include "RootTools/RootIncludes.h"
-
-
 
 
 namespace CalibFW
@@ -19,7 +14,6 @@ template < class TEvent, class TMetaData, class TSettings >
 class TreeConsumerBase : public EventConsumerBase< TEvent, TMetaData, TSettings>
 {
 public:
-	typedef SourceBase<TEvent, TMetaData, TSettings> SourceTypeForThis;
 	typedef EventPipeline<TEvent, TMetaData, TSettings> PipelineTypeForThis;
 };
 

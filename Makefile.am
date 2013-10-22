@@ -35,14 +35,13 @@ OFFLINE_CORR_SRC = $(OFFLINE_CORR)/FactorizedJetCorrector.cc $(OFFLINE_CORR)/Jet
 				   $(OFFLINE_CORR)/JetCorrectionUncertainty.cc
 
 # seems we cant use m4 vars here ??
-CALIB_SRC = src/DrawBase.cc src/EventData.cc \
+CALIB_SRC = src/EventData.cc \
 			src/EventPipelineRunner.cc \
 			src/GlobalInclude.cc \
 			src/ZJet/ZJetPipeline.cpp  \
             src/ZJet/ZJetPipelineInitializer.cpp  \
 			src/ZJet/MetaDataProducer/CorrJetProducer.cpp  \
 			src/ZJet/MetaDataProducer/JetMatcher.cpp  \
-			src/Pipeline/ProfileConsumerBase.cpp \
 			src/ZJet/ZJetMetaData.cpp \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc \
