@@ -1,10 +1,8 @@
 #pragma once
 
 #include <boost/algorithm/string.hpp>
-
-#include "RootTools/RootIncludes.h"
-#include "Misc/PtBin.h"
 #include "Pipeline/PipelineSettings.h"
+#include "RootTools/RootIncludes.h"
 
 namespace CalibFW
 {
@@ -224,7 +222,7 @@ public:
 	}
 
 
-	static std::vector<PtBin> GetAsPtBins(stringvector& sv)
+/*	static std::vector<PtBin> GetAsPtBins(stringvector& sv)
 	{
 		std::vector<PtBin> bins;
 
@@ -240,7 +238,7 @@ public:
 
 		return bins;
 	}
-
+*/
 	VarCache<doublevector> m_2ndJetWeight;
 
 	doublevector Get2ndJetWeight()

@@ -2,9 +2,6 @@
 
 */
 
-
-#include "RootTools/RootIncludes.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <execinfo.h>

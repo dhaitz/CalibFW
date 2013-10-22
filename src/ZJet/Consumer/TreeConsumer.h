@@ -6,7 +6,6 @@
 #include "GlobalInclude.h"
 #include "RootTools/RootIncludes.h"
 
-
 namespace CalibFW
 {
 

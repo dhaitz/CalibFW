@@ -12,7 +12,6 @@
 
 #include "RootTools/RootIncludes.h"
 #include "GlobalInclude.h"
-#include "Misc/PtBin.h"
 
 namespace CalibFW
 {
@@ -32,7 +31,7 @@ public:
 		return tempname.str();
 	}
 
-	static std::string GetFolderName(PtBin * pBin)
+/*	static std::string GetFolderName(PtBin * pBin)
 	{
 		if (pBin == NULL)
 			return "NoBinning_incut/";
@@ -40,7 +39,6 @@ public:
 			return pBin->id() + "_incut/";
 
 	}
-/*
 	static std::string GetHistoName(std::string algoName, std::string quantName,
 			InputTypeEnum inpType, int corr = 0, PtBin * pBin = NULL,
 			bool isNoCut = false, TString algoNameAppend = "Zplusjet")

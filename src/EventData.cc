@@ -1,7 +1,8 @@
 #include "RootTools/RootNamer.h"
+#include "GlobalInclude.h"
 
-
-using namespace CalibFW;
+namespace CalibFW
+{
 /*
 bool ZJetEventData::IsValidEvent() const
 {
@@ -10,3 +11,4 @@ bool ZJetEventData::IsValidEvent() const
 }*/
 
 unsigned long g_lTempNameAppend = 0;
+}
