@@ -51,11 +51,7 @@ CALIB_SRC = src/DrawBase.cc src/EventData.cc \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc
 
 
-bin_PROGRAMS = closure closure_test
+bin_PROGRAMS = closure
 closure_SOURCES = src/closure.cpp $(CALIB_SRC)
-
-closure_test_SOURCES = src/closure_test.cpp $(CALIB_SRC)
-
-
 
 #dist_noinst_SCRIPTS = autogen.sh
