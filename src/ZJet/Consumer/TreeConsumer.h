@@ -6,6 +6,7 @@
 #include "GlobalInclude.h"
 #include "RootTools/RootIncludes.h"
 
+
 namespace CalibFW
 {
 
@@ -19,9 +20,9 @@ public:
 class TreeConsumer : public TreeConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings >
 {
 
-    static std::string GetName(){return "tree_consumer";}
+	static std::string GetName(){return "tree_consumer";}
 
-	void Init(PipelineTypeForThis * pset)
+	void Init(PipelineTypeForThis* pset)
 	{
 		EventConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings>::Init( pset );
         std::string quantities = this->GetPipelineSettings().GetQuantitiesString();
