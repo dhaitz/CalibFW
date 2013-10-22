@@ -1,7 +1,4 @@
-
-
 #pragma once
-
 
 #include "Filter/ZJetFilterBase.h"
 #include "ZJetMetaData.h"

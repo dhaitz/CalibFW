@@ -1,4 +1,4 @@
-#include "Pipeline/Kappa/KappaEventProvider.h"
+#include "Pipeline/KappaEventProvider.h"
 #include "ZJet/ZJetEventData.h"
 
 namespace CalibFW {
