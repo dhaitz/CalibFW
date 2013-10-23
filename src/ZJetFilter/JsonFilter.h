@@ -11,9 +11,7 @@ namespace CalibFW
 
 class JsonFilter: public ZJetFilterBase
 {
-
 public:
-
 	JsonFilter() {}
 
 	JsonFilter(std::string jsonFileName)
@@ -22,7 +20,8 @@ public:
 	}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
+							   ZJetMetaData const& metaData,
+							   ZJetPipelineSettings const& settings)
 	{
 		KEventMetadata* p =  metaData.GetKappaMetaData(event, settings);
 
@@ -38,8 +37,8 @@ public:
 	{
 		return "Json Filter";
 	}
-private:
 
+private:
 	boost::scoped_ptr<RunLumiSelector> m_lumiSelector;
 };
 

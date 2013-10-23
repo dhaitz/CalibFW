@@ -33,14 +33,14 @@ std::string ZJetMetaData::GetContent() const
 	std::stringstream s;
 	s << "PF ValidJets collection:" << std::endl;
 	for (JetMappingIterator it = m_listValidJets.begin();
-		it != m_listValidJets.end(); ++it)
+		 it != m_listValidJets.end(); ++it)
 	{
 		s << it->first << " count " << it->second->size() << std::endl;
 	}
 
 	s << "PF MetaJets collection:" << std::endl;
 	for (MetaPFJetContainer::iterator it = m_validPFJets.begin();
-		it != m_validPFJets.end(); ++it)
+		 it != m_validPFJets.end(); ++it)
 	{
 		s << it->first << " count " << it->second->size() << std::endl;
 
@@ -50,7 +50,9 @@ std::string ZJetMetaData::GetContent() const
 }
 
 KDataLV* ZJetMetaData::GetValidJet(ZJetPipelineSettings const& psettings,
-		ZJetEventData const& evtData, unsigned int index, std::string algoName) const
+								   ZJetEventData const& evtData,
+								   unsigned int index,
+								   std::string algoName) const
 {
 	backtrace_assert(GetValidJetCount(psettings, evtData, algoName) > index);
 	if (IsMetaJetAlgo(algoName))
@@ -66,8 +68,8 @@ KDataLV* ZJetMetaData::GetValidJet(ZJetPipelineSettings const& psettings,
 	}
 	else
 	{
-		KDataLV* j = evtData.GetJet(psettings, m_listValidJets[algoName].at(
-				index), algoName);
+		KDataLV* j = evtData.GetJet(psettings,
+				m_listValidJets[algoName].at(index), algoName);
 		assert(j != NULL);
 		return j;
 	}
@@ -76,7 +78,7 @@ KDataLV* ZJetMetaData::GetValidJet(ZJetPipelineSettings const& psettings,
 KDataLV* ZJetMetaData::GetInvalidJet(ZJetPipelineSettings const& psettings,
 		ZJetEventData const& evtData, unsigned int index, std::string algoName) const
 {
-	backtrace_assert( GetInvalidJetCount(psettings, evtData, algoName) > index );
+	backtrace_assert(GetInvalidJetCount(psettings, evtData, algoName) > index);
 
 	if (IsMetaJetAlgo(algoName))
 	{
@@ -147,7 +149,7 @@ double ZJetMetaData::GetGenTwoBalance(const KDataLV* jet1, const KDataLV* jet2) 
 	return (jet1->p4 + jet2->p4).Pt() / GetRefGenZ().p4.Pt();
 }
 
-bool cmpPFJetPt (const KDataPFJet i, const KDataPFJet j)
+bool cmpPFJetPt(const KDataPFJet i, const KDataPFJet j)
 {
 	return (i.p4.Pt() < j.p4.Pt());
 }
@@ -163,27 +165,27 @@ double ZJetMetaData::GetZeppenfeld(const KDataLV* jet1, const KDataLV* jet2, con
 // to be implemented in a better way with sorted collections
 double ZJetMetaData::GetMuonResponse() const
 {
-		double gm1 = m_genMuons[0].p4.Pt();
-		double gm2 = m_genMuons[1].p4.Pt();
-		double rm1 = GetValidMuons()[0].p4.Pt();
-		double rm2 = GetValidMuons()[1].p4.Pt();
+	double gm1 = m_genMuons[0].p4.Pt();
+	double gm2 = m_genMuons[1].p4.Pt();
+	double rm1 = GetValidMuons()[0].p4.Pt();
+	double rm2 = GetValidMuons()[1].p4.Pt();
 
-		if ((gm1 - gm2) * (rm1 - rm2) > 0)
-			return 0.5 * (rm1 / gm1 + rm2 / gm2);
-		else
-			return 0.5 * (rm2 / gm1 + rm1 / gm2);
+	if ((gm1 - gm2) * (rm1 - rm2) > 0)
+		return 0.5 * (rm1 / gm1 + rm2 / gm2);
+	else
+		return 0.5 * (rm2 / gm1 + rm1 / gm2);
 }
 
 void ZJetMetaData::SortJetCollections()
 {
 	for (MetaPFJetContainer::iterator it = m_validPFJets.begin();
-			it != m_validPFJets.end(); ++ it)
+		 it != m_validPFJets.end(); ++ it)
 	{
 		std::vector<KDataPFTaggedJet>* jet_vect = it->second;
-		std::sort( jet_vect->begin(), jet_vect->end(), cmpPFJetPt);
-		std::reverse( jet_vect->begin(), jet_vect->end() );
+		std::sort(jet_vect->begin(), jet_vect->end(), cmpPFJetPt);
+		std::reverse(jet_vect->begin(), jet_vect->end());
 	}
-/*
+	/*
 	for testing purpses, to ensure the jets are ordered
 	for (MetaPFJetContainer::iterator it = m_validPFJets.begin();
 			it != m_validPFJets.end(); ++ it)
@@ -197,7 +199,7 @@ void ZJetMetaData::SortJetCollections()
 			largest = jet_vect[i].p4.Pt();
 		}
 	}
-*/
+	*/
 }
 
 }

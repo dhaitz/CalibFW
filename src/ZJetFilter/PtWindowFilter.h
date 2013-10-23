@@ -28,7 +28,8 @@ public:
 	}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
+							   ZJetMetaData const& metaData,
+							   ZJetPipelineSettings const& settings)
 	{
 		bool bPass = true;
 		double fBinVal;
@@ -45,7 +46,7 @@ public:
 			if (!metaData.HasValidJet(settings, event))
 				return false;
 
-			KDataLV * pJet = metaData.GetValidPrimaryJet(settings,event);
+			KDataLV* pJet = metaData.GetValidPrimaryJet(settings, event);
 			fBinVal = pJet->p4.Pt();
 		}
 
@@ -74,17 +75,16 @@ public:
 				s << " ZPt ";
 			else
 				s << " Jet1Pt ";
-			/*
-			 s << " from " << GetPipelineSettings()->GetFilterPtBinHigh()
-			 << " to " << GetPipelineSettings()->GetFilterPtBinLow();*/
 		}
+		/*
 		else
-		{/*
-		 s << "Pt" << std::setprecision(0)
-		 << GetPipelineSettings()->GetFilterPtBinLow() << "to"
-		 << std::setprecision(0)
-		 << GetPipelineSettings()->GetFilterPtBinHigh();*/
+		{
+			s << "Pt" << std::setprecision(0)
+			<< GetPipelineSettings()->GetFilterPtBinLow() << "to"
+			<< std::setprecision(0)
+			<< GetPipelineSettings()->GetFilterPtBinHigh();
 		}
+		*/
 		return s.str();
 	}
 

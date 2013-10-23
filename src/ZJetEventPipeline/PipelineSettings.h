@@ -215,14 +215,13 @@ public:
 	}
 
 	VarCache<stringvector> m_filter;
-
 	stringvector GetFilter() const
 	{
 		RETURN_CACHED(m_filter, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".Filter"))
 	}
 
-
-/*	static std::vector<PtBin> GetAsPtBins(stringvector& sv)
+	/*
+	static std::vector<PtBin> GetAsPtBins(stringvector& sv)
 	{
 		std::vector<PtBin> bins;
 
@@ -238,31 +237,27 @@ public:
 
 		return bins;
 	}
-*/
-	VarCache<doublevector> m_2ndJetWeight;
+	*/
 
+	VarCache<doublevector> m_2ndJetWeight;
 	doublevector Get2ndJetWeight()
 	{
 		RETURN_CACHED(m_2ndJetWeight, PropertyTreeSupport::GetAsDoubleList(GetPropTree(), GetSettingsRoot() + ".2ndJetWeight"))
 	}
 
 	VarCache<doublevector> m_recovertWeight;
-
 	doublevector GetRecovertWeight()
 	{
 		RETURN_CACHED(m_recovertWeight, PropertyTreeSupport::GetAsDoubleList(GetPropTree(), GetSettingsRoot() + ".RecovertWeight"))
 	}
 
 	VarCache<stringvector> m_jetRespBins;
-
 	stringvector GetCustomBins()
 	{
 		RETURN_CACHED(m_jetRespBins, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".CustomBins"))
 	}
-	//TODO: maybe cache this for better performance
 
 	VarCache<stringvector> m_cuts;
-
 	stringvector GetCuts() const
 	{
 		RETURN_CACHED(m_cuts, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".Cuts"))

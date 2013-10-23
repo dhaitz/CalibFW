@@ -5,8 +5,7 @@
 namespace CalibFW
 {
 
-/*
- * Matches all jets in the event by the geomerty
+/* Matches all jets in the event by the geomerty
  */
 
 class JetMatcher: public ZJetGlobalMetaDataProducerBase
@@ -20,10 +19,14 @@ public:
 
 	virtual ~JetMatcher() {}
 
-	static std::string Name() { return "jet_matcher"; }
+	static std::string Name()
+	{
+		return "jet_matcher";
+	}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const;
+										ZJetMetaData& metaData,
+										ZJetPipelineSettings const& globalSettings) const;
 
 private:
 	std::string m_jets1, m_jets2, m_matching_name;

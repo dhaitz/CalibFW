@@ -2,14 +2,16 @@
 
 #include "FilterBase.h"
 
-namespace CalibFW {
+namespace CalibFW
+{
 
 class InCutFilter: public ZJetFilterBase
 {
 public:
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
+							   ZJetMetaData const& metaData,
+							   ZJetPipelineSettings const& settings)
 	{
 		//unsigned long ignoredCut = settings.GetFilterInCutIgnored();
 		// no section here is allowed to set to true again, just to false ! avoids coding errors
@@ -38,7 +40,8 @@ class ValidJetFilter: public ZJetFilterBase
 {
 public:
 	virtual bool DoesEventPass(ZJetEventData const& event,
-			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
+							   ZJetMetaData const& metaData,
+							   ZJetPipelineSettings const& settings)
 	{
 		// std::cout << "val z " << metaData.HasValidZ() << std::endl;
 		return metaData.HasValidJet(settings, event);

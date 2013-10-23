@@ -1,16 +1,14 @@
 #pragma once
 
-
-#include "ZJetFilter/FilterBase.h"
-
 #include "ZJetEventPipeline/EventData.h"
 #include "ZJetEventPipeline/MetaData.h"
 #include "ZJetEventPipeline/PipelineSettings.h"
 
+#include "ZJetFilter/FilterBase.h"
+
 namespace CalibFW
 {
 
-typedef FilterBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
-		ZJetFilterBase;
+typedef FilterBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> ZJetFilterBase;
 
 }

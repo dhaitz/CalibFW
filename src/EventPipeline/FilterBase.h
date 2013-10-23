@@ -30,7 +30,7 @@ public:
 
 		m_cacheHasPassed = true;
 		for (FilterDecisions::const_iterator it = GetFilterDecisions().begin();
-			it != GetFilterDecisions().end(); it++)
+			 it != GetFilterDecisions().end(); it++)
 		{
 			if (it->second == false)
 				m_cacheHasPassed = false;
@@ -40,13 +40,13 @@ public:
 		return m_cacheHasPassed;
 	}
 
-	bool HasPassedIfExcludingFilter(std::string const& excludedFilter ) const
+	bool HasPassedIfExcludingFilter(std::string const& excludedFilter) const
 	{
 		for (FilterDecisions::const_iterator it = GetFilterDecisions().begin();
-			it != GetFilterDecisions().end(); it++)
+			 it != GetFilterDecisions().end(); it++)
 		{
 			if (it->second == false)
-				if(it->first != excludedFilter)
+				if (it->first != excludedFilter)
 					return false;
 		}
 
@@ -75,7 +75,7 @@ public:
 		s << "== Filter Decision == " << std::endl;
 
 		for (FilterDecisions::const_iterator it = m_filterDecision.begin();
-				it != m_filterDecision.end(); it++)
+			 it != m_filterDecision.end(); it++)
 		{
 			s << it->first << " : " << it->second << std::endl;
 		}
@@ -100,8 +100,8 @@ public:
 	{
 	}
 
-	// todo: do we event need this init this ?
-	virtual void Init(EventPipeline<TData, TMetaData, TSettings> * pset)
+	// TODO: Do we event need this init?
+	virtual void Init(EventPipeline<TData, TMetaData, TSettings>* pset)
 	{
 		//m_pipeline = pset;
 	}
@@ -118,13 +118,6 @@ public:
 	{
 		return GetFilterId();
 	}
-/*
-	TSettings * GetPipelineSettings()
-	{
-		return m_pipeline->GetSettings();
-	}
-*/
-	//EventPipeline<TData, TMetaData, TSettings> * m_pipeline;
 };
 
 }

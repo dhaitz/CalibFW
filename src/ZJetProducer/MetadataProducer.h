@@ -9,8 +9,6 @@ namespace CalibFW
 
 typedef GlobalMetaDataProducerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
 		ZJetGlobalMetaDataProducerBase;
-//typedef CutHandler<ZJetEventData , ZJetPipelineSettings > ZJetCutHandler;
-//typedef EventConsumerBase<EventResult, ZJetPipelineSettings> ZJetConsumerBase;
 
 /** Select only valid muons.
 
@@ -24,11 +22,12 @@ class ValidMuonProducer: public ZJetGlobalMetaDataProducerBase
 public:
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-			ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
+										ZJetMetaData& metaData,
+										ZJetPipelineSettings const& globalSettings) const
 	{
 		// Apply muon isolation and MuonID
 		for (KDataMuons::iterator it = data.m_muons->begin();
-				it != data.m_muons->end(); it++)
+			 it != data.m_muons->end(); it++)
 		{
 			bool good_muon = true;
 
@@ -85,22 +84,22 @@ class ValidJetProducer: public ZJetGlobalMetaDataProducerBase
 {
 
 public:
-	ValidJetProducer(bool Tagged) : ZJetGlobalMetaDataProducerBase(), tagged(Tagged){}
+	ValidJetProducer(bool Tagged) : ZJetGlobalMetaDataProducerBase(), tagged(Tagged) {}
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
-			ZJetMetaData& metaData,
-			ZJetPipelineSettings const& m_pipelineSettings) const
+								  ZJetMetaData& metaData,
+								  ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		// nothing to do here
 	}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
-			ZJetMetaData& metaData,
-			ZJetPipelineSettings const& globalSettings) const
+										ZJetMetaData& metaData,
+										ZJetPipelineSettings const& globalSettings) const
 	{
 
 		for (ZJetEventData::PfMapIterator italgo = event.m_pfJets.begin();
-				italgo != event.m_pfJets.end(); ++italgo)
+			 italgo != event.m_pfJets.end(); ++italgo)
 		{
 			std::string sAlgoName = italgo->first;
 			event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
@@ -129,7 +128,7 @@ public:
 
 		// validate PF Jets
 		for (ZJetEventData::PfPointerMapIterator italgo = event.m_pfPointerJets.begin(); italgo
-				!= event.m_pfPointerJets.end(); ++italgo)
+			 != event.m_pfPointerJets.end(); ++italgo)
 		{
 			// init collections for this algorithm
 			std::string sAlgoName = italgo->first;
@@ -141,7 +140,7 @@ public:
 			//CALIB_LOG("italgo size" << italgo->second->size());
 
 			for (std::vector<KDataPFJet*>::iterator itjet = italgo->second->begin();
-					itjet != italgo->second->end(); ++itjet)
+				 itjet != italgo->second->end(); ++itjet)
 			{
 				bool good_jet = true;
 
@@ -211,7 +210,8 @@ public:
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-			ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
+										ZJetMetaData& metaData,
+										ZJetPipelineSettings const& globalSettings) const
 	{
 		KDataMuons const& valid_muons = metaData.GetValidMuons();
 
@@ -308,7 +308,7 @@ public:
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-			ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
+										ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
 	{
 		// Check number of particles (could be simplified after study)
 		if (data.m_particles->size() < 0)
@@ -399,7 +399,8 @@ public:
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-			ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
+										ZJetMetaData& metaData,
+										ZJetPipelineSettings const& globalSettings) const
 	{
 		// Valid gen Z producer
 		if (unlikely(metaData.m_genZs.size() < 1))
@@ -432,7 +433,7 @@ public:
 		if (metaData.m_genZs.size() >= 1)
 		{
 			RMDataLV vec = metaData.m_genMuons[0].p4 + metaData.m_genMuons[1].p4
-					- metaData.m_genZs[0].p4;
+						   - metaData.m_genZs[0].p4;
 			if (vec.Pt() > 1e-3)	// differs more than a MeV
 			{
 				CALIB_LOG("Muons not from Z decay: pt:" << vec.Pt() << ", eta: " << vec.Eta() << ", phi: " << vec.Phi() << ", m: " << vec.M());
@@ -499,7 +500,10 @@ public:
 		return true;
 	}
 
-	static std::string Name() { return "gen_balance_producer"; }
+	static std::string Name()
+	{
+		return "gen_balance_producer";
+	}
 
 private:
 	const double zptmin;
@@ -525,7 +529,8 @@ public:
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-			ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
+										ZJetMetaData& metaData,
+										ZJetPipelineSettings const& globalSettings) const
 	{
 		double dphi = -1.;
 		double R = -1.;

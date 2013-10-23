@@ -1,13 +1,13 @@
 #include "GlobalInclude.h"
 
-std::ofstream * g_logFile = NULL;
+std::ofstream* g_logFile = NULL;
 
 /* Obtain a backtrace and print it to stdout. */
 void print_trace(void)
 {
-	void *array[10];
+	void* array[10];
 	size_t size;
-	char **strings;
+	char** strings;
 	size_t i;
 
 	size = backtrace(array, 10);
@@ -15,7 +15,7 @@ void print_trace(void)
 	printf("Obtained %zd stack frames.\n", size);
 
 	for (i = 0; i < size; i++)
-		printf ("%s\n", strings[i]);
+		printf("%s\n", strings[i]);
 
 	free(strings);
 }

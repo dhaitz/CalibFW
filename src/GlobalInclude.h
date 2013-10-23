@@ -14,7 +14,7 @@
 
 #include "KappaTools/Toolbox/IOHelper.h"
 
-extern std::ofstream * g_logFile;
+extern std::ofstream* g_logFile;
 
 /// compare floats
 #define FLOAT_COMPARE(first, second) (std::abs((first - second) / second) < 0.02)

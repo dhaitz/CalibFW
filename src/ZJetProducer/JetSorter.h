@@ -13,16 +13,20 @@ class JetSorter: public ZJetGlobalMetaDataProducerBase
 {
 public:
 	virtual void PopulateMetaData(ZJetEventData const& data,
-			ZJetMetaData & metaData,
-			ZJetPipelineSettings const& m_pipelineSettings) const
+								  ZJetMetaData& metaData,
+								  ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		// nothing to do here
 	}
 
-	static std::string Name() { return "jet_sorter_producer"; }
+	static std::string Name()
+	{
+		return "jet_sorter_producer";
+	}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
+										ZJetMetaData& metaData,
+										ZJetPipelineSettings const& globalSettings) const
 	{
 		metaData.SortJetCollections();
 		return true;

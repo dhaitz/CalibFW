@@ -16,7 +16,8 @@ public:
 	HltFilter() {}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
+							   ZJetMetaData const& metaData,
+							   ZJetPipelineSettings const& settings)
 	{
 		if (metaData.GetSelectedHlt().empty())
 			// no HLT found

@@ -74,7 +74,7 @@ public:
 
 
 	KEventMetadata* GetKappaMetaData(ZJetEventData const& evtData,
-			ZJetPipelineSettings const& psettings) const;
+									 ZJetPipelineSettings const& psettings) const;
 
 	bool IsMetaJetAlgo(std::string const& algoName) const
 	{
@@ -84,42 +84,41 @@ public:
 
 	void AddValidJet(KDataPFTaggedJet const& jet, std::string algoName)
 	{
-   	m_validPFJets[algoName].push_back(jet);
-   
+		m_validPFJets[algoName].push_back(jet);
 	}
 
 
-	std::vector<KDataPFTaggedJet> & GetPFValidJetCollection(std::string const& algoName)
+	std::vector<KDataPFTaggedJet>& GetPFValidJetCollection(std::string const& algoName)
 	{
 		return m_validPFJets.at(algoName);
 	}
 
 	// ## ACCESS TO VALID JETS
 	unsigned int GetValidJetCount(
-			ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData, std::string algoName) const;
+		ZJetPipelineSettings const& psettings,
+		ZJetEventData const& evtData, std::string algoName) const;
 
 	unsigned int GetValidJetCount(
-			ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData) const
+		ZJetPipelineSettings const& psettings,
+		ZJetEventData const& evtData) const
 	{
 		return GetValidJetCount(psettings, evtData, psettings.GetJetAlgorithm());
 	}
 
 	KDataLV* GetValidJet(ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData,
-			unsigned int index,
-			std::string algoName) const;
+						 ZJetEventData const& evtData,
+						 unsigned int index,
+						 std::string algoName) const;
 
-	KDataLV * GetValidPrimaryJet(ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData) const
+	KDataLV* GetValidPrimaryJet(ZJetPipelineSettings const& psettings,
+								ZJetEventData const& evtData) const
 	{
 		return GetValidJet(psettings, evtData, 0);
 	}
 
 	KDataLV* GetValidJet(ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData,
-			unsigned int index) const
+						 ZJetEventData const& evtData,
+						 unsigned int index) const
 	{
 		return GetValidJet(psettings, evtData, index, psettings.GetJetAlgorithm());
 	}
@@ -127,24 +126,24 @@ public:
 	// ## ACCESS TO INVALID JETS
 
 	KDataLV* GetInvalidJet(ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData,
-			unsigned int index,
-			std::string algoName) const;
+						   ZJetEventData const& evtData,
+						   unsigned int index,
+						   std::string algoName) const;
 
 	KDataLV* GetInvalidJet(ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData, unsigned int index) const
+						   ZJetEventData const& evtData, unsigned int index) const
 	{
 		return GetInvalidJet(psettings, evtData, index, psettings.GetJetAlgorithm());
 	}
 
 	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData, std::string algoName) const
+									ZJetEventData const& evtData, std::string algoName) const
 	{
 		return this->m_listInvalidJets[algoName].size();
 	}
 
 	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings,
-			ZJetEventData const& evtData) const
+									ZJetEventData const& evtData) const
 	{
 		return GetInvalidJetCount(psettings, evtData, psettings.GetJetAlgorithm());
 	}
@@ -205,16 +204,13 @@ public:
 	IMPL_PROPERTY(bool, ValidZ)
 	IMPL_PROPERTY(bool, ValidGenZ)
 	IMPL_PROPERTY(bool, ValidParton)
-
 	IMPL_PROPERTY(KDataLV, Z)
 	IMPL_PROPERTY(KDataLV, GenZ)
 	IMPL_PROPERTY(KDataLV, GenMet)
 	IMPL_PROPERTY(KGenParticle, BalancedParton)
 	IMPL_PROPERTY(KGenParticle, LeadingParton)
 	IMPL_PROPERTY(double, BalanceQuality)
-
 	IMPL_PROPERTY(double, Weight)
-
 	IMPL_PROPERTY(std::string, SelectedHlt)
 
 	KDataMuons const& GetValidMuons() const
@@ -301,7 +297,7 @@ public:
 	{
 		if (std::string::npos != psettings.GetJetAlgorithm().find("CHS"))
 			return &UEchs;
-        else
+		else
 			return &UE;
 	}
 
@@ -316,7 +312,6 @@ public:
 	// Jet Matching Result
 	typedef boost::ptr_map<std::string, std::vector<int> > MatchingResults;
 	MatchingResults m_matchingResults;
-
 	HLTTools* m_hltInfo;
 
 	// holds pipeline specific metadata of the current pipeline

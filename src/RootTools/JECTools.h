@@ -156,11 +156,11 @@ public:
 	}
 
 	JECService(KVertexSummary* vertexSummary,  KJetArea* jetArea, const std::string prefix,
-			const std::vector<std::string>& level, const std::string algo,
-			KEventMetadata* eventmetadata,
-			const double R, const int jeuDir = 0, double rcorr = 0.0, unsigned int* run = 0)
+			   const std::vector<std::string>& level, const std::string algo,
+			   KEventMetadata* eventmetadata,
+			   const double R, const int jeuDir = 0, double rcorr = 0.0, unsigned int* run = 0)
 		: area(-1), jeuType(jec_center), JEC(0), JEU(0), vs(vertexSummary),
-			ja(jetArea), runCorr(rcorr), evtMeta(eventmetadata), nRun0(201000)
+		  ja(jetArea), runCorr(rcorr), evtMeta(eventmetadata), nRun0(201000)
 	{
 		init(level, jeuDir, prefix , algo);
 		if (rcorr != 0.0)
@@ -181,7 +181,7 @@ public:
 		//		<< " = " << ((signed int) evtMeta->nRun - nRun0) << " * " << hcalCorr
 		//		<< " = " << (((signed int) evtMeta->nRun - nRun0) * hcalCorr))
 		correctJets(jets, JEC, JEU, ja->median, vs->nVertices, area, jeuType,
-				((signed int) evtMeta->nRun - nRun0)*runCorr);
+					((signed int) evtMeta->nRun - nRun0)*runCorr);
 
 	}
 

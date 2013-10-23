@@ -26,8 +26,8 @@ public:
 	static bool IsRaw(std::string algoname)
 	{
 		return boost::algorithm::ends_with(algoname, "PFJets") ||
-			boost::algorithm::ends_with(algoname, "PFJetsCHS") ||
-			boost::algorithm::ends_with(algoname, "CaloJets");
+			   boost::algorithm::ends_with(algoname, "PFJetsCHS") ||
+			   boost::algorithm::ends_with(algoname, "CaloJets");
 	}
 
 	static bool IsPF(std::string algoname)

@@ -11,29 +11,24 @@ class JetPtFilter: public ZJetFilterBase
 {
 public:
 
-	JetPtFilter() :
-		ZJetFilterBase()
-	{
-	}
+	JetPtFilter() : ZJetFilterBase() {}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
+							   ZJetMetaData const& metaData,
+							   ZJetPipelineSettings const& settings)
 	{
 		bool bPass = true;
 		double fBinVal;
 
-		
-			if (!metaData.HasValidJet(settings, event))
-				return false;
+		if (!metaData.HasValidJet(settings, event))
+			return false;
 
-			KDataLV * pJet = metaData.GetValidPrimaryJet(settings,event);
-			fBinVal = pJet->p4.Pt();
-		
+		KDataLV* pJet = metaData.GetValidPrimaryJet(settings, event);
+		fBinVal = pJet->p4.Pt();
 
-		if (!(fBinVal >= settings.GetFilterJetPtLow()))
+		if (fBinVal < settings.GetFilterJetPtLow())
 			bPass = false;
-
-		if (!(fBinVal < settings.GetFilterJetPtHigh()))
+		if (fBinVal >= settings.GetFilterJetPtHigh())
 			bPass = false;
 
 		return bPass;

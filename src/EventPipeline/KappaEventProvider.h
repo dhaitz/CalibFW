@@ -40,7 +40,10 @@ public:
 	}
 
 	// overwrite using template specialization
-	void WireEvent(bool phicorrection, bool tagged) {assert(false);}
+	void WireEvent(bool phicorrection, bool tagged)
+	{
+		assert(false);
+	}
 
 	virtual bool GotoEvent(long long lEvent, HLTTools* hltInfo, int sampleinit)
 	{

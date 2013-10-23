@@ -23,17 +23,21 @@ public:
 	}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
+							   ZJetMetaData const& metaData,
+							   ZJetPipelineSettings const& settings)
 	{
 		double response;
 
 		if (!metaData.HasValidZ() || !metaData.HasValidJet(settings, event))
 			return false;
 
-		if (m_respType == Balance) {
+		if (m_respType == Balance)
+		{
 			response = metaData.GetValidPrimaryJet(settings, event)->p4.Pt();
 			response /= metaData.GetRefZ().p4.Pt();
-		} else {
+		}
+		else
+		{
 			response = metaData.GetMPF(metaData.GetMet(event, settings));
 		}
 
@@ -41,7 +45,10 @@ public:
 				response < settings.GetFilterResponseHigh());
 	}
 
-	virtual std::string GetFilterId() { return "response"; }
+	virtual std::string GetFilterId()
+	{
+		return "response";
+	}
 
 };
 }

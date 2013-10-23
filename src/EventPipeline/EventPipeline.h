@@ -16,10 +16,8 @@ namespace CalibFW
 template<class TData, class TMetaData, class TSettings>
 class EventPipeline;
 
-/*
-
-  Base class for your custom PipelineInitializer. Your custom code
-  can add Filters and Consumers to newly created pipelines.
+/* Base class for your custom PipelineInitializer. Your custom code
+ * can add Filters and Consumers to newly created pipelines.
  */
 
 template<class TData, class TMetaData, class TSettings>
@@ -27,8 +25,8 @@ class PipelineInitilizerBase
 {
 public:
 	virtual void InitPipeline(
-			EventPipeline<TData, TMetaData, TSettings> * pLine,
-			TSettings const& pset) const = 0;
+		EventPipeline<TData, TMetaData, TSettings>* pLine,
+		TSettings const& pset) const = 0;
 
 };
 
@@ -72,61 +70,50 @@ template<class TData, class TMetaData, class TSettings>
 class EventPipeline: public boost::noncopyable
 {
 public:
-
-	typedef EventConsumerBase<TData, TMetaData, TSettings>
-			ConsumerForThisPipeline;
-	typedef boost::ptr_vector<EventConsumerBase<TData, TMetaData, TSettings> >
-			ConsumerVector;
+	typedef EventConsumerBase<TData, TMetaData, TSettings> ConsumerForThisPipeline;
+	typedef boost::ptr_vector<EventConsumerBase<TData, TMetaData, TSettings> > ConsumerVector;
 	typedef typename ConsumerVector::iterator ConsumerVectorIterator;
-
 	typedef FilterBase<TData, TMetaData, TSettings> FilterForThisPipeline;
-	typedef boost::ptr_vector<FilterBase<TData, TMetaData, TSettings> >
-			FilterVector;
+	typedef boost::ptr_vector<FilterBase<TData, TMetaData, TSettings> >	FilterVector;
 	typedef typename FilterVector::iterator FilterVectorIterator;
 
-	typedef LocalMetaDataProducerBase<TData, TMetaData, TSettings>
-			MetaDataProducerForThisPipeline;
+	typedef LocalMetaDataProducerBase<TData, TMetaData, TSettings> MetaDataProducerForThisPipeline;
 
-	typedef boost::ptr_vector< MetaDataProducerForThisPipeline >
-			MetaDataProducerVector;
+	typedef boost::ptr_vector< MetaDataProducerForThisPipeline > MetaDataProducerVector;
 	typedef typename MetaDataProducerVector::iterator MetaDataVectorIterator;
 
 
-	/*
-	 * Virtual constructor
-	 */
-	virtual ~EventPipeline(){};
+	/* Virtual constructor */
+	virtual ~EventPipeline() {};
 
 	/*
 	  Initialize the pipeline using a custom PipelineInitilizer. This PipelineInitilizerBase can
 	  create specific Filters and Consumers
 	 */
-	virtual void InitPipeline(TSettings pset, PipelineInitilizerBase<TData,
-			TMetaData, TSettings> const& initializer)
+	virtual void InitPipeline(
+		TSettings pset,
+		PipelineInitilizerBase<TData, TMetaData, TSettings> const& initializer)
 	{
 		m_pipelineSettings = pset;
 		initializer.InitPipeline(this, pset);
 
 		// init Filters
 		for (FilterVectorIterator itfilter = m_filter.begin();
-				itfilter != m_filter.end(); itfilter++)
+			 itfilter != m_filter.end(); itfilter++)
 		{
 			itfilter->Init(this);
 		}
 
 		// init Consumers
 		for (ConsumerVectorIterator itcons = m_consumer.begin();
-				itcons != m_consumer.end(); itcons++)
+			 itcons != m_consumer.end(); itcons++)
 		{
 			itcons->Init(this);
 		}
-
 	}
 
 
-	/*
-	  Useful debug output of the Pipeline Content
-	 */
+	/* Useful debug output of the Pipeline Content */
 	virtual std::string GetContent()
 	{
 		std::stringstream s;
@@ -135,42 +122,37 @@ public:
 		s << "== Pipeline Filter: ";
 
 		for (FilterVectorIterator itfilter = m_filter.begin();
-				itfilter != m_filter.end(); itfilter++)
+			 itfilter != m_filter.end(); itfilter++)
 		{
 			s << std::endl << itfilter->GetFilterId();
 		}
-
 		return s.str();
 	}
 
-	/*
-	  Called once all events have been passed to the pipeline
-	 */
+	/* Called once all events have been passed to the pipeline */
 	virtual void FinishPipeline()
 	{
 		for (ConsumerVectorIterator itcons = m_consumer.begin();
-				itcons != m_consumer.end(); itcons++)
+			 itcons != m_consumer.end(); itcons++)
 			itcons->Finish();
 		for (FilterVectorIterator itfilter = m_filter.begin();
-				itfilter != m_filter.end(); itfilter++)
+			 itfilter != m_filter.end(); itfilter++)
 			itfilter->Finish();
 	}
 
-	/*
-	 * Run the pipeline without specific event input. This is most useful for
+	/* Run the pipeline without specific event input. This is most useful for
 	 * Pipelines which process output from Pipelines already run.
 	 */
 	virtual void Run()
 	{
 		for (ConsumerVectorIterator itcons = m_consumer.begin();
-				itcons != m_consumer.end(); itcons++)
+			 itcons != m_consumer.end(); itcons++)
 		{
 			itcons->Process();
 		}
 	}
 
-	/*
-	 * Run the pipeline with one specific event as input
+	/* Run the pipeline with one specific event as input
 	 * The globalMetaData is meta data which is equal for all pipelines and has therefore
 	 * been created only once.
 	 */
@@ -184,7 +166,7 @@ public:
 		// run MetaDataProducers
 		// Pipeline private MetaDataProducers not supported at the moment
 		for (MetaDataVectorIterator it = m_producer.begin();
-				it != m_producer.end(); it++)
+			 it != m_producer.end(); it++)
 		{
 			it->PopulateLocal(evt, globalMetaData, localMetaData, m_pipelineSettings);
 		}
@@ -192,15 +174,15 @@ public:
 		// run Filters
 		FilterResult fres;
 		for (FilterVectorIterator itfilter = m_filter.begin();
-				itfilter != m_filter.end(); itfilter++)
+			 itfilter != m_filter.end(); itfilter++)
 		{
 			fres.SetFilterDecisions(itfilter->GetFilterId(),
-					itfilter->DoesEventPass(evt, globalMetaData, m_pipelineSettings));
+									itfilter->DoesEventPass(evt, globalMetaData, m_pipelineSettings));
 		}
 
 		// run Consumer
 		for (ConsumerVectorIterator itcons = m_consumer.begin();
-				itcons != m_consumer.end(); itcons++)
+			 itcons != m_consumer.end(); itcons++)
 		{
 			if (fres.HasPassed())
 				itcons->ProcessFilteredEvent(evt, globalMetaData);
@@ -222,19 +204,16 @@ public:
 		return NULL;
 	}
 
-	/*
-	 * Return a reference to the settings used within this pipeline
-	 */
+	/* Return a reference to the settings used within this pipeline */
 	virtual TSettings const& GetSettings() const
 	{
 		return m_pipelineSettings;
 	}
 
-	/*
-	 * Add a new Filter to this Pipeline
+	/* Add a new Filter to this Pipeline
 	 * The object will be freed in EventPipelines destructor
 	 */
-	virtual void AddFilter(FilterForThisPipeline * pFilter)
+	virtual void AddFilter(FilterForThisPipeline* pFilter)
 	{
 		if (FindFilter(pFilter->GetFilterId()) != NULL)
 			throw std::exception();
@@ -242,28 +221,24 @@ public:
 		m_filter.push_back(pFilter);
 	}
 
-	/*
-	 * Add a new Consumer to this Pipeline
+	/* Add a new Consumer to this Pipeline
 	 * The object will be freed in EventPipelines destructor
 	 */
-	virtual void AddConsumer(ConsumerForThisPipeline * pConsumer)
+	virtual void AddConsumer(ConsumerForThisPipeline* pConsumer)
 	{
 		m_consumer.push_back(pConsumer);
 	}
 
-	/*
-	 * Add a new MetaDataProducer to this Pipeline
+	/* Add a new MetaDataProducer to this Pipeline
 	 * The object will be freed in EventPipelines destructor
 	 */
-	virtual void AddMetaDataProducer(MetaDataProducerForThisPipeline * pProd)
+	virtual void AddMetaDataProducer(MetaDataProducerForThisPipeline* pProd)
 	{
 		m_producer.push_back(pProd);
 	}
 
 
-	/*
-	 * Return a list of filters is this pipeline
-	 */
+	/* Return a list of filters is this pipeline */
 	const boost::ptr_vector<FilterBase<TData, TMetaData, TSettings> >& GetFilters()
 	{
 		return m_filter;

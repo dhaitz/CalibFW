@@ -42,7 +42,7 @@ public:
 
 		// 2nd jet pt reweighting
 		if (m_pipelineSettings.Global()->GetEnable2ndJetReweighting() &&
-		    metaData.GetValidJetCount(m_pipelineSettings, data, "AK5PFJetsCHSL1L2L3") < 2)
+			metaData.GetValidJetCount(m_pipelineSettings, data, "AK5PFJetsCHSL1L2L3") < 2)
 		{
 			KDataLV* jet2 = metaData.GetValidJet(m_pipelineSettings, data, 1, "AK5PFJetsCHSL1L2L3");
 			// apply a new weight for 2 GeV pt bins

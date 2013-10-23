@@ -99,7 +99,7 @@ public:
 
 			// create global meta data
 			for (GlobalMetaProducerIterator it = m_globalMetaProducer.begin();
-					it != m_globalMetaProducer.end(); it++)
+				 it != m_globalMetaProducer.end(); it++)
 			{
 				bEventValid = it->PopulateGlobalMetaData(evtProvider.GetCurrentEvent(), metaDataGlobal, settings);
 				//CALIB_LOG(it->GetContent())
@@ -112,17 +112,17 @@ public:
 			{
 				if (unlikely(nEvents - firstEvent < 100)) // debug output
 					CALIB_LOG("Event "
-							<< evtProvider.GetCurrentEvent().m_eventmetadata->nRun << ":"
-							<< evtProvider.GetCurrentEvent().m_eventmetadata->nLumi << ":"
-							<< evtProvider.GetCurrentEvent().m_eventmetadata->nEvent);
+							  << evtProvider.GetCurrentEvent().m_eventmetadata->nRun << ":"
+							  << evtProvider.GetCurrentEvent().m_eventmetadata->nLumi << ":"
+							  << evtProvider.GetCurrentEvent().m_eventmetadata->nEvent);
 				for (PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
 				{
 					if (it->GetSettings().GetLevel() == 1)
 					{
 						if (unlikely(nEvents - firstEvent < 5)) // debug output
 							CALIB_LOG("Event:" << i
-								<< ", new pipeline: " << it->GetSettings().ToString()
-								<< ", algorithm: " << it->GetSettings().GetJetAlgorithm());
+									  << ", new pipeline: " << it->GetSettings().ToString()
+									  << ", algorithm: " << it->GetSettings().GetJetAlgorithm());
 						it->RunEvent(evtProvider.GetCurrentEvent(), metaDataGlobal);
 					}
 				}
@@ -132,12 +132,12 @@ public:
 
 		// first safe the results ( > plots ) from all level one pipelines
 		for (PipelinesIterator it = m_pipelines.begin();
-				!(it == m_pipelines.end()); it++)
+			 !(it == m_pipelines.end()); it++)
 		{
 			if (it->GetSettings().GetLevel() == 1)
 				it->FinishPipeline();
 		}
-/*
+		/*
 		// run the pipelines greater level one
 		for (unsigned int i = 2; i < 10; i++)
 		{
@@ -148,10 +148,9 @@ public:
 					it->Run();
 					it->FinishPipeline();
 				}
-
-			}
+				}
 		}
-*/
+		*/
 
 		delete hltTools;
 		return (nEvents - firstEvent);

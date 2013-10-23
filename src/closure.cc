@@ -80,7 +80,7 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 {
 	// extend here, if you want to provide a new global meta producer
 	for (std::vector<std::string>::const_iterator it = producer.begin();
-			it != producer.end(); ++it)
+		 it != producer.end(); ++it)
 	{
 		if (ValidMuonProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidMuonProducer());
@@ -99,7 +99,7 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 		else if (JetSorter::Name() == *it)
 			runner.AddGlobalMetaProducer(new JetSorter());
 		else if (HltSelector::Name() == *it)
-			runner.AddGlobalMetaProducer(new HltSelector( PropertyTreeSupport::GetAsStringList(&globalSettings, "HltPaths", true)));
+			runner.AddGlobalMetaProducer(new HltSelector(PropertyTreeSupport::GetAsStringList(&globalSettings, "HltPaths", true)));
 		else if (JetMatcher::Name() == *it)
 			runner.AddGlobalMetaProducer(new JetMatcher(PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else if (GenProducer::Name() == *it)
@@ -133,7 +133,7 @@ int main(int argc, char** argv)
 	if (argc < 2)
 	{
 		std::cerr << "Usage: " << argv[0]
-			<< " json_config_file.json [VerboseLevel]\n";
+				  << " json_config_file.json [VerboseLevel]\n";
 		return 1;
 	}
 
@@ -165,7 +165,9 @@ int main(int argc, char** argv)
 		if (g_sourcefiles.size() == 0)
 		{
 			CALIB_LOG_FATAL("No Kappa input files specified.");
-		} else {
+		}
+		else
+		{
 			CALIB_LOG_FILE("Input files (" << g_sourcefiles.size() << "):");
 		}
 	}
@@ -174,132 +176,132 @@ int main(int argc, char** argv)
 	g_resFile = new TFile(sRootOutputFilename.c_str(), "RECREATE");
 
 	{
-	FileInterface2 finterface(g_sourcefiles);
-	CALIB_LOG_FILE("Output file: " << sRootOutputFilename);
+		FileInterface2 finterface(g_sourcefiles);
+		CALIB_LOG_FILE("Output file: " << sRootOutputFilename);
 
-	// setup Global Settings
-	ZJetGlobalSettings gset;
+		// setup Global Settings
+		ZJetGlobalSettings gset;
 
-	gset.SetEnablePuReweighting(g_propTree.get<bool>("EnablePuReweighting", false));
-	gset.SetEnable2ndJetReweighting(g_propTree.get<bool>("Enable2ndJetReweighting", false));
-	gset.SetEnableSampleReweighting(g_propTree.get<bool>("EnableSampleReweighting", false));
-	gset.SetEnableLumiReweighting(g_propTree.get<bool>("EnableLumiReweighting", false));
-	gset.SetXSection(g_propTree.get<double>("XSection", -1));
-	gset.SetEnableMetPhiCorrection(g_propTree.get<bool>("EnableMetPhiCorrection", false));
-	gset.SetMuonID2011(g_propTree.get<bool>("MuonID2011", false));
-	gset.SetHcalCorrection(g_propTree.get<double>("HcalCorrection", 0.0));
-	gset.SetSkipEvents(g_propTree.get<long long>("SkipEvents", 0));
-	gset.SetEventCount(g_propTree.get<long long>("EventCount", -1));
-
-
-
-	if (g_propTree.get<std::string>("InputType", "mc") == "data")
-	{
-		gset.SetJsonFile(g_propTree.get<std::string>("JsonFile"));
-		g_inputType = DataInput;
-	}
-	else
-	{
-		gset.m_recovertWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
-		gset.m_2ndJetWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "2ndJetWeight");
-		gset.m_sampleWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "SampleWeight");
-		if (gset.GetEnableSampleReweighting() && gset.m_sampleWeight.size() == 0)
-			CALIB_LOG_FATAL("Sample reweighting is enabled but no weights given!");
-
-		g_inputType = McInput;
-	}
-
-	gset.SetInputType(g_inputType);
-
-	ZJetEventProvider evtProvider(finterface, g_inputType, gset.GetEnableMetPhiCorrection(), g_propTree.get<bool>("Tagged"));
-	gset.m_metphi = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "MetPhiCorrectionParameters");
+		gset.SetEnablePuReweighting(g_propTree.get<bool>("EnablePuReweighting", false));
+		gset.SetEnable2ndJetReweighting(g_propTree.get<bool>("Enable2ndJetReweighting", false));
+		gset.SetEnableSampleReweighting(g_propTree.get<bool>("EnableSampleReweighting", false));
+		gset.SetEnableLumiReweighting(g_propTree.get<bool>("EnableLumiReweighting", false));
+		gset.SetXSection(g_propTree.get<double>("XSection", -1));
+		gset.SetEnableMetPhiCorrection(g_propTree.get<bool>("EnableMetPhiCorrection", false));
+		gset.SetMuonID2011(g_propTree.get<bool>("MuonID2011", false));
+		gset.SetHcalCorrection(g_propTree.get<double>("HcalCorrection", 0.0));
+		gset.SetSkipEvents(g_propTree.get<long long>("SkipEvents", 0));
+		gset.SetEventCount(g_propTree.get<long long>("EventCount", -1));
 
 
 
-	// pipline settings
-	ZJetPipelineInitializer plineInit;
-	ZJetPipelineSettings* pset = NULL;
-
-	EventPipelineRunner<ZJetPipeline, ZJetGlobalMetaDataProducerBase> pRunner;
-
-	BOOST_FOREACH(boost::property_tree::ptree::value_type &v,
-			g_propTree.get_child("Pipelines") )
-	{
-		pset = new ZJetPipelineSettings();
-		pset->SetPropTree(&g_propTree);
-
-		std::string sKeyName = v.first.data();
-		pset->SetSettingsRoot("Pipelines." + sKeyName);
-		pset->SetRootOutFile(g_resFile);
-
-		g_pipeSettings.push_back(pset);
-	}
-
-	// get pointers to the interesting collections
-	typedef std::map<std::string, KDataPFJets*> PfMap;
-	PfMap pfJets;
-
-	stringvector globalProducer = PropertyTreeSupport::GetAsStringList(
-			&g_propTree, "GlobalProducer");
-
-	AddGlobalMetaProducer(globalProducer, pRunner, g_propTree);
-
-	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin();
-			it != g_pipeSettings.end(); it++)
-	{
-		(*it)->m_globalSettings = &gset;
-
-		if ((*it)->GetLevel() == 1)
+		if (g_propTree.get<std::string>("InputType", "mc") == "data")
 		{
-			ZJetPipeline* pLine = new ZJetPipeline; //CreateDefaultPipeline();
-
-			pLine->InitPipeline(**it, plineInit);
-			pRunner.AddPipeline(pLine);
+			gset.SetJsonFile(g_propTree.get<std::string>("JsonFile"));
+			g_inputType = DataInput;
 		}
-/*
-		if ((*it)->GetLevel() == 2)
+		else
 		{
-			ZJetPipeline* pLine = new ZJetPipeline; //CreateDefaultPipeline();
+			gset.m_recovertWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
+			gset.m_2ndJetWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "2ndJetWeight");
+			gset.m_sampleWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "SampleWeight");
+			if (gset.GetEnableSampleReweighting() && gset.m_sampleWeight.size() == 0)
+				CALIB_LOG_FATAL("Sample reweighting is enabled but no weights given!");
 
-			pLine->InitPipeline(**it, plineInit);
-			pRunner.AddPipeline(pLine);
+			g_inputType = McInput;
 		}
-		*/
-	}
 
-	// delete the pipeline settings
-	for (PipelineSettingsVector::iterator it = g_pipeSettings.begin();
-			it != g_pipeSettings.end(); it++)
-	{
-		delete *it;
-	}
+		gset.SetInputType(g_inputType);
 
-	// move to config read
-	if (gset.GetEnablePuReweighting())
-		CALIB_LOG_FILE(blue << "Pile-up reweighting enabled." << reset);
-	if (gset.GetEnableSampleReweighting())
-		CALIB_LOG_FILE(blue << "Sample reweighting enabled." << reset);
-	if (gset.GetEnableLumiReweighting())
-		CALIB_LOG_FILE(blue << "Lumi reweighting enabled." << reset);
-	if (gset.GetEnable2ndJetReweighting())
-		CALIB_LOG_FILE(blue << "2nd jet reweighting enabled." << reset);
-	if (gset.GetHcalCorrection())
-		CALIB_LOG_FILE(blue << "HCAL correction enabled." << reset);
-	if (gset.GetEnableMetPhiCorrection())
-		CALIB_LOG_FILE(blue << "MET phi correction enabled." << reset);
-	ZJetPipelineSettings settings;
-	settings.m_globalSettings = &gset;
-	CALIB_LOG_FILE("");
+		ZJetEventProvider evtProvider(finterface, g_inputType, gset.GetEnableMetPhiCorrection(), g_propTree.get<bool>("Tagged"));
+		gset.m_metphi = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "MetPhiCorrectionParameters");
+
+
+
+		// pipline settings
+		ZJetPipelineInitializer plineInit;
+		ZJetPipelineSettings* pset = NULL;
+
+		EventPipelineRunner<ZJetPipeline, ZJetGlobalMetaDataProducerBase> pRunner;
+
+		BOOST_FOREACH(boost::property_tree::ptree::value_type & v,
+					  g_propTree.get_child("Pipelines"))
+		{
+			pset = new ZJetPipelineSettings();
+			pset->SetPropTree(&g_propTree);
+
+			std::string sKeyName = v.first.data();
+			pset->SetSettingsRoot("Pipelines." + sKeyName);
+			pset->SetRootOutFile(g_resFile);
+
+			g_pipeSettings.push_back(pset);
+		}
+
+		// get pointers to the interesting collections
+		typedef std::map<std::string, KDataPFJets*> PfMap;
+		PfMap pfJets;
+
+		stringvector globalProducer = PropertyTreeSupport::GetAsStringList(
+										  &g_propTree, "GlobalProducer");
+
+		AddGlobalMetaProducer(globalProducer, pRunner, g_propTree);
+
+		for (PipelineSettingsVector::iterator it = g_pipeSettings.begin();
+			 it != g_pipeSettings.end(); it++)
+		{
+			(*it)->m_globalSettings = &gset;
+
+			if ((*it)->GetLevel() == 1)
+			{
+				ZJetPipeline* pLine = new ZJetPipeline; //CreateDefaultPipeline();
+
+				pLine->InitPipeline(**it, plineInit);
+				pRunner.AddPipeline(pLine);
+			}
+			/*
+					if ((*it)->GetLevel() == 2)
+					{
+						ZJetPipeline* pLine = new ZJetPipeline; //CreateDefaultPipeline();
+
+						pLine->InitPipeline(**it, plineInit);
+						pRunner.AddPipeline(pLine);
+					}
+					*/
+		}
+
+		// delete the pipeline settings
+		for (PipelineSettingsVector::iterator it = g_pipeSettings.begin();
+			 it != g_pipeSettings.end(); it++)
+		{
+			delete *it;
+		}
+
+		// move to config read
+		if (gset.GetEnablePuReweighting())
+			CALIB_LOG_FILE(blue << "Pile-up reweighting enabled." << reset);
+		if (gset.GetEnableSampleReweighting())
+			CALIB_LOG_FILE(blue << "Sample reweighting enabled." << reset);
+		if (gset.GetEnableLumiReweighting())
+			CALIB_LOG_FILE(blue << "Lumi reweighting enabled." << reset);
+		if (gset.GetEnable2ndJetReweighting())
+			CALIB_LOG_FILE(blue << "2nd jet reweighting enabled." << reset);
+		if (gset.GetHcalCorrection())
+			CALIB_LOG_FILE(blue << "HCAL correction enabled." << reset);
+		if (gset.GetEnableMetPhiCorrection())
+			CALIB_LOG_FILE(blue << "MET phi correction enabled." << reset);
+		ZJetPipelineSettings settings;
+		settings.m_globalSettings = &gset;
+		CALIB_LOG_FILE("");
 
 #ifdef USE_PERFTOOLS
-	ProfilerStart("closure.prof");
+		ProfilerStart("closure.prof");
 #endif
-	//HeapProfilerStart( "resp_cuts.heap");
-	nevents = pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>(evtProvider, settings);
+		//HeapProfilerStart( "resp_cuts.heap");
+		nevents = pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>(evtProvider, settings);
 
-	//HeapProfilerStop();
+		//HeapProfilerStop();
 #ifdef USE_PERFTOOLS
-	ProfilerStop();
+		ProfilerStop();
 #endif
 	}
 	g_resFile->Close();

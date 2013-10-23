@@ -2,7 +2,8 @@
 
 #include "FilterBase.h"
 
-namespace CalibFW {
+namespace CalibFW
+{
 
 /*
  * Filters events by the absolute value of eta_jet1
@@ -13,16 +14,17 @@ class JetEtaFilter: public ZJetFilterBase
 {
 public:
 	virtual bool DoesEventPass(ZJetEventData const& event,
-		ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
+							   ZJetMetaData const& metaData,
+							   ZJetPipelineSettings const& settings)
 	{
 		if (!metaData.HasValidJet(settings, event))
 			//No valid objects found to apply this filter
 			return false;
 
-		KDataLV * jet1 = metaData.GetValidPrimaryJet(settings, event);
+		KDataLV* jet1 = metaData.GetValidPrimaryJet(settings, event);
 		double eta = TMath::Abs(jet1->p4.Eta());
 		return (eta >= settings.GetFilterJetEtaLow()) &&
-		       (eta < settings.GetFilterJetEtaHigh());
+			   (eta < settings.GetFilterJetEtaHigh());
 	}
 
 	virtual std::string GetFilterId()
