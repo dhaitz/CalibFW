@@ -139,7 +139,7 @@ public:
 
 			int i = 0;
 			float lastpt = -1.0f;
-//CALIB_LOG("italgo size" << italgo->second->size())
+			//CALIB_LOG("italgo size" << italgo->second->size());
 
 			for (std::vector<KDataPFJet*>::iterator itjet = italgo->second->begin();
 					itjet != italgo->second->end(); ++itjet)
@@ -305,7 +305,7 @@ class GenProducer: public ZJetGlobalMetaDataProducerBase
 public:
 
 	GenProducer(): ZJetGlobalMetaDataProducerBase(),
-		nmin(50), nmax(1800)
+		nmin(50), nmax(2500)
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
