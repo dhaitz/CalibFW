@@ -1,0 +1,47 @@
+# Makefile for excalibur:artus (c) 2013
+# Joram Berger <joram.berger@cern.ch>
+# Dominik Haitz <dhaitz@cern.ch>
+
+ROOTCFLAGS    = $(shell root-config --cflags)
+ROOTLIBS      = $(shell root-config --libs --glibs)
+ROOTGLIBS     = $(shell root-config --glibs)
+ROOTLDFLAGS   = $(shell root-config --ldflags)
+
+CXX = g++
+CFLAGS = -c -Wall
+LDFLAGS = $(ROOTLDFLAGS) $(ROOTLIBS) $(LIB_PATH) -lboost_regex -lGenVector -lKappa -lKRootTools -lKToolbox
+			
+# wildcards?  
+SOURCES = src/DrawBase.cc src/EventData.cc \
+		src/EventPipelineRunner.cc \
+		src/GlobalInclude.cc \
+		src/ZJet/ZJetPipeline.cpp  \
+        src/ZJet/ZJetPipelineInitializer.cpp  \
+		src/ZJet/MetaDataProducer/CorrJetProducer.cpp  \
+		src/ZJet/MetaDataProducer/JetMatcher.cpp  \
+		src/Pipeline/ProfileConsumerBase.cpp \
+		src/ZJet/ZJetMetaData.cpp \
+		external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc \
+		external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc \
+		external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrector.cc \
+		external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectorParameters.cc \
+		external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc
+OBJECTS =
+EXECUTABLE = excalibur
+
+all: $(SOURCES) $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	$(CXX) $(LDFLAGS) $(OBJECTS) -o $@
+
+.cpp.o:
+	$(CXX) $(CFLAGS) $< -o $@
+
+force:
+	@echo  "force to come"
+
+clean:
+	rm -f src/*o src/*/*.o src/*/*/*.o $(EXECUTABLE)
+
+doc:
+	@echo "Make" $(EXECUTABLE) "documentation in future" $(ROOTCFLAGS)
