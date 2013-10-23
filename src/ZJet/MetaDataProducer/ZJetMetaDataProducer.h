@@ -24,7 +24,7 @@ class ValidMuonProducer: public ZJetGlobalMetaDataProducerBase
 public:
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
+			ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
 	{
 		// Apply muon isolation and MuonID
 		for (KDataMuons::iterator it = data.m_muons->begin();
@@ -88,45 +88,44 @@ public:
 	ValidJetProducer(bool Tagged) : ZJetGlobalMetaDataProducerBase(), tagged(Tagged){}
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
-			ZJetMetaData & metaData,
+			ZJetMetaData& metaData,
 			ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		// nothing to do here
 	}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
-			ZJetMetaData & metaData,
+			ZJetMetaData& metaData,
 			ZJetPipelineSettings const& globalSettings) const
 	{
 
-  		for (ZJetEventData::PfMapIterator italgo = event.m_pfJets.begin(); italgo
-			    != event.m_pfJets.end(); ++italgo)
-        {
-            
-		    std::string sAlgoName = italgo->first;
-            event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
+		for (ZJetEventData::PfMapIterator italgo = event.m_pfJets.begin();
+				italgo != event.m_pfJets.end(); ++italgo)
+		{
+			std::string sAlgoName = italgo->first;
+			event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
 
-            // for tagged PF jets: fill the m_pfPointerJets with a collection of 
-            // casted KDataPFJet pointers pointing to the KDataPFTaggedJet
-            if (tagged)
-            {
-		        std::string sAlgoNameTagged = italgo->first;
-                sAlgoNameTagged.replace(sAlgoName.find("Jets"), 4, "TaggedJets");
+			// for tagged PF jets: fill the m_pfPointerJets with a collection of
+			// casted KDataPFJet pointers pointing to the KDataPFTaggedJet
+			if (tagged)
+			{
+				std::string sAlgoNameTagged = italgo->first;
+				sAlgoNameTagged.replace(sAlgoName.find("Jets"), 4, "TaggedJets");
 
-                KDataPFTaggedJets * tjets = event.m_pfTaggedJets.at(sAlgoNameTagged);
-                event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
-                for (KDataPFTaggedJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
-	                event.m_pfPointerJets[sAlgoName]->push_back(dynamic_cast<KDataPFJet*> (&(*it)));
-            }
-            // for regular (non-tagged) PF jets: fill the m_pfPointerJets with simple pointers
-            else
-            {
-                KDataPFJets * tjets = event.m_pfJets.at(sAlgoName);
-                event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
-                for (KDataPFJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
-	                event.m_pfPointerJets[sAlgoName]->push_back(&(*it));
-            }
-        }
+				KDataPFTaggedJets* tjets = event.m_pfTaggedJets.at(sAlgoNameTagged);
+				event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
+				for (KDataPFTaggedJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
+					event.m_pfPointerJets[sAlgoName]->push_back(dynamic_cast<KDataPFJet*>(&(*it)));
+			}
+			// for regular (non-tagged) PF jets: fill the m_pfPointerJets with simple pointers
+			else
+			{
+				KDataPFJets* tjets = event.m_pfJets.at(sAlgoName);
+				event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
+				for (KDataPFJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
+					event.m_pfPointerJets[sAlgoName]->push_back(&(*it));
+			}
+		}
 
 		// validate PF Jets
 		for (ZJetEventData::PfPointerMapIterator italgo = event.m_pfPointerJets.begin(); italgo
@@ -170,16 +169,16 @@ public:
 				// https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
 				// PFJets, all eta
 				good_jet = good_jet
-					&& ((*itjet)->neutralHadFraction + (*itjet)->HFHadFraction < 0.99)
-					&& ((*itjet)->neutralEMFraction < 0.99)
-					&& ((*itjet)->nConst > 1);
+					&& (*itjet)->neutralHadFraction + (*itjet)->HFHadFraction < 0.99
+					&& (*itjet)->neutralEMFraction < 0.99
+					&& (*itjet)->nConst > 1;
 				// PFJets, |eta| < 2.4 (tracker)
 				if (std::abs((*itjet)->p4.eta()) < 2.4)
 				{
 					good_jet = good_jet
-						&& ((*itjet)->chargedHadFraction > 0.0)
-						&& ((*itjet)->nCharged > 0)
-						&& ((*itjet)->chargedEMFraction < 0.99);
+						&& (*itjet)->chargedHadFraction > 0.0
+						&& (*itjet)->nCharged > 0
+						&& (*itjet)->chargedEMFraction < 0.99;
 				}
 
 				if (good_jet)
@@ -212,7 +211,7 @@ public:
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
+			ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
 	{
 		KDataMuons const& valid_muons = metaData.GetValidMuons();
 
@@ -309,15 +308,21 @@ public:
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
+			ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
 	{
 		// Check number of particles (could be simplified after study)
 		if (data.m_particles->size() < 0)
-			CALIB_LOG("This event contains no generator information.")
+		{
+			CALIB_LOG("This event contains no generator information.");
+		}
 		else if (data.m_particles->size() < nmin)
-			CALIB_LOG("This event contains only few particles: " << data.m_particles->size())
+		{
+			CALIB_LOG("This event contains only few particles: " << data.m_particles->size());
+		}
 		else if (data.m_particles->size() > nmax)
-			CALIB_LOG("This event contains a lot of particles: " << data.m_particles->size())
+		{
+			CALIB_LOG("This event contains a lot of particles: " << data.m_particles->size());
+		}
 
 		// Loop over particles
 		for (auto it = data.m_particles->begin(); it != data.m_particles->end(); ++it)
@@ -326,12 +331,12 @@ public:
 			//if (it->status() != 3)
 			//    continue;
 
-            // ignore first 6 particles (because that is what CMSSW does)
-            if (it-data.m_particles->begin() < 6)
-                continue;
+			// ignore first 6 particles (because that is what CMSSW does)
+			if (it - data.m_particles->begin() < 6)
+				continue;
 
 			if (it->children != 0)
-				CALIB_LOG("Particle has " << it->children << " children.")
+				CALIB_LOG("Particle has " << it->children << " children.");
 
 			// Sort particles in lists in metaData
 			if (std::abs(it->pdgId()) == 13)		// muon
@@ -351,18 +356,18 @@ public:
 			}
 			else // unexpected particles
 			{
-				if (it->status() != 3 && std::abs(it->pdgId()) < 7)//CALIB_LOG("Unexpected particle with id: " << it->pdgId() << ", status: " << it->status())
-                    CALIB_LOG(it->status() << "   id: " << it->pdgId())
+				if (it->status() != 3 && std::abs(it->pdgId()) < 7)
+					CALIB_LOG("Unexpected particle with id: " << it->pdgId() << ", status: " << it->status());
 			}
 		}
 
 		// check for unusual behaviour
 		if (metaData.m_genZs.size() < 1)
-			CALIB_LOG("There is no Z!")
+			CALIB_LOG("There is no gen Z!");
 		if (metaData.m_genPartons.size() < 1)
-			CALIB_LOG("There is no parton!")
+			CALIB_LOG("There is no parton!");
 		if (metaData.m_genMuons.size() < 1)
-			CALIB_LOG("There are no gen muons!")
+			CALIB_LOG("There are no gen muons!");
 		//if (metaData.m_genMuons.size() > 2)
 		//	CALIB_LOG("There are more than 2 gen muons (" << metaData.m_genMuons.size() << ")!")
 
@@ -394,7 +399,7 @@ public:
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
+			ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
 	{
 		// Valid gen Z producer
 		if (unlikely(metaData.m_genZs.size() < 1))
@@ -430,7 +435,7 @@ public:
 					- metaData.m_genZs[0].p4;
 			if (vec.Pt() > 1e-3)	// differs more than a MeV
 			{
-				CALIB_LOG("Muons not from Z decay: pt:" << vec.Pt() << ", eta: " << vec.Eta()<< ", phi: " << vec.Phi()<< ", m: " << vec.M())
+				CALIB_LOG("Muons not from Z decay: pt:" << vec.Pt() << ", eta: " << vec.Eta() << ", phi: " << vec.Phi() << ", m: " << vec.M());
 				metaData.SetValidGenZ(false);
 				return true;
 			}
@@ -520,7 +525,7 @@ public:
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-			ZJetMetaData & metaData, ZJetPipelineSettings const& globalSettings) const
+			ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
 	{
 		double dphi = -1.;
 		double R = -1.;
@@ -538,7 +543,8 @@ public:
 				// decision metric
 				bQuality = std::abs(dphi) + 2.0 * std::abs(R - 1.0);
 
-				if (bQuality < metaData.GetRefBalanceQuality()){
+				if (bQuality < metaData.GetRefBalanceQuality())
+				{
 					metaData.SetValidParton(true);
 					metaData.SetBalanceQuality(bQuality);
 					if (i->p4.Pt() > j->p4.Pt())
