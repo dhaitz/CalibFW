@@ -616,91 +616,13 @@ private:
 		else if (var == genmpf)
 			return metaData.GetGenMPF(metaData.GetPtGenMet()), metaData.GetWeight();
 		else if (var == algoflavour)
-		{
-			const float dist = 0.3;
-			int flavour = 0;
-
-			KGenParticles matching_partons;
-			KGenParticle hardest_parton;
-			KGenParticle hardest_b_quark;
-			KGenParticle hardest_c_quark;
-
-			//get the reference jet:genjet by default, reco jet if no genjet available
-			KDataLV* ref_jet;
-			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-			if (metaData.GetValidJetCount(s, event, genName) > 0)
-				ref_jet = metaData.GetValidJet(s, event, 0, (JetType::GetGenName(s.GetJetAlgorithm())));
-			else
-				ref_jet = metaData.GetValidPrimaryJet(s, event);
-
-			// iterate over all partons and select the ones close to the leading jet
-			for (auto it = metaData.m_genPartons.begin(); it != metaData.m_genPartons.end(); ++it)
-			{
-				if (it->status() == 3)
-					continue;
-
-
-				if (std::abs(ROOT::Math::VectorUtil::DeltaR(ref_jet->p4, it->p4)) < dist)
-				{
-					matching_partons.push_back(*it);
-					if (std::abs(it->pdgId()) == 5 && it->p4.Pt() > hardest_b_quark.p4.Pt())
-						hardest_b_quark = *it;
-					else if (std::abs(it->pdgId()) == 4 && it->p4.Pt() > hardest_c_quark.p4.Pt())
-						hardest_c_quark = *it;
-					else if (it->p4.Pt() > hardest_parton.p4.Pt())
-						hardest_parton = *it;
-				}
-			}
-			if (matching_partons.size() == 0)           // no matches
-				flavour = 0;
-			else if (matching_partons.size() == 1)      // exactly one match
-				flavour = matching_partons[0].pdgId();
-			else if (hardest_b_quark.p4.Pt() > 0.)
-				flavour = hardest_b_quark.pdgId();
-			else if (hardest_c_quark.p4.Pt() > 0.)
-				flavour = hardest_c_quark.pdgId();
-			else
-				flavour = hardest_parton.pdgId();
-
-			return std::abs(flavour);
-		}
+			return metaData.GetAlgoFlavour(s);
 		else if (var == physflavour)
-		{
-			const float dist = 0.3;
-			int flavour = 0;
-			KGenParticles matching_partons;
-
-			//get the reference jet:genjet by default, reco jet if no genjet available
-			KDataLV* ref_jet;
-			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-			if (metaData.GetValidJetCount(s, event, genName) > 0)
-				ref_jet = metaData.GetValidJet(s, event, 0, (JetType::GetGenName(s.GetJetAlgorithm())));
-			else
-				ref_jet = metaData.GetValidPrimaryJet(s, event);
-
-
-			// iterate over all partons and select the ones close to the leading jet
-			for (auto it = metaData.m_genPartons.begin(); it != metaData.m_genPartons.end(); ++it)
-			{
-				if (it->status() != 3)
-					continue;
-
-				if (std::abs(ROOT::Math::VectorUtil::DeltaR(ref_jet->p4, it->p4)) < dist)
-					matching_partons.push_back(*it);
-			}
-			// flavour is only well defined if exactly ONE matching parton!
-			if (matching_partons.size() == 1)
-				flavour = matching_partons[0].pdgId();
-
-			return std::abs(flavour);
-		}
+			return metaData.GetPhysFlavour(s);
 		else
 			CALIB_LOG_FATAL("TTreeConsumer: Quantity " << n << " not available!")
 		};
 
-};
+    };
 
 }
-
-
-

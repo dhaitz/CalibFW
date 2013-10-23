@@ -116,6 +116,8 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 		else if (UnclusteredEnergyProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new UnclusteredEnergyProducer(
 					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
+		else if (FlavourProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new FlavourProducer());
 		else
 			CALIB_LOG_FATAL("Global MetaData producer of name " << *it << " not found");
 	}

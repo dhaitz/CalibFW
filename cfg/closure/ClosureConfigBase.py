@@ -163,7 +163,7 @@ def SetMcSpecific(cfg, run='2012'):
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
 
-    cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'weight_producer']
+    cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'weight_producer', 'flavour_producer']
     cfg['EnableLumiReweighting'] = True
     cfg['XSection'] = -1.0
     return cfg

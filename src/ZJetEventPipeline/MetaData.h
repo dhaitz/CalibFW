@@ -237,6 +237,24 @@ public:
 	KGenParticles m_genMuons;
 	KGenParticles m_genZs;
 
+	typedef std::map<std::string, KGenParticle> MetaPartonContainer;
+	mutable MetaPartonContainer m_algoparton;
+	mutable MetaPartonContainer m_physparton;
+
+	int GetAlgoFlavour(ZJetPipelineSettings const& psettings) const
+	{
+		if (m_algoparton.find(psettings.GetJetAlgorithm()) != m_algoparton.end())
+			return std::abs(m_algoparton[psettings.GetJetAlgorithm()] .pdgId());
+		else return 0;
+	}
+	int GetPhysFlavour(ZJetPipelineSettings const& psettings) const
+	{
+		if (m_physparton.find(psettings.GetJetAlgorithm()) != m_physparton.end())
+			return std::abs(m_physparton[psettings.GetJetAlgorithm()] .pdgId());
+		else return 0;
+	}
+
+
 	KGenParticles const& GetGenMuons() const
 	{
 		return m_genMuons;
