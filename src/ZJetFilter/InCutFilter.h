@@ -1,0 +1,59 @@
+#pragma once
+
+#include "FilterBase.h"
+
+namespace CalibFW {
+
+class InCutFilter: public ZJetFilterBase
+{
+public:
+
+	virtual bool DoesEventPass(ZJetEventData const& event,
+			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
+	{
+		//unsigned long ignoredCut = settings.GetFilterInCutIgnored();
+		// no section here is allowed to set to true again, just to false ! avoids coding errors
+		//return event.IsInCutWhenIgnoringCut(ignoredCut);
+		// todo
+		return metaData.IsAllCutsPassed();
+	}
+
+	virtual std::string GetFilterId()
+	{
+		return InCutFilter::Id();
+	}
+
+	virtual std::string ToString(bool bVerbose = false)
+	{
+		return "InCut";
+	}
+
+	static std::string Id()
+	{
+		return "incut";
+	}
+};
+
+class ValidJetFilter: public ZJetFilterBase
+{
+public:
+	virtual bool DoesEventPass(ZJetEventData const& event,
+			ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
+	{
+		// std::cout << "val z " << metaData.HasValidZ() << std::endl;
+		return metaData.HasValidJet(settings, event);
+	}
+
+	virtual std::string GetFilterId()
+	{
+		return "valid_jet";
+	}
+
+	virtual std::string ToString(bool bVerbose = false)
+	{
+		return "Valid Jet Filter";
+	}
+
+};
+
+}

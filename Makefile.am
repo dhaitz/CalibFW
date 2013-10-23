@@ -35,14 +35,14 @@ OFFLINE_CORR_SRC = $(OFFLINE_CORR)/FactorizedJetCorrector.cc $(OFFLINE_CORR)/Jet
 				   $(OFFLINE_CORR)/JetCorrectionUncertainty.cc
 
 # seems we cant use m4 vars here ??
-CALIB_SRC = src/EventData.cc \
-			src/EventPipelineRunner.cc \
+CALIB_SRC = src/EventPipeline/EventData.cc \
+			src/EventPipeline/EventPipelineRunner.cc \
 			src/GlobalInclude.cc \
-			src/ZJet/ZJetPipeline.cpp  \
-            src/ZJet/ZJetPipelineInitializer.cpp  \
-			src/ZJet/MetaDataProducer/CorrJetProducer.cpp  \
-			src/ZJet/MetaDataProducer/JetMatcher.cpp  \
-			src/ZJet/ZJetMetaData.cpp \
+			src/ZJetEventPipeline/Pipeline.cc \
+            src/ZJetEventPipeline/PipelineInitializer.cc \
+			src/ZJetProducer/CorrJetProducer.cc \
+			src/ZJetProducer/JetMatcher.cc \
+			src/ZJetEventPipeline/MetaData.cc \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc \
 			external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrector.cc \
@@ -51,6 +51,6 @@ CALIB_SRC = src/EventData.cc \
 
 
 bin_PROGRAMS = closure
-closure_SOURCES = src/closure.cpp $(CALIB_SRC)
+closure_SOURCES = src/closure.cc $(CALIB_SRC)
 
 #dist_noinst_SCRIPTS = autogen.sh
