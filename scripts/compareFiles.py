@@ -6,6 +6,7 @@ import sys
 
 opt_all = False
 
+
 def main():
 	global opt_all
 	if len(sys.argv) < 3:
@@ -49,6 +50,7 @@ def compareBin(histo1, histo2, idx):
 		result = False
 	return result
 
+
 def compareTH1(directory1, directory2, histoID):
 	result = True
 	histo1 = directory1.Get(histoID)
@@ -58,13 +60,14 @@ def compareTH1(directory1, directory2, histoID):
 		if not opt_all:
 			return False
 		result = False
-	for binx in range(0, histo1.GetNbinsX()+2):
+	for binx in range(0, histo1.GetNbinsX() + 2):
 		idx = histo1.GetBin(binx)
 		if not compareBin(histo1, histo2, idx):
 			if not opt_all:
 				return False
 			result = False
 	return result
+
 
 def compareTH2(directory1, directory2, histoID):
 	histo1 = directory1.Get(histoID)
@@ -73,8 +76,8 @@ def compareTH2(directory1, directory2, histoID):
 		print "binning not identical"
 		return False
 	try:
-		for binx in range(0, histo1.GetNbinsX()+2):
-			for biny in range(0, histo1.GetNbinsY()+2):
+		for binx in range(0, histo1.GetNbinsX() + 2):
+			for biny in range(0, histo1.GetNbinsY() + 2):
 				idx1 = histo1.GetBin(binx, biny)
 				idx2 = histo2.GetBin(binx, biny)
 				if idx1 != idx2:
@@ -87,6 +90,7 @@ def compareTH2(directory1, directory2, histoID):
 		return False
 	return True
 
+
 def compareTH3(directory1, directory2, histoID):
 	histo1 = directory1.Get(histoID)
 	histo2 = directory2.Get(histoID)
@@ -94,9 +98,9 @@ def compareTH3(directory1, directory2, histoID):
 		print "binning not identical"
 		return False
 	try:
-		for binx in range(0, histo1.GetNbinsX()+2):
-			for biny in range(0, histo1.GetNbinsY()+2):
-				for binz in range(0, histo1.GetNbinsZ()+2):
+		for binx in range(0, histo1.GetNbinsX() + 2):
+			for biny in range(0, histo1.GetNbinsY() + 2):
+				for binz in range(0, histo1.GetNbinsZ() + 2):
 					idx1 = histo1.GetBin(binx, biny, binz)
 					idx2 = histo2.GetBin(binx, biny, binz)
 					if idx1 != idx2:
@@ -108,6 +112,7 @@ def compareTH3(directory1, directory2, histoID):
 		print "general error"
 		return False
 	return True
+
 
 def compareGraph(directory1, directory2, histoID):
 	result = True
@@ -125,6 +130,7 @@ def compareGraph(directory1, directory2, histoID):
 				return False
 			result = False
 	return result
+
 
 def comparePoint(graph1, graph2, point):
 	result = True
@@ -207,11 +213,59 @@ def compareTree(directory1, directory2):
 				if not opt_all:
 					return False
 				result = False
+		if obj.IsA().GetName() == "TNtuple":
+			identified = True
+			if not compareNtuple(directory1, directory2, i.GetName()):
+				if not opt_all:
+					return False
+				result = False
 		if not identified:
 			print "WARNING: %s of type %s in %s has not been checked" % (i.GetName(), obj.IsA().GetName(), directory1.GetPath().split(":")[1])
 	return result
 
 
+def compareNtuple(directory1, directory2, ntupleID):
+	result = True
+	ntuple1 = directory1.Get(ntupleID)
+	ntuple2 = directory2.Get(ntupleID)
+	ntuple1.GetEntry(2)
+	ntuple2.GetEntry(2)
+	leaves1 = ntuple1.GetListOfLeaves()
+	leaves2 = ntuple2.GetListOfLeaves()
+	nleaves1 = leaves1.GetEntriesFast()
+	nleaves2 = leaves2.GetEntriesFast()
+	nevts1 = ntuple1.GetEntries()
+	nevts2 = ntuple1.GetEntries()
+	if nleaves1 != nleaves2:
+		print "different number of leaves"
+		if not opt_all:
+			return False
+		result = False
+	for i in range(nleaves1):
+		if leaves1.UncheckedAt(i).GetName() != leaves2.UncheckedAt(i).GetName():
+			print "different leaf name:", leaves1.UncheckedAt(i).GetName(), leaves2.UncheckedAt(i).GetName()
+			if not opt_all:
+				return False
+			result = False
+	if nevts1 != nevts2:
+		print "different number of events"
+		if not opt_all:
+			return False
+		result = False
+	nevts = min(nevts1, nevts2)
+	for n in range(nevts):
+		if n % 1000 == 0:
+			print "\rEvent %d/%d (%1.1f%%)" % (n, nevts, n * 100. / nevts),
+		ntuple1.GetEntry(n)
+		ntuple2.GetEntry(n)
+		for i in range(nleaves1):
+			if leaves1.UncheckedAt(i).GetValue() != leaves2.UncheckedAt(i).GetValue():
+				print "different leaf value:", leaves1.UncheckedAt(i).GetValue(), leaves2.UncheckedAt(i).GetValue(),
+				print "for name", leaves1.UncheckedAt(i).GetName()
+				if not opt_all:
+					return False
+				result = False
+	return result
 
 if __name__ == "__main__":
 	main()
