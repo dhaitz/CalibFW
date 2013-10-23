@@ -102,7 +102,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
         'GlobalProducer': [    # The order of these producers is important!
             'valid_muon_producer', 'z_producer', 'valid_jet_producer',
             'corr_jet_producer', 'typeImet_producer', 'jet_sorter_producer',
-            'pu_reweighting_producer', 'unclustered_energy_producer'
+            'unclustered_energy_producer',
         ],
         'L1Correction': 'L1FastJet',
         'EnableMetPhiCorrection': False,
@@ -163,7 +163,7 @@ def SetMcSpecific(cfg, run='2012'):
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
 
-    cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer']
+    cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'weight_producer']
     cfg['EnableLumiReweighting'] = True
     cfg['XSection'] = -1.0
     return cfg

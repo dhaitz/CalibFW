@@ -86,8 +86,8 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new ValidMuonProducer());
 		else if (ZProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ZProducer());
-		else if (PuReweightingProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new PuReweightingProducer());
+		else if (WeightProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new WeightProducer());
 		else if (ValidJetProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidJetProducer(
 					globalSettings.get<bool>("Tagged")));

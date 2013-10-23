@@ -12,7 +12,7 @@ namespace CalibFW
 
     This can only be used on MC.
 */
-class PuReweightingProducer: public ZJetGlobalMetaDataProducerBase
+class WeightProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
 
@@ -23,7 +23,7 @@ public:
 		// nothing todo here
 	}
 
-	static std::string Name() { return "pu_reweighting_producer"; }
+	static std::string Name() { return "weight_producer"; }
 
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
