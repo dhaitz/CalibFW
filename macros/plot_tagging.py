@@ -16,7 +16,9 @@ flavourdef = 'physflavour'
 selections = ['(%s >0 && %s < 4)' % (flavourdef, flavourdef),
         '(%s==4)' % flavourdef, '(%s==5)' % flavourdef, '(%s==21)' % flavourdef]
 titles = ['uds', 'c', 'b', 'gluon']
-label_extended = ['uds  ', 'c    ', 'b    ', 'gluon']
+titles_extended = titles + ['qg-mix', 'lc-mix']
+zonelabels = ['uds   ', 'c     ', 'b     ', 'gluon ']
+zonelabels_extended = zonelabels + ['qg-mix', 'lc-mix']
 response = 'mpf'
 
 zones = ['(btag<0.3 && qgtag>0.9   && btag>-1 && qgtag>-1)', # uds
@@ -24,6 +26,9 @@ zones = ['(btag<0.3 && qgtag>0.9   && btag>-1 && qgtag>-1)', # uds
         '(btag>0.9   && btag>-1 && qgtag>-1)',               # b
         '(btag<0.3 && qgtag<0.1   && btag>-1 && qgtag>-1)'   # g
         ]
+zones_extended = zones + [
+        '(btag<0.3 && qgtag>0.1 && qgtag<0.9 && btag>-1 && qgtag>-1)', #qg mix
+        '(btag>0.3 && btag<0.7     && btag>-1 && qgtag>-1)']           # lc mix
 colors = ['#236BB2', '#CC2828', '#458E2F', '#E5AD3D']
 
 def tagging(files, opt):
@@ -72,6 +77,7 @@ def tagging_2D(files, opt):
     
 def tagging_mpf(files, opt):
     """MPF plots for the 4 tagging zones, simple (data/MC) and with stacked fractions."""
+
     for l in [selections, titles, colors]:
         l.reverse()
 
@@ -80,7 +86,7 @@ def tagging_mpf(files, opt):
         stacked += ["(%s)" % "||".join(selections[i:])]
 
     # mpf plots for each zone with the flavour composition stacked
-    for zone, enriched in zip(zones, ['uds', 'c', 'b', 'gluon']):
+    for zone, enriched in zip(zones_extended, titles_extended):
 
         fig, ax = plotbase.newplot()
 
@@ -93,8 +99,6 @@ def tagging_mpf(files, opt):
         del settings
 
         for selection, title, color in zip(stacked, titles, colors):
-
-
             changes = {'selection':'%s ' % " && ".join([selection, zone]), 'labels':["%s" % title], 
                         'title':"%s-enriched" % title, 'colors':[color], 'subplot':True,
                         'markers':'f', 'rebin':4, 'legloc':'upper right',
@@ -103,11 +107,10 @@ def tagging_mpf(files, opt):
             plotdatamc.datamcplot(response, files[1:], opt, (fig, ax), changes=changes)
 
 
-        changes = {'selection':'%s ' % zone, 'subplot':True,
+        changes = {'selection':'%s ' % zone, 'subplot':True, 'title':"%s-enriched" % title,
                         'rebin':4, 'legloc':'upper right'}
         plotdatamc.datamcplot(response, files[:1], opt, (fig, ax), changes=changes)
-        #ax.set_ylim(0, scale)
-        plotbase.Save(fig, "%s_enriched_stacked_%s" % (response, enriched), opt)
+        plotbase.Save(fig, "%s_enriched_stacked_%s" % (response, enriched), opt, settings={'title':enriched})
         
 
         # simple mpf data vs MC
@@ -115,6 +118,9 @@ def tagging_mpf(files, opt):
                     'legloc':'center right', 'filename':"mpf_enriched_%s" % enriched,
                     }
         plotdatamc.datamcplot(response, files, opt, changes=changes)
+    for l in [selections, titles, colors]:
+        l.reverse()
+
 
         
 def tagging_stacked(files, opt):
@@ -162,6 +168,7 @@ def tagging_response(files, opt, PFcorrection = False):
        flavour composition in each tagging zone."""
 
     fig, ax = plotbase.newplot()
+    fig_raw, ax_raw = plotbase.newplot()
     labels = titles
     markers = ['o', 's', 'd', '*']
     colors = ['red', 'black', 'yellowgreen', 'lightskyblue', ]
@@ -171,8 +178,7 @@ def tagging_response(files, opt, PFcorrection = False):
         response_local = '((%s+0.4*jet1neutralhadfraction+2.5*jet1muonfraction)*0.962)' % response
 
     files.reverse()
-    for ffile, name, m, c in zip(files, ['mc', 'data'], 
-                                                   markers, colors):
+    for ffile, name, m, c in zip(files, ['mc', 'data'], markers, colors):
         print name
         if name == 'mc':
             flavours_all = []
@@ -180,14 +186,14 @@ def tagging_response(files, opt, PFcorrection = False):
         mean_error_all = []
 
         #iterate over the 4 zones:
-        for zone, enriched in zip(zones, label_extended):
+        for zone, enriched in zip(zones, zonelabels):
             flavours = []
             mean = []
             mean_error = []
             changes = {'x':[-1, 2], 'selection':zone}
 
             # get the fraction for each TRUTH flavour:
-            for quantity, label in zip(selections, label_extended):
+            for quantity, label in zip(selections, zonelabels):
                 
                 if name == 'mc':
                     changes = {'x':[-1, 2], 'selection':zone}
@@ -212,11 +218,16 @@ def tagging_response(files, opt, PFcorrection = False):
             mean_all.append(mean)
             mean_error_all.append(mean_error)
 
+        # also plot the raw response for each zone
+        mean = [i[0] for i in mean_all]
+        mean_error = [i[0] for i in mean_error_all]
+        ax_raw.errorbar(range(5)[1:], mean, mean_error, drawstyle='steps-mid',
+                    color=c, fmt=m, capsize=0 ,label=name)
 
         # from response and composition, determine the 
         # response for the truth flavours
         yerr = []
-        for n, flavour in enumerate(label_extended):
+        for n, flavour in enumerate(zonelabels):
             a = np.array(flavours_all)
             b = np.array(mean_all)
 
@@ -252,20 +263,27 @@ def tagging_response(files, opt, PFcorrection = False):
     ax.errorbar(range(5)[1:], y, yerr, drawstyle='steps-mid', color='blue', fmt='o', 
                       capsize=0 ,label='MC Truth')
 
-
-
     # set the axis labels and limits
     settings = plotbase.getsettings(opt, {'legloc':'lower right'}, quantity = '_'.join([response, flavourdef]))
-    plotbase.labels(ax, opt, settings, settings['subplot'])
-    plotbase.axislabels(ax, "tagflavour", settings['xynames'][1], settings=settings)
-    plotbase.setaxislimits(ax, settings)
-    ax.set_xlim(0, 5)
-    ax.set_xticks(range(5)[1:])
-    ax.set_xticklabels(labels)
-    ax.set_ylim(0.85, 1.1)
-    ax.axhline(1.0, color='black', linestyle=':')
+
+    for ax_obj in [ax, ax_raw]:
+        plotbase.labels(ax_obj, opt, settings, settings['subplot'])
+        plotbase.axislabels(ax_obj, "tagflavour", settings['xynames'][1], settings=settings)
+        plotbase.setaxislimits(ax_obj, settings)
+        ax_obj.set_xlim(0, 5)
+        ax_obj.set_xticks(range(5)[1:])
+        ax_obj.set_xticklabels(labels)
+        ax_obj.set_ylim(0.85, 1.1)
+        ax_obj.axhline(1.0, color='black', linestyle=':')
 
     settings['filename'] = plotbase.getdefaultfilename("flavour_response_tagged", opt, settings)
     if PFcorrection: settings['filename'] += '_corrected'
     plotbase.Save(fig, settings['filename'], opt)
+
+    del settings['filename']
+    settings['filename'] = plotbase.getdefaultfilename("flavour_response_raw-zones", opt, settings)
+    if PFcorrection: settings['filename'] += '_corrected'
+    plotbase.Save(fig_raw, settings['filename'], opt)
+
     files.reverse()
+
