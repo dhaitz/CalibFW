@@ -35,7 +35,7 @@ OFFLINE_CORR_SRC = $(OFFLINE_CORR)/FactorizedJetCorrector.cc $(OFFLINE_CORR)/Jet
 				   $(OFFLINE_CORR)/JetCorrectionUncertainty.cc
 
 # seems we cant use m4 vars here ??
-CALIB_SRC = src/EventPipeline/EventData.cc \
+CALIB_SRC = src/ZJetEventPipeline/EventData.cc \
 			src/EventPipeline/EventPipelineRunner.cc \
 			src/GlobalInclude.cc \
 			src/ZJetEventPipeline/Pipeline.cc \
