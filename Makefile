@@ -10,7 +10,7 @@ KAPPAPATH      = ../Kappa/
 KAPPATOOLSPATH = ../KappaTools/
 
 PROJECT        = Excalibur
-EXECUTABLE     = closure
+EXECUTABLE     = artus
 CXX            = g++
 FLAGS          = -O2 -pedantic -Wfatal-errors -l profiler -l tcmalloc -Wall
 CFLAGS         = -c -std=c++0x -g -fPIC -DSTANDALONE $(FLAGS)\
@@ -39,8 +39,8 @@ clean:
 
 purge: clean
 	rm -f src/*.cc.formatted src/*/*.cc.formatted
-	rm -f plotting/*.pyc plotting/*/*.pyc cfg/closure/*.pyc scripts/*.pyc
-	rm -f cfg/closure/*.py.json
+	rm -f plotting/*.pyc plotting/*/*.pyc cfg/artus/*.pyc scripts/*.pyc
+	rm -f cfg/artus/*.py.json
 
 check:
 	@echo -e "checking COMPILER...   \c" && which $(CXX)

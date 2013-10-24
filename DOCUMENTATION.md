@@ -22,7 +22,7 @@ the following steps:
 
    1. Skimming: Creating a *Kappa* output file with CMSSW
    2. Analyzing: Performing additional event reconstruction steps and cuts
-      to produce a final root NTuple
+      to produce a final root NTuple by *Artus*
    3. Plotting: Producing the final set of plots with a collection of python
       scripts
 
@@ -44,9 +44,9 @@ Config files for grid-control are also available in this directory.
 2. Analyzing: How to create a ROOT NTuple from a Kappa skim
 ================================================================================
 
-An NTuple can be created via a python configuration file (in `cfg/closure/`), which
-is then processed by `ClosureConfigBase` to create a .json file containing all necessary
-parameters.  The json file can then further be processed with `closure`, the main
+An NTuple can be created via a python configuration file (in `cfg/artus/`), which
+is then processed by `ArtusConfigBase` to create a .json file containing all necessary
+parameters.  The json file can then further be processed with `artus`, the main
 executable.
 
 

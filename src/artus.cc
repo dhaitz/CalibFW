@@ -1,6 +1,4 @@
-/** The main program Closure
-
-*/
+/** The main program Artus */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,12 +25,10 @@
 #include <google/profiler.h>
 #endif
 //#include <google/heap-profiler.h>
-//#include "Toolbox/libToolbox.h"
-//#include "RootTools/libKRootTools.h"
-
 //#include "Misc/OpenMP-Support.h"
 
 #include "EventPipeline/JetTools.h"
+#include "EventPipeline/EventPipelineRunner.h"
 #include "ZJetEventPipeline/Pipeline.h"
 #include "ZJetEventPipeline/EventProvider.h"
 #include "ZJetProducer/MetadataProducer.h"
@@ -48,7 +44,6 @@
 #include "ZJetEventPipeline/PipelineInitializer.h"
 
 #include "KappaTools/RootTools/HLTTools.h"
-#include "EventPipeline/EventPipelineRunner.h"
 
 using namespace CalibFW;
 
@@ -297,7 +292,7 @@ int main(int argc, char** argv)
 		CALIB_LOG_FILE("");
 
 #ifdef USE_PERFTOOLS
-		ProfilerStart("closure.prof");
+		ProfilerStart("artus.prof");
 #endif
 		//HeapProfilerStart( "resp_cuts.heap");
 		nevents = pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>(evtProvider, settings);

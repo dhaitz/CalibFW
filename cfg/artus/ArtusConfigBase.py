@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""ClosureConfigBase provides the tools to make a valid closure config.
+"""ArtusConfigBase provides the tools to make a valid artus config.
 
 The most used functions are:
   - BaseConfig to generate a default configuration
   - CreateFileList to create a list of input files
-  - Run to acutally call closure and run it
+  - Run to acutally call artus and run it
 """
 import copy
 import subprocess
@@ -54,7 +54,7 @@ def GetCMSSWPath(variable='CMSSW_BASE'):
 
 
 def GetBasePath(variable='CLOSURE_BASE'):
-    """Return the path of the closure repository (Excalibur)."""
+    """Return the path of the excalibur repository (CalibFW)."""
     try:
         return os.environ[variable] + "/"
     except:
@@ -87,9 +87,9 @@ def getNewestJson(variant="PromptReco_Collisions12"):
 
 
 def BaseConfig(inputtype, run='2012', analysis='zjet'):
-    """Basic configuration for closure.
+    """Basic configuration for Artus.
 
-    Return a default configuration for closure depending on
+    Return a default configuration for Artus depending on
 
       - @param inputtype can be either 'data' or 'mc'. Default settings are adapted.
       - @param run can be either '2011' or '2012'. Parameters are set accordingly.
@@ -115,7 +115,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
         'Jec': "default",
         'JsonFile': "default",
         'InputFiles': [],
-        'OutputPath': "closure_" + inputtype + "_" + run,
+        'OutputPath': "artus_" + inputtype + "_" + run,
         'MuonID2011': (run == '2011'),
         'Pipelines': {
             'default': {
@@ -324,7 +324,7 @@ def treeconfig(conf, quantities=None):
         # replace the quantites_vector with integers according to the dictionary
         #new_quantities = []
         #for q in pval['QuantitiesVector']:
-        #    new_quantities += [closure_dict[q]]
+        #    new_quantities += [artus_dict[q]]
         #pval['QuantitiesVector'] = new_quantities
 
         pval['Cuts'].remove("leadingjet_eta")
@@ -392,7 +392,7 @@ def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
     if dataset not in d:
         print "No 2nd jet weights for this dataset:", dataset
         print "Weights are available for:", ", ".join(d.keys())
-        print "Please add them in ClosureConfigBase or do not use Apply2ndJetReweighting."
+        print "Please add them in ArtusConfigBase or do not use Apply2ndJetReweighting."
         exit(0)
 
     conf["Enable2ndJetReweighting"] = True
@@ -421,7 +421,7 @@ def ApplySampleReweighting(conf, sample="herwig", referencelumi_fbinv=1.0):
     if sample not in d:
         print "No sample weights for this dataset:", sample
         print "Weights are available for:", ", ".join(d.keys())
-        print "Please add them in ClosureConfigBase or do not use ApplySampleReweighting."
+        print "Please add them in ArtusConfigBase or do not use ApplySampleReweighting."
         exit(0)
 
     result = [picobarn2femtobarn * referencelumi_fbinv * w for w in d[sample]]
@@ -1141,8 +1141,8 @@ def StoreGCCommon(settings, nickname, filename, output_folder):
         config.set("UserMod", "files per job", int(round(len(settings["InputFiles"]) / 80. + 0.4999)))
     else:
         config.set("UserMod", "files per job", int(round(len(settings["InputFiles"]) / 120. + 0.4999)))
-    config.set("UserMod", "executable", "gc-run-closure.sh")
-    config.set("UserMod", "subst files", "gc-run-closure.sh")
+    config.set("UserMod", "executable", "gc-run-artus.sh")
+    config.set("UserMod", "subst files", "gc-run-artus.sh")
     config.set("UserMod", "input files", GetBasePath() + "external/lib/libboost_regex.so.1.45.0")
 
     config.add_section("storage")
@@ -1185,13 +1185,13 @@ def StoreShellRunner(settings, nickname, filename):
     cfile.write("cd " + GetBasePath() + "\n")
     cfile.write("source " + GetBasePath() + "scripts/ClosureEnv.sh\n")
     cfile.write("cd -\n")
-    cfile.write(GetBasePath() + "closure " + GetBasePath() + "cfg/closure/" + nickname + ".py.json")
+    cfile.write(GetBasePath() + "artus " + GetBasePath() + "cfg/artus/" + nickname + ".py.json")
     cfile.close()
     os.chmod(filename, stat.S_IRWXU)
 
 
 def Run(settings, arguments):
-    """Run this config with closure
+    """Run this config with artus
 
     The options are:
       --storeonly   Just generate the json config file and exit
@@ -1240,7 +1240,7 @@ def Run(settings, arguments):
         exit(0)
 
     if len(arguments) <= 1 or "--batch" not in arguments[1]:
-        subprocess.call(["./closure", filename])
+        subprocess.call(["./artus", filename])
     else:
         nickname = os.path.split(filename)[1]
         nickname = nickname.split(".")[0]
@@ -1257,15 +1257,15 @@ def Run(settings, arguments):
         StoreGCConfig(settings, nickname, work_path + "work/" + nickname + "/" + nickname + ".conf")
         StoreGCCommon(settings, nickname, work_path + "work/" + nickname + "/gc_common.conf", work_path + "work/" + nickname + "/out/")
         #StoreMergeScript(settings, nickname, work_path + "work/" + nickname + "/merge.sh", work_path + "work/" + nickname + "/out/")
-        StoreShellRunner(settings, nickname, work_path + "work/" + nickname + "/gc-run-closure.sh")
+        StoreShellRunner(settings, nickname, work_path + "work/" + nickname + "/gc-run-artus.sh")
 
         # generate merge script
         print "The config files are prepared in", work_path + "work/" + nickname
         print "Go there and start grid-control with", nickname + ".conf!"
     try:
         import pynotify
-        if pynotify.init("Excalibur resp_cuts"):
-            n = pynotify.Notification("Excalibur resp_cuts", "run with config " + filename + " done")
+        if pynotify.init("Excalibur"):
+            n = pynotify.Notification("Excalibur Artus", "run with config " + filename + " done")
             n.show()
     except:
         pass
