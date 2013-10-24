@@ -1,6 +1,7 @@
 # Makefile for excalibur:artus (c) 2013
 # Joram Berger <joram.berger@cern.ch>
 # Dominik Haitz <dhaitz@cern.ch>
+# usage: make help
 
 ROOTCFLAGS     = $(shell root-config --cflags)
 ROOTLDFLAGS    = $(shell root-config --ldflags --libs)
@@ -56,3 +57,13 @@ check:
 
 doc:
 	@echo "Make" $(EXECUTABLE) "documentation in future"
+
+help:
+	@echo "The" $(PROJECT) "Makefile"
+	@echo " " $(PROJECT) version $(shell git describe)
+	@echo "  see DOCUMENTATION.md for more help and COPYING for the licence."
+	@echo "make check          check for build requirements"
+	@echo "make [-j 4] [-B]    built" $(EXECUTABLE) "[on 4 cores] [rebuild everything]"
+	@echo "make clean          clean up object files and executable"
+	@echo "make purge          clean up .pyc and .json files additionally"
+	@echo "make help           show this help message"
