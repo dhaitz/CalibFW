@@ -27,7 +27,7 @@ $(EXECUTABLE): $(OBJECTS)
 	@echo "Linking" $(EXECUTABLE)":"
 	@echo $(CXX) LDFLAGS $(OBJECTS)
 	@$(CXX) $(LDFLAGS) $(OBJECTS) -o $@
-	@echo "Done"
+	@echo $(EXECUTABLE) "built successfully."
 
 .cc.o:
 	@echo $(CXX) CFLAGS $< -o $@
@@ -38,7 +38,8 @@ clean:
 	rm -f external/OfflineCorrection/CondFormats/lib/libJetMETObjects.so
 
 purge: clean
-	rm -f plotting/*.pyc plotting/*/*.pyc cfg/closure/*.pyc
+	rm -f src/*.cc.formatted src/*/*.cc.formatted
+	rm -f plotting/*.pyc plotting/*/*.pyc cfg/closure/*.pyc scripts/*.pyc
 	rm -f cfg/closure/*.py.json
 
 check:

@@ -18,3 +18,4 @@
 
 /data/pileup/pileup_*.txt
 /data/jec_data/*.db
+/plotting/argparse.py
