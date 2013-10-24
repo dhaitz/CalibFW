@@ -12,7 +12,7 @@ KAPPATOOLSPATH = ../KappaTools/
 PROJECT        = Excalibur
 EXECUTABLE     = closure
 CXX            = g++
-FLAGS          = -O2 -pedantic -Wfatal-errors -l profiler -l tcmalloc #-Wall
+FLAGS          = -O2 -pedantic -Wfatal-errors -l profiler -l tcmalloc -Wall
 CFLAGS         = -c -std=c++0x -g -fPIC -DSTANDALONE $(FLAGS)\
  -Isrc/ -Iexternal/OfflineCorrection/\
  $(ROOTCFLAGS) -I$(BOOSTPATH)/include/ -I$(KAPPATOOLSPATH)/../
