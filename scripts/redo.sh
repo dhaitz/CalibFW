@@ -2,7 +2,7 @@
 
 if [[ $1 != *"cfg"* ]]; then
   NAME=$1
-  FILE="cfg/closure/${1}.py"
+  FILE="cfg/artus/${1}.py"
 else
   NAME=${1##*/}
   NAME=${NAME%.*}
@@ -29,5 +29,5 @@ echo -en "\033]0;gc is running: ${NAME}\a"
 /home/${USER}/git/grid-control/go.py  ${CLOSURE_WORK}/work/${NAME}/${NAME}.conf -cG
 
 echo "Merge files ... "
-hadd out/closure.root out/*.root
+hadd out/artus.root out/*.root
 

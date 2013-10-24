@@ -83,9 +83,9 @@ while (($JOBS > 1)); do
 
 done
 
-#copy closure file to original output dir and delete temp
-echo "Creating closure file: "${OUT0}"/closure.root"
-cp $out "${OUT0}/closure.root"
+#copy artus file to original output dir and delete temp
+echo "Creating Artus output file: "${OUT0}"/artus.root"
+cp $out "${OUT0}/artus.root"
 echo "Removing temp directory"
 rm "${OUT0}/temp/" -r
 

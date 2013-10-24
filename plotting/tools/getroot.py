@@ -238,7 +238,7 @@ def getobject(name, rootfile, changes={}, exact=True, selection=""):
 def getobjectname(quantity='z_mass', change={}):
     """Build the name of a histogram according to CalibFW conventions.
 
-    Every histogram written by closure has a name like
+    Every histogram written by Artus has a name like
     'NoBinning_incut/<quantity>_ak5PFJetsCHSL1L2L3'
     This string is returned for each quantity and any changes to the default
     can be applied via the change dictionary.
