@@ -44,6 +44,7 @@
 #include "ZJetProducer/JetMatcher.h"
 #include "ZJetProducer/TypeIMETProducer.h"
 #include "ZJetProducer/UnclusteredEnergyProducer.h"
+#include "ZJetProducer/FlavourProducer.h"
 #include "ZJetEventPipeline/PipelineInitializer.h"
 
 #include "KappaTools/RootTools/HLTTools.h"
