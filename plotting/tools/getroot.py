@@ -236,7 +236,7 @@ def getobject(name, rootfile, changes={}, exact=True, selection=""):
 
 
 def getobjectname(quantity='z_mass', change={}):
-    """Build the name of a histogram according to CalibFW conventions.
+    """Build the name of a histogram according to Excalibur conventions.
 
     Every histogram written by Artus has a name like
     'NoBinning_incut/<quantity>_ak5PFJetsCHSL1L2L3'

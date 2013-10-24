@@ -2,7 +2,7 @@
 # -*- coding: utf8 -*-
 
 PEPIGNORE=W191,E501
-CPPOPTIONS=$CLOSURE_BASE/scripts/astylerc
+CPPOPTIONS=$EXCALIBUR_BASE/scripts/astylerc
 PATH=$PATH:/home/berger/sw/bin
 
 # check for executables

@@ -24,14 +24,14 @@ the following steps:
    2. Analyzing: Performing additional event reconstruction steps and cuts
       to produce a final root NTuple by *Artus*
    3. Plotting: Producing the final set of plots with a collection of python
-      scripts
+      scripts by *Merlin*
 
 Please also see the following pages:
 
 - http://www-ekp.physik.uni-karlsruhe.de/twiki/bin/view/EkpCms/Zmumujetanalysis
   for an overview on the Z->mumu+jet analysis
 
-- https://ekptrac.physik.uni-karlsruhe.de/trac/Excalibur/wiki
+- https://ekptrac.physik.uni-karlsruhe.de/trac/CalibFW/wiki
   for information and installation of *Excalibur*
 
 
@@ -51,8 +51,8 @@ executable.
 
 
 ## Setting the environment
-CMSSW must be sourced. Set `$CLOSURE_WORK` path (e.g. `/storage/a/$USER/Excalibur`)
-and execute `scripts/ClosureEnv.sh` from your main Excalibur directory.
+CMSSW must be sourced. Set `$EXCALIBUR_WORK` path (e.g. `/storage/a/$USER/excalibur`)
+and execute `scripts/ini_excalibur` from your main Excalibur directory.
 
 
 ## Basic structure of the config file
@@ -68,7 +68,7 @@ dictionary), a list of files and the Run command:
 
 To test the configuration, use
 
-    python $CLOSURE_BASE/cfg/closure/data.py --fast
+    python $EXCALIBUR_BASE/cfg/artus/data.py --fast
 
 (set the number of testfiles with `--fast n`, default is 3)
 
@@ -77,7 +77,7 @@ redo script:
 
     . scripts/redo.sh data.py
 
-Your Ntuple will then be available at `$CLOSURE_WORK/work/data/out/closure.root`
+Your Ntuple will then be available at `$EXCALIBUR_WORK/work/data/out/artus.root`
 
 ## Further needed
 The JEC txt files need to be places in the data/jec/ directory. For a MC file,
@@ -87,8 +87,8 @@ the pileup reweighting factors have to be stored in the puweights.json file.
 3. Plotting: How to create plots from a ROOT NTuple
 ================================================================================
 
-The main plotting file is `plotting/plotbase.py`. The CalibFW plotting framework
-is highly customizable, you are advised to have a look at 
+The main plotting file is `plotting/plotbase.py`. The Excalibur plotting
+framework Merlin is highly customizable, you are advised to have a look at
 `plotting/plotbase.py --help` for a list and description of parameter arguments.
 
 At its most basic level of usage, the arguments include links to a data (and MC) 

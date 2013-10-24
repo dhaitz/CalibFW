@@ -53,20 +53,20 @@ def GetCMSSWPath(variable='CMSSW_BASE'):
         exit(1)
 
 
-def GetBasePath(variable='CLOSURE_BASE'):
-    """Return the path of the excalibur repository (CalibFW)."""
+def GetBasePath(variable='EXCALIBUR_BASE'):
+    """Return the path of the Excalibur repository (CalibFW)."""
     try:
         return os.environ[variable] + "/"
     except:
         print variable, "is not in shell variables:", os.environ.keys()
-        print "Please source scripts/ClosureEnv.sh!"
+        print "Please source scripts/ini_excalibur!"
         exit(1)
 
 
 def GetWorkPath():
-    """Return work path if the shell variable 'CLOSURE_WORK' is set."""
+    """Return work path if the shell variable 'EXCALIBUR_WORK' is set."""
     try:
-        return os.environ['CLOSURE_WORK'] + "/"
+        return os.environ['EXCALIBUR_WORK'] + "/"
     except:
         print "WorkPath is not set. BasePath is used instead."
         return GetBasePath()
@@ -1183,7 +1183,7 @@ def StoreShellRunner(settings, nickname, filename):
     cfile.write("eval `scram runtime -sh`\n")
     cfile.write("cd -\n")
     cfile.write("cd " + GetBasePath() + "\n")
-    cfile.write("source " + GetBasePath() + "scripts/ClosureEnv.sh\n")
+    cfile.write("source " + GetBasePath() + "scripts/ini_excalibur\n")
     cfile.write("cd -\n")
     cfile.write(GetBasePath() + "artus " + GetBasePath() + "cfg/artus/" + nickname + ".py.json")
     cfile.close()

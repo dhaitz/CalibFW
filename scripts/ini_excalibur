@@ -1,43 +1,45 @@
 #!/bin/bash
 
 export BOOSTPATH=/wlcg/sw/boost/current/
-export CLOSURE_BASE=$(readlink -e .)
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CLOSURE_BASE:$CLOSURE_BASE/../Kappa/lib:$CLOSURE_BASE/../KappaTools/lib:$BOOSTPATH/lib
+export EXCALIBUR_BASE=$(readlink -e .)
+export KAPPAPATH=$EXCALIBUR_BASE/../Kappa
+export KAPPATOOLSPATH=$EXCALIBUR_BASE/../KappaTools
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$EXCALIBUR_BASE:$EXCALIBUR_BASE/../Kappa/lib:$EXCALIBUR_BASE/../KappaTools/lib:$BOOSTPATH/lib
 
 # Set some user specific variables
 if [ $USER = "dhaitz" ]; then
-    if [ -f /storage/a/dhaitz/CalibFW/work/data/out/closure.root ]; then
-        export DATA='/storage/a/dhaitz/CalibFW/work/data/out/closure.root'
+    if [ -f /storage/a/dhaitz/excalibur/work/data/out/artus.root ]; then
+        export DATA='/storage/a/dhaitz/excalibur/work/data/out/artus.root'
     else
-        export DATA='/storage/a/dhaitz/CalibFW/work/data_old/out/closure.root'
+        export DATA='/storage/a/dhaitz/excalibur/work/data_old/out/artus.root'
     fi
-    if [ -f /storage/a/dhaitz/CalibFW/work/mc/out/closure.root ]; then
-        export MC='/storage/a/dhaitz/CalibFW/work/mc/out/closure.root'
+    if [ -f /storage/a/dhaitz/excalibur/work/mc/out/artus.root ]; then
+        export MC='/storage/a/dhaitz/excalibur/work/mc/out/artus.root'
     else
-        export MC='/storage/a/dhaitz/CalibFW/work/mc_old/out/closure.root'
+        export MC='/storage/a/dhaitz/excalibur/work/mc_old/out/artus.root'
     fi
     export USERPC="ekplx26"
 elif [ $USER = "berger" ]; then
-    export DATA='/storage/a/dhaitz/CalibFW/work/data/out/closure.root'
-    export MC='/storage/a/dhaitz/CalibFW/work/mc/out/closure.root'
+    export DATA='/storage/a/dhaitz/excalibur/work/data/out/artus.root'
+    export MC='/storage/a/dhaitz/excalibur/work/mc/out/artus.root'
     export USERPC="ekplx45"
 fi
 
 
-alias plotsync='rsync $CLOSURE_BASE/out/plot.pdf $USER@$USERPC.physik.uni-karlsruhe.de:/usr/users/$USER/plot.pdf'
+alias plotsync='rsync $EXCALIBUR_BASE/out/plot.pdf $USER@$USERPC.physik.uni-karlsruhe.de:/usr/users/$USER/plot.pdf'
 
-alias plot='python $CLOSURE_BASE/plotting/plotbase.py'
-alias plott='python $CLOSURE_BASE/plotting/plotbase.py $DATA $MC'
-alias plotfile='python $CLOSURE_BASE/plotting/plotbase.py $DATA $MC -o $CLOSURE_BASE/out/ -f pdf --filename plot'
-alias plotfilemc='python $CLOSURE_BASE/plotting/plotbase.py $MC -o $CLOSURE_BASE/out/ -l 0 -f pdf --filename plot'
+alias plot='python $EXCALIBUR_BASE/plotting/plotbase.py'
+alias plott='python $EXCALIBUR_BASE/plotting/plotbase.py $DATA $MC'
+alias plotfile='python $EXCALIBUR_BASE/plotting/plotbase.py $DATA $MC -o $EXCALIBUR_BASE/out/ -f pdf --filename plot'
+alias plotfilemc='python $EXCALIBUR_BASE/plotting/plotbase.py $MC -o $EXCALIBUR_BASE/out/ -l 0 -f pdf --filename plot'
 
-alias kc='killall closure'
+alias kc='killall artus'
 
 
 # Usage 'fast' for testing of cfg files, e.g. 'fast data 3'
 fast()
 {
-    python $CLOSURE_BASE/cfg/closure/${1}.py --fast $2
+    python $EXCALIBUR_BASE/cfg/artus/${1}.py --fast $2
 }
 
 
@@ -52,7 +54,7 @@ plotinit()
 # Use this to open a root file directly in the TBrowser
 rot()
 {
-    root -l $@ /home/dhaitz/tbrowser.cxx
+    root -l $@ /home/$USER/tbrowser.cxx
 }
 
 # Use this to open the default data and mc files directly in a TBrowser
