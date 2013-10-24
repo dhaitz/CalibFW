@@ -136,8 +136,6 @@ public:
 			metaData.m_listInvalidJets.insert(sAlgoName, new std::vector<unsigned int> ());
 
 			int i = 0;
-			float lastpt = -1.0f;
-			//CALIB_LOG("italgo size" << italgo->second->size());
 
 			for (std::vector<KDataPFJet*>::iterator itjet = italgo->second->begin();
 				 itjet != italgo->second->end(); ++itjet)
@@ -157,12 +155,6 @@ public:
 							metaData.GetValidMuons().at(1).p4);
 				}
 				good_jet = good_jet && (dr1 > 0.5) && (dr2 > 0.5);
-
-				// Ensure the jets are ordered by pt!
-				//if ((lastpt > 0.0f) && (lastpt < (*itjet)->p4.Pt()))
-				//	CALIB_LOG("Jet pt unsorted " << lastpt << " to " << (*itjet)->p4.Pt())
-
-				lastpt = (*itjet)->p4.Pt();
 
 				// JetID
 				// https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID

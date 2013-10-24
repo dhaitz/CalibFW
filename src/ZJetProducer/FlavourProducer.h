@@ -14,14 +14,12 @@ public:
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
 										ZJetMetaData& metaData, ZJetPipelineSettings const& globalsettings) const
 	{
-
 		const float dist = 0.3;
 
 		for (ZJetMetaData::MetaPFJetContainer::iterator it = metaData.m_validPFJets.begin();
 			 it != metaData.m_validPFJets.end(); ++ it)
 		{
 			std::string sAlgoName = it->first;
-
 			KGenParticles matching_algo_partons;
 			KGenParticles matching_phys_partons;
 			KGenParticle hardest_parton;
@@ -75,7 +73,6 @@ public:
 				metaData.m_algoparton[sAlgoName] = hardest_c_quark;
 			else if (matching_algo_partons.size() != 0)
 				metaData.m_algoparton[sAlgoName] = hardest_parton;
-
 
 			// PHYSICS DEFINITION
 			// flavour is only well defined if exactly ONE matching parton!

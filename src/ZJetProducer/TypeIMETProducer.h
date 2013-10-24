@@ -16,7 +16,7 @@ public:
 										ZJetPipelineSettings const& globalsettings) const
 	{
 
-		for (int i = 0; i < m_basealgorithms.size(); i++)
+		for (unsigned int i = 0; i < m_basealgorithms.size(); i++)
 		{
 			std::string algoname_raw;
 			KDataPFMET* rawmet;
@@ -43,7 +43,7 @@ public:
 				algorithms.push_back(algoname_raw + "L1L2L3Res");
 
 			//iterate over the jet collection and sum up the differences between L1L2L3(res) and L1
-			for (int j = 0; j < algorithms.size(); j++)
+			for (unsigned int j = 0; j < algorithms.size(); j++)
 			{
 				KDataLV correction;
 				for (unsigned int i = 0; i < metaData.m_validPFJets.at(algorithms[j]).size(); ++ i)

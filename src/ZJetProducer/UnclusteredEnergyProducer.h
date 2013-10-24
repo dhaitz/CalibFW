@@ -15,7 +15,7 @@ public:
 										ZJetMetaData& metaData,
 										ZJetPipelineSettings const& globalsettings) const
 	{
-		for (int i = 0; i < m_basealgorithms.size(); i++)
+		for (unsigned int i = 0; i < m_basealgorithms.size(); i++)
 		{
 			std::string algoname_raw;
 			KDataPFMET* rawmet;
@@ -39,7 +39,7 @@ public:
 			ue->p4 -= rawmet->p4;
 
 			// ... sum over all jets ...
-			for (int j = 0; j < metaData.m_listValidJets[algoname_raw].size(); j++)
+			for (unsigned int j = 0; j < metaData.m_listValidJets[algoname_raw].size(); j++)
 			{
 				int n = metaData.m_listValidJets[algoname_raw].at(j);
 				ue->p4 -= event.m_pfPointerJets.at(algoname_raw)->at(n)->p4;

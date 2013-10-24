@@ -46,9 +46,9 @@ public:
 		{
 			KDataLV* jet2 = metaData.GetValidJet(m_pipelineSettings, data, 1, "AK5PFJetsCHSL1L2L3");
 			// apply a new weight for 2 GeV pt bins
-			if (m_pipelineSettings.Global()->Get2ndJetReweighting().size() > int(jet2->p4.Pt() / 2.0))
+			if (m_pipelineSettings.Global()->Get2ndJetReweighting().size() > unsigned(jet2->p4.Pt() / 2.0))
 				weight *= m_pipelineSettings.Global()->Get2ndJetReweighting().at(
-							int(jet2->p4.Pt() / 2.0));
+							unsigned(jet2->p4.Pt() / 2.0));
 			else
 				weight = 0.0;
 		}
@@ -56,7 +56,7 @@ public:
 		// sample reweighting (based on file name)
 		if (m_pipelineSettings.Global()->GetEnableSampleReweighting())
 		{
-			int i = data.m_pthatbin; // sample index
+			size_t i = data.m_pthatbin; // sample index
 			if (m_pipelineSettings.Global()->GetSampleReweighting().size() > i)
 				weight *= m_pipelineSettings.Global()->GetSampleReweighting().at(i);
 			else

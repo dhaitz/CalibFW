@@ -10,7 +10,7 @@ bool JetMatcher::PopulateGlobalMetaData(ZJetEventData const& data,
 {
 	//CALIB_LOG("Jet matcher!" << m_basealgorithms)
 	// make this more generic
-	for (int i = 0; i < m_basealgorithms.size(); i++)
+	for (unsigned int i = 0; i < m_basealgorithms.size(); i++)
 	{
 		if (m_basealgorithms[i] == "AK5PF")
 		{
