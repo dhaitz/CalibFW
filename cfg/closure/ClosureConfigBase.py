@@ -341,7 +341,7 @@ def ApplyPUReweighting(conf, dataset, weightfile="data/pileup/puweights.json"):
 
     This function turns the pile-up reweighting on and sets the corresponding
     entries in the configuration. The cross sections and weight factors are
-    calculated via macros/weightCalc.py and stored in the following
+    calculated via scripts/weightCalc.py and stored in the following
     dictionary.
     """
     # The following dictionary stores the weights per dataset
@@ -376,7 +376,7 @@ def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
 
     This function turns the 2nd jet reweighting on and sets the corresponding
     entries in the configuration. It is intended for powheg samples which
-    need it. The weight factors are calculated via macros/weightCalc.py and
+    need it. The weight factors are calculated via scripts/weightCalc.py and
     stored in the following dictionary.
     """
     dataset += method

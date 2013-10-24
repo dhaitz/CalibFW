@@ -38,7 +38,7 @@ clean:
 	rm -f external/OfflineCorrection/CondFormats/lib/libJetMETObjects.so
 
 purge: clean
-	rm -f macros/*.pyc macros/*/*.pyc cfg/closure/*.pyc
+	rm -f plotting/*.pyc plotting/*/*.pyc cfg/closure/*.pyc
 	rm -f cfg/closure/*.py.json
 
 check:

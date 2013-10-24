@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 """Main plotting file
 
-   Usage: python macros/plot.py file1.root file2.root file3.root ...
-   First file should usually be data, 2nd file MC!
-   For further details: python macros/plot.py -h
+   Usage: python plotting/plot.py [data.root mc.root]
+   For further details: python plotting/plot.py -h
    Idea:
      1. every plot is a function, grouped in files plot*.py
         datamc: basic quantities (and cuts)
@@ -29,47 +28,34 @@ import plotdatamc
 import plotfractions
 import plotresponse
 import plot_resolution
-import plot_mikko
-import plot2d
 
-def plot(cluster=False):
+
+def plot():
     """Run all plots with the given settings"""
 
     # settings (1):
     op = plotbase.options(
         algorithm="AK5PFJetsCHS",
         correction="L1L2L3Res",
-        out="out/8_TeV_data_mc/",
-        labels=["data", "MC", "MC2"],
-        colors=['black', '#CBDBF9','#800000', 'blue', '#00FFFF'],
-        style=["o", "f", "-", "-", "-"],
-
-        lumi=18258.0,
+        lumi=920.039,
         energy=8,
-        plots=plotresponse.plots
-            + plotfractions.plots
-            + plot2d.plots
-            + plotdatamc.plots
-            #+ plot_resolution.plots
-            #+ plot_mikko.plots
+        plots=plotdatamc.plots +
+              plotresponse.plots +
+              plotfractions.plots +
+              plot_resolution.plots,
+        eta=[0, 1.305, 2.411, 5.0],
+        npv=[(3, 5), (6, 11), (12, 19), (20, 100)],
         )
-    module_list = [plotresponse, plotfractions, plot2d, plotdatamc, plot_resolution, plot_mikko]
+    module_list = [plotdatamc, plotresponse, plotfractions, plot_resolution]
 
     # override commandline (3):
     op.normalize = True
 
-    print "Number of files:", len(op.files)
-    files=[]
-    for f in op.files:
-        print "Using as file %d: %s" % (1 + op.files.index(f), f)
-        files += [getroot.openfile(f, op.verbose)]
+    plotbase.printfiles(op.files)
 
-    if cluster: return op, files
-
-    op.bins = getroot.getbins(files[0], op.bins)
-    op.eta = getroot.getetabins(files[0], op.eta)
-    op.npv = getroot.getnpvbins(files[0], op.npv)
-    op.cut = getroot.getcutbins(files[0], op.cut)
+    files = [getroot.openfile(f, op.verbose) for f in op.files]
+    op.bins = getroot.getbins(files[0],
+            [0, 30, 40, 50, 60, 75, 95, 125, 180, 300, 1000])
 
     plotbase.plot(module_list, op.plots, files, op)
 

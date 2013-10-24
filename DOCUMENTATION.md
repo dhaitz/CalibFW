@@ -18,7 +18,7 @@ the following steps:
    2. Analyzing: Performing additional event reconstruction steps and cuts
       to produce a final root NTuple
    3. Plotting: Producing the final set of plots with a collection of python
-      scripts and macros
+      scripts
 
 Please also see the following pages:
 
@@ -81,19 +81,19 @@ the pileup reweighting factors have to be stored in the puweights.json file.
 3. Plotting: How to create plots from a ROOT NTuple
 ================================================================================
 
-The main plotting file is `macros/plotbase.py`. The CalibFW plotting framework
+The main plotting file is `plotting/plotbase.py`. The CalibFW plotting framework
 is highly customizable, you are advised to have a look at 
-`macros/plotbase.py --help` for a list and description of parameter arguments.
+`plotting/plotbase.py --help` for a list and description of parameter arguments.
 
 At its most basic level of usage, the arguments include links to a data (and MC) 
 file and one (or a list of) plotname:
 
-    python macros/plotbase.py path-to-ntuple.root -P plot1 plot2
+    python plotting/plotbase.py path-to-ntuple.root -P plot1 plot2
 
 
 ## Plotnames
 Plotnames can be predefined functions available in the collection of plotting 
-scripts in the macros/ directory (e.g. `fractions_zpt`, `extrapol`, use the
+scripts in the `plotting` directory (e.g. `fractions_zpt`, `extrapol`, use the
 `--list` keyword to display a complete list) or custom combinations of
 quantities like:
 
@@ -124,11 +124,10 @@ For example, to extend the alpha range from 0.2 to 0.3 you have to use
 ## Make your own functions
 To make use of the full power of the CalibFW plotting framework, you are advised
 to base your custom functions on the `datamcplot()` function. Examples can be
-found in the `macros/plot_sandbox.py` file.
+found in the `plotting/plot_sandbox.py` file.
 
 
 **Enjoy!**
-
 
 
 *Last updated: 2013-10-14 dhaitz, berger*

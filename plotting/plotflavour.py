@@ -167,7 +167,7 @@ if __name__ == "__main__":
     """Unit test: doing the plots standalone (not as a module)."""
     import sys
     if len(sys.argv) < 2:
-        print "Usage: python macros/plotfractions.py data_file.root mc_file.root"
+        print "Usage: python plotting/plotfractions.py data_file.root mc_file.root"
         exit(0)
     files = [None, getroot.openfile(sys.argv[2])]
 #    bins = getroot.getbins(files[1], [])

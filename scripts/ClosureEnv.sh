@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export CLOSURE_BASE=$(readlink -e .)
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CLOSURE_BASE:$CLOSURE_BASE/../Kappa/lib:$CLOSURE_BASE/../KappaTools/lib:$CLOSURE_BASE/external/lib:/usr/lib/root/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CLOSURE_BASE:$CLOSURE_BASE/../Kappa/lib:$CLOSURE_BASE/../KappaTools/lib:$CLOSURE_BASE/external/lib
 
 # Set some user specific variables
 if [ $USER = "dhaitz" ]; then
@@ -25,10 +25,10 @@ fi
 
 alias plotsync='rsync $CLOSURE_BASE/out/plot.pdf $USER@$USERPC.physik.uni-karlsruhe.de:/usr/users/$USER/plot.pdf'
 
-alias plot='python $CLOSURE_BASE/macros/plotbase.py'
-alias plott='python $CLOSURE_BASE/macros/plotbase.py $DATA $MC'
-alias plotfile='python $CLOSURE_BASE/macros/plotbase.py $DATA $MC -o $CLOSURE_BASE/out/ -f pdf --filename plot'
-alias plotfilemc='python $CLOSURE_BASE/macros/plotbase.py $MC -o $CLOSURE_BASE/out/ -l 0 -f pdf --filename plot'
+alias plot='python $CLOSURE_BASE/plotting/plotbase.py'
+alias plott='python $CLOSURE_BASE/plotting/plotbase.py $DATA $MC'
+alias plotfile='python $CLOSURE_BASE/plotting/plotbase.py $DATA $MC -o $CLOSURE_BASE/out/ -f pdf --filename plot'
+alias plotfilemc='python $CLOSURE_BASE/plotting/plotbase.py $MC -o $CLOSURE_BASE/out/ -l 0 -f pdf --filename plot'
 
 alias kc='killall closure'
 
