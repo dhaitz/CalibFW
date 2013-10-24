@@ -2,46 +2,51 @@
 # Joram Berger <joram.berger@cern.ch>
 # Dominik Haitz <dhaitz@cern.ch>
 
-ROOTCFLAGS    = $(shell root-config --cflags)
-ROOTLIBS      = $(shell root-config --libs --glibs)
-ROOTGLIBS     = $(shell root-config --glibs)
-ROOTLDFLAGS   = $(shell root-config --ldflags)
+ROOTCFLAGS     = $(shell root-config --cflags)
+ROOTLDFLAGS    = $(shell root-config --ldflags --libs)
+BOOSTPATH      = /wlcg/sw/boost/current/
+KAPPAPATH      = ../Kappa/
+KAPPATOOLSPATH = ../KappaTools/
 
-CXX = g++
-CFLAGS = -c -Wall
-LDFLAGS = $(ROOTLDFLAGS) $(ROOTLIBS) $(LIB_PATH) -lboost_regex -lGenVector -lKappa -lKRootTools -lKToolbox
-			
-# wildcards?  
-SOURCES = src/DrawBase.cc src/EventData.cc \
-		src/EventPipelineRunner.cc \
-		src/GlobalInclude.cc \
-		src/ZJet/ZJetPipeline.cpp  \
-        src/ZJet/ZJetPipelineInitializer.cpp  \
-		src/ZJet/MetaDataProducer/CorrJetProducer.cpp  \
-		src/ZJet/MetaDataProducer/JetMatcher.cpp  \
-		src/Pipeline/ProfileConsumerBase.cpp \
-		src/ZJet/ZJetMetaData.cpp \
-		external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectionUncertainty.cc \
-		external/OfflineCorrection/CondFormats/JetMETObjects/src/FactorizedJetCorrector.cc \
-		external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrector.cc \
-		external/OfflineCorrection/CondFormats/JetMETObjects/src/JetCorrectorParameters.cc \
-		external/OfflineCorrection/CondFormats/JetMETObjects/src/SimpleJetCorrectionUncertainty.cc
-OBJECTS =
-EXECUTABLE = excalibur
+EXECUTABLE     = closure
+CXX            = g++
+FLAGS          = -O2 -pedantic -Wfatal-errors -l profiler -l tcmalloc #-Wall
+CFLAGS         = -c -std=c++0x -g -fPIC -DSTANDALONE $(FLAGS)\
+ -Isrc/ -Iexternal/OfflineCorrection/\
+ $(ROOTCFLAGS) -I$(BOOSTPATH)/include/ -I$(KAPPATOOLSPATH)/../
+LDFLAGS        = $(ROOTLDFLAGS) -lGenVector\
+ -L$(BOOSTPATH)/lib/ -lboost_regex\
+ -L$(KAPPAPATH)/lib/ -L$(KAPPATOOLSPATH)/lib/ -lKappa -lKRootTools -lKToolbox
 
-all: $(SOURCES) $(EXECUTABLE)
+OBJECTS = $(patsubst %.cc,%.o,$(wildcard\
+	src/*.cc src/*/*.cc external/OfflineCorrection/CondFormats/JetMETObjects/src/*Corr*.cc))
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $(OBJECTS) -o $@
+	@echo "Linking" $(EXECUTABLE)":"
+	@echo $(CXX) LDFLAGS $(OBJECTS)
+	@$(CXX) $(LDFLAGS) $(OBJECTS) -o $@
+	@echo "Done"
 
-.cpp.o:
-	$(CXX) $(CFLAGS) $< -o $@
-
-force:
-	@echo  "force to come"
+.cc.o:
+	@echo $(CXX) CFLAGS $< -o $@
+	@$(CXX) $(CFLAGS) $< -o $@
 
 clean:
-	rm -f src/*o src/*/*.o src/*/*/*.o $(EXECUTABLE)
+	rm -f $(OBJECTS) $(EXECUTABLE)
+
+check:
+	@echo -e "checking COMPILER...   \c" && which $(CXX)
+	@echo -e "checking ROOT...       \c" && root-config --version
+	@echo -e "checking BOOST...      \c" && ls $(BOOSTPATH)
+	@echo -e "checking KAPPA...      \c" && ls $(KAPPAPATH) -d
+	@echo -e "checking KAPPATOOLS... \c" && ls $(KAPPATOOLSPATH) -d
+	@echo -e "checking PYTHON...     \c" && python --version || echo "  Python is not needed for compiling"
+	@echo -e "checking EXECUTABLE... \c" && ls $(EXECUTABLE) &> /dev/null || echo $(EXECUTABLE) "not yet built"
+	@echo "EVERYTHING OK" $(EXECUTABLE)
+
+#TODO: version	path
+#NN=`ls /wlcg/sw/boost/current/lib/libboost_regex.so.*` && echo ${NN/*so./}
+#&& git --git-dir=$(KAPPAPATH)/../.git log -1 | grep Date
 
 doc:
-	@echo "Make" $(EXECUTABLE) "documentation in future" $(ROOTCFLAGS)
+	@echo "Make" $(EXECUTABLE) "documentation in future"
