@@ -13,7 +13,7 @@
 #include "RootTools/RootIncludes.h"
 #include "GlobalInclude.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 // increasing number for the names of temporary root histograms

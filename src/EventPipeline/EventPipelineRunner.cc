@@ -3,7 +3,7 @@
 
 #include <boost/foreach.hpp>
 
-namespace CalibFW
+namespace Artus
 {
 
 

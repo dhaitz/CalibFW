@@ -8,7 +8,7 @@
 
 
 
-namespace CalibFW
+namespace Artus
 {
 
 template <class TEventType>

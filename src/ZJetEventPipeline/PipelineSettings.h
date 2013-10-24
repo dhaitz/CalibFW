@@ -4,7 +4,7 @@
 #include "EventPipeline/PipelineSettings.h"
 #include "RootTools/RootIncludes.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 /** Global settings for all pipelines

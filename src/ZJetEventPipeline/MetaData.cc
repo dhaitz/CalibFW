@@ -5,7 +5,7 @@
 #include "ZJetEventPipeline/MetaData.h"
 #include "EventPipeline/JetTools.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 ZJetMetaData::ZJetMetaData()

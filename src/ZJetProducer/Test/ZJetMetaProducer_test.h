@@ -17,7 +17,7 @@
 #include "../../Test/ZJetTestSupport.h"
 #include "../ZJetMetaDataProducer.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 

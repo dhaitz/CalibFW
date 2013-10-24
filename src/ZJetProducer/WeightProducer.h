@@ -4,7 +4,7 @@
 #include <Math/VectorUtil.h>
 #include "ZJetProducer/MetadataProducer.h"
 
-namespace CalibFW
+namespace Artus
 {
 /// Event reweighting depending on pile-up and/or 2nd jet \f$pT\f$.
 /** Modify the event weight depending on the number of true interactions per

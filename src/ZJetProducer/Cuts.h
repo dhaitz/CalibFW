@@ -3,7 +3,7 @@
 
 #include "ZJetEventPipeline/Pipeline.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 // PDG: http://pdg.lbl.gov/2011/tables/rpp2011-sum-gauge-higgs-bosons.pdf

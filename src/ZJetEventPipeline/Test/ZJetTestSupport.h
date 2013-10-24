@@ -12,7 +12,7 @@
 
 #include "../MetaDataProducer/ZJetCuts.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 class TestZJetEventData : public ZJetEventData

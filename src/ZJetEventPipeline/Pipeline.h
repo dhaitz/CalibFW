@@ -3,7 +3,7 @@
 #include "MetaData.h"
 #include "EventData.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 class ZJetPipeline: public EventPipeline <ZJetEventData, ZJetMetaData, ZJetPipelineSettings>

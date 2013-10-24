@@ -2,7 +2,7 @@
 
 #include <boost/noncopyable.hpp>
 
-namespace CalibFW
+namespace Artus
 {
 
 /* This producer creates meta-data for a pipeline and event before the filter or the consumer are run

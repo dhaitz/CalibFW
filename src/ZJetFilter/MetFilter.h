@@ -6,7 +6,7 @@
 #include "FilterBase.h"
 
 
-namespace CalibFW
+namespace Artus
 {
 
 class MetFilter: public ZJetFilterBase

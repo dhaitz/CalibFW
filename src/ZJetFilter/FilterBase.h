@@ -6,7 +6,7 @@
 
 #include "ZJetFilter/FilterBase.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 typedef FilterBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> ZJetFilterBase;

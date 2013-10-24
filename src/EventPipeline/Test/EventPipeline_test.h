@@ -10,7 +10,7 @@
 #define BOOST_TEST_MODULE EventPipeline
 #include <boost/test/included/unit_test.hpp>
 
-namespace CalibFW
+namespace Artus
 {
 class TestMetaData
 {

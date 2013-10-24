@@ -5,7 +5,7 @@
 #include <map>
 #include <sstream>
 
-namespace CalibFW
+namespace Artus
 {
 
 // forward define to be able to use the event pipeline here

@@ -5,7 +5,7 @@
 
 #include "GlobalInclude.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 /*

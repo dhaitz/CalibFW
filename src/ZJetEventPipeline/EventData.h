@@ -11,7 +11,7 @@
 
 #include "EventPipeline/JetTools.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 /*

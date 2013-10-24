@@ -2,7 +2,7 @@
 
 #include <KappaTools/RootTools/Matching.h>
 
-namespace CalibFW
+namespace Artus
 {
 
 bool JetMatcher::PopulateGlobalMetaData(ZJetEventData const& data,

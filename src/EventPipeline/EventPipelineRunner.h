@@ -10,7 +10,7 @@
 
 #include "EventPipeline/EventPipeline.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 template < class TEvent >

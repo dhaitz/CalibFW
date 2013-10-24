@@ -2,7 +2,7 @@
 
 #include "FilterBase.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 class InCutFilter: public ZJetFilterBase

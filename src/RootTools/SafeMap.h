@@ -6,7 +6,7 @@
 
 #include <boost/ptr_container/ptr_map.hpp>
 
-namespace CalibFW
+namespace Artus
 {
 
 template<class TKey, class TMapType>

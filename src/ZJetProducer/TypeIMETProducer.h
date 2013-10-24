@@ -1,6 +1,6 @@
 #pragma once
 
-namespace CalibFW
+namespace Artus
 {
 
 //apply typeI-corrections to MET

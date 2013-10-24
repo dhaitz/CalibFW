@@ -2,7 +2,7 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
-namespace CalibFW
+namespace Artus
 {
 
 CorrJetProducer::CorrJetProducer(std::string corBase, std::string l1cor, std::vector<std::string> baseAlgos) :

@@ -3,7 +3,7 @@
 
 #include "FilterBase.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 class RunRangeFilter: public ZJetFilterBase

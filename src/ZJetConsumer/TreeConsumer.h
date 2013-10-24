@@ -7,7 +7,7 @@
 #include "RootTools/RootIncludes.h"
 
 
-namespace CalibFW
+namespace Artus
 {
 
 template < class TEvent, class TMetaData, class TSettings >

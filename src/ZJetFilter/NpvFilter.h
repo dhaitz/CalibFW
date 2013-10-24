@@ -2,7 +2,7 @@
 
 #include "FilterBase.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 /* Filters events by the NPV they contain

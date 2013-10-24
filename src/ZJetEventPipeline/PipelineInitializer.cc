@@ -23,7 +23,7 @@
 
 #include "ZJetConsumer/TreeConsumer.h"
 
-using namespace CalibFW;
+using namespace Artus;
 
 void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>* pLine,
 		ZJetPipelineSettings const& pset) const

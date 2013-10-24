@@ -2,7 +2,7 @@
 
 #include "ZJetEventPipeline/Pipeline.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 /*

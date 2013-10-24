@@ -2,7 +2,7 @@
 
 #include "ZJetProducer/MetadataProducer.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 class HltSelector: public ZJetGlobalMetaDataProducerBase

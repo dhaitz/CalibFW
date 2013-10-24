@@ -14,7 +14,7 @@
 #include "../MetaDataProducer/ZJetCuts.h"
 #include "../Filter/InCutFilter.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 class Dumper: public ZJetConsumerBase

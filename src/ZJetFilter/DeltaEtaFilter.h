@@ -2,7 +2,7 @@
 
 #include "FilterBase.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 /* Filters events by delta eta (Z, leading jet)

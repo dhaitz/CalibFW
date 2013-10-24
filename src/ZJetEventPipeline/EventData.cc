@@ -1,7 +1,7 @@
 #include "RootTools/RootNamer.h"
 #include "GlobalInclude.h"
 
-namespace CalibFW
+namespace Artus
 {
 /*
 bool ZJetEventData::IsValidEvent() const

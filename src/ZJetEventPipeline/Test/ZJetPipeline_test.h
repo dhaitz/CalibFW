@@ -19,7 +19,7 @@
 #include "../Filter/InCutFilter.h"
 
 
-namespace CalibFW
+namespace Artus
 {
 
 

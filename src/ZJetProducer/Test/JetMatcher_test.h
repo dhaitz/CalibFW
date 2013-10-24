@@ -11,7 +11,7 @@
 #include "../../Test/ZJetTestSupport.h"
 #include "ZJet/MetaDataProducer/JetMatcher.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 BOOST_AUTO_TEST_CASE( test_jetmatcher )

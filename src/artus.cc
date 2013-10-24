@@ -45,7 +45,7 @@
 
 #include "KappaTools/RootTools/HLTTools.h"
 
-using namespace CalibFW;
+using namespace Artus;
 
 /* BASIC CONFIGURATION */
 

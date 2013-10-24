@@ -1,7 +1,7 @@
 #include "EventPipeline/KappaEventProvider.h"
 #include "ZJetEventPipeline/EventData.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 typedef KappaEventProvider<ZJetEventData> ZJetEventProvider;

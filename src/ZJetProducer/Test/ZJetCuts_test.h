@@ -16,7 +16,7 @@
 #include "../../Test/ZJetTestSupport.h"
 
 
-namespace CalibFW
+namespace Artus
 {
 
 

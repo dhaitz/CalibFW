@@ -5,7 +5,7 @@
 
 // todo: move zJet specific pline settings here
 
-namespace CalibFW
+namespace Artus
 {
 
 typedef EventConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> ZJetConsumerBase;

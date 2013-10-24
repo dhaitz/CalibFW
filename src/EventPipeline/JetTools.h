@@ -3,7 +3,7 @@
 #include <boost/algorithm/string.hpp>
 #include "GlobalInclude.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 class JetType

@@ -8,7 +8,7 @@
 
 #include "FilterBase.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 template<class TData, class TMetaData, class TSettings>

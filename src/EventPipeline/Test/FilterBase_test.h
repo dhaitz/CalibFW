@@ -10,7 +10,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-namespace CalibFW
+namespace Artus
 {
 
 

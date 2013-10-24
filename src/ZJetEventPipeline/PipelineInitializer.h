@@ -4,7 +4,7 @@
 #include "ZJetEventPipeline/MetaData.h"
 #include "ZJetEventPipeline/EventData.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 class ZJetPipelineInitializer: public PipelineInitilizerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>

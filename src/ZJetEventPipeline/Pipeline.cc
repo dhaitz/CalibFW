@@ -4,7 +4,7 @@
 #include "ZJetProducer/Cuts.h"
 
 
-using namespace CalibFW;
+using namespace Artus;
 
 void ZJetPipeline::GetSupportedCuts(ZJetPipeline::MetaDataProducerVector& cuts)
 {

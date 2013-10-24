@@ -2,7 +2,7 @@
 
 //#include "ZJetEventPipeline/ZJetMetaData.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 class FlavourProducer: public ZJetGlobalMetaDataProducerBase

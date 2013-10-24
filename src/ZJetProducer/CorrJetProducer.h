@@ -8,7 +8,7 @@
 #define USE_JEC
 #include "RootTools/JECTools.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 struct JecCorrSet

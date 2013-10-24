@@ -4,7 +4,7 @@
 #include <Math/VectorUtil.h>
 #include "ZJetEventPipeline/Pipeline.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 typedef GlobalMetaDataProducerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>

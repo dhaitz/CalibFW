@@ -2,7 +2,7 @@
 
 #include "ZJetProducer/MetadataProducer.h"
 
-namespace CalibFW
+namespace Artus
 {
 
 /* Matches all jets in the event by the geomerty
