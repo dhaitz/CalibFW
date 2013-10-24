@@ -1,8 +1,8 @@
 
 #include <cassert>
 
-#include "DataFormats/interface/Kappa.h"
-#include "DataFormats/interface/KDebug.h"
+#include "Kappa/DataFormats/interface/Kappa.h"
+#include "Kappa/DataFormats/interface/KDebug.h"
 
 #include "EventPipeline/EventPipelineRunner.h"
 

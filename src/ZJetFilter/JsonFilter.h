@@ -2,7 +2,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "RootTools/RunLumiReader.h"
+#include "KappaTools/RootTools/RunLumiReader.h"
 
 #include "FilterBase.h"
 

@@ -501,8 +501,8 @@ public:
 			return;
 		}
 
-		KDataLV* jet1 = metaData.GetValidPrimaryJet(m_pipelineSettings, data);
-		KDataLV* jet2 = metaData.GetValidJet(m_pipelineSettings, data, 1);
+		//KDataLV* jet1 = metaData.GetValidPrimaryJet(m_pipelineSettings, data);
+		//KDataLV* jet2 = metaData.GetValidJet(m_pipelineSettings, data, 1);
 
 		localMetaData.SetCutResult(this->GetId(),
 			!false && !false
