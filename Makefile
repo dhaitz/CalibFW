@@ -33,6 +33,11 @@ $(EXECUTABLE): $(OBJECTS)
 
 clean:
 	rm -f $(OBJECTS) $(EXECUTABLE)
+	rm -f external/OfflineCorrection/CondFormats/lib/libJetMETObjects.so
+
+purge: clean
+	rm -f macros/*.pyc macros/*/*.pyc cfg/closure/*.pyc
+	rm -f cfg/closure/*.py.json
 
 check:
 	@echo -e "checking COMPILER...   \c" && which $(CXX)
