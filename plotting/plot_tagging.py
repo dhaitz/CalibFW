@@ -186,7 +186,7 @@ def tagging_response(files, opt, PFcorrection = False):
         mean_error_all = []
 
         #iterate over the 4 zones:
-        for zone, enriched in zip(zones, zonelabels):
+        for zone, enriched in zip(zones_extended, zonelabels_extended):
             flavours = []
             mean = []
             mean_error = []
@@ -204,7 +204,6 @@ def tagging_response(files, opt, PFcorrection = False):
                     flavours.append(obj.GetMean())
                     print "   Fraction of %s in %s zone: %1.3f" % (label, enriched,
                                                                  obj.GetMean())
-            
 
             # get the response
             settings = plotbase.getsettings(opt, changes, quantity=response)
@@ -213,10 +212,12 @@ def tagging_response(files, opt, PFcorrection = False):
             mean_error.append(obj.GetMeanError())
             print "  Response in %s zone: %1.3f" % (enriched, obj.GetMean())
         
-            if name == 'mc':
-                flavours_all.append(flavours)
-            mean_all.append(mean)
-            mean_error_all.append(mean_error)
+            if zones_extended.index(zone) < 4:
+                if name == 'mc':
+                    flavours_all.append(flavours[:4])
+            if zones_extended.index(zone) < 4:
+                mean_all.append(mean)
+                mean_error_all.append(mean_error)
 
         # also plot the raw response for each zone
         mean = [i[0] for i in mean_all]
@@ -261,18 +262,19 @@ def tagging_response(files, opt, PFcorrection = False):
         y.append(obj.GetMean())
         yerr.append(obj.GetMeanError())
     ax.errorbar(range(5)[1:], y, yerr, drawstyle='steps-mid', color='blue', fmt='o', 
-                      capsize=0 ,label='MC Truth')
+                      capsize=0 ,label='MC TruthFlavour')
 
     # set the axis labels and limits
     settings = plotbase.getsettings(opt, {'legloc':'lower right'}, quantity = '_'.join([response, flavourdef]))
 
-    for ax_obj in [ax, ax_raw]:
+    labels_enriched = ['%s-\nenriched' % s for s in labels]
+    for ax_obj, l, xlabel in zip([ax, ax_raw], [labels, labels_enriched], ['tagflavour', 'zone']):
         plotbase.labels(ax_obj, opt, settings, settings['subplot'])
-        plotbase.axislabels(ax_obj, "tagflavour", settings['xynames'][1], settings=settings)
+        plotbase.axislabels(ax_obj, xlabel, settings['xynames'][1], settings=settings)
         plotbase.setaxislimits(ax_obj, settings)
         ax_obj.set_xlim(0, 5)
         ax_obj.set_xticks(range(5)[1:])
-        ax_obj.set_xticklabels(labels)
+        ax_obj.set_xticklabels(l)
         ax_obj.set_ylim(0.85, 1.1)
         ax_obj.axhline(1.0, color='black', linestyle=':')
 

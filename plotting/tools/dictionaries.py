@@ -149,6 +149,7 @@ d_axes={
         'genbal_toparton':[0.0, 1.8, r"", ""],
         'genquality':[0.0, 1.8, r"Distance of Parton/Z matching", ""],
         'genmpf':[0.75, 1.2, r"$MPF$ Response (Gen level)", ""],
+        'zone': [-0.5, 24.5, r"Tagging Zones", ""],
         'zresp':[0.501, 1.501, r"Z Response $p_\mathrm{T}^\mathrm{Z, reco}/p_\mathrm{T}^\mathrm{Z,gen}$", ""],
         'zY':[-2.2, 2.2, r"$y^Z$", ""],
         }
