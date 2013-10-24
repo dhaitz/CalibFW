@@ -18,8 +18,9 @@ public:
 	MetFilter(std::vector<std::string> requiredFilters):
 		m_filters(requiredFilters), m_useFilters(true)
 	{
-		m_useFilters = !(m_filters.size() == 0 || m_filters.size() > 0 &&
-						 (m_filters[0] == "" || m_filters[0] == "all"));
+		m_useFilters = !(m_filters.size() == 0 ||
+						 (m_filters.size() > 0 &&
+						  (m_filters[0] == "" || m_filters[0] == "all")));
 	}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,

@@ -36,8 +36,7 @@ public:
 				ref_jet = &genJets->at(0);
 			else if (it->second->size() > 0)
 			{
-				KDataLV* lv = & it->second->at(0);
-				ref_jet = & it->second->at(0);//lv;
+				ref_jet = & it->second->at(0);
 			}
 			else
 				return 0;
@@ -82,10 +81,11 @@ public:
 			// flavour is only well defined if exactly ONE matching parton!
 			if (matching_phys_partons.size() == 1)
 				metaData.m_physparton[sAlgoName] = matching_phys_partons[0];
-
-			//return true;
 		}
+
+		return true;
 	}
+
 	static std::string Name()
 	{
 		return "flavour_producer";

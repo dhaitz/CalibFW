@@ -88,8 +88,6 @@ private:
 	float returnvalue(std::string string, ZJetEventData const& event,
 					  ZJetMetaData const& metaData, ZJetPipelineSettings const& s)
 	{
-
-		int n;
 		if (string == "npv") var = npv;
 		else if (string == "rho") var = rho;
 		else if (string == "run") var = run;
@@ -576,7 +574,7 @@ private:
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 
-			KDataLV* matched_genjet = NULL;
+			//KDataLV* matched_genjet = NULL;
 
 			if (0 >= metaData.GetValidJetCount(s, event, genName)
 				|| 0 >= metaData.GetValidJetCount(s, event))
@@ -593,7 +591,7 @@ private:
 			if (iMatchedGen <= -1)
 				return false;
 
-			if (iMatchedGen >= metaData.GetValidJetCount(s, event, genName))
+			if (iMatchedGen >= int(metaData.GetValidJetCount(s, event, genName)))
 			{
 				CALIB_LOG_FATAL("Reco to gen matching: No reference gen jet found! "
 								<< iMatchedGen << " >= " << metaData.GetValidJetCount(s, event, genName))
@@ -620,9 +618,12 @@ private:
 		else if (var == physflavour)
 			return metaData.GetPhysFlavour(s);
 		else
-			CALIB_LOG_FATAL("TTreeConsumer: Quantity " << n << " not available!")
-		};
+			CALIB_LOG_FATAL("TTreeConsumer: Quantity " << var << " not available!");
 
-    };
+		assert(false);
+		return -1;
+	};
+
+};
 
 }

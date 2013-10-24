@@ -145,33 +145,32 @@ inline void correctJets(std::vector<T>* jets,
 class JECService
 {
 public:
-	JECService(FileInterface& fi, const std::string prefix,
-			   const std::vector<std::string>& level, const std::string algo,
+	JECService(FileInterface& fi,
+			   const std::string prefix, const std::vector<std::string>& level, const std::string algo,
 			   const double R, const int jeuDir = 0, double rcorr = 0.0)
-		: area(-1), jeuType(jec_center), JEC(0), JEU(0), runCorr(rcorr),
-		  vs(fi.Get<KVertexSummary>("goodOfflinePrimaryVerticesSummary", false)),
-		  ja(fi.Get<KJetArea>("KT6Area", true, true))
+		: vs(fi.Get<KVertexSummary>("goodOfflinePrimaryVerticesSummary", false)),
+		  area(-1), ja(fi.Get<KJetArea>("KT6Area", true, true)),
+		  jeuType(jec_center), JEC(0), JEU(0), runCorr(rcorr)
 	{
 		init(level, jeuDir, prefix, algo);
 	}
 
-	JECService(KVertexSummary* vertexSummary,  KJetArea* jetArea, const std::string prefix,
-			   const std::vector<std::string>& level, const std::string algo,
-			   KEventMetadata* eventmetadata,
-			   const double R, const int jeuDir = 0, double rcorr = 0.0, unsigned int* run = 0)
-		: area(-1), jeuType(jec_center), JEC(0), JEU(0), vs(vertexSummary),
-		  ja(jetArea), runCorr(rcorr), evtMeta(eventmetadata), nRun0(201000)
+	JECService(KVertexSummary* vertexSummary, KJetArea* jetArea, KEventMetadata* eventmetadata,
+			   const std::string prefix, const std::vector<std::string>& level, const std::string algo,
+			   const double R, const int jeuDir = 0, double rcorr = 0.0,
+			   unsigned int* run = 0)
+		: vs(vertexSummary), area(-1), ja(jetArea), evtMeta(eventmetadata),
+		  jeuType(jec_center), JEC(0), JEU(0), runCorr(rcorr), nRun0(201000)
 	{
 		init(level, jeuDir, prefix , algo);
 		if (rcorr != 0.0)
 			CALIB_LOG("HCAL correction = " << rcorr);
-
 	}
 
 	~JECService()
 	{
-		delete JEU;
 		delete JEC;
+		delete JEU;
 	}
 
 	template<typename T>
@@ -210,14 +209,14 @@ private:
 			jeuType = jec_center;
 	}
 
+	KVertexSummary* vs;
 	double area;
-	double runCorr;
+	KJetArea* ja;
+	KEventMetadata* evtMeta;
 	JECValueType jeuType;
 	FactorizedJetCorrector* JEC;
 	JetCorrectionUncertainty* JEU;
-	KVertexSummary* vs;
-	KJetArea* ja;
-	KEventMetadata* evtMeta;
+	double runCorr;
 	signed int nRun0;
 };
 

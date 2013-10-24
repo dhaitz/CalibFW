@@ -36,32 +36,32 @@ void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorre
 	corLevel.push_back(m_l1correction);
 	m_corrService.insert(algoCorrectionAlias, new JecCorrSet());
 	m_corrService[algoCorrectionAlias].m_l1.reset(new JECService(
-			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
-			event.m_eventmetadata, 0, 0, 0)
+			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+			prefix, corLevel, algoName, 0, 0, 0)
 	);
 
 	// only apply one correction step in a round!
 	corLevel.clear();
 	corLevel.push_back("L2Relative");
 	m_corrService[algoCorrectionAlias].m_l2.reset(new JECService(
-			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
-			event.m_eventmetadata, 0, 0, 0)
+			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+			prefix, corLevel, algoName, 0, 0, 0)
 	);
 
 	// only apply one correction step in a round!
 	corLevel.clear();
 	corLevel.push_back("L3Absolute");
 	m_corrService[algoCorrectionAlias].m_l3.reset(new JECService(
-			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
-			event.m_eventmetadata, 0, 0, 0)
+			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+			prefix, corLevel, algoName, 0, 0, 0)
 	);
 
 	// only used for data
 	corLevel.clear();
 	corLevel.push_back("L2L3Residual");
 	m_corrService[algoCorrectionAlias].m_l2l3res.reset(new JECService(
-			event.m_vertexSummary, event.m_jetArea, prefix, corLevel, algoName,
-			event.m_eventmetadata, 0, 0, rcorr)
+			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+			prefix, corLevel, algoName, 0, 0, rcorr)
 	);
 	CALIB_LOG_FILE("");
 }
@@ -104,7 +104,7 @@ void CorrJetProducer::CreateCorrections(
 bool CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
 		ZJetMetaData& metaData, ZJetPipelineSettings const& settings) const
 {
-	for (int i = 0; i < m_basealgorithms.size(); i++)
+	for (unsigned int i = 0; i < m_basealgorithms.size(); i++)
 	{
 		double runcorr = settings.Global()->GetHcalCorrection();
 		if (m_basealgorithms[i].find("chs") == std::string::npos)
