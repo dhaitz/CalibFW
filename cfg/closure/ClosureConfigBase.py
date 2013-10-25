@@ -314,6 +314,8 @@ def treeconfig(conf, quantities=None):
                     "matchedgenjet1pt", "genmpf",
                     "algoflavour", "physflavour",
                             ]
+            elif conf['InputType'] == 'data':
+                pval['QuantitiesVector'] += ['eventnr']
         else:
             pval['QuantitiesVector'] = quantities
 
