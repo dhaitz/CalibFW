@@ -72,6 +72,17 @@ def GetWorkPath():
         return GetBasePath()
 
 
+def getPath(variable='EXCALIBUR_BASE', nofail=False):
+    try:
+        return os.environ[variable]
+    except:
+        print variable, "is not in shell variables:", os.environ.keys()
+        print "Please source scripts/ini_excalibur and CMSSW!"
+        if nofail:
+            return None
+        exit(1)
+
+
 def addCHS(algorithms):
     """can be used as [algos =] addCHS(algos) or algos = addCHS([AK5, etc.])"""
     algorithms += [a.replace("PFJets", "PFJetsCHS") for a in algorithms
@@ -115,7 +126,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
         'Jec': "default",
         'JsonFile': "default",
         'InputFiles': [],
-        'OutputPath': "artus_" + inputtype + "_" + run,
+        'OutputPath': "out",  # "artus_" + inputtype + "_" + run,
         'MuonID2011': (run == '2011'),
         'Pipelines': {
             'default': {
@@ -406,15 +417,15 @@ def ApplySampleReweighting(conf, sample="herwig", referencelumi_fbinv=1.0):
     d = {
         "herwig": [
             0.0,  # 400.8834/6167020,# 0-15 (not existing, prep/das inconsistent)
-            70.55123   /  200000,  #  15-20
-            77.53533   /  150154,  #  20-30 (old sample)
-            62.74567   /  150000,  #  30-50
-            28.73806   /  100160,  #  50-80 (old sample)
-            9.745931   /   96000,  #  80-120
-            2.810025   /   98560,  # 120-170
-            0.7702934  /  100000,  # 170-230
-            0.214268   /   96640,  # 230-300
-            0.08858213 /   90517,  # 300-inf
+            70.551230 / 200000,  # 15-20
+            77.535330 / 150154,  # 20-30 (old sample)
+            62.745670 / 150000,  # 30-50
+            28.738060 / 100160,  # 50-80 (old sample)
+            9.7459310 / 96000,   # 80-120
+            2.8100250 / 98560,   # 120-170
+            0.7702934 / 100000,  # 170-230
+            0.2142680 / 96640,   # 230-300
+            0.08858213 / 90517,  # 300-inf
         ],
     }
 
@@ -608,221 +619,6 @@ def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False,
         cutPipe["FilterInCutIgnored"] = 0
         cutPipe["Filter"].append("incut")
 
-        consumers = {
-            'bin_balance_response': {
-                'Name': "bin_response",
-                'ProductName': "balresp_" + algo,
-                'ResponseType': "bal",
-            },
-            'bin_balance_response': {
-                'Name': "bin_response",
-                'ProductName': "balresp_" + algo,
-                'ResponseType': "bal",
-            },
-            'bin_balance_response_2ndJet': {
-                'Name': "bin_response",
-                'ProductName': "balrespjet2_" + algo,
-                'ResponseType': "bal",
-                'JetNumber': 2,
-            },
-            'bin_mpf_response': {
-                'Name': "bin_response",
-                'ProductName': "mpfresp_" + algo,
-                'ResponseType': "mpf",
-            },
-            'bin_mpf-notypeI_response': {
-                'Name': "bin_response",
-                'ProductName': "mpfresp-raw_" + algo,
-                'ResponseType': "mpfraw",
-            },
-            'bin_twojet_response': {
-                'Name': "bin_response",
-                'ProductName': "baltwojet_" + algo,
-                'ResponseType': "two",
-            },
-            'bin_zeppenfeld': {
-                'Name': "bin_response",
-                'ProductName': "zeppenfeld_" + algo,
-                'ResponseType': "zep",
-            },
-        }
-
-        consumers_mc = {
-            'bin_muresp_response': {
-                'Name': "bin_response",
-                'ProductName': "muresp_" + algo,
-                'ResponseType': "muresp",
-            },
-            'bin_z_response': {
-                'Name': "bin_response",
-                'ProductName': "zresp_" + algo,
-                'ResponseType': "z",
-            },
-            'bin_recogen_response': {
-                'Name': "bin_response",
-                'ProductName': "recogen_" + algo,
-                'ResponseType': "recogen",
-            },
-            'bin_recogen_response_2ndjet': {
-                'Name': "bin_response",
-                'ProductName': "recogenjet2_" + algo,
-                'ResponseType': "recogen",
-                'JetNumber': 2,
-            },
-            # flavour responses, JetNumber is misused as flavour
-           'bin_gluonbal_response': {
-                'Name': "bin_response",
-                'ProductName': "balgluon_" + algo,
-                'ResponseType': "flavourbal",
-                'JetNumber': 21,
-            },
-           'bin_udsbal_response': {
-                'Name': "bin_response",
-                'ProductName': "baluds_" + algo,
-                'ResponseType': "flavourbal",
-                'JetNumber': 123,
-            },
-           'bin_cbal_response': {
-                'Name': "bin_response",
-                'ProductName': "balc_" + algo,
-                'ResponseType': "flavourbal",
-                'JetNumber': 4,
-            },
-           'bin_bbal_response': {
-                'Name': "bin_response",
-                'ProductName': "balb_" + algo,
-                'ResponseType': "flavourbal",
-                'JetNumber': 5,
-            },
-           'bin_gluonmpf_response': {
-                'Name': "bin_response",
-                'ProductName': "mpfgluon_" + algo,
-                'ResponseType': "flavourmpf",
-                'JetNumber': 21,
-            },
-           'bin_udsmpf_response': {
-                'Name': "bin_response",
-                'ProductName': "mpfuds_" + algo,
-                'ResponseType': "flavourmpf",
-                'JetNumber': 123,
-            },
-           'bin_cmpf_response': {
-                'Name': "bin_response",
-                'ProductName': "mpfc_" + algo,
-                'ResponseType': "flavourmpf",
-                'JetNumber': 4,
-            },
-           'bin_bmpf_response': {
-                'Name': "bin_response",
-                'ProductName': "mpfb_" + algo,
-                'ResponseType': "flavourmpf",
-                'JetNumber': 5,
-            },
-           'bin_gluonrecogen_response': {
-                'Name': "bin_response",
-                'ProductName': "recogengluon_" + algo,
-                'ResponseType': "flavourrecogen",
-                'JetNumber': 21,
-            },
-           'bin_udsrecogen_response': {
-                'Name': "bin_response",
-                'ProductName': "recogenuds_" + algo,
-                'ResponseType': "flavourrecogen",
-                'JetNumber': 123,
-            },
-           'bin_crecogen_response': {
-                'Name': "bin_response",
-                'ProductName': "recogenc_" + algo,
-                'ResponseType': "flavourrecogen",
-                'JetNumber': 4,
-            },
-           'bin_brecogen_response': {
-                'Name': "bin_response",
-                'ProductName': "recogenb_" + algo,
-                'ResponseType': "flavourrecogen",
-                'JetNumber': 5,
-            },
-        }
-
-        consumers_gen = {
-            'bin_genbal_response': {
-                'Name': "bin_response",
-                'ProductName': "genbal_" + algo,
-                'ResponseType': "genbal",
-            },
-            'bin_genmpf_response': {
-                'Name': "bin_response",
-                'ProductName': "genmpf_" + algo,
-                'ResponseType': "genmpf",
-            },
-            'bin_gentwo_response': {
-                'Name': "bin_response",
-                'ProductName': "gentwo_" + algo,
-                'ResponseType': "gentwo",
-            },
-            'bin_genzep_response': {
-                'Name': "bin_response",
-                'ProductName': "genzep_" + algo,
-                'ResponseType': "genzep",
-            },
-            'bin_parton_response': {
-                'Name': "bin_response",
-                'ProductName': "parton_" + algo,
-                'ResponseType': "parton",
-            },
-            'bin_balparton_response': {
-                'Name': "bin_response",
-                'ProductName': "balparton_" + algo,
-                'ResponseType': "balparton",
-            },
-            'bin_genbal_toparton_response': {
-                'Name': "bin_response",
-                'ProductName': "genbal-toparton_" + algo,
-                'ResponseType': "genbal_toparton",
-            },
-            'bin_genbal_tobalparton_response': {
-                'Name': "bin_response",
-                'ProductName': "genbal-tobalparton_" + algo,
-                'ResponseType': "genbal_tobalparton",
-            },
-            'bin_genquality_response': {
-                'Name': "bin_response",
-                'ProductName': "genquality_" + algo,
-                'ResponseType': "quality",
-            },
-            # gen flavour responses
-           'bin_gluongen_response': {
-                'Name': "bin_response",
-                'ProductName': "gengluon_" + algo,
-                'ResponseType': "flavourgenbal",
-                'JetNumber': 21,
-            },
-           'bin_udsgen_response': {
-                'Name': "bin_response",
-                'ProductName': "genuds_" + algo,
-                'ResponseType': "flavourgenbal",
-                'JetNumber': 123,
-            },
-           'bin_cgen_response': {
-                'Name': "bin_response",
-                'ProductName': "genc_" + algo,
-                'ResponseType': "flavourgenbal",
-                'JetNumber': 4,
-            },
-           'bin_bgen_response': {
-                'Name': "bin_response",
-                'ProductName': "genb_" + algo,
-                'ResponseType': "flavourgenbal",
-                'JetNumber': 5,
-            },
-        }
-
-        if addResponse:
-            if isMC:
-                cutPipe["Consumer"].update(consumers_mc)
-                cutPipe["Consumer"].update(consumers_gen)
-            cutPipe["Consumer"].update(consumers)
-        # only add the nocut pipeline for the default (no binning)
         #if name == "default":
         if nocutFolder:
             newDict[name + "nocuts"] = nocutPipe
@@ -857,43 +653,6 @@ def Expand(pipelineDict, expandCount, includeSource):
         return newDict
 
 
-def AddHltConsumer(pipelineDict, algoNames, hlt_names):
-    for algo in algoNames:
-        for hname in hlt_names:
-            for p, pval in pipelineDict["Pipelines"].items():
-                #print p
-                if p == "default_" + algo + "nocuts":
-                    AddConsumer(pval, "hlt_" + hname + "_prescale_run_" + algo,
-                                                {"Name": "generic_profile_consumer",
-                                                  "YSource": "hltprescale",
-                                                  "YSourceConfig": hname,
-                                                  "XSource": "run",
-                                                  "ProductName": "hlt-" + hname + "-prescale_run_" + algo})
-                    AddConsumer(pval, "hlt_" + hname + "_prescale_lumi" + algo,
-                                                {"Name": "generic_profile_consumer",
-                                                  "YSource": "hltprescale",
-                                                  "YSourceConfig": hname,
-                                                  "XSource": "intlumi",
-                                                  "ProductName": "hlt-" + hname + "-prescale_lumi_" + algo})
-    # plot the selcted hlt
-    for algo in algoNames:
-        for p, pval in pipelineDict["Pipelines"].items():
-            #print p
-            if p == "default_" + algo + "nocuts":
-                AddConsumer(pval, "hlt_selected_prescale_lumi" + algo,
-                                            {"Name": "generic_profile_consumer",
-                                              "YSource": "selectedhltprescale",
-                                              "YSourceConfig": hname,
-                                              "XSource": "intlumi",
-                                              "ProductName": "hltselectedprescale_lumi" + algo})
-                AddConsumer(pval, "hlt_selected_prescale_run" + algo,
-                                            {"Name": "generic_profile_consumer",
-                                              "YSource": "selectedhltprescale",
-                                              "YSourceConfig": hname,
-                                              "XSource": "run",
-                                              "ProductName": "hltselectedprescale_run" + algo})
-
-
 def ExpandPtBins(pipelineDict, ptbins, includeSource):
     newDict = dict()
 
@@ -918,77 +677,6 @@ def ExpandPtBins(pipelineDict, ptbins, includeSource):
         return dict(pipelineDict.items() + newDict.items())
     else:
         return newDict
-
-
-def AddCorrectionPlots(conf, algoNames, l3residual=False, level=3, forIncut=True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
-
-    def AddCorrectionConsumer(pval, algo, level0, level1):
-                name = level1.replace(level0, "")
-                AddConsumer(pval, name + "_npv_" + algo,
-                            {"Name": "generic_profile_consumer",
-                              "YSource": "jetptratio", "Jet1Num": 0, "Jet2Num": 0,
-                              "Jet1Name": algo + level1,
-                              "Jet2Name": algo + level0,
-                              "XSource": "npv",
-                              "ProductName": name + "_npv_" + algo})
-                AddConsumer(pval, name + "_zpt_" + algo,
-                            {"Name": "generic_profile_consumer",
-                              "YSource": "jetptratio", "Jet1Num": 0, "Jet2Num": 0,
-                              "Jet1Name": algo + level1,
-                              "Jet2Name": algo + level0,
-                              "XSource": "zpt",
-                              "ProductName": name + "_zpt_" + algo})
-                AddConsumer(pval, name + "_jet1pt_" + algo,
-                            {"Name": "generic_profile_consumer",
-                              "YSource": "jetptratio", "Jet1Num": 0, "Jet2Num": 0,
-                              "Jet1Name": algo + level1,
-                              "Jet2Name": algo + level0,
-                              "XSource": "jet1pt",
-                              "ProductName": name + "_jet1pt_" + algo})
-                AddConsumer(pval, name + "_eta_" + algo,
-                            {"Name": "generic_profile_consumer",
-                              "YSource": "jetptratio", "Jet1Num": 0, "Jet2Num": 0,
-                              "Jet1Name": algo + level1,
-                              "Jet2Name": algo + level0,
-                              "XSource": "jet1eta",
-                              "ProductName": name + "_jet1eta_" + algo})
-
-                AddConsumer(pval, name + "abs_npv_" + algo,
-                            {"Name": "generic_profile_consumer",
-                              "YSource": "jetptabsdiff", "Jet1Num": 0, "Jet2Num": 0,
-                              "Jet1Name": algo + level0,
-                              "Jet2Name": algo + level1,
-                              "XSource": "npv",
-                              "ProductName": name + "abs_npv_" + algo})
-                AddConsumer(pval, name + "abs_jet1pt_" + algo,
-                            {"Name": "generic_profile_consumer",
-                              "YSource": "jetptabsdiff", "Jet1Num": 0, "Jet2Num": 0,
-                              "Jet1Name": algo + level0,
-                              "Jet2Name": algo + level1,
-                              "XSource": "jet1pt",
-                              "ProductName": name + "abs_jet1pt_" + algo})
-                AddConsumer(pval, name + "abs_zpt_" + algo,
-                            {"Name": "generic_profile_consumer",
-                              "YSource": "jetptabsdiff", "Jet1Num": 0, "Jet2Num": 0,
-                              "Jet1Name": algo + level0,
-                              "Jet2Name": algo + level1,
-                              "XSource": "zpt",
-                              "ProductName": name + "abs_zpt_" + algo})
-
-    for algo in algoNames:
-        for p, pval in conf["Pipelines"].items():
-            if check_if_add(p, algo, forIncut, forAllevents, forIncutVariations, forAlleventsVariations):
-
-                AddCorrectionConsumer(pval, algo, "", "L1")
-
-                if level > 1:
-                    AddCorrectionConsumer(pval, algo, "L1", "L1L2")
-
-                if level > 2:
-                    AddCorrectionConsumer(pval, algo, "", "L1L2L3")
-
-                if l3residual:
-                    AddCorrectionConsumer(pval, algo, "L1L2L3", "L1L2L3Res")
 
 
 def ReplaceWithQuantitiesBasic(pline):
@@ -1055,217 +743,3 @@ def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
         pval["RootFileFolder"] = FolderPrefix + ptVal
 
     return conf
-
-
-def StoreSettings(settings, filename):
-    f = open(filename, "w")
-
-    jsonOut = str(settings)
-    # make it json conform
-    jsonOut = jsonOut.replace("\'", "\"")
-
-    try:
-        import json
-        # dont display config on console, it is annyoing
-        #print json.dumps( settings, sort_keys=True, indent=4 )
-        json.dump(settings, f, sort_keys=True, indent=4)
-    except BaseException:
-        f.write(jsonOut)
-        print "No json Module found. Using fallback method ..."
-
-    f.close()
-    print len(settings["Pipelines"]), "pipelines configured."
-
-
-def StoreGCDataset(settings, nickname, filename):
-    print "Generating " + filename
-
-    # ordering is important in the .dbs file format
-    cfile = open(filename, 'wb')
-    cfile.write("[" + nickname + "]\n")
-    cfile.write("nickname = " + nickname + "\n")
-    cfile.write("events = " + str(-len(settings['InputFiles'])) + "\n")
-
-    path = os.path.split(settings['InputFiles'][0])[0]
-    cfile.write("prefix = " + path + "\n")
-
-    for f in settings['InputFiles']:
-        cfile.write(os.path.split(f)[1] + " = -1\n")
-
-    cfile.close()
-
-
-def StoreGCConfig(settings, nickname, filename):
-    print "Generating " + filename
-
-    config = ConfigParser.RawConfigParser()
-    # important, so the case is preserved
-    config.optionxform = str
-    config.add_section("global")
-    config.set("global", "include", "gc_common.conf")
-    config.set("global", "workdir space", "0")
-    config.add_section("UserMod")
-    config.set("UserMod", "dataset", nickname + " : " + nickname + ".dbs")
-
-    # Writing our configuration file to 'example.cfg'
-    cfile = open(filename, 'wb')
-    config.write(cfile)
-    cfile.close()
-
-
-def StoreGCCommon(settings, nickname, filename, output_folder):
-    print "Generating " + filename
-
-    config = ConfigParser.RawConfigParser()
-    # important, so the case is preserved
-    config.optionxform = str
-    config.add_section("global")
-    config.set("global", "module", "UserMod")
-    config.set("global", "backend", "local")
-    config.set("global", "cmdargs", "-G -c")
-
-    config.add_section("jobs")
-    config.set("jobs", "in queue", 50)
-    #config.set("jobs", "shuffle", True)
-    config.set("jobs", "wall time", "1:50:00")
-    config.set("jobs", "monitor", "scripts")
-    #config.set("jobs", "memory", 3000)
-
-    config.add_section("local")
-    config.set("local", "queue", "short")
-    config.set("local", "delay output", "True")
-
-    config.add_section("UserMod")
-    # use 40 jobs for the MC, 80 for data
-    if settings["InputType"] == "mc":
-        config.set("UserMod", "files per job", int(round(len(settings["InputFiles"]) / 80. + 0.4999)))
-    else:
-        config.set("UserMod", "files per job", int(round(len(settings["InputFiles"]) / 120. + 0.4999)))
-    config.set("UserMod", "executable", "gc-run-artus.sh")
-    config.set("UserMod", "subst files", "gc-run-artus.sh")
-    config.set("UserMod", "input files", GetBasePath() + "external/lib/libboost_regex.so.1.45.0")
-
-    config.add_section("storage")
-    config.set("storage", "se path", "dir://" + output_folder)
-    config.set("storage", "se output files", settings["OutputPath"] + ".root")
-    config.set("storage", "se output pattern", "@NICK@_job_@MY_JOBID@.root")
-
-    # Writing our configuration file to 'example.cfg'
-    cfile = open(filename, 'wb')
-    config.write(cfile)
-    cfile.close()
-
-
-def StoreMergeScript(settings, nickname, filename, output_folder, merge_folder='temp'):
-    print "Generating", filename
-    cfile = open(filename, 'wb')
-    cfile.write("hadd " + output_folder + settings["OutputPath"] + ".root " + output_folder + nickname + "_job_*.root\n")
-    cfile.close()
-    os.chmod(filename, stat.S_IRWXU)
-    print "Generating", filename.replace("merge", "parallelmerge")
-    mfile = open(filename.replace("merge", "parallelmerge"), 'wb')
-    #mfile.write("mkdir -p " + output_folder.replace("out", merge_folder) + "\n")
-    mfile.write(GetBasePath() + "scripts/parallelmerge.sh " + output_folder + " 10")
-    os.chmod(filename.replace("merge", "parallelmerge"), stat.S_IRWXU)
-
-
-def StoreShellRunner(settings, nickname, filename):
-    print "Generating " + filename
-    cfile = open(filename, 'wb')
-    cfile.write("echo $FILE_NAMES\n")
-    cfile.write("cd " + GetCMSSWPath() + "\n")
-    if "CMSSW_5_" in GetCMSSWPath():
-        cfile.write("export VO_CMS_SW_DIR=/wlcg/sw/cms\n")
-        cfile.write("export SCRAM_ARCH=slc5_amd64_gcc462\n")
-        cfile.write("source $VO_CMS_SW_DIR/cmsset_default.sh\n")
-    else:
-        cfile.write("source /wlcg/sw/cms/experimental/cmsset_default.sh\n")
-    cfile.write("eval `scram runtime -sh`\n")
-    cfile.write("cd -\n")
-    cfile.write("cd " + GetBasePath() + "\n")
-    cfile.write("source " + GetBasePath() + "scripts/ini_excalibur\n")
-    cfile.write("cd -\n")
-    cfile.write(GetBasePath() + "artus " + GetBasePath() + "cfg/artus/" + nickname + ".py.json")
-    cfile.close()
-    os.chmod(filename, stat.S_IRWXU)
-
-
-def Run(settings, arguments):
-    """Run this config with artus
-
-    The options are:
-      --storeonly   Just generate the json config file and exit
-      --fast n [m]  Run over a few files to see if it works (file number n to m)
-      --batch       Split into jobs for processing on a cluster
-      --skip n [m]  skip first n events and run over the next m events [m=1]
-    """
-
-    print "  _______ ___   ___  ______      ___       __       __  .______    __    __  .______      "
-    print " |   ____|\  \ /  / /      |    /   \     |  |     |  | |   _  \  |  |  |  | |   _  \ "     
-    print " |  |__    \  V  / |  ,----'   /  ^  \    |  |     |  | |  |_)  | |  |  |  | |  |_)  |    "
-    print " |   __|    >   <  |  |       /  /_\  \   |  |     |  | |   _  <  |  |  |  | |      /     "
-    print " |  |____  /  .  \ |  `----. /  _____  \  |  `----.|  | |  |_)  | |  `--'  | |  |\  \----."
-    print " |_______|/__/ \__\ \______|/__/     \__\ |_______||__| |______/   \______/  | _| `._____|"
-    print "                                                                      (previously CalibFW)"
-    print "                   (O)                                                               "
-    print "                   <M       The mighty broadsword of cut-based jet studies           "
-    print "        o          <M                                                                "
-    print "       /| ......  /:M\------------------------------------------------,,,,,,         "
-    print "     (O)[]XXXXXX[]I:K+}=====<{H}>================================------------>       "
-    print "       \| ^^^^^^  \:W/------------------------------------------------''''''         "
-    print "        o          <W                                                                "
-    print "                   <W                                                                "
-    print "                   (O)                 Calibrate like a king!                        "
-    print "                                                                                     "
-
-    # skip first n events and run over the next m events: --skip n [m=1]
-    if len(arguments) > 2 and "--skip" in arguments:
-        settings['SkipEvents'] = int(arguments[arguments.index("--skip") + 1])
-        try:
-            settings['EventCount'] = int(arguments[arguments.index("--skip") + 2])
-        except:
-            settings['EventCount'] = 1
-        print "Running over %s events beginning with event %d." % (
-            "all" if settings['EventCount'] < 0 else str(settings['EventCount']),
-            settings['SkipEvents'])
-
-    filename = arguments[0] + ".json"
-    StoreSettings(settings, filename)
-
-    base_path = GetBasePath()
-    work_path = GetWorkPath()
-
-    if len(arguments) > 1 and "--storeonly" in arguments:
-        print "The settings were stored to", filename
-        exit(0)
-
-    if len(arguments) <= 1 or "--batch" not in arguments[1]:
-        subprocess.call(["./artus", filename])
-    else:
-        nickname = os.path.split(filename)[1]
-        nickname = nickname.split(".")[0]
-        print "Generating GC configs with nickname " + nickname + " ..."
-        # store the input files in gc format
-        if not os.path.exists(work_path + "work/"):
-            os.mkdir(work_path + "work/")
-        if not os.path.exists(work_path + "work/" + nickname):
-            os.mkdir(work_path + "work/" + nickname)
-        if not os.path.exists(work_path + "work/" + nickname + "/out/"):
-            os.mkdir(work_path + "work/" + nickname + "/out/")
-
-        StoreGCDataset(settings, nickname, work_path + "work/" + nickname + "/" + nickname + ".dbs")
-        StoreGCConfig(settings, nickname, work_path + "work/" + nickname + "/" + nickname + ".conf")
-        StoreGCCommon(settings, nickname, work_path + "work/" + nickname + "/gc_common.conf", work_path + "work/" + nickname + "/out/")
-        #StoreMergeScript(settings, nickname, work_path + "work/" + nickname + "/merge.sh", work_path + "work/" + nickname + "/out/")
-        StoreShellRunner(settings, nickname, work_path + "work/" + nickname + "/gc-run-artus.sh")
-
-        # generate merge script
-        print "The config files are prepared in", work_path + "work/" + nickname
-        print "Go there and start grid-control with", nickname + ".conf!"
-    try:
-        import pynotify
-        if pynotify.init("Excalibur"):
-            n = pynotify.Notification("Excalibur Artus", "run with config " + filename + " done")
-            n.show()
-    except:
-        pass
