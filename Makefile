@@ -30,7 +30,7 @@ $(EXECUTABLE): $(OBJECTS)
 	@echo $(EXECUTABLE) "built successfully."
 
 .cc.o:
-	@echo $(CXX) CFLAGS $< -o $@
+	@echo $(CXX) CFLAGS $<
 	@$(CXX) $(CFLAGS) $< -o $@
 
 clean:
@@ -43,13 +43,14 @@ purge: clean
 	rm -f cfg/artus/*.py.json
 
 check:
-	@echo -e "checking COMPILER...   \c" && which $(CXX)
-	@echo -e "checking ROOT...       \c" && root-config --version
-	@echo -e "checking BOOST...      \c" && ls $(BOOSTPATH)
-	@echo -e "checking KAPPA...      \c" && ls $(KAPPAPATH) -d
-	@echo -e "checking KAPPATOOLS... \c" && ls $(KAPPATOOLSPATH) -d
-	@echo -e "checking PYTHON...     \c" && python --version || echo "  Python is not needed for compiling"
-	@echo -e "checking EXECUTABLE... \c" && (ls $(EXECUTABLE) &> /dev/null && ls $(EXECUTABLE)) || echo $(EXECUTABLE) "not yet built"
+	@echo -e "checking COMPILER...     \c" && which $(CXX)
+	@echo -e "checking ROOT...         \c" && root-config --version
+	@echo -e "checking BOOST...        \c" && ls $(BOOSTPATH) -d
+	@echo -e "checking KAPPA...        \c" && ls $(KAPPAPATH) -d
+	@echo -e "checking KAPPATOOLS...   \c" && ls $(KAPPATOOLSPATH) -d
+	@echo -e "checking PYTHON...       \c" && python --version || echo "  Python is not needed for compiling"
+	@echo -e "checking GRID-CONTROL... \c" && which go.py || echo "  grid-control is not needed for compiling"
+	@echo -e "checking EXECUTABLE...   \c" && (ls $(EXECUTABLE) &> /dev/null && ls $(EXECUTABLE)) || echo $(EXECUTABLE) "not yet built"
 	@echo $(PROJECT) "is ok."
 
 #TODO: version	path
@@ -64,7 +65,7 @@ help:
 	@echo " " $(PROJECT) version $(shell git describe)
 	@echo "  see DOCUMENTATION.md for more help and COPYING for the licence."
 	@echo "make check          check for build requirements"
-	@echo "make [-j 4] [-B]    built" $(EXECUTABLE) "[on 4 cores] [rebuild everything]"
+	@echo "make [-j 4] [-B]    build" $(EXECUTABLE) "[on 4 cores] [rebuild everything]"
 	@echo "make clean          clean up object files and executable"
-	@echo "make purge          clean up .pyc and .json files additionally"
+	@echo "make purge          clean up .pyc and .py.json files additionally"
 	@echo "make help           show this help message"
