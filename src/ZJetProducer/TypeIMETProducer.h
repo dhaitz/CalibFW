@@ -21,7 +21,7 @@ public:
 			std::string algoname_raw;
 			KDataPFMET* rawmet;
 			std::vector<std::string> algorithms;
-			float sumEt_correction;
+			float sumEt_correction = 0;
 
 			//check if CHS or no CHS
 			if (std::string::npos == m_basealgorithms[i].find("chs"))
@@ -58,8 +58,8 @@ public:
 					}
 				}
 
-				KDataPFMET corrmet;
-				corrmet.p4 = rawmet->p4 + correction.p4;
+				KDataPFMET corrmet = * rawmet;
+				corrmet.p4 =+ correction.p4;
 				corrmet.p4.SetEta(0.0f);
 				corrmet.sumEt = rawmet->sumEt + sumEt_correction;
 
