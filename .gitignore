@@ -10,7 +10,7 @@
 *.tar.gz
 *.log
 
-/closure
+/artus
 /out
 /work
 /.cproject
