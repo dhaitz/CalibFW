@@ -13,14 +13,12 @@ template<>
 void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection, bool tagged)
 {
 	m_event.m_vertexSummary = m_fi.Get<KVertexSummary>(
-			"goodOfflinePrimaryVerticesSummary");
+								  "goodOfflinePrimaryVerticesSummary");
 	m_event.m_beamSpot = m_fi.Get<KDataBeamSpot>("offlineBeamSpot");
 	m_event.m_jetArea = m_fi.Get<KJetArea>("KT6Area");
 	m_event.m_muons = m_fi.Get<KDataMuons>("muons");
 	m_event.m_pfMet = m_fi.Get<KDataPFMET>("PFMET");
 	m_event.m_pfMetChs = m_fi.Get<KDataPFMET>("PFMETCHS");
-	m_event.m_pfMetL2L3 = m_fi.Get<KDataPFMET>("ak5PFMETL2L3");
-	m_event.m_pfMetChsL2L3 = m_fi.Get<KDataPFMET>("ak5PFMETCHSL2L3");
 
 	InitPFJets(m_event, "AK5PFJets");
 	InitPFJets(m_event, "AK5PFJetsCHS");
@@ -49,15 +47,7 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection, bool tagge
 
 		m_event.m_particles = m_fi.Get<KGenParticles>("genParticles");
 	}
-	else
-	{
-		// we need to read the residual MET corrections for data
-		m_event.m_pfMetL2L3Res = m_fi.Get<KDataPFMET>("ak5PFMETL2L3Res");
-		if (phicorrection)
-			m_event.m_pfMetChsL2L3Res = m_fi.Get<KDataPFMET>("ak5PFMETCHSL2L3ResPhi");
-		else
-			m_event.m_pfMetChsL2L3Res = m_fi.Get<KDataPFMET>("ak5PFMETCHSL2L3Res");
-	}
+
 	m_event.m_filtermetadata = m_fi.GetMeta<KFilterMetadata>("KFilterMetadata");
 	m_event.m_filter = m_fi.Get<KFilterSummary>("filterSummary");
 }
