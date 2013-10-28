@@ -218,8 +218,8 @@ def createGridControlConfig(settings, filename, original=None):
             'mc': 80,
             'data': 120,
     }
-    fpj = len(settings['InputType']) / float(jobs.get(settings['InputType'], 70))
-    fpj = int(max(1, fpj))
+    fpj = len(settings['InputFiles']) / float(jobs.get(settings['InputType'], 70))
+    fpj = int(fpj + 1)
     d = {
         'files per job = 100': 'files per job = ' + str(fpj),
         '@NICK@': settings["OutputPath"],
@@ -290,7 +290,7 @@ def prepareWork(work, delete=False):
         print len(paths), "old output directories for this config. Clean-up recommended."
     if os.path.exists(work):
         shutil.move(work, work + time.strftime("_%Y-%m-%d_%H-%M"))
-    os.mkdir(work)
+    os.makedirs(work)
 
 
 def logo():
