@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# set the environment
 export BOOSTPATH=/wlcg/sw/boost/current/
 export EXCALIBUR_BASE=$(readlink -e .)
 export KAPPAPATH=$EXCALIBUR_BASE/../Kappa
@@ -7,7 +8,7 @@ export KAPPATOOLSPATH=$EXCALIBUR_BASE/../KappaTools
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$EXCALIBUR_BASE:$EXCALIBUR_BASE/../Kappa/lib:$EXCALIBUR_BASE/../KappaTools/lib:$BOOSTPATH/lib
 export PATH=$EXCALIBUR_BASE/scripts:$PATH
 export PYTHONPATH=$EXCALIBUR_BASE/plotting:$EXCALIBUR_BASE/cfg/artus:$PYTHONPATH
-export USERPC=`who am i| sed 's/.*(\([^]]*\)).*/\1/g'`
+export USERPC=`who am i | sed 's/.*(\([^]]*\)).*/\1/g'`
 
 # Set some user specific variables
 if [ $USER = "dhaitz" ]; then
@@ -22,11 +23,15 @@ if [ $USER = "dhaitz" ]; then
         export MC='/storage/a/dhaitz/excalibur/work/mc_old/out/artus.root'
     fi
 elif [ $USER = "berger" ]; then
-    export DATA='/storage/a/dhaitz/excalibur/work/data/out/artus.root'
-    export MC='/storage/a/dhaitz/excalibur/work/mc/out/artus.root'
+    export PATH=/home/berger/sw/bin:/home/berger/sw/grid-control:$PATH
+    export EXCALIBUR_WORK=/storage/8/berger/excalibur
+    export DATA=/storage/a/dhaitz/excalibur/work/data/out/artus.root
+    export MC=/storage/a/dhaitz/excalibur/work/mc/out/artus.root
 fi
 
+alias ka='killall artus'
 
+# plotting aliases and functions
 alias plotsync='rsync $EXCALIBUR_BASE/out/plot.pdf $USER@$USERPC.physik.uni-karlsruhe.de:/usr/users/$USER/plot.pdf'
 
 alias plot='python $EXCALIBUR_BASE/plotting/plotbase.py'
@@ -34,23 +39,12 @@ alias plott='python $EXCALIBUR_BASE/plotting/plotbase.py $DATA $MC'
 alias plotfile='python $EXCALIBUR_BASE/plotting/plotbase.py $DATA $MC -o $EXCALIBUR_BASE/out/ -f pdf --filename plot'
 alias plotfilemc='python $EXCALIBUR_BASE/plotting/plotbase.py $MC -o $EXCALIBUR_BASE/out/ -l 0 -f pdf --filename plot'
 
-alias kc='killall artus'
-
-
-# Usage 'fast' for testing of cfg files, e.g. 'fast data 3'
-fast()
-{
-    python $EXCALIBUR_BASE/cfg/artus/${1}.py --fast $2
-}
-
-
 # Use this in combination with plotfile for live plotting
 plotinit()
 {
  ssh $USER@$USERPC "DISPLAY=:0 evince /usr/users/$USER/plot.pdf &" &
  export PROMPT_COMMAND="plotsync"
 }
-
 
 # Use this to open a root file directly in the TBrowser
 rot()
