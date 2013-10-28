@@ -64,7 +64,10 @@ def artus():
         if not options.fast:
             print "Warning: The full run as a single job will take a while.",
             print "Are you sure? [Y/n]"
-            if raw_input() == "n":
+            try:
+                if raw_input() == "n":
+                    exit(0)
+            except KeyboardInterrupt:
                 exit(0)
         subprocess.call([options.base + "/artus", options.json])
 
@@ -77,8 +80,7 @@ def artus():
                 "%s/%s.root" % (options.base, options.out), 
                 "%s/scripts/tbrowser.cxx" % options.base])
         except:
-            exit(0)
-
+            pass
 
 
 def getoptions(configdir='cfg/artus/', name='artus'):
