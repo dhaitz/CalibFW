@@ -64,7 +64,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			else if (sid == FlavourFilter().GetFilterId())
 				pLine->AddFilter(new FlavourFilter);
 			else
-				CALIB_LOG_FATAL("Filter " << sid << " not found.");
+				LOG_FATAL("Filter " << sid << " not found.");
 		}
 
 		// Cuts
@@ -106,7 +106,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			else if (sid == DeltaEtaCut().GetCutShortName())
 				pLine->AddMetaDataProducer(new DeltaEtaCut());
 			else
-				CALIB_LOG_FATAL("Cut " << sid << " not found.");
+				LOG_FATAL("Cut " << sid << " not found.");
 		}
 	}
 
@@ -120,7 +120,7 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		if (sName == "tree")
 			pLine->AddConsumer(new TreeConsumer());
 		else
-			CALIB_LOG_FATAL("Consumer " << sName << " not found.");
+			LOG_FATAL("Consumer " << sName << " not found.");
 	}
 
 }

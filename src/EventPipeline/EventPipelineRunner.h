@@ -81,9 +81,9 @@ public:
 		if (settings.Global()->GetEventCount() >= 0)
 			nEvents = firstEvent + settings.Global()->GetEventCount();
 		if (firstEvent != 0 || nEvents != evtProvider.GetOverallEventCount())
-			CALIB_LOG(red << "Warning: Custom range of events: " << firstEvent << " to " << nEvents << reset);
+			LOG(red << "Warning: Custom range of events: " << firstEvent << " to " << nEvents << reset);
 
-		CALIB_LOG("Running over " << nEvents << " Events");
+		LOG("Running over " << nEvents << " Events");
 		HLTTools* hltTools = new HLTTools;
 		bool bEventValid = true;
 		int sampleinit = -1;
@@ -102,7 +102,7 @@ public:
 				 it != m_globalMetaProducer.end(); it++)
 			{
 				bEventValid = it->PopulateGlobalMetaData(evtProvider.GetCurrentEvent(), metaDataGlobal, settings);
-				//CALIB_LOG(it->GetContent())
+				//LOG(it->GetContent())
 				if (!bEventValid)
 					break;
 			}
@@ -111,7 +111,7 @@ public:
 			if (bEventValid)
 			{
 				if (unlikely(nEvents - firstEvent < 100)) // debug output
-					CALIB_LOG("Event "
+					LOG("Event "
 							  << evtProvider.GetCurrentEvent().m_eventmetadata->nRun << ":"
 							  << evtProvider.GetCurrentEvent().m_eventmetadata->nLumi << ":"
 							  << evtProvider.GetCurrentEvent().m_eventmetadata->nEvent);
@@ -120,7 +120,7 @@ public:
 					if (it->GetSettings().GetLevel() == 1)
 					{
 						if (unlikely(nEvents - firstEvent < 5)) // debug output
-							CALIB_LOG("Event:" << i
+							LOG("Event:" << i
 									  << ", new pipeline: " << it->GetSettings().ToString()
 									  << ", algorithm: " << it->GetSettings().GetJetAlgorithm());
 						it->RunEvent(evtProvider.GetCurrentEvent(), metaDataGlobal);

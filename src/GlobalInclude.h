@@ -20,10 +20,10 @@ extern std::ofstream* g_logFile;
 #define FLOAT_COMPARE(first, second) (std::abs((first - second) / second) < 0.02)
 
 /// stdout makros
-#define CALIB_LOG(out) { std::cout << out << std::endl; }
-#define CALIB_LOG_FILE(out) { std::cout << out << std::endl; (*g_logFile) << out << std::endl; }
-#define CALIB_LOG_FILEONLY(out) { (*g_logFile) << out << std::endl; }
-#define CALIB_LOG_FATAL(out) { std::cout << red << "FATAL: " << out << reset << std::endl;   \
+#define LOG(out) { std::cout << out << std::endl; }
+#define LOG_FILE(out) { std::cout << out << std::endl; (*g_logFile) << out << std::endl; }
+#define LOG_FILEONLY(out) { (*g_logFile) << out << std::endl; }
+#define LOG_FATAL(out) { std::cout << red << "FATAL: " << out << reset << std::endl;   \
         (*g_logFile) << "FATAL:" << out << std::endl;                        \
         g_logFile->close(); std::cout.flush(); assert(false); throw 23; }
 

@@ -115,7 +115,7 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 		else if (FlavourProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new FlavourProducer());
 		else
-			CALIB_LOG_FATAL("Global MetaData producer of name " << *it << " not found");
+			LOG_FATAL("Global MetaData producer of name " << *it << " not found");
 	}
 }
 
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
 	g_logFile = new std::ofstream(sLogFileName.c_str(), std::ios_base::trunc);
 
 	// insert config into log file
-	CALIB_LOG_FILE("Configuration file: " << jsonConfig);
+	LOG_FILE("Configuration file: " << jsonConfig);
 	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
 
 
@@ -162,11 +162,11 @@ int main(int argc, char** argv)
 		g_sourcefiles = PropertyTreeSupport::GetAsStringList(&g_propTree, "InputFiles");
 		if (g_sourcefiles.size() == 0)
 		{
-			CALIB_LOG_FATAL("No Kappa input files specified.");
+			LOG_FATAL("No Kappa input files specified.");
 		}
 		else
 		{
-			CALIB_LOG_FILE("Input files (" << g_sourcefiles.size() << "):");
+			LOG_FILE("Input files (" << g_sourcefiles.size() << "):");
 		}
 	}
 	// removes the old file
@@ -175,7 +175,7 @@ int main(int argc, char** argv)
 
 	{
 		FileInterface2 finterface(g_sourcefiles);
-		CALIB_LOG_FILE("Output file: " << sRootOutputFilename);
+		LOG_FILE("Output file: " << sRootOutputFilename);
 
 		// setup Global Settings
 		ZJetGlobalSettings gset;
@@ -204,7 +204,7 @@ int main(int argc, char** argv)
 			gset.m_2ndJetWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "2ndJetWeight");
 			gset.m_sampleWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "SampleWeight");
 			if (gset.GetEnableSampleReweighting() && gset.m_sampleWeight.size() == 0)
-				CALIB_LOG_FATAL("Sample reweighting is enabled but no weights given!");
+				LOG_FATAL("Sample reweighting is enabled but no weights given!");
 
 			g_inputType = McInput;
 		}
@@ -276,20 +276,20 @@ int main(int argc, char** argv)
 
 		// move to config read
 		if (gset.GetEnablePuReweighting())
-			CALIB_LOG_FILE(blue << "Pile-up reweighting enabled." << reset);
+			LOG_FILE(blue << "Pile-up reweighting enabled." << reset);
 		if (gset.GetEnableSampleReweighting())
-			CALIB_LOG_FILE(blue << "Sample reweighting enabled." << reset);
+			LOG_FILE(blue << "Sample reweighting enabled." << reset);
 		if (gset.GetEnableLumiReweighting())
-			CALIB_LOG_FILE(blue << "Lumi reweighting enabled." << reset);
+			LOG_FILE(blue << "Lumi reweighting enabled." << reset);
 		if (gset.GetEnable2ndJetReweighting())
-			CALIB_LOG_FILE(blue << "2nd jet reweighting enabled." << reset);
+			LOG_FILE(blue << "2nd jet reweighting enabled." << reset);
 		if (gset.GetHcalCorrection())
-			CALIB_LOG_FILE(blue << "HCAL correction enabled." << reset);
+			LOG_FILE(blue << "HCAL correction enabled." << reset);
 		if (gset.GetEnableMetPhiCorrection())
-			CALIB_LOG_FILE(blue << "MET phi correction enabled." << reset);
+			LOG_FILE(blue << "MET phi correction enabled." << reset);
 		ZJetPipelineSettings settings;
 		settings.m_globalSettings = &gset;
-		CALIB_LOG_FILE("");
+		LOG_FILE("");
 
 #ifdef USE_PERFTOOLS
 		ProfilerStart("artus.prof");
@@ -308,8 +308,8 @@ int main(int argc, char** argv)
 	std::cout << std::endl;
 	// TODO: determine nc
 	// int nc = 0;
-	CALIB_LOG_FILE("Events read: " << nevents); // << ", events in cut: unknown > " << nc << " (>" << (nc * 100. / nevents) << "%)");
-	CALIB_LOG_FILE("Output file " << sRootOutputFilename << " closed.");
+	LOG_FILE("Events read: " << nevents); // << ", events in cut: unknown > " << nc << " (>" << (nc * 100. / nevents) << "%)");
+	LOG_FILE("Output file " << sRootOutputFilename << " closed.");
 
 	delete g_logFile;
 

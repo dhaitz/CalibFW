@@ -209,7 +209,7 @@ public:
 		else if (sInp == "gen")
 			inp = GenInput;
 		else
-			CALIB_LOG_FATAL("Input type " + sInp + " not supported.");
+			LOG_FATAL("Input type " + sInp + " not supported.");
 
 		return inp;
 	}

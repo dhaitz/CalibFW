@@ -110,7 +110,7 @@ public:
 		else
 			return m_pfMet;
 
-		CALIB_LOG_FATAL("The correction level \"" << corr << "\" for MET is unknown.");
+		LOG_FATAL("The correction level \"" << corr << "\" for MET is unknown.");
 		return NULL;
 	}
 
@@ -152,7 +152,7 @@ public:
 		}
 		else
 		{
-			CALIB_LOG_FATAL("This jet type is not implemented." << algoName)
+			LOG_FATAL("This jet type is not implemented." << algoName)
 			KDataJets* jets = m_jets.at(algoName);
 
 			if (jets->size() >= index)

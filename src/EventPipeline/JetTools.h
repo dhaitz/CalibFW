@@ -18,7 +18,7 @@ public:
 		pos = std::min(pos, algoname.find("JPTJets"));
 		std::string newname = algoname.substr(0, pos) + "GenJets";
 		if (pos == std::string::npos)
-			CALIB_LOG_FATAL("Can not convert algoname " << algoname << " to Gen (" << newname << " is not valid).");
+			LOG_FATAL("Can not convert algoname " << algoname << " to Gen (" << newname << " is not valid).");
 		return newname;
 	}
 

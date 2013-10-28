@@ -57,19 +57,19 @@ public:
 		unsigned long overallCountLeft = m_eventCount;
 		double droppedRel = 0.0f;
 
-		CALIB_LOG_FILE(std::setprecision(3) << std::fixed);
-		CALIB_LOG_FILE(std::endl << "--- Event Cut Report: " << this->GetPipelineSettings().GetRootFileFolder()
+		LOG_FILE(std::setprecision(3) << std::fixed);
+		LOG_FILE(std::endl << "--- Event Cut Report: " << this->GetPipelineSettings().GetRootFileFolder()
 					   << " Algo: " << this->GetPipelineSettings().GetJetAlgorithm() << " ---");
-		CALIB_LOG_FILE(std::setw(20) << "CutName" << std::setw(23) << "EvtsLeftRel [%]" << std::setw(23) << "EvtsLeft"
+		LOG_FILE(std::setw(20) << "CutName" << std::setw(23) << "EvtsLeftRel [%]" << std::setw(23) << "EvtsLeft"
 					   << std::setw(23) << "EvtsDropRel [%]" << std::setw(21) << "EvtsDropAbs");
 
 		/*
-		CALIB_LOG_FILE(std::setw(20) << "# processed events :" << std::setw(46)
+		LOG_FILE(std::setw(20) << "# processed events :" << std::setw(46)
 		<< this->GetPipelineSettings().GetOverallNumberOfProcessedEvents());
 		*/
 		double precutsLetfRel = 1.0f;
 		//(double) overallCountLeft / GetPipelineSettings()->GetOverallNumberOfProcessedEvents();
-		CALIB_LOG_FILE(std::setw(20) << "precuts: "
+		LOG_FILE(std::setw(20) << "precuts: "
 					   << std::setw(23) << std::setprecision(5) << precutsLetfRel
 					   << std::setw(23) << overallCountLeft
 					   << std::setw(23) << std::setprecision(5) << (1.0f - precutsLetfRel)
@@ -86,7 +86,7 @@ public:
 
 			droppedRel = 1.0f - (double)(overallCountLeft - rejAbs) / overallCountLeft;
 
-			CALIB_LOG_FILE(std::setw(20) << c->GetCutShortName() << " : "
+			LOG_FILE(std::setw(20) << c->GetCutShortName() << " : "
 						   << std::setw(20) << std::setprecision(5) << (1.0f - droppedRel) * 100.0f
 						   << std::setw(20) << overallCountLeft - rejAbs
 						   << std::setw(20) << std::setprecision(5) << droppedRel * 100.0f
@@ -95,12 +95,12 @@ public:
 			overallCountLeft -= rejAbs;
 		}
 
-		CALIB_LOG_FILE("Events left after Cuts : " << overallCountLeft)
-		CALIB_LOG_FILE("-- Cut correlations --")
-		CALIB_LOG_FILE("P( DeltaPhi | 2ndJetCut ) = "
+		LOG_FILE("Events left after Cuts : " << overallCountLeft)
+		LOG_FILE("-- Cut correlations --")
+		LOG_FILE("P( DeltaPhi | 2ndJetCut ) = "
 					   << ((float) m_conditional2ndJetPtCut / m_conditional2ndJetPtCutBase) << " [ "
 					   << m_conditional2ndJetPtCut << ", " << m_conditional2ndJetPtCutBase << " ]");
-		CALIB_LOG_FILE("P( 2ndJetCut | DeltaPhi ) = "
+		LOG_FILE("P( 2ndJetCut | DeltaPhi ) = "
 					   << ((float) m_conditionalDeltaPhiCut / m_conditionalDeltaPhiCutBase) << " [ "
 					   << m_conditionalDeltaPhiCut << ", " << m_conditionalDeltaPhiCutBase << " ]");
 	}

@@ -31,7 +31,7 @@ public:
 			int flavour = std::abs(metaData.GetRefLeadingParton().pdgId());
 			const int request = settings.GetFilterFlavour();
 			if (unlikely(flavour > 5 && flavour != 21))
-				return false; //CALIB_LOG_FATAL("Strange flavour in event: " << flavour);
+				return false; //LOG_FATAL("Strange flavour in event: " << flavour);
 
 			if (request == 123)  // light quarks uds
 				return (flavour == 1 || flavour == 2 || flavour == 3);
@@ -39,12 +39,12 @@ public:
 				return (flavour == 1 || flavour == 2 || flavour == 3 ||
 						flavour == 4 || flavour == 5 || flavour == 6);
 			if (unlikely(request > 5 && request != 21))
-				CALIB_LOG("Are you sure to request flavour " << request << "?")
+				LOG("Are you sure to request flavour " << request << "?")
 				return (flavour == request);
 		}
 		catch (...)
 		{
-			CALIB_LOG("There was a flavour error (UNXPCT)");
+			LOG("There was a flavour error (UNXPCT)");
 			return false;
 		};
 	}

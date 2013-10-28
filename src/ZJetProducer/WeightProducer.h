@@ -60,7 +60,7 @@ public:
 			if (m_pipelineSettings.Global()->GetSampleReweighting().size() > i)
 				weight *= m_pipelineSettings.Global()->GetSampleReweighting().at(i);
 			else
-				CALIB_LOG_FATAL("No sample weight specified for sample " << i);
+				LOG_FATAL("No sample weight specified for sample " << i);
 		}
 
 		// lumi reweighting
@@ -78,13 +78,13 @@ public:
 			else if (data.m_genlumimetadata->xSectionInt > 0)
 				xsec *= data.m_genlumimetadata->xSectionInt;
 			else
-				CALIB_LOG_FATAL("Lumi reweighting enabled but no cross section given");
+				LOG_FATAL("Lumi reweighting enabled but no cross section given");
 
 			if (data.m_genlumimetadata->filterEff > 0)
 				xsec *= data.m_genlumimetadata->filterEff;
 			assert(xsec > 0);
 			weight *= xsec / ntotal * 1000.0;  // normalize to 1/fb
-			//CALIB_LOG("ext=" << data.m_genlumimetadata->xSectionExt <<
+			//LOG("ext=" << data.m_genlumimetadata->xSectionExt <<
 			//		", int=" << data.m_genlumimetadata->xSectionInt <<
 			//		", eff=" << data.m_genlumimetadata->filterEff <<
 			//		", xsec=" << xsec <<", weight=" << weight);

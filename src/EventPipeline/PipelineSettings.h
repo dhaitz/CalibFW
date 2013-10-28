@@ -90,7 +90,7 @@ public:
 	inline TData GetValue() const
 	{
 		if (!m_isCached)
-			CALIB_LOG_FATAL("not Cached variable used")
+			LOG_FATAL("not Cached variable used")
 
 			return m_val;
 	}
@@ -130,7 +130,7 @@ public:
 		{
 			// no problem, node optional ?
 			if (failIfNotFound)
-				CALIB_LOG_FATAL("String list on path " + path + " can not be found in configuration file");
+				LOG_FATAL("String list on path " + path + " can not be found in configuration file");
 		}
 		return fvec;
 	}

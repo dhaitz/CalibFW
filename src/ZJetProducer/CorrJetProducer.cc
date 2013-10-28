@@ -9,7 +9,7 @@ CorrJetProducer::CorrJetProducer(std::string corBase, std::string l1cor, std::ve
 	ZJetGlobalMetaDataProducerBase(), m_corectionFileBase(corBase),
 	m_l1correction(l1cor), m_basealgorithms(baseAlgos)
 {
-	CALIB_LOG_FILE("Loading JEC from " << m_corectionFileBase);
+	LOG_FILE("Loading JEC from " << m_corectionFileBase);
 }
 
 
@@ -27,7 +27,7 @@ void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorre
 		// already loaded
 		return;
 
-	CALIB_LOG_FILE("Jet corrections enabled for " << algoName << " jets");
+	LOG_FILE("Jet corrections enabled for " << algoName << " jets");
 	std::cout << "    Levels: ";
 	std::vector<std::string> corLevel;
 	if (prefix == "")
@@ -63,7 +63,7 @@ void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorre
 			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
 			prefix, corLevel, algoName, 0, 0, rcorr)
 	);
-	CALIB_LOG_FILE("");
+	LOG_FILE("");
 }
 
 

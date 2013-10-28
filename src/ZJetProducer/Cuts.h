@@ -324,7 +324,7 @@ public:
 
 		if (nHLTriggers == 0)
 		{
-			CALIB_LOG_FATAL("No HLT Trigger in Event!");
+			LOG_FATAL("No HLT Trigger in Event!");
 		}
 
 		TObjString *theHLTbit = NULL;

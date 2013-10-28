@@ -82,12 +82,12 @@ KDataLV* ZJetMetaData::GetInvalidJet(ZJetPipelineSettings const& psettings,
 
 	if (IsMetaJetAlgo(algoName))
 	{
-		CALIB_LOG_FATAL("Invalid jets are not provided for corrected algorithm " + algoName)
+		LOG_FATAL("Invalid jets are not provided for corrected algorithm " + algoName)
 		return NULL;
 	}
 	else if (JetType::IsGen(algoName))
 	{
-		CALIB_LOG_FATAL("Invalid jets are not provided for GenJets algorithm " + algoName)
+		LOG_FATAL("Invalid jets are not provided for GenJets algorithm " + algoName)
 		return NULL;
 	}
 	else
@@ -195,7 +195,7 @@ void ZJetMetaData::SortJetCollections()
 		for(unsigned int i = 0; i < jet_vect.size(); ++ i)
 		{
 			if (jet_vect[i].p4.Pt() > largest)
-				CALIB_LOG_FATAL("Jets not sorted correctly")
+				LOG_FATAL("Jets not sorted correctly")
 			largest = jet_vect[i].p4.Pt();
 		}
 	}

@@ -8,7 +8,7 @@ namespace Artus
 bool JetMatcher::PopulateGlobalMetaData(ZJetEventData const& data,
 		ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
 {
-	//CALIB_LOG("Jet matcher!" << m_basealgorithms)
+	//LOG("Jet matcher!" << m_basealgorithms)
 	// make this more generic
 	for (unsigned int i = 0; i < m_basealgorithms.size(); i++)
 	{

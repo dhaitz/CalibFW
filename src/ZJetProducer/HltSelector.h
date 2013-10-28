@@ -34,7 +34,7 @@ public:
 		std::string bestHltName, curName;
 
 		if (m_hltpaths.size() == 0)
-			CALIB_LOG_FATAL("No Hlt Trigger path list configured");
+			LOG_FATAL("No Hlt Trigger path list configured");
 
 		for (stringvector::const_iterator it = m_hltpaths.begin();
 			 it != m_hltpaths.end(); ++it)
@@ -57,22 +57,22 @@ public:
 
 		if (!unprescaledPathFound)
 		{
-			CALIB_LOG("Available Triggers:");
+			LOG("Available Triggers:");
 
 			for (std::vector< std::string >::const_iterator it = data.GetDataLumiMetadata()->hltNames.begin();
 				 it != data.GetDataLumiMetadata()->hltNames.end(); ++ it)
 			{
-				CALIB_LOG((*it) << " prescale: " << metaData.m_hltInfo->getPrescale(*it));
+				LOG((*it) << " prescale: " << metaData.m_hltInfo->getPrescale(*it));
 			}
 
-			CALIB_LOG_FATAL("No unprescaled trigger found for " << bestHltName << ", prescale: " << metaData.m_hltInfo->getPrescale(bestHltName) << ", event: " << data.m_eventmetadata->nRun);
+			LOG_FATAL("No unprescaled trigger found for " << bestHltName << ", prescale: " << metaData.m_hltInfo->getPrescale(bestHltName) << ", event: " << data.m_eventmetadata->nRun);
 		}
 
 		if (m_verbose)
-			CALIB_LOG("selected " << bestHltName << " as best HLT, prescale: " << metaData.m_hltInfo->getPrescale(bestHltName));
+			LOG("selected " << bestHltName << " as best HLT, prescale: " << metaData.m_hltInfo->getPrescale(bestHltName));
 
 		if (bestHltName.empty())
-			CALIB_LOG_FATAL("No HLT trigger path found at all!");
+			LOG_FATAL("No HLT trigger path found at all!");
 
 		metaData.SetSelectedHlt(bestHltName);
 		return true;

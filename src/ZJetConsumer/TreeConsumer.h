@@ -596,7 +596,7 @@ private:
 
 			if (iMatchedGen >= int(metaData.GetValidJetCount(s, event, genName)))
 			{
-				CALIB_LOG_FATAL("Reco to gen matching: No reference gen jet found! "
+				LOG_FATAL("Reco to gen matching: No reference gen jet found! "
 								<< iMatchedGen << " >= " << metaData.GetValidJetCount(s, event, genName))
 				return false;
 			}
@@ -625,7 +625,7 @@ private:
 		else if (var == lumisec)
 			return event.m_eventmetadata->nLumi;
 		else
-			CALIB_LOG_FATAL("TTreeConsumer: Quantity " << var << " not available!");
+			LOG_FATAL("TTreeConsumer: Quantity " << var << " not available!");
 
 		assert(false);
 		return -1;

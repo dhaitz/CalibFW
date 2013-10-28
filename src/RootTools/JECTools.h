@@ -130,7 +130,7 @@ inline void correctJets(std::vector<T>* jets,
 		T& jet = jets->at(idx);
 		if (area > 0)
 		{
-			CALIB_LOG_FATAL("SETTING FIXED AREA!");
+			LOG_FATAL("SETTING FIXED AREA!");
 			jet.area = area;
 		}
 
@@ -164,7 +164,7 @@ public:
 	{
 		init(level, jeuDir, prefix , algo);
 		if (rcorr != 0.0)
-			CALIB_LOG("HCAL correction = " << rcorr);
+			LOG("HCAL correction = " << rcorr);
 	}
 
 	~JECService()
@@ -176,7 +176,7 @@ public:
 	template<typename T>
 	inline void correct(T* jets)
 	{
-		//CALIB_LOG("Correct jets: (" << evtMeta->nRun << "-" << nRun0 << ") * " << hcalCorr
+		//LOG("Correct jets: (" << evtMeta->nRun << "-" << nRun0 << ") * " << hcalCorr
 		//		<< " = " << ((signed int) evtMeta->nRun - nRun0) << " * " << hcalCorr
 		//		<< " = " << (((signed int) evtMeta->nRun - nRun0) * hcalCorr))
 		correctJets(jets, JEC, JEU, ja->median, vs->nVertices, area, jeuType,

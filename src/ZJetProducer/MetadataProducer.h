@@ -219,7 +219,7 @@ public:
 
 		if (valid_muons.size() > 3)
 		{
-			CALIB_LOG("Warning: 4 valid muons? Skipping Event.")
+			LOG("Warning: 4 valid muons? Skipping Event.")
 			metaData.SetValidZ(false);
 			return false;
 		}
@@ -242,11 +242,11 @@ public:
 					if (z.p4.mass() > zmassRangeMin && z.p4.mass() < zmassRangeMax)
 					{
 						z_cand.push_back(z);
-						//CALIB_LOG("Found possible Z with mass " << z.p4.mass())
+						//LOG("Found possible Z with mass " << z.p4.mass())
 					}
 					else
 					{
-						//CALIB_LOG("Dropping Z because of wrong mass " << z.p4.mass())
+						//LOG("Dropping Z because of wrong mass " << z.p4.mass())
 					}
 				}
 			}
@@ -254,7 +254,7 @@ public:
 
 		if (z_cand.size() > 1)
 		{
-			CALIB_LOG(" -- more than 1 Z boson candidate found." << z_cand.size() << " in an event. Not sure how to combine this. Dropping event for now.")
+			LOG(" -- more than 1 Z boson candidate found." << z_cand.size() << " in an event. Not sure how to combine this. Dropping event for now.")
 			metaData.SetValidZ(false);
 			return false;
 		}
@@ -305,15 +305,15 @@ public:
 		// Check number of particles (could be simplified after study)
 		if (data.m_particles->size() < 0)
 		{
-			CALIB_LOG("This event contains no generator information.");
+			LOG("This event contains no generator information.");
 		}
 		else if (data.m_particles->size() < nmin)
 		{
-			CALIB_LOG("This event contains only few particles: " << data.m_particles->size());
+			LOG("This event contains only few particles: " << data.m_particles->size());
 		}
 		else if (data.m_particles->size() > nmax)
 		{
-			CALIB_LOG("This event contains a lot of particles: " << data.m_particles->size());
+			LOG("This event contains a lot of particles: " << data.m_particles->size());
 		}
 
 		// Loop over particles
@@ -328,7 +328,7 @@ public:
 				continue;
 
 			if (it->children != 0)
-				CALIB_LOG("Particle has " << it->children << " children.");
+				LOG("Particle has " << it->children << " children.");
 
 			// Sort particles in lists in metaData
 			if (std::abs(it->pdgId()) == 13)		// muon
@@ -349,19 +349,19 @@ public:
 			else // unexpected particles
 			{
 				if (it->status() != 3 && std::abs(it->pdgId()) < 7)
-					CALIB_LOG("Unexpected particle with id: " << it->pdgId() << ", status: " << it->status());
+					LOG("Unexpected particle with id: " << it->pdgId() << ", status: " << it->status());
 			}
 		}
 
 		// check for unusual behaviour
 		if (metaData.m_genZs.size() < 1)
-			CALIB_LOG("There is no gen Z!");
+			LOG("There is no gen Z!");
 		if (metaData.m_genPartons.size() < 1)
-			CALIB_LOG("There is no parton!");
+			LOG("There is no parton!");
 		if (metaData.m_genMuons.size() < 1)
-			CALIB_LOG("There are no gen muons!");
+			LOG("There are no gen muons!");
 		//if (metaData.m_genMuons.size() > 2)
-		//	CALIB_LOG("There are more than 2 gen muons (" << metaData.m_genMuons.size() << ")!")
+		//	LOG("There are more than 2 gen muons (" << metaData.m_genMuons.size() << ")!")
 
 		return true;
 	}
@@ -397,20 +397,20 @@ public:
 		// Valid gen Z producer
 		if (unlikely(metaData.m_genZs.size() < 1))
 		{
-			CALIB_LOG("No gen Z in the event.")
+			LOG("No gen Z in the event.")
 			metaData.SetValidGenZ(false);
 			return true;
 		}
 		if (metaData.m_genZs.size() > 1)
 		{
-			//CALIB_LOG("More than one gen Z in the event.")
+			//LOG("More than one gen Z in the event.")
 			// Could be resolved, but this case is currently not present.
 			metaData.SetValidGenZ(false);
 			return true;
 		}
 		if (metaData.m_genZs[0].p4.Pt() < zptmin)
 		{
-			//CALIB_LOG("Gen Z pt is very low, no balance calculated.")
+			//LOG("Gen Z pt is very low, no balance calculated.")
 			metaData.SetValidGenZ(false);
 			return true;
 		}
@@ -418,7 +418,7 @@ public:
 		// check if the Z decays to the muons:
 		if (metaData.m_genMuons.size() != 2)
 		{
-			CALIB_LOG("Not exactly two muons in the event, therefore no valid Z.")
+			LOG("Not exactly two muons in the event, therefore no valid Z.")
 			metaData.SetValidGenZ(false);
 			return true;
 		}
@@ -428,7 +428,7 @@ public:
 						   - metaData.m_genZs[0].p4;
 			if (vec.Pt() > 1e-3)	// differs more than a MeV
 			{
-				CALIB_LOG("Muons not from Z decay: pt:" << vec.Pt() << ", eta: " << vec.Eta() << ", phi: " << vec.Phi() << ", m: " << vec.M());
+				LOG("Muons not from Z decay: pt:" << vec.Pt() << ", eta: " << vec.Eta() << ", phi: " << vec.Phi() << ", m: " << vec.M());
 				metaData.SetValidGenZ(false);
 				return true;
 			}
@@ -441,7 +441,7 @@ public:
 		metaData.SetValidParton(false);
 		if (metaData.m_genPartons.size() < 1)
 		{
-			CALIB_LOG("No partons in the event!")
+			LOG("No partons in the event!")
 			return true;
 		}
 
@@ -467,14 +467,14 @@ public:
 			{
 				//if (metaData.GetValidParton() && metaData.GetRefParton().p4.Pt() > it->p4.Pt())
 				//{
-				//	CALIB_LOG("The best balanced parton is not the leading one!")
-				//	CALIB_LOG("  Best    (" << it->pdgId() << ") Q: " << bQuality << ", pt: " <<it->p4.Pt() << ", dphi: " << dphi << ", R: " << R)
-				//	CALIB_LOG("  Leading (" << metaData.GetRefParton().pdgId() << ") Q: " << metaData.GetRefBalanceQuality() << ", pt: " <<metaData.GetRefParton().p4.Pt())
+				//	LOG("The best balanced parton is not the leading one!")
+				//	LOG("  Best    (" << it->pdgId() << ") Q: " << bQuality << ", pt: " <<it->p4.Pt() << ", dphi: " << dphi << ", R: " << R)
+				//	LOG("  Leading (" << metaData.GetRefParton().pdgId() << ") Q: " << metaData.GetRefBalanceQuality() << ", pt: " <<metaData.GetRefParton().p4.Pt())
 				//}
 				metaData.SetValidParton(true);
 				metaData.SetBalanceQuality(bQuality);
 				metaData.SetBalancedParton(*it);
-				//CALIB_LOG("Balance (" << it->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
+				//LOG("Balance (" << it->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
 			}
 			if (it == metaData.m_genPartons.begin()
 					|| metaData.GetRefLeadingParton().p4.Pt() < it->p4.Pt())
@@ -483,10 +483,10 @@ public:
 
 		if (!metaData.GetRefValidParton())
 		{
-			//CALIB_LOG("No balance found below threshold=" << metaData.GetRefBalanceQuality() << "!")
+			//LOG("No balance found below threshold=" << metaData.GetRefBalanceQuality() << "!")
 			return true;
 		}
-		//CALIB_LOG("Best parton is " << metaData.GetRefParton().pdgId() << ": " << metaData.GetRefBalanceQuality())
+		//LOG("Best parton is " << metaData.GetRefParton().pdgId() << ": " << metaData.GetRefBalanceQuality())
 
 		metaData.SetGenMet(met);
 		return true;
@@ -547,12 +547,12 @@ public:
 					if (i->p4.Pt() > j->p4.Pt())
 					{
 						metaData.SetBalancedParton(*i);
-						//CALIB_LOG("Balance (" << i->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
+						//LOG("Balance (" << i->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
 					}
 					else
 					{
 						metaData.SetBalancedParton(*j);
-						//CALIB_LOG("Balance (" << i->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
+						//LOG("Balance (" << i->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
 					}
 				}
 			}

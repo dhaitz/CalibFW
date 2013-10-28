@@ -77,7 +77,7 @@ public:
 			else if (boost::algorithm::contains(filename, "_Pt-300_"))
 				m_event.m_pthatbin = 9;
 			else
-				CALIB_LOG_FATAL("No pthat bin found but sample weights expected: " << filename << " (bin: " << m_event.m_pthatbin << ")");
+				LOG_FATAL("No pthat bin found but sample weights expected: " << filename << " (bin: " << m_event.m_pthatbin << ")");
 		}
 
 		if (m_prevRun != m_event.m_eventmetadata->nRun)
@@ -103,7 +103,7 @@ public:
 			}
 			else
 			{
-				CALIB_LOG_FATAL("Unknown input type");
+				LOG_FATAL("Unknown input type");
 			}
 
 			//std::cout << "Loading new lumi info" << std::endl;
