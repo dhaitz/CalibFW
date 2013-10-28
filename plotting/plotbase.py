@@ -21,6 +21,7 @@ from ROOT import gROOT, PyConfig
 PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
 gROOT.SetBatch(True)
 
+# use ls and imp to read all of them
 import plotdatamc
 import plotfractions
 import plotresponse
@@ -384,38 +385,6 @@ def getreweighting(datahisto, mchisto, drop=True):
             break
         reweighting.append(datahisto.y[i] / mchisto.y[i])
     return reweighting
-
-
-def getpath():
-    """Return datapath depending on machine and user name."""
-    host = socket.gethostname()
-    username = getpass.getuser()
-    datapath = ""
-    if username == 'berger':
-        if 'naf'in host:
-            datapath = "/scratch/hh/lustre/cms/user/berger/analysis/"
-        elif 'ekplx46'in host:
-            datapath = "/local/scratch/berger/data/"
-        elif 'pccms' in host:
-            datapath = "/data/berger/data/"
-    elif username == 'poseidon':
-        # thomas local machines
-        datapath = "/home/poseidon/uni/code/CalibFW/"
-    elif username == 'hauth':
-        if 'ekplx'in host:
-            datapath = "/local/scratch/hauth/data/ZPJ2010/"
-    elif username == 'piparo':
-        if 'ekplx'in host:
-            datapath = ""
-    else:
-        datapath = ""
-
-    try:
-        os.listdir(datapath)
-    except:
-        print "Input path", datapath, "does not exist."
-        sys.exit(1)
-    return datapath
 
 
 def newplot(ratio=False, run=False, subplots=1, subplots_X=None,

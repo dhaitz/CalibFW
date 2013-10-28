@@ -72,8 +72,9 @@ all necessary parameters and to run it via compiled C++ code.
 
 ## Setting the environment
 Sourcing CMSSW is the easiest way to set the relevant paths. The user should
-set `$EXCALIBUR_WORK` path (e.g. `/storage/a/$USER/excalibur`)
-and execute `. scripts/ini_excalibur` from your main Excalibur directory.
+set `$EXCALIBUR_WORK` path (e.g. `/storage/a/$USER/excalibur`) for batch job
+outputs and execute `. scripts/ini_excalibur` from your main Excalibur
+directory.
 
 
 ## Basic structure of the config file
