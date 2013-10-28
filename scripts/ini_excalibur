@@ -7,7 +7,7 @@ export KAPPAPATH=$EXCALIBUR_BASE/../Kappa
 export KAPPATOOLSPATH=$EXCALIBUR_BASE/../KappaTools
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$EXCALIBUR_BASE:$EXCALIBUR_BASE/../Kappa/lib:$EXCALIBUR_BASE/../KappaTools/lib:$BOOSTPATH/lib
 export PATH=$EXCALIBUR_BASE/scripts:$PATH
-export PYTHONPATH=$EXCALIBUR_BASE/plotting:$EXCALIBUR_BASE/cfg/artus:$PYTHONPATH
+export PYTHONPATH=$EXCALIBUR_BASE/plotting:$EXCALIBUR_BASE/plotting/tools:$EXCALIBUR_BASE/cfg/artus:$PYTHONPATH
 export USERPC=`who am i | sed 's/.*(\([^]]*\)).*/\1/g'`
 
 # Set some user specific variables
