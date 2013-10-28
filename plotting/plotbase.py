@@ -44,14 +44,8 @@ def plot(op):
     whichfunctions = []
     plots = op.plots
 
-    if op.list:
-        printfunctions(module_list)
-        sys.exit()
-
-    if op.quantities:
-        printquantities(files, op)
-        sys.exit()
-
+    modules = [plotresponse, plotfractions, plot2d, plotdatamc,
+                        plot_resolution, plot_mikko, plot_sandbox, plot_tagging]
 
     print "Number of files:", len(op.files)
     files = []
@@ -59,8 +53,13 @@ def plot(op):
         print "Using as file", 1 + op.files.index(f), ":", f
         files += [getroot.openfile(f, op.verbose)]
 
-    modules = [plotresponse, plotfractions, plot2d, plotdatamc,
-                        plot_resolution, plot_mikko, plot_sandbox, plot_tagging]
+    if op.list:
+        printfunctions(modules)
+        sys.exit()
+
+    if op.quantities:
+        printquantities(files, op)
+        sys.exit()
 
     remaining_plots = copy.deepcopy(plots)
     for module in modules:
