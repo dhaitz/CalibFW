@@ -267,20 +267,23 @@ def createFileList(files, fast=False):
 
 
 def prepareWork(work, delete=False):
-    #move old work (date?)
+    """ensure that the output path exists and delete old outputs optionally)
+
+    to save your outputs simply rename them without timestamp
+"""
     if work[-1] == '/':
         work = work[:-1]
+    paths = glob.glob(work + "_20*")
     if delete:
-        paths = glob.glob(work + "_20*")
-        print "remove", paths
         for p in paths:
             if os.path.exists(work):
-                print "remove", p
+                print "removing", p
                 shutil.rmtree(p)
+    elif len(paths) > 1:
+        print len(paths), "old output directories for this config. Clean-up recommended."
     if os.path.exists(work):
         shutil.move(work, work + time.strftime("_%Y-%m-%d_%H-%M"))
     os.mkdir(work)
-    print glob.glob(work + "*")
 
 
 def logo():
