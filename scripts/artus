@@ -70,6 +70,16 @@ def artus():
 
     showMessage("Excalibur", "Artus run with config " + options.out + " done.")
 
+    if options.root:
+        print "\nOpen output file in TBrowser:"
+        try:
+            subprocess.call(["root", "-l", 
+                "%s/%s.root" % (options.base, options.out), 
+                "%s/scripts/tbrowser.cxx" % options.base])
+        except:
+            exit(0)
+
+
 
 def getoptions(configdir='cfg/artus/', name='artus'):
     """Set standard options and read command line arguments. """
@@ -104,6 +114,8 @@ def getoptions(configdir='cfg/artus/', name='artus'):
         help="verbosity")
     parser.add_argument('-w', '--work', type=str, nargs=1, default=None,
         help="specify custom work path (default from $EXCALIBUR_WORK variable")
+    parser.add_argument('-r', '--root', action='store_true',
+        help="open output file in ROOT TBrowser after completion")
 
     opt = parser.parse_args()
 
