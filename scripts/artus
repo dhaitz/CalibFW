@@ -226,9 +226,10 @@ def createRunfile(configjson, filename='test.sh', original=None):
 
 def showMessage(title, message):
     userpc = "%s@%s" % (getPath('USER'), getPath('USERPC'))
+    iconpath = '/usr/users/dhaitz/excalibur/excal_small.jpg'
     try:
         subprocess.call(['ssh', userpc,
-            'DISPLAY=:0 notify-send "%s" "%s"' % (title, message)])
+            'DISPLAY=:0 notify-send "%s" "%s" -i %s' % (title, message, iconpath)])
     except:
         pass
     print message
