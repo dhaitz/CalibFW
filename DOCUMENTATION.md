@@ -160,3 +160,9 @@ found in the `plotting/plot_sandbox.py` file.
 
 *Last updated: 2013-10-28 dhaitz, berger*
 
+---
+Excalibur, copyright (c) 2010 - 2013  
+see COPYING for licence  
+Joram Berger <joram.berger@cern.ch>  
+Dominik Haitz <dominik.haitz@cern.ch>  
+Thomas Hauth <thomas.hauth@cern.ch>  
