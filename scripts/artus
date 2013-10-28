@@ -40,6 +40,9 @@ def artus():
         exit(0)
 
     # Now the config .json is ready and we can run Artus
+    if not os.path.exists('artus'):
+        print "Artus is not found, please compile it first."
+        exit(1)
     if options.batch:
         prepareWork(options.work, options.delete)
         writeDBS(conf, options.out, options.work + "/files.dbs")
