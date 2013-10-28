@@ -144,6 +144,8 @@ def getoptions(configdir='cfg/artus/', name='artus'):
         opt.json += ".json"
 
     # derive omitted values for fast and skip
+    if opt.fast == []:
+        opt.fast = [3]
     if opt.fast and len(opt.fast) == 1:
         opt.fast = [-opt.fast[0], None]
     if opt.skip and len(opt.skip) == 1:
