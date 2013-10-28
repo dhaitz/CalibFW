@@ -29,11 +29,6 @@ elif [ $USER = "berger" ]; then
     export MC=/storage/a/dhaitz/excalibur/work/mc/out/artus.root
 fi
 
-alias ka='killall artus'
-
-alias kc='killall artus'
-
-
 # Use this to open a root file directly in the TBrowser
 rot()
 {
