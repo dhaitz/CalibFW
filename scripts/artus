@@ -16,7 +16,7 @@ import time
 
 def artus():
     """artus modifies and runs the configs"""
-
+    aborted = False
     options = getoptions()
     if not options.nologo:
         print logo()
@@ -76,12 +76,15 @@ def artus():
         try:
             subprocess.call([options.base + "/artus", options.json])
         except KeyboardInterrupt:
-            sys.stdout.flush()
-            exit(0)
+            aborted = True
+            print '\33[31m%s\033[0m' % "Artus run was aborted prematurely."
 
     # show message and optionally open root file
-    showMessage("Excalibur", "Artus run with config " + options.out + " done.")
-    if options.root:
+    if aborted:
+        showMessage("Excalibur", "Artus run with config " + options.out + " aborted.")
+    else:
+        showMessage("Excalibur", "Artus run with config " + options.out + " done.")
+    if options.root and not aborted:
         print "\nOpen output file in TBrowser:"
         try:
             subprocess.call(["root", "-l",
@@ -89,6 +92,7 @@ def artus():
                 "%s/scripts/tbrowser.cxx" % options.base])
         except:
             pass
+
 
 def getoptions(configdir='cfg/artus/', name='artus'):
     """Set standard options and read command line arguments. """
