@@ -49,8 +49,8 @@ check:
 	@echo -e "checking KAPPA...        \c" && ls $(KAPPAPATH) -d
 	@echo -e "checking KAPPATOOLS...   \c" && ls $(KAPPATOOLSPATH) -d
 	@echo -e "checking PYTHON...       \c" && python --version || echo "  Python is not needed for compiling"
-	@echo -e "checking GRID-CONTROL... \c" && which go.py || echo "  grid-control is not needed for compiling"
-	@echo -e "checking EXECUTABLE...   \c" && (ls $(EXECUTABLE) &> /dev/null && ls $(EXECUTABLE)) || echo $(EXECUTABLE) "not yet built"
+	@echo -e "checking GRID-CONTROL... \c" && which go.py 2> /dev/null || echo "not found, grid-control is not needed for compiling"
+	@echo -e "checking EXECUTABLE...   \c" && ls $(EXECUTABLE) 2> /dev/null || echo $(EXECUTABLE) "not yet built"
 	@echo $(PROJECT) "is ok."
 
 #TODO: version	path

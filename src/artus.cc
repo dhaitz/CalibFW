@@ -306,8 +306,9 @@ int main(int argc, char** argv)
 	g_logFile->close();
 
 	std::cout << std::endl;
-	int nc = 0;
-	CALIB_LOG_FILE("Events read: " << nevents << ", events in cut: unknown > " << nc << " (>" << (nc * 100. / nevents) << "%)");
+	// TODO: determine nc
+	// int nc = 0;
+	CALIB_LOG_FILE("Events read: " << nevents); // << ", events in cut: unknown > " << nc << " (>" << (nc * 100. / nevents) << "%)");
 	CALIB_LOG_FILE("Output file " << sRootOutputFilename << " closed.");
 
 	delete g_logFile;
