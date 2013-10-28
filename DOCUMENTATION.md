@@ -61,23 +61,22 @@ ExpandConfig and treeconfig functions (to create and modify the configuration
 dictionary), a list of files and the Run command:
 
     conf = cbase.BaseConfig('data', '2012')
-    conf["InputFiles"] = cbase.CreateFileList("/storage/.../*.root", sys.argv)
+    conf["InputFiles"] = "/storage/.../*.root"
     conf = cbase.ExpandConfig("AK5PFJetsCHSL1L2L3Res", conf)
     conf = cbase.treeconfig(conf)
-    cbase.Run(conf, sys.argv)
 
-To test the configuration, use
+To test the configuration (fast mode), use
 
-    python $EXCALIBUR_BASE/cfg/artus/data.py --fast
+    artus data -f
 
 (set the number of testfiles with `--fast n`, default is 3)
 
-If the test was successful, you can run the jobs on the EKPcluster using the 
-redo script:
+If the test was successful, you can run the jobs on the EKPcluster using
+the batch mode:
 
-    . scripts/redo.sh data.py
+    artus data -b
 
-Your Ntuple will then be available at `$EXCALIBUR_WORK/work/data/out/artus.root`
+Your Ntuple will then be available at `$EXCALIBUR_WORK/artus/data/data.root`
 
 ## Further needed
 The JEC txt files need to be places in the data/jec/ directory. For a MC file,
