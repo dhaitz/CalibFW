@@ -7,6 +7,7 @@ export KAPPATOOLSPATH=$EXCALIBUR_BASE/../KappaTools
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$EXCALIBUR_BASE:$EXCALIBUR_BASE/../Kappa/lib:$EXCALIBUR_BASE/../KappaTools/lib:$BOOSTPATH/lib
 export PATH=$EXCALIBUR_BASE/scripts:$PATH
 export PYTHONPATH=$EXCALIBUR_BASE/plotting:$EXCALIBUR_BASE/cfg/artus:$PYTHONPATH
+export USERPC=`who am i| sed 's/.*(\([^]]*\)).*/\1/g'`
 
 # Set some user specific variables
 if [ $USER = "dhaitz" ]; then
@@ -20,11 +21,9 @@ if [ $USER = "dhaitz" ]; then
     else
         export MC='/storage/a/dhaitz/excalibur/work/mc_old/out/artus.root'
     fi
-    export USERPC="ekplx26"
 elif [ $USER = "berger" ]; then
     export DATA='/storage/a/dhaitz/excalibur/work/data/out/artus.root'
     export MC='/storage/a/dhaitz/excalibur/work/mc/out/artus.root'
-    export USERPC="ekplx45"
 fi
 
 
