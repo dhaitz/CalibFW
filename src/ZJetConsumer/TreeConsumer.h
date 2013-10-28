@@ -83,7 +83,7 @@ private:
 		jet1puJetCutbased, jet1puJetIDCutbased, jet1puJetIDCutbasedLoose, jet1puJetIDCutbasedMedium, jet1puJetIDCutbasedTight,
 		jet2puJetFull, jet2puJetIDFull, jet2puJetIDFullLoose, jet2puJetIDFullMedium, jet2puJetIDFullTight,
 		jet2puJetCutbased, jet2puJetIDCutbased, jet2puJetIDCutbasedLoose, jet2puJetIDCutbasedMedium, jet2puJetIDCutbasedTight,
-		eventnr
+		eventnr, lumisec
 	} var;
 
 	float returnvalue(std::string string, ZJetEventData const& event,
@@ -94,6 +94,7 @@ private:
 		else if (string == "run") var = run;
 		else if (string == "weight") var = weight;
 		else if (string == "eventnr") var = eventnr;
+		else if (string == "lumisec") var = lumisec;
 
 		else if (string == "zpt") var = zpt;
 		else if (string == "zeta") var = zeta;
@@ -621,6 +622,8 @@ private:
 			return metaData.GetPhysFlavour(s);
 		else if (var == eventnr)
 			return event.m_eventmetadata->nEvent;
+		else if (var == lumisec)
+			return event.m_eventmetadata->nLumi;
 		else
 			CALIB_LOG_FATAL("TTreeConsumer: Quantity " << var << " not available!");
 

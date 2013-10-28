@@ -326,7 +326,7 @@ def treeconfig(conf, quantities=None):
                     "algoflavour", "physflavour",
                             ]
             elif conf['InputType'] == 'data':
-                pval['QuantitiesVector'] += ['eventnr']
+                pval['QuantitiesVector'] += ['eventnr', 'lumisec']
         else:
             pval['QuantitiesVector'] = quantities
 
