@@ -15,10 +15,10 @@
                    <W
                    (O)                 Calibrate like a king!
 
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
-*Excalibur* provides a complete workflow for calibration studies, namely covering
-the following steps:
+*Excalibur* provides a complete workflow for calibration studies, namely
+covering the following steps:
 
    1. Skimming: Creating a *Kappa* output file with CMSSW
    2. Analyzing: Performing additional event reconstruction steps and cuts
@@ -34,57 +34,80 @@ Please also see the following pages:
 - https://ekptrac.physik.uni-karlsruhe.de/trac/CalibFW/wiki
   for information and installation of *Excalibur*
 
+0. Installation
+===============================================================================
+To compile Excalibur, the following packages must be installed in the same
+directory (if elsewhere, you are responsible for setting the paths correctly):
+
+    Kappa
+    KappaTools
+    CalibFW
+
+Compilation of Excalibur:
+
+    cd CalibFW
+    scripts/ini_excalibur
+    make check
+    make
+
+The `make check` command shows if all dependencies are correctly installed. If
+that is the case, `make` should be able to compile Artus (optionally on
+multiple cores `-jN`).
+
 
 1. Skimming: How to create Kappa files
-================================================================================
+===============================================================================
+
 Use CMSSW with one of the latest cfg files found in the `cfg/cmssw/` folder.
 Config files for grid-control are also available in this directory.
 
 
 2. Analyzing: How to create a ROOT NTuple from a Kappa skim
-================================================================================
+===============================================================================
 
-An NTuple can be created via a python configuration file (in `cfg/artus/`), which
-is then processed by `ArtusConfigBase` to create a .json file containing all necessary
-parameters.  The json file can then further be processed with `artus`, the main
-executable.
+An NTuple can be created via a python configuration file (in `cfg/artus/`),
+which is then processed by `artus` to create a .json file containing
+all necessary parameters and to run it via compiled C++ code.
 
 
 ## Setting the environment
-CMSSW must be sourced. Set `$EXCALIBUR_WORK` path (e.g. `/storage/a/$USER/excalibur`)
-and execute `scripts/ini_excalibur` from your main Excalibur directory.
+Sourcing CMSSW is the easiest way to set the relevant paths. The user should
+set `$EXCALIBUR_WORK` path (e.g. `/storage/a/$USER/excalibur`)
+and execute `. scripts/ini_excalibur` from your main Excalibur directory.
 
 
 ## Basic structure of the config file
-In its basic form, a config file data.py must contain a call of the BaseConfig, 
+In its basic form, a config file must contain a call of the BaseConfig,
 ExpandConfig and treeconfig functions (to create and modify the configuration
-dictionary), a list of files and the Run command:
+dictionary) and a list of input files:
 
-    conf = cbase.BaseConfig('data', '2012')
+    conf = cbase.BaseConfig('mc', '2012')
     conf["InputFiles"] = "/storage/.../*.root"
-    conf = cbase.ExpandConfig("AK5PFJetsCHSL1L2L3Res", conf)
+    conf = cbase.ExpandConfig("AK5PFJetsCHSL1L2L3", conf)
     conf = cbase.treeconfig(conf)
 
 To test the configuration (fast mode), use
 
-    artus data -f
+    artus <config> -f
 
 (set the number of testfiles with `--fast n`, default is 3)
 
-If the test was successful, you can run the jobs on the EKPcluster using
-the batch mode:
+If the test was successful, you can run the jobs on the EKP cluster using
+the batch mode. `hadd` will be called at the end automatically.
 
-    artus data -b
+    artus <config> -b
 
 Your Ntuple will then be available at `$EXCALIBUR_WORK/artus/data/data.root`
+For more help, see `artus -h`.
 
 ## Further needed
-The JEC txt files need to be places in the data/jec/ directory. For a MC file,
+The JEC txt files need to be places in the `data/jec/` directory. For a MC file,
 the pileup reweighting factors have to be stored in the puweights.json file.
+This is done via the `weightCalc.py` script.
 
 
 3. Plotting: How to create plots from a ROOT NTuple
-================================================================================
+===============================================================================
 
 The main plotting file is `plotting/plotbase.py`. The Excalibur plotting
 framework Merlin is highly customizable, you are advised to have a look at
@@ -135,5 +158,5 @@ found in the `plotting/plot_sandbox.py` file.
 **Enjoy!**
 
 
-*Last updated: 2013-10-14 dhaitz, berger*
+*Last updated: 2013-10-28 dhaitz, berger*
 

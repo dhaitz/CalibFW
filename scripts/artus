@@ -71,13 +71,13 @@ def artus():
                 exit(0)
         subprocess.call([options.base + "/artus", options.json])
 
+    # show message and optionally open root file
     showMessage("Excalibur", "Artus run with config " + options.out + " done.")
-
     if options.root:
         print "\nOpen output file in TBrowser:"
         try:
-            subprocess.call(["root", "-l", 
-                "%s/%s.root" % (options.base, options.out), 
+            subprocess.call(["root", "-l",
+                "%s/%s.root" % (options.base, options.out),
                 "%s/scripts/tbrowser.cxx" % options.base])
         except:
             pass
