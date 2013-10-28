@@ -47,7 +47,8 @@ public:
 
 	virtual bool GotoEvent(long long lEvent, HLTTools* hltInfo, int sampleinit)
 	{
-		m_mon->Update();
+		if (!m_mon->Update())
+			return false;
 		m_fi.eventdata.GetEntry(lEvent);
 		m_event.m_pthatbin = sampleinit;
 

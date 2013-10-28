@@ -10,6 +10,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import time
 
 
@@ -72,7 +73,11 @@ def artus():
                     exit(0)
             except KeyboardInterrupt:
                 exit(0)
-        subprocess.call([options.base + "/artus", options.json])
+        try:
+            subprocess.call([options.base + "/artus", options.json])
+        except KeyboardInterrupt:
+            sys.stdout.flush()
+            exit(0)
 
     # show message and optionally open root file
     showMessage("Excalibur", "Artus run with config " + options.out + " done.")

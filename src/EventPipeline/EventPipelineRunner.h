@@ -93,7 +93,8 @@ public:
 		for (long long i = firstEvent; i < nEvents; ++i)
 		{
 			// TODO refactor the evtProvider to clean up this mess with the hltTools
-			evtProvider.GotoEvent(i , hltTools, sampleinit);
+			if (!evtProvider.GotoEvent(i, hltTools, sampleinit))
+				break;
 			TMetaData metaDataGlobal;
 			metaDataGlobal.m_hltInfo = hltTools;
 
@@ -112,17 +113,17 @@ public:
 			{
 				if (unlikely(nEvents - firstEvent < 100)) // debug output
 					LOG("Event "
-							  << evtProvider.GetCurrentEvent().m_eventmetadata->nRun << ":"
-							  << evtProvider.GetCurrentEvent().m_eventmetadata->nLumi << ":"
-							  << evtProvider.GetCurrentEvent().m_eventmetadata->nEvent);
+						<< evtProvider.GetCurrentEvent().m_eventmetadata->nRun << ":"
+						<< evtProvider.GetCurrentEvent().m_eventmetadata->nLumi << ":"
+						<< evtProvider.GetCurrentEvent().m_eventmetadata->nEvent);
 				for (PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
 				{
 					if (it->GetSettings().GetLevel() == 1)
 					{
 						if (unlikely(nEvents - firstEvent < 5)) // debug output
 							LOG("Event:" << i
-									  << ", new pipeline: " << it->GetSettings().ToString()
-									  << ", algorithm: " << it->GetSettings().GetJetAlgorithm());
+								<< ", new pipeline: " << it->GetSettings().ToString()
+								<< ", algorithm: " << it->GetSettings().GetJetAlgorithm());
 						it->RunEvent(evtProvider.GetCurrentEvent(), metaDataGlobal);
 					}
 				}

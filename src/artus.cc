@@ -310,7 +310,7 @@ int main(int argc, char** argv)
 	// int nc = 0;
 	LOG_FILE("Events read: " << nevents); // << ", events in cut: unknown > " << nc << " (>" << (nc * 100. / nevents) << "%)");
 	LOG_FILE("Output file " << sRootOutputFilename << " closed.");
-
+	std::cout.flush();
 	delete g_logFile;
 
 	return 0;
