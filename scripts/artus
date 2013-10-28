@@ -82,7 +82,6 @@ def artus():
         except:
             pass
 
-
 def getoptions(configdir='cfg/artus/', name='artus'):
     """Set standard options and read command line arguments. """
 

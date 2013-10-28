@@ -31,25 +31,13 @@ fi
 
 alias ka='killall artus'
 
-# plotting aliases and functions
-alias plotsync='rsync $EXCALIBUR_BASE/out/plot.pdf $USER@$USERPC.physik.uni-karlsruhe.de:/usr/users/$USER/plot.pdf'
+alias kc='killall artus'
 
-alias plot='python $EXCALIBUR_BASE/plotting/plotbase.py'
-alias plott='python $EXCALIBUR_BASE/plotting/plotbase.py $DATA $MC'
-alias plotfile='python $EXCALIBUR_BASE/plotting/plotbase.py $DATA $MC -o $EXCALIBUR_BASE/out/ -f pdf --filename plot'
-alias plotfilemc='python $EXCALIBUR_BASE/plotting/plotbase.py $MC -o $EXCALIBUR_BASE/out/ -l 0 -f pdf --filename plot'
-
-# Use this in combination with plotfile for live plotting
-plotinit()
-{
- ssh $USER@$USERPC "DISPLAY=:0 evince /usr/users/$USER/plot.pdf &" &
- export PROMPT_COMMAND="plotsync"
-}
 
 # Use this to open a root file directly in the TBrowser
 rot()
 {
-    root -l $@ /home/$USER/tbrowser.cxx
+    root -l $@ $EXCALIBUR_BASE/scripts/tbrowser.cxx
 }
 
 # Use this to open the default data and mc files directly in a TBrowser

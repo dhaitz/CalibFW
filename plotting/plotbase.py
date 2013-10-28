@@ -27,7 +27,6 @@ cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(
 if cmd_subfolder not in sys.path:
     sys.path.insert(0, cmd_subfolder)
 
-import plotrc
 import plotdatamc
 import plotfractions
 import plotresponse
@@ -42,12 +41,32 @@ from labels import *
 from fit import *
 
 
-def plot(modules, plots, datamc, op):
+def plot(op):
     """Search for plots in the module and run them."""
     # dont display any graphics
     gROOT.SetBatch(True)
     startop = copy.deepcopy(op)
     whichfunctions = []
+    plots = op.plots
+
+    if op.list:
+        printfunctions(module_list)
+        sys.exit()
+
+    if op.quantities:
+        printquantities(files, op)
+        sys.exit()
+
+
+    print "Number of files:", len(op.files)
+    files = []
+    for f in op.files:
+        print "Using as file", 1 + op.files.index(f), ":", f
+        files += [getroot.openfile(f, op.verbose)]
+
+    modules = [plotresponse, plotfractions, plot2d, plotdatamc,
+                        plot_resolution, plot_mikko, plot_sandbox, plot_tagging]
+
     remaining_plots = copy.deepcopy(plots)
     for module in modules:
         #print "Doing plots in", module.__name__, "..."
@@ -59,11 +78,11 @@ def plot(modules, plots, datamc, op):
         for p in plots:
             if hasattr(module, p):    # plot directly as a function
                 print "Doing %s in %s" % (p, module.__name__)
-                getattr(module, p)(datamc, op)
+                getattr(module, p)(files, op)
                 remaining_plots.remove(p)
             elif module == plotdatamc and p in d_plots:    # if no function available, try dictionary
                 print "New plot: (from dictionary)", p,
-                plotdatamc.plotfromdict(datamc, op, p)
+                plotdatamc.plotfromdict(files, op, p)
                 remaining_plots.remove(p)
         if op != startop:
             whichfunctions += [p + " in " + module.__name__]
@@ -72,7 +91,7 @@ def plot(modules, plots, datamc, op):
     # remaining plots are given to the function_selector
     if len(remaining_plots) > 0:
         print "Doing remaining plots via function selector..."
-        function_selector(remaining_plots, datamc, op)
+        function_selector(remaining_plots, files, op)
 
     # check whether the options have changed and warn
     if op != startop:
@@ -103,7 +122,6 @@ def function_selector(plots, datamc, opt):
 
         # for responseratio-plots
         elif 'responseratio' in plot and len(plot.split('_')) > 2:
-            #plot = plot.replace('bal','balresp')
             plotresponse.responseratio(datamc, opt,
                             types=plot.split('_responseratio_')[0].split('_'),
                             over=plot.split('_responseratio_')[1])
@@ -119,223 +137,6 @@ def function_selector(plots, datamc, opt):
                             over=plot.split('_ratio_')[1])
         else:
             plotdatamc.datamcplot(plot, datamc, opt)
-
-
-def options(
-            # standard values go here:
-
-            files=None,
-
-            plots=None,
-
-            algorithm="AK5PFJetsCHS",
-            correction="L1L2L3Res",
-
-            out="out",
-            formats=['png'],
-
-            labels=["data", "MC"],
-            colors=['black', '#CBDBF9'],
-            markers=["o", "f"],
-            lumi=19790,
-            energy=8,
-            status=None,
-            author=None,
-            date=None,
-            layout='generic',
-            title="",
-            eventnumberlabel=None,
-            legloc='best',
-
-            rebin=5,
-            ratio=False,
-            fit=None,
-            filename=None,
-
-            npv=[(0, 4), (5, 8), (9, 15), (16, 21), (22, 100)],
-            cut=[0.3],
-            eta=[0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
-            bins=[30, 40, 50, 60, 75, 95, 125, 180, 300, 1000],
-    ):
-    """Set standard options and read command line arguments.
-
-    To be turned into a class with str method and init
-    """
-
-    parser = argparse.ArgumentParser(
-        description="%(prog)s does all the plotting.",
-        epilog="Have fun.")
-
-    # input files
-    parser.add_argument('files', metavar='file', type=str, nargs='*',
-        default=files,
-        help="data and Monte Carlo input root file(s). One data file and at " +
-             "least one Monte Carlo file is assumed.")
-    #plots
-    parser.add_argument('-P', '--plots', type=str, nargs='+', default=plots,
-        help="do only this plot/these plots. " +
-             "The function names are required here.")
-
-    # source options
-    source = parser.add_argument_group('Source options')
-    source.add_argument('--selection', '-S', type=str,
-        default=None,
-        help='selection (cut) expression for C++ expressions are valid')
-    source.add_argument('--folder', type=str,
-        default='incut',
-        help="folder in rootfile: 'incut' or 'allevents'")
-    source.add_argument('--allalpha', action='store_true',
-        default=False,
-        help='Extend the alpha range up to 0.4')
-    source.add_argument('--alleta', action='store_true',
-        default=False,
-        help='Extend the eta range beyond 1.3')
-    source.add_argument('-a', '--algorithm', type=str,
-        default=algorithm, help="Jet algorithm. Default is %(default)s")
-    source.add_argument('-c', '--correction', type=str, default=correction,
-        help="Jet energy correction level. Default is %(default)s")
-
-    # more general options
-    general = parser.add_argument_group('General options')
-    general.add_argument('-r', '--rebin', type=int, default=rebin,
-        help="Rebinning value n")
-    general.add_argument('-R', '--ratio', action='store_true',
-        help="do a ratio plot from the first two input files")
-    general.add_argument('--ratiosubplot', action='store_true',
-        help="Add a ratio subplot")
-    general.add_argument('-F', '--fit', type=str, default=fit,
-        help="Do a fit. Options: vertical, chi2, gauss, slope, intercept")
-    general.add_argument('--extrapolation', type=str, default=False,
-        help='For response plots: Apply alpha-extrapolation. Possible values \
-              are bin or global')
-    general.add_argument('--run', type=str, default=False,
-        help='Some special options for runplots. Valid options are true or diff')
-    general.add_argument('--special_binning', action='store_true', default=False,
-        help='special binning for npv, zpt, eta')
-    general.add_argument('-n', '--normalize', action='store_false',
-        help="don't normalize Monte Carlo samples to the event count in data ")
-    general.add_argument('-Y', '--year', type=int, default=2012,
-        help="Year of data-taking. Default is %(default)s")
-
-    # output settings
-    output = parser.add_argument_group('Output options')
-    output.add_argument('-o', '--out', type=str, default=out,
-        help="output directory for plots")
-    output.add_argument('-f', '--formats', type=str, nargs='+', default=formats,
-        help="output format for the plots.  Default is %(default)s")
-    output.add_argument('--filename', type=str, default=filename,
-        help='specify a filename')
-    output.add_argument('--root', type=str, default=False,
-        help="Name of the histogramm which is then saved into a root file")
-    output.add_argument('--save_individually', action='store_true',
-        default=False,
-        help='save each plot separately')
-
-    # plot labelling and formatting
-    formatting = parser.add_argument_group('Formatting options')
-    formatting.add_argument('-l', '--lumi', type=float, default=lumi,
-        help="luminosity for the given data in /pb. Default is %(default)s")
-    formatting.add_argument('-e', '--energy', type=int, default=energy,
-        help="centre-of-mass energy for the given samples in TeV. \
-                                                       Default is %(default)s")
-
-    formatting.add_argument('-s', '--status', type=str, default=status,
-        help="status of the plot (e.g. CMS preliminary)")
-    formatting.add_argument('-A', '--author', type=str, default=author,
-        help="author name of the plot")
-    formatting.add_argument('--date', type=str, default=date,
-        help="show the date in the top left corner. 'iso' is YYYY-MM-DD, " +
-             "'today' is DD Mon YYYY and 'now' is DD Mon YYYY HH:MM.")
-    formatting.add_argument('-E', '--eventnumberlabel', action='store_true',
-        help="add event number label")
-    formatting.add_argument('-t', '--title', type=str, default=title,
-         help="plot title")
-    formatting.add_argument('-L', '--layout', type=str,
-        default='generic',
-        help="layout for the plots. E.g. 'document': serif, LaTeX, pdf; " +
-             "'slides': sans serif, big, png; 'generic': slides + pdf. " +
-             "This is not implemented yet.")
-    formatting.add_argument('-g', '--legloc', type=str, nargs="?", default=legloc,
-        help="Location of the legend. Default is %(default)s")
-    formatting.add_argument('--subtext', type=str, default=None,
-        help='Add subtext')
-    formatting.add_argument('-C', '--colors', type=str, nargs='+', default=colors,
-        help="colors for the plots in the order of the files. Default is: " +
-             ", ".join(colors))
-    formatting.add_argument('-k', '--labels', type=str, nargs='+', default=labels,
-        help="labels for the plots in the order of the files. Default is: " +
-             ", ".join(labels))
-    formatting.add_argument('-m', '--markers', type=str, nargs='+', default=markers,
-        help="style for the plot in the order of the files. 'o' for points, \
-              '-' for lines, 'f' for fill. Default is: %s" % ", ".join(markers))
-    formatting.add_argument('--text', type=str,
-        default=None,
-        help='Place a text at a certain location. Syntax is --text="abs" or \
-                                                          --text="abc,0.5,0.9"')
-    formatting.add_argument('-G', '--grid', action='store_true', default=False,
-        help="Place an axes grid on the plot.")
-
-    # AXIS
-    axis = parser.add_argument_group('Axis options')
-    axis.add_argument('--log', action='store_true', default=None,
-         help="log plot")
-    axis.add_argument('--xlog', action='store_true', default=None,
-         help="xlog plot")
-    axis.add_argument('-y', type=float, nargs='+', default=None,
-        help="upper and lower limit for y-axis")
-    axis.add_argument('-x', type=float, nargs='+', default=None,
-        help="upper and lower limit for x-axis")
-    axis.add_argument('-z', type=float, nargs='+', default=None,
-        help="upper and lower limit for z-axis")
-    axis.add_argument('--xynames', type=str, nargs='+', default=None,
-        help='x-y-axis label names,')
-
-    axis.add_argument('--xticks', type=float, nargs='+', default=None,
-        help="add custom xticks")
-
-    # Other options
-    group = parser.add_argument_group('Other options')
-    group.add_argument('-v', '--verbose', action='store_true',
-        help="verbosity")
-    group.add_argument('--list', action='store_true',
-        help="Show a list of the available predefined functions with docstrings")
-    group.add_argument('--quantities', action='store_true',
-        help="Show a list of the available quantities in the NTuple in each file")
-
-    opt = parser.parse_args()
-
-    opt.fit_offset = 0
-    parser.set_defaults(fit_offset=0)
-    opt.subplot = False
-    parser.set_defaults(subplot=False)
-    opt.bins = bins
-    opt.npv = npv
-    opt.cut = cut
-    opt.eta = eta
-
-    if opt.year == 2011:
-        opt.npv = [(0, 3), (4, 5), (6, 7), (8, 10), (11, 24)]
-        opt.lumi = 5100
-        opt.energy = 7
-
-    # get a separate dictionary with only the user-set values
-    user_options = {}
-    default_options = {}
-    for key in vars(opt):
-        default_options[key] = parser.get_default(key)
-        if vars(opt)[key] is not parser.get_default(key):
-            user_options[key] = vars(opt)[key]
-    opt.user_options = user_options
-    opt.default_options = default_options
-
-    opt.factor = 1.0
-    opt.brackets = False
-
-    if opt.verbose:
-        showoptions(opt)
-    matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
-
-    return opt
 
 
 def debug(string):
@@ -754,7 +555,7 @@ def _internal_Save(figure, name, opt, crop=True, pad=None, settings=None):
                 print ",",
             else:
                 first = False
-            print name + '.' + f,
+            print name + '.' + f
             if crop:
                 if pad is not None:
                     figure.savefig(name + '.' + f, bbox_inches='tight', bbox_extra_artists=[title], pad_inches=pad)
@@ -766,25 +567,3 @@ def _internal_Save(figure, name, opt, crop=True, pad=None, settings=None):
 
         else:
             print f, "failed. Output type is unknown or not supported."
-
-
-if __name__ == "__main__":
-    op = options()
-    module_list = [plotresponse, plotfractions, plot2d, plotdatamc,
-                        plot_resolution, plot_mikko, plot_sandbox, plot_tagging]
-
-    if op.list:
-        printfunctions(module_list)
-        sys.exit()
-
-    print "Number of files:", len(op.files)
-    files = []
-    for f in op.files:
-        print "Using as file", 1 + op.files.index(f), ":", f
-        files += [getroot.openfile(f, op.verbose)]
-
-    if op.quantities:
-        printquantities(files, op)
-        sys.exit()
-
-    plot(module_list, op.plots, files, op)
