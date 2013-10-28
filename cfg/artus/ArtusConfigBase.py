@@ -164,10 +164,10 @@ def SetMcSpecific(cfg, run='2012'):
       - additional producers
     """
     if run == '2011':
-        cfg['Jec'] = GetBasePath() + "data/jec_data/START44_V12"
+        cfg['Jec'] = GetBasePath() + "data/jec/START44_V12"
         ApplyPUReweighting(cfg, 'mc11_160404-180252_7TeV_ReRecoNov08_v2')
     elif run == '2012':
-        cfg['Jec'] = GetBasePath() + "data/jec_data/Summer13_V5_MC"
+        cfg['Jec'] = GetBasePath() + "data/jec/Summer13_V5_MC"
         cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
         ApplyPUReweighting(cfg, 'kappa539_MC12_madgraph_190456-208686_8TeV_22Jan2013ReReco')
     else:
@@ -192,7 +192,7 @@ def SetDataSpecific(cfg, run='2012'):
     """
     d = {}
     if run == '2011':
-        cfg['Jec'] = GetBasePath() + "data/jec_data/GR_R_44_V13"
+        cfg['Jec'] = GetBasePath() + "data/jec/GR_R_44_V13"
         cfg['JsonFile'] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON_v2.txt"
         cfg['HltPaths'] = [
             # Mu7 Trigger
@@ -209,7 +209,7 @@ def SetDataSpecific(cfg, run='2012'):
 
             ]
     elif run == '2012':
-        cfg['Jec'] = GetBasePath() + "data/jec_data/Summer13_V5_DATA"
+        cfg['Jec'] = GetBasePath() + "data/jec/Summer13_V5_DATA"
         cfg['MetPhiCorrectionParameters'] = [0.2661, 0.3217, -0.2251, -0.1747]
         cfg['JsonFile'] = GetBasePath() + "data/json/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt"
         cfg['HltPaths'] = [

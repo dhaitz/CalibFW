@@ -6,7 +6,7 @@ def get_template(algo="AK5PFJets"):
     conf = base.BaseConfig('data', '2012')
     conf["InputFiles"] = "/storage/8/dhaitz/Winter13ReReco_2/*.root"
     conf["JsonFile"] = base.GetBasePath() + "data/json/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt"
-    conf['Jec'] = base.GetBasePath() + "data/jec_data/Summer13_V1_DATA"
+    conf['Jec'] = base.GetBasePath() + "data/jec/Summer13_V1_DATA"
 
     #algorithms = [algo, algo+"L1", algo+"L1L2L3", algo+"L1L2L3Res"]
     algorithms = [algo + "L1L2L3Res"]
