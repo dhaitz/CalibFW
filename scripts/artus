@@ -249,6 +249,8 @@ def createRunfile(configjson, filename='test.sh', original=None):
 
 
 def showMessage(title, message):
+    if "ekplx" not in getPath('USERPC'):
+        return
     userpc = "%s@%s" % (getPath('USER'), getPath('USERPC'))
     iconpath = '/usr/users/dhaitz/excalibur/excal_small.jpg'
     try:
