@@ -65,7 +65,8 @@ def artus():
             print "Batch job did not produce output %s. Exit." % outpath
             exit(1)
     else:  # local
-        if not options.fast:
+        print "len ", len(conf["InputFiles"])
+        if not options.fast and len(conf["InputFiles"])>100:
             print "Warning: The full run as a single job will take a while.",
             print "Are you sure? [Y/n]"
             try:
