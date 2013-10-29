@@ -240,8 +240,6 @@ def options(
     opt.factor = 1.0
     opt.brackets = False
 
-    if opt.verbose:
-        showoptions(opt)
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
 
     return opt

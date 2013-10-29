@@ -22,6 +22,7 @@ PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
 gROOT.SetBatch(True)
 
 # use ls and imp to read all of them
+import plotrc
 import plotdatamc
 import plotfractions
 import plotresponse
@@ -46,6 +47,9 @@ def plot(op):
 
     modules = [plotresponse, plotfractions, plot2d, plotdatamc,
                         plot_resolution, plot_mikko, plot_sandbox, plot_tagging]
+
+    if op.verbose:
+        showoptions(op)
 
     print "Number of files:", len(op.files)
     files = []
