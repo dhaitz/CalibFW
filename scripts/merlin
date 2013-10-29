@@ -106,10 +106,14 @@ def options(
         help='Some special options for runplots. Valid options are true or diff')
     general.add_argument('--special_binning', action='store_true', default=False,
         help='special binning for npv, zpt, eta')
-    general.add_argument('-n', '--normalize', action='store_false',
-        help="don't normalize Monte Carlo samples to the event count in data ")
+    general.add_argument('-n', '--normalize', action='store_true', #make it float 0.0 is default
+        help="normalize Monte Carlo samples to the event count in data ")
     general.add_argument('-Y', '--year', type=int, default=2012,
         help="Year of data-taking. Default is %(default)s")
+    general.add_argument('--factor', type=float, default=1.0,
+        help="additional external weight for each MC event %(default)s")
+    general.add_argument('--efficiency', type=float, default=0.96,
+        help="trigger efficiency. Default is %(default)s")
 
     # output settings
     output = parser.add_argument_group('Output options')
@@ -242,7 +246,6 @@ def options(
     opt.user_options = user_options
     opt.default_options = default_options
 
-    opt.factor = 1.0
     opt.brackets = False
 
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
