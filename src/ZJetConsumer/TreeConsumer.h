@@ -83,7 +83,8 @@ private:
 		jet1puJetCutbased, jet1puJetIDCutbased, jet1puJetIDCutbasedLoose, jet1puJetIDCutbasedMedium, jet1puJetIDCutbasedTight,
 		jet2puJetFull, jet2puJetIDFull, jet2puJetIDFullLoose, jet2puJetIDFullMedium, jet2puJetIDFullTight,
 		jet2puJetCutbased, jet2puJetIDCutbased, jet2puJetIDCutbasedLoose, jet2puJetIDCutbasedMedium, jet2puJetIDCutbasedTight,
-		eventnr, lumisec
+		eventnr, lumisec,
+		none
 	} var;
 
 	float returnvalue(std::string string, ZJetEventData const& event,
@@ -182,8 +183,10 @@ private:
 		else if (string == "jet2puJetIDCutbasedLoose") var = jet2puJetIDCutbasedLoose;
 		else if (string == "jet2puJetIDCutbasedMedium") var = jet2puJetIDCutbasedMedium;
 		else if (string == "jet2puJetIDCutbasedTight") var = jet2puJetIDCutbasedTight;
+		else var = none;
 
-
+		if (var == none)
+			LOG_FATAL("No such variable" << string);
 
 		// general quantities
 		if (var == npv)
@@ -597,7 +600,7 @@ private:
 			if (iMatchedGen >= int(metaData.GetValidJetCount(s, event, genName)))
 			{
 				LOG_FATAL("Reco to gen matching: No reference gen jet found! "
-								<< iMatchedGen << " >= " << metaData.GetValidJetCount(s, event, genName))
+						  << iMatchedGen << " >= " << metaData.GetValidJetCount(s, event, genName));
 				return false;
 			}
 			return metaData.GetValidJet(s, event, iMatchedGen, genName)->p4.Pt();
@@ -625,10 +628,11 @@ private:
 		else if (var == lumisec)
 			return event.m_eventmetadata->nLumi;
 		else
-			LOG_FATAL("TTreeConsumer: Quantity " << var << " not available!");
+			LOG_FATAL("TTreeConsumer: Quantity " << string << " (" << var << ") not available!");
 
+		LOG_FATAL("None found");
 		assert(false);
-		return -1;
+		return -999;
 	};
 
 };
