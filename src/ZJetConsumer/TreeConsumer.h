@@ -64,7 +64,7 @@ private:
 
 	enum type
 	{
-		npv, rho, run, weight, zpt, zeta, zphi, zy, zmass, jet1pt, jet1eta, jet1phi,
+		npv, npu, nputruth, rho, run, weight, zpt, zeta, zphi, zy, zmass, jet1pt, jet1eta, jet1phi,
 		jet1photonfraction, jet1chargedemfraction, jet1chargedhadfraction,
 		jet1neutralhadfraction, jet1muonfraction, jet1HFhadfraction,
 		jet1HFemfraction, jet2pt, jet2phi, jet2eta, METpt, METphi, sumEt,
@@ -91,6 +91,8 @@ private:
 					  ZJetMetaData const& metaData, ZJetPipelineSettings const& s)
 	{
 		if (string == "npv") var = npv;
+		else if (string == "npu") var = npu;
+		else if (string == "nputruth") var = nputruth;
 		else if (string == "rho") var = rho;
 		else if (string == "run") var = run;
 		else if (string == "weight") var = weight;
@@ -191,6 +193,10 @@ private:
 		// general quantities
 		if (var == npv)
 			return event.m_vertexSummary->nVertices;
+		else if (var == npu)
+			return event.m_geneventmetadata->numPUInteractions0;
+		else if (var == nputruth)
+			return event.m_geneventmetadata->numPUInteractionsTruth;
 
 		// QG tag
 		else if (var == qglikelihood)

@@ -276,6 +276,7 @@ def treeconfig(conf, quantities=None):
                 ]
             if conf['InputType'] == 'mc':
                 pval['QuantitiesVector'] += [
+                    "npu", "nputruth",
                     "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
                     "matchedgenjet1pt", "genmpf",
                     "algoflavour", "physflavour",
