@@ -81,17 +81,17 @@ def eventnumberlabel(ax, settings):
     for f, l in zip(settings['events'], settings['labels']):
         text += "\n %s Events: %1.1e" % (l, f)
     ax.text(0.7,1.01, text, size='xx-small', va='bottom', ha='right',
-                                                         transform=ax.transAxes)
-        
+            transform=ax.transAxes)
+
 
 def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
     if hasattr(ax, 'number') and ax.number != 2:
-        if lumi >= 1000.0:
+        if lumi >= 1.0:
             ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{fb}^{-1}$" %
-                (lumi / 1000.0), va='bottom', ha='left', transform=ax.transAxes)
+                (lumi), va='bottom', ha='left', transform=ax.transAxes)
         elif lumi > 0.0:
             ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{pb}^{-1}$" %
-                (lumi), va='bottom', ha='left', transform=ax.transAxes)
+                (lumi * 1000.0), va='bottom', ha='left', transform=ax.transAxes)
     return ax
 
 

@@ -32,7 +32,7 @@ def options(
             labels=["data", "MC"],
             colors=['black', '#CBDBF9'],
             markers=["o", "f"],
-            lumi=19790,
+            lumi=19.790,
             energy=8,
             status=None,
             author=None,
@@ -128,7 +128,7 @@ def options(
     # plot labelling and formatting
     formatting = parser.add_argument_group('Formatting options')
     formatting.add_argument('-l', '--lumi', type=float, default=lumi,
-        help="luminosity for the given data in /pb. Default is %(default)s")
+        help="luminosity for the given data in /fb. Default is %(default)s")
     formatting.add_argument('-e', '--energy', type=int, default=energy,
         help="centre-of-mass energy for the given samples in TeV. \
                                                        Default is %(default)s")
