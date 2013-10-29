@@ -2,20 +2,21 @@ import plotbase
 import copy
 from dictionaries import d_axes, d_plots
 
+
 def labels(ax, opt, settings, subplot=False):
     """This function prints all labels and captions in a plot.
 
     Several functions are called for each type of label.
     """
     if not (settings['ratio'] and settings['subplot']
-                                        and not settings['fit']=='intercept'):
+            and not settings['fit'] == 'intercept'):
         if settings['lumi'] is not None:
             lumilabel(ax, settings['lumi'])    # always (if given) pure MC plots?
         statuslabel(ax, opt.status)
         if settings['energy'] is not None:
             energylabel(ax, settings['energy'])
         #if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
-        #if changes.has_key('var') or changes.has_key('bin'): 
+        #if changes.has_key('var') or changes.has_key('bin'):
         #    binlabel(ax, bin, changes=changes, color=color)
         #if 'incut' in changes: incutlabel(ax, color, changes['incut'])
         #resultlabel(ax, result)
@@ -26,10 +27,10 @@ def labels(ax, opt, settings, subplot=False):
         if settings['run'] is True:
             plotbase.runlabel(ax, settings)
         if 'selection' in opt.user_options:
-            ax.text(0.98, 0.98, opt.user_options['selection'], va='top', ha='right', 
+            ax.text(0.98, 0.98, opt.user_options['selection'], va='top', ha='right',
                             transform=ax.transAxes, size='small', color='black')
         if settings['subtext'] is not None:
-            ax.text(-0.03, 1.01, settings['subtext'], va='bottom', ha='right', 
+            ax.text(-0.03, 1.01, settings['subtext'], va='bottom', ha='right',
                     transform=ax.transAxes, size='xx-large', color='black')
         if settings['extrapolation'] is not False:
             ax.text(0.02, 0.02, "%s extrapolation applied" % settings['extrapolation'],
@@ -38,28 +39,29 @@ def labels(ax, opt, settings, subplot=False):
         if settings['text'] is not None:
             textlabel(ax, settings['text'])
     if settings['legloc'] != "None":
-        legend = ax.legend(loc=settings['legloc'], numpoints=1, fancybox=True, 
+        legend = ax.legend(loc=settings['legloc'], numpoints=1, fancybox=True,
                                                                     shadow=True)
 
     if settings['subtext'] is not None:
-        ax.text(-0.04, 1.01, settings['subtext'], va='bottom', ha='right', 
+        ax.text(-0.04, 1.01, settings['subtext'], va='bottom', ha='right',
                          transform=ax.transAxes, size='xx-large', color='black')
     return ax
 
+
 def runlabel(ax, settings):
-    runs = [['2012A', 190456.],['2012B', 193834.], ['2012C', 197770.], ['2012D', 203773.]]
+    runs = [['2012A', 190456.], ['2012B', 193834.], ['2012C', 197770.], ['2012D', 203773.]]
     for [runlabel, runnumber] in runs:
         ax.axvline(runnumber, color='gray', linestyle='--', alpha=0.2)
-        ax.text((runnumber-settings['x'][0]) / (settings['x'][1] - settings['x'][0]), 
+        ax.text((runnumber - settings['x'][0]) / (settings['x'][1] - settings['x'][0]),
                               0.92, runlabel, transform=ax.transAxes, va='top',
                               ha='left', color='gray', alpha=0.5, size='medium')
+
 
 def textlabel(ax, text, x=0.02, y=0.02):
     if len(text.split(",")) is 3:
         text, x, y = text.split(",")
     ax.text(x, y, text, va='bottom', ha='left', transform=ax.transAxes,
                                  size='small', color='black')
-
 
 
 def incutlabel(ax, color='black', incut=''):
@@ -74,13 +76,14 @@ def incutlabel(ax, color='black', incut=''):
     ax.text(0.97, 0.97, text, va='top', ha='right', transform=ax.transAxes, color=color)
     return ax
 
+
 def eventnumberlabel(ax, settings):
     if 'events' not in settings:
         return
-    text=""
+    text = ""
     for f, l in zip(settings['events'], settings['labels']):
         text += "\n %s Events: %1.1e" % (l, f)
-    ax.text(0.7,1.01, text, size='xx-small', va='bottom', ha='right',
+    ax.text(0.7, 1.01, text, size='xx-small', va='bottom', ha='right',
             transform=ax.transAxes)
 
 
@@ -101,11 +104,16 @@ def energylabel(ax, energy, xpos=1.00, ypos=1.01):
             ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
                 va='bottom', ha='right', transform=ax.transAxes)
 
-def jetlabel_string( changes, opt):
-    if changes.has_key('algorithm'): algorithm = changes['algorithm']
-    else: algorithm = opt.algorithm
-    if changes.has_key('correction'): correction = changes['correction']
-    else: correction = opt.correction
+
+def jetlabel_string(changes, opt):
+    if 'algorithm' in changes:
+        algorithm = changes['algorithm']
+    else:
+        algorithm = opt.algorithm
+    if 'correction' in changes:
+        correction = changes['correction']
+    else:
+        correction = opt.correction
     if "L1L2L3Res" in correction:
         corr = r"L1L2L3 Residual corrected"
     elif "L1L2L3" in correction:
@@ -123,20 +131,23 @@ def jetlabel_string( changes, opt):
     else:
         jet = ""
         corr = ""
-    return ( jet , corr )
+    return (jet, corr)
+
 
 def jetlabel(ax, changes={}, sub_plot=False, posx=0.05, posy=0.95, opt=None):
-    res = jetlabel_string(changes,opt)
-    
-    if sub_plot: col = 'red'
-    else: col='black'
-    
+    res = jetlabel_string(changes, opt)
+
+    if sub_plot:
+        col = 'red'
+    else:
+        col = 'black'
+
     #if "AK5" not in opt.algorithm: ax.text(posx, posy, res[0], va='top', ha='left', transform=ax.transAxes)
-    #else: 
-    posy=posy+0.07
+    #else:
+    posy = posy + 0.07
     if changes.has_key('correction'):
-        ax.text(posx, posy-0.07, res[1], va='top', ha='left', transform=ax.transAxes, color=col)
-            
+        ax.text(posx, posy - 0.07, res[1], va='top', ha='left', transform=ax.transAxes, color=col)
+
     if changes.has_key('algorithm'):
         if "CHS" in changes['algorithm']:
             ax.text(posx, posy - 0.14, r"CHS applied", va='top', ha='left', transform=ax.transAxes, color=col)
@@ -174,30 +185,30 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.95, changes={}, colo
     ch_copy = copy.deepcopy(changes)
     if bin is None:
         if 'var' in ch_copy and 'Cut' in ch_copy['var'] and len(ch_copy['var']) > 35:
-            ch_copy['var'] = 'var'+ch_copy['var'].split('var')[2]
+            ch_copy['var'] = 'var' + ch_copy['var'].split('var')[2]
         if 'bin' in ch_copy:
             ranges = ch_copy['bin'][2:].split('to')
-            bin= 'ptz'
+            bin = 'ptz'
             low = int(ranges[0])
             high = int(ranges[1])
         elif 'var' in ch_copy and 'Eta' in ch_copy['var']:
-            ranges = ch_copy['var'][11:].replace('_','.').split('to')
+            ranges = ch_copy['var'][11:].replace('_', '.').split('to')
             bin = 'eta'
             low = float(ranges[0])
             high = float(ranges[1])
         elif 'var' in ch_copy and 'PtBin' in ch_copy['var']:
-            ranges = ch_copy['var'][10:].replace('_','.').split('to')
+            ranges = ch_copy['var'][10:].replace('_', '.').split('to')
             bin = 'ptbin'
             low = float(ranges[0])
-            high = float(ranges[1])   
+            high = float(ranges[1])
         elif 'var' in ch_copy and 'Npv' in ch_copy['var']:
             ranges = ch_copy['var'][8:].split('to')
             bin = 'Npv'
             low = int(ranges[0])
             high = int(ranges[1])
         elif 'var' in ch_copy and 'Cut' in ch_copy['var']:
-            ranges = ch_copy['var'][27:].replace('_','.')
-            bin ='alpha'
+            ranges = ch_copy['var'][27:].replace('_', '.')
+            bin = 'alpha'
             low = float(ranges)
         else:
             return ax
@@ -222,7 +233,7 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.95, changes={}, colo
             text = r"$%u \leq NPV \leq %u$" % (low, high)
     else:
         text = bin
-    ax.text(xpos, ypos, text, va='center', ha='left', size='x-large', transform=ax.transAxes, color=color )
+    ax.text(xpos, ypos, text, va='center', ha='left', size='x-large', transform=ax.transAxes, color=color)
 
 
 def statuslabel(ax, status=None, xpos=0.25, ypos=1.018):
@@ -243,7 +254,8 @@ def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
     print "Please use axislabels instead of axislabel_2d."
     return axislabels(ax, x_q, y_q, brackets)
 
-def axislabels(ax, x='zpt', y='events', brackets=False, labels=['',''], settings=None):
+
+def axislabels(ax, x='zpt', y='events', brackets=False, labels=['', ''], settings=None):
     """same as the old version, but can handle and and y axis indpendetly
 
        new idea: improve automatic scaling:
@@ -275,53 +287,54 @@ def axislabels(ax, x='zpt', y='events', brackets=False, labels=['',''], settings
         else:
             ax.set_ylim(limits)
 
-    for quantity, function in zip([x,y],[[setxaxis, ax.set_xticks, ax.set_xticklabels], [setyaxis, ax.set_yticks, ax.set_yticklabels]]):
+    for quantity, function in zip([x, y], [[setxaxis, ax.set_xticks, ax.set_xticklabels], [setyaxis, ax.set_yticks, ax.set_yticklabels]]):
     # special formatting options for some quantities ...
         if 'phi' in quantity:
             function[1]([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
             function[2]([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])
             if 'deltaphi' in quantity:
-                function[0]((d_axes['deltaphi'][0], d_axes['deltaphi'][1]), d_axes['deltaphi'][2] % (plotbase.nicetext(quantity.replace("deltaphi-","").split("-")[0]), 
-                        plotbase.nicetext(quantity.replace("deltaphi-","").split("-")[1])), d_axes['deltaphi'][3]) 
+                function[0]((d_axes['deltaphi'][0], d_axes['deltaphi'][1]), d_axes['deltaphi'][2] % (plotbase.nicetext(quantity.replace("deltaphi-", "").split("-")[0]),
+                        plotbase.nicetext(quantity.replace("deltaphi-", "").split("-")[1])), d_axes['deltaphi'][3])
             elif 'phiabsdiff' in quantity:
-                function[0]((d_axes['phiabsdiff'][0], d_axes['phiabsdiff'][1]), d_axes['phiabsdiff'][2] % plotbase.nicetext(quantity.replace("phiabsdiff","")),
-                        d_axes['phiabsdiff'][3]) 
+                function[0]((d_axes['phiabsdiff'][0], d_axes['phiabsdiff'][1]), d_axes['phiabsdiff'][2] % plotbase.nicetext(quantity.replace("phiabsdiff", "")),
+                        d_axes['phiabsdiff'][3])
             elif 'abs' in quantity:
-                function[0]((d_axes['absphi'][0], d_axes['absphi'][1]), d_axes['absphi'][2] % 
-                        plotbase.nicetext(quantity.replace("abs_","").replace("_phi","")) , d_axes['absphi'][3]) 
+                function[0]((d_axes['absphi'][0], d_axes['absphi'][1]), d_axes['absphi'][2] %
+                        plotbase.nicetext(quantity.replace("abs_", "").replace("_phi", "")), d_axes['absphi'][3])
             else:
-                function[0]((d_axes['phi'][0], d_axes['phi'][1]), d_axes['phi'][2] % plotbase.nicetext(quantity.replace("phi","")) , d_axes['phi'][3]) 
+                function[0]((d_axes['phi'][0], d_axes['phi'][1]), d_axes['phi'][2] % plotbase.nicetext(quantity.replace("phi", "")), d_axes['phi'][3])
         elif 'eta' in quantity:
             if 'deltaeta' in quantity:
-                function[0]((d_axes['deltaeta'][0], d_axes['deltaeta'][1]), d_axes['deltaeta'][2] % (plotbase.nicetext(quantity.replace("deltaeta-","").split("-")[0]),
-                         plotbase.nicetext(quantity.replace("deltaeta-","").split("-")[1])), d_axes['deltaeta'][3]) 
+                function[0]((d_axes['deltaeta'][0], d_axes['deltaeta'][1]), d_axes['deltaeta'][2] % (plotbase.nicetext(quantity.replace("deltaeta-", "").split("-")[0]),
+                         plotbase.nicetext(quantity.replace("deltaeta-", "").split("-")[1])), d_axes['deltaeta'][3])
             elif 'etaabsdiff' in quantity:
-                function[0]((d_axes['deltaeta'][0], d_axes['deltaeta'][1]), d_axes['deltaeta'][2] % plotbase.nicetext(quantity.replace("etaabsdiff","")) , d_axes['deltaeta'][3]) 
+                function[0]((d_axes['deltaeta'][0], d_axes['deltaeta'][1]), d_axes['deltaeta'][2] % plotbase.nicetext(quantity.replace("etaabsdiff", "")), d_axes['deltaeta'][3])
             elif 'abseta' in quantity:
-                function[0]((d_axes['abseta'][0], d_axes['abseta'][1]), d_axes['abseta'][2] % plotbase.nicetext(quantity.replace("abseta","")) , d_axes['abseta'][3]) 
+                function[0]((d_axes['abseta'][0], d_axes['abseta'][1]), d_axes['abseta'][2] % plotbase.nicetext(quantity.replace("abseta", "")), d_axes['abseta'][3])
             else:
-                function[0]((d_axes['eta'][0], d_axes['eta'][1]), d_axes['eta'][2] % plotbase.nicetext(quantity.replace("eta","")) , d_axes['eta'][3]) 
+                function[0]((d_axes['eta'][0], d_axes['eta'][1]), d_axes['eta'][2] % plotbase.nicetext(quantity.replace("eta", "")), d_axes['eta'][3])
         elif 'deltar' in quantity:
-            function[0]((d_axes['deltar'][0], d_axes['deltar'][1]), d_axes['deltar'][2] % (plotbase.nicetext(quantity.replace("deltar-","").split("-")[0]), 
-                    plotbase.nicetext(quantity.replace("deltar-","").split("-")[1])), d_axes['deltar'][3]) 
+            function[0]((d_axes['deltar'][0], d_axes['deltar'][1]), d_axes['deltar'][2] % (plotbase.nicetext(quantity.replace("deltar-", "").split("-")[0]),
+                    plotbase.nicetext(quantity.replace("deltar-", "").split("-")[1])), d_axes['deltar'][3])
         elif 'events' == quantity:
             function[0](bottom=0.0, quantity="Events")
         elif 'cut' in quantity:
-            function[0]((d_axes['cut'][0], d_axes['cut'][1]), d_axes['cut'][2] % plotbase.nicetext(quantity.replace("cut-","")), d_axes['cut'][3]) 
+            function[0]((d_axes['cut'][0], d_axes['cut'][1]), d_axes['cut'][2] % plotbase.nicetext(quantity.replace("cut-", "")), d_axes['cut'][3])
         elif 'fraction' in quantity and 'MET' not in quantity:
             function[0]((d_axes[quantity[4:-8]][0], d_axes[quantity[4:-8]][1]), d_axes[quantity[4:-8]][2] % plotbase.nicetext(quantity[:4]), d_axes[quantity[4:-8]][3])
         elif quantity == 'ratio':
-            function[0]((d_axes['ratio'][0], d_axes['ratio'][1]), d_axes['ratio'][2] % (labels[0], labels[1]), d_axes['ratio'][3]) 
+            function[0]((d_axes['ratio'][0], d_axes['ratio'][1]), d_axes['ratio'][2] % (labels[0], labels[1]), d_axes['ratio'][3])
         elif 'filters' in quantity:
             function[1](range(13))
-            function[2](["ECAL DeadCellB", "ECAL DeadCellT", "Beam Halo", "Beam Scraping", "ECAL Laser", "ECAL Supercrystal", "ECAL Noise", "Muon Greedy", "HCAL Laser", "HCAL Noise", "Muon Inconsistent", "Tracking Failure", "All Filters"], rotation = 90)
+            function[2](["ECAL DeadCellB", "ECAL DeadCellT", "Beam Halo", "Beam Scraping", "ECAL Laser", "ECAL Supercrystal", "ECAL Noise", "Muon Greedy", "HCAL Laser", "HCAL Noise", "Muon Inconsistent", "Tracking Failure", "All Filters"], rotation=90)
             function[0]((d_axes[quantity][0], d_axes[quantity][1]), d_axes[quantity][2], d_axes[quantity][3])
         elif quantity in d_axes:     # if no special options, read from dictionary
             function[0]((d_axes[quantity][0], d_axes[quantity][1]), d_axes[quantity][2], d_axes[quantity][3])
         else:
-            print '"'+quantity + '" is not defined and therefore directly written to label.'
+            print '"' + quantity + '" is not defined and therefore directly written to label.'
             function[0](quantity=quantity)
     return ax
+
 
 def getaxislabels_list(quantity, ax=None):
 # can we integrate this function somehow into axislabels??
@@ -330,35 +343,35 @@ def getaxislabels_list(quantity, ax=None):
     # lower limit, upper limit, label, unit
     if 'phi' in quantity:
         if 'deltaphi' in quantity:
-           labels_list = [d_axes['deltaphi'][0], d_axes['deltaphi'][1], d_axes['deltaphi'][2] % (plotbase.nicetext(quantity.replace("deltaphi-","").split("-")[0]), 
-                        plotbase.nicetext(quantity.replace("deltaphi-","").split("-")[1])), d_axes['deltaphi'][3]]
+            labels_list = [d_axes['deltaphi'][0], d_axes['deltaphi'][1], d_axes['deltaphi'][2] % (plotbase.nicetext(quantity.replace("deltaphi-", "").split("-")[0]),
+                        plotbase.nicetext(quantity.replace("deltaphi-", "").split("-")[1])), d_axes['deltaphi'][3]]
         elif 'phiabsdiff' in quantity:
-             labels_list = [d_axes['phiabsdiff'][0], d_axes['phiabsdiff'][1], d_axes['phiabsdiff'][2] % plotbase.nicetext(quantity.replace("phiabsdiff","")),
+            labels_list = [d_axes['phiabsdiff'][0], d_axes['phiabsdiff'][1], d_axes['phiabsdiff'][2] % plotbase.nicetext(quantity.replace("phiabsdiff", "")),
                         d_axes['phiabsdiff'][3]]
         elif 'abs' in quantity:
-            labels_list = [d_axes['absphi'][0], d_axes['absphi'][1], d_axes['absphi'][2] % 
-                        plotbase.nicetext(quantity.replace("abs_","").replace("_phi","")) , d_axes['absphi'][3]]
+            labels_list = [d_axes['absphi'][0], d_axes['absphi'][1], d_axes['absphi'][2] %
+                        plotbase.nicetext(quantity.replace("abs_", "").replace("_phi", "")), d_axes['absphi'][3]]
         else:
-                labels_list = [d_axes['phi'][0], d_axes['phi'][1], d_axes['phi'][2] % plotbase.nicetext(quantity.replace("phi","")) , d_axes['phi'][3]]
+                labels_list = [d_axes['phi'][0], d_axes['phi'][1], d_axes['phi'][2] % plotbase.nicetext(quantity.replace("phi", "")), d_axes['phi'][3]]
     elif  quantity.endswith('eta'):
         if 'deltaeta' in quantity:
-            labels_list = [d_axes['deltaeta'][0], d_axes['deltaeta'][1], d_axes['deltaeta'][2] % (plotbase.nicetext(quantity.replace("deltaeta-","").split("-")[0]),
-                         plotbase.nicetext(quantity.replace("deltaeta-","").split("-")[1])), d_axes['deltaeta'][3]]
+            labels_list = [d_axes['deltaeta'][0], d_axes['deltaeta'][1], d_axes['deltaeta'][2] % (plotbase.nicetext(quantity.replace("deltaeta-", "").split("-")[0]),
+                         plotbase.nicetext(quantity.replace("deltaeta-", "").split("-")[1])), d_axes['deltaeta'][3]]
         elif 'etaabsdiff' in quantity:
-            labels_list = [d_axes['deltaeta'][0], d_axes['deltaeta'][1], d_axes['deltaeta'][2] % plotbase.nicetext(quantity.replace("etaabsdiff","")) , d_axes['deltaeta'][3]]
+            labels_list = [d_axes['deltaeta'][0], d_axes['deltaeta'][1], d_axes['deltaeta'][2] % plotbase.nicetext(quantity.replace("etaabsdiff", "")), d_axes['deltaeta'][3]]
         elif 'abseta' in quantity:
-            labels_list = [d_axes['abseta'][0], d_axes['abseta'][1], d_axes['abseta'][2] % plotbase.nicetext(quantity.replace("abseta","")) , d_axes['abseta'][3]]
+            labels_list = [d_axes['abseta'][0], d_axes['abseta'][1], d_axes['abseta'][2] % plotbase.nicetext(quantity.replace("abseta", "")), d_axes['abseta'][3]]
         else:
-            labels_list = [d_axes['eta'][0], d_axes['eta'][1], d_axes['eta'][2] % plotbase.nicetext(quantity.replace("eta","")) , d_axes['eta'][3]]
+            labels_list = [d_axes['eta'][0], d_axes['eta'][1], d_axes['eta'][2] % plotbase.nicetext(quantity.replace("eta", "")), d_axes['eta'][3]]
     elif 'deltar' in quantity:
-        labels_list = [d_axes['deltar'][0], d_axes['deltar'][1], d_axes['deltar'][2] % (plotbase.nicetext(quantity.replace("deltar-","").split("-")[0]), 
-                    plotbase.nicetext(quantity.replace("deltar-","").split("-")[1])), d_axes['deltar'][3]]
+        labels_list = [d_axes['deltar'][0], d_axes['deltar'][1], d_axes['deltar'][2] % (plotbase.nicetext(quantity.replace("deltar-", "").split("-")[0]),
+                    plotbase.nicetext(quantity.replace("deltar-", "").split("-")[1])), d_axes['deltar'][3]]
     elif 'fraction' in quantity and 'MET' not in quantity:
         labels_list = [d_axes[quantity[4:-8]][0], d_axes[quantity[4:-8]][1], d_axes[quantity[4:-8]][2] % plotbase.nicetext(quantity[:4]), d_axes[quantity[4:-8]][3]]
     elif quantity in d_axes:
-        labels_list = [d_axes[quantity][0], d_axes[quantity][1], d_axes[quantity][2] , d_axes[quantity][3]]
+        labels_list = [d_axes[quantity][0], d_axes[quantity][1], d_axes[quantity][2], d_axes[quantity][3]]
     else:
-        labels_list =  [0,1,quantity, ""]
+        labels_list = [0, 1, quantity, ""]
     return labels_list
 
 
@@ -378,6 +391,6 @@ def unitformat(quantity="", unit="", brackets=False):
         if brackets:        # units with [] (not allowed by SI system!)
             quantity = r"%s [%s]" % (quantity, unit)
         else:                # units with /
-           quantity = r"%s / %s" % (quantity, unit)
+            quantity = r"%s / %s" % (quantity, unit)
     #print "The axis legend string is:", repr(quantity)
     return quantity
