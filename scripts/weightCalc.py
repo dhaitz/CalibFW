@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import ROOT
-ROOT.PyConfig.IgnoreCommandLineOptions = True #prevents Root from reading argv
+ROOT.PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
 import argparse
 import subprocess
 import json
@@ -45,7 +45,7 @@ def main():
               "reweighting.".format(sum(mc),
                   sum(map(lambda a, b: a * b, mc, weights))))
     if not op.key:
-        op.key = mckey[7:-5]+"_"+datakey[7:-5]
+        op.key = mckey[7:-5] + "_" + datakey[7:-5]
     addWeightsToFile(op.key, weights, op.mcXsec, op.output)
 
 
@@ -90,7 +90,7 @@ def printWeights(weights, nice=False):
         print s
 
 
-def getDataDistribution(files, lumijson, xsec=69.3, numpu=70, histo="pileup", outfile=None,  verbose=False):
+def getDataDistribution(files, lumijson, xsec=69.3, numpu=70, histo="pileup", outfile=None, verbose=False):
     """Get the true Data PU from the official PU-json
 
        The "true" (or "observed") PU in data is estimated using this method:
@@ -117,16 +117,16 @@ def getDataDistribution(files, lumijson, xsec=69.3, numpu=70, histo="pileup", ou
                 outfile = "pileup_" + outfile[5:-25] + outfile[-7:-4] + ".root"
             else:
                 outfile = "pileup_" + outfile[5:-22] + ".root"
-        cmd=["pileupCalc.py", "-i", files, "--inputLumiJSON", lumijson, "--calcMode", "true", "--minBiasXsec", str(int(xsec*1000)), "--maxPileupBin", str(numpu+1), "--numPileupBins", str(numpu+1), outfile]
+        cmd = ["pileupCalc.py", "-i", files, "--inputLumiJSON", lumijson, "--calcMode", "true", "--minBiasXsec", str(int(xsec * 1000)), "--maxPileupBin", str(numpu + 1), "--numPileupBins", str(numpu + 1), outfile]
         print " ".join([str(s) for s in cmd])
         subprocess.call(cmd)
 
     result = getDistributionFromFile(outfile, histo)
     for i in range(len(result)):
         if result[i] > 0.0:
-            mx=i
-    result = result[0:mx+1]
-    print "INFO: There are 0.."+str(mx+1), "vertices calculated in Data."
+            mx = i
+    result = result[0:mx + 1]
+    print "INFO: There are 0.." + str(mx + 1), "vertices calculated in Data."
     return result, outfile
 
 
@@ -151,26 +151,26 @@ def getMCDistribution(source, histo="pu", outfile=None, verbose=False):
     else:
         print "This MC distribution could not be found!"
         assert False
-    mx=0
+    mx = 0
     for i in range(len(result)):
         if result[i] > 0.0:
-            mx=i
-    result = result[0:mx+1]
+            mx = i
+    result = result[0:mx + 1]
     s = sum(result)
-    print "INFO: There are 0.."+str(mx+1), "vertices calculated in MC."
+    print "INFO: There are 0.." + str(mx + 1), "vertices calculated in MC."
     result = [w / s for w in result]
     return result, outfile
 
 
 def getDistributionFromSkim(filelist, outputfile=None, numpu=70, save=True, step=1.0, histo="pileup"):
     print "____________________________________________"
-    print "MC pile-up distribution from skim ("+str(len(filelist))+" file(s)):", filelist[0], "etc."
-    chain = ROOT.TChain("Events");
+    print "MC pile-up distribution from skim (" + str(len(filelist)) + " file(s)):", filelist[0], "etc."
+    chain = ROOT.TChain("Events")
     for f in filelist:
         chain.Add(f)
 
-    npu = ROOT.TH1D(histo, "Number of Pile-Up", int(step*numpu)+1, 0.0, numpu+1)
-    chain.Draw("KEventMetadata.numPUInteractionsTruth >> "+histo)
+    npu = ROOT.TH1D(histo, "Number of Pile-Up", int(step * numpu) + 1, 0.0, numpu + 1)
+    chain.Draw("KEventMetadata.numPUInteractionsTruth >> " + histo)
     result = [npu.GetBinContent(i) for i in range(1, npu.GetNbinsX())]
     print result
     if not outputfile:
@@ -212,7 +212,7 @@ def addWeightsToFile(key, weights, xsec, filename, warnOnOverwrite=False):
         print filename, "does not exist and will be created."
         dic = {}
     if warnOnOverwrite and key in dic:
-        print "There are already weights for", key+". Do you wan to overwrite these [Y/n]:"
+        print "There are already weights for", key + ". Do you wan to overwrite these [Y/n]:"
         print dic[key]
         print "with"
         print {"weights": weights, "xsection": xsec}
