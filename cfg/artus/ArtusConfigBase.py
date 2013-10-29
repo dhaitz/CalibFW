@@ -8,7 +8,6 @@ The most used functions are:
   - Run to acutally call artus and run it
 """
 import copy
-import subprocess
 import glob
 import socket
 import ConfigParser
@@ -16,21 +15,6 @@ import os
 import stat
 import getpass
 import json
-
-
-def CreateFileList(wildcardExpression, args=None):
-    print "Creating file list from " + wildcardExpression
-    inputfiles = glob.glob(wildcardExpression)
-
-    if args is not None and len(args) > 1 and "--fast" == args[1]:
-        try:
-            if len(args) > 3:
-                inputfiles = inputfiles[int(args[2]):int(args[3])]
-            else:
-                inputfiles = inputfiles[-int(args[2]):]
-        except:
-            inputfiles = inputfiles[-3:]
-    return inputfiles
 
 
 def FindFileInList(conf, number):
@@ -41,35 +25,6 @@ def FindFileInList(conf, number):
 
 def GetDefaultBinning():
     return [30, 40, 50, 60, 75, 95, 125, 180, 300, 1000]
-
-
-def GetCMSSWPath(variable='CMSSW_BASE'):
-    """Return the path of the sourced CMSSW release."""
-    try:
-        return os.environ[variable] + "/"
-    except:
-        print variable, "is not in shell variables:", os.environ.keys()
-        print "Please source CMSSW!"
-        exit(1)
-
-
-def GetBasePath(variable='EXCALIBUR_BASE'):
-    """Return the path of the Excalibur repository (CalibFW)."""
-    try:
-        return os.environ[variable] + "/"
-    except:
-        print variable, "is not in shell variables:", os.environ.keys()
-        print "Please source scripts/ini_excalibur!"
-        exit(1)
-
-
-def GetWorkPath():
-    """Return work path if the shell variable 'EXCALIBUR_WORK' is set."""
-    try:
-        return os.environ['EXCALIBUR_WORK'] + "/"
-    except:
-        print "WorkPath is not set. BasePath is used instead."
-        return GetBasePath()
 
 
 def getPath(variable='EXCALIBUR_BASE', nofail=False):
@@ -164,10 +119,10 @@ def SetMcSpecific(cfg, run='2012'):
       - additional producers
     """
     if run == '2011':
-        cfg['Jec'] = GetBasePath() + "data/jec/START44_V12"
+        cfg['Jec'] = getPath() + "/data/jec/START44_V12"
         ApplyPUReweighting(cfg, 'mc11_160404-180252_7TeV_ReRecoNov08_v2')
     elif run == '2012':
-        cfg['Jec'] = GetBasePath() + "data/jec/Summer13_V5_MC"
+        cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_MC"
         cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
         ApplyPUReweighting(cfg, 'kappa539_MC12_madgraph_190456-208686_8TeV_22Jan2013ReReco')
     else:
@@ -192,8 +147,8 @@ def SetDataSpecific(cfg, run='2012'):
     """
     d = {}
     if run == '2011':
-        cfg['Jec'] = GetBasePath() + "data/jec/GR_R_44_V13"
-        cfg['JsonFile'] = GetBasePath() + "data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON_v2.txt"
+        cfg['Jec'] = getPath() + "/data/jec/GR_R_44_V13"
+        cfg['JsonFile'] = getPath() + "/data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON_v2.txt"
         cfg['HltPaths'] = [
             # Mu7 Trigger
             "HLT_DoubleMu7_v1", "HLT_DoubleMu7_v2", "HLT_DoubleMu7_v3", "HLT_DoubleMu7_v4", "HLT_DoubleMu7_v5",
@@ -209,9 +164,9 @@ def SetDataSpecific(cfg, run='2012'):
 
             ]
     elif run == '2012':
-        cfg['Jec'] = GetBasePath() + "data/jec/Summer13_V5_DATA"
+        cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_DATA"
         cfg['MetPhiCorrectionParameters'] = [0.2661, 0.3217, -0.2251, -0.1747]
-        cfg['JsonFile'] = GetBasePath() + "data/json/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt"
+        cfg['JsonFile'] = getPath() + "/data/json/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt"
         cfg['HltPaths'] = [
             "HLT_Mu17_Mu8_v1", "HLT_Mu17_Mu8_v2", "HLT_Mu17_Mu8_v3", "HLT_Mu17_Mu8_v4", "HLT_Mu17_Mu8_v5",
             "HLT_Mu17_Mu8_v6", "HLT_Mu17_Mu8_v7", "HLT_Mu17_Mu8_v8", "HLT_Mu17_Mu8_v9", "HLT_Mu17_Mu8_v10",
