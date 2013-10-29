@@ -251,7 +251,7 @@ def treeconfig(conf, quantities=None):
     for p, pval in conf["Pipelines"].items():
         if quantities == None:
             pval['QuantitiesVector'] = ["zpt", "zeta", "zy",
-             "zphi", "zmass", "npv", "rho",
+                 "zphi", "zmass", "npv", "rho",
                  "run", "weight", "jet1pt", "jet1eta", "jet1phi", "mpf", "rawmpf",
                  "METpt", "METphi", "rawMETpt", "rawMETphi", "sumEt", "jet1photonfraction",
                  "jet1chargedemfraction", "jet1chargedhadfraction", "jet1neutralhadfraction",
@@ -270,9 +270,9 @@ def treeconfig(conf, quantities=None):
                     "softmuonbyptbjettag", "simplesecondaryvertexbjettag",
                     "combinedsecondaryvertexbjettag", "combinedsecondaryvertexmvabjettag",
                     "jet1puJetFull", "jet1puJetIDFull", "jet1puJetIDFullLoose", "jet1puJetIDFullMedium", "jet1puJetIDFullTight",
-                    "jet1puJetCutBased", "jet1puJetIDCutBased", "jet1puJetIDCutBasedLoose", "jet1puJetIDCutBasedMedium", "jet1puJetIDCutBasedTight",
+                    "jet1puJetCutbased", "jet1puJetIDCutbased", "jet1puJetIDCutbasedLoose", "jet1puJetIDCutbasedMedium", "jet1puJetIDCutbasedTight",
                     "jet2puJetFull", "jet2puJetIDFull", "jet2puJetIDFullLoose", "jet2puJetIDFullMedium", "jet2puJetIDFullTight",
-                    "jet2puJetCutBased", "jet2puJetIDCutBased", "jet2puJetIDCutBasedLoose", "jet2puJetIDCutBasedMedium", "jet2puJetIDCutBasedTight",
+                    "jet2puJetCutbased", "jet2puJetIDCutbased", "jet2puJetIDCutbasedLoose", "jet2puJetIDCutbasedMedium", "jet2puJetIDCutbasedTight",
                 ]
             if conf['InputType'] == 'mc':
                 pval['QuantitiesVector'] += [
