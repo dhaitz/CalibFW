@@ -80,13 +80,13 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
         'HcalCorrection': 0.0,
         'Jec': "default",
         'JsonFile': "default",
-        'InputFiles': [],
-        'OutputPath': "out",  # "artus_" + inputtype + "_" + run,
+        'InputFiles': [],     # overridden
+        'OutputPath': "out",  # overridden
         'MuonID2011': (run == '2011'),
         'Pipelines': {
             'default': {
                 'Level': 1,
-                'JetAlgorithm': "default",
+                'JetAlgorithm': "AK5PFJetsCHSL1L2L3",
                 'RootFileFolder': "",
                 'Treename': "default",
                 'Consumer': {},
@@ -227,10 +227,8 @@ def GetCuts(analysis='zjet'):
         'zjet': {
             'GenCuts': False,
             'Cuts': [
-                'secondleading_to_zpt',
                 'zpt',
                 'leadingjet_pt',
-                'leadingjet_eta',
                 'muon_eta',
                 'muon_pt',
                 'zmass_window',
@@ -332,8 +330,10 @@ def treeconfig(conf, quantities=None):
         #    new_quantities += [artus_dict[q]]
         #pval['QuantitiesVector'] = new_quantities
 
-        pval['Cuts'].remove("leadingjet_eta")
-        pval['Cuts'].remove("secondleading_to_zpt")
+        if 'leadingjet_eta' in pval['Cuts']:
+            pval['Cuts'].remove("leadingjet_eta")
+        if 'leadingjet_eta' in pval['Cuts']:
+            pval['Cuts'].remove("secondleading_to_zpt")
 
         pval['Treename'] = pval['RootFileFolder'][10:]
         pval['RootFileFolder'] = ""
