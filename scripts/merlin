@@ -281,7 +281,7 @@ if __name__ == "__main__":
 
     if op.www:
         subprocess.call(['. plotsync.sh'], shell=True)
-        sys.exit(0)
+        exit(0)
 
     if op.live:
         imageviewer = 'evince'

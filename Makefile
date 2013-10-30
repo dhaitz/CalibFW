@@ -5,9 +5,6 @@
 
 ROOTCFLAGS     = $(shell root-config --cflags)
 ROOTLDFLAGS    = $(shell root-config --ldflags --libs)
-BOOSTPATH      = /wlcg/sw/boost/current/
-KAPPAPATH      = ../Kappa/
-KAPPATOOLSPATH = ../KappaTools/
 
 PROJECT        = Excalibur
 EXECUTABLE     = artus
@@ -22,6 +19,9 @@ LDFLAGS        = $(ROOTLDFLAGS) -lGenVector\
 
 OBJECTS = $(patsubst %.cc,%.o,$(wildcard\
 	src/*.cc src/*/*.cc external/OfflineCorrection/CondFormats/JetMETObjects/src/*Corr*.cc))
+
+HEADERS = $(wildcard src/*.h src/*/*.h\
+	external/OfflineCorrection/CondFormats/JetMETObjects/src/*Corr*.h)
 
 $(EXECUTABLE): $(OBJECTS)
 	@echo "Linking" $(EXECUTABLE)":"
