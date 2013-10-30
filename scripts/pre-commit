@@ -1,7 +1,7 @@
 #!/bin/bash
 # -*- coding: utf8 -*-
 
-PEPIGNORE=W191,E501
+PEPIGNORE=W191,W391,E501
 CPPOPTIONS=$EXCALIBUR_BASE/scripts/astylerc
 PATH=$PATH:/home/berger/sw/bin
 
