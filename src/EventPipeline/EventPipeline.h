@@ -118,7 +118,7 @@ public:
 	{
 		std::stringstream s;
 		s << "== Pipeline Settings: " << std::endl;
-		s << m_pipelineSettings.ToString() << std::endl;
+		s << m_pipelineSettings.GetName() << std::endl;
 		s << "== Pipeline Filter: ";
 
 		for (FilterVectorIterator itfilter = m_filter.begin();

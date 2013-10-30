@@ -123,7 +123,7 @@ public:
 					{
 						if (unlikely(nEvents - firstEvent < 5)) // debug output
 							LOG("Event:" << i
-								<< ", new pipeline: " << it->GetSettings().ToString()
+								<< ", new pipeline: " << it->GetSettings().GetName()
 								<< ", algorithm: " << it->GetSettings().GetJetAlgorithm());
 						it->RunEvent(evtProvider.GetCurrentEvent(), metaDataGlobal);
 					}

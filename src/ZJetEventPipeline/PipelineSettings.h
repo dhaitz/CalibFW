@@ -81,6 +81,7 @@ public:
 
 	IMPL_PROPERTY(boost::property_tree::ptree*, PropTree)
 	IMPL_PROPERTY(std::string, SettingsRoot)
+	IMPL_SETTING(std::string, Name)
 	IMPL_PROPERTY(unsigned long, OverallNumberOfProcessedEvents)
 
 	IMPL_SETTING(bool, EnableCaloMatching)
@@ -132,8 +133,9 @@ public:
 		return s;
 	}
 
-	IMPL_SETTING(std::string, RootFileFolder)
+
 	IMPL_SETTING(std::string, Treename)
+	IMPL_SETTING(std::string, RootFileFolder)
 	IMPL_SETTING(std::string, QuantitiesString)
 	IMPL_SETTING(std::string, SecondLevelFolderTemplate)
 
