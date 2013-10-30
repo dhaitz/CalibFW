@@ -38,6 +38,7 @@ public:
 			assert(data.m_geneventmetadata != NULL);
 			weight *= m_pipelineSettings.Global()->GetPuReweighting().at(
 						int(data.m_geneventmetadata->numPUInteractionsTruth + 0.5));
+			//weight *= m_pipelineSettings.Global()->GetPuHisto().Interpolate(data.m_geneventmetadata->numPUInteractionsTruth)
 		}
 
 		// 2nd jet pt reweighting
