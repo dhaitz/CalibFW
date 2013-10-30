@@ -8,5 +8,3 @@ def config():
     #base.pipelinediff(conf)
     return conf
 
-def get_template():
-    return config()

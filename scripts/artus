@@ -24,7 +24,7 @@ def artus():
     # make json config
     if not options.isjson:
         custom = imp.load_source("config", options.cfg)
-        conf = custom.get_template()
+        conf = custom.config()
         conf["InputFiles"] = createFileList(conf["InputFiles"], options.fast)
         if conf["OutputPath"] == "out":
             conf["OutputPath"] = options.out
@@ -260,12 +260,10 @@ def createRunfile(configjson, filename='test.sh', original=None):
 
 
 def showMessage(title, message):
-    if "ekplx" not in getPath('USERPC'):
-        return
     userpc = "%s@%s" % (getPath('USER'), getPath('USERPC'))
     iconpath = '/usr/users/dhaitz/excalibur/excal_small.jpg'
     try:
-        if 'ekp' in userpc:
+        if 'ekplx' in userpc:
             subprocess.call(['ssh', userpc,
                 'DISPLAY=:0 notify-send "%s" "%s" -i %s' % (title, message, iconpath)])
     except:

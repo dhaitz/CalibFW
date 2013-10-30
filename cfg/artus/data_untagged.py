@@ -1,14 +1,8 @@
 import ArtusConfigBase as base
 
 
-def get_template(algo="AK5PFJets"):
-    conf = base.BaseConfig('data', '2012')
+def config():
+    conf = base.BaseConfig('data', '2012', tagged=False)
     conf["InputFiles"] = "/storage/6/berger/zpj/kappa539_Data12/*.root"
-
-    algorithms = [algo + "CHSL1L2L3", algo + "CHSL1L2L3Res"]
-    base_algorithms = [algo, algo + "CHS"]
-
-    conf = base.ExpandConfig(algorithms, conf, expandptbins=False, addResponse=False)
-    conf['Tagged'] = False
-    conf = base.treeconfig(conf)
+    conf = base.expand(conf, ['all', 'zcuts'])
     return conf
