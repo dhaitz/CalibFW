@@ -64,28 +64,37 @@ private:
 
 	enum type
 	{
-		npv, npu, nputruth, rho, run, weight, zpt, zeta, zphi, zy, zmass, jet1pt, jet1eta, jet1phi,
+		// event variables
+		npv, npu, nputruth, rho, run, weight, eventnr, lumisec,
+		uept, uephi, ueeta, mpf, rawmpf,  genmpf,
+		// muons, Z, MET
+		mupluspt, mupluseta, muplusphi, muminuspt, muminuseta, muminusphi,
+		zpt, zeta, zphi, zy, zmass, genzpt,
+		METpt, METphi, sumEt, rawMETpt, rawMETphi,
+		// jets
+		jet1pt, jet1eta, jet1phi,
 		jet1photonfraction, jet1chargedemfraction, jet1chargedhadfraction,
 		jet1neutralhadfraction, jet1muonfraction, jet1HFhadfraction,
-		jet1HFemfraction, jet2pt, jet2phi, jet2eta, METpt, METphi, sumEt,
-		rawMETpt, rawMETphi, uept, uephi, ueeta, mpf, rawmpf, otherjetspt,
-		otherjetsphi, otherjetseta, genjet1pt, genjet1eta, genjet1phi,
-		matchedgenjet1pt, genjet2pt, genzpt, genmpf, algoflavour, physflavour,
-		mupluspt, mupluseta, muplusphi, muminuspt, muminuseta, muminusphi,
-		pionpt, kshortpt, neutralpt, neutralptnocut, algopartonpt,
-		subleadingjetspt, subleadingjetsphi,
+		jet1HFemfraction,
+		jet1puJetFull, jet1puJetIDFull, jet1puJetIDFullLoose, jet1puJetIDFullMedium, jet1puJetIDFullTight,
+		jet1puJetCutbased, jet1puJetIDCutbased, jet1puJetIDCutbasedLoose, jet1puJetIDCutbasedMedium, jet1puJetIDCutbasedTight,
 		qglikelihood, qgmlp, trackcountinghigheffbjettag,
 		trackcountinghighpurbjettag, jetprobabilitybjettag,
 		jetbprobabilitybjettag, softelectronbjettag, softmuonbjettag,
 		softmuonbyip3dbjettag, softmuonbyptbjettag, simplesecondaryvertexbjettag,
-		combinedsecondaryvertexbjettag,  combinedsecondaryvertexmvabjettag,
-		jet1puJetFull, jet1puJetIDFull, jet1puJetIDFullLoose, jet1puJetIDFullMedium, jet1puJetIDFullTight,
-		jet1puJetCutbased, jet1puJetIDCutbased, jet1puJetIDCutbasedLoose, jet1puJetIDCutbasedMedium, jet1puJetIDCutbasedTight,
+		combinedsecondaryvertexbjettag, combinedsecondaryvertexmvabjettag,
+		algoflavour, physflavour, algopartonpt, pionpt, kshortpt, neutralpt, neutralptnocut,
+		jet2pt, jet2phi, jet2eta,
 		jet2puJetFull, jet2puJetIDFull, jet2puJetIDFullLoose, jet2puJetIDFullMedium, jet2puJetIDFullTight,
 		jet2puJetCutbased, jet2puJetIDCutbased, jet2puJetIDCutbasedLoose, jet2puJetIDCutbasedMedium, jet2puJetIDCutbasedTight,
-		eventnr, lumisec,
+		subleadingjetspt, subleadingjetsphi,
+		genjet1pt, genjet1eta, genjet1phi,
+		genjet2pt,
+		otherjetspt, otherjetsphi, otherjetseta,
+		matchedgenjet1pt,
 		none
 	} var;
+
 
 	float returnvalue(std::string string, ZJetEventData const& event,
 					  ZJetMetaData const& metaData, ZJetPipelineSettings const& s)
