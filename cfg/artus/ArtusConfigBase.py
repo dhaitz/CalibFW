@@ -88,7 +88,33 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
                 'Level': 1,
                 'JetAlgorithm': "default",
                 'RootFileFolder': "",
+                'Treename': "default",
                 'Consumer': {},
+                'QuantitiesVector':
+                 ["zpt", "zeta", "zy",
+                 "zphi", "zmass", "npv", "rho",
+                 "run", "weight", "jet1pt", "jet1eta", "jet1phi", "mpf", "rawmpf",
+                 "METpt", "METphi", "rawMETpt", "rawMETphi", "sumEt", "jet1photonfraction",
+                 "jet1chargedemfraction", "jet1chargedhadfraction", "jet1neutralhadfraction",
+                 "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
+                 "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta",
+                 "otherjetspt", "otherjetseta", "otherjetsphi",
+                 "mupluspt", "mupluseta", "muplusphi",
+                 "muminuspt", "muminuseta", "muminusphi"
+
+                 # tagged
+                 "qglikelihood", "qgmlp", "trackcountinghigheffbjettag",
+                 "trackcountinghighpurbjettag", "jetprobabilitybjettag",
+                 "jetbprobabilitybjettag", "softelectronbjettag",
+                 "softmuonbjettag", "softmuonbyip3dbjettag",
+                 "softmuonbyptbjettag", "simplesecondaryvertexbjettag",
+                 "combinedsecondaryvertexbjettag", "combinedsecondaryvertexmvabjettag",
+                 "jet1puJetFull", "jet1puJetIDFull", "jet1puJetIDFullLoose", "jet1puJetIDFullMedium", "jet1puJetIDFullTight",
+                 "jet1puJetCutbased", "jet1puJetIDCutbased", "jet1puJetIDCutbasedLoose", "jet1puJetIDCutbasedMedium", "jet1puJetIDCutbasedTight",
+                 "jet2puJetFull", "jet2puJetIDFull", "jet2puJetIDFullLoose", "jet2puJetIDFullMedium", "jet2puJetIDFullTight",
+                 "jet2puJetCutbased", "jet2puJetIDCutbased", "jet2puJetIDCutbasedLoose", "jet2puJetIDCutbasedMedium", "jet2puJetIDCutbasedTight",
+                ]
+            
             }
         },
         'InputType': inputtype,
@@ -104,8 +130,12 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
     else:
         print "The inputtype must be either 'data' or 'mc'."
         exit(1)
+     
+    # at the end
+    config['Pipelines']['default']['QuantitiesString'] = ":".join(config['Pipelines']['default']['QuantitiesVector'])
 
-    AddConsumerNoConfig(config['Pipelines']['default'], 'quantities_all')
+    #print config
+    #AddConsumerNoConfig(config['Pipelines']['default'], 'quantities_all')
     return config
 
 
@@ -129,6 +159,12 @@ def SetMcSpecific(cfg, run='2012'):
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
 
+    cfg['Pipelines']['default']['QuantitiesVector'] += [
+                    "npu", "nputruth",
+                    "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
+                    "matchedgenjet1pt", "genmpf",
+                    "algoflavour", "physflavour",
+    ]
     cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'weight_producer', 'flavour_producer']
     cfg['EnableLumiReweighting'] = True
     cfg['NEvents'] = 30459503
@@ -178,6 +214,7 @@ def SetDataSpecific(cfg, run='2012'):
         print "Run period", run, "is undefined. No json and jet corrections known."
         exit(1)
 
+    cfg['Pipelines']['default']['QuantitiesVector'] += ['eventnr', 'lumisec']
     cfg['Pipelines']['default']['Filter'].append('json')
     cfg['Pipelines']['default']['Filter'].append('hlt')
     cfg['GlobalProducer'] += ['hlt_selector']
