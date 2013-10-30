@@ -68,13 +68,13 @@ def options(
 
     # source options
     source = parser.add_argument_group('Source options')
-    parser.add_argument('--files', type=str, nargs='*',
+    parser.add_argument('-i', '--files', type=str, nargs='*',
         default=files,
         help="data and Monte Carlo input root file(s). One data file and at " +
-             "least one Monte Carlo file is assumed.")
+             "least one Monte Carlo file is assumed. Default: %(default)s")
     source.add_argument('--selection', '-S', type=str,
         default=None,
-        help='selection (cut) expression for C++ expressions are valid')
+        help='selection (cut) expression, C++ expressions are valid')
     source.add_argument('--folder', type=str,
         default='incut',
         help="folder in rootfile: 'incut' or 'allevents'")

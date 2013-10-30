@@ -28,8 +28,8 @@ if [ $USER = "dhaitz" ]; then
 elif [ $USER = "berger" ]; then
     export PATH=/home/berger/sw/bin:/home/berger/sw/grid-control:$PATH
     export EXCALIBUR_WORK=/storage/8/berger/excalibur
-    export DATA=/storage/a/dhaitz/excalibur/work/data/out/artus.root
-    export MC=/storage/a/dhaitz/excalibur/work/mc/out/artus.root
+    export DATA=/storage/8/berger/excalibur/artus/data/out.root
+    export MC=/storage/8/berger/excalibur/artus/mc/out.root
 fi
 
 # Use this to open a root file directly in the TBrowser
