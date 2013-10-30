@@ -100,7 +100,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
                  "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta",
                  "otherjetspt", "otherjetseta", "otherjetsphi",
                  "mupluspt", "mupluseta", "muplusphi",
-                 "muminuspt", "muminuseta", "muminusphi"
+                 "muminuspt", "muminuseta", "muminusphi",
 
                  # tagged
                  "qglikelihood", "qgmlp", "trackcountinghigheffbjettag",
@@ -245,7 +245,7 @@ def GetCuts(analysis='zjet'):
             'CutZPt': 30.0,
             'CutLeadingJetPt': 12.0,
 
-            'Filter': ['valid_z', 'valid_jet', 'metfilter'],
+            'Filter': ['valid_z', 'valid_jet', 'metfilter', 'incut'],
         },
         'vbf': {
             'GenCuts': False,
@@ -274,7 +274,7 @@ def GetCuts(analysis='zjet'):
             'CutRapidityGap': 4.0,
             'CutInvariantMass': 500.0,
 
-            'Filter': ['valid_z', 'valid_jet', 'metfilter'],
+            'Filter': ['valid_z', 'valid_jet', 'metfilter', 'incut'],
         },
     }
     if analysis not in cuts:
@@ -379,305 +379,72 @@ def ApplySampleReweighting(conf, sample="herwig", referencelumi_fbinv=1.0):
     return conf
 
 
-def check_if_add(pipelinename, algo, forIncut=True, forAllevents=False, forIncutVariations=False, forAlleventsVariations=False):
-    #function that determines whether a consumer/variation is added to a pipeline
-    check = ((forIncut and (pipelinename == "default_" + algo or pipelinename == "default_" + algo + "zcutsonly" or pipelinename == "default_" + algo + "alleta"))
-        or (forAllevents and pipelinename == "default_" + algo + "nocuts")
-        or (forIncutVariations and pipelinename is not "default_" + algo and "default_" + algo + "_" in pipelinename and "nocut" not in pipelinename)
-        or (forAlleventsVariations and pipelinename is not "default_" + algo + "nocuts" and "default_" + algo + "nocuts" in pipelinename))
-    return check
+def expand(config, variations=[], algorithms=[], default="default"):
+    """create pipelines for each algorithm times each variation"""
+    pipelines = config['Pipelines']
+    p = config['Pipelines'][default]
+    if p['JetAlgorithm'] not in algorithms:
+        algorithms.append(p['JetAlgorithm'])
+    
+    #find global algorithms
+    removelist = ["Jets", "L1", "L2", "L3", "Res", "Hcal", "Custom"]
+    for algo in algorithms:
+        for r in removelist:
+            algo = algo.replace(r, "")
+        if algo not in config["GlobalAlgorithms"]:
+            config["GlobalAlgorithms"].append(algo.replace("CHS", "chs"))
+    
+    # copy for variations
+    for v in variations:
+        if v == 'all':
+            pipelines[v] = copy.deepcopy(p)
+            pipelines[v]['Cuts'] = []
+            if 'incut' in pipelines[v]['Filter']:
+                    pipelines[v]['Filter'].remove('incut')
+        if v == 'zcuts':
+            pipelines[v] = copy.deepcopy(p)
+            removelist = ['leadingjet_pt', 'back_to_back']
+            for cut in removelist:
+                if cut in pipelines[v]['Cuts']:
+                    pipelines[v]['Cuts'].remove(cut)
+        if v == 'fullcuts':
+            pipelines[v] = copy.deepcopy(p)
+            pipelines[v]['Cuts'].append('leadingjet_eta')
+            pipelines[v]['Cuts'].append('secondleading_to_zpt')
+            pipelines[v]['CutLeadingJetEta'] = 1.3
+            pipelines[v]['CutSecondLeadingToZPt'] = 0.2
+
+    # rename template pipline default to incut
+    pipelines['incut'] = pipelines.pop(default)
+
+    # copy for algorithms
+    for name, p in pipelines.items():
+        for algo in algorithms:
+            pipelines[name + "_" + algo] = copy.deepcopy(p)
+            pipelines[name + "_" + algo]["JetAlgorithm"] = algo
+        del pipelines[name]
+
+    for name, p in pipelines.items():
+        p['Treename'] = name
+        p['Name'] = name
+    return config
+
+
+def pipelinediff(config, to=None):
+    print "Comparing", len(config['Pipelines']), "pipelines:"
+    if to == None:
+        to = filter(lambda x: 'incut' in x, config['Pipelines'].keys())[0]
+
+    for name, p in config['Pipelines'].items():
+        if name != to:
+            print "- Compare", name, "to", to
+            pipelinediff2(p, config['Pipelines'][to])
+    print
+
+
+def pipelinediff2(p1=None, p2=None):
+    for k, v in p1.items():
+        if k in p2.keys():
+            if p1[k] != p2[k]:
+                print "    different %s: %s != %s" %(k, str(p1[k]), str(p2[k]))
 
-
-def ExpandRange(pipelineDict, varName, vals,
-                setRootFolder=True, includeSource=True,
-                alsoForNoCuts=False, alsoForPtBins=True,
-                correction="L1L2L3", onlyBasicQuantities=True):
-    newDict = {}
-
-    for name, elem in pipelineDict.items():
-
-        if ((elem["Level"] == 1)
-                and ((not "nocuts" in name) or alsoForNoCuts)
-                and (correction in name)
-                and (alsoForPtBins or "NoBinning_incut" in elem["RootFileFolder"])
-                and ('zcutsonly' not in name)
-                and ('alleta' not in name)):
-            for v in vals:
-                newPipe = copy.deepcopy(elem)
-                newPipe[varName] = v
-
-                #only do basic plots
-                if onlyBasicQuantities:
-                    ReplaceWithQuantitiesBasic(newPipe)
-
-                varadd = "_var_" + varName + "_" + str(v).replace(".", "_")
-                newName = name + varadd
-                newRootFileFolder = newPipe["RootFileFolder"] + varadd
-                newDict[newName] = newPipe
-                if setRootFolder:
-                    newDict[newName]["RootFileFolder"] = newRootFileFolder
-
-    if includeSource:
-        return dict(pipelineDict.items() + newDict.items())
-    else:
-        return newDict
-
-
-def ExpandRange2(pipelines, filtername, low, high=None,
-                 foldername="var_{name}_{low}to{high}",
-                 includeSource=False, onlyOnIncut=True,
-                 alsoForPtBins=True,
-                 onlyForNocuts=False,
-                 onlyBasicQuantities=True,
-                 forAlleta=False):
-    """Add pipelines with values between low and high for filtername
-
-    This only works if the filter is lowercase and it uses two variables
-    called Filter<FilterName>Low/High
-    The foldername string can contain the variables {name}, {low} and {high}
-    """
-    newDict = {}
-    for pipeline, subdict in pipelines.items():
-        if (subdict["Level"] == 1
-                and (not onlyOnIncut or "incut" in subdict["RootFileFolder"])
-                and (alsoForPtBins or "NoBinning_incut" in subdict["RootFileFolder"])
-                and (not onlyForNocuts or 'allevents' in subdict["RootFileFolder"])
-                or (forAlleta and 'alleta' in subdict["RootFileFolder"])
-                ):
-
-            for l, h in zip(low, high or low):
-                # copy existing pipeline (subdict) and modify it
-                newpipe = copy.deepcopy(subdict)
-
-                #only do basic plots
-                if onlyBasicQuantities:
-                    ReplaceWithQuantitiesBasic(newpipe)
-                if filtername == "JetEta":
-                    newpipe["CutLeadingJetEta"] = 5.0
-
-                #print(new_pipe)
-                newpipe["Filter"].append(filtername.lower())
-                if high is None:
-                    foldername = foldername.replace("to{high}", "")
-                    newpipe["Filter" + filtername] = l
-                    if filtername == "Flavour":
-                        l = {1: "u", 2: "d", 3: "s", 4: "c", 5: "b", 6: "t", 21: "g", 123: "uds", 123456: "q"}[l]
-                else:
-                    newpipe["Filter" + filtername + "Low"] = l
-                    newpipe["Filter" + filtername + "High"] = h
-                f = foldername.format(name=filtername, low=l, high=h)
-                f = "_" + f.replace(".", "_")
-
-                newName = pipeline + f
-                newRootFileFolder = newpipe["RootFileFolder"] + f
-                newDict[newName] = newpipe
-                if foldername is not None:
-                    newDict[newName]["RootFileFolder"] = newRootFileFolder
-    if includeSource:
-        return dict(pipelines.items() + newDict.items())
-    else:
-        return newDict
-
-
-def ExpandRange2Cut(pipelines, cutname, low, high=None,
-                foldername="var_{name}_{low}to{high}",
-                includeSource=True, onlyOnIncut=True,
-                onlyBasicQuantities=True):
-    """Add pipelines with values between low and high for filtername.
-
-    This only works if the filter is lowercase and it uses two variables
-    called Filter<FilterName>Low/High.
-    The foldername string can contain the variables {name}, {low} and {high}.
-    """
-    newDict = {}
-    for pipeline, subdict in pipelines.items():
-        if subdict["Level"] == 1 and (not onlyOnIncut or
-                "incut" in subdict["RootFileFolder"]):
-            for l, h in zip(low, high):
-                # copy existing pipeline (subdict) and modify it
-                newpipe = copy.deepcopy(subdict)
-
-                #only do basic plots
-                if onlyBasicQuantities:
-                    ReplaceWithQuantitiesBasic(newpipe)
-
-                #print(new_pipe)
-                newpipe["Cut" + cutname.replace("_", "") + "Low"] = l
-                newpipe["Cut" + cutname.replace("_", "") + "High"] = h
-                f = foldername.format(name=cutname, low=l, high=h)
-                f = "_" + f.replace(".", "_")
-
-                newName = pipeline + f
-                newRootFileFolder = newpipe["RootFileFolder"] + f
-                newDict[newName] = newpipe
-                if foldername is not None:
-                    newDict[newName]["RootFileFolder"] = newRootFileFolder
-    if includeSource:
-        return dict(pipelines.items() + newDict.items())
-    else:
-        return newDict
-
-
-def AddConsumer(pline, name, config):
-    pline["Consumer"][name] = config
-
-
-def AddMetaDataProducer(pline, name, config):
-    pline["MetaDataProducer"][name] = config
-
-
-def AddConsumerEasy(pline, consumer):
-    pline["Consumer"][consumer["ProductName"]] = consumer
-
-
-def AddConsumerNoConfig(pline, consumer_name):
-    cons_dict = {"Name": consumer_name}
-    pline["Consumer"][consumer_name] = cons_dict
-
-
-def RemoveConsumer(pline, consumer_name):
-    if consumer_name in pline["Consumer"]:
-        del pline["Consumer"][consumer_name]
-
-
-def AddMetaDataProducerEasy(pline, producer_name):
-    pline["MetaDataProducer"][consumer["Name"]] = producer_name
-
-
-def ExpandCutNoCut(pipelineDict, alletaFolder, zcutsFolder, isMC=False,
-                   addResponse=True, nocutFolder=True):
-    newDict = dict()
-
-    for name, elem in pipelineDict.items():
-
-        nocutPipe = copy.deepcopy(elem)
-        cutPipe = copy.deepcopy(elem)
-        algo = cutPipe["JetAlgorithm"]
-
-        cutPipe["FilterInCutIgnored"] = 0
-        cutPipe["Filter"].append("incut")
-
-        #if name == "default":
-        if nocutFolder:
-            newDict[name + "nocuts"] = nocutPipe
-        newDict[name] = cutPipe
-
-        # a pipe without leadingjet eta cut
-        if alletaFolder:
-            alletaPipe = copy.deepcopy(cutPipe)
-            alletaPipe["Cuts"].remove('leadingjet_eta')
-            newDict[name + "alleta"] = alletaPipe
-
-        # a pipe with only muon and Z cuts
-        if zcutsFolder:
-            zcutsPipe = copy.deepcopy(cutPipe)
-            zcutsPipe["Cuts"] = ['muon_eta', 'muon_pt', 'zpt', 'zmass_window']
-            newDict[name + "zcutsonly"] = zcutsPipe
-
-    return newDict
-
-
-def Expand(pipelineDict, expandCount, includeSource):
-    newDict = dict()
-
-    for name, elem in pipelineDict.items():
-        for i in range(expandCount):
-            newPipe = copy.deepcopy(elem)
-            newDict[name + str(i)] = newPipe
-
-    if includeSource:
-        return dict(pipelineDict.items() + newDict.items())
-    else:
-        return newDict
-
-
-def ExpandPtBins(pipelineDict, ptbins, includeSource):
-    newDict = dict()
-
-    for name, elem in pipelineDict.items():
-        # dont do this for uncut events
-        if ((not "nocuts" in name) and (not "alleta" in name) and (not "zcutsonly" in name)):
-            i = 0
-            for upper in ptbins[1:]:
-                ptbinsname = "Bin" + str(ptbins[i]) + "To" + str(upper)
-
-                newPipe = copy.deepcopy(elem)
-
-                newPipe["Filter"].append("ptbin")
-
-                newPipe["FilterPtBinLow"] = ptbins[i]
-                newPipe["FilterPtBinHigh"] = upper
-
-                newDict[name + "_" + ptbinsname] = newPipe
-                i = i + 1
-
-    if includeSource:
-        return dict(pipelineDict.items() + newDict.items())
-    else:
-        return newDict
-
-
-def ReplaceWithQuantitiesBasic(pline):
-    RemoveConsumer(pline, "quantities_all")
-    AddConsumerNoConfig(pline, "quantities_basic")
-
-
-def ExpandConfig(algoNames, conf_template, useFolders=True, FolderPrefix="",
-        binning=GetDefaultBinning(), onlyBasicQuantities=False, expandptbins=True,
-        alletaFolder=False, zcutsFolder=False, addResponse=True, nocutsFolder=True):
-    conf = copy.deepcopy(conf_template)
-
-    # get globalalgorithms
-    for algo in algoNames:
-        if "AK5PF" not in conf["GlobalAlgorithms"] and "AK5PF" in algo:
-            conf["GlobalAlgorithms"] += ["AK5PF", "AK5PFchs"]
-        elif "AK7PF" not in conf["GlobalAlgorithms"] and "AK7PF" in algo:
-            conf["GlobalAlgorithms"] += ["AK7PF", "AK7PFchs"]
-
-    # generate folder names
-    srcFolder = []
-    for i in range(len(binning) - 1):
-        srcFolder += ["Pt" + str(binning[i]) + "to" + str(binning[i + 1]) + "_incut"]
-
-    algoPipelines = {}
-
-    # generate pipelines for all algorithms
-    for algo in algoNames:
-        for p, pval in conf["Pipelines"].items():
-            pline = copy.deepcopy(pval)
-            pline["JetAlgorithm"] = algo
-            algoPipelines[p + "_" + algo] = pline
-
-    conf["Pipelines"] = ExpandCutNoCut(algoPipelines, alletaFolder,
-        zcutsFolder, conf['InputType'] == 'mc', addResponse, nocutsFolder)
-
-    # create pipelines for all bins
-    if expandptbins:
-        conf["Pipelines"] = ExpandPtBins(conf["Pipelines"], binning, True)
-
-    #set the folder name
-    for p, pval in conf["Pipelines"].items():
-        ptVal = "NoBinning"
-
-        if "ptbin" in pval["Filter"]:
-            ptVal = "Pt" + str(pval["FilterPtBinLow"]) + "to" + str(pval["FilterPtBinHigh"])
-            if onlyBasicQuantities:
-                ReplaceWithQuantitiesBasic(pval)
-
-        if "incut" in pval["Filter"]:
-            if  pval["Cuts"] == ['muon_eta', 'muon_pt', 'zpt', 'zmass_window']:
-                ptVal = ptVal + "_zcutsonly"
-            elif 'leadingjet_eta' not in pval["Cuts"]:
-                ptVal = ptVal + "_alleta"
-            else:
-                ptVal = ptVal + "_incut"
-
-            if not ptVal == "NoBinning_incut":
-                if onlyBasicQuantities:
-                    ReplaceWithQuantitiesBasic(pval)
-        else:
-            ptVal = ptVal + "_allevents"
-
-        pval["RootFileFolder"] = FolderPrefix + ptVal
-
-    return conf
