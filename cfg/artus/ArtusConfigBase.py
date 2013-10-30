@@ -131,7 +131,8 @@ def SetMcSpecific(cfg, run='2012'):
 
     cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'weight_producer', 'flavour_producer']
     cfg['EnableLumiReweighting'] = True
-    cfg['XSection'] = -1.0
+    cfg['NEvents'] = 30459503
+    cfg['XSection'] = 3503.71
     return cfg
 
 

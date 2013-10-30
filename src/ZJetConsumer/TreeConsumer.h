@@ -10,8 +10,8 @@
 namespace Artus
 {
 
-template < class TEvent, class TMetaData, class TSettings >
-class TreeConsumerBase : public EventConsumerBase< TEvent, TMetaData, TSettings>
+template <class TEvent, class TMetaData, class TSettings>
+class TreeConsumerBase : public EventConsumerBase<TEvent, TMetaData, TSettings>
 {
 public:
 	typedef EventPipeline<TEvent, TMetaData, TSettings> PipelineTypeForThis;
@@ -27,9 +27,10 @@ class TreeConsumer : public TreeConsumerBase< ZJetEventData, ZJetMetaData, ZJetP
 
 	void Init(PipelineTypeForThis* pset)
 	{
-		EventConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings>::Init(pset);
+		EventConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>::Init(pset);
 		std::string quantities = this->GetPipelineSettings().GetQuantitiesString();
 		m_tree = new TNtuple("NTuple", "NTuple", quantities.c_str());
+		// vector here
 	}
 
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
@@ -42,7 +43,7 @@ class TreeConsumer : public TreeConsumerBase< ZJetEventData, ZJetMetaData, ZJetP
 
 		std::vector<float> arr;
 
-		// fill the array with values according to the variable-list :
+		// fill the array with values according to the variable-list:
 		for (std::vector<std::string>::iterator it = v.begin(); it != v.end(); ++it)
 			arr.push_back(returnvalue(*it, event, metaData, this->GetPipelineSettings()));
 
@@ -53,8 +54,8 @@ class TreeConsumer : public TreeConsumerBase< ZJetEventData, ZJetMetaData, ZJetP
 	virtual void Finish()
 	{
 		ZJetPipelineSettings s = this->GetPipelineSettings();
-		RootFileHelper::SafeCd(s.GetRootOutFile(), s.GetRootFileFolder());
-		m_tree->Write((s.GetTreename() + "_" + s.GetJetAlgorithm()).c_str());
+		//RootFileHelper::SafeCd(s.GetRootOutFile(), s.GetRootFileFolder());
+		m_tree->Write(s.GetRootFileFolder().c_str()); //"this->GetPipelineSettings().GetName().c_str());
 	}
 
 private:
