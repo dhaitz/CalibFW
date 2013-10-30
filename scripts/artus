@@ -45,7 +45,7 @@ def artus():
         print "Artus is not found, please compile it first."
         exit(1)
     if options.batch:
-        prepareWork(options.work, options.delete)
+        prepareWork(options.work, options.out, options.delete)
         writeDBS(conf, options.out, options.work + "/files.dbs")
         createRunfile(options.json, options.work + "/run-artus.sh")
         outpath = createGridControlConfig(conf, options.work + "/" + options.out + ".conf")
@@ -65,7 +65,6 @@ def artus():
             print "Batch job did not produce output %s. Exit." % outpath
             exit(1)
     else:  # local
-        print "len ", len(conf["InputFiles"])
         if not options.fast and len(conf["InputFiles"])>100:
             print "Warning: The full run as a single job will take a while.",
             print "Are you sure? [Y/n]"
@@ -276,7 +275,7 @@ def createFileList(files, fast=False):
         return files
 
 
-def prepareWork(work, delete=False):
+def prepareWork(work, out, delete=False):
     """ensure that the output path exists and delete old outputs optionally)
 
     to save your outputs simply rename them without timestamp
@@ -293,7 +292,8 @@ def prepareWork(work, delete=False):
         print len(paths), "old output directories for this config. Clean-up recommended."
     if os.path.exists(work):
         shutil.move(work, work + time.strftime("_%Y-%m-%d_%H-%M"))
-    os.makedirs(work)
+    print "Output directory:", work
+    os.makedirs(work + "/work." + out)
 
 
 def logo():
