@@ -380,7 +380,7 @@ def rootdivision(rootobjects):
 
     #account for error in empty bins:
     for n in range(rootobjects[0].GetNbinsX()):
-        if ((rootobjects[0].GetBinError(n) < 1e-3
+        if ((rootobjects[0].GetBinError(n) < 1e-5
                                 and rootobjects[0].GetBinContent(n) > 0.1)
                                 or rootobjects[0].GetBinContent(n) > 1.15):
             rootobjects[0].SetBinError(n, 0.1)
