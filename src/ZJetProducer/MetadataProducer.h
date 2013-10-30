@@ -8,7 +8,7 @@ namespace Artus
 {
 
 typedef GlobalMetaDataProducerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
-		ZJetGlobalMetaDataProducerBase;
+ZJetGlobalMetaDataProducerBase;
 
 /** Select only valid muons.
 
@@ -33,9 +33,9 @@ public:
 
 			// Own loose cuts on muons and muon isolation
 			good_muon = good_muon
-				&& it->p4.Pt() > 12.0
-				&& std::abs(it->p4.Eta()) < 5.0
-				&& it->trackIso03 < 3.0;
+						&& it->p4.Pt() > 12.0
+						&& std::abs(it->p4.Eta()) < 5.0
+						&& it->trackIso03 < 3.0;
 
 			// Tight MuonID 2012
 			// [twiki](https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId#Tight_Muon)
@@ -43,23 +43,23 @@ public:
 			/// version of MuonID
 			bool is2011 = globalSettings.Global()->GetMuonID2011();
 			good_muon = good_muon
-				&& it->isGlobalMuon()
-				// use PF muons
-				&& it->isPFMuon()
-				// normalizedChi2
-				&& it->globalTrack.chi2 / it->globalTrack.nDOF < 10.
-				// hitPattern().numberOfValidMuonHits
-				&& it->globalTrack.nValidMuonHits > 0
-				// numberOfMatchedStations
-				&& it->numberOfMatches > 1
-				// fabs(muonBestTrack()->dxy(vertex->position))
-				&& std::abs(it->bestTrack.getDxy(&data.m_vertexSummary->pv)) < 0.2
-				// fabs(muonBestTrack()->dz(vertex->position)) // not in 2011
-				&& std::abs(it->bestTrack.getDz(&data.m_vertexSummary->pv)) < 0.5 + 99999. * is2011
-				// hitPattern().numberOfValidPixelHits()
-				&& it->innerTrack.nValidPixelHits > 0
-				// hitPattern().trackerLayersWithMeasurement() // 8 in 2011
-				&& it->track.nPixelLayers + it->track.nStripLayers > 5 + 3 * is2011;
+						&& it->isGlobalMuon()
+						// use PF muons
+						&& it->isPFMuon()
+						// normalizedChi2
+						&& it->globalTrack.chi2 / it->globalTrack.nDOF < 10.
+						// hitPattern().numberOfValidMuonHits
+						&& it->globalTrack.nValidMuonHits > 0
+						// numberOfMatchedStations
+						&& it->numberOfMatches > 1
+						// fabs(muonBestTrack()->dxy(vertex->position))
+						&& std::abs(it->bestTrack.getDxy(&data.m_vertexSummary->pv)) < 0.2
+						// fabs(muonBestTrack()->dz(vertex->position)) // not in 2011
+						&& std::abs(it->bestTrack.getDz(&data.m_vertexSummary->pv)) < 0.5 + 99999. * is2011
+						// hitPattern().numberOfValidPixelHits()
+						&& it->innerTrack.nValidPixelHits > 0
+						// hitPattern().trackerLayersWithMeasurement() // 8 in 2011
+						&& it->track.nPixelLayers + it->track.nStripLayers > 5 + 3 * is2011;
 
 			if (good_muon)
 				metaData.m_listValidMuons.push_back(*it);
@@ -70,7 +70,10 @@ public:
 		return true;
 	}
 
-	static std::string Name() { return "valid_muon_producer"; }
+	static std::string Name()
+	{
+		return "valid_muon_producer";
+	}
 };
 
 
@@ -150,9 +153,9 @@ public:
 				if (metaData.HasValidZ())
 				{
 					dr1 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
-							metaData.GetValidMuons().at(0).p4);
+														 metaData.GetValidMuons().at(0).p4);
 					dr2 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
-							metaData.GetValidMuons().at(1).p4);
+														 metaData.GetValidMuons().at(1).p4);
 				}
 				good_jet = good_jet && (dr1 > 0.5) && (dr2 > 0.5);
 
@@ -160,16 +163,16 @@ public:
 				// https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
 				// PFJets, all eta
 				good_jet = good_jet
-					&& (*itjet)->neutralHadFraction + (*itjet)->HFHadFraction < 0.99
-					&& (*itjet)->neutralEMFraction < 0.99
-					&& (*itjet)->nConst > 1;
+						   && (*itjet)->neutralHadFraction + (*itjet)->HFHadFraction < 0.99
+						   && (*itjet)->neutralEMFraction < 0.99
+						   && (*itjet)->nConst > 1;
 				// PFJets, |eta| < 2.4 (tracker)
 				if (std::abs((*itjet)->p4.eta()) < 2.4)
 				{
 					good_jet = good_jet
-						&& (*itjet)->chargedHadFraction > 0.0
-						&& (*itjet)->nCharged > 0
-						&& (*itjet)->chargedEMFraction < 0.99;
+							   && (*itjet)->chargedHadFraction > 0.0
+							   && (*itjet)->nCharged > 0
+							   && (*itjet)->chargedEMFraction < 0.99;
 				}
 
 				if (good_jet)
@@ -183,7 +186,10 @@ public:
 		return true;
 	}
 
-	static std::string Name() { return "valid_jet_producer"; }
+	static std::string Name()
+	{
+		return "valid_jet_producer";
+	}
 	bool tagged;
 };
 
@@ -271,7 +277,10 @@ public:
 		return true;
 	}
 
-	static std::string Name() { return "z_producer"; }
+	static std::string Name()
+	{
+		return "z_producer";
+	}
 
 private:
 	const double zmassRangeMin;
@@ -316,6 +325,8 @@ public:
 			LOG("This event contains a lot of particles: " << data.m_particles->size());
 		}
 
+		const float R = 0.5; // for DeltaR matching
+
 		// Loop over particles
 		for (auto it = data.m_particles->begin(); it != data.m_particles->end(); ++it)
 		{
@@ -346,6 +357,33 @@ public:
 			else if (it->pdgId() == 2212 && it->p4.Pt() < 1e-6) // ignore incoming protons
 			{
 			}
+			else if ((std::abs(it->pdgId()) == 12)
+					 || (std::abs(it->pdgId()) == 14)
+					 || (std::abs(it->pdgId()) == 16))  // neutrinos
+			{
+				for (ZJetEventData::GenJetMapIterator it2 = data.m_genJets.begin(); it2 != data.m_genJets.end(); ++it2)
+				{
+					if ((it2->second->size() > 0)
+						&& (ROOT::Math::VectorUtil::DeltaR(it->p4, it2->second->at(0).p4) < R))
+						metaData.m_neutrinos[it2->first].push_back(*it);
+				}
+			}
+			else if ((std::abs(it->pdgId()) == 130)
+					 || (std::abs(it->pdgId()) == 310)
+					 || (std::abs(it->pdgId()) == 311)
+					 || (std::abs(it->pdgId()) == 321)
+					 || (std::abs(it->pdgId()) == 2112)
+					 || (std::abs(it->pdgId()) == 3122))  //neutral hadrons
+			{
+				const float pt_threshold = 0.5; //GeV
+				for (ZJetEventData::GenJetMapIterator it2 = data.m_genJets.begin(); it2 != data.m_genJets.end(); ++it2)
+				{
+					if ((it2->second->size() > 0)
+						&& (ROOT::Math::VectorUtil::DeltaR(it->p4, it2->second->at(0).p4) < R)
+						&& (it->p4.Pt() > pt_threshold))
+						metaData.m_neutrals[it2->first].push_back(*it);
+				}
+			}
 			else // unexpected particles
 			{
 				if (it->status() != 3 && std::abs(it->pdgId()) < 7)
@@ -366,7 +404,10 @@ public:
 		return true;
 	}
 
-	static std::string Name() { return "gen_producer"; }
+	static std::string Name()
+	{
+		return "gen_producer";
+	}
 
 private:
 	const unsigned short int nmin;
@@ -477,7 +518,7 @@ public:
 				//LOG("Balance (" << it->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
 			}
 			if (it == metaData.m_genPartons.begin()
-					|| metaData.GetRefLeadingParton().p4.Pt() < it->p4.Pt())
+				|| metaData.GetRefLeadingParton().p4.Pt() < it->p4.Pt())
 				metaData.SetLeadingParton(*it);
 		}
 
@@ -559,7 +600,10 @@ public:
 		return true;
 	}
 
-	static std::string Name() { return "gen_dibalance_producer"; }
+	static std::string Name()
+	{
+		return "gen_dibalance_producer";
+	}
 };
 
 }

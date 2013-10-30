@@ -237,9 +237,15 @@ public:
 	KGenParticles m_genMuons;
 	KGenParticles m_genZs;
 
-	typedef std::map<std::string, KGenParticle> MetaPartonContainer;
-	mutable MetaPartonContainer m_algoparton;
-	mutable MetaPartonContainer m_physparton;
+
+	typedef std::map<std::string, KGenParticle> MetaParticleContainer;
+	mutable MetaParticleContainer m_algoparton;
+	mutable MetaParticleContainer m_physparton;
+
+
+	typedef std::map<std::string, KGenParticles> MetaParticlesContainer;
+	mutable MetaParticlesContainer m_neutrinos;
+	mutable MetaParticlesContainer m_neutrals;
 
 	int GetAlgoFlavour(ZJetPipelineSettings const& psettings) const
 	{

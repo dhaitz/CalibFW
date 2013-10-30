@@ -83,7 +83,7 @@ private:
 		jetbprobabilitybjettag, softelectronbjettag, softmuonbjettag,
 		softmuonbyip3dbjettag, softmuonbyptbjettag, simplesecondaryvertexbjettag,
 		combinedsecondaryvertexbjettag, combinedsecondaryvertexmvabjettag,
-		algoflavour, physflavour, algopartonpt, pionpt, kshortpt, neutralpt, neutralptnocut,
+		algoflavour, physflavour,
 		jet2pt, jet2phi, jet2eta,
 		jet2puJetFull, jet2puJetIDFull, jet2puJetIDFullLoose, jet2puJetIDFullMedium, jet2puJetIDFullTight,
 		jet2puJetCutbased, jet2puJetIDCutbased, jet2puJetIDCutbasedLoose, jet2puJetIDCutbasedMedium, jet2puJetIDCutbasedTight,
@@ -92,6 +92,7 @@ private:
 		genjet2pt,
 		otherjetspt, otherjetsphi, otherjetseta,
 		matchedgenjet1pt,
+		jet1ptneutrinos, mpfneutrinos, neutralpt,
 		none
 	} var;
 
@@ -149,6 +150,9 @@ private:
 		else if (string == "genmpf") var = genmpf;
 		else if (string == "algoflavour") var = algoflavour;
 		else if (string == "physflavour") var = physflavour;
+		else if (string == "jet1ptneutrinos") var = jet1ptneutrinos;
+		else if (string == "mpfneutrinos") var = mpfneutrinos;
+		else if (string == "neutralpt") var = neutralpt;
 
 		else if (string == "mupluspt") var = mupluspt;
 		else if (string == "mupluseta") var = mupluseta;
@@ -642,6 +646,34 @@ private:
 			return event.m_eventmetadata->nEvent;
 		else if (var == lumisec)
 			return event.m_eventmetadata->nLumi;
+		else if (var == jet1ptneutrinos)
+		{
+			KDataLV v = * metaData.GetValidPrimaryJet(s, event);
+			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+			if (metaData.m_neutrinos[genName].size() > 0)
+				for (auto it = metaData.m_neutrinos[genName].begin(); it != metaData.m_neutrinos[genName].end(); ++it)
+					v.p4 += it->p4;
+			return v.p4.Pt();
+		}
+		else if (var == mpfneutrinos)
+		{
+			KDataPFMET met = * metaData.GetMet(event, s);
+			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+			if (metaData.m_neutrinos[genName].size() > 0)
+				for (auto it = metaData.m_neutrinos[genName].begin(); it != metaData.m_neutrinos[genName].end(); ++it)
+					met.p4 -= it->p4;
+			met.p4.SetEta(0);
+			return metaData.GetMPF(&met);
+		}
+		else if (var == neutralpt)
+		{
+			KDataLV v;
+			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+			if (metaData.m_neutrals[genName].size() > 0)
+				for (auto it = metaData.m_neutrals[genName].begin(); it != metaData.m_neutrals[genName].end(); ++it)
+					v.p4 += it->p4;
+			return v.p4.Pt();
+		}
 		else
 			LOG_FATAL("TTreeConsumer: Quantity " << string << " (" << var << ") not available!");
 
