@@ -31,9 +31,11 @@ def main():
     elif not op.datainput or not op.mcinput:
         print "Usage: weightCalc.py [options] datainput mcinput [...]"
         print "Use -h for detailed help."
+        print "Using:"
+        subprocess.call(['which', 'pileupCalc.py'])
         exit(0)
     # else: default use case: calculate and add weights
-
+    print "Using:", subprocess.call(['pileupCalc.py'])
     data, datakey = getDataDistribution(op.datainput, op.inputLumiJSON, op.minBiasXsec, op.numPileupBins, op.data_histo, op.dataoutput, op.verbose)
     print "Data:", data
     mc, mckey = getMCDistribution(op.mcinput, op.mc_histo, op.mcoutput, op.verbose)
@@ -289,7 +291,7 @@ def options():
 
     parser.add_argument('-i', '--inputLumiJSON', type=str, default=None,
         help="Input Lumi JSON for pileupCalc.")
-    parser.add_argument('-x', '--minBiasXsec', type=float, default=69.4,
+    parser.add_argument('-x', '--minBiasXsec', type=float, default=73.5, #69.4,
         help="Minimum bias cross section in mb (NB: pileupCalc takes µb!)")
     parser.add_argument('-n', '--numPileupBins', type=int, default=70,
         help="Maximum number of pile-up bins (default: 70).")
