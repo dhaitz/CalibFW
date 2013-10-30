@@ -64,7 +64,6 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
     config = {
         'SkipEvents': 0,
         'EventCount': -1,
-        'GlobalAlgorithms': [],
         'GlobalProducer': [    # The order of these producers is important!
             'valid_muon_producer', 'z_producer', 'valid_jet_producer',
             'corr_jet_producer', 'typeImet_producer', 'jet_sorter_producer',
@@ -78,41 +77,40 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
         'EnableSampleReweighting': False,
         'EnableLumiReweighting': False,
         'HcalCorrection': 0.0,
-        'Jec': "default",
-        'JsonFile': "default",
-        'InputFiles': [],     # overridden
-        'OutputPath': "out",  # overridden
+        'Jec': "data or mc?",
+        'JsonFile': "year?",
+        'InputFiles': [],     # overridden by artus
+        'OutputPath': "out",  # overridden by artus
         'MuonID2011': (run == '2011'),
         'Pipelines': {
             'default': {
                 'Level': 1,
                 'JetAlgorithm': "AK5PFJetsCHSL1L2L3",
                 'Consumer': ["tree"],
-                'QuantitiesVector':
-                 ["zpt", "zeta", "zy",
-                 "zphi", "zmass", "npv", "rho",
-                 "run", "weight", "jet1pt", "jet1eta", "jet1phi", "mpf", "rawmpf",
-                 "METpt", "METphi", "rawMETpt", "rawMETphi", "sumEt", "jet1photonfraction",
-                 "jet1chargedemfraction", "jet1chargedhadfraction", "jet1neutralhadfraction",
-                 "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
-                 "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta",
-                 "otherjetspt", "otherjetseta", "otherjetsphi",
-                 "mupluspt", "mupluseta", "muplusphi",
-                 "muminuspt", "muminuseta", "muminusphi",
+                'QuantitiesVector': [
+                    "zpt", "zeta", "zy",
+                    "zphi", "zmass", "npv", "rho",
+                    "run", "weight", "jet1pt", "jet1eta", "jet1phi", "mpf", "rawmpf",
+                    "METpt", "METphi", "rawMETpt", "rawMETphi", "sumEt", "jet1photonfraction",
+                    "jet1chargedemfraction", "jet1chargedhadfraction", "jet1neutralhadfraction",
+                    "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
+                    "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta",
+                    "otherjetspt", "otherjetseta", "otherjetsphi",
+                    "mupluspt", "mupluseta", "muplusphi",
+                    "muminuspt", "muminuseta", "muminusphi",
 
-                 # tagged
-                 "qglikelihood", "qgmlp", "trackcountinghigheffbjettag",
-                 "trackcountinghighpurbjettag", "jetprobabilitybjettag",
-                 "jetbprobabilitybjettag", "softelectronbjettag",
-                 "softmuonbjettag", "softmuonbyip3dbjettag",
-                 "softmuonbyptbjettag", "simplesecondaryvertexbjettag",
-                 "combinedsecondaryvertexbjettag", "combinedsecondaryvertexmvabjettag",
-                 "jet1puJetFull", "jet1puJetIDFull", "jet1puJetIDFullLoose", "jet1puJetIDFullMedium", "jet1puJetIDFullTight",
-                 "jet1puJetCutbased", "jet1puJetIDCutbased", "jet1puJetIDCutbasedLoose", "jet1puJetIDCutbasedMedium", "jet1puJetIDCutbasedTight",
-                 "jet2puJetFull", "jet2puJetIDFull", "jet2puJetIDFullLoose", "jet2puJetIDFullMedium", "jet2puJetIDFullTight",
-                 "jet2puJetCutbased", "jet2puJetIDCutbased", "jet2puJetIDCutbasedLoose", "jet2puJetIDCutbasedMedium", "jet2puJetIDCutbasedTight",
+                    # tagged
+                    "qglikelihood", "qgmlp", "trackcountinghigheffbjettag",
+                    "trackcountinghighpurbjettag", "jetprobabilitybjettag",
+                    "jetbprobabilitybjettag", "softelectronbjettag",
+                    "softmuonbjettag", "softmuonbyip3dbjettag",
+                    "softmuonbyptbjettag", "simplesecondaryvertexbjettag",
+                    "combinedsecondaryvertexbjettag", "combinedsecondaryvertexmvabjettag",
+                    "jet1puJetFull", "jet1puJetIDFull", "jet1puJetIDFullLoose", "jet1puJetIDFullMedium", "jet1puJetIDFullTight",
+                    "jet1puJetCutbased", "jet1puJetIDCutbased", "jet1puJetIDCutbasedLoose", "jet1puJetIDCutbasedMedium", "jet1puJetIDCutbasedTight",
+                    "jet2puJetFull", "jet2puJetIDFull", "jet2puJetIDFullLoose", "jet2puJetIDFullMedium", "jet2puJetIDFullTight",
+                    "jet2puJetCutbased", "jet2puJetIDCutbased", "jet2puJetIDCutbasedLoose", "jet2puJetIDCutbasedMedium", "jet2puJetIDCutbasedTight",
                 ]
-            
             }
         },
         'InputType': inputtype,
@@ -128,12 +126,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
     else:
         print "The inputtype must be either 'data' or 'mc'."
         exit(1)
-     
-    # at the end
-    config['Pipelines']['default']['QuantitiesString'] = ":".join(config['Pipelines']['default']['QuantitiesVector'])
 
-    #print config
-    #AddConsumerNoConfig(config['Pipelines']['default'], 'quantities_all')
     return config
 
 
@@ -281,10 +274,6 @@ def GetCuts(analysis='zjet'):
     return cuts[analysis]
 
 
-
-
-
-
 def ApplyPUReweighting(conf, dataset, weightfile="data/pileup/puweights.json"):
     """Use pile-up reweighting.
 
@@ -383,15 +372,16 @@ def expand(config, variations=[], algorithms=[], default="default"):
     p = config['Pipelines'][default]
     if p['JetAlgorithm'] not in algorithms:
         algorithms.append(p['JetAlgorithm'])
-    
+
     #find global algorithms
+    config["GlobalAlgorithms"] = []
     removelist = ["Jets", "L1", "L2", "L3", "Res", "Hcal", "Custom"]
     for algo in algorithms:
         for r in removelist:
             algo = algo.replace(r, "")
         if algo not in config["GlobalAlgorithms"]:
             config["GlobalAlgorithms"].append(algo.replace("CHS", "chs"))
-    
+
     # copy for variations
     for v in variations:
         if v == 'all':
@@ -422,6 +412,9 @@ def expand(config, variations=[], algorithms=[], default="default"):
             pipelines[name + "_" + algo]["JetAlgorithm"] = algo
         del pipelines[name]
 
+    for p in pipelines.values():
+        p['QuantitiesString'] = ":".join(p['QuantitiesVector'])
+
     return config
 
 
@@ -441,5 +434,5 @@ def pipelinediff2(p1=None, p2=None):
     for k, v in p1.items():
         if k in p2.keys():
             if p1[k] != p2[k]:
-                print "    different %s: %s != %s" %(k, str(p1[k]), str(p2[k]))
+                print "    different %s: %s != %s" % (k, str(p1[k]), str(p2[k]))
 
