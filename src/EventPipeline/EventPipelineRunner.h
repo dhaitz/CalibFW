@@ -119,7 +119,7 @@ public:
 						<< evtProvider.GetCurrentEvent().m_eventmetadata->nEvent);
 				for (PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
 				{
-					if (it->GetSettings().GetLevel() == 1)
+					//if (it->GetSettings().GetLevel() == 1)
 					{
 						if (unlikely(nEvents - firstEvent < 5)) // debug output
 							LOG("Event:" << i
@@ -136,7 +136,7 @@ public:
 		for (PipelinesIterator it = m_pipelines.begin();
 			 !(it == m_pipelines.end()); it++)
 		{
-			if (it->GetSettings().GetLevel() == 1)
+			//if (it->GetSettings().GetLevel() == 1)
 				it->FinishPipeline();
 		}
 		/*

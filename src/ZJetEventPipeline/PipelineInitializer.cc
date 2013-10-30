@@ -28,7 +28,7 @@ using namespace Artus;
 void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>* pLine,
 		ZJetPipelineSettings const& pset) const
 {
-	if (pset.GetLevel() == 1)
+	//if (pset.GetLevel() == 1)
 	{
 		// load filter from the Settings and add them
 		stringvector fvec = pset.GetFilter();

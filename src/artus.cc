@@ -248,23 +248,9 @@ int main(int argc, char** argv)
 			 it != g_pipeSettings.end(); it++)
 		{
 			(*it)->m_globalSettings = &gset;
-
-			if ((*it)->GetLevel() == 1)
-			{
-				ZJetPipeline* pLine = new ZJetPipeline; //CreateDefaultPipeline();
-
-				pLine->InitPipeline(**it, plineInit);
-				pRunner.AddPipeline(pLine);
-			}
-			/*
-					if ((*it)->GetLevel() == 2)
-					{
-						ZJetPipeline* pLine = new ZJetPipeline; //CreateDefaultPipeline();
-
-						pLine->InitPipeline(**it, plineInit);
-						pRunner.AddPipeline(pLine);
-					}
-					*/
+			ZJetPipeline* pLine = new ZJetPipeline;
+			pLine->InitPipeline(**it, plineInit);
+			pRunner.AddPipeline(pLine);
 		}
 
 		// delete the pipeline settings
