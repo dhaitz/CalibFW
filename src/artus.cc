@@ -188,6 +188,7 @@ int main(int argc, char** argv)
 		gset.SetEnableMetPhiCorrection(g_propTree.get<bool>("EnableMetPhiCorrection", false));
 		gset.SetMuonID2011(g_propTree.get<bool>("MuonID2011", false));
 		gset.SetHcalCorrection(g_propTree.get<double>("HcalCorrection", 0.0));
+		gset.SetNEvents(g_propTree.get<long long>("NEvents", -1));
 		gset.SetSkipEvents(g_propTree.get<long long>("SkipEvents", 0));
 		gset.SetEventCount(g_propTree.get<long long>("EventCount", -1));
 
@@ -205,7 +206,8 @@ int main(int argc, char** argv)
 			gset.m_sampleWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "SampleWeight");
 			if (gset.GetEnableSampleReweighting() && gset.m_sampleWeight.size() == 0)
 				LOG_FATAL("Sample reweighting is enabled but no weights given!");
-
+			if (gset.GetEnableLumiReweighting() && gset.GetNEvents() < 0)
+				LOG_FATAL("Lumi reweighting is enabled but number of events missing!");
 			g_inputType = McInput;
 		}
 

@@ -38,6 +38,7 @@ public:
 	IMPL_PROPERTY(bool, MuonID2011)
 	IMPL_PROPERTY(double, HcalCorrection)
 	IMPL_PROPERTY(double, XSection)
+	IMPL_PROPERTY(long long, NEvents)
 	IMPL_PROPERTY(long long, SkipEvents)
 	IMPL_PROPERTY(long long, EventCount)
 	IMPL_PROPERTY(std::string, JsonFile)

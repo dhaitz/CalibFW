@@ -68,7 +68,7 @@ public:
 		if (m_pipelineSettings.Global()->GetEnableLumiReweighting())
 		{
 			double xsec = 1.0;  // in pb
-			long long ntotal = 1.0e6;
+			long long ntotal = m_pipelineSettings.Global()->GetNEvents();
 
 			//evaluate in this order: config, external, internal
 			if (m_pipelineSettings.Global()->GetXSection() > 0)
