@@ -283,64 +283,8 @@ def GetCuts(analysis='zjet'):
     return cuts[analysis]
 
 
-def treeconfig(conf, quantities=None):
-    for p, pval in conf["Pipelines"].items():
-        if quantities == None:
-            pval['QuantitiesVector'] = ["zpt", "zeta", "zy",
-                 "zphi", "zmass", "npv", "rho",
-                 "run", "weight", "jet1pt", "jet1eta", "jet1phi", "mpf", "rawmpf",
-                 "METpt", "METphi", "rawMETpt", "rawMETphi", "sumEt", "jet1photonfraction",
-                 "jet1chargedemfraction", "jet1chargedhadfraction", "jet1neutralhadfraction",
-                 "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
-                 "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta",
-                 "otherjetspt", "otherjetseta", "otherjetsphi",
-                 "mupluspt", "mupluseta", "muplusphi",
-                 "muminuspt", "muminuseta", "muminusphi"
-                  ]
-            if conf['Tagged'] == True:
-                pval['QuantitiesVector'] += [
-                    "qglikelihood", "qgmlp", "trackcountinghigheffbjettag",
-                    "trackcountinghighpurbjettag", "jetprobabilitybjettag",
-                    "jetbprobabilitybjettag", "softelectronbjettag",
-                    "softmuonbjettag", "softmuonbyip3dbjettag",
-                    "softmuonbyptbjettag", "simplesecondaryvertexbjettag",
-                    "combinedsecondaryvertexbjettag", "combinedsecondaryvertexmvabjettag",
-                    "jet1puJetFull", "jet1puJetIDFull", "jet1puJetIDFullLoose", "jet1puJetIDFullMedium", "jet1puJetIDFullTight",
-                    "jet1puJetCutbased", "jet1puJetIDCutbased", "jet1puJetIDCutbasedLoose", "jet1puJetIDCutbasedMedium", "jet1puJetIDCutbasedTight",
-                    "jet2puJetFull", "jet2puJetIDFull", "jet2puJetIDFullLoose", "jet2puJetIDFullMedium", "jet2puJetIDFullTight",
-                    "jet2puJetCutbased", "jet2puJetIDCutbased", "jet2puJetIDCutbasedLoose", "jet2puJetIDCutbasedMedium", "jet2puJetIDCutbasedTight",
-                ]
-            if conf['InputType'] == 'mc':
-                pval['QuantitiesVector'] += [
-                    "npu", "nputruth",
-                    "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
-                    "matchedgenjet1pt", "genmpf",
-                    "algoflavour", "physflavour",
-                            ]
-            elif conf['InputType'] == 'data':
-                pval['QuantitiesVector'] += ['eventnr', 'lumisec']
-        else:
-            pval['QuantitiesVector'] = quantities
 
-        pval['QuantitiesString'] = ":".join(pval['QuantitiesVector'])
 
-        # replace the quantites_vector with integers according to the dictionary
-        #new_quantities = []
-        #for q in pval['QuantitiesVector']:
-        #    new_quantities += [artus_dict[q]]
-        #pval['QuantitiesVector'] = new_quantities
-
-        if 'leadingjet_eta' in pval['Cuts']:
-            pval['Cuts'].remove("leadingjet_eta")
-        if 'leadingjet_eta' in pval['Cuts']:
-            pval['Cuts'].remove("secondleading_to_zpt")
-
-        pval['Treename'] = pval['RootFileFolder'][10:]
-        pval['RootFileFolder'] = ""
-        RemoveConsumer(pval, "quantities_all")
-
-        AddConsumerNoConfig(pval, "tree")
-    return conf
 
 
 def ApplyPUReweighting(conf, dataset, weightfile="data/pileup/puweights.json"):
