@@ -87,7 +87,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
             'default': {
                 'Level': 1,
                 'JetAlgorithm': "AK5PFJetsCHSL1L2L3",
-                'Consumer': {"tree": {"Name": "tree"}},
+                'Consumer': ["tree"],
                 'QuantitiesVector':
                  ["zpt", "zeta", "zy",
                  "zphi", "zmass", "npv", "rho",
