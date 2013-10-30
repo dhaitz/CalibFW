@@ -230,8 +230,8 @@ int main(int argc, char** argv)
 			pset = new ZJetPipelineSettings();
 			pset->SetPropTree(&g_propTree);
 
-			std::string sKeyName = v.first.data();
-			pset->SetSettingsRoot("Pipelines." + sKeyName);
+			std::string pipelineName = v.first.data();
+			pset->SetName("Pipelines." + pipelineName);
 			pset->SetRootOutFile(g_resFile);
 
 			g_pipeSettings.push_back(pset);

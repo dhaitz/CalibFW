@@ -111,10 +111,10 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 	}
 
 	BOOST_FOREACH(boost::property_tree::ptree::value_type& v,
-			pset.GetPropTree()->get_child(pset.GetSettingsRoot() + ".Consumer"))
+			pset.GetPropTree()->get_child(pset.GetName() + ".Consumer"))
 	{
 		std::string sName = v.second.get<std::string>("Name");
-		std::string consPath = pset.GetSettingsRoot() + ".Consumer." + v.first.data();
+		std::string consPath = pset.GetName() + ".Consumer." + v.first.data();
 
 
 		if (sName == "tree")

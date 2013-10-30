@@ -53,9 +53,8 @@ class TreeConsumer : public TreeConsumerBase< ZJetEventData, ZJetMetaData, ZJetP
 
 	virtual void Finish()
 	{
-		ZJetPipelineSettings s = this->GetPipelineSettings();
-		//RootFileHelper::SafeCd(s.GetRootOutFile(), s.GetRootFileFolder());
-		m_tree->Write(s.GetRootFileFolder().c_str()); //"this->GetPipelineSettings().GetName().c_str());
+		std::string name = this->GetPipelineSettings().GetName();
+		m_tree->Write(name.c_str());
 	}
 
 private:

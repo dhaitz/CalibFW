@@ -87,8 +87,6 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
             'default': {
                 'Level': 1,
                 'JetAlgorithm': "AK5PFJetsCHSL1L2L3",
-                'RootFileFolder': "",
-                'Treename': "default",
                 'Consumer': {"tree": {"Name": "tree"}},
                 'QuantitiesVector':
                  ["zpt", "zeta", "zy",
@@ -417,16 +415,13 @@ def expand(config, variations=[], algorithms=[], default="default"):
     # rename template pipline default to incut
     pipelines['incut'] = pipelines.pop(default)
 
-    # copy for algorithms
+    # copy for algorithms, naming scheme: incut_algo
     for name, p in pipelines.items():
         for algo in algorithms:
             pipelines[name + "_" + algo] = copy.deepcopy(p)
             pipelines[name + "_" + algo]["JetAlgorithm"] = algo
         del pipelines[name]
 
-    for name, p in pipelines.items():
-        p['Treename'] = name
-        p['Name'] = name
     return config
 
 

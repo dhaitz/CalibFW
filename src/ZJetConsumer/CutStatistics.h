@@ -58,7 +58,7 @@ public:
 		double droppedRel = 0.0f;
 
 		LOG_FILE(std::setprecision(3) << std::fixed);
-		LOG_FILE(std::endl << "--- Event Cut Report: " << this->GetPipelineSettings().GetRootFileFolder()
+		LOG_FILE(std::endl << "--- Event Cut Report: " << this->GetPipelineSettings().GetName()
 					   << " Algo: " << this->GetPipelineSettings().GetJetAlgorithm() << " ---");
 		LOG_FILE(std::setw(20) << "CutName" << std::setw(23) << "EvtsLeftRel [%]" << std::setw(23) << "EvtsLeft"
 					   << std::setw(23) << "EvtsDropRel [%]" << std::setw(21) << "EvtsDropAbs");

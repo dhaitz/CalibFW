@@ -59,18 +59,7 @@ public:
 	ZJetPipelineSettings()
 	{
 		m_globalSettings = NULL;
-		SetSettingsRoot("default");
-		//SetEnableReweighting(false);
-	}
-
-	enum WriteEventsEnum
-	{
-		NoEvents, OnlyInCutEvents, AllEvents
-	};
-
-	std::string ToString() const
-	{
-		return this->GetRootFileFolder();
+		SetName("default");
 	}
 
 	ZJetGlobalSettings const* Global() const
@@ -81,8 +70,7 @@ public:
 	ZJetGlobalSettings const* m_globalSettings;
 
 	IMPL_PROPERTY(boost::property_tree::ptree*, PropTree)
-	IMPL_PROPERTY(std::string, SettingsRoot)
-	IMPL_SETTING(std::string, Name)
+	IMPL_PROPERTY(std::string, Name)
 	IMPL_PROPERTY(unsigned long, OverallNumberOfProcessedEvents)
 
 	IMPL_SETTING(bool, EnableCaloMatching)
@@ -134,25 +122,14 @@ public:
 		return s;
 	}
 
-
-	IMPL_SETTING(std::string, Treename)
-	IMPL_SETTING(std::string, RootFileFolder)
 	IMPL_SETTING(std::string, QuantitiesString)
-	IMPL_SETTING(std::string, SecondLevelFolderTemplate)
+
 
 	// only level 1 runs directly on data
 	IMPL_SETTING(unsigned int, Level)
 
 	IMPL_SETTING(std::string, WriteEvents)
 
-	WriteEventsEnum GetWriteEventsEnum()
-	{
-		if (this->GetWriteEvents() == "all")
-			return AllEvents;
-		if (this->GetWriteEvents() == "incut")
-			return OnlyInCutEvents;
-		return NoEvents;
-	}
 
 	// Cut settings
 	IMPL_SETTING(bool, GenCuts)
@@ -220,62 +197,49 @@ public:
 	VarCache<stringvector> m_filter;
 	stringvector GetFilter() const
 	{
-		RETURN_CACHED(m_filter, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".Filter"))
+		RETURN_CACHED(m_filter, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetName() + ".Filter"))
 	}
-
-	/*
-	static std::vector<PtBin> GetAsPtBins(stringvector& sv)
-	{
-		std::vector<PtBin> bins;
-
-		int i = 0;
-		for (stringvector::iterator it = (sv.begin() + 1); it < sv.end(); it++)
-		{
-			int ilow = atoi(sv[i].c_str());
-			int ihigh = atoi(sv[i + 1].c_str());
-
-			bins.push_back(PtBin(ilow, ihigh));
-			i++;
-		}
-
-		return bins;
-	}
-	*/
 
 	VarCache<doublevector> m_2ndJetWeight;
 	doublevector Get2ndJetWeight()
 	{
-		RETURN_CACHED(m_2ndJetWeight, PropertyTreeSupport::GetAsDoubleList(GetPropTree(), GetSettingsRoot() + ".2ndJetWeight"))
+		RETURN_CACHED(m_2ndJetWeight, PropertyTreeSupport::GetAsDoubleList(GetPropTree(), GetName() + ".2ndJetWeight"))
 	}
 
 	VarCache<doublevector> m_recovertWeight;
 	doublevector GetRecovertWeight()
 	{
-		RETURN_CACHED(m_recovertWeight, PropertyTreeSupport::GetAsDoubleList(GetPropTree(), GetSettingsRoot() + ".RecovertWeight"))
+		RETURN_CACHED(m_recovertWeight, PropertyTreeSupport::GetAsDoubleList(GetPropTree(), GetName() + ".RecovertWeight"))
 	}
 
 	VarCache<stringvector> m_jetRespBins;
 	stringvector GetCustomBins()
 	{
-		RETURN_CACHED(m_jetRespBins, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".CustomBins"))
+		RETURN_CACHED(m_jetRespBins, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetName() + ".CustomBins"))
 	}
 
 	VarCache<stringvector> m_cuts;
 	stringvector GetCuts() const
 	{
-		RETURN_CACHED(m_cuts, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".Cuts"))
+		RETURN_CACHED(m_cuts, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetName() + ".Cuts"))
 	}
 
-	VarCache<stringvector> m_metaDataProducers;
+	VarCache<stringvector> m_producers;
 	stringvector GetMetaDataProducers() const
 	{
-		RETURN_CACHED(m_metaDataProducers, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".MetaDataProducers"))
+		RETURN_CACHED(m_producers, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetName() + ".MetaDataProducers"))
+	}
+
+	VarCache<stringvector> m_consumer;
+	stringvector GetConsumer() const
+	{
+		RETURN_CACHED(m_consumer, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetName() + ".Consumer"))
 	}
 
 	VarCache<stringvector> m_quantities;
 	stringvector GetQuantities() const
 	{
-		RETURN_CACHED(m_quantities, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetSettingsRoot() + ".QuantitiesVector"))
+		RETURN_CACHED(m_quantities, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetName() + ".QuantitiesVector"))
 	}
 
 };
