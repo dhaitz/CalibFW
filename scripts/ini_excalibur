@@ -13,15 +13,11 @@ export SYNCDIR=${EXCALIBUR_BASE}/out/websync
 
 # Set some user specific variables
 if [ $USER = "dhaitz" ]; then
-    if [ -f /storage/a/dhaitz/excalibur/work/data/out/artus.root ]; then
-        export DATA='/storage/a/dhaitz/excalibur/work/data/out/artus.root'
-    else
-        export DATA='/storage/a/dhaitz/excalibur/work/data_old/out/artus.root'
+    if [ -f /storage/a/dhaitz/excalibur/artus/data/out.root ]; then
+        export DATA='/storage/a/dhaitz/excalibur/artus/data/out.root'
     fi
-    if [ -f /storage/a/dhaitz/excalibur/work/mc/out/artus.root ]; then
-        export MC='/storage/a/dhaitz/excalibur/work/mc/out/artus.root'
-    else
-        export MC='/storage/a/dhaitz/excalibur/work/mc_old/out/artus.root'
+    if [ -f /storage/a/dhaitz/excalibur/artus/mc/out.root ]; then
+        export MC='/storage/a/dhaitz/excalibur/artus/mc/out.root'
     fi
     export EXCALIBUR_WORK=/storage/a/dhaitz/excalibur
     export PATH=/home/dhaitz/git/grid-control:$PATH
