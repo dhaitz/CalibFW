@@ -89,7 +89,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
                 'JetAlgorithm': "AK5PFJetsCHSL1L2L3",
                 'RootFileFolder': "",
                 'Treename': "default",
-                'Consumer': {},
+                'Consumer': {"tree": {"Name": "tree"}},
                 'QuantitiesVector':
                  ["zpt", "zeta", "zy",
                  "zphi", "zmass", "npv", "rho",

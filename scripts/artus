@@ -28,6 +28,9 @@ def artus():
         conf["InputFiles"] = createFileList(conf["InputFiles"], options.fast)
         if conf["OutputPath"] == "out":
             conf["OutputPath"] = options.out
+        if options.skip:
+            conf['EventCount'] = options.skip[1]
+            conf['SkipEvents'] = options.skip[0]
         if options.printconfig:
             print "json config:"
             print json.dumps(conf, sort_keys=True, indent=4)
@@ -160,9 +163,7 @@ def getoptions(configdir='cfg/artus/', name='artus'):
     if opt.fast and len(opt.fast) == 1:
         opt.fast = [-opt.fast[0], None]
     if opt.skip and len(opt.skip) == 1:
-        opt.skip = [opt.skip[0], opt.skip[0] + 1]
-    elif opt.skip and len(opt.skip) == 2:
-        opt.skip = [opt.skip[0], sum(opt.skip)]
+        opt.skip.append(1)
 
     # set paths for libraries and outputs
     if not opt.out:
