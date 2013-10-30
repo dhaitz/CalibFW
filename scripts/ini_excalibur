@@ -9,6 +9,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$EXCALIBUR_BASE:$EXCALIBUR_BASE/../Kappa
 export PATH=$EXCALIBUR_BASE/scripts:$PATH
 export PYTHONPATH=$EXCALIBUR_BASE/plotting:$EXCALIBUR_BASE/plotting/tools:$EXCALIBUR_BASE/cfg/artus:$PYTHONPATH
 export USERPC=`who am i | sed 's/.*(\([^]]*\)).*/\1/g'`
+export SYNCDIR=${EXCALIBUR_BASE}/out/websync
 
 # Set some user specific variables
 if [ $USER = "dhaitz" ]; then
