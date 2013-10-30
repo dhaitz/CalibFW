@@ -13,7 +13,7 @@
 namespace Artus
 {
 
-template < class TEvent >
+template <class TEvent>
 class EventProvider : public boost::noncopyable
 {
 public:
@@ -32,7 +32,7 @@ public:
  * pipelines.
  */
 
-template < class TPipeline, class TGlobalMetaProducer >
+template <class TPipeline, class TGlobalMetaProducer>
 class EventPipelineRunner : public boost::noncopyable
 {
 public:
@@ -83,13 +83,14 @@ public:
 		if (firstEvent != 0 || nEvents != evtProvider.GetOverallEventCount())
 			LOG(red << "Warning: Custom range of events: " << firstEvent << " to " << nEvents << reset);
 
-		LOG("Running over " << nEvents << " Events");
+
 		HLTTools* hltTools = new HLTTools;
 		bool bEventValid = true;
 		int sampleinit = -1;
 		if (settings.Global()->GetEnableSampleReweighting())
 			sampleinit = -2;
 
+		LOG("Running over " << (nEvents - firstEvent) << " Events");
 		for (long long i = firstEvent; i < nEvents; ++i)
 		{
 			// TODO refactor the evtProvider to clean up this mess with the hltTools

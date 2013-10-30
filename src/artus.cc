@@ -274,7 +274,7 @@ int main(int argc, char** argv)
 			delete *it;
 		}
 
-		// move to config read
+		// move to config read function
 		if (gset.GetEnablePuReweighting())
 			LOG_FILE(blue << "Pile-up reweighting enabled." << reset);
 		if (gset.GetEnableSampleReweighting())

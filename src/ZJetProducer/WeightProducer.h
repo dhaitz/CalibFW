@@ -82,12 +82,14 @@ public:
 
 			if (data.m_genlumimetadata->filterEff > 0)
 				xsec *= data.m_genlumimetadata->filterEff;
-			assert(xsec > 0);
 			weight *= xsec / ntotal * 1000.0;  // normalize to 1/fb
-			//LOG("ext=" << data.m_genlumimetadata->xSectionExt <<
-			//		", int=" << data.m_genlumimetadata->xSectionInt <<
-			//		", eff=" << data.m_genlumimetadata->filterEff <<
-			//		", xsec=" << xsec <<", weight=" << weight);
+
+			if (unlikely(xsec <= 0))
+				LOG("cfg=" << m_pipelineSettings.Global()->GetXSection() <<
+					", ext=" << data.m_genlumimetadata->xSectionExt <<
+					", int=" << data.m_genlumimetadata->xSectionInt <<
+					", eff=" << data.m_genlumimetadata->filterEff <<
+					", xsec=" << xsec <<", weight=" << weight);
 		}
 
 		metaData.SetWeight(metaData.GetWeight() * weight);
