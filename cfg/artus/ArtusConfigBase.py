@@ -52,7 +52,7 @@ def getNewestJson(variant="PromptReco_Collisions12"):
     return jsons[-1]
 
 
-def BaseConfig(inputtype, run='2012', analysis='zjet'):
+def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
     """Basic configuration for Artus.
 
     Return a default configuration for Artus depending on
@@ -98,25 +98,25 @@ def BaseConfig(inputtype, run='2012', analysis='zjet'):
                     "otherjetspt", "otherjetseta", "otherjetsphi",
                     "mupluspt", "mupluseta", "muplusphi",
                     "muminuspt", "muminuseta", "muminusphi",
-
-                    # tagged
-                    "qglikelihood", "qgmlp", "trackcountinghigheffbjettag",
-                    "trackcountinghighpurbjettag", "jetprobabilitybjettag",
-                    "jetbprobabilitybjettag", "softelectronbjettag",
-                    "softmuonbjettag", "softmuonbyip3dbjettag",
-                    "softmuonbyptbjettag", "simplesecondaryvertexbjettag",
-                    "combinedsecondaryvertexbjettag", "combinedsecondaryvertexmvabjettag",
-                    "jet1puJetFull", "jet1puJetIDFull", "jet1puJetIDFullLoose", "jet1puJetIDFullMedium", "jet1puJetIDFullTight",
-                    "jet1puJetCutbased", "jet1puJetIDCutbased", "jet1puJetIDCutbasedLoose", "jet1puJetIDCutbasedMedium", "jet1puJetIDCutbasedTight",
-                    "jet2puJetFull", "jet2puJetIDFull", "jet2puJetIDFullLoose", "jet2puJetIDFullMedium", "jet2puJetIDFullTight",
-                    "jet2puJetCutbased", "jet2puJetIDCutbased", "jet2puJetIDCutbasedLoose", "jet2puJetIDCutbasedMedium", "jet2puJetIDCutbasedTight",
                 ]
             }
         },
         'InputType': inputtype,
-        'Tagged': True,
+        'Tagged': tagged,
     }
-
+    if tagged:
+        config['Pipelines']['default']['QuantitiesVector'] += [
+            "qglikelihood", "qgmlp", "trackcountinghigheffbjettag",
+            "trackcountinghighpurbjettag", "jetprobabilitybjettag",
+            "jetbprobabilitybjettag", "softelectronbjettag",
+            "softmuonbjettag", "softmuonbyip3dbjettag",
+            "softmuonbyptbjettag", "simplesecondaryvertexbjettag",
+            "combinedsecondaryvertexbjettag", "combinedsecondaryvertexmvabjettag",
+            "jet1puJetFull", "jet1puJetIDFull", "jet1puJetIDFullLoose", "jet1puJetIDFullMedium", "jet1puJetIDFullTight",
+            "jet1puJetCutbased", "jet1puJetIDCutbased", "jet1puJetIDCutbasedLoose", "jet1puJetIDCutbasedMedium", "jet1puJetIDCutbasedTight",
+            "jet2puJetFull", "jet2puJetIDFull", "jet2puJetIDFullLoose", "jet2puJetIDFullMedium", "jet2puJetIDFullTight",
+            "jet2puJetCutbased", "jet2puJetIDCutbased", "jet2puJetIDCutbasedLoose", "jet2puJetIDCutbasedMedium", "jet2puJetIDCutbasedTight",
+        ]
     config['Pipelines']['default'].update(GetCuts(analysis))
 
     if inputtype == 'data':
@@ -372,15 +372,17 @@ def expand(config, variations=[], algorithms=[], default="default"):
     p = config['Pipelines'][default]
     if p['JetAlgorithm'] not in algorithms:
         algorithms.append(p['JetAlgorithm'])
+    if config['InputType'] == 'data' and "Res" not in p['JetAlgorithm']:
+        algorithms.append(p['JetAlgorithm'] + "Res")
 
     #find global algorithms
     config["GlobalAlgorithms"] = []
     removelist = ["Jets", "L1", "L2", "L3", "Res", "Hcal", "Custom"]
     for algo in algorithms:
         for r in removelist:
-            algo = algo.replace(r, "")
+            algo = algo.replace(r, "").replace("CHS", "chs")
         if algo not in config["GlobalAlgorithms"]:
-            config["GlobalAlgorithms"].append(algo.replace("CHS", "chs"))
+            config["GlobalAlgorithms"].append(algo)
 
     # copy for variations
     for v in variations:
