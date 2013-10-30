@@ -34,13 +34,13 @@ def artus():
         if options.printconfig:
             print "json config:"
             print json.dumps(conf, sort_keys=True, indent=4)
-        writeJson(conf, options.json)
-        print len(conf["Pipelines"]),
-        print "pipelines configured, written to", options.json
+        if not options.resume:
+            writeJson(conf, options.json)
+            print len(conf["Pipelines"]),
+            print "pipelines configured, written to", options.json
 
     # exit here if json config was the only aim
     if options.config:
-        print "Config written to", options.json
         exit(0)
 
     # Now the config .json is ready and we can run Artus
@@ -48,11 +48,16 @@ def artus():
         print "Artus is not found, please compile it first."
         exit(1)
     if options.batch:
-        prepareWork(options.work, options.out, options.delete)
-        writeDBS(conf, options.out, options.work + "/files.dbs")
-        createRunfile(options.json, options.work + "/run-artus.sh")
-        outpath = createGridControlConfig(conf, options.work + "/" + options.out + ".conf")
-        outpath = options.work + "out/" + outpath
+        if not options.resume:
+            prepareWork(options.work, options.out, options.delete)
+            writeDBS(conf, options.out, options.work + "/files.dbs")
+            createRunfile(options.json, options.work + "/run-artus.sh")
+            shutil.copy(options.json, options.work)
+            outpath = createGridControlConfig(conf, options.work + "/" + options.out + ".conf")
+            outpath = options.work + "out/" + outpath
+        else:
+            outpath = createGridControlConfig(conf, "/dev/null")
+            outpath = options.work + "out/" + outpath
 
         try:
             subprocess.call(['go.py', options.work + "/" + options.out + ".conf"])
@@ -132,6 +137,8 @@ def getoptions(configdir='cfg/artus/', name='artus'):
         help="specify custom work path (default from $EXCALIBUR_WORK variable")
     parser.add_argument('-r', '--root', action='store_true',
         help="open output file in ROOT TBrowser after completion")
+    parser.add_argument('-R', '--resume', action='store_true',
+        help="resume the grid-control run and hadd after interrupting it.")
 
     opt = parser.parse_args()
 
