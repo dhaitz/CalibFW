@@ -325,7 +325,7 @@ public:
 			LOG("This event contains a lot of particles: " << data.m_particles->size());
 		}
 
-		const float R = 0.5; // for DeltaR matching
+		const float R = 0.3; // for DeltaR matching
 
 		// Loop over particles
 		for (auto it = data.m_particles->begin(); it != data.m_particles->end(); ++it)
@@ -375,7 +375,7 @@ public:
 					 || (std::abs(it->pdgId()) == 2112)
 					 || (std::abs(it->pdgId()) == 3122))  //neutral hadrons
 			{
-				const float pt_threshold = 0.5; //GeV
+				const float pt_threshold = 1.; //GeV
 				for (ZJetEventData::GenJetMapIterator it2 = data.m_genJets.begin(); it2 != data.m_genJets.end(); ++it2)
 				{
 					if ((it2->second->size() > 0)
