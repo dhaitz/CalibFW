@@ -197,49 +197,49 @@ public:
 	VarCache<stringvector> m_filter;
 	stringvector GetFilter() const
 	{
-		RETURN_CACHED(m_filter, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetName() + ".Filter"))
+		RETURN_CACHED(m_filter, PropertyTreeSupport::GetAsStringList(GetPropTree(), "Pipelines." + GetName() + ".Filter"))
 	}
 
 	VarCache<doublevector> m_2ndJetWeight;
 	doublevector Get2ndJetWeight()
 	{
-		RETURN_CACHED(m_2ndJetWeight, PropertyTreeSupport::GetAsDoubleList(GetPropTree(), GetName() + ".2ndJetWeight"))
+		RETURN_CACHED(m_2ndJetWeight, PropertyTreeSupport::GetAsDoubleList(GetPropTree(), "Pipelines." + GetName() + ".2ndJetWeight"))
 	}
 
 	VarCache<doublevector> m_recovertWeight;
 	doublevector GetRecovertWeight()
 	{
-		RETURN_CACHED(m_recovertWeight, PropertyTreeSupport::GetAsDoubleList(GetPropTree(), GetName() + ".RecovertWeight"))
+		RETURN_CACHED(m_recovertWeight, PropertyTreeSupport::GetAsDoubleList(GetPropTree(), "Pipelines." + GetName() + ".RecovertWeight"))
 	}
 
 	VarCache<stringvector> m_jetRespBins;
 	stringvector GetCustomBins()
 	{
-		RETURN_CACHED(m_jetRespBins, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetName() + ".CustomBins"))
+		RETURN_CACHED(m_jetRespBins, PropertyTreeSupport::GetAsStringList(GetPropTree(), "Pipelines." + GetName() + ".CustomBins"))
 	}
 
 	VarCache<stringvector> m_cuts;
 	stringvector GetCuts() const
 	{
-		RETURN_CACHED(m_cuts, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetName() + ".Cuts"))
+		RETURN_CACHED(m_cuts, PropertyTreeSupport::GetAsStringList(GetPropTree(), "Pipelines." + GetName() + ".Cuts"))
 	}
 
 	VarCache<stringvector> m_producers;
 	stringvector GetMetaDataProducers() const
 	{
-		RETURN_CACHED(m_producers, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetName() + ".MetaDataProducers"))
+		RETURN_CACHED(m_producers, PropertyTreeSupport::GetAsStringList(GetPropTree(), "Pipelines." + GetName() + ".MetaDataProducers"))
 	}
 
 	VarCache<stringvector> m_consumer;
 	stringvector GetConsumer() const
 	{
-		RETURN_CACHED(m_consumer, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetName() + ".Consumer"))
+		RETURN_CACHED(m_consumer, PropertyTreeSupport::GetAsStringList(GetPropTree(), "Pipelines." + GetName() + ".Consumer"))
 	}
 
 	VarCache<stringvector> m_quantities;
 	stringvector GetQuantities() const
 	{
-		RETURN_CACHED(m_quantities, PropertyTreeSupport::GetAsStringList(GetPropTree(), GetName() + ".QuantitiesVector"))
+		RETURN_CACHED(m_quantities, PropertyTreeSupport::GetAsStringList(GetPropTree(), "Pipelines." + GetName() + ".QuantitiesVector"))
 	}
 
 };

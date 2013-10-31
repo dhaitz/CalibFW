@@ -231,7 +231,7 @@ int main(int argc, char** argv)
 			pset->SetPropTree(&g_propTree);
 
 			std::string pipelineName = v.first.data();
-			pset->SetName("Pipelines." + pipelineName);
+			pset->SetName(pipelineName);
 			pset->SetRootOutFile(g_resFile);
 
 			g_pipeSettings.push_back(pset);
