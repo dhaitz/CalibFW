@@ -32,113 +32,7 @@ class TreeConsumer : public TreeConsumerBase< ZJetEventData, ZJetMetaData, ZJetP
 		m_tree = new TNtuple("NTuple", "NTuple", quantities.c_str());
 
 		// turn the stringvector into an enumvector
-		std::vector<std::string> v = this->GetPipelineSettings().GetQuantities();
-		for (std::vector<std::string>::iterator it = v.begin(); it != v.end(); ++it)
-		{
-			type var;
-			std::string string = *it;
-			if (string == "npv") var = npv;
-			else if (string == "npu") var = npu;
-			else if (string == "nputruth") var = nputruth;
-			else if (string == "rho") var = rho;
-			else if (string == "run") var = run;
-			else if (string == "weight") var = weight;
-			else if (string == "eventnr") var = eventnr;
-			else if (string == "lumisec") var = lumisec;
 
-			else if (string == "zpt") var = zpt;
-			else if (string == "zeta") var = zeta;
-			else if (string == "zphi") var = zphi;
-			else if (string == "zmass") var = zmass;
-			else if (string == "zy") var = zy;
-
-			else if (string == "jet1pt") var = jet1pt;
-			else if (string == "jet1eta") var = jet1eta;
-			else if (string == "jet1phi") var = jet1phi;
-			else if (string == "jet1photonfraction") var = jet1photonfraction;
-			else if (string == "jet1chargedemfraction") var = jet1chargedemfraction;
-			else if (string == "jet1chargedhadfraction") var = jet1chargedhadfraction;
-			else if (string == "jet1neutralhadfraction") var = jet1neutralhadfraction;
-			else if (string == "jet1muonfraction") var = jet1muonfraction;
-			else if (string == "jet1HFhadfraction") var = jet1HFhadfraction;
-			else if (string == "jet1HFemfraction") var = jet1HFemfraction;
-			else if (string == "jet2pt") var = jet2pt;
-			else if (string == "jet2phi") var = jet2phi;
-			else if (string == "jet2eta") var = jet2eta;
-			else if (string == "METpt") var = METpt;
-			else if (string == "METphi") var = METphi;
-			else if (string == "sumEt") var = sumEt;
-			else if (string == "rawMETpt") var = rawMETpt;
-			else if (string == "rawMETphi") var = rawMETphi;
-			else if (string == "uept") var = uept;
-			else if (string == "uephi") var = uephi;
-			else if (string == "ueeta") var = ueeta;
-			else if (string == "mpf") var = mpf;
-			else if (string == "rawmpf") var = rawmpf;
-			else if (string == "otherjetspt") var = otherjetspt;
-			else if (string == "otherjetsphi") var = otherjetsphi;
-			else if (string == "otherjetseta") var = otherjetseta;
-			else if (string == "genjet1pt") var = genjet1pt;
-			else if (string == "genjet1eta") var = genjet1eta;
-			else if (string == "genjet1phi") var = genjet1phi;
-			else if (string == "matchedgenjet1pt") var = matchedgenjet1pt;
-			else if (string == "genjet2pt") var = genjet2pt;
-			else if (string == "genzpt") var = genzpt;
-			else if (string == "genmpf") var = genmpf;
-			else if (string == "algoflavour") var = algoflavour;
-			else if (string == "physflavour") var = physflavour;
-			else if (string == "jet1ptneutrinos") var = jet1ptneutrinos;
-			else if (string == "mpfneutrinos") var = mpfneutrinos;
-			else if (string == "neutralpt") var = neutralpt;
-
-			else if (string == "mupluspt") var = mupluspt;
-			else if (string == "mupluseta") var = mupluseta;
-			else if (string == "muplusphi") var = muplusphi;
-
-			else if (string == "muminuspt") var = muminuspt;
-			else if (string == "muminuseta") var = muminuseta;
-			else if (string == "muminusphi") var = muminusphi;
-
-			else if (string == "qglikelihood") var = qglikelihood;
-			else if (string == "qgmlp") var = qgmlp;
-
-			else if (string == "trackcountinghigheffbjettag") var = trackcountinghigheffbjettag;
-			else if (string == "trackcountinghighpurbjettag") var = trackcountinghighpurbjettag;
-			else if (string == "jetprobabilitybjettag") var = jetprobabilitybjettag;
-			else if (string == "jetbprobabilitybjettag") var = jetbprobabilitybjettag;
-			else if (string == "softelectronbjettag") var = softelectronbjettag;
-			else if (string == "softmuonbjettag") var = softmuonbjettag;
-			else if (string == "softmuonbyip3dbjettag") var = softmuonbyip3dbjettag;
-			else if (string == "softmuonbyptbjettag") var = softmuonbyptbjettag;
-			else if (string == "simplesecondaryvertexbjettag") var = simplesecondaryvertexbjettag;
-			else if (string == "combinedsecondaryvertexbjettag") var = combinedsecondaryvertexbjettag;
-			else if (string == "combinedsecondaryvertexmvabjettag") var = combinedsecondaryvertexmvabjettag;
-
-			else if (string == "jet1puJetFull") var = jet1puJetFull;
-			else if (string == "jet1puJetIDFull") var = jet1puJetIDFull;
-			else if (string == "jet1puJetIDFullLoose") var = jet1puJetIDFullLoose;
-			else if (string == "jet1puJetIDFullMedium") var = jet1puJetIDFullMedium;
-			else if (string == "jet1puJetIDFullTight") var = jet1puJetIDFullTight;
-			else if (string == "jet1puJetCutbased") var = jet1puJetCutbased;
-			else if (string == "jet1puJetIDCutbased") var = jet1puJetIDCutbased;
-			else if (string == "jet1puJetIDCutbasedLoose") var = jet1puJetIDCutbasedLoose;
-			else if (string == "jet1puJetIDCutbasedMedium") var = jet1puJetIDCutbasedMedium;
-			else if (string == "jet1puJetIDCutbasedTight") var = jet1puJetIDCutbasedTight;
-
-			else if (string == "jet2puJetFull") var = jet2puJetFull;
-			else if (string == "jet2puJetIDFull") var = jet2puJetIDFull;
-			else if (string == "jet2puJetIDFullLoose") var = jet2puJetIDFullLoose;
-			else if (string == "jet2puJetIDFullMedium") var = jet2puJetIDFullMedium;
-			else if (string == "jet2puJetIDFullTight") var = jet2puJetIDFullTight;
-			else if (string == "jet2puJetCutbased") var = jet2puJetCutbased;
-			else if (string == "jet2puJetIDCutbased") var = jet2puJetIDCutbased;
-			else if (string == "jet2puJetIDCutbasedLoose") var = jet2puJetIDCutbasedLoose;
-			else if (string == "jet2puJetIDCutbasedMedium") var = jet2puJetIDCutbasedMedium;
-			else if (string == "jet2puJetIDCutbasedTight") var = jet2puJetIDCutbasedTight;
-			else var = none;
-
-			enumvector.push_back(var);
-		}
 	}
 
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
@@ -146,83 +40,46 @@ class TreeConsumer : public TreeConsumerBase< ZJetEventData, ZJetMetaData, ZJetP
 	{
 		EventConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings>::ProcessFilteredEvent(event, metaData);
 
-		std::vector<float> arr;
+		std::vector<float> array;
+		std::vector<std::string> stringvector = this->GetPipelineSettings().GetQuantities();
 
-		//iterate over enum vector
-		for (std::vector<type>::iterator it = enumvector.begin(); it != enumvector.end(); ++it)
-			arr.push_back(returnvalue(*it, event, metaData, this->GetPipelineSettings()));
+		//iterate over string vector and fill the array for each quantitiy
+		for (std::vector<std::string>::iterator it = stringvector.begin(); it != stringvector.end(); ++it)
+			array.push_back(returnvalue(*it, event, metaData, this->GetPipelineSettings()));
 
 		// add the array to the tree
-		m_tree->Fill(&arr[0]);
+		m_tree->Fill(&array[0]);
 	}
 
 	virtual void Finish()
 	{
-		std::string name = this->GetPipelineSettings().GetName();
-		m_tree->Write(name.c_str());
+		m_tree->Write(this->GetPipelineSettings().GetName().c_str());
 	}
 
 private:
 
-	std::string m_name;
 	TNtuple* m_tree;
 
-	enum type
-	{
-		// event variables
-		npv, npu, nputruth, rho, run, weight, eventnr, lumisec,
-		uept, uephi, ueeta, mpf, rawmpf,  genmpf,
-		// muons, Z, MET
-		mupluspt, mupluseta, muplusphi, muminuspt, muminuseta, muminusphi,
-		zpt, zeta, zphi, zy, zmass, genzpt,
-		METpt, METphi, sumEt, rawMETpt, rawMETphi,
-		// jets
-		jet1pt, jet1eta, jet1phi,
-		jet1photonfraction, jet1chargedemfraction, jet1chargedhadfraction,
-		jet1neutralhadfraction, jet1muonfraction, jet1HFhadfraction,
-		jet1HFemfraction,
-		jet1puJetFull, jet1puJetIDFull, jet1puJetIDFullLoose, jet1puJetIDFullMedium, jet1puJetIDFullTight,
-		jet1puJetCutbased, jet1puJetIDCutbased, jet1puJetIDCutbasedLoose, jet1puJetIDCutbasedMedium, jet1puJetIDCutbasedTight,
-		qglikelihood, qgmlp, trackcountinghigheffbjettag,
-		trackcountinghighpurbjettag, jetprobabilitybjettag,
-		jetbprobabilitybjettag, softelectronbjettag, softmuonbjettag,
-		softmuonbyip3dbjettag, softmuonbyptbjettag, simplesecondaryvertexbjettag,
-		combinedsecondaryvertexbjettag, combinedsecondaryvertexmvabjettag,
-		algoflavour, physflavour,
-		jet2pt, jet2phi, jet2eta,
-		jet2puJetFull, jet2puJetIDFull, jet2puJetIDFullLoose, jet2puJetIDFullMedium, jet2puJetIDFullTight,
-		jet2puJetCutbased, jet2puJetIDCutbased, jet2puJetIDCutbasedLoose, jet2puJetIDCutbasedMedium, jet2puJetIDCutbasedTight,
-		subleadingjetspt, subleadingjetsphi,
-		genjet1pt, genjet1eta, genjet1phi,
-		genjet2pt,
-		otherjetspt, otherjetsphi, otherjetseta,
-		matchedgenjet1pt,
-		jet1ptneutrinos, mpfneutrinos, neutralpt,
-		none
-	} var;
-
-	std::vector<type> enumvector;
-
-	float returnvalue(type var, ZJetEventData const& event,
+	float returnvalue(std::string string, ZJetEventData const& event,
 					  ZJetMetaData const& metaData, ZJetPipelineSettings const& s)
 	{
 		// general quantities
-		if (var == npv)
+		if (string == "npv")
 			return event.m_vertexSummary->nVertices;
-		else if (var == npu)
+		else if (string == "npu")
 			return event.m_geneventmetadata->numPUInteractions0;
-		else if (var == nputruth)
+		else if (string == "nputruth")
 			return event.m_geneventmetadata->numPUInteractionsTruth;
 
 		// QG tag
-		else if (var == qglikelihood)
+		else if (string == "qglikelihood")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->qgLikelihood == -1)
 				return -999;
 			else
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->qgLikelihood;
 		}
-		else if (var == qgmlp)
+		else if (string == "qgmlp")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->qgLikelihood == -1)
 				return -999;
@@ -231,77 +88,77 @@ private:
 		}
 
 		// b tags
-		else if (var == trackcountinghigheffbjettag)
+		else if (string == "trackcountinghigheffbjettag")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->trackCountingHighEffBTag == -1)
 				return -999;
 			else
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->trackCountingHighEffBTag;
 		}
-		else if (var == trackcountinghighpurbjettag)
+		else if (string == "trackcountinghighpurbjettag")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->trackCountingHighPurBTag == -1)
 				return -999;
 			else
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->trackCountingHighPurBTag;
 		}
-		else if (var == jetprobabilitybjettag)
+		else if (string == "jetprobabilitybjettag")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->jetProbabilityBTag == -1)
 				return -999;
 			else
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->jetProbabilityBTag;
 		}
-		else if (var == jetbprobabilitybjettag)
+		else if (string == "jetbprobabilitybjettag")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->jetBProbabilityBTag == -1)
 				return -999;
 			else
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->jetBProbabilityBTag;
 		}
-		else if (var == softelectronbjettag)
+		else if (string == "softelectronbjettag")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softElectronBTag == -1)
 				return -999;
 			else
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softElectronBTag;
 		}
-		else if (var == softmuonbjettag)
+		else if (string == "softmuonbjettag")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softMuonBTag == -1)
 				return -999;
 			else
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softMuonBTag;
 		}
-		else if (var == softmuonbyip3dbjettag)
+		else if (string == "softmuonbyip3dbjettag")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softMuonByIP3dBTag == -1)
 				return -999;
 			else
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softMuonByIP3dBTag;
 		}
-		else if (var == softmuonbyptbjettag)
+		else if (string == "softmuonbyptbjettag")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softMuonByPtBTag == -1)
 				return -999;
 			else
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softMuonByPtBTag;
 		}
-		else if (var == simplesecondaryvertexbjettag)
+		else if (string == "simplesecondaryvertexbjettag")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->simpleSecondaryVertexBTag == -1)
 				return -999;
 			else
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->simpleSecondaryVertexBTag;
 		}
-		else if (var == combinedsecondaryvertexbjettag)
+		else if (string == "combinedsecondaryvertexbjettag")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->combinedSecondaryVertexBTag == -1)
 				return -999;
 			else
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->combinedSecondaryVertexBTag;
 		}
-		else if (var == combinedsecondaryvertexmvabjettag)
+		else if (string == "combinedsecondaryvertexmvabjettag")
 		{
 			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->combinedSecondaryVertexMVABTag == -1)
 				return -999;
@@ -310,85 +167,85 @@ private:
 		}
 
 		// jet 1 PU
-		else if (var == jet1puJetFull)
+		else if (string == "jet1puJetFull")
 			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetFull;
-		else if (var == jet1puJetIDFull)
+		else if (string == "jet1puJetIDFull")
 			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDFull;
-		else if (var == jet1puJetIDFullLoose)
+		else if (string == "jet1puJetIDFullLoose")
 			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDFullLoose;
-		else if (var == jet1puJetIDFullMedium)
+		else if (string == "jet1puJetIDFullMedium")
 			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDFullMedium;
-		else if (var == jet1puJetIDFullTight)
+		else if (string == "jet1puJetIDFullTight")
 			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDFullTight;
 
-		else if (var == jet1puJetCutbased)
+		else if (string == "jet1puJetCutbased")
 			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetCutbased;
-		else if (var == jet1puJetIDCutbased)
+		else if (string == "jet1puJetIDCutbased")
 			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDCutbased;
-		else if (var == jet1puJetIDCutbasedLoose)
+		else if (string == "jet1puJetIDCutbasedLoose")
 			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDCutbasedLoose;
-		else if (var == jet1puJetIDCutbasedMedium)
+		else if (string == "jet1puJetIDCutbasedMedium")
 			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDCutbasedMedium;
-		else if (var == jet1puJetIDCutbasedTight)
+		else if (string == "jet1puJetIDCutbasedTight")
 			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDCutbasedTight;
 
 
 		// jet 2 PU
-		else if (var == jet2puJetFull)
+		else if (string == "jet2puJetFull")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetFull;
 			else return 0;
 		}
-		else if (var == jet2puJetIDFull)
+		else if (string == "jet2puJetIDFull")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDFull;
 			else return 0;
 		}
-		else if (var == jet2puJetIDFullLoose)
+		else if (string == "jet2puJetIDFullLoose")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDFullLoose;
 			else return 0;
 		}
-		else if (var == jet2puJetIDFullMedium)
+		else if (string == "jet2puJetIDFullMedium")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDFullMedium;
 			else return 0;
 		}
-		else if (var == jet2puJetIDFullTight)
+		else if (string == "jet2puJetIDFullTight")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDFullTight;
 			else return 0;
 		}
-		else if (var == jet2puJetCutbased)
+		else if (string == "jet2puJetCutbased")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetCutbased;
 			else return 0;
 		}
-		else if (var == jet2puJetIDCutbased)
+		else if (string == "jet2puJetIDCutbased")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDCutbased;
 			else return 0;
 		}
-		else if (var == jet2puJetIDCutbasedLoose)
+		else if (string == "jet2puJetIDCutbasedLoose")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDCutbasedLoose;
 			else return 0;
 		}
-		else if (var == jet2puJetIDCutbasedMedium)
+		else if (string == "jet2puJetIDCutbasedMedium")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDCutbasedMedium;
 			else return 0;
 		}
-		else if (var == jet2puJetIDCutbasedTight)
+		else if (string == "jet2puJetIDCutbasedTight")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDCutbasedTight;
@@ -397,26 +254,26 @@ private:
 
 
 
-		else if (var == rho)
+		else if (string == "rho")
 			return event.m_jetArea->median;
-		else if (var == run)
+		else if (string == "run")
 			return event.m_eventmetadata->nRun;
-		else if (var == weight)
+		else if (string == "weight")
 			return metaData.GetWeight();
 		// Z
-		else if (var == zpt)
+		else if (string == "zpt")
 			return metaData.GetRefZ().p4.Pt();
-		else if (var == zeta)
+		else if (string == "zeta")
 			return metaData.GetRefZ().p4.Eta();
-		else if (var == zphi)
+		else if (string == "zphi")
 			return metaData.GetRefZ().p4.Phi();
-		else if (var == zy)
+		else if (string == "zy")
 			return metaData.GetRefZ().p4.Rapidity();
-		else if (var == zmass)
+		else if (string == "zmass")
 			return metaData.GetRefZ().p4.mass();
 
 		// muons
-		else if (var == mupluspt)
+		else if (string == "mupluspt")
 		{
 			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
 				 it != metaData.m_listValidMuons.end(); it ++)
@@ -424,7 +281,7 @@ private:
 				if (it->charge == 1) return it->p4.Pt();
 			}
 		}
-		else if (var == mupluseta)
+		else if (string == "mupluseta")
 		{
 			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
 				 it != metaData.m_listValidMuons.end(); it ++)
@@ -432,7 +289,7 @@ private:
 				if (it->charge == 1) return it->p4.Eta();
 			}
 		}
-		else if (var == muplusphi)
+		else if (string == "muplusphi")
 		{
 			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
 				 it != metaData.m_listValidMuons.end(); it ++)
@@ -440,7 +297,7 @@ private:
 				if (it->charge == 1) return it->p4.Phi();
 			}
 		}
-		else if (var == muminuspt)
+		else if (string == "muminuspt")
 		{
 			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
 				 it != metaData.m_listValidMuons.end(); it ++)
@@ -448,7 +305,7 @@ private:
 				if (it->charge == -1) return it->p4.Pt();
 			}
 		}
-		else if (var == muminuseta)
+		else if (string == "muminuseta")
 		{
 			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
 				 it != metaData.m_listValidMuons.end(); it ++)
@@ -456,7 +313,7 @@ private:
 				if (it->charge == -1) return it->p4.Eta();
 			}
 		}
-		else if (var == muminusphi)
+		else if (string == "muminusphi")
 		{
 			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
 				 it != metaData.m_listValidMuons.end(); it ++)
@@ -466,45 +323,45 @@ private:
 		}
 
 		// leading jet
-		else if (var == jet1pt)
+		else if (string == "jet1pt")
 			return metaData.GetValidPrimaryJet(s, event)->p4.Pt();
-		else if (var == jet1eta)
+		else if (string == "jet1eta")
 			return metaData.GetValidPrimaryJet(s, event)->p4.Eta();
-		else if (var == jet1phi)
+		else if (string == "jet1phi")
 			return metaData.GetValidPrimaryJet(s, event)->p4.Phi();
 
 		// leading jet composition
-		else if (var == jet1photonfraction)
+		else if (string == "jet1photonfraction")
 			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->photonFraction;
-		else if (var == jet1chargedemfraction)
+		else if (string == "jet1chargedemfraction")
 			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->chargedEMFraction;
-		else if (var == jet1chargedhadfraction)
+		else if (string == "jet1chargedhadfraction")
 			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->chargedHadFraction;
-		else if (var == jet1neutralhadfraction)
+		else if (string == "jet1neutralhadfraction")
 			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->neutralHadFraction;
-		else if (var == jet1muonfraction)
+		else if (string == "jet1muonfraction")
 			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->muonFraction;
-		else if (var == jet1HFhadfraction)
+		else if (string == "jet1HFhadfraction")
 			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->HFHadFraction;
-		else if (var == jet1HFemfraction)
+		else if (string == "jet1HFemfraction")
 			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->HFEMFraction;
 
 		// second jet
-		else if (var == jet2pt)
+		else if (string == "jet2pt")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return metaData.GetValidJet(s, event, 1)->p4.Pt();
 			else
 				return 0;
 		}
-		else if (var == jet2phi)
+		else if (string == "jet2phi")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return metaData.GetValidJet(s, event, 1)->p4.Phi();
 			else
 				return 0;
 		}
-		else if (var == jet2eta)
+		else if (string == "jet2eta")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
 				return metaData.GetValidJet(s, event, 1)->p4.Eta();
@@ -513,28 +370,28 @@ private:
 		}
 
 		// MET & sumEt
-		else if (var == METpt)
+		else if (string == "METpt")
 			return metaData.GetMet(event, s)->p4.Pt();
-		else if (var == METphi)
+		else if (string == "METphi")
 			return metaData.GetMet(event, s)->p4.Phi();
-		else if (var == sumEt)
+		else if (string == "sumEt")
 			return metaData.GetMet(event, s)->sumEt;
-		else if (var == rawMETpt)
+		else if (string == "rawMETpt")
 			return event.GetMet(s)->p4.Pt();
-		else if (var == rawMETphi)
+		else if (string == "rawMETphi")
 			return event.GetMet(s)->p4.Phi();
 
-		else if (var == uept)
+		else if (string == "uept")
 			return metaData.GetUE(event, s)->p4.Pt();
-		else if (var == uephi)
+		else if (string == "uephi")
 			return metaData.GetUE(event, s)->p4.Phi();
-		else if (var == ueeta)
+		else if (string == "ueeta")
 			return metaData.GetUE(event, s)->p4.Eta();
-		else if (var == mpf)
+		else if (string == "mpf")
 			return metaData.GetMPF(metaData.GetMet(event, s));
-		else if (var == rawmpf)
+		else if (string == "rawmpf")
 			return metaData.GetMPF(event.GetMet(s));
-		else if (var == otherjetspt)
+		else if (string == "otherjetspt")
 		{
 			if (metaData.GetValidJetCount(s, event) < 2)
 				return 0;
@@ -546,7 +403,7 @@ private:
 						  + metaData.GetUE(event, s)->p4
 						 )).Pt();
 		}
-		else if (var == otherjetsphi)
+		else if (string == "otherjetsphi")
 		{
 			if (metaData.GetValidJetCount(s, event) < 2)
 				return 0;
@@ -558,7 +415,7 @@ private:
 						  + metaData.GetUE(event, s)->p4
 						 )).Phi();
 		}
-		else if (var == otherjetseta)
+		else if (string == "otherjetseta")
 		{
 			if (metaData.GetValidJetCount(s, event) < 2)
 				return 0;
@@ -571,7 +428,7 @@ private:
 						 )).Eta();
 		}
 		//gen jets
-		else if (var == genjet1pt)
+		else if (string == "genjet1pt")
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 
@@ -580,7 +437,7 @@ private:
 
 			return metaData.GetValidJet(s, event, 0, genName)->p4.Pt();
 		}
-		else if (var == genjet1eta)
+		else if (string == "genjet1eta")
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 
@@ -589,7 +446,7 @@ private:
 
 			return metaData.GetValidJet(s, event, 0, genName)->p4.Eta();
 		}
-		else if (var == genjet1phi)
+		else if (string == "genjet1phi")
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 
@@ -598,7 +455,7 @@ private:
 
 			return metaData.GetValidJet(s, event, 0, genName)->p4.Phi();
 		}
-		else if (var == matchedgenjet1pt)
+		else if (string == "matchedgenjet1pt")
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 
@@ -628,7 +485,7 @@ private:
 			return metaData.GetValidJet(s, event, iMatchedGen, genName)->p4.Pt();
 		}
 
-		else if (var == genjet2pt)
+		else if (string == "genjet2pt")
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 
@@ -637,19 +494,19 @@ private:
 
 			return metaData.GetValidJet(s, event, 1, genName)->p4.Pt();
 		}
-		else if (var == genzpt)
+		else if (string == "genzpt")
 			return metaData.GetRefGenZ().p4.Pt();
-		else if (var == genmpf)
+		else if (string == "genmpf")
 			return metaData.GetGenMPF(metaData.GetPtGenMet()), metaData.GetWeight();
-		else if (var == algoflavour)
+		else if (string == "algoflavour")
 			return metaData.GetAlgoFlavour(s);
-		else if (var == physflavour)
+		else if (string == "physflavour")
 			return metaData.GetPhysFlavour(s);
-		else if (var == eventnr)
+		else if (string == "eventnr")
 			return event.m_eventmetadata->nEvent;
-		else if (var == lumisec)
+		else if (string == "lumisec")
 			return event.m_eventmetadata->nLumi;
-		else if (var == jet1ptneutrinos)
+		else if (string == "jet1ptneutrinos")
 		{
 			KDataLV v = * metaData.GetValidPrimaryJet(s, event);
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
@@ -658,7 +515,7 @@ private:
 					v.p4 += it->p4;
 			return v.p4.Pt();
 		}
-		else if (var == mpfneutrinos)
+		else if (string == "mpfneutrinos")
 		{
 			KDataPFMET met = * metaData.GetMet(event, s);
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
@@ -668,7 +525,7 @@ private:
 			met.p4.SetEta(0);
 			return metaData.GetMPF(&met);
 		}
-		else if (var == neutralpt)
+		else if (string == "neutralpt")
 		{
 			KDataLV v;
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
@@ -678,7 +535,7 @@ private:
 			return v.p4.Pt();
 		}
 		else
-			LOG_FATAL("TTreeConsumer: Quantity " << " (" << var << ") not available!");
+			LOG_FATAL("TTreeConsumer: Quantity " << " (" << string << ") not available!");
 
 		LOG_FATAL("None found");
 		assert(false);
