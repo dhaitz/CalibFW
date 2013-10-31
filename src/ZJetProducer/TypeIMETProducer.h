@@ -59,7 +59,7 @@ public:
 				}
 
 				KDataPFMET corrmet = * rawmet;
-				corrmet.p4 =+ correction.p4;
+				corrmet.p4 += correction.p4;
 				corrmet.p4.SetEta(0.0f);
 				corrmet.sumEt = rawmet->sumEt + sumEt_correction;
 
@@ -83,7 +83,10 @@ public:
 		return true;
 	}
 
-	static std::string Name() { return "typeImet_producer"; }
+	static std::string Name()
+	{
+		return "typeImet_producer";
+	}
 
 
 
