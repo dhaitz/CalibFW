@@ -30,7 +30,115 @@ class TreeConsumer : public TreeConsumerBase< ZJetEventData, ZJetMetaData, ZJetP
 		EventConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>::Init(pset);
 		std::string quantities = this->GetPipelineSettings().GetQuantitiesString();
 		m_tree = new TNtuple("NTuple", "NTuple", quantities.c_str());
-		// vector here
+
+		// turn the stringvector into an enumvector
+		std::vector<std::string> v = this->GetPipelineSettings().GetQuantities();
+		for (std::vector<std::string>::iterator it = v.begin(); it != v.end(); ++it)
+		{
+			type var;
+			std::string string = *it;
+			if (string == "npv") var = npv;
+			else if (string == "npu") var = npu;
+			else if (string == "nputruth") var = nputruth;
+			else if (string == "rho") var = rho;
+			else if (string == "run") var = run;
+			else if (string == "weight") var = weight;
+			else if (string == "eventnr") var = eventnr;
+			else if (string == "lumisec") var = lumisec;
+
+			else if (string == "zpt") var = zpt;
+			else if (string == "zeta") var = zeta;
+			else if (string == "zphi") var = zphi;
+			else if (string == "zmass") var = zmass;
+			else if (string == "zy") var = zy;
+
+			else if (string == "jet1pt") var = jet1pt;
+			else if (string == "jet1eta") var = jet1eta;
+			else if (string == "jet1phi") var = jet1phi;
+			else if (string == "jet1photonfraction") var = jet1photonfraction;
+			else if (string == "jet1chargedemfraction") var = jet1chargedemfraction;
+			else if (string == "jet1chargedhadfraction") var = jet1chargedhadfraction;
+			else if (string == "jet1neutralhadfraction") var = jet1neutralhadfraction;
+			else if (string == "jet1muonfraction") var = jet1muonfraction;
+			else if (string == "jet1HFhadfraction") var = jet1HFhadfraction;
+			else if (string == "jet1HFemfraction") var = jet1HFemfraction;
+			else if (string == "jet2pt") var = jet2pt;
+			else if (string == "jet2phi") var = jet2phi;
+			else if (string == "jet2eta") var = jet2eta;
+			else if (string == "METpt") var = METpt;
+			else if (string == "METphi") var = METphi;
+			else if (string == "sumEt") var = sumEt;
+			else if (string == "rawMETpt") var = rawMETpt;
+			else if (string == "rawMETphi") var = rawMETphi;
+			else if (string == "uept") var = uept;
+			else if (string == "uephi") var = uephi;
+			else if (string == "ueeta") var = ueeta;
+			else if (string == "mpf") var = mpf;
+			else if (string == "rawmpf") var = rawmpf;
+			else if (string == "otherjetspt") var = otherjetspt;
+			else if (string == "otherjetsphi") var = otherjetsphi;
+			else if (string == "otherjetseta") var = otherjetseta;
+			else if (string == "genjet1pt") var = genjet1pt;
+			else if (string == "genjet1eta") var = genjet1eta;
+			else if (string == "genjet1phi") var = genjet1phi;
+			else if (string == "matchedgenjet1pt") var = matchedgenjet1pt;
+			else if (string == "genjet2pt") var = genjet2pt;
+			else if (string == "genzpt") var = genzpt;
+			else if (string == "genmpf") var = genmpf;
+			else if (string == "algoflavour") var = algoflavour;
+			else if (string == "physflavour") var = physflavour;
+			else if (string == "jet1ptneutrinos") var = jet1ptneutrinos;
+			else if (string == "mpfneutrinos") var = mpfneutrinos;
+			else if (string == "neutralpt") var = neutralpt;
+
+			else if (string == "mupluspt") var = mupluspt;
+			else if (string == "mupluseta") var = mupluseta;
+			else if (string == "muplusphi") var = muplusphi;
+
+			else if (string == "muminuspt") var = muminuspt;
+			else if (string == "muminuseta") var = muminuseta;
+			else if (string == "muminusphi") var = muminusphi;
+
+			else if (string == "qglikelihood") var = qglikelihood;
+			else if (string == "qgmlp") var = qgmlp;
+
+			else if (string == "trackcountinghigheffbjettag") var = trackcountinghigheffbjettag;
+			else if (string == "trackcountinghighpurbjettag") var = trackcountinghighpurbjettag;
+			else if (string == "jetprobabilitybjettag") var = jetprobabilitybjettag;
+			else if (string == "jetbprobabilitybjettag") var = jetbprobabilitybjettag;
+			else if (string == "softelectronbjettag") var = softelectronbjettag;
+			else if (string == "softmuonbjettag") var = softmuonbjettag;
+			else if (string == "softmuonbyip3dbjettag") var = softmuonbyip3dbjettag;
+			else if (string == "softmuonbyptbjettag") var = softmuonbyptbjettag;
+			else if (string == "simplesecondaryvertexbjettag") var = simplesecondaryvertexbjettag;
+			else if (string == "combinedsecondaryvertexbjettag") var = combinedsecondaryvertexbjettag;
+			else if (string == "combinedsecondaryvertexmvabjettag") var = combinedsecondaryvertexmvabjettag;
+
+			else if (string == "jet1puJetFull") var = jet1puJetFull;
+			else if (string == "jet1puJetIDFull") var = jet1puJetIDFull;
+			else if (string == "jet1puJetIDFullLoose") var = jet1puJetIDFullLoose;
+			else if (string == "jet1puJetIDFullMedium") var = jet1puJetIDFullMedium;
+			else if (string == "jet1puJetIDFullTight") var = jet1puJetIDFullTight;
+			else if (string == "jet1puJetCutbased") var = jet1puJetCutbased;
+			else if (string == "jet1puJetIDCutbased") var = jet1puJetIDCutbased;
+			else if (string == "jet1puJetIDCutbasedLoose") var = jet1puJetIDCutbasedLoose;
+			else if (string == "jet1puJetIDCutbasedMedium") var = jet1puJetIDCutbasedMedium;
+			else if (string == "jet1puJetIDCutbasedTight") var = jet1puJetIDCutbasedTight;
+
+			else if (string == "jet2puJetFull") var = jet2puJetFull;
+			else if (string == "jet2puJetIDFull") var = jet2puJetIDFull;
+			else if (string == "jet2puJetIDFullLoose") var = jet2puJetIDFullLoose;
+			else if (string == "jet2puJetIDFullMedium") var = jet2puJetIDFullMedium;
+			else if (string == "jet2puJetIDFullTight") var = jet2puJetIDFullTight;
+			else if (string == "jet2puJetCutbased") var = jet2puJetCutbased;
+			else if (string == "jet2puJetIDCutbased") var = jet2puJetIDCutbased;
+			else if (string == "jet2puJetIDCutbasedLoose") var = jet2puJetIDCutbasedLoose;
+			else if (string == "jet2puJetIDCutbasedMedium") var = jet2puJetIDCutbasedMedium;
+			else if (string == "jet2puJetIDCutbasedTight") var = jet2puJetIDCutbasedTight;
+			else var = none;
+
+			enumvector.push_back(var);
+		}
 	}
 
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
@@ -38,13 +146,10 @@ class TreeConsumer : public TreeConsumerBase< ZJetEventData, ZJetMetaData, ZJetP
 	{
 		EventConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings>::ProcessFilteredEvent(event, metaData);
 
-		// get the list (stringvector) of variables
-		std::vector<std::string> v = this->GetPipelineSettings().GetQuantities();
-
 		std::vector<float> arr;
 
-		// fill the array with values according to the variable-list:
-		for (std::vector<std::string>::iterator it = v.begin(); it != v.end(); ++it)
+		//iterate over enum vector
+		for (std::vector<type>::iterator it = enumvector.begin(); it != enumvector.end(); ++it)
 			arr.push_back(returnvalue(*it, event, metaData, this->GetPipelineSettings()));
 
 		// add the array to the tree
@@ -96,113 +201,11 @@ private:
 		none
 	} var;
 
+	std::vector<type> enumvector;
 
-	float returnvalue(std::string string, ZJetEventData const& event,
+	float returnvalue(type var, ZJetEventData const& event,
 					  ZJetMetaData const& metaData, ZJetPipelineSettings const& s)
 	{
-		if (string == "npv") var = npv;
-		else if (string == "npu") var = npu;
-		else if (string == "nputruth") var = nputruth;
-		else if (string == "rho") var = rho;
-		else if (string == "run") var = run;
-		else if (string == "weight") var = weight;
-		else if (string == "eventnr") var = eventnr;
-		else if (string == "lumisec") var = lumisec;
-
-		else if (string == "zpt") var = zpt;
-		else if (string == "zeta") var = zeta;
-		else if (string == "zphi") var = zphi;
-		else if (string == "zmass") var = zmass;
-		else if (string == "zy") var = zy;
-
-		else if (string == "jet1pt") var = jet1pt;
-		else if (string == "jet1eta") var = jet1eta;
-		else if (string == "jet1phi") var = jet1phi;
-		else if (string == "jet1photonfraction") var = jet1photonfraction;
-		else if (string == "jet1chargedemfraction") var = jet1chargedemfraction;
-		else if (string == "jet1chargedhadfraction") var = jet1chargedhadfraction;
-		else if (string == "jet1neutralhadfraction") var = jet1neutralhadfraction;
-		else if (string == "jet1muonfraction") var = jet1muonfraction;
-		else if (string == "jet1HFhadfraction") var = jet1HFhadfraction;
-		else if (string == "jet1HFemfraction") var = jet1HFemfraction;
-		else if (string == "jet2pt") var = jet2pt;
-		else if (string == "jet2phi") var = jet2phi;
-		else if (string == "jet2eta") var = jet2eta;
-		else if (string == "METpt") var = METpt;
-		else if (string == "METphi") var = METphi;
-		else if (string == "sumEt") var = sumEt;
-		else if (string == "rawMETpt") var = rawMETpt;
-		else if (string == "rawMETphi") var = rawMETphi;
-		else if (string == "uept") var = uept;
-		else if (string == "uephi") var = uephi;
-		else if (string == "ueeta") var = ueeta;
-		else if (string == "mpf") var = mpf;
-		else if (string == "rawmpf") var = rawmpf;
-		else if (string == "otherjetspt") var = otherjetspt;
-		else if (string == "otherjetsphi") var = otherjetsphi;
-		else if (string == "otherjetseta") var = otherjetseta;
-		else if (string == "genjet1pt") var = genjet1pt;
-		else if (string == "genjet1eta") var = genjet1eta;
-		else if (string == "genjet1phi") var = genjet1phi;
-		else if (string == "matchedgenjet1pt") var = matchedgenjet1pt;
-		else if (string == "genjet2pt") var = genjet2pt;
-		else if (string == "genzpt") var = genzpt;
-		else if (string == "genmpf") var = genmpf;
-		else if (string == "algoflavour") var = algoflavour;
-		else if (string == "physflavour") var = physflavour;
-		else if (string == "jet1ptneutrinos") var = jet1ptneutrinos;
-		else if (string == "mpfneutrinos") var = mpfneutrinos;
-		else if (string == "neutralpt") var = neutralpt;
-
-		else if (string == "mupluspt") var = mupluspt;
-		else if (string == "mupluseta") var = mupluseta;
-		else if (string == "muplusphi") var = muplusphi;
-
-		else if (string == "muminuspt") var = muminuspt;
-		else if (string == "muminuseta") var = muminuseta;
-		else if (string == "muminusphi") var = muminusphi;
-
-		else if (string == "qglikelihood") var = qglikelihood;
-		else if (string == "qgmlp") var = qgmlp;
-
-		else if (string == "trackcountinghigheffbjettag") var = trackcountinghigheffbjettag;
-		else if (string == "trackcountinghighpurbjettag") var = trackcountinghighpurbjettag;
-		else if (string == "jetprobabilitybjettag") var = jetprobabilitybjettag;
-		else if (string == "jetbprobabilitybjettag") var = jetbprobabilitybjettag;
-		else if (string == "softelectronbjettag") var = softelectronbjettag;
-		else if (string == "softmuonbjettag") var = softmuonbjettag;
-		else if (string == "softmuonbyip3dbjettag") var = softmuonbyip3dbjettag;
-		else if (string == "softmuonbyptbjettag") var = softmuonbyptbjettag;
-		else if (string == "simplesecondaryvertexbjettag") var = simplesecondaryvertexbjettag;
-		else if (string == "combinedsecondaryvertexbjettag") var = combinedsecondaryvertexbjettag;
-		else if (string == "combinedsecondaryvertexmvabjettag") var = combinedsecondaryvertexmvabjettag;
-
-		else if (string == "jet1puJetFull") var = jet1puJetFull;
-		else if (string == "jet1puJetIDFull") var = jet1puJetIDFull;
-		else if (string == "jet1puJetIDFullLoose") var = jet1puJetIDFullLoose;
-		else if (string == "jet1puJetIDFullMedium") var = jet1puJetIDFullMedium;
-		else if (string == "jet1puJetIDFullTight") var = jet1puJetIDFullTight;
-		else if (string == "jet1puJetCutbased") var = jet1puJetCutbased;
-		else if (string == "jet1puJetIDCutbased") var = jet1puJetIDCutbased;
-		else if (string == "jet1puJetIDCutbasedLoose") var = jet1puJetIDCutbasedLoose;
-		else if (string == "jet1puJetIDCutbasedMedium") var = jet1puJetIDCutbasedMedium;
-		else if (string == "jet1puJetIDCutbasedTight") var = jet1puJetIDCutbasedTight;
-
-		else if (string == "jet2puJetFull") var = jet2puJetFull;
-		else if (string == "jet2puJetIDFull") var = jet2puJetIDFull;
-		else if (string == "jet2puJetIDFullLoose") var = jet2puJetIDFullLoose;
-		else if (string == "jet2puJetIDFullMedium") var = jet2puJetIDFullMedium;
-		else if (string == "jet2puJetIDFullTight") var = jet2puJetIDFullTight;
-		else if (string == "jet2puJetCutbased") var = jet2puJetCutbased;
-		else if (string == "jet2puJetIDCutbased") var = jet2puJetIDCutbased;
-		else if (string == "jet2puJetIDCutbasedLoose") var = jet2puJetIDCutbasedLoose;
-		else if (string == "jet2puJetIDCutbasedMedium") var = jet2puJetIDCutbasedMedium;
-		else if (string == "jet2puJetIDCutbasedTight") var = jet2puJetIDCutbasedTight;
-		else var = none;
-
-		if (var == none)
-			LOG_FATAL("No such variable" << string);
-
 		// general quantities
 		if (var == npv)
 			return event.m_vertexSummary->nVertices;
@@ -675,7 +678,7 @@ private:
 			return v.p4.Pt();
 		}
 		else
-			LOG_FATAL("TTreeConsumer: Quantity " << string << " (" << var << ") not available!");
+			LOG_FATAL("TTreeConsumer: Quantity " << " (" << var << ") not available!");
 
 		LOG_FATAL("None found");
 		assert(false);
