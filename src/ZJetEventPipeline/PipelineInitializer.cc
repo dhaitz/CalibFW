@@ -21,7 +21,7 @@
 #include "ZJetFilter/JetPtFilter.h"
 #include "ZJetFilter/FlavourFilter.h"
 
-#include "ZJetConsumer/TreeConsumer.h"
+#include "ZJetConsumer/NtupleConsumer.h"
 
 using namespace Artus;
 
@@ -108,8 +108,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 	// Consumer
 	BOOST_FOREACH(std::string id, pset.GetConsumer())
 	{
-		if (id == "tree")
-			pLine->AddConsumer(new TreeConsumer());
+		if (id == "ntuple")
+			pLine->AddConsumer(new NtupleConsumer());
 		else
 			LOG_FATAL("Consumer " << id << " not found.");
 	}

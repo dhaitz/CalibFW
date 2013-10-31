@@ -11,25 +11,25 @@ namespace Artus
 {
 
 template <class TEvent, class TMetaData, class TSettings>
-class TreeConsumerBase : public EventConsumerBase<TEvent, TMetaData, TSettings>
+class NtupleConsumerBase : public EventConsumerBase<TEvent, TMetaData, TSettings>
 {
 public:
 	typedef EventPipeline<TEvent, TMetaData, TSettings> PipelineTypeForThis;
 };
 
-class TreeConsumer : public TreeConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings >
+class NtupleConsumer : public NtupleConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings >
 {
 
 	static std::string GetName()
 	{
-		return "tree_consumer";
+		return "ntuple_consumer";
 	}
 
 	void Init(PipelineTypeForThis* pset)
 	{
 		EventConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>::Init(pset);
 		std::string quantities = this->GetPipelineSettings().GetQuantitiesString();
-		m_tree = new TNtuple("NTuple", "NTuple", quantities.c_str());
+		m_ntuple = new TNtuple("NTuple", "NTuple", quantities.c_str());
 
 		// turn the stringvector into an enumvector
 
@@ -47,18 +47,18 @@ class TreeConsumer : public TreeConsumerBase< ZJetEventData, ZJetMetaData, ZJetP
 		for (std::vector<std::string>::iterator it = stringvector.begin(); it != stringvector.end(); ++it)
 			array.push_back(returnvalue(*it, event, metaData, this->GetPipelineSettings()));
 
-		// add the array to the tree
-		m_tree->Fill(&array[0]);
+		// add the array to the ntuple
+		m_ntuple->Fill(&array[0]);
 	}
 
 	virtual void Finish()
 	{
-		m_tree->Write(this->GetPipelineSettings().GetName().c_str());
+		m_ntuple->Write(this->GetPipelineSettings().GetName().c_str());
 	}
 
 private:
 
-	TNtuple* m_tree;
+	TNtuple* m_ntuple;
 
 	float returnvalue(std::string string, ZJetEventData const& event,
 					  ZJetMetaData const& metaData, ZJetPipelineSettings const& s)
@@ -535,7 +535,7 @@ private:
 			return v.p4.Pt();
 		}
 		else
-			LOG_FATAL("TTreeConsumer: Quantity " << " (" << string << ") not available!");
+			LOG_FATAL("NtupleConsumer: Quantity (" << string << ") not available!");
 
 		LOG_FATAL("None found");
 		assert(false);
