@@ -6,6 +6,7 @@ def config():
     conf["InputFiles"] = "/storage/6/berger/zpj/kappa539_MC11/*.root"
     conf['Tagged'] = False
     conf = base.expand(conf, ['all', 'zcuts'])
+    conf['EnableLumiReweighting'] = False
     #base.pipelinediff(conf)
     return conf
 

@@ -6,4 +6,5 @@ def config():
     conf["InputFiles"] = "/storage/6/berger/zpj/kappa539_MC11/*.root"
     conf['Jec'] = base.getPath() + "/data/jec/Summer13_V5_MC"
     conf = base.expand(conf, ['all', 'zcuts'])
+    conf['EnableLumiReweighting'] = False
     return conf
