@@ -60,7 +60,7 @@ private:
 
 	TNtuple* m_ntuple;
 
-	float returnvalue(std::string string, ZJetEventData const& event,
+	virtual float returnvalue(std::string string, ZJetEventData const& event,
 					  ZJetMetaData const& metaData, ZJetPipelineSettings const& s)
 	{
 		// general quantities
@@ -437,6 +437,19 @@ private:
 
 			return metaData.GetValidJet(s, event, 0, genName)->p4.Pt();
 		}
+		else if (string == "genjet1ptneutrinos")
+		{
+			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+
+			if (metaData.GetValidJetCount(s, event, genName) == 0)
+				return false;
+
+			KDataLV v = * metaData.GetValidJet(s, event, 0, genName);
+			if (metaData.m_neutrinos[genName].size() > 0)
+				for (auto it = metaData.m_neutrinos[genName].begin(); it != metaData.m_neutrinos[genName].end(); ++it)
+					v.p4 += it->p4;
+			return v.p4.Pt();
+		}
 		else if (string == "genjet1eta")
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
@@ -458,8 +471,6 @@ private:
 		else if (string == "matchedgenjet1pt")
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-
-			//KDataLV* matched_genjet = NULL;
 
 			if (0 >= metaData.GetValidJetCount(s, event, genName)
 				|| 0 >= metaData.GetValidJetCount(s, event))

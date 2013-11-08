@@ -325,7 +325,7 @@ public:
 			LOG("This event contains a lot of particles: " << data.m_particles->size());
 		}
 
-		const float R = 0.3; // for DeltaR matching
+		const float R = 0.5; // for DeltaR matching
 
 		// Loop over particles
 		for (auto it = data.m_particles->begin(); it != data.m_particles->end(); ++it)
