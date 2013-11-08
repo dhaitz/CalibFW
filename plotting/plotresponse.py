@@ -478,25 +478,32 @@ def response_algoflavour(files, opt, changes=None, settings=None):
     """Get response vs. flavour (algorithmic definition). This function only works with MC."""
     response_physflavour(files, opt, changes=None, settings=None, definition='algo')
 
-def response_physflavour(files, opt, changes=None, settings=None, definition='phys'):
+def response_physflavour_n(files, opt):
+    response_physflavour(files, opt, add_neutrinopt=True)
+
+def response_physflavour(files, opt, changes=None, settings=None, definition='phys', add_neutrinopt=False):
     """Get response vs. flavour (physics definition). This function only works with MC."""
-    settings = plotbase.getsettings(opt, changes, settings, "response_flavour")
 
     x = '%sflavour' % definition
+    settings = plotbase.getsettings(opt, changes, settings, "response_"+x)
+
     
     markers = ['o', 's', 'd', '*']
     colors = ['red', 'black', 'yellowgreen', 'lightskyblue', ]
     quantities = ['ptbalance', 'mpf', 'recogen', 'genbalance', ]
 
-    plotbase.debug("neutrino-inclusive quantities are used")
-    ################################################################################
-    quantities = ['jet1npt/zpt', 'mpfn', 'jet1npt/matchedgenjet1pt', 'genbalance', ]
-    ################################################################################
+    if add_neutrinopt:
+        plotbase.debug("\nneutrino-inclusive quantities are used\n")
+        ################################################################################
+        quantities = ['jet1ptneutrinos/zpt', 'mpfneutrinos', 'jet1pt/genjet1pt', 'genjet1pt/zpt']
+        ################################################################################
+    else:
+        quantities = ['jet1pt/zpt', 'mpf', 'jet1pt/genjet1pt', 'genjet1pt/zpt']
 
     labels = ['PtBalance', 'MPF', 'RecoJet/GenJet', 'GenJet/RecoZ']
     
     changes = {
-        'legloc':'upper center',
+        'legloc':'lower left',
         'xynames':[x, 'response'],
         'subplot':True,
         'lumi':0,
@@ -512,8 +519,13 @@ def response_physflavour(files, opt, changes=None, settings=None, definition='ph
         plotdatamc.datamcplot("%s_%s" % (q, x), files, opt, fig_axes=(fig, ax), 
                                             changes=changes, settings=settings)
 
-    settings['filename'] = plotbase.getdefaultfilename("response_%s" % x, opt,
-                                                                 settings)
+    filename = "response_%s" % x
+    if add_neutrinopt:
+        settings['filename'] += "_neutrinos"
+
+    settings['filename'] = plotbase.getdefaultfilename(filename, opt, settings)
+                                             
+
     plotbase.Save(fig, settings['filename'], opt)
 
 
