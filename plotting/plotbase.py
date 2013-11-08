@@ -420,9 +420,10 @@ def newplot(ratio=False, run=False, subplots=1, subplots_X=None,
     elif ratio:
         ax = fig.add_subplot(111, position=[0.13, 0.35, 0.83, 0.58])
         ax.number = 1
+        ax.set_xlabel([])
         ratio = fig.add_subplot(111, position=[0.13, 0.12, 0.83, 0.22], sharex=ax)
-        ax.number = 2
-        ratio.axhline(1.0, color='black', lw=1)
+        ratio.number = 2
+        ratio.axhline(1.0, color='gray', lw=1)
         return fig, ax, ratio
     elif run:
         fig = plt.figure(figsize=[14, 7])

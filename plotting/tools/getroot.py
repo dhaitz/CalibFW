@@ -110,7 +110,7 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
     #for npv we need bins with width=1
     bins = []
     for quantity, limits in zip(quantities[::-1], [settings['x'], settings['y']]):
-        if quantity == 'npv':
+        if quantity in ['npv', 'npu']:
             bins += [int(limits[1] - limits[0])]
         else:
             bins += [100]
@@ -433,6 +433,15 @@ class Histo:
 
     def ysum(self):
         return sum(self.y)
+
+    def __sum__(self):
+        return sum(self.y)
+
+    def __min__(self):
+        return min(self.y)
+
+    def __max__(self):
+        return max(self.y)
 
     def ymax(self):
         return max(self.y)

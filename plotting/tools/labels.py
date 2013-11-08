@@ -22,7 +22,7 @@ def labels(ax, opt, settings, subplot=False):
         #resultlabel(ax, result)
         authorlabel(ax, opt.author)
         datelabel(ax, opt.date)
-        if settings['eventnumberlabel'] is True:
+        if settings.get('eventnumberlabel', False) is True:
             plotbase.eventnumberlabel(ax, settings)
         if settings['run'] is True:
             plotbase.runlabel(ax, settings)
@@ -166,10 +166,10 @@ def jetlabel(ax, changes={}, sub_plot=False, posx=0.05, posy=0.95, opt=None):
     #if "AK5" not in opt.algorithm: ax.text(posx, posy, res[0], va='top', ha='left', transform=ax.transAxes)
     #else:
     posy = posy + 0.07
-    if changes.has_key('correction'):
+    if 'correction' in changes:
         ax.text(posx, posy - 0.07, res[1], va='top', ha='left', transform=ax.transAxes, color=col)
 
-    if changes.has_key('algorithm'):
+    if 'algorithm' in changes:
         if "CHS" in changes['algorithm']:
             ax.text(posx, posy - 0.14, r"CHS applied", va='top', ha='left', transform=ax.transAxes, color=col)
         #if "CHS" not in changes['algorithm']:
