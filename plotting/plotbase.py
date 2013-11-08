@@ -480,33 +480,24 @@ def getdefaultfilename(quantity, opt, settings):
     return filename
 
 
-def Save(figure, name, opt, alsoInLogScale=False, crop=True, pad=None, settings=None):
-    _internal_Save(figure, name, opt, pad=pad, settings=settings)
+def selfsave(settings):
+    pass
 
-    #if alsoInLogScale:
-    #    figure.get_axes()[0].set_yscale('log')
-    #    _internal_Save(figure, name + "_log_scale", opt, crop, pad=pad, settings=settings)
-
-
-def EnsurePathExists(path):
-    full_path = ""
-    for p in path.split("/"):
-        full_path += p + "/"
-        #print "Checking " + full_path
-        if not os.path.exists(full_path):
-            print "Creating " + full_path
-            os.mkdir(full_path)
-
-
-def _internal_Save(figure, name, opt, crop=True, pad=None, settings=None):
+def Save(figure, settings=None, crop=True, pad=None):
     """Save this figure in all listed data formats.
 
     The standard data formats are png and pdf.
     Available graphics formats are: pdf, png, ps, eps and svg
     """
-    EnsurePathExists(opt.out)
+    if not settings:
+        print "Please use mpl savefig if no settings are given"
+        figure.savefig("plot.png")
+        return
 
-    name = opt.out + '/' + name
+    if not os.path.exists(settings['out']):
+        os.makedirs(settings['out'])
+
+    name = settings['out'] + '/' + settings['filename']
     name = name.replace("PFJets", "PF")
     print ' -> Saving as',
     if settings is not None and settings['title'] is not "":
@@ -515,7 +506,7 @@ def _internal_Save(figure, name, opt, crop=True, pad=None, settings=None):
     elif crop:
         title = figure.suptitle("I", color='white')
     first = True
-    for f in opt.formats:
+    for f in settings['formats']:
         if f in ['pdf', 'png', 'ps', 'eps', 'svg']:
             if not first:
                 print ",",

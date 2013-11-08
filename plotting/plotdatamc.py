@@ -135,7 +135,7 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         del rootobjects
         return
     else:
-        plotbase.Save(fig, settings['filename'], opt, settings=settings)
+        plotbase.Save(fig, settings)
 
 try:
     datamcplot = profile(datamcplot)
@@ -283,7 +283,7 @@ def ratiosubplot(quantity, files, opt, settings):
     ax1.set_xticks([])
     ax1.set_xlabel("")
 
-    plotbase.Save(fig, settings['filename'], opt)
+    plotbase.Save(fig, settings)
 
 
 def plotfromdict(datamc, opt, name, blacklist=[]):
