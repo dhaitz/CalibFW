@@ -55,7 +55,7 @@ d_axes = {
         'events': [0, 1, r"Events", ""],
         'extrapol': [0.86, 1.04, r"Response", ""],
         'filters': [-0.5, 12.5, r"Filters", ""],
-        'flavour': [0, 25, r"Flavour", ""],
+        'flavour': [-0.5, 24.5, r"Flavour", ""],
         'physflavour': [-0.5, 24.5, r"Flavour (Physics definition)", ""],
         'physflavourfrac': [0, 1, r"Flavour fraction (Physics definition)", ""],
         'algoflavour': [-0.5, 24.5, r"Flavour (Algorithmic definition)", ""],

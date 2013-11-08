@@ -36,8 +36,9 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         datamc += [getroot.root2histo(rootobjects[-1], f.GetName(), 1)]
         settings['events'] += [datamc[-1].ysum()]
         if 'flavour' in settings['xynames'][0]:
-            datamc[-1].x = [6.5 if x == 20.5 else x for x in datamc[-1].x]
-            datamc[-1].xc = [7 if x == 21 else x for x in datamc[-1].xc]
+            datamc[-1].x = [5.5 if x == 20.5 else 6.5 if x == -0.5 else x for x in datamc[-1].x]
+            datamc[-1].xc = [6 if x == 21 else 7 if x == 0 else x for x in datamc[-1].xc]
+
 
     # if true, create a ratio plot:
     if settings['ratio'] and len(datamc) == 2:
@@ -121,10 +122,10 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         ax.grid(True)
 
     if 'flavour' in settings['xynames'][0]:
-        ax.set_xlim(-0.5, 7.5)
-        ax.set_xticks([0, 1, 2, 3, 4, 5, 7])
-        ax.set_xticklabels(['undef.', 'd', 'u', 's', 'c', 'b', 'g'])
-        ax.axvline(0.5, color='black', linestyle=':')
+        ax.set_xlim(0.5, 7.5)
+        ax.set_xticks([1, 2, 3, 4, 5, 6, 7])
+        ax.set_xticklabels(['d', 'u', 's', 'c', 'b', 'g', 'undef.'])
+        ax.axvline(6.5, color='black', linestyle=':')
 
     # save it
     if settings['subplot']:
