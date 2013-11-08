@@ -219,7 +219,9 @@ def options(
     opt.cut = cut
     opt.eta = eta
 
-    if opt.live:
+    if opt.www:
+        opt.out = artus.getPath('SYNCDIR')
+    else if opt.live:
         opt.filename = 'plot'
         opt.formats = ['pdf']
         opt.out = 'out/'
@@ -232,9 +234,7 @@ def options(
     if opt.mconly:
         opt.labels = opt.labels[1:]
         opt.files = opt.files[1:]
-
-    if opt.www:
-        opt.out = artus.getPath('SYNCDIR')
+        op.lumi = 0
 
     # get a separate dictionary with only the user-set values
     user_options = {}
