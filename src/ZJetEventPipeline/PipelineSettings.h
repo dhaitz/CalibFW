@@ -42,6 +42,7 @@ public:
 	IMPL_PROPERTY(long long, SkipEvents)
 	IMPL_PROPERTY(long long, EventCount)
 	IMPL_PROPERTY(std::string, JsonFile)
+	IMPL_PROPERTY(std::string, PileupWeights)
 	IMPL_PROPERTY(InputTypeEnum, InputType)
 
 	doublevector m_metphi;
@@ -193,6 +194,8 @@ public:
 
 		return inp;
 	}
+
+	TH1D m_puweights;
 
 	VarCache<stringvector> m_filter;
 	stringvector GetFilter() const

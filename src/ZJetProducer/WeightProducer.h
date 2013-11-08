@@ -3,6 +3,7 @@
 // from ROOT
 #include <Math/VectorUtil.h>
 #include "ZJetProducer/MetadataProducer.h"
+#include "RootTools/RootIncludes.h"
 
 namespace Artus
 {
@@ -14,7 +15,25 @@ namespace Artus
 */
 class WeightProducer: public ZJetGlobalMetaDataProducerBase
 {
+private:
+	std::vector<double> m_pileupweights;
+	double m_bins;
+
 public:
+	WeightProducer(std::string weightfile)
+	{
+		const std::string s = "pileup";
+		LOG("Loadgin pile-up weights from " << weightfile << " pileup");
+		TFile file(weightfile.c_str(), "READONLY");
+		TH1D* pileuphisto = (TH1D*) file.Get("pileup");
+
+		m_pileupweights.clear();
+		for (int i = 1; i <= pileuphisto->GetNbinsX(); ++i)
+			m_pileupweights.push_back(pileuphisto->GetBinContent(i));
+		m_bins = 1.0 / pileuphisto->GetBinWidth(1);
+		delete pileuphisto;
+		file.Close();
+	}
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
 								  ZJetMetaData& metaData,
@@ -23,7 +42,10 @@ public:
 		// nothing todo here
 	}
 
-	static std::string Name() { return "weight_producer"; }
+	static std::string Name()
+	{
+		return "weight_producer";
+	}
 
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
@@ -36,9 +58,11 @@ public:
 		if (m_pipelineSettings.Global()->GetEnablePuReweighting())
 		{
 			assert(data.m_geneventmetadata != NULL);
-			weight *= m_pipelineSettings.Global()->GetPuReweighting().at(
-						int(data.m_geneventmetadata->numPUInteractionsTruth + 0.5));
-			//weight *= m_pipelineSettings.Global()->GetPuHisto().Interpolate(data.m_geneventmetadata->numPUInteractionsTruth)
+			double npu = data.m_geneventmetadata->numPUInteractionsTruth;
+			if (npu < m_pileupweights.size())
+				weight *= m_pileupweights.at(int(npu * m_bins));
+			else
+				weight *= 0;
 		}
 
 		// 2nd jet pt reweighting
@@ -49,7 +73,7 @@ public:
 			// apply a new weight for 2 GeV pt bins
 			if (m_pipelineSettings.Global()->Get2ndJetReweighting().size() > unsigned(jet2->p4.Pt() / 2.0))
 				weight *= m_pipelineSettings.Global()->Get2ndJetReweighting().at(
-							unsigned(jet2->p4.Pt() / 2.0));
+							  unsigned(jet2->p4.Pt() / 2.0));
 			else
 				weight = 0.0;
 		}
@@ -90,7 +114,7 @@ public:
 					", ext=" << data.m_genlumimetadata->xSectionExt <<
 					", int=" << data.m_genlumimetadata->xSectionInt <<
 					", eff=" << data.m_genlumimetadata->filterEff <<
-					", xsec=" << xsec <<", weight=" << weight);
+					", xsec=" << xsec << ", weight=" << weight);
 		}
 
 		metaData.SetWeight(metaData.GetWeight() * weight);

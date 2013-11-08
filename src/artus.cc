@@ -72,7 +72,7 @@ PipelineSettingsVector g_pipeSettings;
 
 void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 		EventPipelineRunner<ZJetPipeline, ZJetGlobalMetaDataProducerBase> & runner,
-		boost::property_tree::ptree & globalSettings)
+		boost::property_tree::ptree& globalSettings)
 {
 	// extend here, if you want to provide a new global meta producer
 	for (std::vector<std::string>::const_iterator it = producer.begin();
@@ -83,7 +83,7 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 		else if (ZProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ZProducer());
 		else if (WeightProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new WeightProducer());
+			runner.AddGlobalMetaProducer(new WeightProducer(globalSettings.get<std::string>("PileupWeights")));
 		else if (ValidJetProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidJetProducer(
 					globalSettings.get<bool>("Tagged")));
@@ -169,18 +169,17 @@ int main(int argc, char** argv)
 			LOG_FILE("Input files (" << g_sourcefiles.size() << "):");
 		}
 	}
-	// removes the old file
-	std::string sRootOutputFilename = g_sOutputPath + ".root";
-	g_resFile = new TFile(sRootOutputFilename.c_str(), "RECREATE");
 
+	std::string outputFilename = g_sOutputPath + ".root";
 	{
 		FileInterface2 finterface(g_sourcefiles);
-		LOG_FILE("Output file: " << sRootOutputFilename);
+		LOG_FILE("Output file: " << outputFilename);
 
 		// setup Global Settings
 		ZJetGlobalSettings gset;
 
 		gset.SetEnablePuReweighting(g_propTree.get<bool>("EnablePuReweighting", false));
+		gset.SetPileupWeights(g_propTree.get<std::string>("PileupWeights", "not found"));
 		gset.SetEnable2ndJetReweighting(g_propTree.get<bool>("Enable2ndJetReweighting", false));
 		gset.SetEnableSampleReweighting(g_propTree.get<bool>("EnableSampleReweighting", false));
 		gset.SetEnableLumiReweighting(g_propTree.get<bool>("EnableLumiReweighting", false));
@@ -208,6 +207,7 @@ int main(int argc, char** argv)
 				LOG_FATAL("Sample reweighting is enabled but no weights given!");
 			if (gset.GetEnableLumiReweighting() && gset.GetNEvents() < 0)
 				LOG_FATAL("Lumi reweighting is enabled but number of events missing!");
+
 			g_inputType = McInput;
 		}
 
@@ -215,8 +215,6 @@ int main(int argc, char** argv)
 
 		ZJetEventProvider evtProvider(finterface, g_inputType, gset.GetEnableMetPhiCorrection(), g_propTree.get<bool>("Tagged"));
 		gset.m_metphi = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "MetPhiCorrectionParameters");
-
-
 
 		// pipline settings
 		ZJetPipelineInitializer plineInit;
@@ -279,6 +277,9 @@ int main(int argc, char** argv)
 		settings.m_globalSettings = &gset;
 		LOG_FILE("");
 
+		// removes the old file
+		g_resFile = new TFile(outputFilename.c_str(), "RECREATE");
+
 #ifdef USE_PERFTOOLS
 		ProfilerStart("artus.prof");
 #endif
@@ -297,7 +298,7 @@ int main(int argc, char** argv)
 	// TODO: determine nc
 	// int nc = 0;
 	LOG_FILE("Events read: " << nevents); // << ", events in cut: unknown > " << nc << " (>" << (nc * 100. / nevents) << "%)");
-	LOG_FILE("Output file " << sRootOutputFilename << " closed.");
+	LOG_FILE("Output file " << outputFilename << " closed.");
 	std::cout.flush();
 	delete g_logFile;
 

@@ -103,6 +103,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
         },
         'InputType': inputtype,
         'Tagged': tagged,
+        'PileupWeights': getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_71mb_kappa539_MC12_madgraph_tags.root"
     }
     if tagged:
         config['Pipelines']['default']['QuantitiesVector'] += [
