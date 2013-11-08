@@ -4,8 +4,9 @@ import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
 import argparse
 import subprocess
-import json
-import os
+import copy
+import array
+
 """This is a tool for pile-up reweighting.
 
    It requires: python, ROOT, CMSSW 5.2 (pileupCalc).
@@ -20,302 +21,246 @@ ROOT.gErrorIgnoreLevel = ROOT.kError
 
 
 def main():
-    op = options()
-    # catch special use cases: list or remove weights
-    if op.list:
-        listWeightsInFile(op.output)
-        exit(0)
-    elif op.remove:
-        removeWeightsFromFile(op.datainput, op.output)
-        exit(0)
-    elif not op.datainput or not op.mcinput:
-        print "Usage: weightCalc.py [options] datainput mcinput [...]"
-        print "Use -h for detailed help."
-        print "Using:"
-        subprocess.call(['which', 'pileupCalc.py'])
-        exit(0)
-    # else: default use case: calculate and add weights
-    print "Using:", subprocess.call(['pileupCalc.py'])
-    data, datakey = getDataDistribution(op.datainput, op.inputLumiJSON, op.minBiasXsec, op.numPileupBins, op.data_histo, op.dataoutput, op.verbose)
-    print "Data:", data
-    mc, mckey = getMCDistribution(op.mcinput, op.mc_histo, op.mcoutput, op.verbose)
-    print "MC:", mc
-    weights = calcWeights(data, mc, op.verbose, not op.no_warning)
-    printWeights(weights, op.breaklines)
-    if op.check:
-        print("Normalization: before ({0:.5f}) and after ({1:.5f}) "
-              "reweighting.".format(sum(mc),
-                  sum(map(lambda a, b: a * b, mc, weights))))
-    if not op.key:
-        op.key = mckey[7:-5] + "_" + datakey[7:-5]
-    addWeightsToFile(op.key, weights, op.mcXsec, op.output)
+	op = options()
+	mc = False
+	data = False
+
+	if not op.dfile and not op.mfile:
+		print "Usage: weightCalc.py [options] datainput|mcinput [...]"
+		print "Use -h for detailed help. This pileupCalc is used:"
+		subprocess.call(['which', 'pileupCalc.py'])
+		exit(0)
+
+	if not op.mfile:
+		print "No MC given."
+	elif len(op.mfile) == 1:
+		print "Get MC distribution from file", op.mfile[0]
+		mc = getDistributionFromFile(op.mfile[0], op.mc_histo)
+	else:
+		print "Get MC distribution from skim"
+		mc = getDistributionFromSkim(op.mfile)
+		if op.save:
+			saveDistributionToFile(op.mcoutput, mc, op.mc_histo)
+
+	if not op.dfile:
+		print "No data given."
+	elif not op.inputLumiJSON:
+		print "Get data distribution from file", op.dfile
+		data = getDistributionFromFile(op.dfile, op.data_histo)
+	else:
+		print "Using:", subprocess.call(['pileupCalc.py'])
+		data = getDataFromPileupCalc(op.dfile, op.inputLumiJSON, op.output,
+				op.minBiasXsec, op.maxPileupBin, op.numPileupBins, histo="pileup")
+		if op.save:
+			saveDistributionToFile(op.dataoutput, data, op.data_histo)
+
+	if data and mc:
+		print data.GetNbinsX(), mc.GetNbinsX()
+		if data.GetNbinsX() > 1000:
+			data.Rebin()
+		if mc.GetNbinsX() > 1000:
+			mc.Rebin()
+		weights = calcWeights(data, mc, op.verbose, not op.no_warning, op.rebin, op.binning)
+		saveDistributionToFile(op.output, weights)
+	else:
+		print "No weights calculated."
+#	if op.check:
+#		print("Normalization: before ({0:.5f}) and after ({1:.5f}) ")
 
 
-def calcWeights(dataDistribution, mcDistribution, verbose=False, warn=True):
-    result = []
-    print "____________________________________________"
-    print "Weight calculation ..."
-    # check length and add zeros
-    ldiff = len(dataDistribution) - len(mcDistribution)
-    dataDistribution += [0.0] * (-ldiff)
-    mcDistribution += [0.0] * (ldiff)
-    if verbose:
-        print "Weighting factors are calculated for up to",
-        print len(dataDistribution) - 1, "pile-up interactions from:"
-        print "Data:", dataDistribution
-        print "MC:  ", mcDistribution
-    assert len(dataDistribution) == len(mcDistribution)
-    # divide
-    for npu in range(len(dataDistribution)):
-        if mcDistribution[npu] == 0:
-            result.append(0.0)
-            if warn:
-                print "WARNING: There are no MC events with", npu,
-                print "pile-up interactions!"
-        else:
-            result.append(dataDistribution[npu] / mcDistribution[npu])
-    assert len(result) == len(mcDistribution)
-    # normalize (i.e. sum_i result[i]*mcDist[i] == 1)
-    result = [a / sum(dataDistribution) for a in result]
-    return result
+def calcWeights(data, mc, verbose=False, warn=True, rebin=False, binning=False):
+	# checks
+	n = data.GetNbinsX()
+	if n != mc.GetNbinsX():
+		print 'Binning of input histograms is not compatible.'
+	print "Weight calculation ..."
+
+	if rebin:
+		print "rebin:", binning
+		for l in binning:
+			for a, b in zip(l[:-1], l[1:]):
+				x1 = data.FindBin(a)
+				x2 = data.FindBin(b)
+				summc = sum([mc.GetBinContent(i) for i in range(x1, x2)]) / (x2 - x1)
+				sumdata = sum([data.GetBinContent(i) for i in range(x1, x2)]) / (x2 - x1)
+				for i in range(x1, x2):
+					data.SetBinContent(i, sumdata)
+					mc.SetBinContent(i, summc)
+
+	# move after rebinning
+	for i in range(1, n + 1):
+		if warn and data.GetBinContent(i) <= 0 and data.GetBinLowEdge(i) < 59:
+				print "WARNING: No data events with npu =", data.GetBinCenter(i)
+		if warn and mc.GetBinContent(i) <= 0 and mc.GetBinLowEdge(i) < 59:
+				print "WARNING: No MC events with npu =", mc.GetBinCenter(i)
+
+	# calculate
+	data.Scale(1.0 / data.Integral())
+	mc.Scale(1.0 / mc.Integral())
+	weights = data.Clone('pileup')
+	weights.SetTitle('pileup weights;n_{PU}^{truth};weight')
+	weights.Divide(mc)
+
+	for i in range(1, weights.GetNbinsX() + 1):
+		if weights.GetBinContent(i) > 3:
+			weights.SetBinContent(i, 3.0)
+
+	return weights
 
 
-def printWeights(weights, nice=False):
-    s = "[" + ", ".join("%1.9f" % w for w in weights) + "]"
-    if nice:
-        s = "conf[\"RecovertWeight\"] = " + s
-        while s.rfind(",", 0, 72) > 0:
-            i = max(s.rfind(",", 0, 72), s.rfind("]", 0, 72)) + 1
-            print "        " + s[0:i]
-            s = " " + s[i:]
-    else:
-        print s
+def getDataFromPileupCalc(files, lumijson, outfile, minBiasXsec=73.5, maxPileupBin=80, numPileupBins=1600, histo="pileup"):
+	"""Get the true Data PU from the official PU-json
+
+	   The "true" (or "observed") PU in data is estimated using this method:
+	   https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJSONFileforData
+	   1. pileupCalc is run (if json is given)
+	   2. the distribution is read from a rootfile
+	"""
+	try:
+		#fnull = open(os.devnull, 'w')
+		#subprocess.call("pileupCalc.py", stdout=fnull, stderr=fnull)
+		#fnull.close()
+		print "ASFD"
+	except:
+		print "pileupCalc.py is not availabe. Probably CMSSW is not sourced."
+		exit(1)
+
+	cmd = ["pileupCalc.py", "-i", files, "--inputLumiJSON", lumijson, "--calcMode", "true", "--minBiasXsec", str(minBiasXsec * 1000.0), "--maxPileupBin", str(maxPileupBin), "--numPileupBins", str(numPileupBins), outfile]
+	print " ".join(cmd)
+	subprocess.call(cmd)
+
+	result = getDistributionFromFile(outfile, histo)
+	return result
 
 
-def getDataDistribution(files, lumijson, xsec=69.3, numpu=70, histo="pileup", outfile=None, verbose=False):
-    """Get the true Data PU from the official PU-json
-
-       The "true" (or "observed") PU in data is estimated using this method:
-       https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJSONFileforData
-       1. pileupCalc is run (if json is given)
-       2. the distribution is read from a rootfile
-    """
-    if lumijson is None and files[-5:] == ".root":
-        print "Data pile-up distribution from", files
-        outfile = files
-    elif files[-4:] == ".txt":
-        print "Data pile-up distribution is estimated from official files:"
-        try:
-            fnull = open(os.devnull, 'w')
-            subprocess.call("pileupCalc.py", stdout=fnull, stderr=fnull)
-            fnull.close()
-        except:
-            print "pileupCalc.py is not availabe. Probably CMSSW 5.2 is not sourced."
-            exit(1)
-        if not outfile:
-            # take the core part of the json file name
-            outfile = files.split('/')[-1]
-            if "_v" in outfile:
-                outfile = "pileup_" + outfile[5:-25] + outfile[-7:-4] + ".root"
-            else:
-                outfile = "pileup_" + outfile[5:-22] + ".root"
-        cmd = ["pileupCalc.py", "-i", files, "--inputLumiJSON", lumijson, "--calcMode", "true", "--minBiasXsec", str(int(xsec * 1000)), "--maxPileupBin", str(numpu + 1), "--numPileupBins", str(numpu + 1), outfile]
-        print " ".join([str(s) for s in cmd])
-        subprocess.call(cmd)
-
-    result = getDistributionFromFile(outfile, histo)
-    for i in range(len(result)):
-        if result[i] > 0.0:
-            mx = i
-    result = result[0:mx + 1]
-    print "INFO: There are 0.." + str(mx + 1), "vertices calculated in Data."
-    return result, outfile
+def getDistributionFromSkim(filelist, nmax=80, save=True, bins=1600, name="pileup"):
+	print "MC pile-up distribution from skim (" + str(len(filelist)) + " files):", filelist[0], "etc."
+	chain = ROOT.TChain("Events")
+	for f in filelist:
+		chain.Add(f)
+	print "Files added, starting to fill...",
+	result = ROOT.TH1D(name, "True Number of Pile-Up Interactions;nputruth;events", bins, 0.0, nmax)
+	chain.Draw("KEventMetadata.numPUInteractionsTruth >> " + name)
+	print "done"
+	return result
 
 
-def getMCDistribution(source, histo="pu", outfile=None, verbose=False):
-    """Get the true MC PU from the MC files
-
-       The "true" PU in MC is determined from either:
-       https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJSONFileforData
-       1. the kappa skim (source="/path/to/skim/*.root")
-       2. a root file containing the distribution (source="pilup.root")
-       3. the key of a precalculated MC sample (source="madgraphFall11")
-    """
-    result = []
-    # 3 cases for source: skim location, .root file, key from dict below
-    if type(source) == list and len(source) >= 1 and "kappa_" in source[0]:
-        result, outfile = getDistributionFromSkim(source)
-    elif len(source) == 1 and source[0][-5:] == ".root":
-        print "____________________________________________"
-        print "MC pile-up distribution from", source[0]
-        result = getDistributionFromFile(source[0], histo)
-        outfile = outfile or source[0]
-    else:
-        print "This MC distribution could not be found!"
-        assert False
-    mx = 0
-    for i in range(len(result)):
-        if result[i] > 0.0:
-            mx = i
-    result = result[0:mx + 1]
-    s = sum(result)
-    print "INFO: There are 0.." + str(mx + 1), "vertices calculated in MC."
-    result = [w / s for w in result]
-    return result, outfile
+def saveDistributionToFile(filename, histo, histoname=None):
+	rootfile = ROOT.TFile(filename, "RECREATE")
+	if histoname:
+		histo.SetName(histoname)
+	histo.Write()
+	rootfile.Close()
+	print filename, "written"
 
 
-def getDistributionFromSkim(filelist, outputfile=None, numpu=70, save=True, step=1.0, histo="pileup"):
-    print "____________________________________________"
-    print "MC pile-up distribution from skim (" + str(len(filelist)) + " file(s)):", filelist[0], "etc."
-    chain = ROOT.TChain("Events")
-    for f in filelist:
-        chain.Add(f)
-
-    npu = ROOT.TH1D(histo, "Number of Pile-Up", int(step * numpu) + 1, 0.0, numpu + 1)
-    chain.Draw("KEventMetadata.numPUInteractionsTruth >> " + histo)
-    result = [npu.GetBinContent(i) for i in range(1, npu.GetNbinsX())]
-    print result
-    if not outputfile:
-        outputfile = "pileup_" + filelist[0].split("/")[-2] + ".root"
-    if save:
-        print "Distribution is written to:", outputfile
-        f = ROOT.TFile.Open(outputfile, "RECREATE")
-        npu.Write()
-        f.Write()
-        f.Close()
-    return result, outputfile
-
-
-def getDistributionFromFile(filename, histoname="npu"):
-    """Convention according to official files: bin 1 has LowEdge at 0"""
-    rootfile = ROOT.TFile(filename)
-    if not rootfile.IsOpen():
-        print "The file", filename, "could not be opened."
-        exit(0)
-    histo = rootfile.Get(histoname)
-    if not histo:
-        print "The histogram", histoname, "could not be found in", filename + "."
-        exit(0)
-    return [histo.GetBinContent(i) for i in range(1, ROOT.TH1D(histo).GetNbinsX())]
-
-
-def addWeightsToFile(key, weights, xsec, filename, warnOnOverwrite=False):
-    assert type(key) == str
-    assert type(weights) == list
-    d = os.path.dirname(filename)
-    if not os.path.exists(d):
-        print "Directory", d, "is created"
-        os.makedirs(d)
-    try:
-        f = open(filename, 'r')
-        dic = json.load(f)
-        f.close()
-    except:
-        print filename, "does not exist and will be created."
-        dic = {}
-    if warnOnOverwrite and key in dic:
-        print "There are already weights for", key + ". Do you wan to overwrite these [Y/n]:"
-        print dic[key]
-        print "with"
-        print {"weights": weights, "xsection": xsec}
-        if "n" not in raw_input():
-            dic[key] = {"weights": weights, "xsection": xsec, "step": 1}
-    else:
-        dic[key] = {"weights": weights, "xsection": xsec, "step": 1}
-    f = open(filename, 'w')
-    json.dump(dic, f, sort_keys=True, indent=2)
-    f.close()
-    print "Weights written to", filename, "as", key
-
-
-def removeWeightsFromFile(key, filename):
-    try:
-        with open(filename, 'r') as f:
-            dic = json.load(f)
-    except:
-        print filename, "does not exist."
-        exit(1)
-    if key in dic.keys():
-        del dic[key]
-    else:
-        print "Weights for", key, "do not exist in", filename
-        exit(1)
-    with open(filename, 'w') as f:
-        json.dump(dic, f, sort_keys=True, indent=2)
-    print "Weights for", key, "have been removed."
-
-
-def listWeightsInFile(filename):
-    try:
-        with open(filename, 'r') as f:
-            dic = json.load(f)
-    except:
-        print filename, "does not exist."
-        exit(1)
-    print "The file", filename, "stores these weights:"
-    for key in sorted(dic.keys()):
-        print "  * ", key
+def getDistributionFromFile(filename, histoname="pileup"):
+	rootfile = ROOT.TFile(filename, "READONLY")
+	if not rootfile.IsOpen():
+		print "The file", filename, "could not be opened."
+		exit(1)
+	histo = rootfile.Get(histoname)
+	if not histo:
+		print "The histogram %s could not be found in %s." % (histoname, filename)
+		exit(1)
+	return copy.deepcopy(histo)
 
 
 def options():
-    parser = argparse.ArgumentParser(
-        description="%(prog)s calculates the weights for MC reweighting "
-            "according to the number of pile-up interactions. Use cases: "
-            "%(prog)s /path/to/skim/*.root Cert_JSON.txt pileup_JSON.txt or"
-            "%(prog)s mcdist.root datadist.root")
-    parser.add_argument('datainput', metavar='datainput', type=str, nargs='?',
-        help="root file containing the estimated true number of pile-up "
-            "interactions in data or the used json file and the official "
-            "pile-up json. The name of the contained histogram is "
-            "specified with -D.")
-    parser.add_argument('mcinput', metavar='mcinput', type=str, nargs='*',
-        help="either a skim location or a rootfile with the MC distribution "
-            "of pile-up. The name of the contained histogram is "
-            "specified with -M.")
+	parser = argparse.ArgumentParser(
+		description="%(prog)s calculates the weights for MC reweighting "
+			"according to the number of pile-up interactions. Use cases: "
+			"%(prog)s /path/to/skim/*.root Cert_JSON.txt pileup_JSON.txt or"
+			"%(prog)s mcdist.root datadist.root")
+	parser.add_argument('files', metavar='input', type=str, nargs='*',
+		help="input files, possible combinations:"
+			"[data] [mc] where data can be a rootfile containing the estimated true number of pile-up "
+			"interactions in data or the used json file and the official "
+			"pile-up json. The name of the contained histogram is "
+			"specified with -D. mc can be either a skim location or a rootfile with the MC distribution "
+			"of pile-up. The name of the contained histogram is "
+			"specified with -M.")
+#Pileup calc options:
+	parser.add_argument('-M', '--mc-histo', type=str, default="pileup",
+		help="histogram name of the pile-up distribution in the MC file %s(default)")
+	parser.add_argument('-D', '--data-histo', type=str, default="pileup",
+		help="histogram name of the pile-up distribution in the data file %(default)")
+	parser.add_argument('-d', '--dataoutput', type=str, default="",
+		help="Output file for the data distribution. Determined automatically "
+			"if not specified.")
+	parser.add_argument('-m', '--mcoutput', type=str, default="",
+		help="Output file for the MC distribution. Determined automatically "
+			"if not specified.")
+	parser.add_argument('-o', '--output', type=str, default="data/pileup",
+		help="Output directory/file for the calculated weights.")
+	parser.add_argument('-s', '--save', action='store_true',
+		help="Save data and MC distributions.")
 
-    parser.add_argument('-M', '--mc-histo', type=str, default="pileup",
-        help="histogram name of the pile-up distribution in the MC file")
-    parser.add_argument('-D', '--data-histo', type=str, default="pileup",
-        help="histogram name of the pile-up distribution in the data file")
-    parser.add_argument('-d', '--dataoutput', type=str, default="",
-        help="Output file for the data distribution. Determined automatically "
-            "if not specified.")
-    parser.add_argument('-m', '--mcoutput', type=str, default="",
-        help="Output file for the MC distribution. Determined automatically "
-            "if not specified.")
-    parser.add_argument('-o', '--output', type=str, default="data/pileup/puweights.json",
-        help="Output file for the calculated weights.")
-    parser.add_argument('-k', '--key', type=str, default=None,
-        help="Name for this set of weights in the output file. Determined "
-            "automatically if not specified.")
+	parser.add_argument('-i', '--inputLumiJSON', type=str, default=None,
+		help="Input Lumi JSON for pileupCalc.")
+	parser.add_argument('-x', '--minBiasXsec', type=float, default=73.5,  # 69.4 before
+		help="Minimum bias cross section in mb (default: %(default)s mb, NB: pileupCalc takes µb!)")
+	parser.add_argument('-n', '--maxPileupBin', type=int, default=80,
+		help="Maximum number of pile-up interactions (default: %(default)s).")
+	parser.add_argument('-b', '--numPileupBins', type=int, default=800,
+		help="Number of bins (default: %(default)s).")
+	parser.add_argument('-r', '--rebin', action='store_true',
+		help="verbosity")
 
-    parser.add_argument('-i', '--inputLumiJSON', type=str, default=None,
-        help="Input Lumi JSON for pileupCalc.")
-    parser.add_argument('-x', '--minBiasXsec', type=float, default=73.5, #69.4,
-        help="Minimum bias cross section in mb (NB: pileupCalc takes µb!)")
-    parser.add_argument('-n', '--numPileupBins', type=int, default=70,
-        help="Maximum number of pile-up bins (default: 70).")
-    parser.add_argument('-X', '--mcXsec', type=float, default=2950.0,
-        help="Cross section of the MC sample to be saved alongside the weights.")
+	parser.add_argument('-v', '--verbose', action='store_true',
+		help="verbosity")
+	parser.add_argument('-c', '--check', action='store_true',
+		help="check whether the weights are correctly normalized. If no MC "
+			"events are availabe for some numbers of pile-up interactions, "
+			"the distribution can not be correctly normalized and the weights "
+			"do not exactly add up to unity.")
+	parser.add_argument('-q', '--no-warning', action='store_true',
+		help="Do not print warnings if the Monte Carlo sample does not "
+			"contain events for all numbers of pile-up interactions.")
+	parser.add_argument('-l', '--label', type=str, default="n_{{PU}}^{{truth}}",
+		help="x-axis label in histograms")
+	args = parser.parse_args()
 
-    parser.add_argument('-v', '--verbose', action='store_true',
-        help="verbosity")
-    parser.add_argument('-b', '--breaklines', action='store_true',
-        help="linebreak the output")
-    parser.add_argument('-c', '--check', action='store_true',
-        help="check whether the weights are correctly normalized. If no MC "
-            "events are availabe for some numbers of pile-up interactions, "
-            "the distribution can not be correctly normalized and the weights "
-            "do not exactly add up to unity.")
-    parser.add_argument('-q', '--no-warning', action='store_true',
-        help="Do not print warnings if the Monte Carlo sample does not "
-            "contain events for all numbers of pile-up interactions.")
-    parser.add_argument('-l', '--list', action='store_true',
-        help="Print a list of stored weights.")
-    parser.add_argument('-r', '--remove', action='store_true',
-        help="Remove weights from the weight file.")
-    return parser.parse_args()
+	# distribute files to data (1 file) and mc (rest)
+	args.dfile = args.files[0]
+	args.mfile = args.files[1:]
+	if len(args.files) > 2 and args.files[0][:8] == args.files[1][:8]:  # assume: first is different -> data
+		args.dfile = ""
+		args.mfile = args.files
+	if not args.dfile or not args.mfile:
+		args.save = True
+
+	# construct default names from input files
+	# data: data_190456-208686_8TeV_22Jan2013ReReco.root
+	if not args.dataoutput and args.inputLumiJSON:
+		args.dataoutput = args.dfile.split('/')[-1]
+		#print "I", args.dataoutput
+		args.dataoutput = args.dataoutput[5:args.dataoutput.find("Collision") - 1]
+		args.dataoutput = "data_" + args.dataoutput + ".root"
+	if not args.dataoutput and not args.inputLumiJSON:
+		args.dataoutput = args.dfile.split('/')[-1]
+
+	# mc: mc_kappa539_MC12_madgraph.root
+	if not args.mcoutput and len(args.mfile) > 1:
+		args.mcoutput = args.mfile[0].split('/')[-2]
+		args.mcoutput = "mc_" + args.mcoutput + ".root"
+	if not args.mcoutput and len(args.mfile) == 1:
+		args.mcoutput = args.mfile[0].split('/')[-1]
+
+	# weights: weights_190456-208686_8TeV_22Jan2013ReReco_kappa539_MC12_madgraph.root
+	if args.output == 'data/pileup':
+		args.output = args.output + '/' + args.dataoutput.replace(".root", "").replace("data_", "weights_") + '_' + args.mcoutput.replace("mc_", "")
+
+	# if rebinning is activated, low stat bins are merged
+	args.binning = False
+	if args.rebin:
+		args.binning = [[0, 1, 2, 3.5, 5], range(45, args.maxPileupBin + 1)]
+
+	if args.verbose:
+		print args
+
+	return args
 
 
 if __name__ == "__main__":
-    main()
+	main()
