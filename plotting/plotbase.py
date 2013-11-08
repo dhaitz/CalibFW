@@ -445,10 +445,7 @@ def setaxislimits(ax, settings):
         3. If limits are given in opt (command line values), override the values
             from dictionary or changes
     """
-    if hasattr(ax, 'number') and (len(settings['x']) >= 2 * ax.number):
-        ax.set_xlim(settings['x'][2 * ax.number - 2:][0],
-                    settings['x'][2 * ax.number - 2:][1])
-    elif not hasattr(ax, 'number'):
+    if len(settings['x']) >= 2:
         ax.set_xlim(settings['x'][0], settings['x'][1])
 
     if hasattr(ax, 'number') and (len(settings['y']) >= 2 * ax.number):
