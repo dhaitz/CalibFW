@@ -17,7 +17,7 @@ public:
 	typedef EventPipeline<TEvent, TMetaData, TSettings> PipelineTypeForThis;
 };
 
-class NtupleConsumer : public NtupleConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings >
+class NtupleConsumer : public NtupleConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
 {
 
 	static std::string GetName()

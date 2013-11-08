@@ -2,36 +2,29 @@
 
 #include "TROOT.h"
 #include "TTree.h"
+#include "TH1D.h"
 #include "TNtuple.h"
 #include "TFile.h"
 #include "Math/GenVector/VectorUtil.h"
 
-class RootFileHelper
+template <class T>
+static T SafeGet(TDirectory* pDir, std::string const& objName)
 {
-public:
-	template <class T>
-	static T SafeGet(TDirectory* pDir, std::string const& objName)
-	{
-		T ob = (T) pDir->Get(objName.c_str());
+	T ob = (T) pDir->Get(objName.c_str());
 
-		if (ob == NULL)
-		{
-			std::cout << std::endl << "Cant load " << objName << " from directory " << pDir->GetName() << std::endl;
-			exit(0);
-		}
-		return ob;
-	}
+	if (ob == NULL)
+		LOG_FATAL("Cant load " << objName << " from directory " << pDir->GetName());
 
-	static void SafeCd(TDirectory* pDir, std::string const& dirName)
-	{
-		assert(pDir);
+	return ob;
+}
 
-		if (pDir->GetDirectory(dirName.c_str()) == 0)
-		{
-			pDir->mkdir(dirName.c_str());
-		}
-		pDir->cd(dirName.c_str());
-	}
-};
+template <class T>
+static T SafeGet(TFile* file, std::string const& objName)
+{
+	T ob = (T)(file->Get(objName.c_str()));
 
+	if (ob == NULL)
+		LOG_FATAL("Cant load " << objName << " from directory " << file->GetName());
 
+	return ob;
+}
