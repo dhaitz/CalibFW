@@ -30,7 +30,7 @@ $(EXECUTABLE): $(OBJECTS)
 	@echo $(EXECUTABLE) "built successfully."
 
 .cc.o:
-	@echo $(CXX) CFLAGS $<
+	@echo $(CXX) $(FLAGS) $<
 	@$(CXX) $(CFLAGS) $< -o $@
 
 clean:
