@@ -760,3 +760,129 @@ def factors2(files, opt):
         file_name = "L1_comparison_"+name
         plotbase.Save(fig, file_name, opt)
 
+import ROOT
+
+def allpu(files, opt, truth=True):
+    print files
+
+    settings = plotbase.getsettings(opt, quantity='npu')
+    #print settings
+    print settings['folder']
+    name = "_".join([settings['folder'], settings['algorithm'] + settings['correction']])
+    print name, files[1]
+    name = name.replace("Res", "")
+    t = files[1].Get(name)
+    if not t:
+        print "no tree", name, t.GetName()
+        exit(1)
+    # raw wei data weight
+    if truth:
+        histos = [getroot.getobject("pileup", files[2])]
+    else:
+        histos = [getroot.getobject("pileup;2", files[2])]
+        histos[-1].Rebin(10)
+        print histos[-1].GetNbinsX(), "pu2"
+    histos[0].SetTitle("data")
+    histos += [ROOT.TH1D("mcraw", "MC", 1600, 0, 80)]
+    if truth:
+        histos += [ROOT.TH1D("mcraw", "MC", 1600, 0, 80)]
+        t.Project("mcraw", "nputruth")
+    else:
+        histos += [ROOT.TH1D("mcraw", "MC", 80, 0, 80)]
+        t.Project("mcraw", "npu")
+
+    if truth:
+        histos += [ROOT.TH1D("mcwei", "MC'", 1600, 0, 80)]
+        t.Project("mcwei", "nputruth", "weight")
+    else:
+        histos += [ROOT.TH1D("mcwei", "MC'", 80, 0, 80)]
+        t.Project("mcwei", "npu")
+
+    binning = [[0, 1, 2, 3.5, 5], range(45, 80)]
+    for h in histos:
+        if h.GetNbinsX() > 1000:
+            h.Rebin()
+        if h.GetNbinsX() > 82:
+            print h.GetNbinsX(), ">82! in", h.GetTitle()
+        if not truth:
+            break
+        print "rebin:", binning
+        b=binning
+        if histos.index(h) == 1:
+            b = binning + [range(5, 46)]
+        print b
+        for l in b :
+            for a,b in zip(l[:-1], l[1:]):
+                x1 = h.FindBin(a)
+                x2 = h.FindBin(b)
+                sumh = sum([h.GetBinContent(i) for i in range(x1, x2)]) / (x2 - x1)
+                for i in range(x1, x2):
+                    h.SetBinContent(i, sumh)
+    if truth:
+		f = histos[1].Integral() / histos[1].Integral(histos[1].FindBin(8), histos[1].FindBin(40))
+		for i in range(3+0*len(histos)):
+		    #histos[i].Rebin(4)
+		    print i
+		    ff = f/histos[i].Integral(histos[i].FindBin(8), histos[i].FindBin(40))
+		    ff = 1.0/ histos[i].Integral()
+		    histos[i].Scale(ff)
+
+    histos += [histos[0].Clone("dataraw")]
+    histos[-1].SetTitle("data/MC")
+    histos[-1].Divide(histos[1])
+    if len(files) > 3:
+        histos += [getroot.getobject("pileup", files[3])]
+        histos[-1].SetTitle("weight")
+    
+    histos += [histos[2].Clone("rawmc")]
+    histos[-1].Divide(histos[1])
+    histos[-1].SetTitle("MC'/MC")
+    histos += [histos[0].Clone("datamc")]
+    histos[-1].Divide(histos[2])
+    histos[-1].SetTitle("data/MC'")
+
+    plots = [getroot.root2histo(h) for h in histos]
+    fig, ax, ratio = plotbase.newplot(ratio=True)
+    fig = plotbase.plt.figure(figsize=[7, 10])
+    ax = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
+    ax.number = 1
+    ratio = plotbase.plt.subplot2grid((3, 1), (2, 0))
+    ratio.number = 2
+    fig.add_axes(ax)
+    fig.add_axes(ratio)
+    fig.subplots_adjust(hspace=0.05)
+    
+    colors = ['black', 'navy', 'red', 'green']
+
+    for p, c in zip(plots[:3], colors):
+        ax.errorbar(p.x, p.y, label = p.title, drawstyle ='steps-post', color=c, lw=1.6)
+    colors[1] = 'gray'
+    for p, c in zip(plots[3:], colors):
+        r = ratio.errorbar(p.x, p.y, label = p.title, drawstyle ='steps-post', color=c, lw=1.6)
+
+    plotbase.labels(ax, opt, settings, settings['subplot'])
+    plotbase.axislabels(ax, r"$n_\mathrm{PU}", settings['xynames'][1], settings=settings)
+    xaxistext = r"observed number of pile-up interactions $n_\mathrm{PU}$"
+    if truth:
+        xaxistext = xaxistext.replace("observed", "true")
+    plotbase.axislabels(ratio, xaxistext, "ratio", settings=settings)
+    print ratio.number, r
+    plotbase.setaxislimits(ax, settings)
+    plotbase.labels(ratio, opt, settings, settings['subplot'])
+    plotbase.setaxislimits(ratio, settings)
+    #handles, labels = ratio.get_legend_handles_labels()
+    ratio.legend(bbox_to_anchor=[0.8, 1], loc='upper center')
+    ax.set_xticklabels([])
+    ax.set_xlabel("")
+
+    settings['filename'] = plotbase.getdefaultfilename("npus", opt, settings)
+
+    plotbase.Save(fig, settings)
+
+
+def pu(files, opt):
+    allpu(files,opt)
+
+def puobserved(files, opt):
+    allpu(files, opt, False)
+
