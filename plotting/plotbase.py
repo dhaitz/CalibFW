@@ -376,18 +376,18 @@ def nicetext(s):
     return s
 
 
-def getreweighting(datahisto, mchisto, drop=True):
-    if drop:
-        datahisto.dropbin(0)
-        datahisto.dropbin(-1)
-        mchisto.dropbin(0)
-        mchisto.dropbin(-1)
-    reweighting = []
-    for i in range(len(mchisto)):
-        if i > 13:
-            break
-        reweighting.append(datahisto.y[i] / mchisto.y[i])
-    return reweighting
+#def getreweighting(datahisto, mchisto, drop=True):
+#    if drop:
+#        datahisto.dropbin(0)
+#        datahisto.dropbin(-1)
+#        mchisto.dropbin(0)
+#        mchisto.dropbin(-1)
+#    reweighting = []
+#    for i in range(len(mchisto)):
+#        if i > 13:
+#            break
+#        reweighting.append(datahisto.y[i] / mchisto.y[i])
+#    return reweighting
 
 
 def newplot(ratio=False, run=False, subplots=1, subplots_X=None,
