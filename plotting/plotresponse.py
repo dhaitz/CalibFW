@@ -481,11 +481,14 @@ def response_algoflavour(files, opt, changes=None, settings=None):
 def response_physflavour_n(files, opt):
     response_physflavour(files, opt, add_neutrinopt=True)
 
-def response_physflavour(files, opt, changes=None, settings=None, definition='phys', add_neutrinopt=False):
+def response_physflavour(files, opt, changes=None, settings=None, 
+            definition='phys',
+            add_neutrinopt=False,
+            extrapolation=True):
     """Get response vs. flavour (physics definition). This function only works with MC."""
 
-    x = '%sflavour' % definition
-    settings = plotbase.getsettings(opt, changes, settings, "response_"+x)
+    flavour = '%sflavour' % definition
+    settings = plotbase.getsettings(opt, changes, settings, "response_"+flavour)
 
     
     markers = ['o', 's', 'd', '*']
@@ -495,7 +498,7 @@ def response_physflavour(files, opt, changes=None, settings=None, definition='ph
     if add_neutrinopt:
         plotbase.debug("\nneutrino-inclusive quantities are used\n")
         ################################################################################
-        quantities = ['jet1ptneutrinos/zpt', 'mpfneutrinos', 'jet1pt/genjet1pt', 'genjet1pt/zpt']
+        quantities = ['jet1ptneutrinos/zpt', 'mpfneutrinos', 'jet1ptneutrinos/genjet1ptneutrinos', 'genjet1ptneutrinos/zpt']
         ################################################################################
     else:
         quantities = ['jet1pt/zpt', 'mpf', 'jet1pt/genjet1pt', 'genjet1pt/zpt']
@@ -504,11 +507,21 @@ def response_physflavour(files, opt, changes=None, settings=None, definition='ph
     
     changes = {
         'legloc':'lower left',
-        'xynames':[x, 'response'],
+        'xynames':[flavour, 'response'],
         'subplot':True,
         'lumi':0,
         'rebin':4,
             }
+
+    selections = ["%s==1" % flavour,
+                  "%s==2" % flavour,
+                  "%s==3" % flavour,
+                  "%s==4" % flavour,
+                  "%s==5" % flavour,
+                  "%s==21" % flavour,
+                  "%s==0" % flavour,
+                 ]
+    x = range(1,8)
 
     fig, ax = plotbase.newplot()
 
@@ -516,12 +529,38 @@ def response_physflavour(files, opt, changes=None, settings=None, definition='ph
         changes['markers'] = [m]
         changes['colors'] = [c]
         changes['labels'] = [l]
-        plotdatamc.datamcplot("%s_%s" % (q, x), files, opt, fig_axes=(fig, ax), 
+        if extrapolation and "mpf" not in q and q is not "jet1pt/genjet1pt":
+            #iterate over flavours;
+            print "extrapol", q
+            y = []
+            yerr = []
+            for s in selections:
+                changes2 = {}
+                changes2['selection'] = "%s && %s" % ("alpha<0.3", s)
+                changes2['allalpha'] = True
+            
+                quantity = "%s_alpha" % q
+
+                rsettings = {}
+                rsettings = plotbase.getsettings(opt, changes2, quantity=quantity)
+
+                rootobject = getroot.getobjectfromtree(quantity, files[0], rsettings)
+                rootobject.Rebin(rsettings['rebin'])
+
+                intercept, ierr = plotbase.fitline2(rootobject)[:2]
+                y += [intercept]
+                yerr += [ierr]
+            print y
+                
+            ax.errorbar(x, y, yerr, drawstyle='steps-mid', color=c, fmt=m, 
+                          capsize=0 ,label=l)
+        else:
+            plotdatamc.datamcplot("%s_%s" % (q, flavour), files, opt, fig_axes=(fig, ax), 
                                             changes=changes, settings=settings)
 
-    filename = "response_%s" % x
+    filename = "response_%s" % flavour
     if add_neutrinopt:
-        settings['filename'] += "_neutrinos"
+        filename += "_neutrinos"
 
     settings['filename'] = plotbase.getdefaultfilename(filename, opt, settings)
                                              
