@@ -245,7 +245,8 @@ public:
 
 	typedef std::map<std::string, KGenParticles> MetaParticlesContainer;
 	mutable MetaParticlesContainer m_neutrinos;
-	mutable MetaParticlesContainer m_neutrals;
+	mutable MetaParticlesContainer m_neutrals3;
+	mutable MetaParticlesContainer m_neutrals5;
 
 	int GetAlgoFlavour(ZJetPipelineSettings const& psettings) const
 	{

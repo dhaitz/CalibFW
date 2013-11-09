@@ -155,7 +155,7 @@ def SetMcSpecific(cfg, run='2012'):
                     "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
                     "matchedgenjet1pt", "genmpf",
                     "algoflavour", "physflavour",
-                    "jet1ptneutrinos", "genjet1ptneutrinos", "mpfneutrinos", "neutralpt"
+                    "jet1ptneutrinos", "genjet1ptneutrinos", "mpfneutrinos", "neutralpt3", "neutralpt5"
     ]
     cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'weight_producer', 'flavour_producer']
     cfg['EnableLumiReweighting'] = True

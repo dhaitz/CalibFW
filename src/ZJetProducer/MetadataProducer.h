@@ -357,9 +357,10 @@ public:
 			else if (it->pdgId() == 2212 && it->p4.Pt() < 1e-6) // ignore incoming protons
 			{
 			}
-			else if ((std::abs(it->pdgId()) == 12)
+			else if (it->status() == 1 && 
+                       ((std::abs(it->pdgId()) == 12)
 					 || (std::abs(it->pdgId()) == 14)
-					 || (std::abs(it->pdgId()) == 16))  // neutrinos
+					 || (std::abs(it->pdgId()) == 16)))  // neutrinos
 			{
 				for (ZJetEventData::GenJetMapIterator it2 = data.m_genJets.begin(); it2 != data.m_genJets.end(); ++it2)
 				{
@@ -368,12 +369,11 @@ public:
 						metaData.m_neutrinos[it2->first].push_back(*it);
 				}
 			}
-			else if ((std::abs(it->pdgId()) == 130)
+			else if (it->status() == 1 && 
+                       ((std::abs(it->pdgId()) == 130)
 					 || (std::abs(it->pdgId()) == 310)
-					 || (std::abs(it->pdgId()) == 311)
-					 || (std::abs(it->pdgId()) == 321)
 					 || (std::abs(it->pdgId()) == 2112)
-					 || (std::abs(it->pdgId()) == 3122))  //neutral hadrons
+					 || (std::abs(it->pdgId()) == 3122)))  //neutral hadrons
 			{
 				const float pt_threshold = 1.; //GeV
 				for (ZJetEventData::GenJetMapIterator it2 = data.m_genJets.begin(); it2 != data.m_genJets.end(); ++it2)
@@ -381,7 +381,11 @@ public:
 					if ((it2->second->size() > 0)
 						&& (ROOT::Math::VectorUtil::DeltaR(it->p4, it2->second->at(0).p4) < R)
 						&& (it->p4.Pt() > pt_threshold))
-						metaData.m_neutrals[it2->first].push_back(*it);
+						metaData.m_neutrals5[it2->first].push_back(*it);
+					if ((it2->second->size() > 0)
+						&& (ROOT::Math::VectorUtil::DeltaR(it->p4, it2->second->at(0).p4) < 0.3)
+						&& (it->p4.Pt() > pt_threshold))
+						metaData.m_neutrals3[it2->first].push_back(*it);
 				}
 			}
 			else // unexpected particles

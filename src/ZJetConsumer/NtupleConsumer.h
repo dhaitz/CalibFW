@@ -536,12 +536,21 @@ private:
 			met.p4.SetEta(0);
 			return metaData.GetMPF(&met);
 		}
-		else if (string == "neutralpt")
+		else if (string == "neutralpt3")
 		{
 			KDataLV v;
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-			if (metaData.m_neutrals[genName].size() > 0)
-				for (auto it = metaData.m_neutrals[genName].begin(); it != metaData.m_neutrals[genName].end(); ++it)
+			if (metaData.m_neutrals3[genName].size() > 0)
+				for (auto it = metaData.m_neutrals3[genName].begin(); it != metaData.m_neutrals3[genName].end(); ++it)
+					v.p4 += it->p4;
+			return v.p4.Pt();
+		}
+		else if (string == "neutralpt5")
+		{
+			KDataLV v;
+			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+			if (metaData.m_neutrals5[genName].size() > 0)
+				for (auto it = metaData.m_neutrals5[genName].begin(); it != metaData.m_neutrals5[genName].end(); ++it)
 					v.p4 += it->p4;
 			return v.p4.Pt();
 		}
