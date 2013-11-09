@@ -38,6 +38,8 @@ def labels(ax, opt, settings, subplot=False):
                                  size='small', color='black')
         if settings['text'] is not None:
             textlabel(ax, settings['text'])
+        if settings.get('cutlabel', None) is not None:
+            cutlabel(ax, settings)
     if settings['legloc'] != "None":
         legend = ax.legend(loc=settings['legloc'], numpoints=1, fancybox=True,
                                                                     shadow=True)
@@ -76,6 +78,15 @@ def incutlabel(ax, color='black', incut=''):
     ax.text(0.97, 0.97, text, va='top', ha='right', transform=ax.transAxes, color=color)
     return ax
 
+def cutlabel(ax, settings):
+    if 'cutlabel' not in settings:
+        return
+    cutlabeldict = {
+        'pteta': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3  \quad  \alpha<0.3$",
+    }
+    text = cutlabeldict.get(settings['cutlabel'], False)
+    if text:
+        ax.text(0.97, 0.97, pt_eta_label, va='top', ha='right', color='black', transform=ax1.transAxes, size='large')
 
 def eventnumberlabel(ax, settings):
     if 'events' not in settings:
