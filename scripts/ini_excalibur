@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # set the environment
-export BOOSTPATH=/wlcg/sw/boost/current/
+export BOOSTPATH=$(ls ${VO_CMS_SW_DIR}/${SCRAM_ARCH}/external/boost/* -d | tail -n 1)
+export BOOSTLIB=${BOOSTPATH}/lib/libboost_regex.so.${BOOSTPATH/*\//}
 export EXCALIBUR_BASE=$(readlink -e .)
 export KAPPAPATH=$EXCALIBUR_BASE/../Kappa
 export KAPPATOOLSPATH=$EXCALIBUR_BASE/../KappaTools

@@ -237,7 +237,7 @@ def createGridControlConfig(settings, filename, original=None):
         '@NICK@': settings["OutputPath"],
         '$EXCALIBUR_BASE': getPath(),
         '$EXCALIBUR_WORK': getPath('EXCALIBUR_WORK'),
-        '$BOOSTPATH': getPath('BOOSTPATH'),
+        '$BOOSTLIB': getPath('BOOSTLIB'),
     }
     text = copyFile(original, filename, d)
     # return the name of output files
