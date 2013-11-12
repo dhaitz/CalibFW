@@ -154,7 +154,8 @@ def options(
              "'slides': sans serif, big, png; 'generic': slides + pdf. " +
              "This is not implemented yet.")
     formatting.add_argument('-g', '--legloc', type=str, nargs="?", default=legloc,
-        help="Location of the legend. Default is %(default)s")
+        help="Location of the legend. Default is %(default)s. Possible values " +
+             "are keywords like 'lower left' or coordinates like '0.5,0.1'.")
     formatting.add_argument('--subtext', type=str, default=None,
         help='Add subtext')
     formatting.add_argument('-C', '--colors', type=str, nargs='+', default=colors,
