@@ -132,7 +132,7 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         del rootobjects
         return
     else:
-        plotbase.Save(fig, settings['filename'], opt)
+        plotbase.Save(fig, settings['filename'], opt, settings=settings)
 
         # log and xlog plots are saved separately
         if settings['log']:
