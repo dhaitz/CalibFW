@@ -13,6 +13,7 @@ def labels(ax, opt, settings, subplot=False):
         if settings['lumi'] is not None:
             lumilabel(ax, settings['lumi'])    # always (if given) pure MC plots?
         statuslabel(ax, opt.status)
+
         if settings['energy'] is not None:
             energylabel(ax, settings['energy'])
         #if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
@@ -79,14 +80,17 @@ def incutlabel(ax, color='black', incut=''):
     return ax
 
 def cutlabel(ax, settings):
-    if 'cutlabel' not in settings:
+    if 'cutlabel' not in settings or (hasattr(ax, 'cutlabel') and ax.cutlabel == True):
         return
     cutlabeldict = {
-        'pteta': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3  \quad  \alpha<0.3$",
+        'pteta': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3$",
+        'ptetaalpha': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3  \quad  \alpha<0.2$",
+        'ptetaalpha03': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3  \quad  \alpha<0.3$",
     }
     text = cutlabeldict.get(settings['cutlabel'], False)
     if text:
-        ax.text(0.97, 0.97, pt_eta_label, va='top', ha='right', color='black', transform=ax1.transAxes, size='large')
+        ax.text(0.97, 0.97-settings.get('cutlabeloffset', 0), text, va='top', ha='right', color='black', transform=ax.transAxes, size='large')
+        ax.cutlabel = True
 
 def eventnumberlabel(ax, settings):
     if 'events' not in settings:
@@ -99,6 +103,8 @@ def eventnumberlabel(ax, settings):
 
 
 def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
+    if (hasattr(ax, 'lumilabel') and ax.lumilabel == True):
+        return
     if hasattr(ax, 'number') and ax.number != 2:
         if lumi >= 1.0:
             ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{fb}^{-1}$" %
@@ -106,14 +112,17 @@ def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
         elif lumi > 0.0:
             ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{pb}^{-1}$" %
                 (lumi * 1000.0), va='bottom', ha='left', transform=ax.transAxes)
+    ax.lumilabel = True
     return ax
 
 
 def energylabel(ax, energy, xpos=1.00, ypos=1.01):
-    if hasattr(ax, 'number') and ax.number != 2:
-        if energy is not None:
-            ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
-                va='bottom', ha='right', transform=ax.transAxes)
+    if (hasattr(ax, 'energylabel') and ax.energylabel == True) or (hasattr(ax, 'number') and ax.number == 2):
+        return
+    if energy is not None:
+        ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
+            va='bottom', ha='right', transform=ax.transAxes)
+        ax.energylabel = True
 
 
 def jetlabel_string(changes, opt):
