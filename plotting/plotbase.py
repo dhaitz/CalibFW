@@ -510,9 +510,9 @@ def _internal_Save(figure, name, opt, crop=True, pad=None, settings=None):
     name = name.replace("PFJets", "PF")
     print ' -> Saving as',
     if settings is not None and settings['title'] is not "":
-        figure.suptitle(settings['title'], size='xx-large')
+        title = figure.suptitle(settings['title'], size='large')
     # this helps not to crop labels
-    if crop:
+    elif crop:
         title = figure.suptitle("I", color='white')
     first = True
     for f in opt.formats:
