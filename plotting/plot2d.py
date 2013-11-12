@@ -30,12 +30,23 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     for f in files:
         rootobjects += [getroot.getobjectfromtree(quantity, f, settings, twoD=True)]
         rootobjects[-1].Sumw2()
-        rootobjects[-1].Rebin2D(settings['rebin'], settings['rebin'])
+        if (type(settings['rebin']) is list and len(settings['rebin']) == 2):
+            rootobjects[-1].Rebin2D(settings['rebin'][0], settings['rebin'][1])
+        else:
+            rootobjects[-1].Rebin2D(settings['rebin'], settings['rebin'])
         datamc += [getroot.root2histo(rootobjects[-1], f.GetName(), [1, 1])]
         settings['events'] += [datamc[-1].ysum()]
 
+    if False: # this is the code snippet to produce the diff plot for the rms methods
+        method = 'ptbalance'
+        quantity = "abs((recogen-%s)/recogen)*abs((recogen-%s)/recogen)_npv_zpt" % (method, method)
+        rootobjects += [getroot.getobjectfromtree(quantity, f, settings, twoD=True)]
+        rootobjects[-1].Sumw2()
+        rootobjects[-1].Rebin2D(settings['rebin'], settings['rebin'])
+        x = getroot.root2histo(rootobjects[-1], f.GetName(), [1, 1])
+        datamc[-1].BinContents -= x.BinContents
+
     if settings['ratio'] and len(datamc)==2:
-        print "hallo"
         scaling_factor = datamc[0].binsum() / datamc[1].binsum()
         rootobjects[1].Scale(scaling_factor)
         rootobjects[0].Divide(rootobjects[1])
@@ -54,7 +65,10 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     else:
         if settings['z'] is None:
             settings['z'] = plotbase.getaxislabels_list(quantity.split("_")[0])[:2]
-        z_name = quantity.split("_")[0]
+        if settings['xynames'] is not None and len(settings['xynames']) > 2:
+            z_name = settings['xynames'][2]
+        else:
+            z_name = quantity.split("_")[0]
     
     # special dictionary for z-axis scaling (do we need this??)
     # 'quantity':[z_min(incut), z_max(incut), z_min(allevents), z_max(allevents)]
@@ -112,11 +126,15 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         plotbase.labels(ax, opt, settings, settings['subplot'])
         plotbase.setaxislimits(ax, settings)
 
+        #ax.text(1., 1., r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (settings['energy']),
+        #        va='bottom', ha='right', transform=ax.transAxes)
+
     if settings['subplot']: return
 
     #add the colorbar
     cb = fig.colorbar(image, cax = grid.cbar_axes[0], ax=ax)
     cb.set_label(z_name)
+
 
 
     # create filename + folder
