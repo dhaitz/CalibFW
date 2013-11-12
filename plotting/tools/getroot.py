@@ -196,6 +196,13 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
         ntuple.Project(name, "%s:%s:%s" % (quantities[0],
              quantities[1], quantities[2]), settings['selection'])
 
+    if settings.get('binroot', False):
+        for n in range(rootobject.GetSize()):
+            if rootobject.GetBinContent(n) > 0:
+                a = rootobject.GetBinContent(n)
+                b = math.sqrt(a)
+                rootobject.SetBinContent(n, b)
+                rootobject.SetBinEntries(n, 1)
     return rootobject
 
 
