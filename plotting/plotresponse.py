@@ -19,6 +19,7 @@ import ROOT
 import plotbase
 import plotdatamc
 import getroot
+import numpy
 
 from responsetools import *
 
@@ -313,9 +314,10 @@ def extrapolation_noMPF(files, opt):
 def extrapol(files, opt, 
            variation='alpha',
            use_rawMET=False,       # use raw MET instead of type-I MET
-           extrapolate_mpf=True): # if false, use average for MET
+           extrapolate_mpf=True, # if false, use average for MET
+           changes = None):
 
-    settings = plotbase.getsettings(opt, None, None, "response_%s" % variation)   
+    settings = plotbase.getsettings(opt, changes, None, "response_%s" % variation)   
 
     if use_rawMET==True:
         mpftype='mpf-raw'
@@ -360,6 +362,7 @@ def extrapol(files, opt,
                     'markers'   : ['o', '*'],
                     'labels'    : [r'$p_T$ balance (data)', 
                                                        r'$p_T$ balance (MC)'],
+                    'cutlabel' : 'ptetaalpha03',
                   }
 
         plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, opt,
@@ -382,14 +385,35 @@ def extrapol(files, opt,
             ax1.axhline(mpfmean_mc, color=changes['colors'][1])
             ax1.axhspan(mpfmean_mc + mpfmeanerror_mc, mpfmean_mc - mpfmeanerror_mc, color=local_opt.colors[1], alpha=0.2)
 
-        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad  |\eta^\mathrm{Jet1}|<1.3  \quad  \alpha<0.3$"
-        ax1.text(0.97, 0.97, pt_eta_label, va='top', ha='right', color='black', transform=ax1.transAxes, size='large')
+        plotbase.cutlabel(ax1, settings)
+
+        yticks = numpy.arange(settings['y'][0], settings['y'][1], 0.01)
+        ax1.set_yticks(yticks[1:])
+        yticklabels = [str(i) for i in yticks[1:]]
+        print yticklabels
+
+        # Add a clearly visible tick mark to indicate MC TRUTH respons
+        if False:
+            pass
+            #changes['labels'] = ['MC-Truth Response']
+            #changes['colors'] = ['forestgreen']
+            #changes['markers'] = ['d']
+            #plotbase.plotdatamc.datamcplot('recogen_alpha', files[1:], opt,
+            #        changes=changes, fig_axes=(fig, ax1))
+        else:
+            mctruth = getroot.getobjectfromtree('recogen', files[1], settings, changes = {'x':[0, 2]}).GetMean()
+            ax1.axhline(mctruth, color='forestgreen', linewidth=3)
+            ax1.text(0.48, mctruth+0.002, "MC-Truth Response", ha='right', color='forestgreen')
+
+
 
         if settings['save_individually']:
             file_name = plotbase.getdefaultfilename("extrapolation", opt, settings)
             file_name = file_name.replace('var_CutSecondLeadingToZPt__','')
-            plotbase.Save(fig, file_name, opt)
+            plotbase.Save(fig, file_name, opt, settings=settings)
             fig, ax2 = plotbase.newplot()
+
+
 
         # re-open files because we're using the same histograms again
         files = [getroot.openfile(f, opt.verbose) for f in opt.files]
@@ -426,12 +450,12 @@ def extrapol(files, opt,
             ax2.text(0.97, 0.67, r" Ratio $=%1.4f\pm%1.4f$" %(R, Rerr), va='top', ha='right', transform=ax2.transAxes, color='maroon')
 
 
-        ax2.text(0.97, 0.97, pt_eta_label, va='top', ha='right', color='black', transform=ax2.transAxes, size='large')
+        plotbase.cutlabel(ax2, settings)
 
         if settings['save_individually']:
             file_name = plotbase.getdefaultfilename("ratio_extrapolation", opt, settings)
             file_name = file_name.replace('var_CutSecondLeadingToZPt__','')
-            plotbase.Save(fig, file_name, opt)
+            plotbase.Save(fig, file_name, opt, settings=settings)
 
     if settings['save_individually']:
         return
@@ -484,6 +508,7 @@ def response_physflavour_n(files, opt):
 def response_physflavour(files, opt, changes=None, settings=None, 
             definition='phys',
             add_neutrinopt=False,
+            restrict_neutrals=False,
             extrapolation=True):
     """Get response vs. flavour (physics definition). This function only works with MC."""
 
@@ -491,29 +516,22 @@ def response_physflavour(files, opt, changes=None, settings=None,
     settings = plotbase.getsettings(opt, changes, settings, "response_"+flavour)
 
     
-    markers = ['o', 's', 'd', '*']
-    colors = ['red', 'black', 'yellowgreen', 'lightskyblue', ]
-    quantities = ['ptbalance', 'mpf', 'recogen', 'genbalance', ]
+    markers = ['o', 's', '*', 'd']
+    colors = ['red', 'black', 'lightskyblue', 'yellowgreen', ]
 
     if add_neutrinopt:
         plotbase.debug("\nneutrino-inclusive quantities are used\n")
         ################################################################################
-        quantities = ['jet1ptneutrinos/zpt', 'mpfneutrinos', 'jet1ptneutrinos/genjet1ptneutrinos', 'genjet1ptneutrinos/zpt']
+        quantities = ['jet1ptneutrinos/zpt', 'mpfneutrinos', 'genjet1ptneutrinos/zpt', 'jet1ptneutrinos/genjet1ptneutrinos']
         ################################################################################
     else:
-        quantities = ['jet1pt/zpt', 'mpf', 'jet1pt/genjet1pt', 'genjet1pt/zpt']
+        quantities = ['jet1pt/zpt', 'mpf', 'genjet1pt/zpt', 'jet1pt/genjet1pt']
 
-    labels = ['PtBalance', 'MPF', 'RecoJet/GenJet', 'GenJet/RecoZ']
+    labels = ['PtBalance', 'MPF', 'GenJet/RecoZ', 'RecoJet/GenJet']
     
-    changes = {
-        'legloc':'lower left',
-        'xynames':[flavour, 'response'],
-        'subplot':True,
-        'lumi':0,
-        'rebin':4,
-            }
+    neutral_selection = '(neutralpt5/genjet1pt < 0.05)'
 
-    selections = ["%s==1" % flavour,
+    flavours = ["%s==1" % flavour,
                   "%s==2" % flavour,
                   "%s==3" % flavour,
                   "%s==4" % flavour,
@@ -526,46 +544,64 @@ def response_physflavour(files, opt, changes=None, settings=None,
     fig, ax = plotbase.newplot()
 
     for m, c, q, l in zip(markers, colors, quantities, labels):
-        changes['markers'] = [m]
-        changes['colors'] = [c]
-        changes['labels'] = [l]
-        if extrapolation and "mpf" not in q and q is not "jet1pt/genjet1pt":
+
+        changes = {
+            'legloc':'lower left',
+            'xynames':[flavour, 'response'],
+            'subplot':True,
+            'lumi':0,
+            'rebin':4,
+            'markers': [m],
+            'colors': [c],
+            'labels': [l],
+            'cutlabel': 'ptetaalpha',
+            'y': [0.84, 1.11],
+        }
+        if extrapolation and quantities.index(q) not in [1, 3]:
             #iterate over flavours;
             print "extrapol", q
             y = []
             yerr = []
-            for s in selections:
-                changes2 = {}
-                changes2['selection'] = "%s && %s" % ("alpha<0.3", s)
-                changes2['allalpha'] = True
+            for s in flavours:
+                changes['selection'] = "%s && %s" % ("alpha<0.3", s)
+
+                if restrict_neutrals:
+                    changes['selection'] = ' && '.join([changes['selection'], neutral_selection])
+
+                changes['allalpha'] = True
+                changes['xynames'] = ['alpha', q]
             
                 quantity = "%s_alpha" % q
 
                 rsettings = {}
-                rsettings = plotbase.getsettings(opt, changes2, quantity=quantity)
+                rsettings = plotbase.getsettings(opt, changes, quantity=quantity)
 
                 rootobject = getroot.getobjectfromtree(quantity, files[0], rsettings)
-                rootobject.Rebin(rsettings['rebin'])
+                #rootobject.Rebin(rsettings['rebin'])
 
                 intercept, ierr = plotbase.fitline2(rootobject)[:2]
                 y += [intercept]
                 yerr += [ierr]
-            print y
-                
             ax.errorbar(x, y, yerr, drawstyle='steps-mid', color=c, fmt=m, 
                           capsize=0 ,label=l)
         else:
+            if restrict_neutrals:
+                changes['selection'] = neutral_selection
             plotdatamc.datamcplot("%s_%s" % (q, flavour), files, opt, fig_axes=(fig, ax), 
                                             changes=changes, settings=settings)
 
     filename = "response_%s" % flavour
     if add_neutrinopt:
         filename += "_neutrinos"
+    if extrapolation:
+        filename += "_extrapol"
+    if restrict_neutrals:
+        filename += "_neutrals"
 
     settings['filename'] = plotbase.getdefaultfilename(filename, opt, settings)
                                              
 
-    plotbase.Save(fig, settings['filename'], opt)
+    plotbase.Save(fig, settings['filename'], opt, settings=settings)
 
 
 def physflavour_extrapol_all(files, opt, changes=None, settings=None):
