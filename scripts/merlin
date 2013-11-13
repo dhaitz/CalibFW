@@ -106,7 +106,7 @@ def options(
         help='Some special options for runplots. Valid options are true or diff')
     general.add_argument('--special_binning', action='store_true', default=False,
         help='special binning for npv, zpt, eta')
-    general.add_argument('-n', '--normalize', action='store_true', #make it float 0.0 is default
+    general.add_argument('-n', '--normalize', action='store_false', #make it float 0.0 is default
         help="normalize Monte Carlo samples to the event count in data ")
     general.add_argument('-Y', '--year', type=int, default=2012,
         help="Year of data-taking. Default is %(default)s")
