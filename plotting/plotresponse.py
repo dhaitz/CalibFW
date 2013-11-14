@@ -333,23 +333,26 @@ def extrapol(files, opt,
     else:
         pass
 
+    # for subplots:
+    cuts = ["zpt>30", "zpt>30 && zpt<80", "zpt>80 && zpt<120", "zpt>120"]
+    variations = ["alpha<0.3 && %s" % cut for cut in cuts]
+    variation_labels = cuts
+
+    cuts = ["1"]
+    variations = ["alpha<0.3"]
+    variation_labels = [""]
+
 
     l = len(variations)
     fig, axes = plotbase.newplot(subplots=2*l, subplots_Y=2)
     subtexts = plotbase.getdefaultsubtexts()
 
-    for cut, ax1, ax2, subtext1, subtext2 in zip(variations, axes[:l], axes[l:],
+    for cut, label, ax1, ax2, subtext1, subtext2 in zip(variations, variation_labels, axes[:l], axes[l:],
                                                     subtexts[:l], subtexts[l:]):
-        
-
         files = [getroot.openfile(f, opt.verbose) for f in opt.files]
 
         if settings['save_individually']:
             fig, ax1 = plotbase.newplot()
-
-
-        #Response
-        #   balance
 
         changes = {'legloc'     : 'lower left',
                     'xynames'   : ['alpha','response'],
@@ -360,11 +363,15 @@ def extrapol(files, opt,
                     'allalpha'  : True,
                     'colors'    : ['black', 'blue'],
                     'markers'   : ['o', '*'],
-                    'labels'    : [r'$p_T$ balance (data)', 
-                                                       r'$p_T$ balance (MC)'],
-                    'cutlabel' : 'ptetaalpha03',
+                    'labels'    : [r'$p_\mathrm{T}$ balance (data)', 
+                                                       r'$p_\mathrm{T}$ balance (MC)'],
+                    'y'         : [0.91, 1.04],
+                    'cutlabel' : 'pteta',
                   }
 
+        ### Response plot
+
+        #   balance
         plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, opt,
                 changes=changes, fig_axes=(fig, ax1))
 
@@ -386,24 +393,24 @@ def extrapol(files, opt,
             ax1.axhspan(mpfmean_mc + mpfmeanerror_mc, mpfmean_mc - mpfmeanerror_mc, color=local_opt.colors[1], alpha=0.2)
 
         plotbase.cutlabel(ax1, settings)
+        plotbase.statuslabel(ax1, label)
 
-        yticks = numpy.arange(settings['y'][0], settings['y'][1], 0.01)
+        yticks = numpy.arange(changes['y'][0], changes['y'][1], 0.01)
         ax1.set_yticks(yticks[1:])
         yticklabels = [str(i) for i in yticks[1:]]
-        print yticklabels
 
         # Add a clearly visible tick mark to indicate MC TRUTH respons
         if False:
-            pass
-            #changes['labels'] = ['MC-Truth Response']
-            #changes['colors'] = ['forestgreen']
-            #changes['markers'] = ['d']
-            #plotbase.plotdatamc.datamcplot('recogen_alpha', files[1:], opt,
-            #        changes=changes, fig_axes=(fig, ax1))
+            changes['labels'] = ['MC-Truth Response']
+            changes['colors'] = ['forestgreen']
+            changes['markers'] = ['d']
+            plotbase.plotdatamc.datamcplot('recogen_alpha', files[1:], opt,
+                    changes=changes, fig_axes=(fig, ax1))
         else:
-            mctruth = getroot.getobjectfromtree('recogen', files[1], settings, changes = {'x':[0, 2]}).GetMean()
+            mctruth = getroot.getobjectfromtree('recogen', files[1], settings, 
+                                            changes = {'x':[0, 2]}).GetMean()
             ax1.axhline(mctruth, color='forestgreen', linewidth=3)
-            ax1.text(0.48, mctruth+0.002, "MC-Truth Response", ha='right', color='forestgreen')
+            ax1.text(0.272, mctruth+0.001, "MC-Truth Response", ha='right', color='forestgreen')
 
 
 
@@ -418,15 +425,18 @@ def extrapol(files, opt,
         # re-open files because we're using the same histograms again
         files = [getroot.openfile(f, opt.verbose) for f in opt.files]
 
-        #Ratio
+        ### Ratio
         #   balance
         changes['ratio']   = True
         changes['xynames'] = ['alpha','datamcratio']
         changes['fit']     = 'intercept'
         changes['legloc']  = 'lower left'
-        changes['labels']  = [r'$p_T$ balance']
+        changes['labels']  = [r'$p_\mathrm{T}$ balance']
         changes['colors']  = ['blue']
         changes['fitlabel_offset'] = -0.0
+
+        changes['y'] = [0.9855, 1.018]
+
         plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, opt,
                 changes=changes, fig_axes=(fig, ax2))
 
@@ -451,6 +461,7 @@ def extrapol(files, opt,
 
 
         plotbase.cutlabel(ax2, settings)
+        plotbase.statuslabel(ax2, label)
 
         if settings['save_individually']:
             file_name = plotbase.getdefaultfilename("ratio_extrapolation", opt, settings)
