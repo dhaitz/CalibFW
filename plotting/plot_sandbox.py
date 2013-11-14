@@ -15,66 +15,65 @@ def paper(files, opt):
         plot2d.twoD("abs((recogen-%s)/recogen)*abs((recogen-%s)/recogen)_npv_zpt" % (method, method),
                 files[1:],
                 opt,
-                changes = {'x':[0, 250],
-                            'rebin':[6, 2],
+                changes={'x': [0, 250],
+                            'rebin': [6, 2],
                             'binroot': True,
-                            'z':[0, 0.3],
-                            'xynames':["zpt", "npv", "RMS((recogen-%s)/recogen)" % method],
+                            'z': [0, 0.3],
+                            'xynames': ["zpt", "npv", "RMS((recogen-%s)/recogen)" % method],
                             'filename': '2D_RMS_%s' % method,
                             #'labels': ["RMS((recogen-%s)/recogen)" % method],
                             'labels': ["CMS Simulation"],
                             #'cutlabel':'ptetaalpha03',
                             #'cutlabeloffset':-0.2,
-                            'selection':'alpha<0.3',
-                            'allalpha':True,
+                            'selection': 'alpha<0.3',
+                            'allalpha': True,
                 }
         )
 
     local_opt = copy.deepcopy(opt)
     local_opt.out = opt.out + '/flavour_response/'
-    for a in [0,1]:
-        for b in [0,1]:
-            for c in [0,1]:
+    for a in [0, 1]:
+        for b in [0, 1]:
+            for c in [0, 1]:
                 plotresponse.response_physflavour(files[1:], local_opt,
-                    changes = {'title':'CMS Simulation'},
+                    changes={'title': 'CMS Simulation'},
                     add_neutrinopt=a,
                     restrict_neutrals=b,
                     extrapolation=c)
 
-    plotresponse.extrapol(files, opt, changes = {'title':'CMS preliminary',
-                                        'save_individually':True})
-
+    plotresponse.extrapol(files, opt, changes={'title': 'CMS preliminary',
+                                        'save_individually': True})
 
     # alpha dependencies
-    changes = {'allalpha':True, 
-                'y':[0, 400],
-                'markers':['o', 'd'],
-                'colors':['black', 'blue']}
-    plotdatamc.datamcplot("zpt_alpha", files, opt, changes = changes)
+    changes = {'allalpha': True,
+                'y': [0, 400],
+                'markers': ['o', 'd'],
+                'colors': ['black', 'blue']}
+    plotdatamc.datamcplot("zpt_alpha", files, opt, changes=changes)
     changes['labels'] = ['MC']
     changes['lumi'] = 0
     changes['y'] = [0.98, 1.1]
-    plotdatamc.datamcplot("recogen_alpha", files[1:], opt, changes = changes)
+    plotdatamc.datamcplot("recogen_alpha", files[1:], opt, changes=changes)
 
     # HERWIG
-    changes = {'lumi':0,
-                'cutlabel':'ptetaalpha',
-                'labels':['Pythia 6 Tune Z2*', 'Herwig++ Tune EE3C'],
-                'y':[0.98, 1.05],
-                'markers':['o', 'd'],
-                'colors':['red', 'blue'],
-                'title':'CMS Simulation',
-                'legloc':'lower left',
-                'filename':'recogen_physflavour_pythia-herwig'}
+    changes = {'lumi': 0,
+                'cutlabel': 'ptetaalpha',
+                'labels': ['Pythia 6 Tune Z2*', 'Herwig++ Tune EE3C'],
+                'y': [0.98, 1.05],
+                'markers': ['o', 'd'],
+                'colors': ['red', 'blue'],
+                'title': 'CMS Simulation',
+                'legloc': 'lower left',
+                'filename': 'recogen_physflavour_pythia-herwig'}
     files2 = files[1:] + [getroot.openfile("/storage/a/dhaitz/excalibur/work/mc_herwig/out/closure.root")]
-    plotdatamc.datamcplot("recogen_physflavour", files2, opt, changes = changes)
+    plotdatamc.datamcplot("recogen_physflavour", files2, opt, changes=changes)
 
-    flavour_comp(files[1:], opt, changes = {'title':'CMS Simulation',
-            'cutlabel':'ptetaalpha',
-            'cutlabeloffset':0.07,
-            'lumi':0,
-            'legloc':'0.05,0.5'})
-    
+    flavour_comp(files[1:], opt, changes={'title': 'CMS Simulation',
+            'cutlabel': 'ptetaalpha',
+            'cutlabeloffset': 0.07,
+            'lumi': 0,
+            'legloc': '0.05,0.5'})
+
 
 def eleven(files, opt):
     """ Summary of the plots for the response studies with 2011 rereco. """
@@ -163,10 +162,10 @@ def flavour_comp(files, opt, changes=None):
     """Plot the PF composition as a function of the MC truth flavour."""
 
     quantity = "components_physflavour"
-    settings = plotbase.getsettings(opt, changes, settings=None, 
-                                            quantity=quantity) 
-    nbr = 5 
-    labels =     ["NHad", r"$\gamma$       ", "CHad", r"$e$       ",
+    settings = plotbase.getsettings(opt, changes, settings=None,
+                                            quantity=quantity)
+    nbr = 5
+    labels = ["NHad", r"$\gamma$       ", "CHad", r"$e$       ",
                                         r"$\mu$       ", "HFem", "HFhad"][:nbr]
     labels.reverse()
     colours = ['YellowGreen', 'LightSkyBlue', 'Orange', 'MediumBlue',
@@ -191,12 +190,11 @@ def flavour_comp(files, opt, changes=None):
         changes['labels'] = [l]
         changes['colors'] = [c]
 
-        plotdatamc.datamcplot("%s_physflavour" % n, files, opt, 
-                    fig_axes=(fig, ax), changes=changes, settings = settings)
-
+        plotdatamc.datamcplot("%s_physflavour" % n, files, opt,
+                    fig_axes=(fig, ax), changes=changes, settings=settings)
 
     settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
-    plotbase.Save(fig, settings['filename'], opt, settings = settings)
+    plotbase.Save(fig, settings['filename'], opt, settings=settings)
 
 
 def ineff(files, opt):
@@ -218,9 +216,10 @@ def ineff(files, opt):
         changes['colors'] = c
         changes['markers'] = m
 
-        plotdatamc.datamcplot(quantity, files, opt,fig_axes=(fig, ax), changes=changes, settings=settings)
+        plotdatamc.datamcplot(quantity, files, opt, fig_axes=(fig, ax), changes=changes, settings=settings)
     settings['filename'] = plotbase.getdefaultfilename("physflavourfrac_zpt", opt, settings)
     plotbase.Save(fig, settings['filename'], opt)
+
 
 def flav(files, opt):
 

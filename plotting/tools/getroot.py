@@ -149,7 +149,7 @@ def getbinning(quantity, settings, axis='x'):
     nbins = settings['nbins']
 
     if nbins < 0:
-        pass # set it automatically
+        pass  # set it automatically
     if quantity in ['npv', 'npu', 'jet1nconst']:  # integer binning
         nbins = int(xmax - xmin)
 
@@ -161,7 +161,6 @@ def getbinning(quantity, settings, axis='x'):
         xmin = max(xmin, 1.0)
         print xmin, nbins
         #bins = [xmin * (float(xmax) / xmin ) ** (float(i) / nbins) for i in range(nbins + 1)]
-
 
     #special binning for certain quantities:
     # No, opt is the wrong place, -> dict
@@ -221,7 +220,7 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False):
 
     if roothisto.ClassName() == 'TH2D':
         print "Correlation between %s and %s in %s in the selected range:  %1.5f" % (
-            quantities[1], quantities[0], roothisto.GetName(), #.split("/")[-3],
+            quantities[1], quantities[0], roothisto.GetName(),  # .split("/")[-3],
             roothisto.GetCorrelationFactor())
 
     #no no no! not here
@@ -286,7 +285,6 @@ def objectfromfile(name, rootfile, exact=False, warn=True):
         print "Can't load object", name, "from root file", rootfile.GetName()
         exit(0)
     return oj
-
 
 
 def getobjectname(quantity='z_mass', change={}):
@@ -845,4 +843,3 @@ def histoabsmean(histo):
     for i in range(1, n / 2 + 1):    # 1..100 : 200..101
         absEta.SetBinContent(n + 1 - i, histo.GetBinContent(i) + histo.GetBinContent(n - i + 1))
         absEta.SetBinContent(i, 0)
-
