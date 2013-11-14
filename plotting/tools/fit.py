@@ -73,7 +73,10 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
         plot.xc.insert(0, 0.)
 
         # display confidence intervals
-        ax.fill_between(plot.xc[:-1], [(intercept+x*slope + c)*scalefactor for x, c in zip(plot.xc[:-1], conf_intervals)], [(intercept+x*slope - c)*scalefactor for x, c in zip(plot.xc[:-1], conf_intervals)], facecolor=color, edgecolor=color, interpolate=True, alpha=0.2)
+        ax.fill_between(plot.xc, 
+              [(intercept+x*slope + c)*scalefactor for x, c in zip(plot.xc, conf_intervals)],
+              [(intercept+x*slope - c)*scalefactor for x, c in zip(plot.xc, conf_intervals)], 
+              facecolor=color, edgecolor=color, interpolate=True, alpha=0.2)
 
         if 'fitlabel_offset' in settings:
             offset += settings['fitlabel_offset']
@@ -129,7 +132,9 @@ def fitline2(rootgraph, quadratic=False, gauss=False, limits = [0, 1000]):
     points = []
     for n in range(1, rootgraph.GetSize() - 1):
         points.append(rootgraph.GetBinCenter(n))
+    #add additional points at the beginning and end to extend the fit error bands
     points.insert(0, 0.)
+    points.append(2*points[-1]-points[-2])
     x = array.array('d', points)
     y = array.array('d', [0.]*len(points))
     fitres.GetConfidenceIntervals(len(points), 1, 1, x, y, 0.683)
