@@ -114,6 +114,7 @@ public:
 					", ext=" << data.m_genlumimetadata->xSectionExt <<
 					", int=" << data.m_genlumimetadata->xSectionInt <<
 					", eff=" << data.m_genlumimetadata->filterEff <<
+					", nevents=" << ntotal <<
 					", xsec=" << xsec << ", weight=" << weight);
 		}
 

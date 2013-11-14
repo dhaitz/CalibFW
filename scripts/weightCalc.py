@@ -49,7 +49,7 @@ def main():
 		data = getDistributionFromFile(op.dfile, op.data_histo)
 	else:
 		print "Using:", subprocess.call(['pileupCalc.py'])
-		data = getDataFromPileupCalc(op.dfile, op.inputLumiJSON, op.output,
+		data = getDataFromPileupCalc(op.dfile, op.inputLumiJSON, op.dataoutput,
 				op.minBiasXsec, op.maxPileupBin, op.numPileupBins, histo="pileup")
 		if op.save:
 			saveDistributionToFile(op.dataoutput, data, op.data_histo)
@@ -199,7 +199,7 @@ def options():
 	parser.add_argument('-i', '--inputLumiJSON', type=str, default=None,
 		help="Input Lumi JSON for pileupCalc.")
 	parser.add_argument('-x', '--minBiasXsec', type=float, default=73.5,  # 69.4 before
-		help="Minimum bias cross section in mb (default: %(default)s mb, NB: pileupCalc takes µb!)")
+		help="Minimum bias cross section in mb (default: %(default)s mb, NB: pileupCalc takes ub!)")
 	parser.add_argument('-n', '--maxPileupBin', type=int, default=80,
 		help="Maximum number of pile-up interactions (default: %(default)s).")
 	parser.add_argument('-b', '--numPileupBins', type=int, default=800,
