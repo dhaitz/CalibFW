@@ -29,7 +29,6 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     settings['events'] = []
     for f in files:
         rootobjects += [getroot.getobjectfromtree(quantity, f, settings, twoD=True)]
-        rootobjects[-1].Sumw2()
         if (type(settings['rebin']) is list and len(settings['rebin']) == 2):
             rootobjects[-1].Rebin2D(settings['rebin'][0], settings['rebin'][1])
         else:
@@ -41,7 +40,6 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         method = 'ptbalance'
         quantity = "abs((recogen-%s)/recogen)*abs((recogen-%s)/recogen)_npv_zpt" % (method, method)
         rootobjects += [getroot.getobjectfromtree(quantity, f, settings, twoD=True)]
-        rootobjects[-1].Sumw2()
         rootobjects[-1].Rebin2D(settings['rebin'], settings['rebin'])
         x = getroot.root2histo(rootobjects[-1], f.GetName(), [1, 1])
         datamc[-1].BinContents -= x.BinContents

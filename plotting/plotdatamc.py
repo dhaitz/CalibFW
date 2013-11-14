@@ -32,7 +32,6 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         rootobjects += [getroot.getobjectfromtree(quantity, f, settings)]
         if settings['special_binning'] is False:
             rootobjects[-1].Rebin(settings['rebin'])
-        rootobjects[-1].Sumw2()
         datamc += [getroot.root2histo(rootobjects[-1], f.GetName(), 1)]
         settings['events'] += [datamc[-1].ysum()]
         if 'flavour' in settings['xynames'][0]:

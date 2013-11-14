@@ -175,10 +175,12 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
             rootobject = ROOT.TH1D(name, nickname, bins[0], bin_array)
         else:
             rootobject = ROOT.TH1D(name, nickname, bins[0], settings['x'][0], settings['x'][1])
+        rootobject.Sumw2()
         ntuple.Project(name, "%s" % quantities[0], settings['selection'])
     elif histtype == 'TH2D':
         rootobject = ROOT.TH2D(name, nickname, bins[0], settings['x'][0],settings['x'][1],
                                                     bins[1], settings['y'][0], settings['y'][1])
+        rootobject.Sumw2()
         ntuple.Project(name, "%s:%s" % (quantities[0], quantities[1]), settings['selection'])
         # also print the correlation:
         print "Correlation between %s and %s in %s in the selected range:  %1.5f" % (quantities[1],
@@ -189,10 +191,12 @@ def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
             rootobject = ROOT.TProfile(name, nickname, bins[0], bin_array)
         else:
             rootobject = ROOT.TProfile(name, nickname, bins[0], settings['x'][0], settings['x'][1])
+        rootobject.Sumw2()
         ntuple.Project(name, "%s:%s" % (quantities[0], quantities[1]), settings['selection'])
     elif histtype == 'TProfile2D':
         rootobject = ROOT.TProfile2D(name, nickname, bins[0], settings['x'][0],settings['x'][1], 
                                                     bins[1], settings['y'][0], settings['y'][1])
+        rootobject.Sumw2()
         ntuple.Project(name, "%s:%s:%s" % (quantities[0],
              quantities[1], quantities[2]), settings['selection'])
 
