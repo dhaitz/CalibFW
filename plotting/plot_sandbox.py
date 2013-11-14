@@ -222,48 +222,6 @@ def ineff(files, opt):
     settings['filename'] = plotbase.getdefaultfilename("physflavourfrac_zpt", opt, settings)
     plotbase.Save(fig, settings['filename'], opt)
 
-
-def flav2(files, opt):    
-    settings = plotbase.getsettings(opt, changes=None, settings=None, quantity="flavour_zpt") 
-
-    flavourdefs = ["physflavour"]#, "algoflavour"]
-    flavourdefinitions = ["algorithmic", "physics"]
-
-    flist = ["(flavour>0&&flavour<4)", # uds
-        "((flavour>0&&flavour<4)|| flavour==4)", #c
-        "((flavour>0&&flavour<4)|| flavour==4 || flavour==5)", #b
-        "((flavour>0&&flavour<4)|| flavour==4 || flavour==5 || flavour==21)", #g
-        "((flavour>-1&&flavour<4)|| flavour==4 || flavour==5 || flavour==21)", #unmatched
-        ]
-    flist.reverse()
-    q_names =['uds', 'c','b','gluon', 'unmatched']
-    q_names.reverse()
-    colors = ['mediumseagreen', 'lightcoral', 'cornflowerblue', 'grey', 'maroon']
-    colors.reverse()
-    
-    changes = {'subplot':True,
-                'markers':['f'],
-                'x':[30,1000],
-                'legloc':'lower left',
-                'lumi':0,
-               }
-
-    for flavourdef in flavourdefs:
-        fig, ax = plotbase.newplot()
-        for f_id, quantity, c in zip(q_names, flist, colors):
-                changes['labels']=[f_id]
-                changes['colors']=[c]
-                changes['xynames'] = ['zpt', "%sfrac" % flavourdef]
-                q = quantity.replace("flavour", 
-                                    flavourdef)
-                plotdatamc.datamcplot("%s_zpt" % q, files, opt,fig_axes=(fig, ax), changes=changes)
-        ax.set_xscale('log')
-        
-        settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
-        plotbase.Save(fig, settings['filename'], opt)
-    
-    
-
 def flav(files, opt):
 
     etabins = [0, 1.3, 2.5, 3, 3.2, 5.2]

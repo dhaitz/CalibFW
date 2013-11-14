@@ -326,6 +326,49 @@ def fractions_run_response_all(files, opt):
 def fractions_run_response_diff_all(files, opt):
     fractions_run_all(files, opt, response=True, diff=True)
 
+def flavour_composition_eta(files, opt, changes=None):
+    """MC flavour composition vs leading jet eta."""   
+    flavour_composition(files, opt, changes, x="jet1abseta")
+
+def flavour_composition(files, opt, changes=None, x="zpt"): 
+    """MC flavour composition vs Z pT."""   
+    flavourdef = "physflavour"
+
+    quantity="_".join([flavourdef, x])
+    settings = plotbase.getsettings(opt, changes, settings=None, quantity=quantity) 
+
+
+    flist = ["(flavour>0&&flavour<4)", # uds
+        "((flavour>0&&flavour<4)|| flavour==4)", #c
+        "((flavour>0&&flavour<4)|| flavour==4 || flavour==5)", #b
+        "((flavour>0&&flavour<4)|| flavour==4 || flavour==5 || flavour==21)", #g
+        "((flavour>-1&&flavour<4)|| flavour==4 || flavour==5 || flavour==21)", #unmatched
+        ]
+    flist.reverse()
+    q_names =['uds', 'c','b','gluon', 'unmatched']
+    q_names.reverse()
+    colors = ['#236BB2', '#CC2828', '#458E2F', '#E5AD3D', 'grey']
+    colors.reverse()
+    
+    changes = {'subplot':True,
+                'markers':['f'],
+                'legloc':'lower left',
+                'lumi':0,
+               }
+
+    fig, ax = plotbase.newplot()
+    for f_id, selection, c in zip(q_names, flist, colors):
+            changes['labels']=[f_id]
+            changes['colors']=[c]
+            changes['xynames'] = [x, "%sfrac" % flavourdef]
+            q = selection.replace("flavour", 
+                                flavourdef)
+            plotdatamc.datamcplot("_".join([q, x]), files, opt,fig_axes=(fig, ax), changes=changes)
+        
+    settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
+    plotbase.Save(fig, settings['filename'], opt, settings=settings)
+
+
 
 
 plots = ['fractions_zpt', 'fractions_jet1eta', 
