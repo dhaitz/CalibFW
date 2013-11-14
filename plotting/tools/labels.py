@@ -79,14 +79,15 @@ def incutlabel(ax, color='black', incut=''):
     ax.text(0.97, 0.97, text, va='top', ha='right', transform=ax.transAxes, color=color)
     return ax
 
+cutlabeldict = {
+    'pteta': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3$",
+    'ptetaalpha': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3  \quad  \alpha<0.2$",
+    'ptalpha': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad  \alpha<0.2$",
+    'ptetaalpha03': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3  \quad  \alpha<0.3$",
+}
 def cutlabel(ax, settings):
     if 'cutlabel' not in settings or (hasattr(ax, 'cutlabel') and ax.cutlabel == True):
         return
-    cutlabeldict = {
-        'pteta': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3$",
-        'ptetaalpha': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3  \quad  \alpha<0.2$",
-        'ptetaalpha03': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3  \quad  \alpha<0.3$",
-    }
     text = cutlabeldict.get(settings['cutlabel'], False)
     if text:
         ax.text(0.97, 0.97-settings.get('cutlabeloffset', 0), text, va='top', ha='right', color='black', transform=ax.transAxes, size='large')
