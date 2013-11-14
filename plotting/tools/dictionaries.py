@@ -27,7 +27,7 @@ ntuple_dict = {
 d_axes = {
         'abseta': [0.0, 5.5, r"$|\eta^\mathrm{%s}|$", ""],
         'absphi': [0, 3.141593, r"$|\phi^\mathrm{%s}|$", ""],
-        'alpha': [0, 0.5, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],
+        'alpha': [0, 0.5, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^\mathrm{Z}$", ""],
         'bal': [0.0, 1.8, r"$p_\mathrm{T}$ balance", ""],
         'balparton': [0.0, 1.8, r"Matching parton$p_\mathrm{T}$ / GenZ $p_\mathrm{T}$ ", ""],
         'balrespjet2': [0, 1, r"$p_\mathrm{T}^\mathrm{Jet 2}/p_\mathrm{T}^{Z}$", ""],

@@ -12,8 +12,7 @@ def labels(ax, opt, settings, subplot=False):
             and not settings['fit'] == 'intercept'):
         if settings['lumi'] is not None:
             lumilabel(ax, settings['lumi'])    # always (if given) pure MC plots?
-        statuslabel(ax, opt.status)
-
+        statuslabel(ax, settings['status'])
         if settings['energy'] is not None:
             energylabel(ax, settings['energy'])
         #if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
@@ -106,14 +105,14 @@ def eventnumberlabel(ax, settings):
 def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
     if (hasattr(ax, 'lumilabel') and ax.lumilabel == True):
         return
-    if hasattr(ax, 'number') and ax.number != 2:
+    if (hasattr(ax, 'number') and ax.number != 2) or (not hasattr(ax, 'number')):
         if lumi >= 1.0:
             ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{fb}^{-1}$" %
                 (lumi), va='bottom', ha='left', transform=ax.transAxes)
         elif lumi > 0.0:
             ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{pb}^{-1}$" %
                 (lumi * 1000.0), va='bottom', ha='left', transform=ax.transAxes)
-    ax.lumilabel = True
+        ax.lumilabel = True
     return ax
 
 
@@ -257,10 +256,11 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.95, changes={}, colo
     ax.text(xpos, ypos, text, va='center', ha='left', size='x-large', transform=ax.transAxes, color=color)
 
 
-def statuslabel(ax, status=None, xpos=0.25, ypos=1.018):
-    if status is not None:
+def statuslabel(ax, status=None, xpos=0.3, ypos=1.018):
+    if ( (status is not None) and ( not (hasattr(ax, "statuslabel") and ax.statuslabel == True) ) ):
         ax.text(xpos, ypos, r"%s" % status, va='bottom', ha='left',
                 transform=ax.transAxes)
+        ax.statuslabel = True
 
 
 def resultlabel(ax, text=None, xpos=0.05, ypos=0.05):
