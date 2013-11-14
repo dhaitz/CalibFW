@@ -483,9 +483,9 @@ def getdefaultfilename(quantity, opt, settings):
 def Save(figure, name, opt, alsoInLogScale=False, crop=True, pad=None, settings=None):
     _internal_Save(figure, name, opt, pad=pad, settings=settings)
 
-    if alsoInLogScale:
-        figure.get_axes()[0].set_yscale('log')
-        _internal_Save(figure, name + "_log_scale", opt, crop, pad=pad, settings=settings)
+    #if alsoInLogScale:
+    #    figure.get_axes()[0].set_yscale('log')
+    #    _internal_Save(figure, name + "_log_scale", opt, crop, pad=pad, settings=settings)
 
 
 def EnsurePathExists(path):
