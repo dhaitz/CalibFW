@@ -189,10 +189,6 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False):
                 quantities[i] = quantities[i].replace(key, dictconvert(key))
     #TODO with TTree UserInfo: http://root.cern.ch/phpBB3/viewtopic.php?f=3&t=16902
     isMC = bool(ntuple.GetLeaf("npu"))
-    for q in quantities:
-        if not ntuple.GetLeaf(q):
-            print q, "is not in the ntuple", ntuple.GetName()
-            exit(1)
 
     variables = ":".join(quantities)
     selection = getselection(settings, isMC)
