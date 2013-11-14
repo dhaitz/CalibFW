@@ -302,7 +302,7 @@ if __name__ == "__main__":
 
         # check if the imageviewer is running on the users local machine:
         p = subprocess.Popen(['ssh', userpc, 'ps', 'aux', '|', 'grep',
-                        '"%s /usr/users/%s"' % (imageviewer, user), '|', 'grep',
+                        '"%s /usr/users/%s/plot.pdf"' % (imageviewer, user), '|', 'grep',
                          '-v', 'grep', '|', 'wc', '-l'], stdout=subprocess.PIPE)
         out, err = p.communicate()
 
