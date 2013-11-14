@@ -5,15 +5,15 @@
     as well as the resp_cuts file format specific functions.
 
     Here is an overview of the most interesting functions besides 'openfile':
-    quantity -------------------------getplotfromnick------------------> Histo
-                              name ----------getplot-------------------> Histo
-    quantity -getobjectname-> name -getobject-> rootobject -root2histo-> Histo
+    quantity -------------------------getplotfromnick------------------> plot
+                              name ----------getplot-------------------> plot
+    quantity -getobjectname-> name -getobject-> rootobject -root2histo-> plot
     quantity ------getobjectfromnick----------> rootobject
 
     quantity:   Short name/nick name (expanded with default values) e.g. z_pt
     name:       name of root object in file, e.g. NoBinning_incut/z_pt_AK5PFJetsL1L2L3
     rootobject: root object (TH1D, TGraphErrors, etc.)
-    Histo:      getroot Histo class object
+    plot:      getroot Histo class object
 
     getobjectname expands a short name with default values to the object name in the root file
     getobject yields a root object

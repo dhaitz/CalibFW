@@ -138,7 +138,7 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     # create filename + folder
     settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
 
-    plotbase.Save(fig, settings['filename'], opt)
+    plotbase.Save(fig, settings)
 
 
 
