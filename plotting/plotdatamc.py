@@ -29,9 +29,7 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     datamc, rootobjects = [], []
     settings['events'] = []
     for f in files:
-        rootobjects += [getroot.getobjectfromtree(quantity, f, settings)]
-        if settings['special_binning'] is False:
-            rootobjects[-1].Rebin(settings['rebin'])
+        rootobjects += [getroot.histofromfile(quantity, f, settings)]
         datamc += [getroot.root2histo(rootobjects[-1], f.GetName(), 1)]
         settings['events'] += [datamc[-1].ysum()]
         if 'flavour' in settings['xynames'][0]:
@@ -83,8 +81,6 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
             elif (f.ysum() != 0 and datamc[0].ysum() != 0):
                 scalefactor = datamc[0].ysum() / f.ysum()
                 f.scale(scalefactor)
-            elif settings['lumi'] != None:
-                f.scale(opt.lumi)
 
         if s == 'f':
             if settings['special_binning']:

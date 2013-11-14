@@ -28,7 +28,7 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     datamc, rootobjects = [], []
     settings['events'] = []
     for f in files:
-        rootobjects += [getroot.getobjectfromtree(quantity, f, settings, twoD=True)]
+        rootobjects += [getroot.histofromfile(quantity, f, settings, twoD=True)]
         if (type(settings['rebin']) is list and len(settings['rebin']) == 2):
             rootobjects[-1].Rebin2D(settings['rebin'][0], settings['rebin'][1])
         else:

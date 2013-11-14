@@ -92,122 +92,165 @@ def getplotfromtree(nickname, rootfile, settings, twoD=False, changes=None):
     return histo
 
 
-def getobjectfromtree(nickname, rootfile, settings, changes=None, twoD=False):
-    """This function returns a root object
+#def gethistofromtree(name, tree, settings, changes=None, twoD=False):
 
+
+def gettreename(settings, parts=['folder', 'algorithm', 'correction'], string="%s_%s%s"):
+    """naming scheme
+
+    format the treename from its parts with the format of string
     """
-    settings = plotbase.apply_changes(settings, changes)
+    for p in parts:
+        if p not in settings:
+            print p, "is not in settings."
+            exit(1)
+    part = [settings[p] for p in parts]
+    name = string % tuple(part)
+    return name
 
-    # get the tree:
-    treename = "_".join([settings['folder'], settings['algorithm'] + settings['correction']])
-    ntuple = rootfile.Get(treename)
-    # for MC, we can use L1L2L3 if L1L2L3Res is specified:
-    if not ntuple and "Res" in treename:
-        ntuple = rootfile.Get(treename.replace("Res", ""))
 
-    quantities = nickname.split("_")
+def getselection(settings, mcWeights=False):
+    # create the final selection from the settings
+    selection = []
+    if settings['folder'] == 'incut' and not settings['allalpha']:
+        selection += ["(jet2pt/zpt < 0.2)"]  # || jet2pt<12
+    if settings['folder'] == 'incut' and not settings['alleta']:
+        selection += ["abs(jet1eta) < 1.3"]
+    if settings['selection']:
+        selection += [settings['selection']]
 
-    #for npv we need bins with width=1
-    bins = []
-    for quantity, limits in zip(quantities[::-1], [settings['x'], settings['y']]):
-        if quantity in ['npv', 'npu']:
-            bins += [int(limits[1] - limits[0])]
-        else:
-            bins += [100]
+    # add weights
+    weights = []
+    if selection:
+        weights = ["(" + " && ".join(selection) + ")"]
+    if mcWeights and ('noweighting' not in settings or not settings['noweighting']):
+        weights += ["weight"]
+    if mcWeights:  # add lumi weights always?
+        weights += [str(settings['lumi'])]
+    if mcWeights and settings['efficiency']:
+        weights += [str(settings['efficiency'])]
+    if mcWeights and settings['factor']:
+        weights += [str(settings['factor'])]
+    selectionstr = " * ".join(weights)
+
+    #create a copy of quantities to iterate over (to replace the from the dict):
+    for key in ntuple_dict.keys():
+        if key in selectionstr:
+            selectionstr = selectionstr.replace(key, dictconvert(key))
+
+    print selectionstr
+    return selectionstr
+
+
+def getbinning(quantity, settings, axis='x'):
+    #missing: guess range from first entries (instead of 0,1)
+    # variants: special_binning, float, int, log,
+    xmin = settings[axis][0]
+    xmax = settings[axis][1]
+    nbins = settings['nbins']
+
+    if nbins < 0:
+        pass # set it automatically
+    if quantity in ['npv', 'npu', 'jet1nconst']:  # integer binning
+        xmin -= 0.5
+        xmax += 0.5
+        bins = xmax - xmin + 1
+
+    bins = [xmin + (xmax - xmin) * float(i) / nbins for i in range(nbins + 1)]
+    #TODO: better log binning also for y etc.
+    #print settings['xlog']
+    if settings['xlog']:
+        print "LOG bins is not done -> getroot.getbinning"
+        xmin = max(xmin, 1.0)
+        print xmin, nbins
+        #bins = [xmin * (float(xmax) / xmin ) ** (float(i) / nbins) for i in range(nbins + 1)]
+    # proper log binning missing
 
     #special binning for certain quantities:
-    # TODO make this dependent on the list in "opt" !
+    # No, opt is the wrong place, -> dict
     bin_dict = {
-        'zpt': settings['bins'],
+        'zpt': settings['zbins'],
         'jet1abseta': settings['eta'],
         'jet1eta': [-elem for elem in settings['eta'][1:][::-1]] + settings['eta'],
         'npv': [a - 0.5 for a, b in settings['npv']] + [settings['npv'][-1][1] - 0.5]
     }
 
-    if settings['special_binning'] and quantities[-1] in bin_dict:
-        bin_array = array.array('d', bin_dict[quantities[-1]])
-        bins[0] = len(bin_dict[quantities[-1]]) - 1
+    if settings['special_binning'] and quantity in bin_dict:
+        bins = bin_dict[quantity]
 
-    name = nickname + rootfile.GetName()
-    name = name.replace("/", "").replace(")", "").replace("(", "")
+    return array.array('d', bins)
 
-    rootfile.Delete("%s;*" % name)
 
-    # create the final selection from the settings
-    selection = []
-    if settings['allalpha'] is not True and settings['folder'] != 'allevents':
-        #selection += ["(jet2pt/zpt < 0.2 || jet2pt<12)"]
-        selection += ["(jet2pt/zpt < 0.2)"]
-    if settings['alleta'] is not True and settings['folder'] != 'allevents':
-        selection += ["abs(jet1eta) < 1.3"]
-    if settings['selection'] not in [None, "", False]:
-        selection += [settings['selection']]
-    if len(selection) > 0:
-        settings['selection'] = "weight * (%s)" % " && ".join(selection)
-    else:
-        settings['selection'] = "weight"
-
-    #create a copy of quantities to iterate over (to replace the from the dict):
+def histofromntuple(quantities, name, ntuple, settings, twoD=False):
+    xbins = getbinning(quantities[0], settings)
+    if len(quantities) > 1:
+        ybins = getbinning(quantities[1], settings, 'y')
     copy_of_quantities = quantities
     for key in ntuple_dict.keys():
-        if key in settings['selection']:
-            settings['selection'] = settings['selection'].replace(key,
-                                                            dictconvert(key))
         for quantity, i in zip(copy_of_quantities, range(len(copy_of_quantities))):
             if key in quantity:
                 quantities[i] = quantities[i].replace(key, dictconvert(key))
+    #TODO with TTree UserInfo: http://root.cern.ch/phpBB3/viewtopic.php?f=3&t=16902
+    isMC = bool(ntuple.GetLeaf("npu"))
 
-    #determine the type of histogram to be created
-    if len(quantities) == 1:
-        histtype = 'TH1D'
-    elif len(quantities) == 2 and twoD:
-        histtype = 'TH2D'
-    elif len(quantities) == 2 and not twoD:
-        histtype = 'TProfile'
-    elif len(quantities) == 3:
-        histtype = 'TProfile2D'
+    variables = ":".join(quantities)
+    selection = getselection(settings, isMC)
 
     if settings['verbose']:
         plotbase.debug("Creating a %s with the following selection:\n   %s" % (histtype, settings['selection']))
 
-    if histtype == 'TH1D':
-        if settings['special_binning']:
-            rootobject = ROOT.TH1D(name, nickname, bins[0], bin_array)
-        else:
-            rootobject = ROOT.TH1D(name, nickname, bins[0], settings['x'][0], settings['x'][1])
-        rootobject.Sumw2()
-        ntuple.Project(name, "%s" % quantities[0], settings['selection'])
-    elif histtype == 'TH2D':
-        rootobject = ROOT.TH2D(name, nickname, bins[0], settings['x'][0],settings['x'][1],
-                                                    bins[1], settings['y'][0], settings['y'][1])
-        rootobject.Sumw2()
-        ntuple.Project(name, "%s:%s" % (quantities[0], quantities[1]), settings['selection'])
-        # also print the correlation:
-        print "Correlation between %s and %s in %s in the selected range:  %1.5f" % (quantities[1],
-                        quantities[0], rootfile.GetName().split("/")[-3],
-                                      rootobject.GetCorrelationFactor())
-    elif histtype == 'TProfile':
-        if settings['special_binning']:
-            rootobject = ROOT.TProfile(name, nickname, bins[0], bin_array)
-        else:
-            rootobject = ROOT.TProfile(name, nickname, bins[0], settings['x'][0], settings['x'][1])
-        rootobject.Sumw2()
-        ntuple.Project(name, "%s:%s" % (quantities[0], quantities[1]), settings['selection'])
-    elif histtype == 'TProfile2D':
-        rootobject = ROOT.TProfile2D(name, nickname, bins[0], settings['x'][0],settings['x'][1], 
-                                                    bins[1], settings['y'][0], settings['y'][1])
-        rootobject.Sumw2()
-        ntuple.Project(name, "%s:%s:%s" % (quantities[0],
-             quantities[1], quantities[2]), settings['selection'])
+    # determine the type of histogram to be created
+    if len(quantities) == 1:
+        roothisto = ROOT.TH1D(name, name, len(xbins) - 1, xbins)
+    elif len(quantities) == 2 and not twoD:
+        roothisto = ROOT.TProfile(name, name, len(xbins) - 1, xbins)
+    elif len(quantities) == 2 and twoD:
+        roothisto = ROOT.TH2D(name, name, len(xbins) - 1, xbins, len(ybins) - 1, ybins)
+    elif len(quantities) == 3:
+        roothisto = ROOT.TProfile2D(name, name, len(xbins) - 1, xbins, len(ybins) - 1, ybins)
 
+    if settings['verbose']:
+        plotbase.debug("Creating a %s with the following selection:\n   %s" % (roothisto.ClassName(), selection))
+
+    # fill the histogram from the ntuple
+    roothisto.Sumw2()
+    print "WEIGHT:", selection
+    ntuple.Project(name, variables, selection)
+
+    if roothisto.ClassName() == 'TH2D':
+        print "Correlation between %s and %s in %s in the selected range:  %1.5f" % (
+            quantities[1], quantities[0], roothisto.GetName(), #.split("/")[-3],
+            roothisto.GetCorrelationFactor())
+
+    #no no no! not here
     if settings.get('binroot', False):
-        for n in range(rootobject.GetSize()):
-            if rootobject.GetBinContent(n) > 0:
-                a = rootobject.GetBinContent(n)
+        for n in range(roothisto.GetSize()):
+            if roothisto.GetBinContent(n) > 0:
+                a = roothisto.GetBinContent(n)
                 b = math.sqrt(a)
-                rootobject.SetBinContent(n, b)
-                rootobject.SetBinEntries(n, 1)
-    return rootobject
+                roothisto.SetBinContent(n, b)
+                roothisto.SetBinEntries(n, 1)
+    return roothisto
+
+
+def histofromfile(quantity, rootfile, settings, changes=None, twoD=False):
+    """This function returns a root object
+
+    If quantity is an object in the rootfile it is returned.
+    If not, the histo is filled from ntuple variables via the histofromntuple function
+    """
+    settings = plotbase.apply_changes(settings, changes)
+    histo = objectfromfile(quantity, rootfile, warn=False)
+    if histo:
+        return histo
+
+    treename = gettreename(settings)
+    ntuple = objectfromfile(treename, rootfile)
+    name = quantity + rootfile.GetName()
+    name = name.replace("/", "").replace(")", "").replace("(", "")
+    #rootfile.Delete("%s;*" % name)
+    quantities = quantity.split("_")
+    return histofromntuple(quantities, name, ntuple, settings, twoD=twoD)
 
 
 try:
@@ -228,22 +271,20 @@ def getobjectfromnick(nickname, rootfile, changes, rebin=1, selection=""):
     return getobject(objectname, rootfile, changes, selection=selection)
 
 
-def getobject(name, rootfile, changes={}, exact=True, selection=""):
+def objectfromfile(name, rootfile, exact=False, warn=True):
     """get a root object by knowing the exact name
 
     'exact' could be used to enforce the loading of exactly this histogram and
     not the MC version without 'Res' but it is not at the moment (strict version)
     """
     oj = rootfile.Get(name)
-    if not oj and "Res" in name:  # and not exact
+    if not oj and "Res" in name and not exact:
         oj = rootfile.Get(name.replace("Res", ""))
-    if not oj:
-        quantity = name[name.find("/") + 1:name.find("_AK")]
-        oj = getobjectfromtree(quantity, rootfile, changes, selection=selection)
-    if not oj:
+    if warn and not oj:
         print "Can't load object", name, "from root file", rootfile.GetName()
         exit(0)
     return oj
+
 
 
 def getobjectname(quantity='z_mass', change={}):
@@ -802,4 +843,4 @@ def histoabsmean(histo):
     for i in range(1, n / 2 + 1):    # 1..100 : 200..101
         absEta.SetBinContent(n + 1 - i, histo.GetBinContent(i) + histo.GetBinContent(n - i + 1))
         absEta.SetBinContent(i, 0)
-    return absEta.GetMean()
+

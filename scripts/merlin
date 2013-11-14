@@ -50,7 +50,7 @@ def options(
             npv=[(0, 4), (5, 8), (9, 15), (16, 21), (22, 100)],
             cut=[0.3],
             eta=[0, 0.783, 1.305, 1.93, 2.5, 2.964, 3.139, 5.191],
-            bins=[30, 40, 50, 60, 75, 95, 125, 180, 300, 1000],
+            zbins=[30, 40, 50, 60, 75, 95, 125, 180, 300, 1000],
     ):
     """Set standard options and read command line arguments.
 
@@ -106,13 +106,15 @@ def options(
         help='Some special options for runplots. Valid options are true or diff')
     general.add_argument('--special_binning', action='store_true', default=False,
         help='special binning for npv, zpt, eta')
+    general.add_argument('--nbins', type=int, default=100,
+        help='number of bins in histogram')
     general.add_argument('-n', '--normalize', action='store_false', #make it float 0.0 is default
         help="normalize Monte Carlo samples to the event count in data ")
     general.add_argument('-Y', '--year', type=int, default=2012,
         help="Year of data-taking. Default is %(default)s")
-    general.add_argument('--factor', type=float, default=1.0,
+    general.add_argument('--factor', type=float, default=1.26,
         help="additional external weight for each MC event %(default)s")
-    general.add_argument('--efficiency', type=float, default=0.96,
+    general.add_argument('--efficiency', type=float, default=0.965**2,
         help="trigger efficiency. Default is %(default)s")
 
     # output settings
@@ -219,7 +221,7 @@ def options(
     parser.set_defaults(fit_offset=0)
     opt.subplot = False
     parser.set_defaults(subplot=False)
-    opt.bins = bins
+    opt.zbins = zbins
     opt.npv = npv
     opt.cut = cut
     opt.eta = eta
