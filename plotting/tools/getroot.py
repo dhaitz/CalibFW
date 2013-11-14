@@ -152,9 +152,7 @@ def getbinning(quantity, settings, axis='x'):
     if nbins < 0:
         pass # set it automatically
     if quantity in ['npv', 'npu', 'jet1nconst']:  # integer binning
-        xmin -= 0.5
-        xmax += 0.5
-        bins = xmax - xmin + 1
+        nbins = int(xmax - xmin)
 
     bins = [xmin + (xmax - xmin) * float(i) / nbins for i in range(nbins + 1)]
     #TODO: better log binning also for y etc.
@@ -164,7 +162,7 @@ def getbinning(quantity, settings, axis='x'):
         xmin = max(xmin, 1.0)
         print xmin, nbins
         #bins = [xmin * (float(xmax) / xmin ) ** (float(i) / nbins) for i in range(nbins + 1)]
-    # proper log binning missing
+
 
     #special binning for certain quantities:
     # No, opt is the wrong place, -> dict
@@ -178,13 +176,14 @@ def getbinning(quantity, settings, axis='x'):
     if settings['special_binning'] and quantity in bin_dict:
         bins = bin_dict[quantity]
 
+    print "Binning of", axis, ":", nbins, "bins from", xmin, "to", xmax, "for", quantity
     return array.array('d', bins)
 
 
 def histofromntuple(quantities, name, ntuple, settings, twoD=False):
-    xbins = getbinning(quantities[0], settings)
+    xbins = getbinning(quantities[-1], settings)
     if len(quantities) > 1:
-        ybins = getbinning(quantities[1], settings, 'y')
+        ybins = getbinning(quantities[0], settings, 'y')
     copy_of_quantities = quantities
     for key in ntuple_dict.keys():
         for quantity, i in zip(copy_of_quantities, range(len(copy_of_quantities))):
