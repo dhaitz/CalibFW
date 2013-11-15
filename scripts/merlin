@@ -42,6 +42,7 @@ def options(
             eventnumberlabel=None,
             legloc='best',
 
+            nbins=20,
             rebin=5,
             ratio=False,
             fit=None,
@@ -106,8 +107,8 @@ def options(
         help='Some special options for runplots. Valid options are true or diff')
     general.add_argument('--special_binning', action='store_true', default=False,
         help='special binning for npv, zpt, eta')
-    general.add_argument('--nbins', type=int, default=100,
-        help='number of bins in histogram')
+    general.add_argument('--nbins', type=int, default=nbins,
+        help='number of bins in histogram. Default is %(default)s')
     general.add_argument('-n', '--normalize', action='store_false', #make it float 0.0 is default
         help="normalize Monte Carlo samples to the event count in data ")
     general.add_argument('-Y', '--year', type=int, default=2012,
