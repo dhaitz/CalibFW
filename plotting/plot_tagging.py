@@ -92,11 +92,10 @@ def tagging_mpf(files, opt):
 
         # determine a scalefactor such that the event-sum of the MCs corresponds to data
         settings = plotbase.getsettings(opt, {'selection':'(%s)' % zone}, quantity=response)
-        a = getroot.root2histo(getroot.getobjectfromtree(response, files[0], settings), "xx", 1).ysum()
+        a = getroot.root2histo(getroot.histofromfile(response, files[0], settings), "xx", 1).ysum()
         settings = plotbase.getsettings(opt, {'selection':'(%s && %s)' % (zone, stacked[0])}, quantity=response)
-        b = getroot.root2histo(getroot.getobjectfromtree(response, files[1], settings), "xx", 1).ysum()
+        b = getroot.root2histo(getroot.histofromfile(response, files[1], settings), "xx", 1).ysum()
         scalefactor = a/b
-        del settings
 
         for selection, title, color in zip(stacked, titles, colors):
             changes = {'selection':'%s ' % " && ".join([selection, zone]), 'labels':["%s" % title], 
@@ -110,7 +109,9 @@ def tagging_mpf(files, opt):
         changes = {'selection':'%s ' % zone, 'subplot':True, 'title':"%s-enriched" % title,
                         'rebin':4, 'legloc':'upper right'}
         plotdatamc.datamcplot(response, files[:1], opt, (fig, ax), changes=changes)
-        plotbase.Save(fig, "%s_enriched_stacked_%s" % (response, enriched), opt, settings={'title':enriched})
+        settings['filename'] = plotbase.getdefaultfilename("%s_enriched_stacked_%s" % (response, enriched), opt, settings)
+        settings['title'] = 'enriched'        
+        plotbase.Save(fig, settings)
         
 
         # simple mpf data vs MC
@@ -144,11 +145,10 @@ def tagging_stacked(files, opt):
 
         # determine a scalefactor such that the event-sum of the MCs corresponds to data
         settings = plotbase.getsettings(opt, {'selection':'(%s>-1)' % tagger}, quantity='zpt')
-        a = getroot.getobjectfromtree('zpt', files[0], settings).GetEntries()
+        a = getroot.histofromfile('zpt', files[0], settings).GetEntries()
         settings = plotbase.getsettings(opt, {'selection':'(%s && %s>-1)' % (stacked[0], tagger)}, quantity='zpt')
-        b = getroot.getobjectfromtree('zpt', files[1], settings).GetEntries()
+        b = getroot.histofromfile('zpt', files[1], settings).GetEntries()
         scalefactor = (b/a)
-        del settings
 
         changes = {'subplot':True,
                         'rebin':4, 'legloc':'upper center', 'scalefactor':scalefactor}
@@ -156,7 +156,8 @@ def tagging_stacked(files, opt):
         if tagger is 'btag':
             ax.set_ylim(bottom=1)
             ax.set_yscale('log')
-        plotbase.Save(fig, "stacked-%s" % tagger, opt)
+        settings['filename'] = plotbase.getdefaultfilename("stacked-%s" % tagger, opt, settings)
+        plotbase.Save(fig, settings)
 
     
 def tagging_response_corrected(files, opt):
@@ -199,7 +200,7 @@ def tagging_response(files, opt, PFcorrection = False):
                     changes = {'x':[-1, 2], 'selection':zone}
                     changes['selection'] = '(%s && %s>0)' % (changes['selection'], flavourdef)
                     settings = plotbase.getsettings(opt, changes, quantity=quantity)
-                    obj = getroot.getobjectfromtree(quantity, ffile, settings)
+                    obj = getroot.histofromfile(quantity, ffile, settings)
 
                     flavours.append(obj.GetMean())
                     print "   Fraction of %s in %s zone: %1.3f" % (label, enriched,
@@ -207,7 +208,7 @@ def tagging_response(files, opt, PFcorrection = False):
 
             # get the response
             settings = plotbase.getsettings(opt, changes, quantity=response)
-            obj = getroot.getobjectfromtree(response_local, ffile, settings)
+            obj = getroot.histofromfile(response_local, ffile, settings)
             mean.append(obj.GetMean())
             mean_error.append(obj.GetMeanError())
             print "  Response in %s zone: %1.3f" % (enriched, obj.GetMean())
@@ -258,7 +259,7 @@ def tagging_response(files, opt, PFcorrection = False):
     for selection in selections:
         changes = {'selection':selection}
         settings = plotbase.getsettings(opt, changes, quantity=response)
-        obj = getroot.getobjectfromtree(response_local, files[0], settings)
+        obj = getroot.histofromfile(response_local, files[0], settings)
         y.append(obj.GetMean())
         yerr.append(obj.GetMeanError())
     ax.errorbar(range(5)[1:], y, yerr, drawstyle='steps-mid', color='blue', fmt='o', 
@@ -280,12 +281,12 @@ def tagging_response(files, opt, PFcorrection = False):
 
     settings['filename'] = plotbase.getdefaultfilename("flavour_response_tagged", opt, settings)
     if PFcorrection: settings['filename'] += '_corrected'
-    plotbase.Save(fig, settings['filename'], opt)
+    plotbase.Save(fig, settings)
 
     del settings['filename']
     settings['filename'] = plotbase.getdefaultfilename("flavour_response_raw-zones", opt, settings)
     if PFcorrection: settings['filename'] += '_corrected'
-    plotbase.Save(fig_raw, settings['filename'], opt)
+    plotbase.Save(fig_raw, settings)
 
     files.reverse()
 

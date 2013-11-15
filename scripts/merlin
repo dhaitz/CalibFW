@@ -253,7 +253,6 @@ def options(
     if opt.mconly:
         opt.labels = opt.labels[1:]
         opt.files = opt.files[1:]
-        opt.lumi = 0
 
 
     opt.brackets = False

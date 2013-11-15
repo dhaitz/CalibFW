@@ -78,7 +78,7 @@ def responseplot(files, opt, types=None, over=None, settings=None,
     else:
         settings['filename'] = plotbase.getdefaultfilename(
                 "Response__%s_over_%s" % ("_".join(types), over), opt, settings)
-        plotbase.Save(fig, settings['filename'], opt)
+        plotbase.Save(fig, settings)
 
 
 def ratioplot(files, opt, types, labels=None,
@@ -152,7 +152,7 @@ def ratioplot(files, opt, types, labels=None,
 
     
     file_name = "Ratio_"+"_".join(types)+"_"+over
-    plotbase.Save(fig, file_name, opt)
+    plotbase.Save(fig, settings)
 
 
 
@@ -200,7 +200,7 @@ def plot_all(files, opt, plottype='response'):
         fig_axes[0].suptitle(title, size='xx-large')
 
         file_name = strings[1]+"_all_"+o+"_"+"_".join(types)+"_"+opt.algorithm
-        plotbase.Save(fig_axes[0], file_name, opt)
+        plotbase.Save(fig_axes[0], settings)
 def respbal(files, opt):
     for zpt in getroot.binstrings(opt.bins):
         changes = {'bin':zpt}
@@ -253,7 +253,7 @@ def responseratio(files, opt, over='zpt', types=['balresp'], fit=False,
     if settings['filename'] == None:
         settings['filename'] = "responseratio_%s_%s_%s%s" % ("_".join(types),
                                             over, opt.algorithm, opt.correction)
-    plotbase.Save(fig, settings['filename'], opt)
+    plotbase.Save(fig, settings)
 
 
 
@@ -358,6 +358,8 @@ def extrapol(files, opt,
                     'xynames'   : ['alpha','response'],
                     'fit'       : True,
                     'rebin'     : 10,
+                    'nbins'     : 5,
+                    'x'         : [0, 0.3],
                     'selection' : cut + "&& alpha>0",
                     'subplot'   : True,
                     'allalpha'  : True,
@@ -407,7 +409,7 @@ def extrapol(files, opt,
             plotbase.plotdatamc.datamcplot('recogen_alpha', files[1:], opt,
                     changes=changes, fig_axes=(fig, ax1))
         else:
-            mctruth = getroot.getobjectfromtree('recogen', files[1], settings, 
+            mctruth = getroot.histofromfile('recogen', files[1], settings, 
                                             changes = {'x':[0, 2]}).GetMean()
             ax1.axhline(mctruth, color='forestgreen', linewidth=3)
             ax1.text(0.272, mctruth+0.001, "MC-Truth Response", ha='right', color='forestgreen')
@@ -415,9 +417,8 @@ def extrapol(files, opt,
 
 
         if settings['save_individually']:
-            file_name = plotbase.getdefaultfilename("extrapolation", opt, settings)
-            file_name = file_name.replace('var_CutSecondLeadingToZPt__','')
-            plotbase.Save(fig, file_name, opt, settings=settings)
+            settings['filename'] = plotbase.getdefaultfilename("extrapolation", opt, settings)
+            plotbase.Save(fig, settings)
             fig, ax2 = plotbase.newplot()
 
 
@@ -464,19 +465,16 @@ def extrapol(files, opt,
         plotbase.statuslabel(ax2, label)
 
         if settings['save_individually']:
-            file_name = plotbase.getdefaultfilename("ratio_extrapolation", opt, settings)
-            file_name = file_name.replace('var_CutSecondLeadingToZPt__','')
-            plotbase.Save(fig, file_name, opt, settings=settings)
-
-    if settings['save_individually']:
-        return
+            settings['filename'] = "ratio_extrapolation"
+            plotbase.Save(fig, settings)
+            return
 
     #del changes[variation] # delete changes so this isn't included in the file names
     if extrapolate_mpf:
         mpflabel = "extrapol" + mpflabel
     settings['filename'] = plotbase.getdefaultfilename("extrapolation_%s_%s" % (mpflabel, variation_label), opt, settings)
 
-    plotbase.Save(fig, settings['filename'], opt)
+    plotbase.Save(fig, settings)
 
 
 
@@ -506,7 +504,7 @@ def response_run(files, opt, changes=None, settings=None):
 
     settings['filename'] = plotbase.getdefaultfilename("response_run", opt, settings)
 
-    plotbase.Save(fig, settings['filename'], opt, settings=settings)
+    plotbase.Save(fig, settings)
 
 
 def response_algoflavour(files, opt, changes=None, settings=None):
@@ -560,7 +558,6 @@ def response_physflavour(files, opt, changes=None, settings=None,
             'legloc':'lower left',
             'xynames':[flavour, 'response'],
             'subplot':True,
-            'lumi':0,
             'rebin':4,
             'markers': [m],
             'colors': [c],
@@ -587,7 +584,7 @@ def response_physflavour(files, opt, changes=None, settings=None,
                 rsettings = {}
                 rsettings = plotbase.getsettings(opt, changes, quantity=quantity)
 
-                rootobject = getroot.getobjectfromtree(quantity, files[0], rsettings)
+                rootobject = getroot.histofromfile(quantity, files[0], rsettings)
                 #rootobject.Rebin(rsettings['rebin'])
 
                 intercept, ierr = plotbase.fitline2(rootobject)[:2]
@@ -612,7 +609,7 @@ def response_physflavour(files, opt, changes=None, settings=None,
     settings['filename'] = plotbase.getdefaultfilename(filename, opt, settings)
                                              
 
-    plotbase.Save(fig, settings['filename'], opt, settings=settings)
+    plotbase.Save(fig, settings)
 
 
 def physflavour_extrapol_all(files, opt, changes=None, settings=None):
@@ -653,7 +650,6 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
     changes = {
         'legloc':'lower center',
         'xynames':['alpha', 'response'],
-        'lumi':0,
         'y':[0.84, 1.05],
         'rebin':5,
         'fit':'intercept',
@@ -685,7 +681,7 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
                 rsettings = {}
                 rsettings = plotbase.getsettings(opt, changes, settings, quantity)
 
-                rootobject = getroot.getobjectfromtree(quantity, files[0], rsettings)
+                rootobject = getroot.histofromfile(quantity, files[0], rsettings)
                 rootobject.Rebin(rsettings['rebin'])
 
                 intercept, ierr = plotbase.fitline2(rootobject)[:2]
@@ -722,7 +718,7 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
 
     settings['filename'] = plotbase.getdefaultfilename("%s_alpha" % 
                     namedict.get(responsetype, responsetype), opt, settings)
-    plotbase.Save(fig, settings['filename'], opt)
+    plotbase.Save(fig, settings)
 
 
 
@@ -757,7 +753,7 @@ def response_components(files, opt, changes=None, settings=None):
 
     settings['filename'] = plotbase.getdefaultfilename("response_components",
                                                                 opt, settings)
-    plotbase.Save(fig, settings['filename'], opt)
+    plotbase.Save(fig, settings)
 
 
 

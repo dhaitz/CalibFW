@@ -16,7 +16,6 @@ def paper(files, opt):
                 files[1:],
                 opt,
                 changes={'x': [0, 250],
-                            'rebin': [6, 2],
                             'binroot': True,
                             'z': [0, 0.3],
                             'xynames': ["zpt", "npv", "RMS((recogen-%s)/recogen)" % method],
@@ -29,7 +28,6 @@ def paper(files, opt):
                             'allalpha': True,
                 }
         )
-
     local_opt = copy.deepcopy(opt)
     local_opt.out = opt.out + '/flavour_response/'
     for a in [0, 1]:
@@ -51,13 +49,11 @@ def paper(files, opt):
                 'colors': ['black', 'blue']}
     plotdatamc.datamcplot("zpt_alpha", files, opt, changes=changes)
     changes['labels'] = ['MC']
-    changes['lumi'] = 0
     changes['y'] = [0.98, 1.1]
     plotdatamc.datamcplot("recogen_alpha", files[1:], opt, changes=changes)
 
     # HERWIG
-    changes = {'lumi': 0,
-                'cutlabel': 'ptetaalpha',
+    changes = {'cutlabel': 'ptetaalpha',
                 'labels': ['Pythia 6 Tune Z2*', 'Herwig++ Tune EE3C'],
                 'y': [0.98, 1.05],
                 'markers': ['o', 'd'],
@@ -71,7 +67,6 @@ def paper(files, opt):
     flavour_comp(files[1:], opt, changes={'title': 'CMS Simulation',
             'cutlabel': 'ptetaalpha',
             'cutlabeloffset': 0.07,
-            'lumi': 0,
             'legloc': '0.05,0.5'})
 
 
@@ -194,7 +189,7 @@ def flavour_comp(files, opt, changes=None):
                     fig_axes=(fig, ax), changes=changes, settings=settings)
 
     settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
-    plotbase.Save(fig, settings['filename'], opt, settings=settings)
+    plotbase.Save(fig, settings)
 
 
 def ineff(files, opt):

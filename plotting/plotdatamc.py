@@ -24,7 +24,7 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
                                                           settings['selection'])
 
     if 'flavour' in settings['xynames'][0]:
-        settings['rebin'] = 4
+        settings['nbins'] = 25
     # create list with histograms from a ttree/tntuple
     datamc, rootobjects = [], []
     settings['events'] = []
