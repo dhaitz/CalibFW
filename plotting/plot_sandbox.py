@@ -26,6 +26,7 @@ def paper(files, opt):
                             #'cutlabeloffset':-0.2,
                             'selection': 'alpha<0.3',
                             'allalpha': True,
+                            'mconly':True,
                 }
         )
     local_opt = copy.deepcopy(opt)
@@ -34,7 +35,7 @@ def paper(files, opt):
         for b in [0, 1]:
             for c in [0, 1]:
                 plotresponse.response_physflavour(files[1:], local_opt,
-                    changes={'title': 'CMS Simulation'},
+                    changes={'title': 'CMS Simulation','mconly':True},
                     add_neutrinopt=a,
                     restrict_neutrals=b,
                     extrapolation=c)
@@ -50,16 +51,18 @@ def paper(files, opt):
     plotdatamc.datamcplot("zpt_alpha", files, opt, changes=changes)
     changes['labels'] = ['MC']
     changes['y'] = [0.98, 1.1]
+    changes['mconly'] = [True]
     plotdatamc.datamcplot("recogen_alpha", files[1:], opt, changes=changes)
 
     # HERWIG
-    changes = {'cutlabel': 'ptetaalpha',
-                'labels': ['Pythia 6 Tune Z2*', 'Herwig++ Tune EE3C'],
-                'y': [0.98, 1.05],
-                'markers': ['o', 'd'],
-                'colors': ['red', 'blue'],
-                'title': 'CMS Simulation',
-                'legloc': 'lower left',
+    changes = {'cutlabel' : 'ptetaalpha',
+                'labels'  : ['Pythia 6 Tune Z2*', 'Herwig++ Tune EE3C'],
+                'y'       : [0.98, 1.05],
+                'markers' : ['o', 'd'],
+                'colors'  : ['red', 'blue'],
+                'title'   : 'CMS Simulation',
+                'mconly'  : True,
+                'legloc'  : 'lower left',
                 'filename': 'recogen_physflavour_pythia-herwig'}
     files2 = files[1:] + [getroot.openfile("/storage/a/dhaitz/excalibur/work/mc_herwig/out/closure.root")]
     plotdatamc.datamcplot("recogen_physflavour", files2, opt, changes=changes)
@@ -67,6 +70,7 @@ def paper(files, opt):
     flavour_comp(files[1:], opt, changes={'title': 'CMS Simulation',
             'cutlabel': 'ptetaalpha',
             'cutlabeloffset': 0.07,
+            'mconly'  : True,
             'legloc': '0.05,0.5'})
 
 

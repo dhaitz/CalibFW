@@ -10,7 +10,7 @@ def labels(ax, opt, settings, subplot=False):
     """
     if not (settings['ratio'] and settings['subplot']
             and not settings['fit'] == 'intercept'):
-        if settings['lumi'] is not None:
+        if settings['lumi'] is not None and not settings['mconly']:
             lumilabel(ax, settings['lumi'])    # always (if given) pure MC plots?
         statuslabel(ax, settings['status'])
         if settings['energy'] is not None:
