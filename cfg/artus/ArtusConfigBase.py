@@ -98,6 +98,8 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
                     "otherjetspt", "otherjetseta", "otherjetsphi",
                     "mupluspt", "mupluseta", "muplusphi",
                     "muminuspt", "muminuseta", "muminusphi",
+                    "mu1pt", "mu1eta", "mu1phi",
+                    "mu2pt", "mu2eta", "mu2phi",
                 ]
             }
         },

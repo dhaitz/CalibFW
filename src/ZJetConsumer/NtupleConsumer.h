@@ -61,7 +61,7 @@ private:
 	TNtuple* m_ntuple;
 
 	virtual float returnvalue(std::string string, ZJetEventData const& event,
-					  ZJetMetaData const& metaData, ZJetPipelineSettings const& s)
+							  ZJetMetaData const& metaData, ZJetPipelineSettings const& s)
 	{
 		// general quantities
 		if (string == "npv")
@@ -275,6 +275,9 @@ private:
 		// muons
 		else if (string == "mupluspt")
 		{
+
+
+
 			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
 				 it != metaData.m_listValidMuons.end(); it ++)
 			{
@@ -320,6 +323,72 @@ private:
 			{
 				if (it->charge == -1) return it->p4.Phi();
 			}
+		}
+		else if (string == "mu1pt")
+		{
+			KDataMuon  muon;
+			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				 it != metaData.m_listValidMuons.end(); it ++)
+			{
+				if ((it == metaData.m_listValidMuons.begin()) || (it->p4.Pt() > muon.p4.Pt()))
+					muon = *it;
+			}
+			return muon.p4.Pt();
+		}
+		else if (string == "mu1phi")
+		{
+			KDataMuon  muon;
+			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				 it != metaData.m_listValidMuons.end(); it ++)
+			{
+				if ((it == metaData.m_listValidMuons.begin()) || (it->p4.Pt() > muon.p4.Pt()))
+					muon = *it;
+			}
+			return muon.p4.Phi();
+		}
+		else if (string == "mu1eta")
+		{
+			KDataMuon  muon;
+			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				 it != metaData.m_listValidMuons.end(); it ++)
+			{
+				if ((it == metaData.m_listValidMuons.begin()) || (it->p4.Pt() > muon.p4.Pt()))
+					muon = *it;
+			}
+			return muon.p4.Eta();
+		}
+		else if (string == "mu2pt")
+		{
+			KDataMuon  muon;
+			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				 it != metaData.m_listValidMuons.end(); it ++)
+			{
+				if ((it == metaData.m_listValidMuons.begin()) || (it->p4.Pt() < muon.p4.Pt()))
+					muon = *it;
+			}
+			return muon.p4.Pt();
+		}
+		else if (string == "mu2phi")
+		{
+			KDataMuon  muon;
+			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				 it != metaData.m_listValidMuons.end(); it ++)
+			{
+				if ((it == metaData.m_listValidMuons.begin()) || (it->p4.Pt() < muon.p4.Pt()))
+					muon = *it;
+			}
+			return muon.p4.Phi();
+		}
+		else if (string == "mu2eta")
+		{
+			KDataMuon  muon;
+			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				 it != metaData.m_listValidMuons.end(); it ++)
+			{
+				if ((it == metaData.m_listValidMuons.begin()) || (it->p4.Pt() < muon.p4.Pt()))
+					muon = *it;
+			}
+			return muon.p4.Eta();
 		}
 
 		// leading jet
