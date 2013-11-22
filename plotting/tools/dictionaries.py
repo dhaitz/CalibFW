@@ -19,7 +19,7 @@ ntuple_dict = {
             'jet1abseta': '(abs(jet1eta))',
             'jet2abseta': '(abs(jet2eta))',
             'recogen': '(jet1pt/genjet1pt)',
-            'btag': 'combinedsecondaryvertexmvabjettag',
+            'btag': 'combinedsecondaryvertexbjettag',
             'qgtag': 'qglikelihood',
             }
 
