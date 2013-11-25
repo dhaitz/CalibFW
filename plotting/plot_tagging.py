@@ -61,7 +61,7 @@ def tagging_truthflavour(files, opt):
     for tagger in taggers:
         changes = {'selection':'%s > -1' % tagger, 'legloc':'None', 'colors':['maroon'],
                     'filename':'tagger-TRUTHtest_%s' % tagger,
-                'lumi':0}
+                }
         plotdatamc.datamcplot('%s_%s' % (tagger, flavourdef), files[1:], opt, changes=changes)
 
 def tagging_2D(files, opt):
@@ -71,19 +71,23 @@ def tagging_2D(files, opt):
             changes = {#'selection':'%s' % selection,
                          'labels':['Fraction of %s' % title],
                         'filename':"2D_%s_%s" % (title, rebin), 'rebin':rebin,
-                    'lumi':0}
+                    }
             plot2d.twoD('%s_qgtag_btag' % selection, files[1:], opt, changes=changes)
 
     
 def tagging_mpf(files, opt):
     """MPF plots for the 4 tagging zones, simple (data/MC) and with stacked fractions."""
 
-    for l in [selections, titles, colors]:
+    # make local copies
+    l_selections = copy.copy(selections)
+    l_titles = copy.copy(titles)
+    l_colors = copy.copy(colors)
+    for l in [l_selections, l_titles, l_colors]:
         l.reverse()
 
     stacked = []
-    for i in range(len(selections)):
-        stacked += ["(%s)" % "||".join(selections[i:])]
+    for i in range(len(l_selections)):
+        stacked += ["(%s)" % "||".join(l_selections[i:])]
 
     # mpf plots for each zone with the flavour composition stacked
     for zone, enriched in zip(zones_extended, titles_extended):
@@ -97,7 +101,7 @@ def tagging_mpf(files, opt):
         b = getroot.root2histo(getroot.histofromfile(response, files[1], settings), "xx", 1).ysum()
         scalefactor = a/b
 
-        for selection, title, color in zip(stacked, titles, colors):
+        for selection, title, color in zip(stacked, l_titles, l_colors):
             changes = {'selection':'%s ' % " && ".join([selection, zone]), 'labels':["%s" % title], 
                         'title':"%s-enriched" % title, 'colors':[color], 'subplot':True,
                         'markers':'f', 'rebin':4, 'legloc':'upper right',
@@ -119,24 +123,27 @@ def tagging_mpf(files, opt):
                     'legloc':'center right', 'filename':"mpf_enriched_%s" % enriched,
                     }
         plotdatamc.datamcplot(response, files, opt, changes=changes)
-    for l in [selections, titles, colors]:
-        l.reverse()
 
 
         
 def tagging_stacked(files, opt):
     """Tagger distribution plots with the flavour composition stacked."""
-    for l in [selections, titles, colors]:
+
+    # make local copies
+    l_selections = copy.copy(selections)
+    l_titles = copy.copy(titles)
+    l_colors = copy.copy(colors)
+    for l in [l_selections, l_titles, l_colors]:
         l.reverse()
 
     stacked = []
-    for i in range(len(selections)):
-        stacked += ["(%s)" % "||".join(selections[i:])]
+    for i in range(len(l_selections)):
+        stacked += ["(%s)" % "||".join(l_selections[i:])]
 
     for tagger in ['qgtag', 'btag']:
 
         fig, ax = plotbase.newplot()
-        for selection, title, color in zip(stacked, titles, colors):
+        for selection, title, color in zip(stacked, l_titles, l_colors):
 
             changes = {'selection':'%s ' % selection, 'labels':["%s" % title], 
                         'colors':[color], 'subplot':True,
@@ -158,7 +165,6 @@ def tagging_stacked(files, opt):
             ax.set_yscale('log')
         settings['filename'] = plotbase.getdefaultfilename("stacked-%s" % tagger, opt, settings)
         plotbase.Save(fig, settings)
-
     
 def tagging_response_corrected(files, opt):
     """Same as tagging_response but with an additional PF-based response correction."""
