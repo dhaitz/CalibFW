@@ -221,7 +221,7 @@ def options(
 
     if opt.www:
         opt.out = artus.getPath('SYNCDIR')
-    else if opt.live:
+    elif opt.live:
         opt.filename = 'plot'
         opt.formats = ['pdf']
         opt.out = 'out/'
