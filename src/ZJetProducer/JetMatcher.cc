@@ -14,7 +14,7 @@ bool JetMatcher::PopulateGlobalMetaData(ZJetEventData const& data,
 	{
 		if (m_basealgorithms[i] == "AK5PF")
 		{
-			KDataPFTaggedJets& pfJets = metaData.GetPFValidJetCollection("AK5PFJetsCHSL1L2L3");
+			KDataPFTaggedJets& pfJets = metaData.GetPFValidJetCollection("AK5PFJetsL1L2L3");
 			KDataLVs* genJets = data.GetGenJetCollection("AK5GenJets");
 
 			std::vector<int> matching_result = matchSort_Matrix<KDataLV, KDataPFTaggedJet>(
