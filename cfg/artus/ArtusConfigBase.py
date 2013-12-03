@@ -52,7 +52,7 @@ def getNewestJson(variant="PromptReco_Collisions12"):
     return jsons[-1]
 
 
-def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
+def BaseConfig(inputtype, run='2012', analysis='zee', tagged=True):
     """Basic configuration for Artus.
 
     Return a default configuration for Artus depending on
@@ -109,6 +109,17 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
         'Tagged': tagged,
         'PileupWeights': getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_68_5mb_kappa539_MC12_madgraph_tags.root"
     }
+
+    # electrons:
+    if analysis=='zee':        
+        config['GlobalProducer']= ['valid_electron_producer', 'zee_producer']
+        config['Pipelines']['default']['QuantitiesVector']= [
+                    "npv", "run", "weight",
+                    "zmass", "zpt", "zeta", "zphi", "zy",
+					"nelectrons",
+                    ]
+
+
     if tagged:
         config['Pipelines']['default']['QuantitiesVector'] += [
             "qglikelihood", "qgmlp", "trackcountinghigheffbjettag",
@@ -284,6 +295,16 @@ def GetCuts(analysis='zjet'):
 
             'Filter': ['valid_z', 'valid_jet', 'metfilter', 'incut'],
         },
+        'zee':{
+            'GenCuts': False,
+            'Cuts': [
+                'zpt',
+            ],
+            
+            'CutZPt': 0.1,
+            'Filter':['incut'],
+        }
+        
     }
     if analysis not in cuts:
         print "There are no cuts defined for", analysis + "!"

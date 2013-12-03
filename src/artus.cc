@@ -44,6 +44,7 @@
 #include "ZJetProducer/FlavourProducer.h"
 #include "ZJetProducer/LeadingJetUncertaintyProducer.h"
 #include "ZJetEventPipeline/PipelineInitializer.h"
+#include "ZJetProducer/ZeeProducer.h"
 
 #include "KappaTools/RootTools/HLTTools.h"
 
@@ -124,8 +125,10 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new FlavourProducer());
 		else if (LeadingJetUncertaintyProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new LeadingJetUncertaintyProducer(
-											 globalSettings.get<std::string>("Jec"),
-											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
+		else if (ZEEProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new ZEEProducer());
+		else if (ValidElectronProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new ValidElectronProducer());
 		else
 			LOG_FATAL("Global MetaData producer of name " << *it << " not found");
 	}

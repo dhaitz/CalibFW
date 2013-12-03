@@ -434,6 +434,10 @@ private:
 		else if (string == "njetsinv")
 			return metaData.GetInvalidJetCount(s, event);
 
+		// electrons
+		else if (string == "nelectrons")
+			return metaData.GetValidElectrons().size();
+
 		// leading jet
 		else if (string == "jet1pt")
 			return metaData.GetValidPrimaryJet(s, event)->p4.Pt();
