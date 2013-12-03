@@ -225,6 +225,16 @@ public:
 		return m_listInvalidMuons;
 	}
 
+	KDataElectrons const& GetValidElectrons() const
+	{
+		return m_listValidElectrons;
+	}
+
+	KDataElectrons const& GetInvalidElectrons() const
+	{
+		return m_listInvalidElectrons;
+	}
+
 	void InitMetaJetCollection(std::string algoname)
 	{
 		m_validPFJets[algoname] = std::vector<KDataPFTaggedJet>();
@@ -234,6 +244,13 @@ public:
 
 	KDataMuons m_listValidMuons;
 	KDataMuons m_listInvalidMuons;
+
+    KDataElectron leadinge;
+    KDataElectron leadingeplus;
+    KDataElectron leadingeminus;
+
+	KDataElectrons m_listValidElectrons;
+	KDataElectrons m_listInvalidElectrons;
 
 	KGenParticles m_genPartons;
 	KGenParticles m_genMuons;

@@ -559,4 +559,68 @@ public:
 	static const long CutId = 1 << 17;
 };
 
+
+class ElectronEtaCut: public ZJetCutBase
+{
+public:
+
+	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
+							   ZJetMetaData::LocalMetaDataType& localMetaData,
+							   ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		bool allPassed = (
+							 (std::abs(metaData.leadingeminus.p4.Eta()) < m_pipelineSettings.GetCutElectronEta())
+							 && (std::abs(metaData.leadingeplus.p4.Eta()) < m_pipelineSettings.GetCutElectronEta())
+						 );
+
+		localMetaData.SetCutResult(this->GetId(), allPassed);
+	}
+
+	unsigned long GetId() const
+	{
+		return ElectronEtaCut::CutId;
+	}
+	std::string GetCutName()
+	{
+		return "9) electron eta cut";
+	}
+	std::string GetCutShortName() const
+	{
+		return "electron_eta";
+	}
+	static const long CutId = 1 << 18;
+};
+
+class ElectronPtCut: public ZJetCutBase
+{
+public:
+
+	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
+							   ZJetMetaData::LocalMetaDataType& localMetaData,
+							   ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		bool allPassed = (
+							 (metaData.leadingeminus.p4.Pt() > m_pipelineSettings.GetCutElectronPt())
+							 && (metaData.leadingeplus.p4.Pt() > m_pipelineSettings.GetCutElectronPt())
+						 );
+
+		localMetaData.SetCutResult(this->GetId(), allPassed);
+	}
+
+	unsigned long GetId() const
+	{
+		return ElectronPtCut::CutId;
+	}
+	std::string GetCutName()
+	{
+		return "10) electron pt cut";
+	}
+	std::string GetCutShortName() const
+	{
+		return "electron_pt";
+	}
+	static const long CutId = 1 << 19;
+};
+
+
 }

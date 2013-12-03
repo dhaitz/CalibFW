@@ -87,7 +87,8 @@ class ValidJetProducer: public ZJetGlobalMetaDataProducerBase
 {
 
 public:
-	ValidJetProducer(bool Tagged) : ZJetGlobalMetaDataProducerBase(), tagged(Tagged) {}
+	ValidJetProducer(bool Tagged) : ZJetGlobalMetaDataProducerBase(), tagged(Tagged), muonIso(true) {}
+	ValidJetProducer(bool Tagged, bool MuonIso) : ZJetGlobalMetaDataProducerBase(), tagged(Tagged), muonIso(MuonIso) {}
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
 								  ZJetMetaData& metaData,
@@ -146,18 +147,21 @@ public:
 				bool good_jet = true;
 
 				// Muon isolation DeltaR > 0.5
-				float dr1, dr2;
-				dr1 = 99999.0f;
-				dr2 = 99999.0f;
-
-				if (metaData.HasValidZ())
+				if (muonIso)
 				{
-					dr1 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
-														 metaData.GetValidMuons().at(0).p4);
-					dr2 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
-														 metaData.GetValidMuons().at(1).p4);
+					float dr1, dr2;
+					dr1 = 99999.0f;
+					dr2 = 99999.0f;
+
+					if (metaData.HasValidZ())
+					{
+						dr1 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
+															 metaData.GetValidMuons().at(0).p4);
+						dr2 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
+															 metaData.GetValidMuons().at(1).p4);
+					}
+						good_jet = good_jet && (dr1 > 0.5) && (dr2 > 0.5);
 				}
-				good_jet = good_jet && (dr1 > 0.5) && (dr2 > 0.5);
 
 				// JetID
 				// https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
@@ -197,6 +201,22 @@ public:
 		return "valid_jet_producer";
 	}
 	bool tagged;
+	bool muonIso;
+};
+
+/** Select only valid jets (FOR ELECTRON ANALYSIS).
+
+    Same as ValidJetProducer but without muon isolation.
+*/
+class ValidJetEEProducer: public ValidJetProducer
+{
+public:
+	ValidJetEEProducer(bool Tagged) : ValidJetProducer(Tagged, false) {}
+
+	static std::string Name()
+	{
+		return "valid_jet_ee_producer";
+	}
 };
 
 
