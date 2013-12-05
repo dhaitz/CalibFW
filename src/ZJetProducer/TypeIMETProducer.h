@@ -77,7 +77,7 @@ public:
 					corrmet.p4.SetPhi(atan2(py, px));
 				}
 
-				metaData.m_MET[algorithms[j]]  = corrmet;
+				metaData.m_MET[algorithms[j]] = corrmet;
 			}
 		}
 		return true;

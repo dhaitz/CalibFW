@@ -275,9 +275,6 @@ private:
 		// muons
 		else if (string == "mupluspt")
 		{
-
-
-
 			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
 				 it != metaData.m_listValidMuons.end(); it ++)
 			{
@@ -390,6 +387,48 @@ private:
 			}
 			return muon.p4.Eta();
 		}
+		else if (string == "genmupluspt")
+		{
+			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
+				if (it->charge() == +1) return it->p4.Pt();
+		}
+		else if (string == "genmupluseta")
+		{
+			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
+				if (it->charge() == +1) return it->p4.Eta();
+		}
+		else if (string == "genmuplusphi")
+		{
+			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
+			{
+				if (it->charge() == +1) return it->p4.Phi();
+			}
+		}
+		else if (string == "genmuminuspt")
+		{
+			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
+			{
+				if (it->charge() == -1) return it->p4.Pt();
+			}
+		}
+		else if (string == "genmuminuseta")
+		{
+			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
+			{
+				if (it->charge() == -1) return it->p4.Eta();
+			}
+		}
+		else if (string == "genmuminusphi")
+		{
+			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
+			{
+				if (it->charge() == -1) return it->p4.Phi();
+			}
+		}
+		else if (string == "nmuons")
+			return metaData.m_listValidMuons.size();
+		else if (string == "ngenmuons")
+			return metaData.m_genMuons.size();
 
 		// leading jet
 		else if (string == "jet1pt")
