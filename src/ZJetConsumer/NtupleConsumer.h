@@ -391,39 +391,37 @@ private:
 		{
 			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
 				if (it->charge() == +1) return it->p4.Pt();
+			return -999;
 		}
 		else if (string == "genmupluseta")
 		{
 			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
 				if (it->charge() == +1) return it->p4.Eta();
+			return -999;
 		}
 		else if (string == "genmuplusphi")
 		{
 			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
-			{
 				if (it->charge() == +1) return it->p4.Phi();
-			}
+			return -999;
 		}
 		else if (string == "genmuminuspt")
 		{
 			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
-			{
 				if (it->charge() == -1) return it->p4.Pt();
-			}
+			return -999;
 		}
 		else if (string == "genmuminuseta")
 		{
 			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
-			{
 				if (it->charge() == -1) return it->p4.Eta();
-			}
+			return -999;
 		}
 		else if (string == "genmuminusphi")
 		{
 			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
-			{
 				if (it->charge() == -1) return it->p4.Phi();
-			}
+			return -999;
 		}
 		else if (string == "nmuons")
 			return metaData.m_listValidMuons.size();

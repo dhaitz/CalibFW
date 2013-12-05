@@ -100,8 +100,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
                     "muminuspt", "muminuseta", "muminusphi",
                     "mu1pt", "mu1eta", "mu1phi",
                     "mu2pt", "mu2eta", "mu2phi",
-                    "genmupluspt", "genmupluseta", "genmuplusphi",
-                    "genmuminuspt", "genmuminuseta", "genmuminusphi",
+                    "nmuons",
                 ]
             }
         },
@@ -160,7 +159,10 @@ def SetMcSpecific(cfg, run='2012'):
                     "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
                     "matchedgenjet1pt", "genmpf",
                     "algoflavour", "physflavour",
-                    "jet1ptneutrinos", "genjet1ptneutrinos", "mpfneutrinos", "neutralpt3", "neutralpt5"
+                    "jet1ptneutrinos", "genjet1ptneutrinos", "mpfneutrinos", "neutralpt3", "neutralpt5",
+                    "genmupluspt", "genmupluseta", "genmuplusphi",
+                    "genmuminuspt", "genmuminuseta", "genmuminusphi",
+                    "ngenmuons",
     ]
     cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'weight_producer', 'flavour_producer']
     cfg['EnableLumiReweighting'] = True
