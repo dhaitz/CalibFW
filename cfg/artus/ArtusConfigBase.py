@@ -116,7 +116,7 @@ def BaseConfig(inputtype, run='2012', analysis='zee', tagged=True):
         config['Pipelines']['default']['QuantitiesVector']= [
                     "npv", "run", "weight",
                     "zmass", "zpt", "zeta", "zphi", "zy",
-					"nelectrons",
+					"nelectrons", "leadingelectronmass", "leadingelectronpt",
                     ]
 
 
