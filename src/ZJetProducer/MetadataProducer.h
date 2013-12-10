@@ -175,6 +175,12 @@ public:
 							   && (*itjet)->chargedEMFraction < 0.99;
 				}
 
+				if (globalSettings.Global()->GetVetoPileupJets())
+				{
+					double puID = static_cast<KDataPFTaggedJet*>(*itjet)->puJetFull;
+					good_jet = good_jet && puID > 0.5;
+				}
+
 				if (good_jet)
 					metaData.m_listValidJets[italgo->first].push_back(i);
 				else
@@ -357,7 +363,7 @@ public:
 			else if (it->pdgId() == 2212 && it->p4.Pt() < 1e-6) // ignore incoming protons
 			{
 			}
-			else if (it->status() == 1 && 
+			else if (it->status() == 1 &&
                        ((std::abs(it->pdgId()) == 12)
 					 || (std::abs(it->pdgId()) == 14)
 					 || (std::abs(it->pdgId()) == 16)))  // neutrinos
@@ -369,7 +375,7 @@ public:
 						metaData.m_neutrinos[it2->first].push_back(*it);
 				}
 			}
-			else if (it->status() == 1 && 
+			else if (it->status() == 1 &&
                        ((std::abs(it->pdgId()) == 130)
 					 || (std::abs(it->pdgId()) == 310)
 					 || (std::abs(it->pdgId()) == 2112)

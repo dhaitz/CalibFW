@@ -40,7 +40,7 @@ def labels(ax, opt, settings, subplot=False):
             textlabel(ax, settings['text'])
         if settings.get('cutlabel', None) is not None:
             cutlabel(ax, settings)
-    if settings['legloc'] != "None":
+    if type(settings['legloc']) == str:
         if "," in settings['legloc']:
             settings['legloc'] = ([float(i) for i in settings['legloc'].split(",")])
         legend = ax.legend(loc=settings['legloc'], numpoints=1, fancybox=True,
@@ -85,13 +85,16 @@ cutlabeldict = {
     'ptalpha': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad  \alpha<0.2$",
     'ptetaalpha03': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3  \quad  \alpha<0.3$",
 }
+
+
 def cutlabel(ax, settings):
     if 'cutlabel' not in settings or (hasattr(ax, 'cutlabel') and ax.cutlabel == True):
         return
     text = cutlabeldict.get(settings['cutlabel'], False)
     if text:
-        ax.text(0.97, 0.97-settings.get('cutlabeloffset', 0), text, va='top', ha='right', color='black', transform=ax.transAxes, size='large')
+        ax.text(0.97, 0.97 - settings.get('cutlabeloffset', 0), text, va='top', ha='right', color='black', transform=ax.transAxes, size='large')
         ax.cutlabel = True
+
 
 def eventnumberlabel(ax, settings):
     if 'events' not in settings:
@@ -258,7 +261,7 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.95, changes={}, colo
 
 
 def statuslabel(ax, status=None, xpos=0.3, ypos=1.018):
-    if ( (status is not None) and ( not (hasattr(ax, "statuslabel") and ax.statuslabel == True) ) ):
+    if (status is not None and not hasattr(ax, "statuslabel") and ax.statuslabel is True):
         ax.text(xpos, ypos, r"%s" % status, va='bottom', ha='left',
                 transform=ax.transAxes)
         ax.statuslabel = True

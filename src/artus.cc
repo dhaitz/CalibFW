@@ -187,6 +187,7 @@ int main(int argc, char** argv)
 		gset.SetEnableMetPhiCorrection(g_propTree.get<bool>("EnableMetPhiCorrection", false));
 		gset.SetMuonID2011(g_propTree.get<bool>("MuonID2011", false));
 		gset.SetHcalCorrection(g_propTree.get<double>("HcalCorrection", 0.0));
+		gset.SetVetoPileupJets(g_propTree.get<bool>("VetoPileupJets", false));
 		gset.SetNEvents(g_propTree.get<long long>("NEvents", -1));
 		gset.SetSkipEvents(g_propTree.get<long long>("SkipEvents", 0));
 		gset.SetEventCount(g_propTree.get<long long>("EventCount", -1));
@@ -273,6 +274,8 @@ int main(int argc, char** argv)
 			LOG_FILE(blue << "HCAL correction enabled." << reset);
 		if (gset.GetEnableMetPhiCorrection())
 			LOG_FILE(blue << "MET phi correction enabled." << reset);
+		if (gset.GetVetoPileupJets())
+			LOG_FILE(blue << "Mark pile-up jets as invalid." << reset);
 		ZJetPipelineSettings settings;
 		settings.m_globalSettings = &gset;
 		LOG_FILE("");
