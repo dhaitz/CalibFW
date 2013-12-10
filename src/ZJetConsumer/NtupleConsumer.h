@@ -428,6 +428,12 @@ private:
 		else if (string == "ngenmuons")
 			return metaData.m_genMuons.size();
 
+		// jets
+		else if (string == "njets")
+			return metaData.GetValidJetCount(s, event);
+		else if (string == "njetsinv")
+			return metaData.GetInvalidJetCount(s, event);
+
 		// leading jet
 		else if (string == "jet1pt")
 			return metaData.GetValidPrimaryJet(s, event)->p4.Pt();

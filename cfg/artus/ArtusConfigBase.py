@@ -95,7 +95,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
                     "jet1chargedemfraction", "jet1chargedhadfraction", "jet1neutralhadfraction",
                     "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
                     "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta",
-                    "otherjetspt", "otherjetseta", "otherjetsphi",
+                    "otherjetspt", "otherjetseta", "otherjetsphi", "njets", "njetsinv",
                     "mupluspt", "mupluseta", "muplusphi",
                     "muminuspt", "muminuseta", "muminusphi",
                     "mu1pt", "mu1eta", "mu1phi",
