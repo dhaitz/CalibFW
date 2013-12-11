@@ -52,7 +52,7 @@ def getNewestJson(variant="PromptReco_Collisions12"):
     return jsons[-1]
 
 
-def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True):
+def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
     """Basic configuration for Artus.
 
     Return a default configuration for Artus depending on
@@ -114,7 +114,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True):
     if analysis=='zee':        
         config['GlobalProducer']= ['valid_electron_producer', 'zee_producer']
         config['Pipelines']['default']['QuantitiesVector']= [
-                    "npv", "run", "weight",
+                    "npv", "run", "weight", "npu",
                     "zmass", "zpt", "zeta", "zphi", "zy",
 					"nelectrons",
                     "emass", "ept", "eeta", 
@@ -149,7 +149,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True):
     return config
 
 
-def SetMcSpecific(cfg, run='2012', analysis='zmumu'):
+def SetMcSpecific(cfg, run='2012', analysis='zjet'):
     """Add Monte-Carlo specific settings to a config.
 
     The MC settings include
@@ -194,7 +194,7 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu'):
     return cfg
 
 
-def SetDataSpecific(cfg, run='2012', analysis='zmumu'):
+def SetDataSpecific(cfg, run='2012', analysis='zjet'):
     """Add data specific settings to a config
 
     The data settings include
@@ -305,10 +305,14 @@ def GetCuts(analysis='zjet'):
         'zee':{
             'GenCuts': False,
             'Cuts': [
-                'zpt',
+                'electron_eta',
+                'electron_pt',
+                'zmass_window',
             ],
+            'CutZMassWindow': 20.0,
+            'CutElectronEta': 2.4,
+            'CutElectronPt': 5.0,
             
-            'CutZPt': 0.1,
             'Filter':['incut'],
         }
         
