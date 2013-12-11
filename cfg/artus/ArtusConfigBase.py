@@ -52,7 +52,7 @@ def getNewestJson(variant="PromptReco_Collisions12"):
     return jsons[-1]
 
 
-def BaseConfig(inputtype, run='2012', analysis='zee', tagged=True):
+def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True):
     """Basic configuration for Artus.
 
     Return a default configuration for Artus depending on
@@ -136,9 +136,9 @@ def BaseConfig(inputtype, run='2012', analysis='zee', tagged=True):
     config['Pipelines']['default'].update(GetCuts(analysis))
 
     if inputtype == 'data':
-        config = SetDataSpecific(config, run)
+        config = SetDataSpecific(config, run, analysis)
     elif inputtype == 'mc':
-        config = SetMcSpecific(config, run)
+        config = SetMcSpecific(config, run, analysis)
     else:
         print "The inputtype must be either 'data' or 'mc'."
         exit(1)
@@ -146,7 +146,7 @@ def BaseConfig(inputtype, run='2012', analysis='zee', tagged=True):
     return config
 
 
-def SetMcSpecific(cfg, run='2012'):
+def SetMcSpecific(cfg, run='2012', analysis='zmumu'):
     """Add Monte-Carlo specific settings to a config.
 
     The MC settings include
@@ -170,7 +170,8 @@ def SetMcSpecific(cfg, run='2012'):
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
 
-    cfg['Pipelines']['default']['QuantitiesVector'] += [
+    if analysis != 'zee': 
+        cfg['Pipelines']['default']['QuantitiesVector'] += [
                     "npu", "nputruth",
                     "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
                     "matchedgenjet1pt", "genmpf",
@@ -180,14 +181,17 @@ def SetMcSpecific(cfg, run='2012'):
                     "genmuminuspt", "genmuminuseta", "genmuminusphi",
                     "ngenmuons",
     ]
-    cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'weight_producer', 'flavour_producer']
+    if analysis == 'zee':
+        pass#cfg['GlobalProducer'] += ['gen_producer', 'weight_producer'] 
+    else:
+        cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'weight_producer', 'flavour_producer']
     cfg['EnableLumiReweighting'] = True
     cfg['NEvents'] = 30459503
     cfg['XSection'] = 3503.71
     return cfg
 
 
-def SetDataSpecific(cfg, run='2012'):
+def SetDataSpecific(cfg, run='2012', analysis='zmumu'):
     """Add data specific settings to a config
 
     The data settings include
