@@ -243,6 +243,7 @@ public:
 	KDataMuons m_listValidMuons;
 	KDataMuons m_listInvalidMuons;
 
+    KDataElectron leadinge;
     KDataElectron leadingeplus;
     KDataElectron leadingeminus;
 

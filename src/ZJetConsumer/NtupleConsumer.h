@@ -438,6 +438,12 @@ private:
 		else if (string == "nelectrons")
 			return metaData.GetValidElectrons().size();
 
+		else if (string == "emass")
+			return metaData.leadinge.p4.mass();
+		else if (string == "ept")
+			return metaData.leadinge.p4.Pt();
+		else if (string == "eeta")
+			return metaData.leadinge.p4.Eta();
 		else if (string == "eminusmass")
 			return metaData.leadingeminus.p4.mass();
 		else if (string == "eminuspt")

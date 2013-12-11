@@ -117,6 +117,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True):
                     "npv", "run", "weight",
                     "zmass", "zpt", "zeta", "zphi", "zy",
 					"nelectrons",
+                    "emass", "ept", "eeta", 
                     "eminusmass", "eminuspt", "eminuseta", 
                     "eplusmass", "epluspt", "epluseta", 
                     ]

@@ -97,6 +97,13 @@ public:
 
         metaData.leadingeminus = valid_electrons.at(leading_minus);
         metaData.leadingeplus = valid_electrons.at(leading_plus);
+
+        if (metaData.leadingeplus.p4.Pt() > metaData.leadingeminus.p4.Pt())
+            metaData.leadinge = metaData.leadingeplus;
+        else
+            metaData.leadinge = metaData.leadingeminus;
+
+
 	    KDataLV z;
 	    z.p4 = valid_electrons.at(leading_plus).p4 + valid_electrons.at(leading_minus).p4;
 
