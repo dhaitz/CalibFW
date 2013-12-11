@@ -123,7 +123,8 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         ax.axvline(6.5, color='black', linestyle=':')
 
     if settings['log']:
-        ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in datamc) * 2)
+        if 'y' not in opt.user_options:
+            ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in datamc) * 2)
         ax.set_yscale('log')
 
     # save it
