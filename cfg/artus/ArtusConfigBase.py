@@ -116,7 +116,9 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True):
         config['Pipelines']['default']['QuantitiesVector']= [
                     "npv", "run", "weight",
                     "zmass", "zpt", "zeta", "zphi", "zy",
-					"nelectrons", "leadingelectronmass", "leadingelectronpt",
+					"nelectrons",
+                    "eminusmass", "eminuspt", "eminuseta", 
+                    "eplusmass", "epluspt", "epluseta", 
                     ]
 
 
@@ -182,7 +184,7 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu'):
                     "ngenmuons",
     ]
     if analysis == 'zee':
-        pass#cfg['GlobalProducer'] += ['gen_producer', 'weight_producer'] 
+        cfg['GlobalProducer'] += ['gen_producer', 'weight_producer'] 
     else:
         cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'weight_producer', 'flavour_producer']
     cfg['EnableLumiReweighting'] = True

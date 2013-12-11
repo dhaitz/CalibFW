@@ -95,8 +95,10 @@ public:
 		}
 
 
-	KDataLV z;
-	z.p4 = valid_electrons.at(leading_plus).p4 + valid_electrons.at(leading_minus).p4;
+        metaData.leadingeminus = valid_electrons.at(leading_minus);
+        metaData.leadingeplus = valid_electrons.at(leading_plus);
+	    KDataLV z;
+	    z.p4 = valid_electrons.at(leading_plus).p4 + valid_electrons.at(leading_minus).p4;
 
 		metaData.SetZ(z);
 		metaData.SetValidZ(true);

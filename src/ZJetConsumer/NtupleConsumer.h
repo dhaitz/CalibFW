@@ -437,10 +437,19 @@ private:
 		// electrons
 		else if (string == "nelectrons")
 			return metaData.GetValidElectrons().size();
-		else if (string == "leadingelectronmass")
-			return metaData.GetValidElectrons().at(0).p4.mass();
-		else if (string == "leadingelectronpt")
-			return metaData.GetValidElectrons().at(0).p4.Pt();
+
+		else if (string == "eminusmass")
+			return metaData.leadingeminus.p4.mass();
+		else if (string == "eminuspt")
+			return metaData.leadingeminus.p4.Pt();
+		else if (string == "eminuseta")
+			return metaData.leadingeminus.p4.Eta();
+		else if (string == "eplusmass")
+			return metaData.leadingeplus.p4.mass();
+		else if (string == "epluspt")
+			return metaData.leadingeplus.p4.Pt();
+		else if (string == "epluseta")
+			return metaData.leadingeplus.p4.Eta();
 
 		// leading jet
 		else if (string == "jet1pt")
