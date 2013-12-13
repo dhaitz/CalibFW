@@ -111,17 +111,16 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
     }
 
     # electrons:
-    if analysis=='zee':        
-        config['GlobalProducer']= ['valid_electron_producer', 'zee_producer']
-        config['Pipelines']['default']['QuantitiesVector']= [
-                    "npv", "run", "weight", "npu",
+    if analysis == 'zee':
+        config['GlobalProducer'] = ['valid_electron_producer', 'zee_producer']
+        config['Pipelines']['default']['QuantitiesVector'] = [
+                    "npv", "run", "weight",
                     "zmass", "zpt", "zeta", "zphi", "zy",
 					"nelectrons",
-                    "emass", "ept", "eeta", 
-                    "eminusmass", "eminuspt", "eminuseta", 
-                    "eplusmass", "epluspt", "epluseta", 
+                    "emass", "ept", "eeta",
+                    "eminusmass", "eminuspt", "eminuseta",
+                    "eplusmass", "epluspt", "epluseta",
                     ]
-
 
     if tagged:
         config['Pipelines']['default']['QuantitiesVector'] += [
@@ -173,7 +172,8 @@ def SetMcSpecific(cfg, run='2012', analysis='zjet'):
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
 
-    if analysis != 'zee': 
+    cfg['Pipelines']['default']['QuantitiesVector'] += ["npu", "nputruth"]
+    if analysis != 'zee':
         cfg['Pipelines']['default']['QuantitiesVector'] += [
                     "npu", "nputruth",
                     "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
@@ -185,7 +185,7 @@ def SetMcSpecific(cfg, run='2012', analysis='zjet'):
                     "ngenmuons",
     ]
     if analysis == 'zee':
-        cfg['GlobalProducer'] += ['gen_producer', 'weight_producer'] 
+        cfg['GlobalProducer'] += ['gen_producer', 'weight_producer']
     else:
         cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'weight_producer', 'flavour_producer']
     cfg['EnableLumiReweighting'] = True
@@ -302,7 +302,7 @@ def GetCuts(analysis='zjet'):
 
             'Filter': ['valid_z', 'valid_jet', 'metfilter', 'incut'],
         },
-        'zee':{
+        'zee': {
             'GenCuts': False,
             'Cuts': [
                 'electron_eta',
@@ -312,10 +312,10 @@ def GetCuts(analysis='zjet'):
             'CutZMassWindow': 20.0,
             'CutElectronEta': 2.4,
             'CutElectronPt': 5.0,
-            
-            'Filter':['incut'],
+
+            'Filter': ['incut'],
         }
-        
+
     }
     if analysis not in cuts:
         print "There are no cuts defined for", analysis + "!"
