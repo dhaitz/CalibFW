@@ -62,7 +62,6 @@ public:
 		return "leading_jet_uncertainty_producer";
 	}
 
-
 private:
 	std::string m_corectionFileBase;
 	std::vector<std::string> m_basealgorithms;
