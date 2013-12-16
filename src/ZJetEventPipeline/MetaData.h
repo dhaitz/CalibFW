@@ -87,6 +87,11 @@ public:
 		m_validPFJets[algoName].push_back(jet);
 	}
 
+	void AddInvalidJet(KDataPFTaggedJet const& jet, std::string algoName)
+	{
+		m_invalidPFJets[algoName].push_back(jet);
+	}
+
 
 	std::vector<KDataPFTaggedJet>& GetPFValidJetCollection(std::string const& algoName)
 	{
@@ -137,10 +142,7 @@ public:
 	}
 
 	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings,
-									ZJetEventData const& evtData, std::string algoName) const
-	{
-		return this->m_listInvalidJets[algoName].size();
-	}
+									ZJetEventData const& evtData, std::string algoName) const;
 
 	unsigned int GetInvalidJetCount(ZJetPipelineSettings const& psettings,
 									ZJetEventData const& evtData) const
@@ -308,6 +310,7 @@ public:
 	// create a complete copy of the jet collections ??
 	typedef boost::ptr_map<std::string, std::vector<KDataPFTaggedJet> > MetaPFJetContainer;
 	mutable MetaPFJetContainer m_validPFJets;
+	mutable MetaPFJetContainer m_invalidPFJets;
 
 
 	//MET collection

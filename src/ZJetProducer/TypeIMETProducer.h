@@ -22,6 +22,7 @@ public:
 			KDataPFMET* rawmet;
 			std::vector<std::string> algorithms;
 			float sumEt_correction = 0;
+			float pt_threshold = 10.;
 
 			//check if CHS or no CHS
 			if (std::string::npos == m_basealgorithms[i].find("chs"))
@@ -50,13 +51,29 @@ public:
 				{
 					KDataPFJet* corrjet = &metaData.m_validPFJets.at(algorithms[j]).at(i);
 
-					if (corrjet->p4.Pt() > 10)
+					if (corrjet->p4.Pt() > pt_threshold)
 					{
 						KDataPFJet* l1jet = &metaData.m_validPFJets.at(algoname_l1).at(i);
 						correction.p4 +=  l1jet->p4 - corrjet->p4;
 						sumEt_correction += correction.p4.Pt();
 					}
 				}
+
+				/*
+				    do the same for invalid jets
+				*/
+				for (unsigned int i = 0; i < metaData.m_invalidPFJets.at(algorithms[j]).size(); ++ i)
+				{
+					KDataPFJet* corrjet = &metaData.m_invalidPFJets.at(algorithms[j]).at(i);
+
+					if (corrjet->p4.Pt() > pt_threshold)
+					{
+						KDataPFJet* l1jet = &metaData.m_invalidPFJets.at(algoname_l1).at(i);
+						correction.p4 +=  l1jet->p4 - corrjet->p4;
+						sumEt_correction += correction.p4.Pt();
+					}
+				}
+
 
 				KDataPFMET corrmet = * rawmet;
 				corrmet.p4 += correction.p4;

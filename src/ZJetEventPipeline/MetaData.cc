@@ -69,21 +69,20 @@ KDataLV* ZJetMetaData::GetValidJet(ZJetPipelineSettings const& psettings,
 	else
 	{
 		KDataLV* j = evtData.GetJet(psettings,
-				m_listValidJets[algoName].at(index), algoName);
+									m_listValidJets[algoName].at(index), algoName);
 		assert(j != NULL);
 		return j;
 	}
 }
 
 KDataLV* ZJetMetaData::GetInvalidJet(ZJetPipelineSettings const& psettings,
-		ZJetEventData const& evtData, unsigned int index, std::string algoName) const
+									 ZJetEventData const& evtData, unsigned int index, std::string algoName) const
 {
 	backtrace_assert(GetInvalidJetCount(psettings, evtData, algoName) > index);
 
 	if (IsMetaJetAlgo(algoName))
 	{
-		LOG_FATAL("Invalid jets are not provided for corrected algorithm " + algoName)
-		return NULL;
+		return &(m_invalidPFJets.at(algoName).at(index));
 	}
 	else if (JetType::IsGen(algoName))
 	{
@@ -93,7 +92,7 @@ KDataLV* ZJetMetaData::GetInvalidJet(ZJetPipelineSettings const& psettings,
 	else
 	{
 		KDataLV* j = evtData.GetJet(psettings,
-				m_listInvalidJets[algoName].at(index), algoName);
+									m_listInvalidJets[algoName].at(index), algoName);
 		assert(j != NULL);
 
 		return j;
@@ -117,13 +116,30 @@ unsigned int ZJetMetaData::GetValidJetCount(ZJetPipelineSettings const& psetting
 	}
 }
 
+unsigned int ZJetMetaData::GetInvalidJetCount(ZJetPipelineSettings const& psettings,
+		ZJetEventData const& evtData, std::string algoName) const
+{
+	if (IsMetaJetAlgo(algoName))
+	{
+		return SafeMap<std::string, std::vector<KDataPFTaggedJet> >::GetPtrMap(algoName, m_invalidPFJets).size();
+	}
+	else if (JetType::IsGen(algoName))
+	{
+		LOG_FATAL("not available");
+	}
+	else
+	{
+		return SafeMap<std::string, std::vector<unsigned int> >::GetPtrMap(algoName, m_listInvalidJets).size();
+	}
+}
+
 double ZJetMetaData::GetMPF(const KDataLV* met) const
 {
 	double scalPtEt = GetRefZ().p4.Px() * met->p4.Px()
-			+ GetRefZ().p4.Py() * met->p4.Py();
+					  + GetRefZ().p4.Py() * met->p4.Py();
 
 	double scalPtSq = GetRefZ().p4.Px() * GetRefZ().p4.Px()
-			+ GetRefZ().p4.Py() * GetRefZ().p4.Py();
+					  + GetRefZ().p4.Py() * GetRefZ().p4.Py();
 
 	return 1.0f + scalPtEt / scalPtSq;
 }
@@ -131,10 +147,10 @@ double ZJetMetaData::GetMPF(const KDataLV* met) const
 double ZJetMetaData::GetGenMPF(const KDataLV* met) const
 {
 	double scalPtEt = GetRefGenZ().p4.Px() * met->p4.Px()
-			+ GetRefGenZ().p4.Py() * met->p4.Py();
+					  + GetRefGenZ().p4.Py() * met->p4.Py();
 
 	double scalPtSq = GetRefGenZ().p4.Px() * GetRefGenZ().p4.Px()
-			+ GetRefGenZ().p4.Py() * GetRefGenZ().p4.Py();
+					  + GetRefGenZ().p4.Py() * GetRefGenZ().p4.Py();
 
 	return 1.0f + scalPtEt / scalPtSq;
 }
