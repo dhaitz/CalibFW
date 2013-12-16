@@ -342,6 +342,10 @@ public:
 	// holds pipeline specific metadata of the current pipeline
 	LocalMetaDataType* m_pipelineMetaData;
 
+	//Leading jet uncertainty
+	typedef std::map<std::string, float> uncertainty_map;
+	mutable uncertainty_map leadingjetuncertainty;
+
 	std::string GetCorrespondingBaseJetAlgorithm(std::string s)
 	{
 		boost::algorithm::replace_first(s, "PFJets", "PF");

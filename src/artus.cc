@@ -42,6 +42,7 @@
 #include "ZJetProducer/TypeIMETProducer.h"
 #include "ZJetProducer/UnclusteredEnergyProducer.h"
 #include "ZJetProducer/FlavourProducer.h"
+#include "ZJetProducer/LeadingJetUncertaintyProducer.h"
 #include "ZJetEventPipeline/PipelineInitializer.h"
 
 #include "KappaTools/RootTools/HLTTools.h"
@@ -113,14 +114,18 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new GenDibalanceProducer());
 		else if (TypeIMETProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new TypeIMETProducer(
-					globalSettings.get<bool>("EnableMetPhiCorrection"),
-					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
+											 globalSettings.get<bool>("EnableMetPhiCorrection"),
+											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 
 		else if (UnclusteredEnergyProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new UnclusteredEnergyProducer(
-					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
+											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else if (FlavourProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new FlavourProducer());
+		else if (LeadingJetUncertaintyProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new LeadingJetUncertaintyProducer(
+											 globalSettings.get<std::string>("Jec"),
+											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else
 			LOG_FATAL("Global MetaData producer of name " << *it << " not found");
 	}

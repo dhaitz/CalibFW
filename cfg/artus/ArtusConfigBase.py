@@ -67,7 +67,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
         'GlobalProducer': [    # The order of these producers is important!
             'valid_muon_producer', 'muon_corrector', 'z_producer',
             'valid_jet_producer', 'jet_corrector', 'typeImet_producer', 'jet_sorter',
-            'unclustered_energy_producer',
+            'unclustered_energy_producer', 'leading_jet_uncertainty_producer',
         ],
         'L1Correction': 'L1FastJet',
         'EnableMetPhiCorrection': False,
@@ -101,6 +101,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
                     "mu1pt", "mu1eta", "mu1phi",
                     "mu2pt", "mu2eta", "mu2phi",
                     "nmuons",
+                    "unc",
                 ]
             }
         },

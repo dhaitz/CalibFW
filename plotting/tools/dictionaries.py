@@ -139,6 +139,7 @@ d_axes = {
         'summedfr': [0.8, 1.2, r"$%s$ fraction sum2", ""],
         'tagflavour': [-0.5, 24.5, r"Flavour (from tagging)", ""],
         'uept': [0, 250, r"$p_\mathrm{T}^\mathrm{Unclustered Energy}$", 'GeV'],
+        'unc': [0, 0.25, r"Leading jet uncertainty", ''],
         'xsec': [0, 20, r"$n_\mathrm{Events} / \mathcal{L}$", "pb$^{-1}$"],
         'zeppenfeld': [0.0, 3, r"Zeppenfeld variable", ""],
         'zmass': [70, 110, r"$m^\mathrm{Z}$", "GeV"],

@@ -666,6 +666,8 @@ private:
 					v.p4 += it->p4;
 			return v.p4.Pt();
 		}
+		else if (string == "unc")
+			return metaData.leadingjetuncertainty[s.GetJetAlgorithm()];
 		else
 			LOG_FATAL("NtupleConsumer: Quantity (" << string << ") not available!");
 
