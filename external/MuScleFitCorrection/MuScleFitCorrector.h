@@ -84,8 +84,8 @@ protected:
 	void readParameters(const TString& fileName);
 
 	// Functions
-	scaleFunctionBase<double* > * scaleFunction_;
-	resolutionFunctionBase<double* > * resolutionFunction_;
+	scaleFunctionBase<double*>* scaleFunction_;
+	resolutionFunctionBase<double*>* resolutionFunction_;
 
 	// Pointer for TRandom3 access
 	TRandom3* gRandom_;

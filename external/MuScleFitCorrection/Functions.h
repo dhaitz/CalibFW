@@ -36,15 +36,17 @@ class scaleFunctionBase
 public:
 	virtual double scale(const double& pt, const double& eta, const double& phi, const int chg, const T& parScale) const = 0;
 	virtual ~scaleFunctionBase() = 0;
-	virtual int parNum() const { return parNum_; };
+	virtual int parNum() const
+	{
+		return parNum_;
+	};
 protected:
 	int parNum_;
 	virtual void setPar(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
-						TString* parname, const T& parResol, const std::vector<int> & parResolOrder, const std::vector<ParSet> & parSet);
+						TString* parname, const T& parResol, const std::vector<int>& parResolOrder, const std::vector<ParSet>& parSet);
 };
 
 template <class T> inline scaleFunctionBase<T>::~scaleFunctionBase() { }  // defined even though it's pure virtual; should be faster this way.
-
 
 
 //
@@ -54,7 +56,8 @@ template <class T>
 class scaleFunction50 : public scaleFunctionBase<T>
 {
 public:
-	scaleFunction50() {
+	scaleFunction50()
+	{
 		this->parNum_ = 27;
 	}
 	virtual double scale(const double& pt, const double& eta, const double& phi, const int chg, const T& parScale) const;
@@ -81,14 +84,16 @@ public:
 protected:
 	int parNum_;
 };
-template <class T> inline resolutionFunctionBase<T>::~resolutionFunctionBase() { }  // defined even though it's pure virtual; should be faster this way.
 
+template <class T>
+inline resolutionFunctionBase<T>::~resolutionFunctionBase() { }  // defined even though it's pure virtual; should be faster this way.
 
 template <class T>
 class resolutionFunction45 : public resolutionFunctionBase<T>
 {
 public:
-	resolutionFunction45() {
+	resolutionFunction45()
+	{
 		this->parNum_ = 13;
 	}
 
@@ -102,7 +107,8 @@ template <class T>
 class resolutionFunction46 : public resolutionFunctionBase<T>
 {
 public:
-	resolutionFunction46() {
+	resolutionFunction46()
+	{
 		this->parNum_ = 13;
 	}
 	int etaBin(const double& eta);
@@ -133,11 +139,10 @@ public:
 };
 
 
-
 // Service to build the scale functor corresponding to the passed identifier
-scaleFunctionBase<double* > * scaleFunctionService(const int identifier);
+scaleFunctionBase<double* >* scaleFunctionService(const int identifier);
 
 
 // Service to build the resolution functor corresponding to the passed identifier
-resolutionFunctionBase<double* > * resolutionFunctionService(const int identifier);
+resolutionFunctionBase<double* >* resolutionFunctionService(const int identifier);
 
