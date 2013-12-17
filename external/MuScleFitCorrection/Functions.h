@@ -4,7 +4,7 @@
  * Author S. Casasso   - 25/10/2012
  * Author E. Migliore  - 25/10/2012
  */
-
+#pragma once
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -19,7 +19,7 @@
 
 struct ParSet
 {
-	ParSet() {}
+	ParSet();
 	ParSet(const TString& inputName, const double& inputStep, const double& inputMini, const double& inputMaxi);
 	TString name;
 	double step, mini, maxi;
@@ -36,7 +36,7 @@ class scaleFunctionBase
 public:
 	virtual double scale(const double& pt, const double& eta, const double& phi, const int chg, const T& parScale) const = 0;
 	virtual ~scaleFunctionBase() = 0;
-	virtual int parNum() const;
+	virtual int parNum() const { return parNum_; };
 protected:
 	int parNum_;
 	virtual void setPar(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
@@ -54,7 +54,9 @@ template <class T>
 class scaleFunction50 : public scaleFunctionBase<T>
 {
 public:
-	scaleFunction50();
+	scaleFunction50() {
+		this->parNum_ = 27;
+	}
 	virtual double scale(const double& pt, const double& eta, const double& phi, const int chg, const T& parScale) const;
 };
 
@@ -71,7 +73,10 @@ public:
 
 	resolutionFunctionBase() {}
 	virtual ~resolutionFunctionBase() = 0;
-	virtual int parNum() const;
+	virtual int parNum()  const
+	{
+		return parNum_;
+	}
 
 protected:
 	int parNum_;
@@ -83,7 +88,9 @@ template <class T>
 class resolutionFunction45 : public resolutionFunctionBase<T>
 {
 public:
-	resolutionFunction45();
+	resolutionFunction45() {
+		this->parNum_ = 13;
+	}
 
 	inline double getGEO(const double& pt, const double& eta, const T& parval);
 	inline double getMS(const double& pt, const double& eta, const T& parval);
@@ -95,7 +102,9 @@ template <class T>
 class resolutionFunction46 : public resolutionFunctionBase<T>
 {
 public:
-	resolutionFunction46();
+	resolutionFunction46() {
+		this->parNum_ = 13;
+	}
 	int etaBin(const double& eta);
 	virtual double sigmaPt(const double& pt, const double& eta, const T& parval);
 };
@@ -107,7 +116,11 @@ template <class T>
 class resolutionFunction57 : public resolutionFunctionBase<T>
 {
 public:
-	resolutionFunction57();
+	resolutionFunction57()
+	{
+		this->parNum_ = 17;
+	}
+
 	inline double getGEO(const double& pt, const double& eta, const T& parval);
 	inline double centralParabola(const double& pt, const double& eta, const T& parval);
 	inline double middleParabola(const double& pt, const double& eta, const T& parval);
