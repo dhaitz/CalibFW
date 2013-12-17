@@ -35,6 +35,7 @@
 #include "ZJetProducer/Cuts.h"
 #include "ZJetProducer/WeightProducer.h"
 #include "ZJetProducer/CorrJetProducer.h"
+#include "ZJetProducer/MuonCorrector.h"
 #include "ZJetProducer/JetSorter.h"
 #include "ZJetProducer/HltSelector.h"
 #include "ZJetProducer/JetMatcher.h"
@@ -71,8 +72,8 @@ PipelineSettingsVector g_pipeSettings;
 
 
 void AddGlobalMetaProducer(std::vector<std::string> const& producer,
-		EventPipelineRunner<ZJetPipeline, ZJetGlobalMetaDataProducerBase> & runner,
-		boost::property_tree::ptree& globalSettings)
+						   EventPipelineRunner<ZJetPipeline, ZJetGlobalMetaDataProducerBase>& runner,
+						   boost::property_tree::ptree& globalSettings)
 {
 	// extend here, if you want to provide a new global meta producer
 	for (std::vector<std::string>::const_iterator it = producer.begin();
@@ -84,6 +85,11 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new ZProducer());
 		else if (WeightProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new WeightProducer(globalSettings.get<std::string>("PileupWeights")));
+		else if (MuonCorrector::Name() == *it)
+			runner.AddGlobalMetaProducer(new MuonCorrector(
+					globalSettings.get<std::string>("MuonCorrectionParameters", "missing"),
+					globalSettings.get<std::string>("MuonCorrectionParametersRunD", ""),
+					globalSettings.get<bool>("MuonSmearing", false)));
 		else if (ValidJetProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidJetProducer(
 					globalSettings.get<bool>("Tagged")));

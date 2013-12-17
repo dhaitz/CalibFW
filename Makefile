@@ -11,17 +11,19 @@ EXECUTABLE     = artus
 CXX            = g++
 FLAGS          = -O2 -pedantic -Wfatal-errors -l profiler -l tcmalloc -Wall
 CFLAGS         = -c -std=c++0x -g -fPIC -DSTANDALONE $(FLAGS)\
- -Isrc/ -Iexternal/OfflineCorrection/\
+ -Isrc/ -Iexternal/OfflineCorrection/ -Iexternal/\
  $(ROOTCFLAGS) -I$(BOOSTPATH)/include/ -I$(KAPPATOOLSPATH)/../
 LDFLAGS        = $(ROOTLDFLAGS) -lGenVector\
  -L$(BOOSTPATH)/lib/ -lboost_regex\
  -L$(KAPPAPATH)/lib/ -L$(KAPPATOOLSPATH)/lib/ -lKappa -lKRootTools -lKToolbox
 
 OBJECTS = $(patsubst %.cc,%.o,$(wildcard\
-	src/*.cc src/*/*.cc external/OfflineCorrection/CondFormats/JetMETObjects/src/*Corr*.cc))
+	src/*.cc src/*/*.cc external/OfflineCorrection/CondFormats/JetMETObjects/src/*Corr*.cc\
+	external/MuScleFitCorrection/*.cc))
 
 HEADERS = $(wildcard src/*.h src/*/*.h\
-	external/OfflineCorrection/CondFormats/JetMETObjects/src/*Corr*.h)
+	external/OfflineCorrection/CondFormats/JetMETObjects/src/*Corr*.h\
+	external/MuScleFitCorrection/*.h)
 
 $(EXECUTABLE): $(OBJECTS)
 	@echo "Linking" $(EXECUTABLE)":"
