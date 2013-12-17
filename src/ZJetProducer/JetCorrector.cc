@@ -1,11 +1,11 @@
-#include "ZJetProducer/CorrJetProducer.h"
+#include "ZJetProducer/JetCorrector.h"
 
 #include <boost/algorithm/string/predicate.hpp>
 
 namespace Artus
 {
 
-CorrJetProducer::CorrJetProducer(std::string corBase, std::string l1cor, std::vector<std::string> baseAlgos) :
+JetCorrector::JetCorrector(std::string corBase, std::string l1cor, std::vector<std::string> baseAlgos) :
 	ZJetGlobalMetaDataProducerBase(), m_corectionFileBase(corBase),
 	m_l1correction(l1cor), m_basealgorithms(baseAlgos)
 {
@@ -13,15 +13,15 @@ CorrJetProducer::CorrJetProducer(std::string corBase, std::string l1cor, std::ve
 }
 
 
-void CorrJetProducer::PopulateMetaData(ZJetEventData const& data,
-		ZJetMetaData& metaData, ZJetPipelineSettings const& m_pipelineSettings) const
+void JetCorrector::PopulateMetaData(ZJetEventData const& data,
+									ZJetMetaData& metaData, ZJetPipelineSettings const& m_pipelineSettings) const
 {
 	// nothing to do here
 }
 
 
-void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorrectionAlias,
-		ZJetEventData const& event, double rcorr, std::string prefix) const
+void JetCorrector::InitCorrection(std::string algoName, std::string algoCorrectionAlias,
+								  ZJetEventData const& event, double rcorr, std::string prefix) const
 {
 	if (m_corrService.find(algoName) != m_corrService.end())
 		// already loaded
@@ -67,7 +67,7 @@ void CorrJetProducer::InitCorrection(std::string algoName, std::string algoCorre
 }
 
 
-void CorrJetProducer::CreateCorrections(
+void JetCorrector::CreateCorrections(
 	std::string algoName,
 	std::string algoPostfix,
 	ZJetEventData const& event,
@@ -101,7 +101,7 @@ void CorrJetProducer::CreateCorrections(
 }
 
 
-bool CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
+bool JetCorrector::PopulateGlobalMetaData(ZJetEventData const& event,
 		ZJetMetaData& metaData, ZJetPipelineSettings const& settings) const
 {
 	for (unsigned int i = 0; i < m_basealgorithms.size(); i++)
@@ -122,7 +122,7 @@ bool CorrJetProducer::PopulateGlobalMetaData(ZJetEventData const& event,
 }
 
 
-void CorrJetProducer::CorrectJetCollection(
+void JetCorrector::CorrectJetCollection(
 	std::string algoName,
 	std::string newAlgoName,
 	boost::scoped_ptr<JECService> const& corrService,

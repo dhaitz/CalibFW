@@ -20,17 +20,17 @@ struct JecCorrSet
 };
 
 // takes the jets contained in an event and applies the necessary corrections
-class CorrJetProducer: public ZJetGlobalMetaDataProducerBase
+class JetCorrector: public ZJetGlobalMetaDataProducerBase
 {
 public:
 
 	static std::string Name()
 	{
-		return "corr_jet_producer";
+		return "jet_corrector";
 	}
 
 
-	CorrJetProducer(std::string corBase, std::string l1cor, stringvector baseAlgos);
+	JetCorrector(std::string corBase, std::string l1cor, stringvector baseAlgos);
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
 								  ZJetMetaData& metaData,
@@ -59,7 +59,7 @@ public:
 						   std::string algoAlias) const;
 
 private:
-	mutable boost::ptr_map< std::string, JecCorrSet> m_corrService;
+	mutable boost::ptr_map<std::string, JecCorrSet> m_corrService;
 	std::string m_corectionFileBase;
 	std::string m_l1correction;
 	std::vector<std::string> m_basealgorithms;

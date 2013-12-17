@@ -34,7 +34,7 @@
 #include "ZJetProducer/MetadataProducer.h"
 #include "ZJetProducer/Cuts.h"
 #include "ZJetProducer/WeightProducer.h"
-#include "ZJetProducer/CorrJetProducer.h"
+#include "ZJetProducer/JetCorrector.h"
 #include "ZJetProducer/MuonCorrector.h"
 #include "ZJetProducer/JetSorter.h"
 #include "ZJetProducer/HltSelector.h"
@@ -93,8 +93,8 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 		else if (ValidJetProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidJetProducer(
 					globalSettings.get<bool>("Tagged")));
-		else if (CorrJetProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new CorrJetProducer(
+		else if (JetCorrector::Name() == *it)
+			runner.AddGlobalMetaProducer(new JetCorrector(
 					globalSettings.get<std::string>("Jec"),
 					globalSettings.get<std::string>("L1Correction"),
 					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
