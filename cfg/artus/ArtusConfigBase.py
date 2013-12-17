@@ -146,10 +146,14 @@ def SetMcSpecific(cfg, run='2012'):
     if run == '2011':
         cfg['Jec'] = getPath() + "/data/jec/START44_V12"
         ApplyPUReweighting(cfg, 'kappa539_MC11_160404-180252_7TeV_ReRecoNov08_v2')
+        cfg["MuonSmearing"] = True
+        cfg["MuonCorrectionParameters"] = getPath() + "/data/muoncorrection/MuScleFit_2011_MC_44X.txt"
     elif run == '2012':
         cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_MC"
         cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
         ApplyPUReweighting(cfg, 'kappa539_MC12_madgraph_190456-208686_8TeV_22Jan2013ReReco')
+        cfg["MuonSmearing"] = True
+        cfg["MuonCorrectionParameters"] = getPath() + "/data/muoncorrection/MuScleFit_2012_MC_53X_smearReReco.txt"
     else:
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
@@ -197,8 +201,9 @@ def SetDataSpecific(cfg, run='2012'):
             "HLT_Mu13_Mu8_v15", "HLT_Mu13_Mu8_v16", "HLT_Mu13_Mu8_v17", "HLT_Mu13_Mu8_v18",
             # Mu17_Mu8 Trigger
             "HLT_Mu17_Mu8_v10", "HLT_Mu17_Mu8_v11"
-
             ]
+        cfg["MuonSmearing"] = False
+        cfg["MuonCorrectionParameters"] = getPath() + "data/muoncorrection/MuScleFit_2011_DATA_44X.txt"
     elif run == '2012':
         cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_DATA"
         cfg['MetPhiCorrectionParameters'] = [0.2661, 0.3217, -0.2251, -0.1747]
@@ -209,6 +214,9 @@ def SetDataSpecific(cfg, run='2012'):
             "HLT_Mu17_Mu8_v11", "HLT_Mu17_Mu8_v12", "HLT_Mu17_Mu8_v13", "HLT_Mu17_Mu8_v14", "HLT_Mu17_Mu8_v15",
             "HLT_Mu17_Mu8_v16", "HLT_Mu17_Mu8_v17", "HLT_Mu17_Mu8_v18", "HLT_Mu17_Mu8_v19", "HLT_Mu17_Mu8_v20",
             "HLT_Mu17_Mu8_v21", "HLT_Mu17_Mu8_v22"]
+        cfg["MuonSmearing"] = False
+        cfg["MuonCorrectionParameters"] = getPath() + "/data/muoncorrection/MuScleFit_2012ABC_DATA_ReReco_53X.txt"
+        cfg["MuonCorrectionParametersRunD"] = getPath() + "/data/muoncorrection/MuScleFit_2012D_DATA_ReReco_53X.txt"
     else:
         print "Run period", run, "is undefined. No json and jet corrections known."
         exit(1)
