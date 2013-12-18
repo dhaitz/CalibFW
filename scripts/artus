@@ -7,7 +7,7 @@ import argparse
 import glob
 import imp
 import json
-import os
+import os, errno
 import shutil
 import subprocess
 import sys
@@ -53,7 +53,7 @@ def artus():
             writeDBS(conf, options.out, options.work + "/files.dbs")
             createRunfile(options.json, options.work + "/run-artus.sh")
             shutil.copy(options.json, options.work)
-            outpath = createGridControlConfig(conf, options.work + "/" + options.out + ".conf")
+            outpath = createGridControlConfig(conf, options.work + "/" + options.out + ".conf", timestamp = options.timestamp)
             outpath = options.work + "out/" + outpath
         else:
             outpath = createGridControlConfig(conf, "/dev/null")
@@ -72,6 +72,19 @@ def artus():
         else:
             print "Batch job did not produce output %s. Exit." % outpath
             exit(1)
+
+        try:
+            print "Symlink to output file created: ", "%s/work/%s.root" % (getPath(), options.out)
+            if not os.path.exists(getPath() + "work/"):
+                os.makedirs(getPath() + "work/")
+            os.symlink(options.work + "out.root", "%s/work/%s.root" % (getPath(), options.out))
+        except OSError, e:
+            if e.errno == errno.EEXIST:
+                os.remove("%s/work/%s.root" % (getPath(), options.out))
+                os.symlink(options.work + "out.root", "%s/work/%s.root" % (getPath(), options.out))
+        except:
+            print "Could not create symlink."
+
     else:  # local
         if not options.fast and len(conf["InputFiles"])>100:
             print "Warning: The full run as a single job will take a while.",
@@ -179,7 +192,8 @@ def getoptions(configdir='cfg/artus/', name='artus'):
     opt.boost = getPath('BOOSTPATH')
     if not opt.work:
         opt.work = getPath('EXCALIBUR_WORK', True) or getPath()
-    opt.work += '/' + name + '/' + opt.out + '/'
+    opt.timestamp = time.strftime("_%Y-%m-%d_%H-%M")
+    opt.work += '/' + name + '/' + opt.out + opt.timestamp + '/'
 
     if opt.verbose:
         print opt
@@ -223,7 +237,7 @@ def copyFile(source, target, replace={}):
     return text
 
 
-def createGridControlConfig(settings, filename, original=None):
+def createGridControlConfig(settings, filename, original=None, timestamp=''):
     if original is None:
         original = getPath() + '/cfg/artus/base/gc.conf'
     jobs = {
@@ -235,6 +249,7 @@ def createGridControlConfig(settings, filename, original=None):
     d = {
         'files per job = 100': 'files per job = ' + str(fpj),
         '@NICK@': settings["OutputPath"],
+        '@TIMESTAMP@': timestamp,
         '$EXCALIBUR_BASE': getPath(),
         '$EXCALIBUR_WORK': getPath('EXCALIBUR_WORK'),
         '$BOOSTLIB': getPath('BOOSTLIB'),
@@ -293,16 +308,19 @@ def prepareWork(work, out, delete=False):
 """
     if work[-1] == '/':
         work = work[:-1]
-    paths = glob.glob(work + "_20*")
+    if "_20" in work:
+        paths = glob.glob(work[:-17]+"_20*")
+        paths.sort()
+        paths.pop()
+    else:
+        paths = glob.glob(work + "_20*")
     if delete:
         for p in paths:
-            if os.path.exists(work):
+            if os.path.exists(p):
                 print "removing", p
                 shutil.rmtree(p)
     elif len(paths) > 1:
         print len(paths), "old output directories for this config. Clean-up recommended."
-    if os.path.exists(work):
-        shutil.move(work, work + time.strftime("_%Y-%m-%d_%H-%M"))
     print "Output directory:", work
     os.makedirs(work + "/work." + out)
 
