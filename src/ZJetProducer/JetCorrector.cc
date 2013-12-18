@@ -36,33 +36,33 @@ void JetCorrector::InitCorrection(std::string algoName, std::string algoCorrecti
 	corLevel.push_back(m_l1correction);
 	m_corrService.insert(algoCorrectionAlias, new JecCorrSet());
 	m_corrService[algoCorrectionAlias].m_l1.reset(new JECService(
-				event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
-				prefix, corLevel, algoName, 0, 0, 0)
-												 );
+			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+			prefix, corLevel, algoName, 0, 0, 0)
+	);
 
 	// only apply one correction step in a round!
 	corLevel.clear();
 	corLevel.push_back("L2Relative");
 	m_corrService[algoCorrectionAlias].m_l2.reset(new JECService(
-				event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
-				prefix, corLevel, algoName, 0, 0, 0)
-												 );
+			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+			prefix, corLevel, algoName, 0, 0, 0)
+	);
 
 	// only apply one correction step in a round!
 	corLevel.clear();
 	corLevel.push_back("L3Absolute");
 	m_corrService[algoCorrectionAlias].m_l3.reset(new JECService(
-				event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
-				prefix, corLevel, algoName, 0, 0, 0)
-												 );
+			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+			prefix, corLevel, algoName, 0, 0, 0)
+	);
 
 	// only used for data
 	corLevel.clear();
 	corLevel.push_back("L2L3Residual");
 	m_corrService[algoCorrectionAlias].m_l2l3res.reset(new JECService(
-				event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
-				prefix, corLevel, algoName, 0, 0, rcorr)
-													  );
+			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+			prefix, corLevel, algoName, 0, 0, rcorr)
+	);
 	LOG_FILE("");
 }
 
@@ -136,7 +136,7 @@ void JetCorrector::CorrectJetCollection(
 	for (unsigned int i = 0; i < jetcount; ++i)
 	{
 		KDataPFTaggedJet* jet = static_cast<KDataPFTaggedJet*>(
-									metaData.GetValidJet(settings, event, i, algoName));
+				metaData.GetValidJet(settings, event, i, algoName));
 
 		// create a copy
 		KDataPFTaggedJet jet_corr = *jet;
@@ -145,28 +145,6 @@ void JetCorrector::CorrectJetCollection(
 
 	// correct the copied jet collection
 	corrService->correct(&metaData.m_validPFJets[newAlgoName]);
-
-	/*
-	Do the same for invalid jets!
-	*/
-
-	jetcount = metaData.GetInvalidJetCount(settings, event, algoName);
-
-	// copy the jet collection
-	for (unsigned int i = 0; i < jetcount; ++i)
-	{
-		KDataPFTaggedJet* jet = static_cast<KDataPFTaggedJet*>(
-									metaData.GetInvalidJet(settings, event, i, algoName));
-
-		// create a copy
-		KDataPFTaggedJet jet_corr = *jet;
-		metaData.AddInvalidJet(jet_corr, newAlgoName);
-	}
-
-	// correct the copied jet collection
-	corrService->correct(&metaData.m_invalidPFJets[newAlgoName]);
-
-
 }
 
 }
