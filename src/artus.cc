@@ -79,6 +79,7 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 	for (std::vector<std::string>::const_iterator it = producer.begin();
 		 it != producer.end(); ++it)
 	{
+		std::string mucorr = globalSettings.get<std::string>("MuonCorrectionParameters", "missing");
 		if (ValidMuonProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidMuonProducer());
 		else if (ZProducer::Name() == *it)
@@ -87,8 +88,8 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new WeightProducer(globalSettings.get<std::string>("PileupWeights")));
 		else if (MuonCorrector::Name() == *it)
 			runner.AddGlobalMetaProducer(new MuonCorrector(
-					globalSettings.get<std::string>("MuonCorrectionParameters", "missing"),
-					globalSettings.get<std::string>("MuonCorrectionParametersRunD", ""),
+					mucorr,
+					globalSettings.get<std::string>("MuonCorrectionParametersRunD", mucorr),
 					globalSettings.get<bool>("MuonSmearing", false)));
 		else if (ValidJetProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidJetProducer(
