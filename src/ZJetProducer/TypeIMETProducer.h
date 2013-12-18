@@ -39,7 +39,7 @@ public:
 
 			algorithms.push_back(algoname_raw + "L1L2L3");
 			//if data, add residuals:
-			if (globalsettings.Global()->GetInputType())
+			if (globalsettings.Global()->GetInputType() == DataInput)
 				algorithms.push_back(algoname_raw + "L1L2L3Res");
 
 			//iterate over the jet collection and sum up the differences between L1L2L3(res) and L1
