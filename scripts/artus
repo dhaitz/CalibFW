@@ -208,6 +208,7 @@ def getoptions(configdir='cfg/artus/', name='artus'):
     opt.boost = getPath('BOOSTPATH')
     if not opt.work:
         opt.work = getPath('EXCALIBUR_WORK', True) or getPath()
+<<<<<<< HEAD
     opt.work += '/' + name + '/' + opt.out
     if not opt.resume and not opt.delete:
         opt.timestamp = time.strftime("_%Y-%m-%d_%H-%M")
@@ -220,6 +221,10 @@ def getoptions(configdir='cfg/artus/', name='artus'):
             print "No existing output directory available!"
             exit(1)
     opt.work += opt.timestamp + '/'
+=======
+    opt.timestamp = time.strftime("_%Y-%m-%d_%H-%M")
+    opt.work += '/' + name + '/' + opt.out + opt.timestamp + '/'
+>>>>>>> Different output directory system for artus batch jobs; add links in /work folder
 
     if opt.verbose:
         print opt
