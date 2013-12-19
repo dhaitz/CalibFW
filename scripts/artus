@@ -22,7 +22,7 @@ def artus():
         print logo()
 
     # make json config
-    if not options.isjson:
+    if not options.isjson and not options.resume:
         custom = imp.load_source("config", options.cfg)
         conf = custom.config()
         conf["InputFiles"] = createFileList(conf["InputFiles"], options.fast)
@@ -56,8 +56,7 @@ def artus():
             outpath = createGridControlConfig(conf, options.work + "/" + options.out + ".conf", timestamp = options.timestamp)
             outpath = options.work + "out/" + outpath
         else:
-            outpath = createGridControlConfig(conf, "/dev/null")
-            outpath = options.work + "out/" + outpath
+            outpath = options.work + "out/*.root"
 
         try:
             subprocess.call(['go.py', options.work + "/" + options.out + ".conf"])
@@ -192,8 +191,14 @@ def getoptions(configdir='cfg/artus/', name='artus'):
     opt.boost = getPath('BOOSTPATH')
     if not opt.work:
         opt.work = getPath('EXCALIBUR_WORK', True) or getPath()
-    opt.timestamp = time.strftime("_%Y-%m-%d_%H-%M")
-    opt.work += '/' + name + '/' + opt.out + opt.timestamp + '/'
+    opt.work += '/' + name + '/' + opt.out
+    if not opt.resume:
+        opt.timestamp = time.strftime("_%Y-%m-%d_%H-%M")
+    else:
+        paths = glob.glob(opt.work + "_20*")
+        paths.sort()
+        opt.timestamp = paths[-1][-17:]
+    opt.work += opt.timestamp + '/'
 
     if opt.verbose:
         print opt
