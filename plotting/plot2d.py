@@ -113,28 +113,17 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
             vmax=settings['z'][1])
 
         # labels:
-        """if 'data' not in label: mc = True
-        else: mc = False
-        if not subplot: plotbase.labels(ax, opt, legloc=False, frame=True, changes=change, jet=False,
-                                        sub_plot=subplot, mc=mc, color='white', energy_label=(not subplot))
-        """
- 
         plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1], 
                                                             settings=settings)
         plotbase.labels(ax, opt, settings, settings['subplot'])
         plotbase.setaxislimits(ax, settings)
 
-        #ax.text(1., 1., r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (settings['energy']),
-        #        va='bottom', ha='right', transform=ax.transAxes)
-
     if settings['subplot']: return
 
     #add the colorbar
     cb = fig.colorbar(image, cax = grid.cbar_axes[0], ax=ax)
-    cb.set_label(z_name)
-
-
-
+    cb.set_label(plotbase.unitformat(plotbase.getaxislabels_list(z_name)[2], 
+                                plotbase.getaxislabels_list(z_name)[3], False))
     # create filename + folder
     settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
 
