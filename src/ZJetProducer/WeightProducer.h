@@ -4,6 +4,7 @@
 #include <Math/VectorUtil.h>
 #include "ZJetProducer/MetadataProducer.h"
 #include "RootTools/RootIncludes.h"
+#include "ZJetProducer/TriggerWeights.h"
 
 namespace Artus
 {
@@ -22,8 +23,9 @@ private:
 public:
 	WeightProducer(std::string weightfile)
 	{
+		// load pile-up weights
 		const std::string s = "pileup";
-		LOG("Loadgin pile-up weights from " << weightfile << " pileup");
+		LOG("Loading pile-up weights from " << weightfile << " " << s);
 		TFile file(weightfile.c_str(), "READONLY");
 		TH1D* pileuphisto = (TH1D*) file.Get("pileup");
 
@@ -116,6 +118,24 @@ public:
 					", eff=" << data.m_genlumimetadata->filterEff <<
 					", nevents=" << ntotal <<
 					", xsec=" << xsec << ", weight=" << weight);
+		}
+
+		// muon trigger reweighting
+		//
+		if (m_pipelineSettings.Global()->GetEnableTriggerReweighting())
+		{
+			const double eta1 = metaData.m_listValidMuons[0].p4.Eta();
+			const double eta2 = metaData.m_listValidMuons[1].p4.Eta();
+			const double pt1 = metaData.m_listValidMuons[0].p4.Pt();
+			const double pt2 = metaData.m_listValidMuons[1].p4.Pt();
+
+			// ϵ(8,A) · ϵ(17,B) + ϵ(17,A) · ϵ(8,B) - ϵ(17,A) · ϵ(17,B)
+			double eff = efficiencyMu17(eta1) * efficiencyMu8(eta2)
+					   + efficiencyMu17(eta2) * efficiencyMu8(eta1)
+					   - efficiencyMu17(eta1) * efficiencyMu17(eta2);
+			eff *= turnonMu17(pt1) * turnonMu17(pt2);
+			weight *= eff;
+			metaData.SetEfficiency(eff);
 		}
 
 		metaData.SetWeight(metaData.GetWeight() * weight);

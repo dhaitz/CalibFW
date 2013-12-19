@@ -191,7 +191,8 @@ int main(int argc, char** argv)
 		ZJetGlobalSettings gset;
 
 		gset.SetEnablePuReweighting(g_propTree.get<bool>("EnablePuReweighting", false));
-		gset.SetPileupWeights(g_propTree.get<std::string>("PileupWeights", "not found"));
+		gset.SetPileupWeights(g_propTree.get<std::string>("PileupWeights", "not_found"));
+		gset.SetEnableTriggerReweighting(g_propTree.get<bool>("EnableTriggerReweighting", false));
 		gset.SetEnable2ndJetReweighting(g_propTree.get<bool>("Enable2ndJetReweighting", false));
 		gset.SetEnableSampleReweighting(g_propTree.get<bool>("EnableSampleReweighting", false));
 		gset.SetEnableLumiReweighting(g_propTree.get<bool>("EnableLumiReweighting", false));
@@ -276,6 +277,8 @@ int main(int argc, char** argv)
 		// move to config read function
 		if (gset.GetEnablePuReweighting())
 			LOG_FILE(blue << "Pile-up reweighting enabled." << reset);
+		if (gset.GetEnableTriggerReweighting())
+			LOG_FILE(blue << "Trigger reweighting enabled." << reset);
 		if (gset.GetEnableSampleReweighting())
 			LOG_FILE(blue << "Sample reweighting enabled." << reset);
 		if (gset.GetEnableLumiReweighting())

@@ -31,6 +31,7 @@ public:
 	}
 
 	IMPL_PROPERTY(bool, EnablePuReweighting)
+	IMPL_PROPERTY(bool, EnableTriggerReweighting)
 	IMPL_PROPERTY(bool, Enable2ndJetReweighting)
 	IMPL_PROPERTY(bool, EnableSampleReweighting)
 	IMPL_PROPERTY(bool, EnableLumiReweighting)
