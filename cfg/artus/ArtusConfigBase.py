@@ -160,7 +160,7 @@ def SetMcSpecific(cfg, run='2012'):
         exit(0)
 
     cfg['Pipelines']['default']['QuantitiesVector'] += [
-                    "npu", "nputruth",
+                    "npu", "nputruth", "eff",
                     "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
                     "matchedgenjet1pt", "genmpf",
                     "algoflavour", "physflavour",

@@ -260,6 +260,8 @@ private:
 			return event.m_eventmetadata->nRun;
 		else if (string == "weight")
 			return metaData.GetWeight();
+		else if (string == "eff")
+			return metaData.GetEfficiency();
 		// Z
 		else if (string == "zpt")
 			return metaData.GetRefZ().p4.Pt();
