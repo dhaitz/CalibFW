@@ -341,6 +341,20 @@ public:
 
 	// holds pipeline specific metadata of the current pipeline
 	LocalMetaDataType* m_pipelineMetaData;
+
+	std::string GetCorrespondingBaseJetAlgorithm(std::string s)
+	{
+		boost::algorithm::replace_first(s, "PFJets", "PF");
+		boost::algorithm::replace_first(s, "CHS", "chs");
+
+		boost::algorithm::replace_first(s, "L1", "");
+		boost::algorithm::replace_first(s, "L2", "");
+		boost::algorithm::replace_first(s, "L3", "");
+		boost::algorithm::replace_first(s, "Res", "");
+
+		return s;
+	}
+
 };
 
 }
