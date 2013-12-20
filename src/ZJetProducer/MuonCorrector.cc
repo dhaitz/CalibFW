@@ -15,11 +15,11 @@ MuonCorrector::MuonCorrector(std::string parameterfile, std::string parameterfil
 		LOG_FATAL("Muon corrections enabled but no parameters given.");
 
 	if (m_smearing && m_deterministic)
-		LOG("Muon corrections (smeared, deterministic):");
+		LOG("Loading muon corrections (smeared, deterministic):");
 	if (m_smearing && !m_deterministic)
-		LOG("Muon corrections (smeared, random):");
+		LOG("Loading muon corrections (smeared, random):");
 	if (!m_smearing)
-		LOG("Muon corrections (not smeared):");
+		LOG("Loading muon corrections (not smeared):");
 
 	LOG("  " << parameterfile);
 	if (parameterfileRunD != "")

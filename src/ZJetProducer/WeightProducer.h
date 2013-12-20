@@ -25,7 +25,7 @@ public:
 	{
 		// load pile-up weights
 		const std::string s = "pileup";
-		LOG("Loading pile-up weights from " << weightfile << " " << s);
+		LOG("Loading pile-up weights (" << s << "):\n  " << weightfile);
 		TFile file(weightfile.c_str(), "READONLY");
 		TH1D* pileuphisto = (TH1D*) file.Get("pileup");
 

@@ -61,7 +61,7 @@ private:
 	TNtuple* m_ntuple;
 
 	virtual float returnvalue(std::string string, ZJetEventData const& event,
-							  ZJetMetaData const& metaData, ZJetPipelineSettings const& s)
+							  ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
 	{
 		// general quantities
 		if (string == "npv")
