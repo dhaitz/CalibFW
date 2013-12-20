@@ -316,7 +316,8 @@ def prepareWork(work, out, delete=False):
     if "_20" in work:
         paths = glob.glob(work[:-17]+"_20*")
         paths.sort()
-        paths.pop()
+        if len(paths) > 0:
+            paths.pop()
     else:
         paths = glob.glob(work + "_20*")
     if delete:
