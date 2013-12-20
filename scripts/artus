@@ -21,6 +21,20 @@ def artus():
     if not options.nologo:
         print logo()
 
+    if options.delete:
+        try:
+            subprocess.call(['go.py', options.work + "/" + options.out + ".conf", "-d all"])
+        except:
+            print "could not delete currently running jobs"
+            exit(1)
+        try:
+            shutil.rmtree(options.work)
+            print "Directory %s deleted." % options.work
+        except:
+            print "Could not delete output directory %s" % options.work
+        exit(0)
+        
+
     # make json config
     if not options.isjson and not options.resume:
         custom = imp.load_source("config", options.cfg)
@@ -49,7 +63,7 @@ def artus():
         exit(1)
     if options.batch:
         if not options.resume:
-            prepareWork(options.work, options.out, options.delete)
+            prepareWork(options.work, options.out, options.clean)
             writeDBS(conf, options.out, options.work + "/files.dbs")
             createRunfile(options.json, options.work + "/run-artus.sh")
             shutil.copy(options.json, options.work)
@@ -131,8 +145,10 @@ def getoptions(configdir='cfg/artus/', name='artus'):
         help="run with grid-control")
     parser.add_argument('-c', '--config', action='store_true',
         help="produce json config only")
-    parser.add_argument('-d', '--delete', action='store_true',
+    parser.add_argument('-C', '--clean', action='store_true',
         help="delete old outputs but one with the same name")
+    parser.add_argument('-d', '--delete', action='store_true',
+        help="delete the latest output and jobs still running")
     parser.add_argument('-f', '--fast', type=int, nargs='*', default=None,
         help="limit number of input files. 3=files[-3:], 5 6=files[5:6].")
     parser.add_argument('-l', '--nologo', action='store_true',
@@ -192,12 +208,16 @@ def getoptions(configdir='cfg/artus/', name='artus'):
     if not opt.work:
         opt.work = getPath('EXCALIBUR_WORK', True) or getPath()
     opt.work += '/' + name + '/' + opt.out
-    if not opt.resume:
+    if not opt.resume and not opt.delete:
         opt.timestamp = time.strftime("_%Y-%m-%d_%H-%M")
     else:
         paths = glob.glob(opt.work + "_20*")
         paths.sort()
-        opt.timestamp = paths[-1][-17:]
+        try:
+            opt.timestamp = paths[-1][-17:]
+        except:
+            print "No existing output directory available!"
+            exit(1)
     opt.work += opt.timestamp + '/'
 
     if opt.verbose:
@@ -306,7 +326,7 @@ def createFileList(files, fast=False):
         return files
 
 
-def prepareWork(work, out, delete=False):
+def prepareWork(work, out, clean=False):
     """ensure that the output path exists and delete old outputs optionally)
 
     to save your outputs simply rename them without timestamp
@@ -320,7 +340,7 @@ def prepareWork(work, out, delete=False):
             paths.pop()
     else:
         paths = glob.glob(work + "_20*")
-    if delete:
+    if clean:
         for p in paths:
             if os.path.exists(p):
                 print "removing", p
