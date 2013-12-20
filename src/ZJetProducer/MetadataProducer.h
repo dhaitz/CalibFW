@@ -339,22 +339,34 @@ public:
 			// Take only stable final particles
 			//if (it->status() != 3)
 			//    continue;
-
+			//LOG("Particle " << *it);
 			// ignore first 6 particles (because that is what CMSSW does)
 			if (it - data.m_particles->begin() < 6)
 				continue;
 
-			if (it->children != 0)
+			if (unlikely(it->children != 0))
 				LOG("Particle has " << it->children << " children.");
-
+			//if (std::abs(it->pdgId()) == 13) LOG("P " <<*it);
 			// Sort particles in lists in metaData
-			if (std::abs(it->pdgId()) == 13)		// muon
+			if (std::abs(it->pdgId()) == 13 && it->status() == 1)		// stable muon
 			{
 				metaData.m_genMuons.push_back(*it);
+			}
+			else if (std::abs(it->pdgId()) == 13 && it->status() == 2)		// intermediate muon
+			{
+				metaData.m_genIntermediateMuons.push_back(*it);
+			}
+			else if (std::abs(it->pdgId()) == 13 && it->status() == 3)		// internal muon
+			{
+				metaData.m_genInternalMuons.push_back(*it);
 			}
 			else if (std::abs(it->pdgId()) == 23)	// Z
 			{
 				metaData.m_genZs.push_back(*it);
+			}
+			else if (std::abs(it->pdgId()) == 22 && it->status() == 1)	// photon
+			{
+				metaData.m_genPhotons.push_back(*it);
 			}
 			else if (std::abs(it->pdgId()) < 7 || std::abs(it->pdgId()) == 21)	// parton
 			{
@@ -363,10 +375,13 @@ public:
 			else if (it->pdgId() == 2212 && it->p4.Pt() < 1e-6) // ignore incoming protons
 			{
 			}
+			else if (std::abs(it->pdgId()) == 11 || std::abs(it->pdgId()) == 15) // ignore electrons and taus
+			{
+			}
 			else if (it->status() == 1 &&
-                       ((std::abs(it->pdgId()) == 12)
-					 || (std::abs(it->pdgId()) == 14)
-					 || (std::abs(it->pdgId()) == 16)))  // neutrinos
+					 ((std::abs(it->pdgId()) == 12)
+					  || (std::abs(it->pdgId()) == 14)
+					  || (std::abs(it->pdgId()) == 16)))  // neutrinos
 			{
 				for (ZJetEventData::GenJetMapIterator it2 = data.m_genJets.begin(); it2 != data.m_genJets.end(); ++it2)
 				{
@@ -376,10 +391,10 @@ public:
 				}
 			}
 			else if (it->status() == 1 &&
-                       ((std::abs(it->pdgId()) == 130)
-					 || (std::abs(it->pdgId()) == 310)
-					 || (std::abs(it->pdgId()) == 2112)
-					 || (std::abs(it->pdgId()) == 3122)))  //neutral hadrons
+					 ((std::abs(it->pdgId()) == 130)
+					  || (std::abs(it->pdgId()) == 310)
+					  || (std::abs(it->pdgId()) == 2112)
+					  || (std::abs(it->pdgId()) == 3122)))  //neutral hadrons
 			{
 				const float pt_threshold = 1.; //GeV
 				for (ZJetEventData::GenJetMapIterator it2 = data.m_genJets.begin(); it2 != data.m_genJets.end(); ++it2)
@@ -394,10 +409,10 @@ public:
 						metaData.m_neutrals3[it2->first].push_back(*it);
 				}
 			}
-			else // unexpected particles
+			else // unexpected particles apart from stable mesons and baryons
 			{
-				if (it->status() != 3 && std::abs(it->pdgId()) < 7)
-					LOG("Unexpected particle with id: " << it->pdgId() << ", status: " << it->status());
+				if (it->status() != 3 && std::abs(it->pdgId()) < 90)
+					LOG("Unexpected particle " << *it);
 			}
 		}
 

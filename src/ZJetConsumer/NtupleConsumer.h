@@ -450,7 +450,102 @@ private:
 		else if (string == "njets")
 			return metaData.GetValidJetCount(s, event);
 		else if (string == "njetsinv")
-			return metaData.GetInvalidJetCount(s, event);
+			return metaData.m_listInvalidJets["AK5PFJetsCHS"].size();
+		else if (string == "ngenphotons")
+			return metaData.m_genPhotons.size();
+		else if (string == "nzs")
+			return metaData.m_genZs.size();
+		else if (string == "ninternalmuons")
+			return metaData.m_genInternalMuons.size();
+		else if (string == "nintermediatemuons")
+			return metaData.m_genIntermediateMuons.size();
+		else if (string == "closestphotondr")
+		{
+			double dR = 999.;
+			double d = dR;
+			for (auto mu = metaData.m_genMuons.begin(); mu != metaData.m_genMuons.end(); mu++)
+				for (auto ph = metaData.m_genPhotons.begin(); ph != metaData.m_genPhotons.end(); ph++)
+				{
+					d = ROOT::Math::VectorUtil::DeltaR(mu->p4, ph->p4);
+					if (d < dR && ph->p4.Pt() > 1)
+						dR = d;
+				}
+			return dR;
+		}
+		else if (string == "ngenphotonsclose")
+		{
+			const double dR = 0.3;
+			int n = 0;
+			for (auto mu = metaData.m_genMuons.begin(); mu != metaData.m_genMuons.end(); mu++)
+				for (auto ph = metaData.m_genPhotons.begin(); ph != metaData.m_genPhotons.end(); ph++)
+					if (ROOT::Math::VectorUtil::DeltaR(mu->p4, ph->p4) < dR)
+						n++;
+			return n;
+		}
+		else if (string == "ptgenphotonsclose")
+		{
+			const double dR = 0.3;
+			double pt = 0;
+			for (auto mu = metaData.m_genMuons.begin(); mu != metaData.m_genMuons.end(); mu++)
+				for (auto ph = metaData.m_genPhotons.begin(); ph != metaData.m_genPhotons.end(); ph++)
+					if (ROOT::Math::VectorUtil::DeltaR(mu->p4, ph->p4) < dR)
+						pt += ph->p4.Pt();
+			return pt;
+		}
+		else if (string == "ptgenphotonsfar")
+		{
+			const double dR = 0.3;
+			double pt = 0;
+			for (auto mu = metaData.m_genMuons.begin(); mu != metaData.m_genMuons.end(); mu++)
+			{
+				// look at a cone perpendicular to the muon
+				KGenParticle nomu = *mu;
+				nomu.p4.SetPhi(nomu.p4.Phi() + ROOT::Math::Pi() / 2);
+				for (auto ph = metaData.m_genPhotons.begin(); ph != metaData.m_genPhotons.end(); ph++)
+					if (ROOT::Math::VectorUtil::DeltaR(nomu.p4, ph->p4) < dR)
+						pt += ph->p4.Pt();
+			}
+			return pt;
+		}
+		else if (string == "ptdiff13")
+		{
+			if (metaData.m_genMuons.size() < 2 || metaData.m_genInternalMuons.size() < 2)
+				return -999;
+			double diff = 0;
+			diff = metaData.m_genMuons[0].p4.Pt()
+				   + metaData.m_genMuons[1].p4.Pt()
+				   - metaData.m_genInternalMuons[0].p4.Pt()
+				   - metaData.m_genInternalMuons[1].p4.Pt();
+			return diff;
+		}
+		else if (string == "ptdiff12")
+		{
+			if (metaData.m_genMuons.size() < 2 || metaData.m_genIntermediateMuons.size() < 2)
+				return -999;
+			double diff = 0;
+			diff = metaData.m_genMuons[0].p4.Pt()
+				   + metaData.m_genMuons[1].p4.Pt()
+				   - metaData.m_genIntermediateMuons[0].p4.Pt()
+				   - metaData.m_genIntermediateMuons[1].p4.Pt();
+			return diff;
+		}
+		else if (string == "ptdiff23")
+		{
+			if (metaData.m_genIntermediateMuons.size() < 2 || metaData.m_genInternalMuons.size() < 2)
+				return -999;
+			double diff = 0;
+			diff = metaData.m_genMuons[0].p4.Pt()
+				   + metaData.m_genMuons[1].p4.Pt()
+				   - metaData.m_genIntermediateMuons[0].p4.Pt()
+				   - metaData.m_genIntermediateMuons[1].p4.Pt();
+			return diff;
+		}
+		else if (string == "genzpt")
+		{
+			if (metaData.m_genZs.size() < 1)
+				return -1;
+			return metaData.m_genZs[0].p4.Pt();
+		}
 
 		// leading jet
 		else if (string == "jet1pt")

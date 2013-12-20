@@ -236,8 +236,10 @@ public:
 
 	KGenParticles m_genPartons;
 	KGenParticles m_genMuons;
+	KGenParticles m_genInternalMuons;
+	KGenParticles m_genIntermediateMuons;
 	KGenParticles m_genZs;
-
+	KGenParticles m_genPhotons;
 
 	typedef std::map<std::string, KGenParticle> MetaParticleContainer;
 	mutable MetaParticleContainer m_algoparton;
