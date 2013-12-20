@@ -13,7 +13,7 @@ namespace Artus
 class MuonCorrector: public ZJetGlobalMetaDataProducerBase
 {
 public:
-	MuonCorrector(std::string parameterfile, std::string parameterfileRunD, bool smeared = true, bool deterministic = false);
+	MuonCorrector(std::string parameterfile, std::string parameterfileRunD, bool smeared = true, bool deterministic = false, bool radiation = false);
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
 								  ZJetMetaData& metaData,
@@ -34,6 +34,7 @@ private:
 	const long startRunD;
 	bool m_smearing;
 	bool m_deterministic;
+	bool m_radiationcorr;
 	std::string m_parameterfile;
 	std::string m_parameterfileRunD;
 	MuScleFitCorrector m_corrector;

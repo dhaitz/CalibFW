@@ -6,8 +6,8 @@ namespace Artus
 {
 
 MuonCorrector::MuonCorrector(std::string parameterfile, std::string parameterfileRunD,
-							 bool smeared, bool deterministic)
-	: startRunD(203770), m_smearing(smeared), m_deterministic(deterministic),
+							 bool smeared, bool deterministic, bool radiation)
+	: startRunD(203770), m_smearing(smeared), m_deterministic(deterministic), m_radiationcorr(radiation),
 	  m_parameterfile(parameterfile), m_parameterfileRunD(parameterfileRunD),
 	  m_corrector(parameterfile), m_correctorRunD(parameterfileRunD)
 {
@@ -62,6 +62,10 @@ bool MuonCorrector::PopulateGlobalMetaData(ZJetEventData const& event,
 			mu->p4.SetPt(smearedPt);
 		}
 
+		if (m_radiationcorr)
+		{
+			mu->p4.SetPt(1.004 * mu->p4.Pt());
+		}
 		//LOG("Muon Correction: " << before << " -> " << corrPt << " -> " << smearedPt
 		//	<< " (charge: " << int(mu->charge) <<")");
 	}

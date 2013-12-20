@@ -91,7 +91,8 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new MuonCorrector(
 					mucorr,
 					globalSettings.get<std::string>("MuonCorrectionParametersRunD", mucorr),
-					globalSettings.get<bool>("MuonSmearing", false)));
+					globalSettings.get<bool>("MuonSmearing", false),
+					globalSettings.get<bool>("MuonRadiationCorrection", false)));
 		else if (ValidJetProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidJetProducer(
 					globalSettings.get<bool>("Tagged")));
@@ -291,6 +292,8 @@ int main(int argc, char** argv)
 			LOG_FILE(blue << "MET phi correction enabled." << reset);
 		if (gset.GetVetoPileupJets())
 			LOG_FILE(blue << "Mark pile-up jets as invalid." << reset);
+		if (g_propTree.get<bool>("MuonRadiationCorrection", false))
+			LOG_FILE(red << "Shift muon scale by 0.5% - this should not be used!" << reset);
 		ZJetPipelineSettings settings;
 		settings.m_globalSettings = &gset;
 		LOG_FILE("");

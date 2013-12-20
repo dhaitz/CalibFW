@@ -131,8 +131,8 @@ public:
 
 			// ϵ(8,A) · ϵ(17,B) + ϵ(17,A) · ϵ(8,B) - ϵ(17,A) · ϵ(17,B)
 			double eff = efficiencyMu17(eta1) * efficiencyMu8(eta2)
-					   + efficiencyMu17(eta2) * efficiencyMu8(eta1)
-					   - efficiencyMu17(eta1) * efficiencyMu17(eta2);
+						 + efficiencyMu17(eta2) * efficiencyMu8(eta1)
+						 - efficiencyMu17(eta1) * efficiencyMu17(eta2);
 			eff *= turnonMu17(pt1) * turnonMu17(pt2);
 			weight *= eff;
 			metaData.SetEfficiency(eff);
