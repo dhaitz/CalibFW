@@ -65,8 +65,9 @@ def artus():
         if not options.resume:
             prepareWork(options.work, options.out, options.clean)
             writeDBS(conf, options.out, options.work + "/files.dbs")
-            createRunfile(options.json, options.work + "/run-artus.sh")
+            createRunfile(options.json, options.work + "/run-artus.sh", workpath = options.work)
             shutil.copy(options.json, options.work)
+            shutil.copy("artus", options.work)
             outpath = createGridControlConfig(conf, options.work + "/" + options.out + ".conf", timestamp = options.timestamp)
             outpath = options.work + "out/" + outpath
         else:
@@ -287,12 +288,15 @@ def createGridControlConfig(settings, filename, original=None, timestamp=''):
     return text.strip()
 
 
-def createRunfile(configjson, filename='test.sh', original=None):
+def createRunfile(configjson, filename='test.sh', original=None, workpath=None):
     if original is None:
         original = getPath() + '/cfg/artus/base/run-artus.sh'
     with open(original) as f:
         text = f.read()
     text = text.replace('cfg/artus/config.py.json', configjson)
+    if workpath is not None:
+        text = text.replace("$EXCALIBUR_BASE/cfg/artus/", workpath)
+        text = text.replace("$EXCALIBUR_BASE/artus", workpath + "artus")
     text = text.replace('$EXCALIBUR_BASE', getPath())
     text = text.replace('$CMSSW_BASE', getPath('CMSSW_BASE'))
     with open(filename, 'wb') as f:
