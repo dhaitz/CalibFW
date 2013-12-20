@@ -323,6 +323,22 @@ private:
 				if (it->charge == -1) return it->p4.Phi();
 			}
 		}
+		else if (string == "muplusiso")
+		{
+			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				 it != metaData.m_listValidMuons.end(); it ++)
+			{
+				if (it->charge == +1) return it->trackIso03;
+			}
+		}
+		else if (string == "muminusiso")
+		{
+			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
+				 it != metaData.m_listValidMuons.end(); it ++)
+			{
+				if (it->charge == -1) return it->trackIso03;
+			}
+		}
 		else if (string == "mu1pt")
 		{
 			KDataMuon  muon;

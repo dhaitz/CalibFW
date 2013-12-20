@@ -100,7 +100,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
                     "muminuspt", "muminuseta", "muminusphi",
                     "mu1pt", "mu1eta", "mu1phi",
                     "mu2pt", "mu2eta", "mu2phi",
-                    "nmuons",
+                    "nmuons", "muplusiso", "muminusiso",
                     "unc",
                 ]
             }
