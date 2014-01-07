@@ -14,10 +14,10 @@ export SYNCDIR=${EXCALIBUR_BASE}/out/websync
 
 # Set some user specific variables
 if [ $USER = "dhaitz" ]; then
-    if [ -f /storage/a/dhaitz/excalibur/artus/data/out.root ]; then
+    if [ -f $EXCALIBUR_BASE/work/data.root ]; then
         export DATA=`readlink $EXCALIBUR_BASE/work/data.root`
     fi
-    if [ -f /storage/a/dhaitz/excalibur/artus/mc/out.root ]; then
+    if [ -f $EXCALIBUR_BASE/work/mc.root ]; then
         export MC=`readlink $EXCALIBUR_BASE/work/mc.root`
     fi
     export EXCALIBUR_WORK=/storage/a/dhaitz/excalibur
