@@ -6,6 +6,120 @@ import math
 import plotresponse
 import plotfractions
 import plot2d
+import plot_tagging
+
+def an(files, opt):
+    """ Plots for the 2014 Z->mumu JEC AN."""
+    """
+
+    #MET
+    for quantity in ['METpt', 'METphi']:
+        plotdatamc.datamcplot(quantity, files, opt, changes = {'title': 'CMS preliminary'})
+
+
+    plotdatamc.datamcplot("npv", files, opt, changes = {'folder': 'all', 'title': 'CMS preliminary'})
+    for n in ['1', '2']:
+        for quantity in ['pt', 'eta', 'phi']:
+            plotdatamc.datamcplot('mu%s%s' % (n, quantity), files, opt, changes = {'title': 'CMS preliminary'})
+            if n is '2' and quantity is 'eta':
+                plotdatamc.datamcplot('jet%s%s' % (n, quantity), files, opt, changes = {'nbins': 10, 'correction': 'L1L2L3', 'title': 'CMS preliminary'})
+            else:
+                plotdatamc.datamcplot('jet%s%s' % (n, quantity), files, opt, changes = {'correction': 'L1L2L3', 'title': 'CMS preliminary'})
+
+    for quantity in ['zpt', 'zeta', 'zy', 'zphi', 'zmass']:
+        plotdatamc.datamcplot(quantity, files, opt, changes = {'title': 'CMS preliminary'})
+
+    #response stuff
+    plotresponse.responseratio(files, opt, over='zpt', types=['mpf'],
+                     changes={'y': [0.98, 1.03, 0.96, 1.03], 'x': [0, 400, 0, 400]})
+    plotresponse.responseratio(files, opt, over='jet1abseta', types=['mpf'],
+                     changes={'y': [0.95, 1.1, 0.93, 1.1]})
+    plotresponse.responseratio(files, opt, over='npv', types=['mpf'],
+                     changes={'y': [0.95, 1.05, 0.92, 1.03], 'x': [0, 35, 0, 35]})
+
+    plotresponse.responseratio(files, opt, over='zpt', types=['ptbalance'],
+                     changes={'y': [0.93, 1.01, 0.96, 1.03], 'x': [0, 400, 0, 400]})
+    plotresponse.responseratio(files, opt, over='jet1abseta', types=['ptbalance'],
+                     changes={'y': [0.91, 1.01, 0.93, 1.1]})
+    plotresponse.responseratio(files, opt, over='npv', types=['ptbalance'],
+                     changes={'y': [0.91, 1.01, 0.92, 1.03], 'x': [0, 35, 0, 35]})
+    """
+
+    for q in ['mpf', 'ptbalance']:
+        plotdatamc.datamcplot(q, files, opt, changes={'title': 'CMS preliminary', 
+                                                        'correction': 'L1L2L3',
+                                                        'legloc': 'center right',
+                                                        'nbins': 100,
+                                                        'fit': 'gauss'})
+
+    plotresponse.extrapol(files, opt, changes={'title': 'CMS preliminary',
+                                        'save_individually': True,
+                                        'correction': 'L1L2L3'})
+    """
+    plotfractions.fractions(files, opt, over='zpt', changes={'x': [0, 400], 'title': 'CMS preliminary'})
+    plotfractions.fractions(files, opt, over='jet1abseta', changes = {'title': 'CMS preliminary'})
+    plotfractions.fractions(files, opt, over='npv', changes = {'title': 'CMS preliminary'})
+
+    for changes in [{'rebin':10, 'title':'|$\eta^{\mathrm{jet}}$|<1.3'},
+                {'alleta':True, 'rebin':10,
+                'selection':'jet1abseta>2.5 && jet1abseta<2.964',
+                'title':'2.5<|$\eta^{\mathrm{jet}}$|<2.964'}]:
+        if 'alleta' in changes:
+            opt.out += '/ECOT'
+            opt.user_options['out'] += '/ECOT'
+            plotfractions.fractions_run(files, opt, diff=True, response=True, changes=changes, nbr=6)
+            plotfractions.fractions_run(files, opt, diff=False, response=True, changes=changes, nbr=6)
+            plotfractions.fractions_run(files, opt, diff=True, response=False, changes=changes, nbr=6)
+            plotresponse.response_run(files, opt, changes=changes)
+            opt.out = opt.out[:-5]
+            opt.user_options['out'] = opt.user_options['out'][:-5]
+        else:
+            plotfractions.fractions_run(files, opt, diff=True, response=True, changes=changes)
+            plotfractions.fractions_run(files, opt, diff=False, response=True, changes=changes)
+            plotfractions.fractions_run(files, opt, diff=True, response=False, changes=changes)
+            plotresponse.response_run(files, opt, changes=changes)
+        changes['y'] = [0.84, 1.2]
+
+    plot2d.twoD("qgtag_btag", files, opt, 
+                changes = {'title': 'CMS Preliminary', 'nbins':50}
+                )
+
+
+    plot_tagging.tagging_response(files, opt)
+    plot_tagging.tagging_response_corrected(files, opt)
+    """
+
+    ## MCONLY
+    if len(files) > 1:
+        files = files[1:]
+    """
+
+    # PF composition as function of mc flavour
+    flavour_comp(files, opt, changes={'title': 'CMS Simulation','mconly':True})
+
+    # response vs flavour
+    for var in [True, False]:
+        plotresponse.response_physflavour(files, opt,
+            changes={'title': 'CMS Simulation','mconly':True},
+            add_neutrinopt=var,
+            restrict_neutrals=var,
+            extrapolation=var)
+
+    plotfractions.flavour_composition(files, opt, changes={'title': 'CMS Simulation','mconly':True})
+    plotfractions.flavour_composition_eta(files, opt, changes={'title': 'CMS Simulation','mconly':True, 'selection': 'zpt>95 && zpt<110'})
+
+    changes = {'cutlabel' : 'ptetaalpha',
+                'labels'  : ['Pythia 6 Tune Z2*', 'Herwig++ Tune EE3C'],
+                'y'       : [0.98, 1.05],
+                'markers' : ['o', 'd'],
+                'colors'  : ['red', 'blue'],
+                'title'   : 'CMS Simulation',
+                'mconly'  : True,
+                'legloc'  : 'lower left',
+                'filename': 'recogen_physflavour_pythia-herwig'}
+    files += [getroot.openfile("/storage/a/dhaitz/excalibur/work/mc_herwig/out/closure.root")]
+    plotdatamc.datamcplot("recogen_physflavour", files, opt, changes=changes)
+    """
 
 
 def paper(files, opt):
