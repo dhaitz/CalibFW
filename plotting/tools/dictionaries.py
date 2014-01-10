@@ -107,6 +107,8 @@ d_axes = {
         'mpfresp-raw': [0.0, 1.8, r"$MPF$ Response (raw MET)", ""],
         'mpfresp': [0.0, 1.8, r"$MPF$ Response", ""],
         'muminuspt': [0, 250, r"$p_\mathrm{T}^\mathrm{\mu-}$", 'GeV'],
+        'mu1pt': [0, 250, r"$p_\mathrm{T}^\mathrm{\mu1}$", 'GeV'],
+        'mu2pt': [0, 250, r"$p_\mathrm{T}^\mathrm{\mu2}$", 'GeV'],
         'muon': [0, 1, r"%s muon fraction", ""],
         'muonsinvalid': [0, 5, "Number of invalid muons", ""],
         'muonsvalid': [0, 5, "Number of valid muons", ""],

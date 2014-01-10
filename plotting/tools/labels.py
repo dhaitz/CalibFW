@@ -261,7 +261,7 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.95, changes={}, colo
 
 
 def statuslabel(ax, status=None, xpos=0.3, ypos=1.018):
-    if (status is not None and not hasattr(ax, "statuslabel") and ax.statuslabel is True):
+    if (status is not None and hasattr(ax, "statuslabel") and ax.statuslabel is True):
         ax.text(xpos, ypos, r"%s" % status, va='bottom', ha='left',
                 transform=ax.transAxes)
         ax.statuslabel = True

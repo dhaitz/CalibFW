@@ -258,7 +258,7 @@ def getresponse(method, over, opt, settings, f1, f2=None, changes=None, extrapol
     # extrapolation options: None, 'bin' -> binwise extrapolation, 'global; -> global extrapol. factor
     if extrapol is not None:
         var_dict = {    
-            'zpt'       :getroot.ptcuts(opt.bins),
+            'zpt'       :getroot.ptcuts(opt.zbins),
             'jet1abseta':getroot.etacuts(opt.eta),
             'npv'       :getroot.npvcuts(opt.npv)
         }
@@ -306,7 +306,7 @@ def plotbinborders(ax, quantity, y, opt):
         l_borders = [bin[0]-0.5 for bin in opt.npv]
         r_borders = bins1 = [bin[1]+0.5 for bin in opt.npv]
     else:
-        l_borders = opt.bins[:-1]
-        r_borders = opt.bins[1:]
+        l_borders = opt.zbins[:-1]
+        r_borders = opt.zbins[1:]
     for l_border, r_border, y in zip(l_borders, r_borders, y): 
         ax.add_line(plotbase.matplotlib.lines.Line2D((l_border,r_border), (y,y), color='black', alpha=0.1))

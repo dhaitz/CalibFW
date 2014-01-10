@@ -235,7 +235,7 @@ def responseratio(files, opt, over='zpt', types=['balresp'], fit=False,
     responseplot(files, opt, types, over, changes=changes, figaxes=(fig,ax1))
 
     changes['energy'] = None
-    changes['lumi']   = None
+    #changes['lumi']   = None
     changes['legloc']   = "lower left"
 
     ratioplot(files, opt, types, changes=changes, over=over, figaxes=(fig,ax2))

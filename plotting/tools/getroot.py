@@ -86,7 +86,7 @@ def getplotfromnick(nickname, rootfile, changes, settings):
 
 
 def getplotfromtree(nickname, rootfile, settings, twoD=False, changes=None):
-    rootobject = getobjectfromtree(nickname, rootfile, settings, twoD=False, changes=None)
+    rootobject = histofromfile(nickname, rootfile, settings, twoD=False, changes=None)
     histo = root2histo(rootobject, rootfile.GetName(), settings['rebin'])
     rootobject.Delete()
     return histo
@@ -115,7 +115,7 @@ def getselection(settings, mcWeights=False):
     if settings['folder'] == 'incut' and not settings['allalpha']:
         selection += ["(jet2pt/zpt < 0.2)"]  # || jet2pt<12
     if settings['folder'] == 'incut' and not settings['alleta']:
-        selection += ["abs(jet1eta) < 1.3"]
+        selection += ["(abs(jet1eta) < 1.3)"]
     if settings['selection']:
         selection += [settings['selection']]
 
@@ -180,7 +180,7 @@ def getbinning(quantity, settings, axis='x'):
 
 def histofromntuple(quantities, name, ntuple, settings, twoD=False):
     xbins = getbinning(quantities[-1], settings)
-    if len(quantities) > 1:
+    if twoD and len(quantities) > 1:
         ybins = getbinning(quantities[0], settings, 'y')
     copy_of_quantities = quantities
     for key in ntuple_dict.keys():
