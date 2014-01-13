@@ -354,7 +354,7 @@ def extrapol(files, opt,
         if settings['save_individually']:
             fig, ax1 = plotbase.newplot()
 
-        changes = {'legloc'     : 'lower left',
+        changes2 = {'legloc'     : 'lower left',
                     'xynames'   : ['alpha','response'],
                     'fit'       : True,
                     'rebin'     : 10,
@@ -370,6 +370,9 @@ def extrapol(files, opt,
                     'y'         : [0.91, 1.04],
                     'cutlabel' : 'pteta',
                   }
+        if changes is not None:
+            changes2.update(changes)
+        changes = changes2
 
         ### Response plot
 
@@ -436,7 +439,7 @@ def extrapol(files, opt,
         changes['colors']  = ['blue']
         changes['fitlabel_offset'] = -0.0
 
-        changes['y'] = [0.9855, 1.018]
+        changes['y'] = [0.9455, 1.008]
 
         plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, opt,
                 changes=changes, fig_axes=(fig, ax2))

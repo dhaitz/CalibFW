@@ -148,7 +148,7 @@ def runplot_diff(files, datamc, ax, settings, quantity):
     else:
         settings2['x'] = plotbase.getaxislabels_list(settings['xynames'][1])[:2]
 
-    mc = getroot.getobjectfromtree(quantity.split("_")[0], files[1], settings2)
+    mc = getroot.histofromfile(quantity.split("_")[0], files[1], settings2)
     offset = mc.GetMean()
 
     new_y = []

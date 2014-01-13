@@ -36,7 +36,7 @@ d_axes = {
         'baltwojet': [0.0, 1.8, r"$p_\mathrm{T}$ balance for 2 jets", ""],
         'chargedem': [0, 1, r"%s charged em fraction", ""],
         'chargedhad': [0, 1, r"%s charged hadron fraction", ""],
-        'components-diff': [-0.1, 0.1, r"Leading Jet Components", ""],
+        'components-diff': [-0.08, 0.08, r"Leading Jet Components", ""],
         'components-response-diff': [-0.1, 0.1, r"jet fraction * response", ""],
         'components-diff-response': [-0.1, 0.1, r"Leading Jet Component Fraction * Response", ""],
         'components': [0, 1, r"Leading Jet ParticleFlow Component Fraction", ""],

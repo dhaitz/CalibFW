@@ -239,6 +239,11 @@ def options(
         opt.lumi = 5.1
         opt.energy = 7
 
+
+    if opt.mconly:
+        opt.labels = opt.labels[1:]
+        opt.files = opt.files[1:]
+
     # get a separate dictionary with only the user-set values
     user_options = {}
     default_options = {}
@@ -248,12 +253,6 @@ def options(
             user_options[key] = vars(opt)[key]
     opt.user_options = user_options
     opt.default_options = default_options
-
-
-    if opt.mconly:
-        opt.labels = opt.labels[1:]
-        opt.files = opt.files[1:]
-
 
     opt.brackets = False
 
