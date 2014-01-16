@@ -177,8 +177,8 @@ public:
 
 				if (globalSettings.Global()->GetVetoPileupJets())
 				{
-					double puID = static_cast<KDataPFTaggedJet*>(*itjet)->puJetFull;
-					good_jet = good_jet && puID > 0.5;
+					bool puID = static_cast<KDataPFTaggedJet*>(*itjet)->puJetIDFullMedium;
+					good_jet = good_jet && puID;
 				}
 
 				if (good_jet)
