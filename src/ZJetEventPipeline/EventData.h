@@ -209,6 +209,7 @@ public:
 	KLumiMetadata* m_lumimetadata;
 	KGenLumiMetadata* m_genlumimetadata;
 	KFilterMetadata* m_filtermetadata;
+	KTaggerMetadata* m_taggermetadata;
 	KFilterSummary* m_filter;
 	KVertexSummary* m_vertexSummary;
 	KDataBeamSpot* m_beamSpot;

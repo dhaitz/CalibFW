@@ -77,187 +77,84 @@ private:
 
 		// QG tag
 		else if (string == "qglikelihood")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->qgLikelihood == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->qgLikelihood;
-		}
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("QGlikelihood", event.m_taggermetadata);
 		else if (string == "qgmlp")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->qgLikelihood == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->qgLikelihood;
-		}
-
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("QGmlp", event.m_taggermetadata);
 		// b tags
 		else if (string == "trackcountinghigheffbjettag")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->trackCountingHighEffBTag == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->trackCountingHighEffBTag;
-		}
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("trackCountingHighEffBTag", event.m_taggermetadata);
 		else if (string == "trackcountinghighpurbjettag")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->trackCountingHighPurBTag == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->trackCountingHighPurBTag;
-		}
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("trackCountingHighPurBTag", event.m_taggermetadata);
 		else if (string == "jetprobabilitybjettag")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->jetProbabilityBTag == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->jetProbabilityBTag;
-		}
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("jetProbabilityBTag", event.m_taggermetadata);
 		else if (string == "jetbprobabilitybjettag")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->jetBProbabilityBTag == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->jetBProbabilityBTag;
-		}
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("jetBProbabilityBTag", event.m_taggermetadata);
 		else if (string == "softelectronbjettag")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softElectronBTag == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softElectronBTag;
-		}
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("softElectronBTag", event.m_taggermetadata);
 		else if (string == "softmuonbjettag")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softMuonBTag == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softMuonBTag;
-		}
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("softMuonBTag", event.m_taggermetadata);
 		else if (string == "softmuonbyip3dbjettag")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softMuonByIP3dBTag == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softMuonByIP3dBTag;
-		}
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("softMuonByIP3dBTag", event.m_taggermetadata);
 		else if (string == "softmuonbyptbjettag")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softMuonByPtBTag == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->softMuonByPtBTag;
-		}
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("softMuonByPtBTag", event.m_taggermetadata);
 		else if (string == "simplesecondaryvertexbjettag")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->simpleSecondaryVertexBTag == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->simpleSecondaryVertexBTag;
-		}
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("simpleSecondaryVertexBTag", event.m_taggermetadata);
 		else if (string == "combinedsecondaryvertexbjettag")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->combinedSecondaryVertexBTag == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->combinedSecondaryVertexBTag;
-		}
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("CombinedSecondaryVertexBJetTags", event.m_taggermetadata);
 		else if (string == "combinedsecondaryvertexmvabjettag")
-		{
-			if (static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->combinedSecondaryVertexMVABTag == -1)
-				return -999;
-			else
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->combinedSecondaryVertexMVABTag;
-		}
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("CombinedSecondaryVertexMVABJetTags", event.m_taggermetadata);
 
 		// jet 1 PU
-		else if (string == "jet1puJetFull")
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetFull;
-		else if (string == "jet1puJetIDFull")
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDFull;
-		else if (string == "jet1puJetIDFullLoose")
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDFullLoose;
-		else if (string == "jet1puJetIDFullMedium")
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDFullMedium;
 		else if (string == "jet1puJetIDFullTight")
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDFullTight;
-
-		else if (string == "jet1puJetCutbased")
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetCutbased;
-		else if (string == "jet1puJetIDCutbased")
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDCutbased;
-		else if (string == "jet1puJetIDCutbasedLoose")
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDCutbasedLoose;
-		else if (string == "jet1puJetIDCutbasedMedium")
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDCutbasedMedium;
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDFullTight", event.m_taggermetadata);
+		else if (string == "jet1puJetIDFullMedium")
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDFullMedium", event.m_taggermetadata);
+		else if (string == "jet1puJetIDFullLoose")
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDFullLoose", event.m_taggermetadata);
 		else if (string == "jet1puJetIDCutbasedTight")
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->puJetIDCutbasedTight;
-
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDCutbasedTight", event.m_taggermetadata);
+		else if (string == "jet1puJetIDCutbasedMedium")
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDCutbasedMedium", event.m_taggermetadata);
+		else if (string == "jet1puJetIDCutbasedLoose")
+			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDCutbasedLoose", event.m_taggermetadata);
 
 		// jet 2 PU
-		else if (string == "jet2puJetFull")
+		else if (string == "jet2puJetIDFullTight")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetFull;
-			else return 0;
-		}
-		else if (string == "jet2puJetIDFull")
-		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDFull;
-			else return 0;
-		}
-		else if (string == "jet2puJetIDFullLoose")
-		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDFullLoose;
+				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->getpuJetID("puJetIDFullTight", event.m_taggermetadata);
 			else return 0;
 		}
 		else if (string == "jet2puJetIDFullMedium")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDFullMedium;
+				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->getpuJetID("puJetIDFullMedium", event.m_taggermetadata);
 			else return 0;
 		}
-		else if (string == "jet2puJetIDFullTight")
+		else if (string == "jet2puJetIDFullLoose")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDFullTight;
-			else return 0;
-		}
-		else if (string == "jet2puJetCutbased")
-		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetCutbased;
-			else return 0;
-		}
-		else if (string == "jet2puJetIDCutbased")
-		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDCutbased;
-			else return 0;
-		}
-		else if (string == "jet2puJetIDCutbasedLoose")
-		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDCutbasedLoose;
-			else return 0;
-		}
-		else if (string == "jet2puJetIDCutbasedMedium")
-		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDCutbasedMedium;
+				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->getpuJetID("puJetIDFullLoose", event.m_taggermetadata);
 			else return 0;
 		}
 		else if (string == "jet2puJetIDCutbasedTight")
 		{
 			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->puJetIDCutbasedTight;
+				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->getpuJetID("puJetIDCutbasedTight", event.m_taggermetadata);
 			else return 0;
 		}
-
-
-
+		else if (string == "jet2puJetIDCutbasedMedium")
+		{
+			if (metaData.GetValidJetCount(s, event) > 1)
+				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->getpuJetID("puJetIDCutbasedMedium", event.m_taggermetadata);
+			else return 0;
+		}
+		else if (string == "jet2puJetIDCutbasedLoose")
+		{
+			if (metaData.GetValidJetCount(s, event) > 1)
+				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->getpuJetID("puJetIDCutbasedLoose", event.m_taggermetadata);
+			else return 0;
+		}
 		else if (string == "rho")
 			return event.m_jetArea->median;
 		else if (string == "run")
