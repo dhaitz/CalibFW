@@ -52,7 +52,7 @@ def getNewestJson(variant="PromptReco_Collisions12"):
     return jsons[-1]
 
 
-def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
+def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True, rundepMC=False):
     """Basic configuration for Artus.
 
     Return a default configuration for Artus depending on
@@ -91,7 +91,8 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
                 'QuantitiesVector': [
                     "zpt", "zeta", "zy",
                     "zphi", "zmass", "npv", "rho",
-                    "run", "weight", "jet1pt", "jet1eta", "jet1phi", "mpf", "rawmpf",
+                    "weight",
+                    "jet1pt", "jet1eta", "jet1phi", "mpf", "rawmpf",
                     "METpt", "METphi", "rawMETpt", "rawMETphi", "sumEt", "jet1photonfraction",
                     "jet1chargedemfraction", "jet1chargedhadfraction", "jet1neutralhadfraction",
                     "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
@@ -130,7 +131,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
     if inputtype == 'data':
         config = SetDataSpecific(config, run)
     elif inputtype == 'mc':
-        config = SetMcSpecific(config, run)
+        config = SetMcSpecific(config, run, rundepMC)
     else:
         print "The inputtype must be either 'data' or 'mc'."
         exit(1)
@@ -138,7 +139,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
     return config
 
 
-def SetMcSpecific(cfg, run='2012'):
+def SetMcSpecific(cfg, run='2012', rundepMC=False):
     """Add Monte-Carlo specific settings to a config.
 
     The MC settings include
@@ -174,6 +175,8 @@ def SetMcSpecific(cfg, run='2012'):
                     "genmuminuspt", "genmuminuseta", "genmuminusphi",
                     "ngenmuons", "ngenphotons", "ngenphotonsclose", "closestphotondr", "nzs", "ninternalmuons", "nintermediatemuons", "ptgenphotonsclose", "ptdiff13", "ptdiff12", "ptdiff23", "genzpt"
     ]
+    if rundepMC:
+        cfg['Pipelines']['default']['QuantitiesVector'] += ['run', 'eventnr', 'lumisec']
     cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'gen_balance_producer', 'gen_met_producer', 'weight_producer', 'flavour_producer']
     cfg['EnableLumiReweighting'] = True
     cfg['EnableTriggerReweighting'] = True
@@ -225,7 +228,7 @@ def SetDataSpecific(cfg, run='2012'):
         print "Run period", run, "is undefined. No json and jet corrections known."
         exit(1)
 
-    cfg['Pipelines']['default']['QuantitiesVector'] += ['eventnr', 'lumisec']
+    cfg['Pipelines']['default']['QuantitiesVector'] += ['run', 'eventnr', 'lumisec']
     cfg['Pipelines']['default']['Filter'].append('json')
     cfg['Pipelines']['default']['Filter'].append('hlt')
     cfg['GlobalProducer'] += ['hlt_selector', 'pileuptruth_producer']
