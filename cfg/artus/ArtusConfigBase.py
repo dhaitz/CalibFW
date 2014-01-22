@@ -199,7 +199,7 @@ def SetDataSpecific(cfg, run='2012'):
             # Mu7 Trigger
             "HLT_DoubleMu7_v1", "HLT_DoubleMu7_v2", "HLT_DoubleMu7_v3", "HLT_DoubleMu7_v4", "HLT_DoubleMu7_v5",
             # Mu8 Trigger
-            "HTL_Mu8_v16",
+            "HLT_Mu8_v16",
             # Mu13_Mu8 Trigger
             "HLT_Mu13_Mu8_v1", "HLT_Mu13_Mu8_v2", "HLT_Mu13_Mu8_v3", "HLT_Mu13_Mu8_v4", "HLT_Mu13_Mu8_v5",
             "HLT_Mu13_Mu8_v6", "HLT_Mu13_Mu8_v7", "HLT_Mu13_Mu8_v8", "HLT_Mu13_Mu8_v9", "HLT_Mu13_Mu8_v10",
