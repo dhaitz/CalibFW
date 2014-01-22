@@ -19,6 +19,8 @@ class WeightProducer: public ZJetGlobalMetaDataProducerBase
 private:
 	std::vector<double> m_pileupweights;
 	double m_bins;
+	std::vector<double> m_triggerweights;
+	double m_triggerbinwidth;
 
 public:
 	WeightProducer(std::string weightfile)
@@ -35,6 +37,11 @@ public:
 		m_bins = 1.0 / pileuphisto->GetBinWidth(1);
 		delete pileuphisto;
 		file.Close();
+
+		double w[] = {1.0, 1.0133, 1.00312, 0.960151, 0.976782, 0.982018, 0.951591, 0.968691, 0.958286, 0.964922, 0.963885, 0.945895, 0.952558, 0.9771, 0.977798, 0.98852, 1.05932, 1.03958, 1.04062, 1.03216, 1.03077, 1.00564, 1.02296, 1.0295, 1.02713, 1.01387, 1.01669, 1.02451, 1.04553, 1.03359, 1.05437, 1.04735, 0.984159, 1.00111, 0.99083, 0.952875, 0.930611, 0.953789, 0.95413, 0.929454, 0.981264, 1.00026, 1.01724, 1.01122, 0.987915, 1.02896, 1.01948, 1.0};
+		for (int i = 0; i < 48; i++)
+			m_triggerweights.push_back(w[i]);
+		m_triggerbinwidth = 0.1;
 	}
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
@@ -124,16 +131,22 @@ public:
 		//
 		if (m_pipelineSettings.Global()->GetEnableTriggerReweighting())
 		{
-			const double eta1 = metaData.m_listValidMuons[0].p4.Eta();
-			const double eta2 = metaData.m_listValidMuons[1].p4.Eta();
-			const double pt1 = metaData.m_listValidMuons[0].p4.Pt();
-			const double pt2 = metaData.m_listValidMuons[1].p4.Pt();
+			double eta1 = metaData.m_listValidMuons[0].p4.Eta();
+			double eta2 = metaData.m_listValidMuons[1].p4.Eta();
+			double pt1 = metaData.m_listValidMuons[0].p4.Pt();
+			double pt2 = metaData.m_listValidMuons[1].p4.Pt();
 
 			// ϵ(8,A) · ϵ(17,B) + ϵ(17,A) · ϵ(8,B) - ϵ(17,A) · ϵ(17,B)
 			double eff = efficiencyMu17(eta1) * efficiencyMu8(eta2)
 						 + efficiencyMu17(eta2) * efficiencyMu8(eta1)
 						 - efficiencyMu17(eta1) * efficiencyMu17(eta2);
 			eff *= turnonMu17(pt1) * turnonMu17(pt2);
+			if (eta1 < -2.4) eta1 = -2.4;
+			if (eta1 > +2.4) eta1 = +2.4;
+			if (eta2 < -2.4) eta2 = -2.4;
+			if (eta2 > +2.4) eta2 = +2.4;
+			eff *= m_triggerweights.at(int((eta1 + 2.4) / m_triggerbinwidth));
+			eff *= m_triggerweights.at(int((eta2 + 2.4) / m_triggerbinwidth));
 			weight *= eff;
 			metaData.SetEfficiency(eff);
 		}
