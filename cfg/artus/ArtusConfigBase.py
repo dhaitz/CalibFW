@@ -79,6 +79,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
         'HcalCorrection': 0.0,
         'Jec': "data or mc?",
         'JsonFile': "year?",
+        'InputType': inputtype,
         'InputFiles': [],     # overridden by artus
         'OutputPath': "out",  # overridden by artus
         'MuonID2011': (run == '2011'),
@@ -105,11 +106,11 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
                 ]
             }
         },
-        'InputType': inputtype,
-        'Tagged': tagged,
         'PileupWeights': getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_68_5mb_kappa539_MC12_madgraph_tags.root",
         'PileupTruth': getPath() + "/data/pileup/pumean_pixelcorr.txt",
         'MinBiasXS': 68.5,
+        'Tagged': tagged,
+        'VetoPileupJets': False,
     }
     if tagged:
         config['Pipelines']['default']['QuantitiesVector'] += [
