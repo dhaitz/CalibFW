@@ -101,13 +101,15 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True):
                     "mu1pt", "mu1eta", "mu1phi",
                     "mu2pt", "mu2eta", "mu2phi",
                     "nmuons", "muplusiso", "muminusiso",
-                    "unc",
+                    "unc", "nputruth",
                 ]
             }
         },
         'InputType': inputtype,
         'Tagged': tagged,
-        'PileupWeights': getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_68_5mb_kappa539_MC12_madgraph_tags.root"
+        'PileupWeights': getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_68_5mb_kappa539_MC12_madgraph_tags.root",
+        'PileupTruth': getPath() + "/data/pileup/pumean_pixelcorr.txt",
+        'MinBiasXS': 68.5,
     }
     if tagged:
         config['Pipelines']['default']['QuantitiesVector'] += [
@@ -162,7 +164,7 @@ def SetMcSpecific(cfg, run='2012'):
         exit(0)
 
     cfg['Pipelines']['default']['QuantitiesVector'] += [
-                    "npu", "nputruth", "eff",
+                    "npu", "eff",
                     "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
                     "matchedgenjet1pt", "genmpf",
                     "algoflavour", "physflavour",
@@ -230,7 +232,7 @@ def SetDataSpecific(cfg, run='2012'):
     cfg['Pipelines']['default']['QuantitiesVector'] += ['eventnr', 'lumisec']
     cfg['Pipelines']['default']['Filter'].append('json')
     cfg['Pipelines']['default']['Filter'].append('hlt')
-    cfg['GlobalProducer'] += ['hlt_selector']
+    cfg['GlobalProducer'] += ['hlt_selector', 'pileuptruth_producer']
     return cfg
 
 

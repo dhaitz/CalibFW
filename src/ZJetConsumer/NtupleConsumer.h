@@ -69,7 +69,11 @@ private:
 		else if (string == "npu")
 			return event.m_geneventmetadata->numPUInteractions0;
 		else if (string == "nputruth")
-			return event.m_geneventmetadata->numPUInteractionsTruth;
+		{
+			if (s.IsMC())
+				return event.m_geneventmetadata->numPUInteractionsTruth;
+			return metaData.GetNpuTruth();
+		}
 
 		// QG tag
 		else if (string == "qglikelihood")

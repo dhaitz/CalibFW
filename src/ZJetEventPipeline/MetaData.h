@@ -211,6 +211,7 @@ public:
 	IMPL_PROPERTY(KGenParticle, LeadingParton)
 	IMPL_PROPERTY(double, BalanceQuality)
 	IMPL_PROPERTY(double, Weight)
+	IMPL_PROPERTY(double, NpuTruth)
 	IMPL_PROPERTY(double, Efficiency)
 	IMPL_PROPERTY(std::string, SelectedHlt)
 

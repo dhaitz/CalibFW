@@ -34,6 +34,7 @@
 #include "ZJetProducer/MetadataProducer.h"
 #include "ZJetProducer/Cuts.h"
 #include "ZJetProducer/WeightProducer.h"
+#include "ZJetProducer/PileupTruthProducer.h"
 #include "ZJetProducer/JetCorrector.h"
 #include "ZJetProducer/MuonCorrector.h"
 #include "ZJetProducer/JetSorter.h"
@@ -87,6 +88,10 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new ZProducer());
 		else if (WeightProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new WeightProducer(globalSettings.get<std::string>("PileupWeights")));
+		else if (PileupTruthProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new PileupTruthProducer(
+					globalSettings.get<std::string>("PileupTruth"),
+					globalSettings.get<double>("MinBiasXS")));
 		else if (MuonCorrector::Name() == *it)
 			runner.AddGlobalMetaProducer(new MuonCorrector(
 					mucorr,
