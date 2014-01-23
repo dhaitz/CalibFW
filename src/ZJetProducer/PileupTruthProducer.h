@@ -1,10 +1,6 @@
 #pragma once
 
-// from ROOT
-//#include <Math/VectorUtil.h>
 #include "ZJetProducer/MetadataProducer.h"
-//#include "RootTools/RootIncludes.h"
-//#include "ZJetProducer/TriggerWeights.h"
 #include <map>
 
 
@@ -20,27 +16,29 @@ class PileupTruthProducer: public ZJetGlobalMetaDataProducerBase
 {
 private:
 	std::map<int, std::map<int, double> > m_pumean;
+	mutable int lastrun;
+	mutable int lastls;
 
 public:
 	// load the numbers from a text file
-	PileupTruthProducer(std::string file, double minbxsec)
+	PileupTruthProducer(std::string file, double minbxsec) : lastrun(-1), lastls(-1)
 	{
 		LOG("Loading pile-up truth from " << file);
 		ifstream f(file.c_str(), std::ios::in);
 		if (!f.is_open())
-			LOG_FATAL("Could not open file " << file);
+			LOG_FATAL("Error in PileupTruthProducer: Could not open luminosity file: " << file);
 
 		int run, ls, cnt(0), cntMax(-1);
 		double lum, xsavg, xsrms;
 		while (f >> run >> ls >> lum >> xsrms >> xsavg && ++cnt != cntMax)
 		{
-			if (false && cnt < 10)
+			if (false && cnt < 10)  // debug
 				LOG(run << " " << ls << " "
 					<< lum << " " << xsavg << " " << xsrms
 					<< ": " << (xsavg * minbxsec * 1000) << " +/- " << (xsrms * minbxsec * 1000.0));
 
 			if (unlikely(xsrms < 0))
-				LOG_FATAL("RMS = " << xsrms << " < 0");
+				LOG_FATAL("Error in PileupTruthProducer: RMS = " << xsrms << " < 0");
 
 			m_pumean[run][ls] = xsavg * minbxsec * 1000.0;
 		}
@@ -65,9 +63,23 @@ public:
 	{
 		const int run = data.m_eventmetadata->nRun;
 		const int ls = data.m_eventmetadata->nLumi;
-		double npu = m_pumean.at(run).at(ls);
+		double npu = 0;
+
+		try
+		{
+			npu = m_pumean.at(run).at(ls);
+		}
+		catch (const std::out_of_range& oor)
+		{
+			// warn once per lumi section if npu is unknown
+			if (ls != lastls || run != lastrun)
+				LOG("Warning in PileupTruthProducer: No luminosity for this run and ls: " << run << ":" << ls);
+			lastrun = run;
+			lastls = ls;
+		}
+
+		//LOG("per event: " << run << ":" << ls << " npu = " << npu);
 		metaData.SetNpuTruth(npu);
-		LOG("per event: " << run << ":" << ls << " npu = " << npu);
 		return true;
 	}
 };
