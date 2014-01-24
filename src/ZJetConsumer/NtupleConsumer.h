@@ -737,7 +737,7 @@ private:
 		else if (string == "genzpt")
 			return metaData.GetRefGenZ().p4.Pt();
 		else if (string == "genmpf")
-			return metaData.GetGenMPF(metaData.GetPtGenMet()), metaData.GetWeight();
+			return metaData.GetGenMPF(metaData.GetPtGenMet());
 		else if (string == "algoflavour")
 			return metaData.GetAlgoFlavour(s);
 		else if (string == "physflavour")
