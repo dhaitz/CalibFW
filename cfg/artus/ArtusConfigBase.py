@@ -174,7 +174,7 @@ def SetMcSpecific(cfg, run='2012'):
                     "genmuminuspt", "genmuminuseta", "genmuminusphi",
                     "ngenmuons", "ngenphotons", "ngenphotonsclose", "closestphotondr", "nzs", "ninternalmuons", "nintermediatemuons", "ptgenphotonsclose", "ptdiff13", "ptdiff12", "ptdiff23", "genzpt"
     ]
-    cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'weight_producer', 'flavour_producer']
+    cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'gen_balance_producer', 'gen_met_producer', 'weight_producer', 'flavour_producer']
     cfg['EnableLumiReweighting'] = True
     cfg['EnableTriggerReweighting'] = True
     cfg['NEvents'] = 30459503
