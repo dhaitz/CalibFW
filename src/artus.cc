@@ -112,6 +112,8 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new HltSelector(PropertyTreeSupport::GetAsStringList(&globalSettings, "HltPaths", true)));
 		else if (JetMatcher::Name() == *it)
 			runner.AddGlobalMetaProducer(new JetMatcher(PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
+		else if (GenMetProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new GenMetProducer());
 		else if (GenProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new GenProducer());
 		else if (GenBalanceProducer::Name() == *it)

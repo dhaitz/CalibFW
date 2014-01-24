@@ -360,7 +360,7 @@ public:
 			{
 				metaData.m_genInternalMuons.push_back(*it);
 			}
-			else if (std::abs(it->pdgId()) == 23)	// Z
+			else if (std::abs(it->pdgId()) == 23 && it->status() == 1)	// Z
 			{
 				metaData.m_genZs.push_back(*it);
 			}
@@ -511,7 +511,7 @@ public:
 			return true;
 		}
 
-		double dphi = -1.;
+/*		double dphi = -1.;
 		double R = -1.;
 		double bQuality = -1.;
 		KDataLV met;
@@ -553,8 +553,9 @@ public:
 			return true;
 		}
 		//LOG("Best parton is " << metaData.GetRefParton().pdgId() << ": " << metaData.GetRefBalanceQuality())
-
-		metaData.SetGenMet(met);
+		//LOG("fill " << met);
+		//metaData.SetGenMet(met);
+*/
 		return true;
 	}
 
@@ -629,6 +630,67 @@ public:
 	{
 		return "gen_dibalance_producer";
 	}
+};
+
+/* Produce gen met
+
+   This requires the @see GenProducer and GenBalanceProducer before.
+*/
+class GenMetProducer: public ZJetGlobalMetaDataProducerBase
+{
+public:
+
+	GenMetProducer(): ZJetGlobalMetaDataProducerBase(),
+		pptmin(0.5), petamax(5.2)
+	{}
+
+	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
+										ZJetMetaData& metaData,
+										ZJetPipelineSettings const& globalSettings) const
+	{
+		KDataLV met;
+		LOG("init " << met);
+		if (!metaData.HasValidGenZ())
+		{
+			LOG("No gen Z");
+			return true;
+		}
+
+		for (auto it = data.m_particles->begin(); it != data.m_particles->end(); ++it)
+		{
+			// Take only stable final particles
+			if (it->status() != 1)
+				continue;
+
+			// ignore first 6 particles (because that is what CMSSW does)
+			if (it - data.m_particles->begin() < 6)
+			{
+				LOG("ignore:" << *it);
+				continue;
+			}
+
+			if (unlikely(it->children != 0))
+				LOG("Particle has " << it->children << " children.");
+
+			//LOG ("add " << *it);
+			if (abs(it->p4.Eta()) > petamax || it->p4.Pt() < pptmin)
+				continue;
+			met.p4 = met.p4 + it->p4;
+		}
+
+		LOG("fill " << met);
+		metaData.SetGenMet(met);
+		return true;
+	}
+
+	static std::string Name()
+	{
+		return "gen_met_producer";
+	}
+
+private:
+	const double pptmin;
+	const double petamax;
 };
 
 }
