@@ -51,7 +51,7 @@ public:
 						// hitPattern().numberOfValidMuonHits
 						&& it->globalTrack.nValidMuonHits > 0
 						// numberOfMatchedStations
-						&& it->numberOfMatches > 1
+						&& it->nMatches > 1
 						// fabs(muonBestTrack()->dxy(vertex->position))
 						&& std::abs(it->bestTrack.getDxy(&data.m_vertexSummary->pv)) < 0.2
 						// fabs(muonBestTrack()->dz(vertex->position)) // not in 2011
