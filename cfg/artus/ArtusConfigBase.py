@@ -214,7 +214,7 @@ def SetDataSpecific(cfg, run='2012'):
             ]
         cfg["MuonSmearing"] = False
         cfg["MuonRadiationCorrection"] = False
-        cfg["MuonCorrectionParameters"] = getPath() + "data/muoncorrection/MuScleFit_2011_DATA_44X.txt"
+        cfg["MuonCorrectionParameters"] = getPath() + "/data/muoncorrection/MuScleFit_2011_DATA_44X.txt"
     elif run == '2012':
         cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_DATA"
         cfg['MetPhiCorrectionParameters'] = [0.2661, 0.3217, -0.2251, -0.1747]
