@@ -112,6 +112,7 @@ def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True, rundepMC=Fal
         'MinBiasXS': 68.5,
         'Tagged': tagged,
         'VetoPileupJets': False,
+        'checkKappa': False,
     }
     if tagged:
         config['Pipelines']['default']['QuantitiesVector'] += [

@@ -38,3 +38,28 @@ rot()
 # Use this to open the default data and mc files directly in a TBrowser
 alias rooot='rot $DATA $MC'
 
+
+checkKappa()
+{
+	cd ${EXCALIBUR_BASE}/../Kappa
+	echo `git branch | sed -n '/\* /s///p'`
+	cd - > /dev/null 2>&1
+}
+checkExcalibur()
+{
+	cd ${EXCALIBUR_BASE}
+	echo `git branch | sed -n '/\* /s///p'`
+	cd - > /dev/null 2>&1
+}
+switchKappa()
+{
+	(cd ${EXCALIBUR_BASE}/../Kappa && git checkout $1 && cd DataFormats/test/ && make -B -j && cd ../../../KappaTools &&  make -B -j)
+}
+switchExcalibur()
+{
+	(cd $EXCALIBUR_BASE && git checkout $1)
+}
+compileExcalibur()
+{
+    (cd $EXCALIBUR_BASE && make -B -j)
+}

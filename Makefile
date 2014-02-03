@@ -26,6 +26,7 @@ HEADERS = $(wildcard src/*.h src/*/*.h\
 	external/MuScleFitCorrection/*.h)
 
 $(EXECUTABLE): $(OBJECTS)
+	@echo `git branch | sed -n '/\* /s///p'` &> version.log
 	@echo "Linking" $(EXECUTABLE)":"
 	@echo $(CXX) LDFLAGS $(OBJECTS)
 	@$(CXX) $(LDFLAGS) $(OBJECTS) -o $@
