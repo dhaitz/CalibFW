@@ -649,7 +649,6 @@ public:
 										ZJetPipelineSettings const& globalSettings) const
 	{
 		KDataLV met;
-		LOG("init " << met);
 		if (!metaData.HasValidGenZ())
 		{
 			LOG("No gen Z");
@@ -665,7 +664,6 @@ public:
 			// ignore first 6 particles (because that is what CMSSW does)
 			if (it - data.m_particles->begin() < 6)
 			{
-				LOG("ignore:" << *it);
 				continue;
 			}
 
@@ -678,7 +676,6 @@ public:
 			met.p4 = met.p4 + it->p4;
 		}
 
-		LOG("fill " << met);
 		metaData.SetGenMet(met);
 		return true;
 	}
