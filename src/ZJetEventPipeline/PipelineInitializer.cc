@@ -22,6 +22,7 @@
 #include "ZJetFilter/FlavourFilter.h"
 
 #include "ZJetConsumer/NtupleConsumer.h"
+#include "ZJetConsumer/CutStatistics.h"
 
 using namespace Artus;
 
@@ -114,7 +115,9 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 	// Consumer
 	BOOST_FOREACH(std::string id, pset.GetConsumer())
 	{
-		if (id == "ntuple")
+		if (id == CutStatisticsConsumer().GetName())
+			pLine->AddConsumer(new CutStatisticsConsumer());
+		else if (id == NtupleConsumer().GetName())
 			pLine->AddConsumer(new NtupleConsumer());
 		else
 			LOG_FATAL("Consumer " << id << " not found.");

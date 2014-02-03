@@ -8,11 +8,11 @@
 #include "GlobalInclude.h"
 #include "RootTools/RootIncludes.h"
 
-#include "../ZJetPipeline.h"
+#include "../ZJetEventPipeline/Pipeline.h"
 #include "ZJetConsumer.h"
 
-#include "../MetaDataProducer/ZJetCuts.h"
-#include "../Filter/InCutFilter.h"
+#include "../ZJetProducer/Cuts.h"
+#include "../ZJetFilter/InCutFilter.h"
 
 namespace Artus
 {
@@ -59,9 +59,9 @@ public:
 
 		LOG_FILE(std::setprecision(3) << std::fixed);
 		LOG_FILE(std::endl << "--- Event Cut Report: " << this->GetPipelineSettings().GetName()
-					   << " Algo: " << this->GetPipelineSettings().GetJetAlgorithm() << " ---");
+				 << " Algo: " << this->GetPipelineSettings().GetJetAlgorithm() << " ---");
 		LOG_FILE(std::setw(20) << "CutName" << std::setw(23) << "EvtsLeftRel [%]" << std::setw(23) << "EvtsLeft"
-					   << std::setw(23) << "EvtsDropRel [%]" << std::setw(21) << "EvtsDropAbs");
+				 << std::setw(23) << "EvtsDropRel [%]" << std::setw(21) << "EvtsDropAbs");
 
 		/*
 		LOG_FILE(std::setw(20) << "# processed events :" << std::setw(46)
@@ -70,10 +70,10 @@ public:
 		double precutsLetfRel = 1.0f;
 		//(double) overallCountLeft / GetPipelineSettings()->GetOverallNumberOfProcessedEvents();
 		LOG_FILE(std::setw(20) << "precuts: "
-					   << std::setw(23) << std::setprecision(5) << precutsLetfRel
-					   << std::setw(23) << overallCountLeft
-					   << std::setw(23) << std::setprecision(5) << (1.0f - precutsLetfRel)
-					   << std::setw(21));
+				 << std::setw(23) << std::setprecision(5) << precutsLetfRel
+				 << std::setw(23) << overallCountLeft
+				 << std::setw(23) << std::setprecision(5) << (1.0f - precutsLetfRel)
+				 << std::setw(21));
 		// << GetPipelineSettings()->GetOverallNumberOfProcessedEvents() - overallCountLeft)
 
 		for (ZJetPipeline::MetaDataVectorIterator it = m_cuts.begin();
@@ -87,10 +87,10 @@ public:
 			droppedRel = 1.0f - (double)(overallCountLeft - rejAbs) / overallCountLeft;
 
 			LOG_FILE(std::setw(20) << c->GetCutShortName() << " : "
-						   << std::setw(20) << std::setprecision(5) << (1.0f - droppedRel) * 100.0f
-						   << std::setw(20) << overallCountLeft - rejAbs
-						   << std::setw(20) << std::setprecision(5) << droppedRel * 100.0f
-						   << std::setw(20) << rejAbs);
+					 << std::setw(20) << std::setprecision(5) << (1.0f - droppedRel) * 100.0f
+					 << std::setw(20) << overallCountLeft - rejAbs
+					 << std::setw(20) << std::setprecision(5) << droppedRel * 100.0f
+					 << std::setw(20) << rejAbs);
 
 			overallCountLeft -= rejAbs;
 		}
@@ -98,11 +98,11 @@ public:
 		LOG_FILE("Events left after Cuts : " << overallCountLeft)
 		LOG_FILE("-- Cut correlations --")
 		LOG_FILE("P( DeltaPhi | 2ndJetCut ) = "
-					   << ((float) m_conditional2ndJetPtCut / m_conditional2ndJetPtCutBase) << " [ "
-					   << m_conditional2ndJetPtCut << ", " << m_conditional2ndJetPtCutBase << " ]");
+				 << ((float) m_conditional2ndJetPtCut / m_conditional2ndJetPtCutBase) << " [ "
+				 << m_conditional2ndJetPtCut << ", " << m_conditional2ndJetPtCutBase << " ]");
 		LOG_FILE("P( 2ndJetCut | DeltaPhi ) = "
-					   << ((float) m_conditionalDeltaPhiCut / m_conditionalDeltaPhiCutBase) << " [ "
-					   << m_conditionalDeltaPhiCut << ", " << m_conditionalDeltaPhiCutBase << " ]");
+				 << ((float) m_conditionalDeltaPhiCut / m_conditionalDeltaPhiCutBase) << " [ "
+				 << m_conditionalDeltaPhiCut << ", " << m_conditionalDeltaPhiCutBase << " ]");
 	}
 
 	// this method is only called for events which have passed the filter imposed on the

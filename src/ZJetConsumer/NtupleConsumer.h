@@ -19,10 +19,10 @@ public:
 
 class NtupleConsumer : public NtupleConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
 {
-
+public:
 	static std::string GetName()
 	{
-		return "ntuple_consumer";
+		return "ntuple";
 	}
 
 	void Init(PipelineTypeForThis* pset)
