@@ -23,13 +23,16 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection, bool tagge
 
 	m_event.m_electrons = m_fi.Get<KDataElectrons>("electrons");
 
-	InitPFJets(m_event, "AK5PFJets");
-	InitPFJets(m_event, "AK5PFJetsCHS");
 
 	if (tagged)
 	{
 		m_event.m_pfTaggedJets["AK5PFTaggedJets"] = m_fi.Get<KDataPFTaggedJets>("AK5PFTaggedJets");
 		m_event.m_pfTaggedJets["AK5PFTaggedJetsCHS"] = m_fi.Get<KDataPFTaggedJets>("AK5PFTaggedJetsCHS");
+	}
+	else
+	{
+		InitPFJets(m_event, "AK5PFJets");
+		InitPFJets(m_event, "AK5PFJetsCHS");
 	}
 
 	//InitPFJets(m_event, "AK7PFJets");

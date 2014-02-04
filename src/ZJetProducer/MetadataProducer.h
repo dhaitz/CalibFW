@@ -102,27 +102,35 @@ public:
 										ZJetPipelineSettings const& globalSettings) const
 	{
 
-		for (ZJetEventData::PfMapIterator italgo = event.m_pfJets.begin();
-			 italgo != event.m_pfJets.end(); ++italgo)
+		// for tagged PF jets: fill the m_pfPointerJets with a collection of
+		// casted KDataPFJet pointers pointing to the KDataPFTaggedJet
+		if (tagged)
 		{
-			std::string sAlgoName = italgo->first;
-			event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
-
-			// for tagged PF jets: fill the m_pfPointerJets with a collection of
-			// casted KDataPFJet pointers pointing to the KDataPFTaggedJet
-			if (tagged)
+			for (ZJetEventData::PfTaggedMapIterator italgo = event.m_pfTaggedJets.begin();
+				 italgo != event.m_pfTaggedJets.end(); ++italgo)
 			{
 				std::string sAlgoNameTagged = italgo->first;
-				sAlgoNameTagged.replace(sAlgoName.find("Jets"), 4, "TaggedJets");
+				std::string sAlgoName = sAlgoNameTagged;
+				sAlgoName.replace(sAlgoName.find("TaggedJets"), 10, "Jets");
+
+				event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
+
 
 				KDataPFTaggedJets* tjets = event.m_pfTaggedJets.at(sAlgoNameTagged);
 				event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
 				for (KDataPFTaggedJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
 					event.m_pfPointerJets[sAlgoName]->push_back(dynamic_cast<KDataPFJet*>(&(*it)));
 			}
-			// for regular (non-tagged) PF jets: fill the m_pfPointerJets with simple pointers
-			else
+		}
+		// for regular (non-tagged) PF jets: fill the m_pfPointerJets with simple pointers
+		else
+		{
+			for (ZJetEventData::PfMapIterator italgo = event.m_pfJets.begin();
+				 italgo != event.m_pfJets.end(); ++italgo)
 			{
+				std::string sAlgoName = italgo->first;
+				event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
+
 				KDataPFJets* tjets = event.m_pfJets.at(sAlgoName);
 				event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
 				for (KDataPFJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
@@ -160,7 +168,7 @@ public:
 						dr2 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
 															 metaData.GetValidMuons().at(1).p4);
 					}
-						good_jet = good_jet && (dr1 > 0.5) && (dr2 > 0.5);
+					good_jet = good_jet && (dr1 > 0.5) && (dr2 > 0.5);
 				}
 
 				// JetID
@@ -531,51 +539,51 @@ public:
 			return true;
 		}
 
-/*		double dphi = -1.;
-		double R = -1.;
-		double bQuality = -1.;
-		KDataLV met;
-		met.p4 = metaData.GetRefGenZ().p4;
+		/*		double dphi = -1.;
+				double R = -1.;
+				double bQuality = -1.;
+				KDataLV met;
+				met.p4 = metaData.GetRefGenZ().p4;
 
-		for (auto it = metaData.m_genPartons.begin(); it != metaData.m_genPartons.end(); ++it)
-		{
-			if (it->p4.Pt() < pptmin || it->p4.Eta() > petamax)
-				continue;
-			met.p4 = met.p4 + it->p4;
+				for (auto it = metaData.m_genPartons.begin(); it != metaData.m_genPartons.end(); ++it)
+				{
+					if (it->p4.Pt() < pptmin || it->p4.Eta() > petamax)
+						continue;
+					met.p4 = met.p4 + it->p4;
 
-			dphi = ROOT::Math::VectorUtil::DeltaPhi(it->p4, metaData.GetRefGenZ().p4);
-			dphi = ROOT::Math::VectorUtil::Phi_mpi_pi(dphi - ROOT::Math::Pi());
-			R = it->p4.Pt() / metaData.GetRefGenZ().p4.Pt();
-			// decision metric
-			bQuality = std::abs(dphi) + 2.0 * std::abs(R - 1.0);
+					dphi = ROOT::Math::VectorUtil::DeltaPhi(it->p4, metaData.GetRefGenZ().p4);
+					dphi = ROOT::Math::VectorUtil::Phi_mpi_pi(dphi - ROOT::Math::Pi());
+					R = it->p4.Pt() / metaData.GetRefGenZ().p4.Pt();
+					// decision metric
+					bQuality = std::abs(dphi) + 2.0 * std::abs(R - 1.0);
 
-			if (bQuality < metaData.GetRefBalanceQuality())
-			{
-				//if (metaData.GetValidParton() && metaData.GetRefParton().p4.Pt() > it->p4.Pt())
-				//{
-				//	LOG("The best balanced parton is not the leading one!")
-				//	LOG("  Best    (" << it->pdgId() << ") Q: " << bQuality << ", pt: " <<it->p4.Pt() << ", dphi: " << dphi << ", R: " << R)
-				//	LOG("  Leading (" << metaData.GetRefParton().pdgId() << ") Q: " << metaData.GetRefBalanceQuality() << ", pt: " <<metaData.GetRefParton().p4.Pt())
-				//}
-				metaData.SetValidParton(true);
-				metaData.SetBalanceQuality(bQuality);
-				metaData.SetBalancedParton(*it);
-				//LOG("Balance (" << it->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
-			}
-			if (it == metaData.m_genPartons.begin()
-				|| metaData.GetRefLeadingParton().p4.Pt() < it->p4.Pt())
-				metaData.SetLeadingParton(*it);
-		}
+					if (bQuality < metaData.GetRefBalanceQuality())
+					{
+						//if (metaData.GetValidParton() && metaData.GetRefParton().p4.Pt() > it->p4.Pt())
+						//{
+						//	LOG("The best balanced parton is not the leading one!")
+						//	LOG("  Best    (" << it->pdgId() << ") Q: " << bQuality << ", pt: " <<it->p4.Pt() << ", dphi: " << dphi << ", R: " << R)
+						//	LOG("  Leading (" << metaData.GetRefParton().pdgId() << ") Q: " << metaData.GetRefBalanceQuality() << ", pt: " <<metaData.GetRefParton().p4.Pt())
+						//}
+						metaData.SetValidParton(true);
+						metaData.SetBalanceQuality(bQuality);
+						metaData.SetBalancedParton(*it);
+						//LOG("Balance (" << it->pdgId() << ") dphi: " << dphi << ", R: " << R << ", Q: " << bQuality)
+					}
+					if (it == metaData.m_genPartons.begin()
+						|| metaData.GetRefLeadingParton().p4.Pt() < it->p4.Pt())
+						metaData.SetLeadingParton(*it);
+				}
 
-		if (!metaData.GetRefValidParton())
-		{
-			//LOG("No balance found below threshold=" << metaData.GetRefBalanceQuality() << "!")
-			return true;
-		}
-		//LOG("Best parton is " << metaData.GetRefParton().pdgId() << ": " << metaData.GetRefBalanceQuality())
-		//LOG("fill " << met);
-		//metaData.SetGenMet(met);
-*/
+				if (!metaData.GetRefValidParton())
+				{
+					//LOG("No balance found below threshold=" << metaData.GetRefBalanceQuality() << "!")
+					return true;
+				}
+				//LOG("Best parton is " << metaData.GetRefParton().pdgId() << ": " << metaData.GetRefBalanceQuality())
+				//LOG("fill " << met);
+				//metaData.SetGenMet(met);
+		*/
 		return true;
 	}
 
