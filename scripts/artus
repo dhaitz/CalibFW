@@ -58,6 +58,7 @@ def artus():
     if options.config:
         exit(0)
 
+    Kappacompiled = False
     # check the current Kappa version
     if conf.get("checkKappa", False) is not False:
         print "\nCfg needs: ", conf["checkKappa"]
@@ -68,8 +69,8 @@ def artus():
         if not ( (conf["checkKappa"][:7] in out) or (out in conf["checkKappa"][:7]) ):
             print "Incompatible Kappa version, switching to correct one ..."
             try:
-                p2 = subprocess.Popen(['bash', '-c', '. ${EXCALIBUR_BASE}/scripts/ini_excalibur; switchKappa %s' % conf["checkKappa"]])
-                p2.wait()
+                subprocess.call(['bash', '-c', '. ${EXCALIBUR_BASE}/scripts/ini_excalibur; switchKappa %s' % conf["checkKappa"]])
+                Kappacompiled = True
             except:
                 print "Could not switch to correct Kappa version"
                 exit(1)
@@ -89,8 +90,8 @@ def artus():
         currentExcalibur, err2 = p2.communicate()
         p2.wait()
         print "Artus is currently on ", out
-        print "exc is currently on ", currentExcalibur
-        if not ( (conf["checkArtus"] in out) or (out in conf["checkArtus"]) ):
+        print "Excalibur is currently on ", currentExcalibur
+        if ( not ( (conf["checkArtus"] in out) or (out in conf["checkArtus"]) ) or Kappacompiled):
             print "Incompatible Artus version, switching to correct one ..."
             try:
                 p2 = subprocess.call(['bash', '-c', '. ${EXCALIBUR_BASE}/scripts/ini_excalibur; switchExcalibur %s' % conf["checkArtus"]])
@@ -101,9 +102,12 @@ def artus():
             subprocess.call(['bash', '-c', 'cd $EXCALIBUR_BASE && make -B -j' ])
             print "Writing %s into version log" % conf["checkArtus"]
             subprocess.call(['bash', '-c', 'echo %s > ${EXCALIBUR_BASE}/version.log' % conf["checkArtus"]])
-            subprocess.call(['bash', '-c', 'cd $EXCALIBUR_BASE && git checkout %s' % currentExcalibur]) 
+            subprocess.call(['bash', '-c', 'cd $EXCALIBUR_BASE && git checkout %s' % currentExcalibur])
         else:
             print "Current Artus is compatible! No need to switch"
+    elif Kappacompiled:
+        print "Recompile Artus because Kappa was also compiled"
+        subprocess.call(['bash', '-c', 'cd $EXCALIBUR_BASE && make -B -j' ])
 
     # Now the config .json is ready and we can run Artus
     if not os.path.exists('artus'):
