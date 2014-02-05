@@ -7,5 +7,6 @@ def config():
     conf['GlobalProducer'].remove('hlt_selector')
     conf['Pipelines']['default']['Filter'].remove('hlt')
     conf['checkKappa'] = "73f0d43ae"
+    conf['checkArtus'] = "e2658c"
     conf = base.expand(conf, ['all', 'zcuts'])
     return conf
