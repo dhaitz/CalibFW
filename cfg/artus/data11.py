@@ -6,4 +6,6 @@ def config():
     conf["InputFiles"] = "/storage/a/berger/zpj/kappa5313_Data11_Oct12ReReco/*.root"
     conf['Jec'] = base.getPath() + "/data/jec/2011Legacy/Legacy53_DATA"
     conf = base.expand(conf, ['all', 'zcuts'])
+    conf['checkKappa'] = "newtagging"
+    conf['checkArtus'] = "65a2c8c2"
     return conf
