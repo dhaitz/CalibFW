@@ -98,8 +98,6 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
                 ]
             }
         },
-        'PileupWeights': getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_68_5mb_kappa539_MC12_madgraph_tags.root",
-        'PileupTruth': getPath() + "/data/pileup/pumean_pixelcorr.txt",
         'MinBiasXS': 68.5,
         'Tagged': tagged,
         'VetoPileupJets': False,
@@ -168,14 +166,16 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
     """
     if run == '2011':
         cfg['Jec'] = getPath() + "/data/jec/START44_V12"
-        ApplyPUReweighting(cfg, 'kappa539_MC11_160404-180252_7TeV_ReRecoNov08_v2')
+        #ApplyPUReweighting(cfg, 'kappa539_MC11_160404-180252_7TeV_ReRecoNov08_v2')
+        cfg['PileupWeights'] = getPath() + "/data/pileup/weights_160404-180252_7TeV_ReRecoNov08_kappa539_MC11.root"
         cfg["MuonSmearing"] = True
         cfg["MuonRadiationCorrection"] = False
         cfg["MuonCorrectionParameters"] = getPath() + "/data/muoncorrection/MuScleFit_2011_MC_44X.txt"
     elif run == '2012':
         cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_MC"
         cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
-        ApplyPUReweighting(cfg, 'kappa539_MC12_madgraph_190456-208686_8TeV_22Jan2013ReReco')
+        #ApplyPUReweighting(cfg, 'kappa539_MC12_madgraph_190456-208686_8TeV_22Jan2013ReReco')
+        cfg['PileupWeights'] = getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_68_5mb_kappa539_MC12_madgraph_tags.root"
         cfg["MuonSmearing"] = True
         cfg["MuonRadiationCorrection"] = False
         cfg["MuonCorrectionParameters"] = getPath() + "/data/muoncorrection/MuScleFit_2012_MC_53X_smearReReco.txt"
@@ -230,6 +230,7 @@ def SetDataSpecific(cfg, run='2012', analysis='zmumu'):
             # Mu17_Mu8 Trigger
             "HLT_Mu17_Mu8_v10", "HLT_Mu17_Mu8_v11"
             ]
+        cfg['PileupTruth'] = getPath() + "/data/pileup/2011_pumean_pixelcorr.txt"
         cfg["MuonSmearing"] = False
         cfg["MuonRadiationCorrection"] = False
         cfg["MuonCorrectionParameters"] = getPath() + "/data/muoncorrection/MuScleFit_2011_DATA_44X.txt"
@@ -238,6 +239,7 @@ def SetDataSpecific(cfg, run='2012', analysis='zmumu'):
         cfg['MetPhiCorrectionParameters'] = [0.2661, 0.3217, -0.2251, -0.1747]
         cfg['JsonFile'] = getPath() + "/data/json/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt"
         cfg['HltPaths'] = ["HLT_Mu17_Mu8_v%d" % v for v in range(1, 30)]
+        cfg['PileupTruth'] = getPath() + "/data/pileup/pumean_pixelcorr.txt"
         cfg["MuonRadiationCorrection"] = False
         cfg["MuonSmearing"] = False
         cfg["MuonCorrectionParameters"] = getPath() + "/data/muoncorrection/MuScleFit_2012ABC_DATA_ReReco_53X.txt"
