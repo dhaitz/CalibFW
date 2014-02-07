@@ -439,8 +439,8 @@ public:
 			}
 			else // unexpected particles apart from stable mesons and baryons
 			{
-				if (it->status() != 3 && std::abs(it->pdgId()) < 90)
-					LOG("Unexpected particle " << *it);
+				//if (it->status() != 3 && std::abs(it->pdgId()) < 90)
+				//	LOG("Unexpected particle " << *it);
 			}
 		}
 
@@ -449,8 +449,8 @@ public:
 			LOG("There is no gen Z!");
 		if (metaData.m_genPartons.size() < 1)
 			LOG("There is no parton!");
-		if (metaData.m_genMuons.size() < 1)
-			LOG("There are no gen muons!");
+		//if (metaData.m_genMuons.size() < 1)
+		//	LOG("There are no gen muons!");
 		//if (metaData.m_genMuons.size() > 2)
 		//	LOG("There are more than 2 gen muons (" << metaData.m_genMuons.size() << ")!")
 
@@ -491,7 +491,7 @@ public:
 		// Valid gen Z producer
 		if (unlikely(metaData.m_genZs.size() < 1))
 		{
-			LOG("No gen Z in the event.")
+			//LOG("No gen Z in the event.")
 			metaData.SetValidGenZ(false);
 			return true;
 		}
@@ -512,7 +512,7 @@ public:
 		// check if the Z decays to the muons:
 		if (metaData.m_genMuons.size() != 2)
 		{
-			LOG("Not exactly two muons in the event, therefore no valid Z.")
+			//LOG("Not exactly two muons in the event, therefore no valid Z.")
 			metaData.SetValidGenZ(false);
 			return true;
 		}
@@ -522,7 +522,7 @@ public:
 						   - metaData.m_genZs[0].p4;
 			if (vec.Pt() > 1e-3)	// differs more than a MeV
 			{
-				LOG("Muons not from Z decay: pt:" << vec.Pt() << ", eta: " << vec.Eta() << ", phi: " << vec.Phi() << ", m: " << vec.M());
+				//LOG("Muons not from Z decay: pt:" << vec.Pt() << ", eta: " << vec.Eta() << ", phi: " << vec.Phi() << ", m: " << vec.M());
 				metaData.SetValidGenZ(false);
 				return true;
 			}
