@@ -224,6 +224,7 @@ def eleven(files, opt):
 
         if 'alleta' in changes:
             opt.out += '/ECOT'
+            opt.user_options['out'] += '/ECOT'
             plotfractions.fractions_run(files, opt, diff=True, response=True, changes=changes, nbr=6)
             plotfractions.fractions_run(files, opt, diff=False, response=True, changes=changes, nbr=6)
             plotfractions.fractions_run(files, opt, diff=True, response=False, changes=changes, nbr=6)
