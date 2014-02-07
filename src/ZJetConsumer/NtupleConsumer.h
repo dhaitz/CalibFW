@@ -471,6 +471,24 @@ private:
 		else if (string == "epluseta")
 			return metaData.leadingeplus.p4.Eta();
 
+
+
+		else if (string == "eminusiso")
+			return metaData.leadingeminus.trackIso03;
+		else if (string == "eplusiso")
+			return metaData.leadingeplus.trackIso03;
+
+		else if (string == "eminusid")
+			return metaData.leadingeminus.idMvaNonTrigV0;
+		else if (string == "eplusid")
+			return metaData.leadingeplus.idMvaNonTrigV0;
+
+		else if (string == "eminustrigid")
+			return metaData.leadingeminus.idMvaTrigV0;
+		else if (string == "eplustrigid")
+			return metaData.leadingeplus.idMvaTrigV0;
+
+
 		// leading jet
 		else if (string == "jet1pt")
 			return metaData.GetValidPrimaryJet(s, event)->p4.Pt();

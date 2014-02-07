@@ -115,8 +115,8 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
         config['Pipelines']['default']['QuantitiesVector'] += [
 			"nelectrons",
             "emass", "ept", "eeta",
-            "eminusmass", "eminuspt", "eminuseta",
-            "eplusmass", "epluspt", "epluseta",
+            "eminusmass", "eminuspt", "eminuseta", "eminusiso", "eminusid", "eminustrigid",
+            "eplusmass", "epluspt", "epluseta", "eplusiso", "eplusid", "eplustrigid",
         ]
     else:
         # The order of these producers is important!

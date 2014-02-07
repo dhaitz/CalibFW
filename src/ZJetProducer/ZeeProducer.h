@@ -26,9 +26,10 @@ public:
 			// Own loose cuts on electrons and electron isolation
 			good_electron = good_electron
 						&& it->p4.Pt() > 2.0
-						&& std::abs(it->p4.Eta()) < 5.0;
-						//&& it->trackIso03 < 3.0;
-			
+						&& std::abs(it->p4.Eta()) < 5.0
+						&& it->trackIso03 < 3.0
+						&& it->idMvaNonTrigV0 > 0;
+
 			if (good_electron)
 				metaData.m_listValidElectrons.push_back(*it);
 			else
