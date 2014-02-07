@@ -336,6 +336,7 @@ public:
 		// Loop over particles
 		for (auto it = data.m_particles->begin(); it != data.m_particles->end(); ++it)
 		{
+        LOG(*it)
 			// Take only stable final particles
 			//if (it->status() != 3)
 			//    continue;
@@ -360,7 +361,7 @@ public:
 			{
 				metaData.m_genInternalMuons.push_back(*it);
 			}
-			else if (std::abs(it->pdgId()) == 23 && it->status() == 1)	// Z
+			else if (std::abs(it->pdgId()) == 23 && it->status() == 2)	// Z
 			{
 				metaData.m_genZs.push_back(*it);
 			}
