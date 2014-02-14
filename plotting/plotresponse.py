@@ -138,6 +138,12 @@ def ratioplot(files, opt, types, labels=None,
         ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
         plotbinborders(ax, over, plot.y, opt)
 
+    if settings.get('uncertaintyband', False):
+        settings['special_binning']  = True
+        datamc = getroot.root2histo(getroot.histofromfile('unc_%s' % over, files[0], settings), "unc", 1)
+        ax.fill_between(datamc.xc, [1-y for y in datamc.y], [1+y for y in datamc.y],
+                facecolor='grey', edgecolor='grey', interpolate=True, alpha=0.2)
+
     # format plot
     plotbase.labels(ax, opt, settings)
     plotbase.setaxislimits(ax, settings)
