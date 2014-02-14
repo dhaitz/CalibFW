@@ -197,18 +197,18 @@ def eleven(files, opt):
     plotresponse.extrapol(files, opt)
 
     plotresponse.responseratio(files, opt, over='zpt', types=['mpf'],
-                     changes={'y': [0.98, 1.03, 0.96, 1.03], 'x': [0, 400, 0, 400]})
+                     changes={'y': [0.98, 1.03, 0.96, 1.03], 'uncertaintyband': True, 'x': [0, 400, 0, 400]})
     plotresponse.responseratio(files, opt, over='jet1abseta', types=['mpf'],
-                     changes={'y': [0.95, 1.1, 0.93, 1.1]})
+                     changes={'y': [0.95, 1.1, 0.93, 1.1], 'uncertaintyband': True})
     plotresponse.responseratio(files, opt, over='npv', types=['mpf'],
-                     changes={'y': [0.95, 1.05, 0.92, 1.03], 'x': [0, 18, 0, 18]})
+                     changes={'y': [0.95, 1.05, 0.92, 1.03], 'uncertaintyband': True, 'x': [0, 18, 0, 18]})
 
     plotresponse.responseratio(files, opt, over='zpt', types=['ptbalance'],
-                     changes={'y': [0.93, 1.01, 0.96, 1.03], 'x': [0, 400, 0, 400]})
+                     changes={'y': [0.93, 1.01, 0.96, 1.03], 'x': [0, 400, 0, 400], 'uncertaintyband': True})
     plotresponse.responseratio(files, opt, over='jet1abseta', types=['ptbalance'],
-                     changes={'y': [0.91, 1.01, 0.93, 1.1]})
+                     changes={'y': [0.91, 1.01, 0.93, 1.1], 'uncertaintyband': True})
     plotresponse.responseratio(files, opt, over='npv', types=['ptbalance'],
-                     changes={'y': [0.91, 1.01, 0.92, 1.03], 'x': [0, 18, 0, 18]})
+                     changes={'y': [0.91, 1.01, 0.92, 1.03], 'x': [0, 18, 0, 18], 'uncertaintyband': True})
 
     plotdatamc.datamcplot('npv_run', files, opt, changes={'x': runrange,
                 'y': [0, 15], 'run': True, 'fit': True})
