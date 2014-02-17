@@ -680,6 +680,10 @@ private:
 			return metaData.GetAlgoFlavour(s);
 		else if (string == "physflavour")
 			return metaData.GetPhysFlavour(s);
+		else if (string == "algopt")
+			return metaData.GetAlgoPt(s);
+		else if (string == "physpt")
+			return metaData.GetPhysPt(s);
 		else if (string == "eventnr")
 			return event.m_eventmetadata->nEvent;
 		else if (string == "lumisec")

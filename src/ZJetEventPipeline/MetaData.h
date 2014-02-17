@@ -282,6 +282,20 @@ public:
 		else return 0;
 	}
 
+	float GetAlgoPt(ZJetPipelineSettings const& psettings) const
+	{
+		if (m_algoparton.find(psettings.GetJetAlgorithm()) != m_algoparton.end())
+			return std::abs(m_algoparton[psettings.GetJetAlgorithm()].p4.Pt());
+		else return 0.;
+	}
+	float GetPhysPt(ZJetPipelineSettings const& psettings) const
+	{
+		if (m_physparton.find(psettings.GetJetAlgorithm()) != m_physparton.end())
+			return std::abs(m_physparton[psettings.GetJetAlgorithm()].p4.Pt());
+		else return 0.;
+	}
+
+
 
 	KGenParticles const& GetGenMuons() const
 	{
