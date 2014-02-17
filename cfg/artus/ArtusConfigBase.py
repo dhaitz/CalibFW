@@ -188,6 +188,7 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
                     "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
                     "matchedgenjet1pt", "genmpf",
                     "algoflavour", "physflavour",
+                    "algopt", "physpt",
                     "jet1ptneutrinos", "genjet1ptneutrinos", "mpfneutrinos", "neutralpt3", "neutralpt5",
                     "genmupluspt", "genmupluseta", "genmuplusphi",
                     "genmuminuspt", "genmuminuseta", "genmuminusphi",
