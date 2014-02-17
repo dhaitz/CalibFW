@@ -8,6 +8,27 @@ import plotfractions
 import plot2d
 import plot_tagging
 
+
+def electrons(files, opt):
+    """ Standard set of plots for the dielectron analysis. """
+
+    """export DATAEE=/storage/a/dhaitz/excalibur/artus/data_ee/out.root
+    export MCEE=/storage/a/dhaitz/excalibur/artus/mc_ee/out.root
+    export OUT=out/ee
+    export ARGS="-N --alleta --allalpha"
+
+    merlin 2D_zmass_zpt --files $DATAEE $ARGS -x 0 50 --nbins 100 -y 80 100 -o $OUT
+
+    merlin npv -o $OUT --files $DATAEE $MCEE $ARGS --nbins 100 --folder all
+
+    merlin eemass -o $OUT --files $DATAEE $ARGS --nbins 100 -x 0 120  -C lightskyblue -m f --folder all
+    merlin eemass -o $OUT --files $DATAEE $ARGS --nbins 100 -x 0 15 --filename eemass_low -C lightskyblue -m f --folder all
+    merlin zy -o $OUT --files $DATAEE $MCEE $ARGS -x -3 3 --nbins 100
+    merlin 2D_zpt_zy -o $OUT --files $DATAEE $ARGS -y 0 100 --nbins 100
+    merlin zmass -o $OUT --files $DATAEE $MCEE $ARGS --nbins 100
+    merlin zpt -o $OUT --files $DATAEE $MCEE $ARGS --nbins 100 -x 0 600 --log
+    """
+
 def an(files, opt):
     """ Plots for the 2014 Z->mumu JEC AN."""
     """
