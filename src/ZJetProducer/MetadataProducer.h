@@ -154,6 +154,9 @@ public:
 			{
 				bool good_jet = true;
 
+				// 5 GeV minimum pT
+				good_jet = good_jet && ((*itjet)->p4.Pt() > 5);
+
 				// Muon isolation DeltaR > 0.5
 				if (muonIso)
 				{
