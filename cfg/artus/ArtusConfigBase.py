@@ -325,8 +325,8 @@ def GetCuts(analysis='zmumu'):
                 'leadingjet_pt',
                 'back_to_back',
             ],
-            'CutElectronEta': 2.4,
-            'CutElectronPt': 5.0,
+            'CutElectronEta': 1.0,
+            'CutElectronPt': 25.0,
 
             'CutZMassWindow': 20.0,
             'CutZPt': 30.0,
