@@ -155,7 +155,7 @@ public:
 				bool good_jet = true;
 
 				// 5 GeV minimum pT
-				good_jet == good_jet&&  ((*itjet)->p4.Pt() > 5);
+				good_jet = good_jet && ((*itjet)->p4.Pt() > 5);
 
 				//isolation DeltaR > 0.5
 
