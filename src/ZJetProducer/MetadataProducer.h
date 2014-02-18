@@ -157,22 +157,32 @@ public:
 				// 5 GeV minimum pT
 				good_jet = good_jet && ((*itjet)->p4.Pt() > 5);
 
-				// Muon isolation DeltaR > 0.5
-				if (muonIso)
-				{
-					float dr1, dr2;
-					dr1 = 99999.0f;
-					dr2 = 99999.0f;
+				//isolation DeltaR > 0.5
 
-					if (metaData.HasValidZ())
+				float dr1, dr2;
+				dr1 = 99999.0f;
+				dr2 = 99999.0f;
+
+				if (metaData.HasValidZ())
+				{
+
+					if (muonIso)
 					{
 						dr1 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
 															 metaData.GetValidMuons().at(0).p4);
 						dr2 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
 															 metaData.GetValidMuons().at(1).p4);
 					}
-					good_jet = good_jet && (dr1 > 0.5) && (dr2 > 0.5);
+					else
+					{
+						dr1 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
+															 metaData.GetValidElectrons().at(0).p4);
+						dr2 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
+															 metaData.GetValidElectrons().at(1).p4);
+					}
+
 				}
+				good_jet = good_jet && (dr1 > 0.5) && (dr2 > 0.5);
 
 				// JetID
 				// https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
