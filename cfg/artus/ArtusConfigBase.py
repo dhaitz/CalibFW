@@ -83,7 +83,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
             'default': {
                 'Level': 1,
                 'JetAlgorithm': "AK5PFJetsCHSL1L2L3",
-                'Consumer': ["ntuple"],
+                'Consumer': ["ntuple", "cut_statistics"],
                 'QuantitiesVector': [
                     "zpt", "zeta", "zy",
                     "zphi", "zmass", "npv", "rho",
