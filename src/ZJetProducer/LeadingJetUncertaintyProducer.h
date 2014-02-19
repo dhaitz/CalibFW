@@ -52,7 +52,10 @@ public:
 				uncertainty = & m_uncertainties.at(metaData.GetCorrespondingBaseJetAlgorithm(italgo->first));
 
 			std::vector<float> vec(1, italgo->second->at(0).p4.Eta());
-			metaData.leadingjetuncertainty[italgo->first] = uncertainty->uncertainty(vec, italgo->second->at(0).p4.Pt(), 0);
+			if (unlikely(uncertainty->uncertainty(vec, italgo->second->at(0).p4.Pt(), 0) == 999))
+				return false;
+			else
+				metaData.leadingjetuncertainty[italgo->first] = uncertainty->uncertainty(vec, italgo->second->at(0).p4.Pt(), 0);
 		}
 		return true;
 	}
