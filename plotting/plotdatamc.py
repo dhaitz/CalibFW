@@ -98,6 +98,11 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
                                                                     not "diff"):
             plotbase.fit(ax, quantity, rootobj, settings, c, l,
                                            datamc.index(f), scalefactor, offset)
+    if len(settings.get('fitvalues', [])) == 2:
+        ratio = settings['fitvalues'][1][0] / settings['fitvalues'][0][0]
+        ratioerr = math.sqrt(settings['fitvalues'][1][1]**2 + settings['fitvalues'][0][1]**2)
+        ax.text(0.03, 0.95-(len(datamc)/20.), r"$Ratio:   R = %1.3f\pm%1.3f$" % (ratio, ratioerr),
+               va='top', ha='left', transform=ax.transAxes, color='black')
 
     # set the axis labels and limits
     plotbase.labels(ax, opt, settings, settings['subplot'])

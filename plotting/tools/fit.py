@@ -57,6 +57,10 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
                va='top', ha='left', transform=ax.transAxes, color=color)
         ax.text(0.60, 0.97-(index/20.)+offset, r"$\sigma = %1.3f\pm%1.3f$" % (p2, p2err),
                va='top', ha='left', transform=ax.transAxes, color=color)
+        if 'fitvalues' not in settings:
+            settings['fitvalues'] = [[p1, p1err, p2, p2err]]
+        else:
+            settings['fitvalues'] += [[p1, p1err, p2, p2err]]
 
 
     else:
