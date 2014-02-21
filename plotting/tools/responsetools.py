@@ -22,14 +22,14 @@ def getextrapolated(balancetype, rootfile, settings=None, changes=None,
 
     # get the extrapolation values:
     changes = {'selection':'jet2pt/zpt<0.3', 'allalpha':True, 'x':[0, 0.3]}
-    rootobject = getroot.getobjectfromtree(quantity, rootfile, settings, changes)
+    rootobject = getroot.histofromfile(quantity, rootfile, settings, changes)
     intercept, ierr, slope, serr = plotbase.fitline2(rootobject, quadratic)[:4]
     print "extrapolated value:", round(intercept,3), round(ierr,3)
 
     if getfactor:
         # get the mean of the balance distribution:
         method_dict = {'ptbalance':'balresp', 'mpf':'mpfresp'}
-        rootobject = getroot.getobjectfromtree(balancetype, rootfile, settings)
+        rootobject = getroot.histofromfile(balancetype, rootfile, settings)
         mean, merr = rootobject.GetMean(), rootobject.GetMeanError()
         print "normal mean:       ", mean
        
