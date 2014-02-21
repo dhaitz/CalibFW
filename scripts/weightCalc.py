@@ -182,9 +182,9 @@ def options():
 			"specified with -M.")
 #Pileup calc options:
 	parser.add_argument('-M', '--mc-histo', type=str, default="pileup",
-		help="histogram name of the pile-up distribution in the MC file %s(default)")
+		help="histogram name of the pile-up distribution in the MC file %(default)s")
 	parser.add_argument('-D', '--data-histo', type=str, default="pileup",
-		help="histogram name of the pile-up distribution in the data file %(default)")
+		help="histogram name of the pile-up distribution in the data file %(default)s")
 	parser.add_argument('-d', '--dataoutput', type=str, default="",
 		help="Output file for the data distribution. Determined automatically "
 			"if not specified.")
