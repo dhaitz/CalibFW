@@ -196,7 +196,6 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False):
     if settings['verbose']:
         plotbase.debug("Creating a %s with the following selection:\n   %s" % (histtype, settings['selection']))
 
-    ybins = np.arange(0,5.2,0.1)
     # determine the type of histogram to be created
     if len(quantities) == 1:
         roothisto = ROOT.TH1D(name, name, len(xbins) - 1, xbins)
@@ -320,7 +319,7 @@ def saveasroot(rootobjects, opt, settings):
     filename = opt.out + "/%s.root" % settings['filename']
     f = ROOT.TFile(filename, "UPDATE")
     for rgraph, name in zip(rootobjects, settings['labels']):
-        plotname = name #settings['root']  # "_".join([settings['root'], name])
+        plotname = settings['root']  # "_".join([settings['root'], name])
         print "Saving %s in ROOT-file %s" % (plotname, filename)
         rgraph.SetTitle(plotname)
         rgraph.SetName(plotname)
