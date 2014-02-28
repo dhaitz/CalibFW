@@ -68,9 +68,10 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         getroot.saveasroot(rootobjects, opt, settings)
         return
 
+    bottom = []
     #loop over histograms: scale and plot
-    for f, l, c, s, rootfile, rootobj in reversed(zip(datamc, settings['labels'],
-                  settings['colors'], settings['markers'], files, rootobjects)):
+    for f, l, c, s, rootfile, rootobj, index in reversed(zip(datamc, settings['labels'],
+                  settings['colors'], settings['markers'], files, rootobjects, range(len(files))[::-1])):
         scalefactor = 1
         if 'Profile' in f.classname:
             scalefactor = 1
@@ -88,8 +89,17 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
                 widths += [0]
             else:
                 widths = (f.x[2] - f.x[1])
-            ax.bar(f.x, f.y, widths, bottom=numpy.ones(len(f.x))
-              * 1e-6, yerr=f.yerr, ecolor=c, label=l, fill=True, facecolor=c, edgecolor=c)
+
+            if settings['stacked'] and index > 0:
+                if len(bottom) > 0:
+                    bottom = [b + d for b, d in zip(bottom, datamc[len(datamc) - index].y)]
+                else:
+                    bottom = datamc[len(datamc) - index].y
+            else:
+                bottom = numpy.ones(len(f.x)) * 1e-6
+
+            ax.bar(f.x, f.y, widths, bottom=bottom,
+              yerr=f.yerr, ecolor=c, label=l, fill=True, facecolor=c, edgecolor=c)
         else:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c,
                                                     fmt=s, capsize=0, label=l)
@@ -97,7 +107,7 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         if settings['fit'] is not None and ("MC" not in l or settings['run'] is
                                                                     not "diff"):
             plotbase.fit(ax, quantity, rootobj, settings, c, l,
-                                           datamc.index(f), scalefactor, offset)
+                                           index, scalefactor, offset)
     if len(settings.get('fitvalues', [])) == 2:
         ratio = settings['fitvalues'][1][0] / settings['fitvalues'][0][0]
         ratioerr = math.sqrt(settings['fitvalues'][1][1]**2 + settings['fitvalues'][0][1]**2)
