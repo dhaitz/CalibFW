@@ -407,8 +407,8 @@ public:
 			if (it - data.m_particles->begin() < 6)
 				continue;
 
-			if (verbose && unlikely(it->numberOfDaughters() != 0))
-				LOG("Particle has " << it->numberOfDaughters() << " children.");
+			if (verbose && unlikely(it->children != 0))
+				LOG("Particle has " << it->children << " children.");
 			//if (std::abs(it->pdgId()) == 13) LOG("P " <<*it);
 			// Sort particles in lists in metaData
 			if (std::abs(it->pdgId()) == 13 && it->status() == 1)		// stable muon
