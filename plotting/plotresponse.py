@@ -737,25 +737,26 @@ def response_components(files, opt, changes=None, settings=None):
 
     settings = plotbase.getsettings(opt, changes, settings, "response_components")
 
-    components = ["jet1chargedhadfraction", "jet1photonfraction", 
-        "jet1neutralhadfraction", "jet1chargedemfraction", "jet1HFemfraction", 
+    components = ["jet1chargedhadfraction", "jet1neutralhadfraction",
+        "jet1photonfraction", "jet1chargedemfraction", "jet1HFemfraction",
         "jet1HFhadfraction"]
 
     responsetype = "recogen"
 
     markers = ['o', 's', 'd', '*']
     colors = ['red', 'black', 'yellowgreen', 'lightskyblue', ]
-    labels = ["CHad","photon", "NHad", "electron", "HFem", "HFhad"]
+    labels = ["CHad", "NHad", "photon", "electron", "HFem", "HFhad"]
 
     
     fig, ax = plotbase.newplot()
 
-    changes = {'subplot':True}
+    changes = {'subplot':True, 'fitlabel_offset':0.1}
     for m, c, comp, l in zip(markers, colors, components, labels):
         changes['markers'] = [m]
         changes['colors'] = [c]
         changes['labels'] = [l]
         changes['xynames'] = ['components', responsetype]
+        changes['fitlabel_offset'] -= 0.06
         plotdatamc.datamcplot("%s_%s" % (responsetype, comp), files, opt, fig_axes=(fig, ax), 
                                             changes=changes, settings=settings)
 
