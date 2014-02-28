@@ -36,6 +36,8 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         datamc += [getroot.root2histo(rootobjects[-1], f.GetName(), [1, 1])]
         settings['events'] += [datamc[-1].ysum()]
 
+    getroot.saveasroot(rootobjects, opt, settings)
+
     if False: # this is the code snippet to produce the diff plot for the rms methods
         method = 'ptbalance'
         quantity = "abs((recogen-%s)/recogen)*abs((recogen-%s)/recogen)_npv_zpt" % (method, method)
