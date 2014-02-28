@@ -120,12 +120,12 @@ def getDataFromPileupCalc(files, lumijson, outfile, minBiasXsec=73.5, maxPileupB
 		#fnull = open(os.devnull, 'w')
 		#subprocess.call("pileupCalc.py", stdout=fnull, stderr=fnull)
 		#fnull.close()
-		print "ASFD"
+		pass
 	except:
 		print "pileupCalc.py is not availabe. Probably CMSSW is not sourced."
 		exit(1)
 
-	cmd = ["pileupCalc.py", "-i", files, "--inputLumiJSON", lumijson, "--calcMode", "true", "--minBiasXsec", str(minBiasXsec * 1000.0), "--maxPileupBin", str(maxPileupBin), "--numPileupBins", str(numPileupBins), outfile]
+	cmd = ["pileupCalc.py", "-i", files, "--inputLumiJSON", lumijson, "--calcMode", "true", "--minBiasXsec", str(int(minBiasXsec * 1000)), "--maxPileupBin", str(maxPileupBin), "--numPileupBins", str(numPileupBins), outfile]
 	print " ".join(cmd)
 	subprocess.call(cmd)
 
@@ -198,7 +198,7 @@ def options():
 
 	parser.add_argument('-i', '--inputLumiJSON', type=str, default=None,
 		help="Input Lumi JSON for pileupCalc.")
-	parser.add_argument('-x', '--minBiasXsec', type=float, default=73.5,  # 69.4 before
+	parser.add_argument('-x', '--minBiasXsec', type=float, default=69.4,  # 68.5 best value ever!
 		help="Minimum bias cross section in mb (default: %(default)s mb, NB: pileupCalc takes ub!)")
 	parser.add_argument('-n', '--maxPileupBin', type=int, default=80,
 		help="Maximum number of pile-up interactions (default: %(default)s).")
