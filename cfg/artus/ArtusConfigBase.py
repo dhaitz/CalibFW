@@ -166,7 +166,7 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
     """
     if run == '2011':
         cfg['Jec'] = getPath() + "/data/jec/START44_V12"
-        #ApplyPUReweighting(cfg, 'kappa539_MC11_160404-180252_7TeV_ReRecoNov08_v2')
+        cfg["EnablePuReweighting"] = True
         cfg['PileupWeights'] = getPath() + "/data/pileup/weights_160404-180252_7TeV_ReRecoNov08_kappa539_MC11.root"
         cfg["MuonSmearing"] = True
         cfg["MuonRadiationCorrection"] = False
@@ -174,7 +174,7 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
     elif run == '2012':
         cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_MC"
         cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
-        #ApplyPUReweighting(cfg, 'kappa539_MC12_madgraph_190456-208686_8TeV_22Jan2013ReReco')
+        cfg["EnablePuReweighting"] = True
         if analysis == 'zee':
             cfg['PileupWeights'] = getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_2014_01_31_zee_mc.root"
         else:
@@ -347,41 +347,6 @@ def GetCuts(analysis='zmumu'):
         print "There are no cuts defined for", analysis + "!"
         exit(1)
     return cuts[analysis]
-
-
-def ApplyPUReweighting(conf, dataset, weightfile="data/pileup/puweights.json"):
-    """Use pile-up reweighting.
-
-    This function turns the pile-up reweighting on and sets the corresponding
-    entries in the configuration. The cross sections and weight factors are
-    calculated via scripts/weightCalc.py and stored in the following
-    dictionary.
-    """
-    # The following dictionary stores the weights per dataset
-    try:
-        f = open(weightfile)
-    except:
-        print weightfile, "does not exist."
-        print "Please provide this file or do not use ApplyPUReweighting."
-        exit(0)
-    try:
-        d = json.load(f)
-    except:
-        print weightfile, "is no json file."
-        print "Please provide a correct file or do not use ApplyPUReweighting."
-        exit(0)
-    f.close()
-
-    if dataset not in d:
-        print "No PU weights for this dataset:", dataset
-        print "Weights are available for:", ", ".join(d.keys())
-        print "Please add them with the weightCalc macro or do not use ApplyPUReweighting."
-        exit(0)
-
-    conf["EnablePuReweighting"] = True
-    conf["XSection"] = d[dataset]["xsection"]
-    conf["RecovertWeight"] = d[dataset]["weights"] + [0.0] * (100 - len(d[dataset]["weights"]))
-    return conf
 
 
 def Apply2ndJetReweighting(conf, dataset='powhegFall11', method='reco'):
