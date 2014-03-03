@@ -12,21 +12,206 @@ import plot_tagging
 def electrons(files, opt):
     """ Standard set of plots for the dielectron analysis. """
 
-    """export DATAEE=/storage/a/dhaitz/excalibur/artus/data_ee/out.root
-    export MCEE=/storage/a/dhaitz/excalibur/artus/mc_ee/out.root
-    export OUT=out/ee
-    export ARGS="-N --alleta --allalpha"
+    filenames = ['data_ee', 'mc_ee']
+    files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
+    base_changes = {
+            'out': 'out/ee2014',
+            'folder': 'zcuts',          # no additional restrictions on jets
+            'normalize': False,         # no normalizing to check if the lumi reweighting works
+            'factor': 1.,            # on the fly lumi reweighting
+            'efficiency': 1.,           # no trigger reweighting for electrons
+    }
 
+
+    # zmass with fit
+    changes = {
+        'legloc': 'center right',
+        'nbins': 50,
+        'fit': 'gauss'
+    }
+    changes.update(base_changes)
+    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+
+    changes['filename'] = 'zmass_barrel'
+    changes['selection'] = 'abs(epluseta)<1.0 && abs(eminuseta)<1.0'
+    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+
+    changes['filename'] = 'zmass_endcap'
+    changes['selection'] = 'abs(epluseta)>1.0 && abs(eminuseta)>1.0'
+    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+
+    changes['filename'] = 'zmass_barrel'
+    changes['selection'] = 'abs(epluseta)<1.0 && abs(eminuseta)<1.0'
+    changes['title'] = '|eta(e)| < 1.0'
+    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+
+    changes['filename'] = 'zmass_endcap'
+    changes['selection'] = 'abs(epluseta)>1.0 && abs(eminuseta)>1.0'
+    changes['title'] = '|eta(e)| > 1.0'
+    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+
+
+
+    #electron quantities
+    for charge in ['plus', 'minus']:
+        changes = {
+            'x': [0, 150],
+            'nbins': 40,
+        }
+        changes.update(base_changes)
+        plotdatamc.datamcplot('e%spt' % charge, files, opt, changes=changes)
+        changes['x'] = [-2.5, 2.5]
+        plotdatamc.datamcplot('e%seta' % charge, files, opt, changes=changes)
+        changes['x'] = None
+        plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
+
+
+
+    #electron quantities
+    for charge in ['plus', 'minus']:
+        changes = {
+            'x': [0, 150],
+            'nbins': 40,
+        }
+        changes.update(base_changes)
+        plotdatamc.datamcplot('e%spt' % charge, files, opt, changes=changes)
+        changes['x'] = [-2.5, 2.5]
+        plotdatamc.datamcplot('e%seta' % charge, files, opt, changes=changes)
+        changes['x'] = None
+        plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
+
+
+
+
+    changes['filename'] = 'zmass_barrel'
+    changes['selection'] = 'abs(epluseta)<1.0 && abs(eminuseta)<1.0'
+    changes['title'] = '|eta(e)| < 1.0'
+    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+
+    changes['filename'] = 'zmass_endcap'
+    changes['selection'] = 'abs(epluseta)>1.0 && abs(eminuseta)>1.0'
+    changes['title'] = '|eta(e)| > 1.0'
+    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+
+
+
+    #electron quantities
+    for charge in ['plus', 'minus']:
+        changes = {
+            'x': [0, 150],
+            'nbins': 40,
+        }
+        changes.update(base_changes)
+        plotdatamc.datamcplot('e%spt' % charge, files, opt, changes=changes)
+        changes['x'] = [-2.5, 2.5]
+        plotdatamc.datamcplot('e%seta' % charge, files, opt, changes=changes)
+        changes['x'] = None
+        plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
+
+
+
+    #electron quantities
+    for charge in ['plus', 'minus']:
+        changes = {
+            'x': [0, 150],
+            'nbins': 40,
+        }
+        changes.update(base_changes)
+        plotdatamc.datamcplot('e%spt' % charge, files, opt, changes=changes)
+        changes['x'] = [-2.5, 2.5]
+        plotdatamc.datamcplot('e%seta' % charge, files, opt, changes=changes)
+        changes['x'] = None
+        plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
+
+
+
+    # npv
+    changes = {
+        'folder': 'all',
+    }
+    changes.update(base_changes)
+    changes['folder'] = 'all'
+
+    plotdatamc.datamcplot('npv', files, opt, changes=changes)
+    changes['noweighting'] = True
+    changes['factor'] = 3503.71 / 30459503 * 1000
+    changes['filename'] = 'npv_noweights'
+
+    plotdatamc.datamcplot('npv', files, opt, changes=changes)
+    changes['noweighting'] = True
+    changes['factor'] = 3503.71 / 30459503 * 1000
+    changes['filename'] = 'npv_noweights'
+    plotdatamc.datamcplot('npv', files, opt, changes=changes)
+
+    # z pt and rapidity
+    changes = {
+        'nbins': 40,
+    }
+    changes.update(base_changes)
+    plotdatamc.datamcplot('zy', files, opt, changes=changes)
+    plotdatamc.datamcplot('zeta', files, opt, changes=changes)
+    changes['x'] = [30, 750]
+    changes['log'] = True
+    plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+
+
+    #powheg comparison
+    filenames = ['data_ee', 'mc_ee', 'mc_ee_powheg']
+    files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
+
+    changes = {
+        'log': True,
+        'x': [30, 750],
+        'filename': 'zpt_mad-pow',
+        'labels': ['data', 'madgraph', 'powheg'],
+
+    }
+    changes.update(base_changes)
+    changes['normalize'] = True
+    plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+
+    changes = {
+        'nbins': 40,
+        'filename': 'zmass_mad-pow',
+        'labels': ['data', 'madgraph', 'powheg'],
+    }
+    changes.update(base_changes)
+    changes['normalize'] = True
+    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+
+    
+    #backgrounds
+    filenames = ['data_ee', 'mc_ee', 'background_ee']
+    files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
+    changes = {
+        'log': True,
+        'x': [30, 750],
+        'filename': 'zpt_backgrounds',
+        'labels': ['data', 'MC', 'backgrounds'],
+        'markers': ['o', 'f', 'f'],
+        'stacked': True,
+
+    }
+    changes.update(base_changes)
+    plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+
+    changes.pop('x', None)
+    changes['filename'] = 'zmass_backgrounds'
+    changes['log'] = False
+    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+
+
+    # sync the plots
+    import subprocess
+    subprocess.call(['rsync out/ee2014 dhaitz@ekplx26:plots/ -u -r --progress'], shell=True)
+
+    """
     merlin 2D_zmass_zpt --files $DATAEE $ARGS -x 0 50 --nbins 100 -y 80 100 -o $OUT
 
-    merlin npv -o $OUT --files $DATAEE $MCEE $ARGS --nbins 100 --folder all
 
     merlin eemass -o $OUT --files $DATAEE $ARGS --nbins 100 -x 0 120  -C lightskyblue -m f --folder all
     merlin eemass -o $OUT --files $DATAEE $ARGS --nbins 100 -x 0 15 --filename eemass_low -C lightskyblue -m f --folder all
-    merlin zy -o $OUT --files $DATAEE $MCEE $ARGS -x -3 3 --nbins 100
     merlin 2D_zpt_zy -o $OUT --files $DATAEE $ARGS -y 0 100 --nbins 100
-    merlin zmass -o $OUT --files $DATAEE $MCEE $ARGS --nbins 100
-    merlin zpt -o $OUT --files $DATAEE $MCEE $ARGS --nbins 100 -x 0 600 --log
     """
 
 def an(files, opt):
