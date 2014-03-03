@@ -715,10 +715,6 @@ public:
 				continue;
 			}
 
-			if (unlikely(it->numberOfDaughters() != 0))
-				LOG("Particle has " << it->numberOfDaughters() << " children.");
-
-			//LOG ("add " << *it);
 			if (abs(it->p4.Eta()) > petamax || it->p4.Pt() < pptmin)
 				continue;
 			met.p4 = met.p4 + it->p4;
