@@ -200,10 +200,11 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
     if rundepMC:
         cfg['Pipelines']['default']['QuantitiesVector'] += ['run', 'eventnr', 'lumisec']
     cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'gen_balance_producer', 'gen_met_producer', 'weight_producer', 'flavour_producer']
-    cfg['EnableLumiReweighting'] = True
-    cfg['EnableTriggerReweighting'] = True
-    cfg['NEvents'] = 30459503
-    cfg['XSection'] = 3503.71
+    if analysis is not 'zee':
+        cfg['EnableLumiReweighting'] = True
+        cfg['EnableTriggerReweighting'] = True
+        cfg['NEvents'] = 30459503
+        cfg['XSection'] = 3503.71
     return cfg
 
 
