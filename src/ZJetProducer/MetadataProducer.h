@@ -352,24 +352,27 @@ class GenProducer: public ZJetGlobalMetaDataProducerBase
 public:
 
 	GenProducer(): ZJetGlobalMetaDataProducerBase(),
-		nmin(50), nmax(2500)
+		nmin(50), nmax(2500), verbose(false)
 	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 										ZJetMetaData& metaData, ZJetPipelineSettings const& globalSettings) const
 	{
 		// Check number of particles (could be simplified after study)
-		if (data.m_particles->size() < 0)
+		if (verbose)
 		{
-			LOG("This event contains no generator information.");
-		}
-		else if (data.m_particles->size() < nmin)
-		{
-			LOG("This event contains only few particles: " << data.m_particles->size());
-		}
-		else if (data.m_particles->size() > nmax)
-		{
-			LOG("This event contains a lot of particles: " << data.m_particles->size());
+			if (data.m_particles->size() < 0)
+			{
+				LOG("This event contains no generator information.");
+			}
+			else if (data.m_particles->size() < nmin)
+			{
+				LOG("This event contains only few particles: " << data.m_particles->size());
+			}
+			else if (data.m_particles->size() > nmax)
+			{
+				LOG("This event contains a lot of particles: " << data.m_particles->size());
+			}
 		}
 
 		const float R = 0.5; // for DeltaR matching
@@ -379,13 +382,13 @@ public:
 		{
 			// Take only stable final particles
 			//if (it->status() != 3)
-			//    continue;
+			//	continue;
 			//LOG("Particle " << *it);
 			// ignore first 6 particles (because that is what CMSSW does)
 			if (it - data.m_particles->begin() < 6)
 				continue;
 
-			if (unlikely(it->numberOfDaughters() != 0))
+			if (verbose && unlikely(it->numberOfDaughters() != 0))
 				LOG("Particle has " << it->numberOfDaughters() << " children.");
 			//if (std::abs(it->pdgId()) == 13) LOG("P " <<*it);
 			// Sort particles in lists in metaData
@@ -450,22 +453,25 @@ public:
 						metaData.m_neutrals3[it2->first].push_back(*it);
 				}
 			}
-			else // unexpected particles apart from stable mesons and baryons
+			else if (verbose) // unexpected particles apart from stable mesons and baryons
 			{
-				//if (it->status() != 3 && std::abs(it->pdgId()) < 90)
-				//	LOG("Unexpected particle " << *it);
+				if (it->status() != 3 && std::abs(it->pdgId()) < 90)
+					LOG("Unexpected particle " << *it);
 			}
 		}
 
 		// check for unusual behaviour
-		if (metaData.m_genZs.size() < 1)
-			LOG("There is no gen Z!");
-		if (metaData.m_genPartons.size() < 1)
-			LOG("There is no parton!");
-		//if (metaData.m_genMuons.size() < 1)
-		//	LOG("There are no gen muons!");
-		//if (metaData.m_genMuons.size() > 2)
-		//	LOG("There are more than 2 gen muons (" << metaData.m_genMuons.size() << ")!")
+		if (verbose)
+		{
+			if (metaData.m_genZs.size() < 1)
+				LOG("There is no gen Z!");
+			if (metaData.m_genPartons.size() < 1)
+				LOG("There is no parton!");
+			if (metaData.m_genMuons.size() < 1)
+				LOG("There are no gen muons!");
+			if (metaData.m_genMuons.size() > 2)
+				LOG("There are more than 2 gen muons (" << metaData.m_genMuons.size() << ")!")
+		}
 
 		return true;
 	}
@@ -478,6 +484,7 @@ public:
 private:
 	const unsigned short int nmin;
 	const unsigned short int nmax;
+	bool verbose;
 };
 
 
