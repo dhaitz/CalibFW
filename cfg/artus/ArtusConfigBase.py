@@ -117,6 +117,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
             "emass", "ept", "eeta",
             "eminusmass", "eminuspt", "eminuseta", "eminusiso", "eminusid", "eminustrigid",
             "eplusmass", "epluspt", "epluseta", "eplusiso", "eplusid", "eplustrigid",
+            "eplusecaliso03", "eminusecaliso03", "eplusecaliso04", "eminusecaliso04",
         ]
     else:
         # The order of these producers is important!

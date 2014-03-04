@@ -478,6 +478,16 @@ private:
 		else if (string == "eplusiso")
 			return metaData.leadingeplus.trackIso03;
 
+		else if (string == "eminusecaliso03")
+			return metaData.leadingeminus.ecalIso03;
+		else if (string == "eplusecaliso03")
+			return metaData.leadingeplus.ecalIso03;
+
+		else if (string == "eminusecaliso04")
+			return metaData.leadingeminus.ecalIso04;
+		else if (string == "eplusecaliso04")
+			return metaData.leadingeplus.ecalIso04;
+
 		else if (string == "eminusid")
 			return metaData.leadingeminus.idMvaNonTrigV0;
 		else if (string == "eplusid")
