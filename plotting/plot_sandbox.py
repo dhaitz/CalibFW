@@ -7,6 +7,54 @@ import plotresponse
 import plotfractions
 import plot2d
 import plot_tagging
+import fit
+
+
+def emucomparison(files, opt):
+    values = []
+    valueerrs = []
+
+    for filenames in [['data', 'mc'], ['data_ee', 'mc_ee']]:
+        files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
+
+        for quantity in ['mpf', 'ptbalance']:
+            settings = plotbase.getsettings(opt, None, None, quantity)
+            settings['nbins'] = 40
+            settings['correction'] = 'L1L2L3'
+            if 'ee' in filenames[0]:
+                if settings['selection']:
+                    settings['selection'] = 'abs(epluseta<1.0) && abs(eminuseta)<1.0 && %s' % settings['selection']
+                else:
+                    settings['selection'] = 'abs(epluseta<1.0) && abs(eminuseta)<1.0'
+
+            datamc = []
+            rootobjects = []
+            fitvalues = []
+            for f in files:
+                rootobjects += [getroot.histofromfile(quantity, f, settings)]
+                p0, p0err, p1, p1err, p2, p2err, chi2, ndf, conf_intervals = fit.fitline2(rootobjects[-1],
+                                     gauss=True, limits=[0, 2])
+                fitvalues += [p1, p1err]
+
+            ratio = fitvalues[0] / fitvalues[2]
+            ratioerr = math.sqrt(fitvalues[1] ** 2 + fitvalues[3] ** 2)
+
+            values.append(ratio)
+            valueerrs.append(ratioerr)
+    fig, ax = plotbase.newplot()
+
+    ax.errorbar(range(4), values, valueerrs, drawstyle='steps-mid', color='black',
+                                                    fmt='o', capsize=0,)
+
+    ax.set_xticks([0, 1, 2, 3])
+    ax.set_xticklabels(['Zmm\nMPF', 'Zmm\npT balance', 'Zee\nMPF', 'Zee\npT balance'])
+    ax.set_xlim(-0.5, 3.5)
+    ax.set_ylim(0.96, 1.001)
+    ax.axhline(1.0, color='black', linestyle=':')
+
+    ax.set_ylabel('Jet response Data/MC ratio', ha="right", x=1)
+
+    plotbase.Save(fig, settings)
 
 
 def electrons(files, opt):
