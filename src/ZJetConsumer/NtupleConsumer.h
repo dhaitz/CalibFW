@@ -464,12 +464,16 @@ private:
 			return metaData.leadingeminus.p4.Pt();
 		else if (string == "eminuseta")
 			return metaData.leadingeminus.p4.Eta();
+		else if (string == "eminusphi")
+			return metaData.leadingeminus.p4.Phi();
 		else if (string == "eplusmass")
 			return metaData.leadingeplus.p4.mass();
 		else if (string == "epluspt")
 			return metaData.leadingeplus.p4.Pt();
 		else if (string == "epluseta")
 			return metaData.leadingeplus.p4.Eta();
+		else if (string == "eplusphi")
+			return metaData.leadingeplus.p4.Phi();
 
 
 
