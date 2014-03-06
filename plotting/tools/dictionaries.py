@@ -53,6 +53,8 @@ d_axes = {
         'deltar': [0, 20, r"$\Delta \/R(\mathrm{%s,\/ %s})$", ""],
         'eemass': [0, 120, r"$m_{e^{-}e^{+}}$", "GeV"],
         'electron': [0, 1, r"%s electron fraction", ""],
+        'epluspt': [0, 150, r"$p_\mathrm{T}^\mathrm{e^{+}}$", 'GeV'],
+        'eminuspt': [0, 150, r"$p_\mathrm{T}^\mathrm{e^{-}}$", 'GeV'],
         'eta': [-5, 5, r"$\eta^\mathrm{%s}$", ""],
         'eventcount': [0, 1.1, r"Eventcount", ""],
         'events': [0, 1, r"Events", ""],
