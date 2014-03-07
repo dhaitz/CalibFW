@@ -415,13 +415,13 @@ def root2histo(histo, rootfile='', rebin=1):
     return hst
 
 
-def rootdivision(rootobjects):
+def rootdivision(rootobjects, normalize=False):
     #convert TProfiles into TH1Ds because ROOT cannot correctly divide TProfiles
     if (rootobjects[0].ClassName() != 'TH1D' and
            rootobjects[1].ClassName() != 'TH1D'):
         rootobjects[0] = ROOT.TH1D(rootobjects[0].ProjectionX())
         rootobjects[1] = ROOT.TH1D(rootobjects[1].ProjectionX())
-    else:
+    elif normalize:
         rootobjects[1].Scale(rootobjects[0].Integral() /
                              rootobjects[1].Integral())
     rootobjects[0].Divide(rootobjects[1])
