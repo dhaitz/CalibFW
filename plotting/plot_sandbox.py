@@ -68,8 +68,8 @@ def electrons(files, opt):
             'normalize': False,         # no normalizing to check if the lumi reweighting works
             'factor': 1.,            # on the fly lumi reweighting
             'efficiency': 1.,           # no trigger reweighting for electrons
+            'ratiosubplot': True,
     }
-
 
     # zmass with fit
     changes = {
@@ -98,8 +98,6 @@ def electrons(files, opt):
     changes['title'] = '|eta(e)| > 1.0'
     plotdatamc.datamcplot('zmass', files, opt, changes=changes)
 
-
-
     #electron quantities
     for charge in ['plus', 'minus']:
         changes = {
@@ -113,8 +111,6 @@ def electrons(files, opt):
         changes['x'] = None
         plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
 
-
-
     #electron quantities
     for charge in ['plus', 'minus']:
         changes = {
@@ -127,9 +123,6 @@ def electrons(files, opt):
         plotdatamc.datamcplot('e%seta' % charge, files, opt, changes=changes)
         changes['x'] = None
         plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
-
-
-
 
     changes['filename'] = 'zmass_barrel'
     changes['selection'] = 'abs(epluseta)<1.0 && abs(eminuseta)<1.0'
@@ -140,8 +133,6 @@ def electrons(files, opt):
     changes['selection'] = 'abs(epluseta)>1.0 && abs(eminuseta)>1.0'
     changes['title'] = '|eta(e)| > 1.0'
     plotdatamc.datamcplot('zmass', files, opt, changes=changes)
-
-
 
     #electron quantities
     for charge in ['plus', 'minus']:
