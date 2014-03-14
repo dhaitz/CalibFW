@@ -202,7 +202,7 @@ public:
 
 				if (globalSettings.Global()->GetVetoPileupJets())
 				{
-					bool puID = static_cast<KDataPFTaggedJet*>(*itjet)->getpuJetID("puJetIDFullMedium", event.m_taggermetadata);
+					bool puID = static_cast<KDataPFTaggedJet*>(*itjet)->puJetIDFullMedium;
 					good_jet = good_jet && puID;
 				}
 

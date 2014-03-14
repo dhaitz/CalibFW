@@ -135,12 +135,16 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
 
     if tagged:
         config['Pipelines']['default']['QuantitiesVector'] += [
-            "qglikelihood", "qgmlp",
+            "qglikelihood", "qgmlp", "trackcountinghigheffbjettag",
+            "trackcountinghighpurbjettag", "jetprobabilitybjettag",
+            "jetbprobabilitybjettag", "softelectronbjettag",
+            "softmuonbjettag", "softmuonbyip3dbjettag",
+            "softmuonbyptbjettag", "simplesecondaryvertexbjettag",
             "combinedsecondaryvertexbjettag", "combinedsecondaryvertexmvabjettag",
-            "jet1puJetIDFullLoose", "jet1puJetIDFullMedium", "jet1puJetIDFullTight",
-            "jet1puJetIDCutbasedLoose", "jet1puJetIDCutbasedMedium", "jet1puJetIDCutbasedTight",
-            "jet2puJetIDFullLoose", "jet2puJetIDFullMedium", "jet2puJetIDFullTight",
-            "jet2puJetIDCutbasedLoose", "jet2puJetIDCutbasedMedium", "jet2puJetIDCutbasedTight",
+            "jet1puJetFull", "jet1puJetIDFull", "jet1puJetIDFullLoose", "jet1puJetIDFullMedium", "jet1puJetIDFullTight",
+            "jet1puJetCutbased", "jet1puJetIDCutbased", "jet1puJetIDCutbasedLoose", "jet1puJetIDCutbasedMedium", "jet1puJetIDCutbasedTight",
+            "jet2puJetFull", "jet2puJetIDFull", "jet2puJetIDFullLoose", "jet2puJetIDFullMedium", "jet2puJetIDFullTight",
+            "jet2puJetCutbased", "jet2puJetIDCutbased", "jet2puJetIDCutbasedLoose", "jet2puJetIDCutbasedMedium", "jet2puJetIDCutbasedTight",
         ]
     config['Pipelines']['default'].update(GetCuts(analysis))
 

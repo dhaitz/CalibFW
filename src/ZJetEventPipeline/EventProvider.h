@@ -53,7 +53,6 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection, bool tagge
 	}
 
 	m_event.m_filtermetadata = m_fi.GetMeta<KFilterMetadata>("KFilterMetadata");
-	m_event.m_taggermetadata = m_fi.GetMeta<KTaggerMetadata>("KTaggerMetadata");
 	m_event.m_filter = m_fi.Get<KFilterSummary>("filterSummary");
 }
 
