@@ -225,10 +225,7 @@ def SetDataSpecific(cfg, run='2012'):
         cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_DATA"
         cfg['MetPhiCorrectionParameters'] = [0.2661, 0.3217, -0.2251, -0.1747]
         cfg['JsonFile'] = getPath() + "/data/json/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt"
-        if analysis == 'zee':
-            cfg['HltPaths'] = ["HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v%d" % v for v in range(15, 20)]
-        else:
-            cfg['HltPaths'] = ["HLT_Mu17_Mu8_v%d" % v for v in range(1, 30)]
+        cfg['HltPaths'] = ["HLT_Mu17_Mu8_v%d" % v for v in range(1, 30)]
         cfg['PileupTruth'] = getPath() + "/data/pileup/pumean_pixelcorr.txt"
         cfg["MuonRadiationCorrection"] = False
         cfg["MuonSmearing"] = False

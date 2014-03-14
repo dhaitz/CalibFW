@@ -17,7 +17,7 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection, bool tagge
 	m_event.m_beamSpot = m_fi.Get<KDataBeamSpot>("offlineBeamSpot");
 	m_event.m_jetArea = m_fi.Get<KJetArea>("KT6Area");
 	m_event.m_muons = m_fi.Get<KDataMuons>("muons");
-	m_event.m_electrons = m_fi.Get<KDataElectrons>("electrons");
+	//m_event.m_electrons = m_fi.Get<KDataElectrons>("electrons");
 	m_event.m_pfMet = m_fi.Get<KDataPFMET>("PFMET");
 	m_event.m_pfMetChs = m_fi.Get<KDataPFMET>("PFMETCHS");
 
