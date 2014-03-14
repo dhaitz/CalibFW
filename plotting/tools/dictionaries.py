@@ -21,8 +21,6 @@ ntuple_dict = {
             'recogen': '(jet1pt/genjet1pt)',
             'btag': 'combinedsecondaryvertexbjettag',
             'qgtag': 'qglikelihood',
-            'eemass': 'zmass',
-            'eeeta': 'zeta',
             }
 
 #   Quantity:[ax_min, ax_max, Name, unit, z_min, z_max]
@@ -51,7 +49,6 @@ d_axes = {
         'deltaeta': [0, 5, r"$\Delta \eta(\mathrm{%s,\/ %s})$", ""],
         'deltaphi': [0, 3.141593, r"$\Delta \phi(\mathrm{%s,\/%s})$", ""],
         'deltar': [0, 20, r"$\Delta \/R(\mathrm{%s,\/ %s})$", ""],
-        'eemass': [0, 120, r"$m_{e^{-}e^{+}}$", "GeV"],
         'electron': [0, 1, r"%s electron fraction", ""],
         'epluspt': [0, 150, r"$p_\mathrm{T}^\mathrm{e^{+}}$", 'GeV'],
         'eminuspt': [0, 150, r"$p_\mathrm{T}^\mathrm{e^{-}}$", 'GeV'],

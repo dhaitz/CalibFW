@@ -45,7 +45,6 @@
 #include "ZJetProducer/FlavourProducer.h"
 #include "ZJetProducer/LeadingJetUncertaintyProducer.h"
 #include "ZJetEventPipeline/PipelineInitializer.h"
-#include "ZJetProducer/ZeeProducer.h"
 
 #include "KappaTools/RootTools/HLTTools.h"
 
@@ -102,9 +101,6 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 		else if (ValidJetProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidJetProducer(
 					globalSettings.get<bool>("Tagged")));
-		else if (ValidJetEEProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new ValidJetEEProducer(
-					globalSettings.get<bool>("Tagged")));
 		else if (JetCorrector::Name() == *it)
 			runner.AddGlobalMetaProducer(new JetCorrector(
 					globalSettings.get<std::string>("Jec"),
@@ -138,10 +134,6 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new LeadingJetUncertaintyProducer(
 											 globalSettings.get<std::string>("Jec"),
 											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
-		else if (ZEEProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new ZEEProducer());
-		else if (ValidElectronProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new ValidElectronProducer());
 		else
 			LOG_FATAL("Global MetaData producer of name " << *it << " not found");
 	}

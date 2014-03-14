@@ -52,19 +52,23 @@ def getNewestJson(variant="PromptReco_Collisions12"):
     return jsons[-1]
 
 
-def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=False):
+def BaseConfig(inputtype, run='2012', analysis='zjet', tagged=True, rundepMC=False):
     """Basic configuration for Artus.
 
     Return a default configuration for Artus depending on
 
       - @param inputtype can be either 'data' or 'mc'. Default settings are adapted.
       - @param run can be either '2011' or '2012'. Parameters are set accordingly.
-      - @param analysis can be either 'zmumu' or 'vbf'. The cuts are set accordingly.
+      - @param analysis can be either 'zjet' or 'vbf'. The cuts are set accordingly.
     """
     config = {
         'SkipEvents': 0,
         'EventCount': -1,
-        'GlobalProducer': [],
+        'GlobalProducer': [    # The order of these producers is important!
+            'valid_muon_producer', 'muon_corrector', 'z_producer',
+            'valid_jet_producer', 'jet_corrector', 'typeImet_producer', 'jet_sorter',
+            'unclustered_energy_producer', 'leading_jet_uncertainty_producer',
+        ],
         'L1Correction': 'L1FastJet',
         'EnableMetPhiCorrection': False,
         'MetPhiCorrectionParameters': [],
@@ -94,6 +98,11 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
                     "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
                     "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta",
                     "otherjetspt", "otherjetseta", "otherjetsphi", "njets", "njetsinv",
+                    "mupluspt", "mupluseta", "muplusphi",
+                    "muminuspt", "muminuseta", "muminusphi",
+                    "mu1pt", "mu1eta", "mu1phi",
+                    "mu2pt", "mu2eta", "mu2phi",
+                    "nmuons", "muplusiso", "muminusiso",
                     "unc", "nputruth",
                 ]
             }
@@ -103,36 +112,6 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
         'VetoPileupJets': False,
         'checkKappa': False,
     }
-
-    # electrons:
-    if analysis == 'zee':
-        # The order of these producers is important!
-        config['GlobalProducer'] = [
-            'valid_electron_producer', 'zee_producer', 'valid_jet_ee_producer',
-            'jet_corrector', 'typeImet_producer', 'jet_sorter',
-            'unclustered_energy_producer', 'leading_jet_uncertainty_producer',
-        ]
-        config['Pipelines']['default']['QuantitiesVector'] += [
-			"nelectrons",
-            "emass", "ept", "eeta",
-            "eminusmass", "eminuspt", "eminuseta",
-            "eplusmass", "epluspt", "epluseta",
-        ]
-    else:
-        # The order of these producers is important!
-        config['GlobalProducer'] = [
-            'valid_muon_producer', 'muon_corrector', 'z_producer',
-            'valid_jet_producer', 'jet_corrector', 'typeImet_producer', 'jet_sorter',
-            'unclustered_energy_producer', 'leading_jet_uncertainty_producer',
-        ]
-        config['Pipelines']['default']['QuantitiesVector'] += [
-            "mupluspt", "mupluseta", "muplusphi",
-            "muminuspt", "muminuseta", "muminusphi",
-            "mu1pt", "mu1eta", "mu1phi",
-            "mu2pt", "mu2eta", "mu2phi",
-            "nmuons", "muplusiso", "muminusiso",
-        ]
-
     if tagged:
         config['Pipelines']['default']['QuantitiesVector'] += [
             "qglikelihood", "qgmlp", "trackcountinghigheffbjettag",
@@ -149,9 +128,9 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
     config['Pipelines']['default'].update(GetCuts(analysis))
 
     if inputtype == 'data':
-        config = SetDataSpecific(config, run, analysis)
+        config = SetDataSpecific(config, run)
     elif inputtype == 'mc':
-        config = SetMcSpecific(config, run, analysis, rundepMC)
+        config = SetMcSpecific(config, run, rundepMC)
     else:
         print "The inputtype must be either 'data' or 'mc'."
         exit(1)
@@ -159,7 +138,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
     return config
 
 
-def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
+def SetMcSpecific(cfg, run='2012', rundepMC=False):
     """Add Monte-Carlo specific settings to a config.
 
     The MC settings include
@@ -204,15 +183,14 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
     if rundepMC:
         cfg['Pipelines']['default']['QuantitiesVector'] += ['run', 'eventnr', 'lumisec']
     cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'gen_balance_producer', 'gen_met_producer', 'weight_producer', 'flavour_producer']
-    if analysis is not 'zee':
-        cfg['EnableLumiReweighting'] = True
-        cfg['EnableTriggerReweighting'] = True
-        cfg['NEvents'] = 30459503
-        cfg['XSection'] = 3503.71
+    cfg['EnableLumiReweighting'] = True
+    cfg['EnableTriggerReweighting'] = True
+    cfg['NEvents'] = 30459503
+    cfg['XSection'] = 3503.71
     return cfg
 
 
-def SetDataSpecific(cfg, run='2012', analysis='zmumu'):
+def SetDataSpecific(cfg, run='2012'):
     """Add data specific settings to a config
 
     The data settings include
@@ -267,10 +245,10 @@ def SetDataSpecific(cfg, run='2012', analysis='zmumu'):
     return cfg
 
 
-def GetCuts(analysis='zmumu'):
+def GetCuts(analysis='zjet'):
     """Return a set of default cuts for a given analysis."""
     cuts = {
-        'zmumu': {
+        'zjet': {
             'GenCuts': False,
             'Cuts': [
                 'zpt',
@@ -322,31 +300,6 @@ def GetCuts(analysis='zmumu'):
 
             'Filter': ['valid_z', 'valid_jet', 'metfilter', 'incut'],
         },
-        'zee': {
-            'GenCuts': False,
-            'Cuts': [
-                'electron_eta',
-                'electron_pt',
-                'zmass_window',
-                'zpt',
-
-                'leadingjet_pt',
-                'back_to_back',
-            ],
-            'CutElectronEta': 2.4,
-            'CutElectronPt': 25.0,
-
-            'CutZMassWindow': 20.0,
-            'CutZPt': 30.0,
-
-            'CutLeadingJetEta': 1.3,
-            'CutLeadingJetPt': 12.0,
-
-            'CutSecondLeadingToZPt': 0.2,
-            'CutBack2Back': 0.34,
-
-            'Filter': ['valid_z', 'valid_jet', 'metfilter', 'incut'],
-        }
     }
     if analysis not in cuts:
         print "There are no cuts defined for", analysis + "!"

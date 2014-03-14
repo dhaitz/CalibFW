@@ -21,6 +21,8 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection, bool tagge
 	m_event.m_pfMet = m_fi.Get<KDataPFMET>("PFMET");
 	m_event.m_pfMetChs = m_fi.Get<KDataPFMET>("PFMETCHS");
 
+	InitPFJets(m_event, "AK5PFJets");
+	InitPFJets(m_event, "AK5PFJetsCHS");
 
 	if (tagged)
 	{

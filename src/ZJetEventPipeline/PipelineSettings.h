@@ -145,9 +145,6 @@ public:
 	IMPL_SETTING(double, CutSecondLeadingToZPt)
 	IMPL_SETTING(double, CutSecondLeadingToZPtJet2Threshold)
 
-	IMPL_SETTING(double, CutElectronEta)
-	IMPL_SETTING(double, CutElectronPt)
-
 	IMPL_SETTING(double, CutDeltaEtaLow)
 	IMPL_SETTING(double, CutDeltaEtaHigh)
 	IMPL_SETTING(double, CutSecondLeadingToZPtRegionLow)

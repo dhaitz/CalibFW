@@ -12,9 +12,6 @@ void ZJetPipeline::GetSupportedCuts(ZJetPipeline::MetaDataProducerVector& cuts)
 	cuts.push_back(new MuonEtaCut());
 	cuts.push_back(new MuonPtCut());
 
-	cuts.push_back(new ElectronEtaCut());
-	cuts.push_back(new ElectronPtCut());
-
 	cuts.push_back(new ZPtCut());
 	cuts.push_back(new ZMassWindowCut());
 

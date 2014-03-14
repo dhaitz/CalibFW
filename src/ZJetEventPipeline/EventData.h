@@ -34,8 +34,7 @@ public:
 	KDataPFMET* m_pfMetChsL2L3Res;
 	KGenParticles* m_particles;
 
-	KDataElectrons* m_electrons;
-
+	//typedef std::map<std::string, KDataPFJets *> PfMap;
 	typedef std::map<std::string, KDataPFTaggedJets*> PfTaggedMap;
 	typedef PfTaggedMap::const_iterator PfTaggedMapIterator;
 
