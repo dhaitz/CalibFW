@@ -25,40 +25,11 @@ public:
 
 			// Own loose cuts on electrons and electron isolation
 			good_electron = good_electron
-							&& it->p4.Pt() > 2.0
-							&& std::abs(it->p4.Eta()) < 5.0;
-			//&& it->trackIso03 < 3.0
-			//&& it->idMvaNonTrigV0 > 0;
 
-			// Electron ID
-			// https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificatio
-			// different thresholds depending on electron pT, eta
-			good_electron = good_electron &&
-							(
-								(
-									(it->p4.Pt() < 10)
-									&&
-									(
-										(abs(it->p4.Eta()) < 0.8 && it->idMvaNonTrigV0 > 0.47)
-										|| (abs(it->p4.Eta()) > 0.8 && abs(it->p4.Eta()) < 1.479 && it->idMvaNonTrigV0 > 0.004)
-										|| (abs(it->p4.Eta()) > 1.479 && abs(it->p4.Eta()) < 2.5 && it->idMvaNonTrigV0 > 0.295)
-									)
-								)
-								||
-								(
-									(it->p4.Pt() > 10) &&
-									(
-										(abs(it->p4.Eta()) < 0.8 && it->idMvaNonTrigV0 > -0.34)
-										|| (abs(it->p4.Eta()) > 0.8 && abs(it->p4.Eta()) < 1.479 && it->idMvaNonTrigV0 > -0.65)
-										|| (abs(it->p4.Eta()) > 1.479 && abs(it->p4.Eta()) < 2.5 && it->idMvaNonTrigV0 > 0.6)
-									)
-								)
-							);
-
-			good_electron = good_electron
-							&& it->track.nInnerHits <= 1
-							&& (it->trackIso04 / it->p4.Pt()) < 0.4;
-
+						&& it->p4.Pt() > 2.0
+						&& std::abs(it->p4.Eta()) < 5.0;
+						//&& it->trackIso03 < 3.0;
+			
 			if (good_electron)
 				metaData.m_listValidElectrons.push_back(*it);
 			else
