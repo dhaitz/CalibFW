@@ -158,10 +158,7 @@ def SetMcSpecific(cfg, run='2012', rundepMC=False):
         cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_MC"
         cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
         cfg["EnablePuReweighting"] = True
-        if analysis == 'zee':
-            cfg['PileupWeights'] = getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_2014_01_31_zee_mc.root"
-        else:
-            cfg['PileupWeights'] = getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_68_5mb_kappa539_MC12_madgraph_tags.root"
+        cfg['PileupWeights'] = getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_68_5mb_kappa539_MC12_madgraph_tags.root"
         cfg["MuonSmearing"] = True
         cfg["MuonRadiationCorrection"] = False
         cfg["MuonCorrectionParameters"] = getPath() + "/data/muoncorrection/MuScleFit_2012_MC_53X_smearReReco.txt"
