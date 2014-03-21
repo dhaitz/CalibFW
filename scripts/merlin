@@ -217,6 +217,8 @@ def options(
         help="Skip the first (data) file")
     general.add_argument('-w', '--www', action='store_true',
         help="Push output plots directly to your public EKP webspace")
+    general.add_argument('-u', '--uncertaintyband', action='store_true',
+        help="responseratio plots: add an uncertaintyband in the ratio")
 
     opt = parser.parse_args()
 
