@@ -1,3 +1,4 @@
+
 import plotbase
 import copy
 import plotdatamc
@@ -206,7 +207,6 @@ def electrons(files, opt):
 
     }
     changes.update(base_changes)
-    changes['normalize'] = True
     plotdatamc.datamcplot('zpt', files, opt, changes=changes)
 
     changes = {
@@ -215,9 +215,18 @@ def electrons(files, opt):
         'labels': ['data', 'madgraph', 'powheg'],
     }
     changes.update(base_changes)
-    changes['normalize'] = True
     plotdatamc.datamcplot('zmass', files, opt, changes=changes)
 
+    files = files[::2]
+    filenames = filenames[::2]
+    changes = {
+        'log':True,
+        'x': [30, 750],
+        'filename': 'zpt_pow',
+        'labels':['data', 'powheg'],
+    }
+    changes.update(base_changes)
+    plotdatamc.datamcplot('zpt', files, opt, changes=changes)
     
     #backgrounds
     filenames = ['data_ee', 'mc_ee', 'background_ee']
