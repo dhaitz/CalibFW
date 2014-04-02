@@ -100,7 +100,7 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
                size='x-large')
         elif settings['fit'] == 'intercept':
             #display intercept ...
-            ax.text(0.97, 0.35-(index/10.)+offset, r"$\mathrm{y(0)} = %1.3f\pm%1.3f$" % (intercept, conf_intervals[0]),
+            ax.text(0.97, 0.35-(index/10.)+offset, r"$\mathrm{y(0)} = %1.3f\pm%1.3f$" % (intercept, ierr),
                va='top', ha='right', transform=ax.transAxes, color=color, size='x-large')
 
             # ... and chi2 (smaller)
