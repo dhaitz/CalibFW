@@ -81,22 +81,31 @@ def electrons(files, opt):
     changes.update(base_changes)
     plotdatamc.datamcplot('zmass', files, opt, changes=changes)
 
-    changes['filename'] = 'zmass_barrel'
-    changes['selection'] = 'abs(epluseta)<1.0 && abs(eminuseta)<1.0'
-    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+    #electron quantities
+    for charge in ['plus', 'minus']:
+        changes = {
+            'x': [0, 150],
+            'nbins': 40,
+        }
+        changes.update(base_changes)
+        plotdatamc.datamcplot('e%spt' % charge, files, opt, changes=changes)
+        changes['x'] = [-2.5, 2.5]
+        plotdatamc.datamcplot('e%seta' % charge, files, opt, changes=changes)
+        changes['x'] = None
+        plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
 
-    changes['filename'] = 'zmass_endcap'
-    changes['selection'] = 'abs(epluseta)>1.0 && abs(eminuseta)>1.0'
-    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+    changes['legloc'] = 'center right'
 
     changes['filename'] = 'zmass_barrel'
     changes['selection'] = 'abs(epluseta)<1.0 && abs(eminuseta)<1.0'
     changes['title'] = '|eta(e)| < 1.0'
+    changes['fit'] = 'gauss'
     plotdatamc.datamcplot('zmass', files, opt, changes=changes)
 
     changes['filename'] = 'zmass_endcap'
     changes['selection'] = 'abs(epluseta)>1.0 && abs(eminuseta)>1.0'
     changes['title'] = '|eta(e)| > 1.0'
+    changes['fit'] = 'gauss'
     plotdatamc.datamcplot('zmass', files, opt, changes=changes)
 
     #electron quantities
@@ -112,43 +121,22 @@ def electrons(files, opt):
         changes['x'] = None
         plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
 
-    #electron quantities
-    for charge in ['plus', 'minus']:
+    # Z pT in rapidity bins
+    rapbins = ['abs(zy)<1', 'abs(zy)>1 && abs(zy)<2', 'abs(zy)>2 && abs(zy)<3']
+    raplabels = ['|Y(Z)|<1', '1<|Y(Z)|<2', '2<|Y(Z)|<3']
+    rapname = ['0zy1', '1zy2', '2zy3']
+    for rbin, rlabel, rname in zip(rapbins, raplabels, rapname):
         changes = {
-            'x': [0, 150],
-            'nbins': 40,
+            'selection': rbin,
+            'filename': 'zpt-%s' % rname,
+             'x': [30, 750],
+             'log': True,
+             'title': rlabel,
+             'nbins': 40,
+        
         }
         changes.update(base_changes)
-        plotdatamc.datamcplot('e%spt' % charge, files, opt, changes=changes)
-        changes['x'] = [-2.5, 2.5]
-        plotdatamc.datamcplot('e%seta' % charge, files, opt, changes=changes)
-        changes['x'] = None
-        plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
-
-    changes['filename'] = 'zmass_barrel'
-    changes['selection'] = 'abs(epluseta)<1.0 && abs(eminuseta)<1.0'
-    changes['title'] = '|eta(e)| < 1.0'
-    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
-
-    changes['filename'] = 'zmass_endcap'
-    changes['selection'] = 'abs(epluseta)>1.0 && abs(eminuseta)>1.0'
-    changes['title'] = '|eta(e)| > 1.0'
-    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
-
-    #electron quantities
-    for charge in ['plus', 'minus']:
-        changes = {
-            'x': [0, 150],
-            'nbins': 40,
-        }
-        changes.update(base_changes)
-        plotdatamc.datamcplot('e%spt' % charge, files, opt, changes=changes)
-        changes['x'] = [-2.5, 2.5]
-        plotdatamc.datamcplot('e%seta' % charge, files, opt, changes=changes)
-        changes['x'] = None
-        plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
-
-
+        plotdatamc.datamcplot('zpt', files, opt, changes=changes)
 
     #electron quantities
     for charge in ['plus', 'minus']:
@@ -202,6 +190,7 @@ def electrons(files, opt):
     changes = {
         'log': True,
         'x': [30, 750],
+        'nbins': 40,
         'filename': 'zpt_mad-pow',
         'labels': ['data', 'madgraph', 'powheg'],
 
@@ -222,6 +211,7 @@ def electrons(files, opt):
     changes = {
         'log':True,
         'x': [30, 750],
+        'nbins': 40,
         'filename': 'zpt_pow',
         'labels':['data', 'powheg'],
     }
@@ -238,14 +228,17 @@ def electrons(files, opt):
         'labels': ['data', 'MC', 'backgrounds'],
         'markers': ['o', 'f', 'f'],
         'stacked': True,
+        'ratiosubplot': False,
 
     }
     changes.update(base_changes)
+    changes['ratiosubplot'] = False
     plotdatamc.datamcplot('zpt', files, opt, changes=changes)
 
     changes.pop('x', None)
     changes['filename'] = 'zmass_backgrounds'
     changes['log'] = False
+    changes['ratiosubplot'] = False
     plotdatamc.datamcplot('zmass', files, opt, changes=changes)
 
 
