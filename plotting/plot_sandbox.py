@@ -486,15 +486,14 @@ def eleven(files, opt):
 def rootfile(files, opt):
     """Function for the rootfile sent to the JEC group in early August 2013."""
 
-    list_of_quantities = ['recogen_alpha',#'ptbalance_alpha', 'mpf_alpha',
-        'recogen', #'ptbalance', 'mpf',
-        'zpt', 'npv', 'zmass', 'zpt_alpha', 'npv_alpha',
-        'recogen_zpt',#'ptbalance_zpt', 'mpf_zpt',
-        'recogen_npv',#'ptbalance_npv', 'mpf_npv',
+    list_of_quantities = ['ptbalance_alpha', 'mpf_alpha',
+        'ptbalance', 'mpf', 'zpt', 'npv', 'zmass', 'zpt_alpha', 'npv_alpha',
+    'ptbalance_zpt', 'mpf_zpt',
+    'ptbalance_npv', 'mpf_npv',
     ]
 
-    for muon in [["zmumu", "1"]]:#, ["zmumu_muoncuts",
-        #    "(mupluspt>25 && muminuspt>25 && abs(mupluseta)<1.0 && abs(muminuseta)<1.0)"]]:
+    for muon in [["zmumu", "1"], ["zmumu_muoncuts",
+            "(mupluspt>25 && muminuspt>25 && abs(mupluseta)<1.0 && abs(muminuseta)<1.0)"]]:
         for alpha in [[0, "alpha<0.2", "alpha0_2"], [1, "alpha<0.3", "alpha0_3"],
                                                 [1, "alpha<0.4", "alpha0_4"]]:
             for quantity in list_of_quantities:
