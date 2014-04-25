@@ -447,6 +447,12 @@ private:
 				return -1;
 			return metaData.m_genZs[0].p4.Pt();
 		}
+		else if (string == "genzy")
+		{
+			if (metaData.m_genZs.size() < 1)
+				return -1;
+			return metaData.m_genZs[0].p4.Rapidity();
+		}
 
 		// electrons
 		else if (string == "nelectrons")

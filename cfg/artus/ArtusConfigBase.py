@@ -196,7 +196,7 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
                     "jet1ptneutrinos", "genjet1ptneutrinos", "mpfneutrinos", "neutralpt3", "neutralpt5",
                     "genmupluspt", "genmupluseta", "genmuplusphi",
                     "genmuminuspt", "genmuminuseta", "genmuminusphi",
-                    "ngenmuons", "ngenphotons", "ngenphotonsclose", "closestphotondr", "nzs", "ninternalmuons", "nintermediatemuons", "ptgenphotonsclose", "ptdiff13", "ptdiff12", "ptdiff23", "genzpt"
+                    "ngenmuons", "ngenphotons", "ngenphotonsclose", "closestphotondr", "nzs", "ninternalmuons", "nintermediatemuons", "ptgenphotonsclose", "ptdiff13", "ptdiff12", "ptdiff23", "genzpt", "genzy"
     ]
     if rundepMC:
         cfg['Pipelines']['default']['QuantitiesVector'] += ['run', 'eventnr', 'lumisec']
