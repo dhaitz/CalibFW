@@ -404,6 +404,18 @@ public:
 			{
 				metaData.m_genInternalMuons.push_back(*it);
 			}
+			else if (std::abs(it->pdgId()) == 11 && it->status() == 1)		// stable muon
+			{
+				metaData.m_genElectrons.push_back(*it);
+			}
+			else if (std::abs(it->pdgId()) == 11 && it->status() == 2)		// intermediate muon
+			{
+				metaData.m_genIntermediateElectrons.push_back(*it);
+			}
+			else if (std::abs(it->pdgId()) == 11 && it->status() == 3)		// internal muon
+			{
+				metaData.m_genInternalElectrons.push_back(*it);
+			}
 			else if (std::abs(it->pdgId()) == 23 && it->status() == 2)	// Z
 			{
 				metaData.m_genZs.push_back(*it);
@@ -471,7 +483,7 @@ public:
 				LOG("There are no gen muons!");
 			if (metaData.m_genMuons.size() > 2)
 				LOG("There are more than 2 gen muons (" << metaData.m_genMuons.size() << ")!")
-		}
+			}
 
 		return true;
 	}

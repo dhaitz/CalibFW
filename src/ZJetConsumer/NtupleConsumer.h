@@ -347,6 +347,51 @@ private:
 		else if (string == "ngenmuons")
 			return metaData.m_genMuons.size();
 
+		//gen electron
+		else if (string == "genepluspt")
+		{
+			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
+				if (it->charge() > 0) return it->p4.Pt();
+			return -999;
+		}
+		else if (string == "genepluseta")
+		{
+			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
+				if (it->charge() > 0) return it->p4.Eta();
+			return -999;
+		}
+		else if (string == "geneplusphi")
+		{
+			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
+				if (it->charge() > 0) return it->p4.Phi();
+			return -999;
+		}
+		else if (string == "geneminuspt")
+		{
+			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
+				if (it->charge() < 0) return it->p4.Pt();
+			return -999;
+		}
+		else if (string == "geneminuseta")
+		{
+			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
+				if (it->charge() < 0) return it->p4.Eta();
+			return -999;
+		}
+		else if (string == "geneminusphi")
+		{
+			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
+				if (it->charge() < 0) return it->p4.Phi();
+			return -999;
+		}
+		else if (string == "ngenelectrons")
+			return metaData.m_genElectrons.size();
+		else if (string == "ngeninternalelectrons")
+			return metaData.m_genInternalElectrons.size();
+		else if (string == "ngenintermediateelectrons")
+			return metaData.m_genIntermediateElectrons.size();
+
+
 		// jets
 		else if (string == "njets")
 			return metaData.GetValidJetCount(s, event);
@@ -453,6 +498,41 @@ private:
 				return -1;
 			return metaData.m_genZs[0].p4.Rapidity();
 		}
+		else if (string == "genzmass")
+		{
+			if (metaData.m_genZs.size() < 1)
+				return -1;
+			return metaData.m_genZs[0].p4.mass();
+		}
+		else if (string == "deltaRzgenz")
+		{
+			if (metaData.m_genZs.size() < 1)
+				return -1;
+			else
+				return ROOT::Math::VectorUtil::DeltaR(metaData.m_genZs[0].p4,
+													  metaData.GetRefZ().p4);
+		}
+		else if (string == "deltaReplusgeneplus")
+		{
+
+			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
+			{
+				if (it->charge() > 0)
+					return ROOT::Math::VectorUtil::DeltaR(metaData.leadingeplus.p4, it->p4);
+			}
+			return -999;
+		}
+		else if (string == "deltaReminusgeneminus")
+		{
+
+			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
+			{
+				if (it->charge() < 0)
+					return ROOT::Math::VectorUtil::DeltaR(metaData.leadingeminus.p4, it->p4);
+			}
+			return -999;
+		}
+
 
 		// electrons
 		else if (string == "nelectrons")

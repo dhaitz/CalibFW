@@ -245,9 +245,9 @@ public:
 	KDataMuons m_listValidMuons;
 	KDataMuons m_listInvalidMuons;
 
-    KDataElectron leadinge;
-    KDataElectron leadingeplus;
-    KDataElectron leadingeminus;
+	KDataElectron leadinge;
+	KDataElectron leadingeplus;
+	KDataElectron leadingeminus;
 
 	KDataElectrons m_listValidElectrons;
 	KDataElectrons m_listInvalidElectrons;
@@ -256,6 +256,9 @@ public:
 	KGenParticles m_genMuons;
 	KGenParticles m_genInternalMuons;
 	KGenParticles m_genIntermediateMuons;
+	KGenParticles m_genElectrons;
+	KGenParticles m_genInternalElectrons;
+	KGenParticles m_genIntermediateElectrons;
 	KGenParticles m_genZs;
 	KGenParticles m_genPhotons;
 
