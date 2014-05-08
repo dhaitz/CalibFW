@@ -197,13 +197,14 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
                     "genmupluspt", "genmupluseta", "genmuplusphi",
                     "genmuminuspt", "genmuminuseta", "genmuminusphi",
                     "ngenmuons", "ngenphotons", "ngenphotonsclose", "closestphotondr", "nzs", "ninternalmuons", "nintermediatemuons", "ptgenphotonsclose", "ptdiff13", "ptdiff12", "ptdiff23",
-                    "genzpt", "genzy", "genzmass"
+                    "genzpt", "genzy", "genzmass", "deltaRzgenz"
     ]
     if analysis is 'zee':
         cfg['Pipelines']['default']['QuantitiesVector'] += [
-            "ngenelectrons",
+            "ngenelectrons", "ngeninternalelectrons", "ngenintermediateelectrons",
             "genepluspt", "genepluseta", "geneplusphi",
             "geneminuspt", "geneminuseta", "geneminusphi",
+            "deltaReplusgeneplus", "deltaReminusgeneminus"
         ]
     if rundepMC:
         cfg['Pipelines']['default']['QuantitiesVector'] += ['run', 'eventnr', 'lumisec']
