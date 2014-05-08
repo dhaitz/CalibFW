@@ -347,6 +347,47 @@ private:
 		else if (string == "ngenmuons")
 			return metaData.m_genMuons.size();
 
+		//gen electron
+		else if (string == "genepluspt")
+		{
+			for (auto it = metaData.m_genElectrons.begin(); it != metaData.m_genElectrons.end(); it++)
+				if (it->charge() > 0) return it->p4.Pt();
+			return -999;
+		}
+		else if (string == "genepluseta")
+		{
+			for (auto it = metaData.m_genElectrons.begin(); it != metaData.m_genElectrons.end(); it++)
+				if (it->charge() > 0) return it->p4.Eta();
+			return -999;
+		}
+		else if (string == "geneplusphi")
+		{
+			for (auto it = metaData.m_genElectrons.begin(); it != metaData.m_genElectrons.end(); it++)
+				if (it->charge() > 0) return it->p4.Phi();
+			return -999;
+		}
+		else if (string == "geneminuspt")
+		{
+			for (auto it = metaData.m_genElectrons.begin(); it != metaData.m_genElectrons.end(); it++)
+				if (it->charge() < 0) return it->p4.Pt();
+			return -999;
+		}
+		else if (string == "geneminuseta")
+		{
+			for (auto it = metaData.m_genElectrons.begin(); it != metaData.m_genElectrons.end(); it++)
+				if (it->charge() < 0) return it->p4.Eta();
+			return -999;
+		}
+		else if (string == "geneminusphi")
+		{
+			for (auto it = metaData.m_genElectrons.begin(); it != metaData.m_genElectrons.end(); it++)
+				if (it->charge() < 0) return it->p4.Phi();
+			return -999;
+		}
+		else if (string == "ngenelectrons")
+			return metaData.m_genElectrons.size();
+
+
 		// jets
 		else if (string == "njets")
 			return metaData.GetValidJetCount(s, event);
