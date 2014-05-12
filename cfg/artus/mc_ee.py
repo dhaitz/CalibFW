@@ -8,7 +8,7 @@ def config():
     conf['EnableTriggerReweighting'] = False
     conf['NEvents'] = 30459503
     conf['XSection'] = 3503.71
-    conf['checkKappa'] = "73f0d43"
+    #conf['checkKappa'] = "73f0d43"
     conf = base.expand(conf, ['all', 'zcuts'])
     return conf
 
