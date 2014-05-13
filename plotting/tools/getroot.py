@@ -319,7 +319,8 @@ def saveasroot(rootobjects, opt, settings):
     filename = opt.out + "/%s.root" % settings['filename']
     f = ROOT.TFile(filename, "UPDATE")
     for rgraph, name in zip(rootobjects, settings['labels']):
-        plotname = settings['root']  # "_".join([settings['root'], name])
+        plotname = settings['root']  
+        plotname = "_".join([settings['root'], name])
         print "Saving %s in ROOT-file %s" % (plotname, filename)
         rgraph.SetTitle(plotname)
         rgraph.SetName(plotname)
