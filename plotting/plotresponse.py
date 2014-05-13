@@ -371,8 +371,8 @@ def extrapol(files, opt,
                     'allalpha'  : True,
                     'colors'    : ['black', 'blue'],
                     'markers'   : ['o', '*'],
-                    'labels'    : [r'$p_\mathrm{T}$ balance (MC)', 
-                                                       r'$p_\mathrm{T}$ balance (MC-RD)'],
+                    'labels'    : [r'$p_\mathrm{T}$ balance (data)', 
+                                                       r'$p_\mathrm{T}$ balance (MC)'],
                     'y'         : [0.91, 1.04],
                     'cutlabel' : 'pteta',
                   }
@@ -388,7 +388,7 @@ def extrapol(files, opt,
 
         #   mpf
         changes['colors'] = ['red', 'maroon']
-        changes['labels'] = [mpflabel+' (MC)',mpflabel+' (MC-RD)']
+        changes['labels'] = [mpflabel+' (data)',mpflabel+' (MC)']
         if extrapolate_mpf ==True:
             plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, opt,
                 changes=changes, fig_axes=(fig, ax1))
@@ -417,7 +417,7 @@ def extrapol(files, opt,
             changes['markers'] = ['d']
             plotbase.plotdatamc.datamcplot('recogen_alpha', files[1:], opt,
                     changes=changes, fig_axes=(fig, ax1))
-        elif False:
+        else:
             mctruth = getroot.histofromfile('recogen', files[1], settings, 
                                             changes = {'x':[0, 2]}).GetMean()
             ax1.axhline(mctruth, color='forestgreen', linewidth=3)
@@ -445,7 +445,7 @@ def extrapol(files, opt,
         changes['colors']  = ['blue']
         changes['fitlabel_offset'] = -0.0
 
-        changes['y'] = [0.9855, 1.028]
+        changes['y'] = [0.9455, 1.008]
 
         plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, opt,
                 changes=changes, fig_axes=(fig, ax2))
