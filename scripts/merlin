@@ -29,7 +29,8 @@ def options(
             out="out",
             formats=['png'],
 
-            labels=["data", "MC", "powheg"],
+            #labels=["data", "MC", "powheg"],
+            labels=["MC", "MC-RD", "powheg"],
             colors=['black', '#CBDBF9', 'red'],
             markers=["o", "f", "-"],
             lumi=19.789,
