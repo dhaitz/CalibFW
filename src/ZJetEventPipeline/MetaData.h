@@ -397,6 +397,10 @@ public:
 		return s;
 	}
 
+	float scalefactor;
+	float sfplus;
+	float sfminus;
+
 };
 
 }

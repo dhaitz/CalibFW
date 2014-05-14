@@ -46,6 +46,7 @@
 #include "ZJetProducer/LeadingJetUncertaintyProducer.h"
 #include "ZJetEventPipeline/PipelineInitializer.h"
 #include "ZJetProducer/ZeeProducer.h"
+#include "ZJetProducer/ElectronSFProducer.h"
 
 #include "KappaTools/RootTools/HLTTools.h"
 
@@ -91,25 +92,25 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new WeightProducer(globalSettings.get<std::string>("PileupWeights")));
 		else if (PileupTruthProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new PileupTruthProducer(
-					globalSettings.get<std::string>("PileupTruth"),
-					globalSettings.get<double>("MinBiasXS")));
+											 globalSettings.get<std::string>("PileupTruth"),
+											 globalSettings.get<double>("MinBiasXS")));
 		else if (MuonCorrector::Name() == *it)
 			runner.AddGlobalMetaProducer(new MuonCorrector(
-					mucorr,
-					globalSettings.get<std::string>("MuonCorrectionParametersRunD", mucorr),
-					globalSettings.get<bool>("MuonSmearing", false),
-					globalSettings.get<bool>("MuonRadiationCorrection", false)));
+											 mucorr,
+											 globalSettings.get<std::string>("MuonCorrectionParametersRunD", mucorr),
+											 globalSettings.get<bool>("MuonSmearing", false),
+											 globalSettings.get<bool>("MuonRadiationCorrection", false)));
 		else if (ValidJetProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidJetProducer(
-					globalSettings.get<bool>("Tagged")));
+											 globalSettings.get<bool>("Tagged")));
 		else if (ValidJetEEProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidJetEEProducer(
-					globalSettings.get<bool>("Tagged")));
+											 globalSettings.get<bool>("Tagged")));
 		else if (JetCorrector::Name() == *it)
 			runner.AddGlobalMetaProducer(new JetCorrector(
-					globalSettings.get<std::string>("Jec"),
-					globalSettings.get<std::string>("L1Correction"),
-					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
+											 globalSettings.get<std::string>("Jec"),
+											 globalSettings.get<std::string>("L1Correction"),
+											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else if (JetSorter::Name() == *it)
 			runner.AddGlobalMetaProducer(new JetSorter());
 		else if (HltSelector::Name() == *it)
@@ -142,6 +143,8 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new ZEEProducer());
 		else if (ValidElectronProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidElectronProducer());
+		else if (ElectronSFProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new ElectronSFProducer(globalSettings.get<std::string>("ScaleFactors")));
 		else
 			LOG_FATAL("Global MetaData producer of name " << *it << " not found");
 	}
