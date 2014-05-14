@@ -827,6 +827,12 @@ private:
 		}
 		else if (string == "unc")
 			return metaData.leadingjetuncertainty[s.GetJetAlgorithm()];
+		else if (string == "sf")
+			return metaData.scalefactor;
+		else if (string == "sfplus")
+			return metaData.sfplus;
+		else if (string == "sfminus")
+			return metaData.sfminus;
 		else
 			LOG_FATAL("NtupleConsumer: Quantity (" << string << ") not available!");
 
