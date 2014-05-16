@@ -418,6 +418,7 @@ public:
 	float sfplus;
 	float sfminus;
 
+	bool electronidveto;
 };
 
 }

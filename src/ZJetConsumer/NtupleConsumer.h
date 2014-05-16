@@ -820,12 +820,32 @@ private:
 		}
 		else if (string == "unc")
 			return metaData.leadingjetuncertainty[s.GetJetAlgorithm()];
+
+		//some electron stuff
 		else if (string == "sf")
 			return metaData.scalefactor;
 		else if (string == "sfplus")
 			return metaData.sfplus;
 		else if (string == "sfminus")
 			return metaData.sfminus;
+		else if (string == "eidveto")
+			return metaData.electronidveto;
+		else if (string == "eplusidloose")
+			return metaData.leadingeplus.cutbasedIDloose;
+		else if (string == "eplusidmedium")
+			return metaData.leadingeplus.cutbasedIDmedium;
+		else if (string == "eplusidtight")
+			return metaData.leadingeplus.cutbasedIDtight;
+		else if (string == "eplusidveto")
+			return metaData.leadingeplus.cutbasedIDveto;
+		else if (string == "eminusidloose")
+			return metaData.leadingeminus.cutbasedIDloose;
+		else if (string == "eminusidmedium")
+			return metaData.leadingeminus.cutbasedIDmedium;
+		else if (string == "eminusidtight")
+			return metaData.leadingeminus.cutbasedIDtight;
+		else if (string == "eminusidveto")
+			return metaData.leadingeminus.cutbasedIDveto;
 		else
 			LOG_FATAL("NtupleConsumer: Quantity (" << string << ") not available!");
 

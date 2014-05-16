@@ -122,7 +122,11 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
             "eminusmass", "eminuspt", "eminuseta", "eminusphi", "eminusiso", "eminusid", "eminustrigid",
             "eplusmass", "epluspt", "epluseta", "eplusphi", "eplusiso", "eplusid", "eplustrigid",
             "eplusecaliso03", "eminusecaliso03", "eplusecaliso04", "eminusecaliso04",
+            "eplusidloose", "eplusidmedium", "eplusidtight", "eplusidveto",
+            "eminusidloose", "eminusidmedium", "eminusidtight", "eminusidveto",
+            "eidveto"
         ]
+        config['ElectronID'] = 'tight'
         config['muons'] = ''
         config['electrons'] = 'electrons'
     else:
