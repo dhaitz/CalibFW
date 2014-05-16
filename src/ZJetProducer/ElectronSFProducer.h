@@ -16,7 +16,7 @@ public:
 
 	ElectronSFProducer(std::string sffile)
 	{
-		const std::string s = "sfLOOSE";
+		const std::string s = "sfMEDIUM";
 		LOG("Loading electron scale factors (" << s << "):\n  " << sffile)
 		TFile file(sffile.c_str(), "READONLY");
 		TH1D* sfhisto = (TH1D*) file.Get(s.c_str());

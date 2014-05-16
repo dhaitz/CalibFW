@@ -18,6 +18,9 @@ public:
 										ZJetMetaData& metaData,
 										ZJetPipelineSettings const& globalSettings) const
 	{
+
+		bool mvaid = false;
+
 		for (KDataElectrons::iterator it = data.m_electrons->begin();
 			 it != data.m_electrons->end(); it++)
 		{
@@ -33,31 +36,54 @@ public:
 			// Electron ID
 			// https://twiki.cern.ch/twiki/bin/viewauth/CMS/MultivariateElectronIdentificatio
 			// different thresholds depending on electron pT, eta
-			good_electron = good_electron &&
-							(
+			if (mvaid == true)
+			{
+				good_electron = good_electron &&
 								(
-									(it->p4.Pt() < 10)
-									&&
 									(
-										(abs(it->p4.Eta()) < 0.8 && it->idMvaNonTrigV0 > 0.47)
-										|| (abs(it->p4.Eta()) > 0.8 && abs(it->p4.Eta()) < 1.479 && it->idMvaNonTrigV0 > 0.004)
-										|| (abs(it->p4.Eta()) > 1.479 && abs(it->p4.Eta()) < 2.5 && it->idMvaNonTrigV0 > 0.295)
+										(it->p4.Pt() < 10)
+										&&
+										(
+											(abs(it->p4.Eta()) < 0.8 && it->idMvaNonTrigV0 > 0.47)
+											|| (abs(it->p4.Eta()) > 0.8 && abs(it->p4.Eta()) < 1.479 && it->idMvaNonTrigV0 > 0.004)
+											|| (abs(it->p4.Eta()) > 1.479 && abs(it->p4.Eta()) < 2.5 && it->idMvaNonTrigV0 > 0.295)
+										)
 									)
-								)
-								||
-								(
-									(it->p4.Pt() > 10) &&
+									||
 									(
-										(abs(it->p4.Eta()) < 0.8 && it->idMvaNonTrigV0 > -0.34)
-										|| (abs(it->p4.Eta()) > 0.8 && abs(it->p4.Eta()) < 1.479 && it->idMvaNonTrigV0 > -0.65)
-										|| (abs(it->p4.Eta()) > 1.479 && abs(it->p4.Eta()) < 2.5 && it->idMvaNonTrigV0 > 0.6)
+										(it->p4.Pt() > 10) &&
+										(
+											(abs(it->p4.Eta()) < 0.8 && it->idMvaNonTrigV0 > -0.34)
+											|| (abs(it->p4.Eta()) > 0.8 && abs(it->p4.Eta()) < 1.479 && it->idMvaNonTrigV0 > -0.65)
+											|| (abs(it->p4.Eta()) > 1.479 && abs(it->p4.Eta()) < 2.5 && it->idMvaNonTrigV0 > 0.6)
+										)
 									)
-								)
-							);
+								);
 
-			good_electron = good_electron
-							&& it->track.nInnerHits <= 1
-							&& (it->trackIso04 / it->p4.Pt()) < 0.4;
+				good_electron = good_electron
+								&& it->track.nInnerHits <= 1
+								&& (it->trackIso04 / it->p4.Pt()) < 0.4;
+			}
+			else
+			{
+				//LOG(it->hasConversionMatch)
+
+				if (it->isEB)
+				{
+					good_electron = good_electron &&
+									fabs(it->deltaEtaSuperClusterTrackAtVtx) < 0.004
+									&& fabs(it->deltaPhiSuperClusterTrackAtVtx) < 0.06
+									&& it->sigmaIetaIeta < 0.01
+									&& it->hadronicOverEm < 0.12
+									&& fabs(it->dxy) < 0.02
+									&& fabs(it->dz) < 0.1
+									&& fabs((1 / it->ecalEnergy) - (1 / (it->ecalEnergy / it->eSuperClusterOverP))) < 0.05
+									&& it->numberOfHits == 1;
+
+					//if (good_electron)
+					//LOG("after id" << it->hasConversionMatch)
+				}
+			}
 
 			if (good_electron)
 				metaData.m_listValidElectrons.push_back(*it);
