@@ -1,6 +1,6 @@
 echo $FILE_NAMES
 cd $CMSSW_BASE
-export VO_CMS_SW_DIR=/wlcg/sw/cms
+export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch/
 export SCRAM_ARCH=slc5_amd64_gcc462
 source $VO_CMS_SW_DIR/cmsset_default.sh
 eval `scram runtime -sh`
