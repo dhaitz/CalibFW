@@ -42,7 +42,7 @@ void KappaEventProvider<ZJetEventData>::WireEvent(bool phicorrection, bool tagge
 	if (m_fi.isMC())
 	{
 		//InitGenJets(m_event, "AK5GenJets");
-		InitGenJets(m_event, "AK7GenJets");
+		//InitGenJets(m_event, "AK7GenJets");
 
 		if (tagged)
 			m_event.m_genJets["AK5GenJets"] = m_fi.Get<KDataLVs>("AK5GenJetsNoNu");
