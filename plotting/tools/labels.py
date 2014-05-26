@@ -27,7 +27,7 @@ def labels(ax, opt, settings, subplot=False):
         if settings['run'] is True:
             plotbase.runlabel(ax, settings)
         if 'selection' in opt.user_options:
-            ax.text(0.98, 0.98, opt.user_options['selection'], va='top', ha='right',
+            ax.text(0.02, 0.98, opt.user_options['selection'], va='top', ha='left',
                             transform=ax.transAxes, size='small', color='black')
         if settings['subtext'] is not None:
             ax.text(-0.03, 1.01, settings['subtext'], va='bottom', ha='right',
@@ -304,6 +304,8 @@ def axislabels(ax, x='zpt', y='events', brackets=False, labels=['', ''], setting
         string = unitformat(quantity, unit, brackets)
         if settings['ratio'] and y is not "datamcratio":
             string += "   Data/MC ratio"
+        elif y is "datamcratio":
+            string = "%s/%s" % (labels[0], labels[1])
         if settings['run'] == "diff":
             string += "   Data-MC"
         ax.set_ylabel(string, va="top", y=1)
