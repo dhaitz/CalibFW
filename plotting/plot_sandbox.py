@@ -11,6 +11,16 @@ import plot_tagging
 import fit
 
 
+def pileup(files, opt):
+
+    for ptlow, pthigh in zip(opt.zbins[:-1], opt.zbins[1:]):
+        plotresponse.responseratio(files, opt, over='npv', types=['mpf'], changes={
+            'allalpha':True,
+            'selection':'alpha<0.3 && zpt>%s && zpt<%s' % (ptlow, pthigh),
+            'filename': "mpf_npv_%s-%s" % (ptlow, pthigh)
+            }
+        )
+
 def emucomparison(files, opt):
     values = []
     valueerrs = []

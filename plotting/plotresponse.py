@@ -65,12 +65,12 @@ def responseplot(files, opt, types=None, over=None, settings=None,
     plotbase.setaxislimits(ax, settings)
 
     #label with pt and eta cut
-    if over in ['jet1eta', 'jet1abseta'] :
-        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}$>30 GeV"
-    else:
-        pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}$>30 GeV    $\eta^\mathrm{Jet1}$<1.3"#     $\alpha$ < 0.2"# or  $p_{\mathrm{T}}^{\mathrm{Jet2}}$<12 GeV"
-    ax.text(0.02, 0.98, pt_eta_label, va='top', ha='left', color='black', 
-                                        transform=ax.transAxes, size='small')
+    #if over in ['jet1eta', 'jet1abseta'] :
+    #    pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}$>30 GeV"
+    #else:
+    #    pt_eta_label = r"$p_\mathrm{T}^\mathrm{Z}$>30 GeV    $\eta^\mathrm{Jet1}$<1.3"#     $\alpha$ < 0.2"# or  $p_{\mathrm{T}}^{\mathrm{Jet2}}$<12 GeV"
+    #ax.text(0.02, 0.98, pt_eta_label, va='top', ha='left', color='black', 
+    #                                    transform=ax.transAxes, size='small')
 
     # return subplot or save:
     if settings['subplot'] is True:
@@ -138,9 +138,9 @@ def ratioplot(files, opt, types, labels=None,
         ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
         plotbinborders(ax, over, plot.y, opt)
 
-    if settings.get('uncertaintyband', False):
+    if True:#settings.get('uncertaintyband', True):
         settings['special_binning']  = True
-        datamc = getroot.root2histo(getroot.histofromfile('unc_%s' % over, files[0], settings), "unc", 1)
+        datamc = getroot.root2histo(getroot.histofromfile('unc_%s' % over, files[1], settings), "unc", 1)
         ax.fill_between(datamc.xc, [1-y for y in datamc.y], [1+y for y in datamc.y],
                 facecolor='grey', edgecolor='grey', interpolate=True, alpha=0.2)
 
@@ -148,6 +148,7 @@ def ratioplot(files, opt, types, labels=None,
     plotbase.labels(ax, opt, settings)
     plotbase.setaxislimits(ax, settings)
     plotbase.axislabels(ax, over, 'datamcratio', labels=settings['labels'], settings=settings)
+    
 
     if ratiosubplot: label = 'ratio'
     else: label = 'responseratio'
@@ -238,13 +239,13 @@ def responseratio(files, opt, over='zpt', types=['balresp'], fit=False,
     fig.add_axes(ax1)
     fig.add_axes(ax2)
 
-    responseplot(files, opt, types, over, changes=changes, figaxes=(fig,ax1))
+    responseplot(files, opt, types, over, changes=changes, figaxes=(fig,ax1), settings=settings)
 
     changes['energy'] = None
     #changes['lumi']   = None
     changes['legloc']   = "lower left"
 
-    ratioplot(files, opt, types, changes=changes, over=over, figaxes=(fig,ax2))
+    ratioplot(files, opt, types, changes=changes, over=over, figaxes=(fig,ax2), settings=settings)
 
     fig.subplots_adjust(hspace=0.05)
     ax1.set_xticks([])
