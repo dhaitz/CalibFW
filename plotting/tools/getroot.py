@@ -213,6 +213,7 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False):
     roothisto.Sumw2()
     print "Weights:", selection
     ntuple.Project(name, variables, selection)
+    ntuple.Delete()
 
     if roothisto.ClassName() == 'TH2D':
         print "Correlation between %s and %s in %s in the selected range:  %1.5f" % (
