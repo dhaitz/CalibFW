@@ -15,7 +15,7 @@ template <class TEventType>
 class KappaEventProvider: public EventProvider<TEventType>
 {
 public:
-	KappaEventProvider(FileInterface2& fi, InputTypeEnum inpType, bool phicorrection, bool tagged) :
+	KappaEventProvider(FileInterface2& fi, InputTypeEnum inpType, boost::property_tree::ptree propTree) :
 		m_prevRun(-1), m_prevLumi(-1), m_inpType(inpType), m_fi(fi)
 	{
 		// setup pointer to collections
@@ -30,7 +30,7 @@ public:
 		{
 			m_event.m_pthatbin = -1;  // sample reweighting is off
 		}
-		WireEvent(phicorrection, tagged);
+		WireEvent(propTree);
 		m_fi.SpeedupTree();
 
 		// auto-delete objects when moving to a new object. Not defult root behaviour
@@ -40,7 +40,7 @@ public:
 	}
 
 	// overwrite using template specialization
-	void WireEvent(bool phicorrection, bool tagged)
+	void WireEvent(boost::property_tree::ptree propTree)
 	{
 		assert(false);
 	}

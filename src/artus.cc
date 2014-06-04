@@ -243,7 +243,7 @@ int main(int argc, char** argv)
 
 		gset.SetInputType(g_inputType);
 
-		ZJetEventProvider evtProvider(finterface, g_inputType, gset.GetEnableMetPhiCorrection(), g_propTree.get<bool>("Tagged"));
+		ZJetEventProvider evtProvider(finterface, g_inputType, g_propTree);
 		gset.m_metphi = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "MetPhiCorrectionParameters");
 
 		// pipline settings
