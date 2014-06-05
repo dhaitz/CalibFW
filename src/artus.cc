@@ -128,7 +128,8 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 		else if (TypeIMETProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new TypeIMETProducer(
 											 globalSettings.get<bool>("EnableMetPhiCorrection"),
-											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
+											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms"),
+											 globalSettings.get<bool>("RC")));
 
 		else if (UnclusteredEnergyProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new UnclusteredEnergyProducer(

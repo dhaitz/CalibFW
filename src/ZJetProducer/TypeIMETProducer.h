@@ -8,8 +8,12 @@ class TypeIMETProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
 
-	TypeIMETProducer(bool EnableMetPhiCorrection, stringvector baseAlgos) : ZJetGlobalMetaDataProducerBase(), m_basealgorithms(baseAlgos), metphi(EnableMetPhiCorrection)
-	{}
+	TypeIMETProducer(bool EnableMetPhiCorrection, stringvector baseAlgos, bool rc) :
+		ZJetGlobalMetaDataProducerBase(), m_basealgorithms(baseAlgos), metphi(EnableMetPhiCorrection), m_rc(rc)
+	{
+		if (m_rc)
+			LOG("Using RC Offset to calculate type-I corrections")
+		}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
 										ZJetMetaData& metaData,
@@ -18,7 +22,7 @@ public:
 
 		for (unsigned int i = 0; i < m_basealgorithms.size(); i++)
 		{
-			std::string algoname_raw;
+			std::string algoname_raw, algoname_l1;
 			KDataPFMET* rawmet;
 			std::vector<std::string> algorithms;
 			float sumEt_correction = 0;
@@ -35,7 +39,10 @@ public:
 				rawmet = event.m_pfMetChs;
 			}
 
-			std::string algoname_l1 = algoname_raw + "L1";
+			if (m_rc)
+				algoname_l1 = algoname_raw + "RC";
+			else
+				algoname_l1 = algoname_raw + "L1";
 
 			algorithms.push_back(algoname_raw + "L1L2L3");
 			//if data, add residuals:
@@ -93,6 +100,7 @@ public:
 private:
 	std::vector<std::string> m_basealgorithms;
 	bool metphi;
+	bool m_rc;
 };
 
 }
