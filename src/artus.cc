@@ -107,9 +107,10 @@ void AddGlobalMetaProducer(std::vector<std::string> const& producer,
 					globalSettings.get<bool>("Tagged")));
 		else if (JetCorrector::Name() == *it)
 			runner.AddGlobalMetaProducer(new JetCorrector(
-					globalSettings.get<std::string>("Jec"),
-					globalSettings.get<std::string>("L1Correction"),
-					PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
+											 globalSettings.get<std::string>("Jec"),
+											 globalSettings.get<std::string>("L1Correction"),
+											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms"),
+											 globalSettings.get<bool>("RC")));
 		else if (JetSorter::Name() == *it)
 			runner.AddGlobalMetaProducer(new JetSorter());
 		else if (HltSelector::Name() == *it)

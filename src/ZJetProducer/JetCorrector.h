@@ -14,6 +14,7 @@ namespace Artus
 struct JecCorrSet
 {
 	boost::scoped_ptr<JECService> m_l1;
+	boost::scoped_ptr<JECService> m_rc;
 	boost::scoped_ptr<JECService> m_l2;
 	boost::scoped_ptr<JECService> m_l3;
 	boost::scoped_ptr<JECService> m_l2l3res;
@@ -30,7 +31,7 @@ public:
 	}
 
 
-	JetCorrector(std::string corBase, std::string l1cor, stringvector baseAlgos);
+	JetCorrector(std::string corBase, std::string l1cor, stringvector baseAlgos, bool rc);
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
 								  ZJetMetaData& metaData,
@@ -63,6 +64,7 @@ private:
 	std::string m_corectionFileBase;
 	std::string m_l1correction;
 	std::vector<std::string> m_basealgorithms;
+	bool m_rc;
 
 };
 

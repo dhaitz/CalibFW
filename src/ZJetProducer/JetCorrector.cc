@@ -5,9 +5,9 @@
 namespace Artus
 {
 
-JetCorrector::JetCorrector(std::string corBase, std::string l1cor, std::vector<std::string> baseAlgos) :
+JetCorrector::JetCorrector(std::string corBase, std::string l1cor, std::vector<std::string> baseAlgos, bool rc) :
 	ZJetGlobalMetaDataProducerBase(), m_corectionFileBase(corBase),
-	m_l1correction(l1cor), m_basealgorithms(baseAlgos)
+	m_l1correction(l1cor), m_basealgorithms(baseAlgos), m_rc(rc)
 {
 	LOG_FILE("Loading JEC from " << m_corectionFileBase);
 }
@@ -36,33 +36,45 @@ void JetCorrector::InitCorrection(std::string algoName, std::string algoCorrecti
 	corLevel.push_back(m_l1correction);
 	m_corrService.insert(algoCorrectionAlias, new JecCorrSet());
 	m_corrService[algoCorrectionAlias].m_l1.reset(new JECService(
-			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
-			prefix, corLevel, algoName, 0, 0, 0)
-	);
+				event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+				prefix, corLevel, algoName, 0, 0, 0)
+												 );
+
+	if (m_rc)
+	{
+		//additional RC correction (for type-I)
+		corLevel.clear();
+		corLevel.push_back("RC");
+		m_corrService.insert(algoCorrectionAlias, new JecCorrSet());
+		m_corrService[algoCorrectionAlias].m_rc.reset(new JECService(
+					event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+					prefix, corLevel, algoName, 0, 0, 0)
+													 );
+	}
 
 	// only apply one correction step in a round!
 	corLevel.clear();
 	corLevel.push_back("L2Relative");
 	m_corrService[algoCorrectionAlias].m_l2.reset(new JECService(
-			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
-			prefix, corLevel, algoName, 0, 0, 0)
-	);
+				event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+				prefix, corLevel, algoName, 0, 0, 0)
+												 );
 
 	// only apply one correction step in a round!
 	corLevel.clear();
 	corLevel.push_back("L3Absolute");
 	m_corrService[algoCorrectionAlias].m_l3.reset(new JECService(
-			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
-			prefix, corLevel, algoName, 0, 0, 0)
-	);
+				event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+				prefix, corLevel, algoName, 0, 0, 0)
+												 );
 
 	// only used for data
 	corLevel.clear();
 	corLevel.push_back("L2L3Residual");
 	m_corrService[algoCorrectionAlias].m_l2l3res.reset(new JECService(
-			event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
-			prefix, corLevel, algoName, 0, 0, rcorr)
-	);
+				event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
+				prefix, corLevel, algoName, 0, 0, rcorr)
+													  );
 	LOG_FILE("");
 }
 
@@ -77,6 +89,7 @@ void JetCorrector::CreateCorrections(
 {
 	std::string algoName_raw = algoName + algoPostfix;
 	std::string algoName_l1 = algoName_raw + "L1";
+	std::string algoName_rc = algoName_raw + "RC";
 	std::string algoName_l2 = algoName_raw + "L1L2";
 	std::string algoName_l3 = algoName_raw + "L1L2L3";
 	std::string algoName_l3res = algoName_raw + "L1L2L3Res";
@@ -84,6 +97,12 @@ void JetCorrector::CreateCorrections(
 	CorrectJetCollection(algoName_raw, algoName_l1,
 						 this->m_corrService.at(algoCorrectionAlias).m_l1,
 						 event, metaData, settings);
+	if (m_rc)
+	{
+		CorrectJetCollection(algoName_raw, algoName_rc,
+							 this->m_corrService.at(algoCorrectionAlias).m_rc,
+							 event, metaData, settings);
+	}
 	CorrectJetCollection(algoName_l1, algoName_l2,
 						 this->m_corrService.at(algoCorrectionAlias).m_l2,
 						 event, metaData, settings);
@@ -136,7 +155,7 @@ void JetCorrector::CorrectJetCollection(
 	for (unsigned int i = 0; i < jetcount; ++i)
 	{
 		KDataPFTaggedJet* jet = static_cast<KDataPFTaggedJet*>(
-				metaData.GetValidJet(settings, event, i, algoName));
+									metaData.GetValidJet(settings, event, i, algoName));
 
 		// create a copy
 		KDataPFTaggedJet jet_corr = *jet;

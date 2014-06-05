@@ -102,6 +102,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
         'Tagged': tagged,
         'VetoPileupJets': False,
         'checkKappa': False,
+        'RC': False,  # also provide random cone offset JEC, and use for type-I
 
         # Wire kappa objects
         'electrons': 'electrons',
