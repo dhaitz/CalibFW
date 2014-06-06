@@ -302,10 +302,11 @@ def axislabels(ax, x='zpt', y='events', brackets=False, labels=['', ''], setting
 
     def setyaxis(limits=(0, 1), quantity="y", unit="", bottom=None):
         string = unitformat(quantity, unit, brackets)
-        if settings['ratio'] and y is not "datamcratio":
-            string += "   Data/MC ratio"
-        elif y is "datamcratio":
-            string = "%s/%s" % (labels[0], labels[1])
+        if y in ["datamcratio", "ratio", "Ratio"]:
+            if labels != ['', '']:
+                string = "%s/%s" % (labels[0], labels[1])
+            else:
+                string = 'ratio'
         if settings['run'] == "diff":
             string += "   Data-MC"
         ax.set_ylabel(string, va="top", y=1)
