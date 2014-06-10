@@ -1,4 +1,3 @@
-
 import plotbase
 import copy
 import plotdatamc
@@ -9,6 +8,46 @@ import plotfractions
 import plot2d
 import plot_tagging
 import fit
+
+
+def mpfslopes(files, opt):
+    """ Plot the slope of a linear fit on MPF vs NPV, in Z pT bins."""
+    quantity="mpf_npv"
+    settings = plotbase.getsettings(opt, quantity=quantity)
+    settings['special_binning'] = True
+
+    fig, ax = plotbase.newplot()
+
+    for f, c, l, m, in zip(files, settings['colors'], settings['labels'], 
+            settings['markers']):
+        slopes, serrs, x = [], [], []
+
+        # iterate over Z pT bins
+        for ptlow, pthigh in zip(opt.zbins[:-1], opt.zbins[1:]):
+            changes = {'selection':'zpt>%s && zpt<%s' % (ptlow, pthigh)}
+            rootobject = getroot.histofromfile(quantity, f, settings, changes=changes)
+
+            # get fit parameters and mean Z pT; append to lists
+            slope, serr = fit.fitline2(rootobject)[2:4]
+            slopes += [slope]
+            serrs += [serr]
+            x += [getroot.histofromfile("zpt", f, settings, changes=changes).GetMean()]
+
+        ax.errorbar(x, slopes, serrs, drawstyle='steps-mid', color=c,
+                                            fmt='o', capsize=0, label=l)
+
+    #formatting stuff
+    settings['x'] = [30, 100]
+    settings['y'] = [0.95, 1.05]
+    plotbase.setaxislimits(ax, settings)
+    plotbase.labels(ax, opt, settings)
+    ax.set_xscale('log')
+    settings['xticks'] = [30, 50, 70, 100, 200, 400 ,1000]
+    plotbase.axislabels(ax, 'zpt', 'slope from fit on MPF vs NPV', settings=settings)
+    ax.set_ylim(-0.003, 0.003)
+    ax.grid(True)
+
+    plotbase.Save(fig, settings)
 
 
 def pileup(files, opt):
