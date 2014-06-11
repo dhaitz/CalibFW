@@ -123,6 +123,8 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
             "eplusmass", "epluspt", "epluseta", "eplusphi", "eplusiso", "eplusid", "eplustrigid",
             "eplusecaliso03", "eminusecaliso03", "eplusecaliso04", "eminusecaliso04",
         ]
+        config['muons'] = ''
+        config['electrons'] = 'electrons'
     else:
         # The order of these producers is important!
         config['GlobalProducer'] = [
@@ -137,6 +139,8 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
             "mu2pt", "mu2eta", "mu2phi",
             "nmuons", "muplusiso", "muminusiso",
         ]
+        config['muons'] = 'muons'
+        config['electrons'] = ''
 
     if tagged:
         config['Pipelines']['default']['QuantitiesVector'] += [

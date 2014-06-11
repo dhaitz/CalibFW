@@ -16,7 +16,8 @@ void KappaEventProvider<ZJetEventData>::WireEvent(boost::property_tree::ptree pr
 								  "goodOfflinePrimaryVerticesSummary");
 	m_event.m_beamSpot = m_fi.Get<KDataBeamSpot>("offlineBeamSpot");
 	m_event.m_jetArea = m_fi.Get<KJetArea>("KT6Area");
-	m_event.m_muons = m_fi.Get<KDataMuons>("muons");
+	if (propTree.get<std::string>("muons") != "")
+		m_event.m_muons = m_fi.Get<KDataMuons>("muons");
 	//m_event.m_electrons = m_fi.Get<KDataElectrons>("calelectrons");
 	m_event.m_electrons = m_fi.Get<KDataElectrons>(propTree.get<std::string>("electrons"));
 	m_event.m_pfMet = m_fi.Get<KDataPFMET>("PFMET");
