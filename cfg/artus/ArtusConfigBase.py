@@ -169,6 +169,23 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
       - pile-up reweighting factors
       - additional producers
     """
+    # general MC settings
+    cfg['Pipelines']['default']['QuantitiesVector'] += [
+                    "npu", "eff",
+                    "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
+                    "matchedgenjet1pt", "genmpf",
+                    "algoflavour", "physflavour",
+                    "algopt", "physpt",
+                    "jet1ptneutrinos", "genjet1ptneutrinos", "mpfneutrinos", "neutralpt3", "neutralpt5",
+                    "genmupluspt", "genmupluseta", "genmuplusphi",
+                    "genmuminuspt", "genmuminuseta", "genmuminusphi",
+                    "ngenmuons", "ngenphotons", "ngenphotonsclose", "closestphotondr", "nzs", "ninternalmuons", "nintermediatemuons", "ptgenphotonsclose", "ptdiff13", "ptdiff12", "ptdiff23",
+                    "genzpt", "genzy", "genzmass", "deltaRzgenz"
+    ]
+    cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'gen_balance_producer', 'gen_met_producer', 'weight_producer', 'flavour_producer']
+    cfg['AK5GenJets'] = 'AK5GenJetsNoNu'
+
+    # Year-dependent settings
     if run == '2011':
         cfg['Jec'] = getPath() + "/data/jec/START44_V12"
         cfg["EnablePuReweighting"] = True
@@ -191,18 +208,7 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
         print "MC period", run, "is undefined. No jet corrections known."
         exit(0)
 
-    cfg['Pipelines']['default']['QuantitiesVector'] += [
-                    "npu", "eff",
-                    "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
-                    "matchedgenjet1pt", "genmpf",
-                    "algoflavour", "physflavour",
-                    "algopt", "physpt",
-                    "jet1ptneutrinos", "genjet1ptneutrinos", "mpfneutrinos", "neutralpt3", "neutralpt5",
-                    "genmupluspt", "genmupluseta", "genmuplusphi",
-                    "genmuminuspt", "genmuminuseta", "genmuminusphi",
-                    "ngenmuons", "ngenphotons", "ngenphotonsclose", "closestphotondr", "nzs", "ninternalmuons", "nintermediatemuons", "ptgenphotonsclose", "ptdiff13", "ptdiff12", "ptdiff23",
-                    "genzpt", "genzy", "genzmass", "deltaRzgenz"
-    ]
+    # Analysis-specific settings
     if analysis is 'zee':
         cfg['Pipelines']['default']['QuantitiesVector'] += [
             "ngenelectrons", "ngeninternalelectrons", "ngenintermediateelectrons",
@@ -210,15 +216,14 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
             "geneminuspt", "geneminuseta", "geneminusphi",
             "deltaReplusgeneplus", "deltaReminusgeneminus"
         ]
-    if rundepMC:
-        cfg['Pipelines']['default']['QuantitiesVector'] += ['run', 'eventnr', 'lumisec']
-    cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'gen_balance_producer', 'gen_met_producer', 'weight_producer', 'flavour_producer']
-    cfg['AK5GenJets'] = 'AK5GenJetsNoNu'
-    if analysis is not 'zee':
+    else:
         cfg['EnableLumiReweighting'] = True
         cfg['EnableTriggerReweighting'] = True
         cfg['NEvents'] = 30459503
         cfg['XSection'] = 3503.71
+    # special for rundep MC
+    if rundepMC:
+        cfg['Pipelines']['default']['QuantitiesVector'] += ['run', 'eventnr', 'lumisec']
     return cfg
 
 
