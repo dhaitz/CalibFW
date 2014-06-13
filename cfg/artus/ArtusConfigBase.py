@@ -219,8 +219,11 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
             "ngenelectrons", "ngeninternalelectrons", "ngenintermediateelectrons",
             "genepluspt", "genepluseta", "geneplusphi",
             "geneminuspt", "geneminuseta", "geneminusphi",
-            "deltaReplusgeneplus", "deltaReminusgeneminus"
+            "deltaReplusgeneplus", "deltaReminusgeneminus",
+            'sf', 'sfplus', 'sfminus'
         ]
+        cfg['GlobalProducer'] += ['electron_sf_producer']
+        cfg['ScaleFactors'] = '/portal/ekpcms5/home/dhaitz/git/CalibFW/data/Electron-CutBasedIdScaleFactors.root'
     else:
         cfg['EnableLumiReweighting'] = True
         cfg['EnableTriggerReweighting'] = True

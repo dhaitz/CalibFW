@@ -13,6 +13,7 @@
 #include "ZJetProducer/LeadingJetUncertaintyProducer.h"
 #include "ZJetProducer/ZeeProducer.h"
 #include "ZJetProducer/LHEProducer.h"
+#include "ZJetProducer/ElectronSFProducer.h"
 
 
 using namespace Artus;
@@ -90,6 +91,9 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new ZEEProducer());
 		else if (ValidElectronProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidElectronProducer());
+		else if (ElectronSFProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new ElectronSFProducer(globalSettings.get<std::string>("ScaleFactors"),
+										 globalSettings.get<std::string>("ElectronID")));
 		else if (LHEProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new LHEProducer());
 		else
