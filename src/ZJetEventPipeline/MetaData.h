@@ -214,6 +214,7 @@ public:
 	IMPL_PROPERTY(double, NpuTruth)
 	IMPL_PROPERTY(double, Efficiency)
 	IMPL_PROPERTY(std::string, SelectedHlt)
+	IMPL_PROPERTY(KGenParticle, LHEZ);
 
 	KDataMuons const& GetValidMuons() const
 	{

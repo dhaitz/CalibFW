@@ -533,6 +533,18 @@ private:
 			return -999;
 		}
 
+		//LHE Z information
+		else if (string == "lhezpt")
+			return metaData.GetLHEZ().p4.Pt();
+		else if (string == "lhezeta")
+			return metaData.GetLHEZ().p4.Eta();
+		else if (string == "lhezy")
+			return metaData.GetLHEZ().p4.Rapidity();
+		else if (string == "lhezphi")
+			return metaData.GetLHEZ().p4.Phi();
+		else if (string == "lhezmass")
+			return metaData.GetLHEZ().p4.mass();
+
 
 		// electrons
 		else if (string == "nelectrons")

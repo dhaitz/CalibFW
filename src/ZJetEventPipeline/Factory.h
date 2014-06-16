@@ -12,6 +12,8 @@
 #include "ZJetProducer/FlavourProducer.h"
 #include "ZJetProducer/LeadingJetUncertaintyProducer.h"
 #include "ZJetProducer/ZeeProducer.h"
+#include "ZJetProducer/LHEProducer.h"
+
 
 using namespace Artus;
 
@@ -88,6 +90,8 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new ZEEProducer());
 		else if (ValidElectronProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidElectronProducer());
+		else if (LHEProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new LHEProducer());
 		else
 			LOG_FATAL("Global MetaData producer of name " << *it << " not found");
 	}

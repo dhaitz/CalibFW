@@ -188,6 +188,7 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
     ]
     cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'gen_balance_producer', 'gen_met_producer', 'weight_producer', 'flavour_producer']
     cfg['AK5GenJets'] = 'AK5GenJetsNoNu'
+    cfg['LHE'] = ''
 
     # Year-dependent settings
     if run == '2011':

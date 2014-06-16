@@ -33,6 +33,7 @@ public:
 	KDataPFMET* m_pfMetChsL2L3;
 	KDataPFMET* m_pfMetChsL2L3Res;
 	KGenParticles* m_particles;
+	KGenParticles* m_lhe;
 
 	KDataElectrons* m_electrons;
 

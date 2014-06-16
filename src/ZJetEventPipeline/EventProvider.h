@@ -40,10 +40,10 @@ void KappaEventProvider<ZJetEventData>::WireEvent(boost::property_tree::ptree pr
 		//InitGenJets(m_event, "AK7GenJets");
 
 		m_event.m_genJets["AK5GenJets"] = m_fi.Get<KDataLVs>(propTree.get<std::string>("AK5GenJets"));
-
-
-
 		m_event.m_particles = m_fi.Get<KGenParticles>("genParticles");
+
+		if (propTree.get<std::string>("LHE") != "")
+			m_event.m_lhe = m_fi.Get<KGenParticles>("LHE");
 	}
 
 	m_event.m_filtermetadata = m_fi.GetMeta<KFilterMetadata>("KFilterMetadata");
