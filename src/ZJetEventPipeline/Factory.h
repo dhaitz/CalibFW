@@ -43,10 +43,12 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 											 globalSettings.get<bool>("MuonRadiationCorrection", false)));
 		else if (ValidJetProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidJetProducer(
-											 globalSettings.get<bool>("Tagged")));
+											 globalSettings.get<bool>("Tagged"),
+											 globalSettings.get<bool>("VetoPileupJets")));
 		else if (ValidJetEEProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidJetEEProducer(
-											 globalSettings.get<bool>("Tagged")));
+											 globalSettings.get<bool>("Tagged"),
+											 globalSettings.get<bool>("VetoPileupJets")));
 		else if (JetCorrector::Name() == *it)
 			runner.AddGlobalMetaProducer(new JetCorrector(
 											 globalSettings.get<std::string>("Jec"),

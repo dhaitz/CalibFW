@@ -87,8 +87,18 @@ class ValidJetProducer: public ZJetGlobalMetaDataProducerBase
 {
 
 public:
-	ValidJetProducer(bool Tagged) : ZJetGlobalMetaDataProducerBase(), tagged(Tagged), muonIso(true) {}
-	ValidJetProducer(bool Tagged, bool MuonIso) : ZJetGlobalMetaDataProducerBase(), tagged(Tagged), muonIso(MuonIso) {}
+
+	ValidJetProducer(bool Tagged, bool VetoPu, bool MuonIso) :
+		ZJetGlobalMetaDataProducerBase(), tagged(Tagged), vetopu(VetoPu), muonIso(MuonIso)
+	{
+		Init();
+	}
+	ValidJetProducer(bool Tagged, bool VetoPu) :
+		ZJetGlobalMetaDataProducerBase(), tagged(Tagged), vetopu(VetoPu),  muonIso(true)
+	{
+		Init();
+	}
+
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
 								  ZJetMetaData& metaData,
@@ -200,7 +210,7 @@ public:
 							   && (*itjet)->chargedEMFraction < 0.99;
 				}
 
-				if (globalSettings.Global()->GetVetoPileupJets())
+				if (vetopu)
 				{
 					bool puID = static_cast<KDataPFTaggedJet*>(*itjet)->getpuJetID("puJetIDFullMedium", event.m_taggermetadata);
 					good_jet = good_jet && puID;
@@ -221,8 +231,17 @@ public:
 	{
 		return "valid_jet_producer";
 	}
+private:
 	bool tagged;
+	bool vetopu;
 	bool muonIso;
+
+protected:
+	virtual void Init()
+	{
+		if (vetopu)
+			LOG_FILE(blue << Name() << ":\n   Mark pile-up jets as invalid." << reset);
+	}
 };
 
 /** Select only valid jets (FOR ELECTRON ANALYSIS).
@@ -232,7 +251,7 @@ public:
 class ValidJetEEProducer: public ValidJetProducer
 {
 public:
-	ValidJetEEProducer(bool Tagged) : ValidJetProducer(Tagged, false) {}
+	ValidJetEEProducer(bool Tagged, bool VetoPu) : ValidJetProducer(Tagged, VetoPu, false) {}
 
 	static std::string Name()
 	{
