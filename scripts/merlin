@@ -96,6 +96,8 @@ def options(
         help="Rebinning value n")
     general.add_argument('-R', '--ratio', action='store_true',
         help="do a ratio plot from the first two input files")
+    general.add_argument('--subtract', action='store_true',
+        help="subtract the second from the first histogram")
     general.add_argument('--ratiosubplot', action='store_true',
         help="Add a ratio subplot")
     general.add_argument('-F', '--fit', type=str, default=fit,

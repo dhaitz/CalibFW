@@ -36,6 +36,14 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
             datamc[-1].x = [5.5 if x == 20.5 else 6.5 if x == -0.5 else x for x in datamc[-1].x]
             datamc[-1].xc = [6 if x == 21 else 7 if x == 0 else x for x in datamc[-1].xc]
 
+    if settings['subtract']:
+        rootobjects[0].Add(rootobjects[1], -1)
+        rootobjects = [rootobjects[0]]
+        
+        datamc = [getroot.root2histo(rootobjects[0], files[0].GetName(), 1)]
+        
+
+
     # if true, create a ratio plot:
     if settings['ratio'] and len(datamc) == 2:
         rootobject = getroot.rootdivision(rootobjects, settings['normalize'])
