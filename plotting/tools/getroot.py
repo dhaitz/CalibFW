@@ -205,6 +205,8 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False):
         roothisto = ROOT.TH2D(name, name, len(xbins) - 1, xbins, len(ybins) - 1, ybins)
     elif len(quantities) == 3:
         roothisto = ROOT.TProfile2D(name, name, len(xbins) - 1, xbins, len(ybins) - 1, ybins)
+    else:
+        print "FATAL: could not determine histogram type from", quantities
 
     if settings['verbose']:
         plotbase.debug("Creating a %s with the following selection:\n   %s" % (roothisto.ClassName(), selection))

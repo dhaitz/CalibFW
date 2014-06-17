@@ -331,7 +331,7 @@ def axislabels(ax, x='zpt', y='events', brackets=False, labels=['', ''], setting
                         plotbase.nicetext(quantity.replace("abs_", "").replace("_phi", "")), d_axes['absphi'][3])
             else:
                 function[0]((d_axes['phi'][0], d_axes['phi'][1]), d_axes['phi'][2] % plotbase.nicetext(quantity.replace("phi", "")), d_axes['phi'][3])
-        elif 'eta' in quantity:
+        elif 'eta' in quantity and not '\eta' in quantity:
             if 'deltaeta' in quantity:
                 function[0]((d_axes['deltaeta'][0], d_axes['deltaeta'][1]), d_axes['deltaeta'][2] % (plotbase.nicetext(quantity.replace("deltaeta-", "").split("-")[0]),
                          plotbase.nicetext(quantity.replace("deltaeta-", "").split("-")[1])), d_axes['deltaeta'][3])

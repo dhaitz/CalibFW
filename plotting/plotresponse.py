@@ -378,8 +378,7 @@ def extrapol(files, opt,
                     'allalpha'  : True,
                     'colors'    : ['black', 'blue'],
                     'markers'   : ['o', '*'],
-                    'labels'    : [r'$p_\mathrm{T}$ balance (data)', 
-                                                       r'$p_\mathrm{T}$ balance (MC)'],
+                    'labels'    : ['$p_\mathrm{T}$ balance (%s)' % i for i in settings['labels']],
                     'y'         : [0.91, 1.04],
                     'cutlabel' : 'pteta',
                   }
@@ -391,14 +390,14 @@ def extrapol(files, opt,
 
         #   balance
         plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, opt,
-                changes=changes, fig_axes=(fig, ax1))
+                changes=changes, settings=settings, fig_axes=(fig, ax1))
 
         #   mpf
         changes['colors'] = ['red', 'maroon']
-        changes['labels'] = [mpflabel+' (data)',mpflabel+' (MC)']
+        changes['labels'] = ['%s (%s)' % (mpflabel, i) for i in settings['labels']]
         if extrapolate_mpf ==True:
             plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, opt,
-                changes=changes, fig_axes=(fig, ax1))
+                changes=changes, settings=settings, fig_axes=(fig, ax1))
 
         else:
             mpfmean_data = getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMean()
@@ -455,7 +454,7 @@ def extrapol(files, opt,
         changes['y'] = [0.9455, 1.008]
 
         plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, opt,
-                changes=changes, fig_axes=(fig, ax2))
+                changes=changes, settings=settings, fig_axes=(fig, ax2))
 
         changes['fitlabel_offset'] = -0.1
 
@@ -465,7 +464,7 @@ def extrapol(files, opt,
         if extrapolate_mpf ==True:
             settings['fit_offset'] = 0.1
             plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, opt,
-                changes=changes, fig_axes=(fig, ax2))
+                changes=changes, settings=settings, fig_axes=(fig, ax2))
         else:
             if (mpfmean_mc != 0.0): R = mpfmean_data/mpfmean_mc
             else: R =0

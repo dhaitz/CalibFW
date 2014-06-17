@@ -267,10 +267,10 @@ def ratiosubplot(quantity, files, opt, settings):
     #changes['lumi'] = None
     changes['ratio'] = True
     changes['legloc'] = False
-    #changes['y'] = [0.5, 1.5]
+    changes['y'] = settings.get('ratiosubploty', [0.5, 1.5])
     changes['labels'] = ['Ratio']
     changes['xynames'] = [settings['xynames'][0], 'datamcratio']
-    changes['fit'] = None
+    changes['fit'] = settings.get('ratiosubplotfit', None)
 
     datamcplot(quantity, files, opt, fig_axes=(fig, ax2), changes=changes, settings=settings)
 
