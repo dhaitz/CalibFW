@@ -15,7 +15,24 @@ public:
 		m_jets1(input_jets1), m_jets2(input_jets2), m_matching_name(matching_name)
 	{}
 
-	JetMatcher(stringvector baseAlgos): m_basealgorithms(baseAlgos) {}
+	JetMatcher(stringvector baseAlgos): m_basealgorithms(baseAlgos)
+	{
+		for (unsigned int i = 0; i < m_basealgorithms.size(); i++)
+		{
+			if (m_basealgorithms[i] == "AK5PF")
+			{
+				m_algorithms.push_back("AK5PFJetsL1L2L3");
+				m_genalgorithms.push_back("AK5GenJets");
+			}
+			else if (m_basealgorithms[i] == "AK5PFchs")
+			{
+				m_algorithms.push_back("AK5PFJetsCHSL1L2L3");
+				m_genalgorithms.push_back("AK5GenJets");
+			}
+			else
+				LOG_FATAL(Name() << ": Couldnt process base algorithm " << m_basealgorithms[i])
+			}
+	}
 
 	virtual ~JetMatcher() {}
 
@@ -31,6 +48,8 @@ public:
 private:
 	std::string m_jets1, m_jets2, m_matching_name;
 	std::vector<std::string> m_basealgorithms;
+	std::vector<std::string> m_algorithms;
+	std::vector<std::string> m_genalgorithms;
 };
 
 }

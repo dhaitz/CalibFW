@@ -173,7 +173,7 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
     cfg['Pipelines']['default']['QuantitiesVector'] += [
                     "npu", "eff",
                     "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
-                    "matchedgenjet1pt", "genmpf",
+                    "matchedgenjet1pt", "matchedgenjet2pt", "genmpf",
                     "algoflavour", "physflavour",
                     "algopt", "physpt",
                     "jet1ptneutrinos", "genjet1ptneutrinos", "mpfneutrinos", "neutralpt3", "neutralpt5",

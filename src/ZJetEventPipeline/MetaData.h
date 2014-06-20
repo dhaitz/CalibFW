@@ -377,6 +377,22 @@ public:
 	MatchingResults m_matchingResults;
 	HLTTools* m_hltInfo;
 
+	KDataLV* GetMatchedGenJet(ZJetEventData const& event,
+							  ZJetPipelineSettings const& psettings, int index) const
+	{
+		std::vector<int> ivec = m_matchingResults.at(psettings.GetJetAlgorithm());
+
+		if (index >= ivec.size())
+			return new KDataLV;
+		int imatch = ivec.at(index);
+		std::string genName = JetType::GetGenName(psettings.GetJetAlgorithm());
+
+		if (GetValidJetCount(psettings, event, genName) >= imatch)
+			return GetValidJet(psettings, event, imatch, genName);
+		else
+			return new KDataLV;
+	}
+
 	// holds pipeline specific metadata of the current pipeline
 	LocalMetaDataType* m_pipelineMetaData;
 

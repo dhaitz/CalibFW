@@ -737,32 +737,12 @@ private:
 		}
 		else if (string == "matchedgenjet1pt")
 		{
-			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-
-			if (0 >= metaData.GetValidJetCount(s, event, genName)
-				|| 0 >= metaData.GetValidJetCount(s, event))
-				return false;
-
-			if (metaData.m_matchingResults.find(genName) == metaData.m_matchingResults.end())
-				return false;
-			std::vector<int> const& matchList = metaData.m_matchingResults.at(genName);
-
-			if (unlikely(0 >= matchList.size()))
-				return false;
-
-			int iMatchedGen = matchList.at(0);
-			if (iMatchedGen <= -1)
-				return false;
-
-			if (iMatchedGen >= int(metaData.GetValidJetCount(s, event, genName)))
-			{
-				LOG_FATAL("Reco to gen matching: No reference gen jet found! "
-						  << iMatchedGen << " >= " << metaData.GetValidJetCount(s, event, genName));
-				return false;
-			}
-			return metaData.GetValidJet(s, event, iMatchedGen, genName)->p4.Pt();
+			return metaData.GetMatchedGenJet(event, s, 0)->p4.Pt();
 		}
-
+		else if (string == "matchedgenjet2pt")
+		{
+			return metaData.GetMatchedGenJet(event, s, 1)->p4.Pt();
+		}
 		else if (string == "genjet2pt")
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
