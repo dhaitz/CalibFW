@@ -222,7 +222,34 @@ def options(
     general.add_argument('-u', '--uncertaintyband', action='store_true',
         help="responseratio plots: add an uncertaintyband in the ratio")
 
-    opt = parser.parse_args()
+
+    opt, unknown_arguments = parser.parse_known_args()
+
+    # unknown arguments are also added to opt, so one can use them
+    dic = {}
+    for argument in unknown_arguments:
+        if argument.startswith('-'):
+            argument = argument.replace('-', '')
+            try: #make sure a negative number is parsed as value, not argument
+                argument = float(argument)
+                dic[arg].append(argument)
+            except:
+                arg = argument
+                dic[argument] = []
+        else:
+            #argument = float(argument)
+            dic[arg].append(argument)
+        
+    # edit lists with one or no entries
+    for key in dic.keys():
+        if len(dic[key]) == 0:
+            dic[key] = None
+        elif len(dic[key]) == 1:
+            dic[key] = dic[key][0]
+    # add values from dic to opt
+    for value in dic.keys():
+        setattr(opt, value, dic[value])
+        
 
     opt.fit_offset = 0
     parser.set_defaults(fit_offset=0)
