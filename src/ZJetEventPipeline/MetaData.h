@@ -382,12 +382,12 @@ public:
 	{
 		std::vector<int> ivec = m_matchingResults.at(psettings.GetJetAlgorithm());
 
-		if (index >= ivec.size())
+		if ((unsigned)index >= ivec.size())
 			return new KDataLV;
 		int imatch = ivec.at(index);
 		std::string genName = JetType::GetGenName(psettings.GetJetAlgorithm());
 
-		if (GetValidJetCount(psettings, event, genName) >= imatch)
+		if (GetValidJetCount(psettings, event, genName) >= (unsigned)imatch)
 			return GetValidJet(psettings, event, imatch, genName);
 		else
 			return new KDataLV;
