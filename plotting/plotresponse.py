@@ -26,8 +26,8 @@ from responsetools import *
 
 def responseplot(files, opt, types=None, over=None, settings=None, 
                     figaxes=None, changes=None, 
-                    markers=['o', '*', 'v', '^', '>']*4,
-                    colors=['black', '#CBDBF9', 'black', 'blue']*5):
+                    markers=['o', '*', 'd', '^', '>']*4,
+                    colors=['black', 'FireBrick', 'blue', 'black', 'blue']*5):
 
     if over=='jet1eta' or over=='jet1abseta':
         if changes is None:
@@ -49,8 +49,8 @@ def responseplot(files, opt, types=None, over=None, settings=None,
     # iterate over types:
     for t, l, m in zip(types, labels, markers):
         # iterate over files:        
-        for f, label, color in zip(files, settings['labels'], 
-                                            colors[len(files)*types.index(t):]):
+        for f, label, color, m in zip(files, settings['labels'],
+                                            colors[len(files)*types.index(t):], markers):
 
             plot = getroot.root2histo(getresponse(t, over, opt, settings, f, 
                             None, changes, extrapol=settings['extrapolation']))
@@ -83,7 +83,7 @@ def responseplot(files, opt, types=None, over=None, settings=None,
 
 def ratioplot(files, opt, types, labels=None,
                  colors=["FireBrick", 'blue', 'green', 'red']*7,
-                 markers=['o', '*', 's']*8,
+                 markers=['*', 'd', 's']*8,
                  over='zpt',
                  binborders=False,
                  drawextrapolation=False,
@@ -119,8 +119,14 @@ def ratioplot(files, opt, types, labels=None,
         for x in opt.bins:
             pass #ax.axvline(x, color='gray')
 
-    for t, l, m, c in zip(types, labels, markers, colors):
-        rgraph = getresponse(t, over, opt, settings, files[0], files[1], changes,
+    #if more than two files:
+    filepairs = []
+    for file in files[1:]:
+        filepairs.append([files[0], file])
+
+    t = types[0]
+    for l, m, c, f in zip(labels, markers, colors, filepairs):
+        rgraph = getresponse(t, over, opt, settings, f[0], f[1], changes,
                                  extrapol=settings['extrapolation'], draw=False)
         if fit:
             line, err, chi2, ndf = plotbase.fitline(rgraph)
@@ -138,7 +144,7 @@ def ratioplot(files, opt, types, labels=None,
         ax.errorbar(plot.x, plot.y, plot.yerr, color=c, fmt=m, label=l)
         plotbinborders(ax, over, plot.y, opt)
 
-    if True:#settings.get('uncertaintyband', True):
+    if settings.get('uncertaintyband', False) is not 'True':
         settings['special_binning']  = True
         datamc = getroot.root2histo(getroot.histofromfile('unc_%s' % over, files[1], settings), "unc", 1)
         ax.fill_between(datamc.xc, [1-y for y in datamc.y], [1+y for y in datamc.y],
@@ -243,7 +249,7 @@ def responseratio(files, opt, over='zpt', types=['balresp'], fit=False,
 
     changes['energy'] = None
     #changes['lumi']   = None
-    changes['legloc']   = "lower left"
+    changes['legloc']   = "lower right"
 
     ratioplot(files, opt, types, changes=changes, over=over, figaxes=(fig,ax2), settings=settings)
 
