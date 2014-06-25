@@ -10,6 +10,37 @@ import plot_tagging
 import fit
 
 
+def npuplot(files, opt):
+    """ Plots for the JEC paper that Mikko requested 24.4.: npv and rho in bins of npu."""
+
+    settings = plotbase.getsettings(opt, quantity='npv')
+    settings['x'] = [-0.5, 99.5]
+    settings['nbins'] = 100
+    
+    tgraphs = []
+    for f in files:
+        if files.index(f) == 0: # flag bad runs in data
+            runs = "run!=191411 && run!=198049 && run!=198050 && run!=198063 && run!=201727 && run!=203830 && run!=203832 && run!=203833 && run!=203834 && run!=203835 && run!=203987 && run!=203992 && run!=203994 && run!=204100 && run!=204101 && run!=208509"
+        else:
+            runs = 1
+        npuhisto = getroot.histofromfile('nputruth', f, settings)
+        for i in range(100):
+            if npuhisto.GetBinContent(i) > 0:
+                npu = i
+        tgraph = ROOT.TGraphErrors()
+        for n in range(npu):
+            changes = {'selection': 'nputruth>%s && nputruth<%s && %s' % (n-0.5, n+0.5, runs)}
+            npv = getroot.histofromfile('npv', f, settings, changes=changes).GetMean()
+            npverr = getroot.histofromfile('npv', f, settings, changes=changes).GetMeanError()
+            rho = getroot.histofromfile('rho', f, settings, changes=changes).GetMean()
+            rhoerr = getroot.histofromfile('rho', f, settings, changes=changes).GetMeanError()
+            tgraph.SetPoint(n, npv, rho)
+            tgraph.SetPointError(n, npverr, rhoerr)
+        tgraphs.append(tgraph)
+    settings['root'] = settings['root'] or settings['filename']
+    getroot.saveasroot(tgraphs, opt, settings)
+
+
 def mpfslopes(files, opt):
     """ Plot the slope of a linear fit on MPF vs NPV, in Z pT bins."""
     quantity="mpf_npv"
