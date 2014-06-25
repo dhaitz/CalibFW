@@ -356,7 +356,7 @@ def GetCuts(analysis='zmumu'):
             'CutElectronEta': 2.4,
             'CutElectronPt': 25.0,
 
-            'CutZMassWindow': 20.0,
+            'CutZMassWindow': 10.0,
             'CutZPt': 30.0,
 
             'CutLeadingJetEta': 1.3,
