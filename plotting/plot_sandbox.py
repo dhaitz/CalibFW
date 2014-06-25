@@ -205,6 +205,177 @@ def npuplot(files, opt):
     getroot.saveasroot(tgraphs, opt, settings)
 
 
+def electronupdate(files, opt):
+    """Plots for the Zee update 26.06.2014."""
+
+
+    # Reco/gen electron pt vs eta
+    filenames = ['mc_ee_raw', 'mc_ee_corr']
+    files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
+
+    changes={
+        'x': [0, 2.5],
+        'y': [0.9, 1.1],
+        'nbins': 25,
+        'labels': ['raw', 'corrected'],
+        'markers': ['o', '-'],
+        'colors': ['maroon', 'blue'],
+        'folder':'zcuts',
+        'y': [0.94, 1.06],
+        'title': 'Madgraph',
+        'xynames': [
+            r"$|\eta_{e^{-}} \| $",
+            
+            r'$\mathrm{e}^{-} p_\mathrm{T}$ Reco/Gen'
+         ]
+    }
+
+    plotdatamc.datamcplot('eminuspt/geneminuspt_abs(eminuseta)', files, opt, changes=changes)
+
+    changes={
+        'ratiosubplot': True,
+        'title': 'Madgraph',
+        'x': [0, 1000],
+        'log': True,
+        'labels': ['raw', 'corrected'],
+        'folder': 'all',
+        'ratiosubplotfit': 'chi2',
+    }
+    plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+
+
+    #LHE information
+    fig, ax = plotbase.newplot()
+    fig2, ax2 = plotbase.newplot()
+    changes ={
+        'folder':'all',
+        'x': [-4, 4],
+        'y': [0, 200000],
+        'subplot': True,
+        'nbins':50,
+        'normalize': False,
+        'xynames': ['Z rapidity', 'Events'],
+        'log':True,
+    }
+    for q, c, m, l in zip(
+            ['zy', 'genzy', 'lhezy'], 
+            ['black', 'lightskyblue', 'FireBrick'],
+            ['o', 'f', '-'],
+            ['RecoZ', 'GenZ', 'LHE-Z'],
+        ):
+        changes['labels'] = [l]
+        changes['markers'] = [m]
+        changes['colors'] = [c]
+        plotdatamc.datamcplot(q, files[1:], opt, changes=changes, fig_axes=[fig, ax])
+    settings = plotbase.getsettings(opt, None, None, 'rapidity')
+    settings['filename'] = 'rapidity'
+    plotbase.Save(fig, settings)
+
+    # Data-MC comparisons ######################################################
+
+    # basic quantities
+    filenames = ['data_ee_corr', 'mc_ee_corr']
+    files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
+
+    changes = {
+        'x': [-3, 3],
+        'y': [-3.2, 3.2],
+        'folder': 'all',
+        'nbins': 200,
+    }
+    plot2d.twoD('eminusphi_eminuseta', files, opt, changes=changes)
+
+
+    for q, c in zip(['eminuspt', 'eminuseta', 'zy', 'zpt', 'zmass'],
+        [
+            {}, 
+            {'x': [-2.5, 2.5]},
+            {},
+            {'x': [0, 500], 'log':True},
+            {'x': [80, 102], 'ratiosubploty':[0.9, 1.1]},
+        ]):
+        changes = {
+            'labels': ['data', 'Madgraph'],
+            'ratiosubplot': True,
+            'folder':'zcuts',
+            'nbins': 50,
+        }
+        changes.update(c)
+        plotdatamc.datamcplot(q, files, opt, changes=changes)
+
+    # scale factors
+    changes = {
+        'x': [0, 100],
+        'y': [0, 3],
+        'z': [0.8, 1.2],
+        'folder': 'all',
+        'nbins': 100,
+        'selection': 'sfminus>0',
+        'colormap': 'bwr',
+    }
+    plot2d.twoD('sfminus_abs(eminuseta)_eminuspt', files[1:], opt, changes=changes)
+
+
+    # zpt in rapidities
+    for ybin in [[i/2., (i+1)/2.] for i in range(5)]:
+        changes = {
+            'x': [0, 600],
+            'nbins': 30,
+            'folder':'zcuts',
+            'title': "%s < $y_Z$ < %s" % tuple(ybin),
+            'log': 'True',
+            'ratiosubplot': True,
+            'selection': 'abs(zy)>%s && abs(zy)<%s' % (ybin[0], ybin[1]),
+            'filename': ('zpt_rap-%s-%s' % (ybin[0], ybin[1])).replace('.', '_'),
+        }
+        plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+
+
+    # scale factor
+    changes = {
+        'labels': ['Madgraph'],
+        'ratiosubplot': True,
+        'xynames':['eminuspt', r"$|\eta_{e^{-}} \| $"],
+        'folder':'all',
+        'x': [0, 60],
+        'y': [0, 3],
+        'colormap': 'bwr',
+        'z': [0.5, 1],
+    }
+    q = 'sfminus_abs(eminuseta)_eminuspt'
+    plot2d.twoD(q, files[1:], opt, changes=changes)
+
+    ##############
+    # Plot for ID acceptance
+    fig, ax = plotbase.newplot()
+    changes ={
+        'folder':'all',
+        'x': [0, 150],
+        'y': [0, 1],
+        'subplot': True,
+        'normalize': False,
+        'legloc': 'lower right',
+        'xynames': ['eminuspt', 'Acceptance']
+    }
+    filenames = ['mc_ee_corr_noid']
+    files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
+    for q, c, m, l in zip(
+            ['eminusidtight', 'eminusidmedium', 'eminusidloose', 'eminusidveto',
+                'eminusid'], 
+            ['lightskyblue', 'FireBrick', 'green', 'black', 'blue'],
+            ['f', '_', '-', "o", "*"],
+            ['Tight ID', 'Medium ID', 'Loose ID', "Veto ID", "MVA ID"],
+        ):
+        changes['labels'] = [l]
+        changes['markers'] = [m]
+        changes['colors'] = [c]
+        plotdatamc.datamcplot("%s_eminuspt" % q, files, opt, changes=changes, fig_axes=[fig, ax])
+    settings = plotbase.getsettings(opt, None, None, 'id')
+    settings['filename'] = 'id'
+    settings['title'] = 'MC'
+    plotbase.Save(fig, settings)
+
+
 def mpfslopes(files, opt, changes=None):
     """ Plot the slope of a linear fit on MPF vs NPV, in Z pT bins."""
     quantity="mpf_npv"
