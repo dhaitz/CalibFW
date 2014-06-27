@@ -31,7 +31,8 @@ public:
 		std::string quantities = this->GetPipelineSettings().GetQuantitiesString();
 		m_ntuple = new TNtuple("NTuple", "NTuple", quantities.c_str());
 
-		// turn the stringvector into an enumvector
+		m_quantities = this->GetPipelineSettings().GetQuantities();
+		//TODO turn the stringvector into an enumvector
 
 	}
 
@@ -41,10 +42,8 @@ public:
 		EventConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings>::ProcessFilteredEvent(event, metaData);
 
 		std::vector<float> array;
-		std::vector<std::string> stringvector = this->GetPipelineSettings().GetQuantities();
-
 		//iterate over string vector and fill the array for each quantitiy
-		for (std::vector<std::string>::iterator it = stringvector.begin(); it != stringvector.end(); ++it)
+		for (std::vector<std::string>::iterator it = m_quantities.begin(); it != m_quantities.end(); ++it)
 			array.push_back(returnvalue(*it, event, metaData, this->GetPipelineSettings()));
 
 		// add the array to the ntuple
@@ -59,6 +58,8 @@ public:
 private:
 
 	TNtuple* m_ntuple;
+	std::vector<std::string> m_quantities;
+	int m_size;
 
 	virtual float returnvalue(std::string string, ZJetEventData const& event,
 							  ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
