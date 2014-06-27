@@ -22,6 +22,10 @@
 #include "ZJetFilter/FlavourFilter.h"
 
 #include "ZJetConsumer/NtupleConsumer.h"
+#include "ZJetConsumer/NtupleValidJetConsumer.h"
+#include "ZJetConsumer/NtupleValidElectronConsumer.h"
+#include "ZJetConsumer/NtupleValidMuonConsumer.h"
+#include "ZJetConsumer/NtupleGenParticleConsumer.h"
 #include "ZJetConsumer/CutStatistics.h"
 
 using namespace Artus;
@@ -119,6 +123,14 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 			pLine->AddConsumer(new CutStatisticsConsumer());
 		else if (id == NtupleConsumer().GetName())
 			pLine->AddConsumer(new NtupleConsumer());
+		else if (id == NtupleValidJetConsumer().GetName())
+			pLine->AddConsumer(new NtupleValidJetConsumer());
+		else if (id == NtupleValidElectronConsumer().GetName())
+			pLine->AddConsumer(new NtupleValidElectronConsumer());
+		else if (id == NtupleValidMuonConsumer().GetName())
+			pLine->AddConsumer(new NtupleValidMuonConsumer());
+		else if (id == NtupleGenParticleConsumer().GetName())
+			pLine->AddConsumer(new NtupleGenParticleConsumer());
 		else
 			LOG_FATAL("Consumer " << id << " not found.");
 	}
