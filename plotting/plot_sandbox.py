@@ -15,10 +15,12 @@ def timedep(files, opt):
 
     settings = plotbase.getsettings(opt, quantity="response_run")
     fig, ax = plotbase.newplot()
-        
-    for q, c, l, m, in zip(['mpf', 'ptbalance'], 
-                settings['colors'], ['mpf', 'ptbalance'], settings['markers']):
-                
+    factor = 2e4
+    methods = ['mpf', 'ptbalance']
+    labels = ['MPF', '$p_T$ balance']
+    for q, c, l, m, in zip(methods, 
+                settings['colors'], labels, settings['markers']):
+
         slopes, serrs, x = [], [], []
         for eta1, eta2 in zip(opt.eta[:-1], opt.eta[1:]):
             changes = {
@@ -31,31 +33,29 @@ def timedep(files, opt):
 
             # get fit parameters
             slope, serr = fit.fitline2(rootobject)[2:4]
-            slopes += [slope*1e6]
-            serrs += [serr*1e6]
+            slopes += [slope*factor]
+            serrs += [serr*factor]
             changes['x'] = [0, 6]
             x += [getroot.histofromfile("abs(jet1eta)", files[0], settings, changes=changes).GetMean()]
 
-        print "\n\n", x, "\n\n"
         ax.errorbar(x, slopes, serrs, drawstyle='steps-mid', color=c,
                                             fmt='o', capsize=0, label=l)
 
     #formatting stuff
     settings['x'] = [0, 5]
-    settings['y'] = [0, 100]
     plotbase.setaxislimits(ax, settings)
     plotbase.labels(ax, opt, settings)
-    #ax.set_xscale('log')
-    #settings['xticks'] = [30, 50, 70, 100, 200, 400 ,1000]
-    plotbase.axislabels(ax, 'eta', 'slope from fit on response vs run (muliplied with 1,000,000)', settings=settings)
-    ax.set_ylim(-4, 4)
-    ax.set_xlim(0, 5)
+    plotbase.axislabels(ax, 'Leading jet $\eta$', 'Response vs run: linear fit slope  (muliplied with 20 000)', settings=settings)
+    ax.set_ylim(-0.1, 0.05)
+    ax.set_xlim(0, 5.25)
     ax.grid(True)
-    
+    ax.set_xticks([float("%1.2f" % eta) for eta in opt.eta])
+    for label in ax.get_xticklabels():
+        label.set_rotation(45) 
+    ax.axhline(0.0, color='black', linestyle='--')
+
     settings['filename'] = quantity="response_run"
     plotbase.Save(fig, settings)
-        #print slope
-        #plotdatamc.datamcplot("%s_run" % q, files[:1], opt, changes=changes)
 
 def npuplot(files, opt):
     """ Plots for the JEC paper that Mikko requested 24.4.: npv and rho in bins of npu."""
