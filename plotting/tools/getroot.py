@@ -181,7 +181,7 @@ def getbinning(quantity, settings, axis='x'):
 def histofromntuple(quantities, name, ntuple, settings, twoD=False):
     xbins = getbinning(quantities[-1], settings)
     if twoD and len(quantities) > 1:
-        ybins = getbinning(quantities[0], settings, 'y')
+        ybins = getbinning(quantities[-2], settings, 'y')
     copy_of_quantities = quantities
     for key in ntuple_dict.keys():
         for quantity, i in zip(copy_of_quantities, range(len(copy_of_quantities))):
@@ -194,7 +194,7 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False):
     selection = getselection(settings, isMC)
 
     if settings['verbose']:
-        plotbase.debug("Creating a %s with the following selection:\n   %s" % (histtype, settings['selection']))
+        plotbase.debug("Creating a plot with the following selection:\n   %s" % settings['selection'])
 
     # determine the type of histogram to be created
     if len(quantities) == 1:

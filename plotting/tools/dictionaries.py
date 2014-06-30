@@ -128,7 +128,7 @@ d_axes = {
         'phi': [-3.141592653, 3.141592653, r"$\phi^\mathrm{%s}$", ""],
         'photon': [0, 1., r"%s photon fraction", ""],
         'photonresponse': [0, 1., r"%s photon fraction * response", ""],
-        'pt': [0, 250, r"$p_\mathrm{T}^\mathrm{%s}$", 'GeV'],
+        'pt': [0, 250, r"$p_\mathrm{T}$", 'GeV'],
         'ptbalance': [0., 2., r"$p_\mathrm{T}$ balance", ""],
         'ratio': [0.95, 1.05, r"%s / %s ratio", ""],
         'rawMETpt': [0, 80, r"$E_\mathrm{T}^\mathrm{miss}$ (RAW)", 'GeV'],

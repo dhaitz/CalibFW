@@ -57,7 +57,10 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
             for d in datamc[1:]:
                 if d.binsum() > 0.0 and datamc[0].binsum() > 0:
                     d.scale(datamc[0].binsum() / d.binsum() )
-        z_name = 'Events'
+        if settings['xynames'] is not None and len(settings['xynames']) > 2:
+            z_name = settings['xynames'][2]
+        else:
+            z_name = "Events"
         if settings['z'] is None:
             settings['z'] = [0, np.max(datamc[0].BinContents)]
     else:

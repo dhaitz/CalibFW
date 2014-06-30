@@ -348,7 +348,7 @@ def axislabels(ax, x='zpt', y='events', brackets=False, labels=['', ''], setting
             function[0](bottom=0.0, quantity="Events")
         elif 'cut' in quantity:
             function[0]((d_axes['cut'][0], d_axes['cut'][1]), d_axes['cut'][2] % plotbase.nicetext(quantity.replace("cut-", "")), d_axes['cut'][3])
-        elif 'fraction' in quantity and 'MET' not in quantity:
+        elif quantity.endswith('fraction') and 'MET' not in quantity:
             function[0]((d_axes[quantity[4:-8]][0], d_axes[quantity[4:-8]][1]), d_axes[quantity[4:-8]][2] % plotbase.nicetext(quantity[:4]), d_axes[quantity[4:-8]][3])
         elif quantity == 'ratio':
             function[0]((d_axes['ratio'][0], d_axes['ratio'][1]), d_axes['ratio'][2] % (labels[0], labels[1]), d_axes['ratio'][3])

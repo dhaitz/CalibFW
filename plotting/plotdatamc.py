@@ -90,12 +90,18 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
                 scalefactor = datamc[0].ysum() / f.ysum()
                 f.scale(scalefactor)
 
+        if settings['verbose']:
+            print "\n\033[92mHistogram for '%s'\033[0m\n" % l, f
+
         if s == 'f':
             if settings['special_binning']:
                 widths = [(a - b) for a, b in zip(f.x[1:], f.x[:-1])]
                 widths += [0]
             else:
-                widths = (f.x[2] - f.x[1])
+                if settings['nbins'] > 1:
+                    widths = (f.x[2] - f.x[1])
+                else:
+                    widths = settings['x'][1] - settings['x'][0]
 
             if settings['stacked'] and index > 0:
                 if len(bottom) > 0:
@@ -267,11 +273,12 @@ def ratiosubplot(quantity, files, opt, settings):
     #changes['lumi'] = None
     changes['ratio'] = True
     changes['legloc'] = False
-    changes['y'] = settings.get('ratiosubploty', [0.5, 1.5])
+    if 'ratiosubploty' in settings:
+        settings['ratiosubploty'] = [float(x) for x in settings['ratiosubploty']]
+    changes['y'] = [None, None] + settings.get('ratiosubploty', [0.5, 1.5])
     changes['labels'] = ['Ratio']
     changes['xynames'] = [settings['xynames'][0], 'datamcratio']
     changes['fit'] = settings.get('ratiosubplotfit', None)
-
     datamcplot(quantity, files, opt, fig_axes=(fig, ax2), changes=changes, settings=settings)
 
     fig.subplots_adjust(hspace=0.05)
