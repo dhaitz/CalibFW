@@ -27,7 +27,10 @@ protected:
 
 	virtual std::vector<std::string> GetStringvector() const
 	{
-		return {"pt", "eta", "phi"};
+		return {"pt", "eta", "phi", "run",
+				"photonfraction", "chargedemfraction", "chargedhadfraction",
+				"neutralhadfraction", "muonfraction", "HFhadfraction", "HFemfraction"
+			   };
 	}
 
 	virtual int getsize(ZJetEventData const& event,
@@ -42,8 +45,31 @@ protected:
 		return * metaData.GetValidJet(s, event, n);
 	};
 
-};
 
+	virtual float returnvalue(int n, std::string string, ZJetEventData const& event,
+							  ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
+	{
+		if (string == "run")
+			return event.m_eventmetadata->nRun;
+		else if (string == "photonfraction")
+			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->photonFraction;
+		else if (string == "chargedemfraction")
+			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->chargedEMFraction;
+		else if (string == "chargedhadfraction")
+			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->chargedHadFraction;
+		else if (string == "neutralhadfraction")
+			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->neutralHadFraction;
+		else if (string == "muonfraction")
+			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->muonFraction;
+		else if (string == "HFhadfraction")
+			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->HFHadFraction;
+		else if (string == "HFemfraction")
+			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->HFEMFraction;
+		else
+			return NtupleObjectConsumerBase::returnvalue(n, string, event, metaData, s);
+	};
+
+};
 
 
 }
