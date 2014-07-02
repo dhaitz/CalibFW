@@ -8,6 +8,123 @@ import plotfractions
 import plot2d
 import plot_tagging
 import fit
+import os
+
+
+def plots_2014_07_03(files, opt):
+    """ Plots for JEC presentation 03.07. """
+
+    #### 2D histograms
+    for obj, x, nbins in zip(['muon', 'jet', 'electron'],
+            [[-2.5, 2.5], [-5.3, 5.3]]*2,
+            [400, 1000, 300]):
+
+        changes = {
+            'out': 'out/2014_07_03',
+            'y': [-3.2, 3.2],
+        }
+        changes.update({
+            'folder': obj + "_all",
+            'nbins': nbins,
+            'x':x,
+            'filename': obj + '_phi_eta',
+            'xynames': ['%s eta' % obj, 
+                    '%s phi' % obj, obj + 's'],
+        })
+
+        if obj is 'electron':
+            filenames = ["data_ee_noc", "mc_ee_corr_test"]
+        else:
+            filenames = ["data_noc", "mc_rundep_noc"]
+        files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
+        plot2d.twoD("phi_eta", files, opt, changes = changes)
+
+        if obj is not 'electron':
+            changes.update({
+                'year': 2011,
+                'filename': obj + '_phi_eta_2011',
+                'lumi': 5.1,
+                'energy': 7,
+            })
+            filenames = ["data11_noc"]
+            files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
+            plot2d.twoD("phi_eta", files, opt, changes = changes)
+
+
+    ##### PU Jet ID
+    filenames = ["dataPUJETID", "data"]
+    files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
+    changes = {
+        'normalize': False,
+        'ratiosubplot': 'True',
+        'ratiosubploty': [0.8, 1.2],
+        'out': 'out/2014_07_03',
+        'x': [30, 250],
+        'title': 'data',
+        'labels': ['PUJetID applied', 'default'],
+    }
+    plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+
+    for typ in ['mpf', 'ptbalance']:
+        plotresponse.responseratio(files, opt, over='zpt', types=[typ], changes={
+            'labels':  ['PUJetID applied', 'default'],
+            'out': 'out/2014_07_03',
+            'x': [30, 1000],
+            'xlog': True,
+            })
+
+
+    ##### timedep
+    filenames = ["data", "mc_rundep"]
+    files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
+    changes = {
+        'out': 'out/2014_07_03',
+        'filename': "timedep",
+    }
+    timedep(files, opt, changes=changes)
+
+    ###### MPF fix
+    filenames = [
+        "/storage/a/dhaitz/excalibur/artus/mc_rundep_2014-06-18_10-41/out.root",
+        "/storage/a/dhaitz/excalibur/artus/mc_rundep_2014-06-06_14-26/out.root"
+    ]
+    files = [getroot.openfile(f) for f in filenames]
+    plotresponse.responseratio(files, opt, over='zpt', types=['mpf'], changes={
+        'labels': ['MCRD-fixed', 'MCRD'],
+        'xlog': True,
+        'filename': "mpf_zpt-fixed",
+        'out': 'out/2014_07_03',
+        'x': [30, 1000],
+        'xticks': [30, 50, 70, 100, 200, 400, 1000],
+    })
+
+    # mpf slopes
+    filenames = ["data", "mc_rundep"]
+    files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
+    changes = {
+        'filename': "mpfslopes-fixed",
+        'labels': ['data', 'MCRD'],
+        'out': 'out/2014_07_03',
+        'allalpha': True,
+        'selection': 'alpha<0.3',
+    }
+    mpfslopes(files, opt, changes)
+
+
+    changes.update({
+        'filename': "mpfslopes",
+        'labels': ['data', 'MCRD'],
+    })
+    filenames = [
+        '/storage/a/dhaitz/excalibur/artus/data_2014-04-10_21-21/out.root',
+        '/storage/a/dhaitz/excalibur/artus/mc_rundep_2014-06-06_14-26/out.root'
+    ]
+    files = [getroot.openfile(f) for f in filenames]
+    mpfslopes(files, opt, changes)
+
+    # SYNC
+    os.system("rsync ${EXCALIBUR_BASE}/out/2014_07_03 ekplx26:plots -r")
+
 
 
 def timedep(files, opt):
