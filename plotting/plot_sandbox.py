@@ -127,10 +127,10 @@ def plots_2014_07_03(files, opt):
 
 
 
-def timedep(files, opt):
+def timedep(files, opt, changes = None):
     """ Plots for the time dependence, requested by Mikko 2014-06-25."""
 
-    settings = plotbase.getsettings(opt, quantity="response_run")
+    settings = plotbase.getsettings(opt, quantity="response_run", changes=changes)
     fig, ax = plotbase.newplot()
     factor = 2e4
     methods = ['mpf', 'ptbalance']
@@ -205,11 +205,12 @@ def npuplot(files, opt):
     getroot.saveasroot(tgraphs, opt, settings)
 
 
-def mpfslopes(files, opt):
+def mpfslopes(files, opt, changes=None):
     """ Plot the slope of a linear fit on MPF vs NPV, in Z pT bins."""
     quantity="mpf_npv"
-    settings = plotbase.getsettings(opt, quantity=quantity)
+    settings = plotbase.getsettings(opt, quantity=quantity, changes=changes)
     settings['special_binning'] = True
+    print opt.zbins
 
     fig, ax = plotbase.newplot()
 
@@ -233,14 +234,14 @@ def mpfslopes(files, opt):
 
     #formatting stuff
     settings['x'] = [30, 100]
-    settings['y'] = [0.95, 1.05]
     plotbase.setaxislimits(ax, settings)
     plotbase.labels(ax, opt, settings)
     ax.set_xscale('log')
-    settings['xticks'] = [30, 50, 70, 100, 200, 400 ,1000]
+    settings['xticks'] = opt.zbins
     plotbase.axislabels(ax, 'zpt', 'slope from fit on MPF vs NPV', settings=settings)
-    ax.set_ylim(-0.003, 0.003)
+    ax.set_ylim(-0.002, 0.002)
     ax.grid(True)
+    ax.axhline(0.0, color='black', linestyle='--')
 
     plotbase.Save(fig, settings)
 
