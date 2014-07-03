@@ -227,18 +227,23 @@ def options(
 
     # unknown arguments are also added to opt, so one can use them
     dic = {}
-    for argument in unknown_arguments:
-        if argument.startswith('-'):
-            argument = argument.replace('-', '')
-            try: #make sure a negative number is parsed as value, not argument
-                argument = float(argument)
+    if len(unknown_arguments) > 0:
+        print "\033[93m WARNING: unknown arguments:",
+        for argument in unknown_arguments:
+            if argument.startswith('-'):
+                print "\n  %s " % argument,
+                argument = argument.replace('-', '')
+                try: #make sure a negative number is parsed as value, not argument
+                    argument = float(argument)
+                    dic[arg].append(argument)
+                except:
+                    arg = argument
+                    dic[argument] = []
+            else:
+                print argument,
+                #argument = float(argument)
                 dic[arg].append(argument)
-            except:
-                arg = argument
-                dic[argument] = []
-        else:
-            #argument = float(argument)
-            dic[arg].append(argument)
+        print "\033[0m"
         
     # edit lists with one or no entries
     for key in dic.keys():
