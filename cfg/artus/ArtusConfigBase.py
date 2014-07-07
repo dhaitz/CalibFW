@@ -126,7 +126,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
             "eminusidloose", "eminusidmedium", "eminusidtight", "eminusidveto",
             "eidveto"
         ]
-        config['ElectronID'] = 'tight'
+        config['ElectronID'] = 'mva'
         config['muons'] = ''
         config['electrons'] = 'electrons'
     else:
@@ -227,7 +227,10 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
             'sf', 'sfplus', 'sfminus'
         ]
         cfg['GlobalProducer'] += ['electron_sf_producer']
-        cfg['ScaleFactors'] = '/portal/ekpcms5/home/dhaitz/git/CalibFW/data/Electron-CutBasedIdScaleFactors.root'
+        if cfg['ElectronID'] == 'mva':
+            cfg['ScaleFactors'] = '/portal/ekpcms5/home/dhaitz/git/CalibFW/data/Electron-NontrigMVAIdScaleFactors.root'
+        elif cfg['ElectronID'] in ['loose', 'medium', 'tight', 'veto']:
+            cfg['ScaleFactors'] = '/portal/ekpcms5/home/dhaitz/git/CalibFW/data/Electron-CutBasedIdScaleFactors.root'
     else:
         cfg['EnableLumiReweighting'] = True
         cfg['EnableTriggerReweighting'] = True
