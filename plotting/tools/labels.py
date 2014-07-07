@@ -40,6 +40,8 @@ def labels(ax, opt, settings, subplot=False):
             textlabel(ax, settings['text'])
         if settings.get('cutlabel', None) is not None:
             cutlabel(ax, settings)
+        if settings.get('muonsystem', False) is not False:
+            muonlabel(ax, settings)
     if type(settings['legloc']) == str:
         if "," in settings['legloc']:
             settings['legloc'] = ([float(i) for i in settings['legloc'].split(",")])
@@ -127,6 +129,12 @@ def energylabel(ax, energy, xpos=1.00, ypos=1.01):
         ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
             va='bottom', ha='right', transform=ax.transAxes)
         ax.energylabel = True
+
+
+def muonlabel(ax, settings):
+    import math
+    for i in range(13):
+        ax.axhline(math.pi - math.pi / 6 * i, color='black', linestyle='-')
 
 
 def jetlabel_string(changes, opt):
