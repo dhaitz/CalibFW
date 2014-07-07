@@ -37,6 +37,18 @@ elif [ $USER = "berger" ]; then
     export MC=/storage/8/berger/excalibur/artus/mc/out.root
 fi
 
+###artus auto-completion
+function _artuscomplete_()
+{
+    local names
+    for i in `ls ${EXCALIBUR_BASE}/cfg/artus/*.py`
+        do names="${names} `basename $i .py`"
+    done
+    COMPREPLY=($(compgen -W "${names}" -- ${COMP_WORDS[COMP_CWORD]}))
+}
+complete -F _artuscomplete_ artus
+
+
 # Use this to open a root file directly in the TBrowser
 rot()
 {
