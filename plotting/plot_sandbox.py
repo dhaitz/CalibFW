@@ -11,6 +11,43 @@ import fit
 import os
 
 
+def eid(files, opt):
+    quantity = 'mvaid'
+    """changes = {
+        'x': [0, 1.0001],
+        #'log': True,
+        'folder': 'electron_all',
+        'nbins':50,
+        'subplot':True,
+        'markers': ['f'],
+    }
+    settings = plotbase.getsettings(opt, quantity=quantity)
+    fig, ax = plotbase.newplot()
+
+    for c, l, s  in zip(['#236BB2', '#E5AD3D'],
+            ['fake', 'true'],
+            ['1', 'deltar < 0.3 && deltar>0']):
+        changes.update({
+            'labels': [l],
+            'colors': [c],
+            'selection': s,
+        })
+        plotdatamc.datamcplot(quantity, files, opt, fig_axes = [fig, ax], changes=changes)
+
+    settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
+    plotbase.Save(fig, settings)"""
+
+    ## id vs deltar
+    for quantity in ["mvaid", "mvatrigid", "looseid", "mediumid", "tightid"]:
+        plotdatamc.datamcplot("%s_deltar" % quantity, files, opt, changes = {
+            'folder': 'electron_all',
+            'nbins': 50,
+            'xynames': ['$\Delta$R(reco, gen)', quantity],
+            'x': [0, 0.5],
+            'legloc': None,
+        })
+
+
 def plots_2014_07_03(files, opt):
     """ Plots for JEC presentation 03.07. """
 
