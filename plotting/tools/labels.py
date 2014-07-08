@@ -341,7 +341,7 @@ def axislabels(ax, x='zpt', y='events', brackets=False, labels=['', ''], setting
                 function[0]((d_axes['abseta'][0], d_axes['abseta'][1]), d_axes['abseta'][2] % plotbase.nicetext(quantity.replace("abseta", "")), d_axes['abseta'][3])
             else:
                 function[0]((d_axes['eta'][0], d_axes['eta'][1]), d_axes['eta'][2] % plotbase.nicetext(quantity.replace("eta", "")), d_axes['eta'][3])
-        elif 'deltar' in quantity:
+        elif 'deltar' in quantity and quantity != 'deltar':
             function[0]((d_axes['deltar'][0], d_axes['deltar'][1]), d_axes['deltar'][2] % (plotbase.nicetext(quantity.replace("deltar-", "").split("-")[0]),
                     plotbase.nicetext(quantity.replace("deltar-", "").split("-")[1])), d_axes['deltar'][3])
         elif 'events' == quantity:
@@ -391,7 +391,7 @@ def getaxislabels_list(quantity, ax=None):
             labels_list = [d_axes['abseta'][0], d_axes['abseta'][1], d_axes['abseta'][2] % plotbase.nicetext(quantity.replace("abseta", "")), d_axes['abseta'][3]]
         else:
             labels_list = [d_axes['eta'][0], d_axes['eta'][1], d_axes['eta'][2] % plotbase.nicetext(quantity.replace("eta", "")), d_axes['eta'][3]]
-    elif 'deltar' in quantity:
+    elif 'deltar' in quantity and quantity != 'deltar':
         labels_list = [d_axes['deltar'][0], d_axes['deltar'][1], d_axes['deltar'][2] % (plotbase.nicetext(quantity.replace("deltar-", "").split("-")[0]),
                     plotbase.nicetext(quantity.replace("deltar-", "").split("-")[1])), d_axes['deltar'][3]]
     elif 'fraction' in quantity and 'MET' not in quantity:
