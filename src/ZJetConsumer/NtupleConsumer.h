@@ -521,7 +521,7 @@ private:
 				if (it->charge() > 0)
 					return ROOT::Math::VectorUtil::DeltaR(metaData.leadingeplus.p4, it->p4);
 			}
-			return -999;
+			return 999;
 		}
 		else if (string == "deltaReminusgeneminus")
 		{
@@ -531,7 +531,7 @@ private:
 				if (it->charge() < 0)
 					return ROOT::Math::VectorUtil::DeltaR(metaData.leadingeminus.p4, it->p4);
 			}
-			return -999;
+			return 999;
 		}
 
 		//LHE Z information
