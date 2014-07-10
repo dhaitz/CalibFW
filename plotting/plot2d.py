@@ -105,7 +105,7 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     for plot, label, ax in zip(datamc, settings['labels'], grid):
         ax.set_title(label)
 
-        cmap1 = matplotlib.cm.get_cmap(settings.get('colormap', 'jet'))
+        cmap1 = matplotlib.cm.get_cmap(settings.get('colormap', 'afmhot'))
         image = ax.imshow(plot.BinContents,
             interpolation='nearest',
             cmap=cmap1,
