@@ -30,6 +30,7 @@ import plot_resolution
 import plot_mikko
 import plot2d
 import plot_sandbox
+import plotcollections
 import plot_tagging
 
 import getroot
@@ -45,7 +46,7 @@ def plot(op):
     whichfunctions = []
     plots = op.plots
 
-    modules = [plotresponse, plotfractions, plot2d, plotdatamc,
+    modules = [plotresponse, plotfractions, plot2d, plotdatamc, plotcollections,
                         plot_resolution, plot_mikko, plot_sandbox, plot_tagging]
 
     if op.verbose:
