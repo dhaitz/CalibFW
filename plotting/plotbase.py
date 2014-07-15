@@ -260,6 +260,11 @@ def getsettings(opt, changes=None, settings=None, quantity=None):
 
         if len(settings['xynames']) < 2:
             settings['xynames'] += ['events']
+
+    if settings['xname'] is not None:
+        settings['xynames'][0] = settings['xname']
+    if settings['yname'] is not None:
+        settings['xynames'][0] = settings['yname']
     if settings['x'] is None:
         settings['x'] = plotbase.getaxislabels_list(settings['xynames'][0])[:2]
 

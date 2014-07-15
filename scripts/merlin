@@ -199,7 +199,10 @@ def options(
         help="upper and lower limit for z-axis")
     axis.add_argument('--xynames', type=str, nargs='+', default=None,
         help='x-y-axis label names,')
-
+    axis.add_argument('--xname', type=str, default=None,
+        help='x-axis label names,')
+    axis.add_argument('--yname', type=str, default=None,
+        help='y-axis label names,')
     axis.add_argument('--xticks', type=float, nargs='+', default=None,
         help="add custom xticks")
 
