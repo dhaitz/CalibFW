@@ -20,11 +20,19 @@ if [ $USER = "dhaitz" ]; then
     if [ -f $EXCALIBUR_BASE/work/mc.root ]; then
         export MC=`readlink $EXCALIBUR_BASE/work/mc.root`
     fi
-    export EXCALIBUR_WORK=/storage/a/dhaitz/excalibur
+    if [ $HOSTNAME = "ekpcms5" ]; then
+        export EXCALIBUR_WORK=/storage/a/dhaitz/excalibur
+    elif [[ $HOSTNAME == *naf* ]]; then
+        export EXCALIBUR_WORK=/nfs/dust/cms/user/dhaitz
+    fi
     export PATH=/home/dhaitz/git/grid-control:$PATH
 elif [ $USER = "berger" ]; then
     export PATH=/home/berger/sw/bin:/home/berger/sw/grid-control:$PATH
-    export EXCALIBUR_WORK=/storage/8/berger/excalibur
+    if [ $HOSTNAME = "ekpcms5" ]; then
+        export EXCALIBUR_WORK=/storage/8/berger/excalibur
+    elif [[ $HOSTNAME == *naf* ]]; then
+        export EXCALIBUR_WORK=/nfs/dust/cms/user/jberger
+    fi
     export DATA=/storage/8/berger/excalibur/artus/data/out.root
     export MC=/storage/8/berger/excalibur/artus/mc/out.root
 fi
