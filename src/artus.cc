@@ -24,8 +24,6 @@
 #ifdef USE_PERFTOOLS
 #include <google/profiler.h>
 #endif
-//#include <google/heap-profiler.h>
-//#include "Misc/OpenMP-Support.h"
 
 #include "EventPipeline/JetTools.h"
 #include "EventPipeline/EventPipelineRunner.h"
@@ -64,9 +62,6 @@ PipelineSettingsVector g_pipeSettings;
 int main(int argc, char** argv)
 {
 	long long nevents = 0;
-	// install signal
-	// did not work
-	//signal(SIGSEGV, handler);   // install our handler
 
 	// usage
 	if (argc < 2)
@@ -89,14 +84,14 @@ int main(int argc, char** argv)
 	boost::property_tree::json_parser::write_json(*g_logFile, g_propTree);
 
 
-	// input files
-
+	// The input are read from the shell variable FILE_NAMES, which is set by grid control.
+	// In case this variable is not set (for normal, local use), the list of
+	// files is taken from the settings
 	char* pPath;
 	pPath = getenv("FILE_NAMES");
 	if (pPath != NULL)
 	{
 		boost::split(g_sourcefiles, pPath, boost::is_any_of(" "), boost::token_compress_on);
-		// SplitVec == { "hello abc","ABC","aBc goodbye" }
 	}
 	else
 	{
@@ -112,6 +107,7 @@ int main(int argc, char** argv)
 	}
 
 	std::string outputFilename = g_sOutputPath + ".root";
+	// The curly brackets here are necessary to prevent the final status line to be printed twice
 	{
 		FileInterface2 finterface(g_sourcefiles);
 		LOG_FILE("Output file: " << outputFilename);
