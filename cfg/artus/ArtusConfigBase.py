@@ -112,9 +112,9 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
     if analysis == 'zee':
         # The order of these producers is important!
         config['GlobalProducer'] = [
-            'valid_electron_producer', 'zee_producer', 'valid_jet_ee_producer',
-            'jet_corrector', 'typeImet_producer', 'jet_sorter',
-            'unclustered_energy_producer', 'leading_jet_uncertainty_producer',
+            'valid_electron_producer', 'electron_corrector', 'zee_producer',
+             'valid_jet_ee_producer', 'jet_corrector', 'typeImet_producer',
+             'jet_sorter', 'leading_jet_uncertainty_producer',
         ]
         config['Pipelines']['default']['QuantitiesVector'] += [
 			"nelectrons",

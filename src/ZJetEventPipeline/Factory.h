@@ -14,6 +14,7 @@
 #include "ZJetProducer/ZeeProducer.h"
 #include "ZJetProducer/LHEProducer.h"
 #include "ZJetProducer/ElectronSFProducer.h"
+#include "ZJetProducer/ElectronCorrector.h"
 
 
 using namespace Artus;
@@ -91,12 +92,14 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new ZEEProducer());
 		else if (ValidElectronProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidElectronProducer(
-										globalSettings.get<std::string>("ElectronID")));
+											 globalSettings.get<std::string>("ElectronID")));
 		else if (ElectronSFProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ElectronSFProducer(globalSettings.get<std::string>("ScaleFactors"),
 										 globalSettings.get<std::string>("ElectronID")));
 		else if (LHEProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new LHEProducer());
+		else if (ElectronCorrector::Name() == *it)
+			runner.AddGlobalMetaProducer(new ElectronCorrector());
 		else
 			LOG_FATAL("Global MetaData producer of name " << *it << " not found");
 	}
