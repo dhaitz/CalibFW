@@ -264,7 +264,7 @@ def getsettings(opt, changes=None, settings=None, quantity=None):
     if settings['xname'] is not None:
         settings['xynames'][0] = settings['xname']
     if settings['yname'] is not None:
-        settings['xynames'][0] = settings['yname']
+        settings['xynames'][1] = settings['yname']
     if settings['x'] is None:
         settings['x'] = plotbase.getaxislabels_list(settings['xynames'][0])[:2]
 
@@ -486,6 +486,7 @@ def getdefaultfilename(quantity, opt, settings):
 
 def selfsave(settings):
     pass
+
 
 def Save(figure, settings=None, crop=True, pad=None):
     """Save this figure in all listed data formats.
