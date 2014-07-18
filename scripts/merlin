@@ -307,9 +307,9 @@ def options(
 if __name__ == "__main__":
     print "Merlin - the plot wizard"
 
-    op = options()
+    opt = options()
 
-    if not op.nologo:
+    if not opt.nologo:
         print """\n
               *    Hocus pocus ploticus!                
              / \                                        
@@ -326,29 +326,37 @@ if __name__ == "__main__":
         / *_  *  _  \                                   
 """
 
-    plotbase.plot(op)
+    plotbase.plot(opt)
 
-    if op.www:
+    if opt.www:
         subprocess.call(['. plotsync.sh'], shell=True)
         exit(0)
 
-    if op.live:
+    if opt.live:
         imageviewer = 'evince'
         user = artus.getPath('USER')
         userpc = "%s@%s" % (user, artus.getPath('USERPC'))
+        image = '%s.%s' % (opt.filename, opt.formats[0])
+        image_with_path = '%s/%s' % (opt.out, image)
+        if 'ekplx' in userpc:
 
-        subprocess.call(['rsync', 'out/plot.pdf', 
-                                  '%s:/usr/users/%s/plot.pdf' % (userpc, user)])
+            subprocess.call(['rsync', image_with_path, 
+                                      '%s:/usr/users/%s/plot.pdf' % (userpc, user)])
 
-        # check if the imageviewer is running on the users local machine:
-        p = subprocess.Popen(['ssh', userpc, 'ps', 'aux', '|', 'grep',
-                        '"%s /usr/users/%s/plot.pdf"' % (imageviewer, user), '|', 'grep',
-                         '-v', 'grep', '|', 'wc', '-l'], stdout=subprocess.PIPE)
-        out, err = p.communicate()
+            # check if the imageviewer is running on the users local machine:
+            p = subprocess.Popen(['ssh', userpc, 'ps', 'aux', '|', 'grep',
+                            '"%s /usr/users/%s/%s"' % (imageviewer, user, image), '|', 'grep',
+                             '-v', 'grep', '|', 'wc', '-l'], stdout=subprocess.PIPE)
+            out, err = p.communicate()
 
-        # if its not already running, start!
-        if out[:1] == '0':
-            print "\nOpening %s..." % imageviewer
-            subprocess.Popen(['ssh', userpc,
-                'DISPLAY=:0 %s /usr/users/%s/plot.pdf &' % (imageviewer, user)])
+            # if its not already running, start!
+            if out[:1] == '0':
+                print "\nOpening %s..." % imageviewer
+                subprocess.Popen(['ssh', userpc,
+                    'DISPLAY=:0 %s /usr/users/%s/%s &' % (imageviewer, user, image)])
+        else:
+            #if logged in from laptop, start image viewer directly on portal machine
+           subprocess.Popen([imageviewer, image_with_path], stdout=subprocess.PIPE)
+
+
 
