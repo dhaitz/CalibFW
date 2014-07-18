@@ -135,47 +135,64 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
 
 
 
-def ThreeD(files, opt, changes={}, rebin=[2,2]):
+def ThreeD(files, opt, changes=None):
+    """
+        This is the function for 3D (animated plots).
+        Much of the configuration is hardcoded here.
+        Make this more configurable? Currently its not regularly used.
+    """
     from mpl_toolkits.mplot3d import Axes3D
     from matplotlib import cm
     import numpy as np
     import random
 
-    change= plotbase.getchanges(opt, changes)
-    change['incut']='allevents'
-    datamc = [getroot.getplotfromnick("2D_jet1eta_jet1phi", f,change, rebin) for f in files[1:]]
+    quantity = "mupluspt_muminuspt"
 
+    settings = plotbase.getsettings(opt, changes=changes, settings=None, quantity=quantity)
+
+    rootobjects = []
+    datamc = []
+    for f in files:
+        rootobjects += [getroot.histofromfile(quantity, f, settings, twoD=True)]
+        datamc += [getroot.root2histo(rootobjects[-1], f.GetName(), [1, 1])]
+        
     # create supporting points
-    x = np.linspace(-5,5,100/rebin[0])
-    y = np.linspace(-3.2,3.2,100/rebin[1])
+    y = np.linspace(settings['y'][0], settings['y'][1], settings['nbins'])
+    x = np.linspace(settings['x'][0], settings['x'][1],settings['nbins'])
     X,Y = np.meshgrid(x,y)
-
-    # create numpy array
+    # create numpy array for Z values
     Z = np.array(datamc[0].BinContents)
-
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    # 
-    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.jet, linewidth=0)
+    # Create the surface plot
+    surf = ax.plot_surface(
+        X, Y, Z, rstride=1, cstride=1,
+        cmap = cm.afmhot,
+        linewidth=0, antialiased=True, shade=False)
 
     # set label + limits
-    ax.set_zlim3d(0, datamc[0].maxBin())
-    ax.set_xlabel(r'$\eta$')
-    ax.set_ylabel(r'$\phi$')
+    #ax.set_zlim3d(0, 100)
+    ax.set_xlabel(r'$\mu^{-} p_T $')
+    ax.set_ylabel(r'$\mu^{+} p_T $')
+    ax.set_zlabel(r'Events')
 
-    n = 360
-    for i in range(n):
+    # if animated, n plots are outputted, each with a different viewing angle.
+    # Merge with sth like 'convert -delay 5 -loop 0 <outpath>/*.png 3d.gif'
+    animated = True
+    if not animated:
+        plotbase.Save(fig, settings)    
+        return
+    else:
+        n = 720
+        filename = settings['filename']
+        for i in range(n):
 
-        # rotate viewing angle
-        ax.view_init(20,-120+(360/n)*i)
+            # rotate viewing angle
+            ax.view_init(20,-120+(360./n)*i)
 
-        """if (i % 2 == 0):
-            ax.text(0, 0, 11000, "WARNING!!!", va='top', ha='left', color='red', size='xx-large')
-        ax.text(0, 0, 9800, "critical spike detected!", va='top', ha='left', color='black')
-        ax.text(0, 0, 9100, str(random.random())+str(random.random())+str(random.random()), va='top', ha='center', color='black')"""
-
-        # create filename + save
-        plotbase.Save(fig, str(i).zfill(3), opt)
+            # create filename with extension; save
+            settings['filename'] = filename + str(i).zfill(3)
+            plotbase.Save(fig, settings)
 
