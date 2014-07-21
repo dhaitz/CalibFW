@@ -192,14 +192,14 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
 
     # Year-dependent settings
     if run == '2011':
-        cfg['Jec'] = getPath() + "/data/jec/START44_V12"
+        cfg['Jec'] = getPath() + "/data/jec/START44_V12/START44_V12"
         cfg["EnablePuReweighting"] = True
         cfg['PileupWeights'] = getPath() + "/data/pileup/weights_160404-180252_7TeV_ReRecoNov08_kappa539_MC11.root"
         cfg["MuonSmearing"] = True
         cfg["MuonRadiationCorrection"] = False
         cfg["MuonCorrectionParameters"] = getPath() + "/data/muoncorrection/MuScleFit_2011_MC_44X.txt"
     elif run == '2012':
-        cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_MC"
+        cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_MC/Summer13_V5_MC"
         cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
         cfg["EnablePuReweighting"] = True
         if analysis == 'zee':
@@ -244,7 +244,7 @@ def SetDataSpecific(cfg, run='2012', analysis='zmumu'):
     """
     d = {}
     if run == '2011':
-        cfg['Jec'] = getPath() + "/data/jec/GR_R_44_V13"
+        cfg['Jec'] = getPath() + "/data/jec/GR_R_44_V13/GR_R_44_V13"
         cfg['JsonFile'] = getPath() + "/data/json/Cert_160404-180252_7TeV_ReRecoNov08_Collisions11_JSON_v2.txt"
         cfg['HltPaths'] = [
             # Mu7 Trigger
@@ -264,7 +264,7 @@ def SetDataSpecific(cfg, run='2012', analysis='zmumu'):
         cfg["MuonRadiationCorrection"] = False
         cfg["MuonCorrectionParameters"] = getPath() + "/data/muoncorrection/MuScleFit_2011_DATA_44X.txt"
     elif run == '2012':
-        cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_DATA"
+        cfg['Jec'] = getPath() + "/data/jec/Summer13_V5_DATA/Summer13_V5_DATA"
         cfg['MetPhiCorrectionParameters'] = [0.2661, 0.3217, -0.2251, -0.1747]
         cfg['JsonFile'] = getPath() + "/data/json/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt"
         if analysis == 'zee':
