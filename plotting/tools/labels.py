@@ -1,6 +1,6 @@
 import plotbase
 import copy
-from dictionaries import d_axes, d_plots
+from dictionaries import d_axes
 
 
 def labels(ax, opt, settings, subplot=False):

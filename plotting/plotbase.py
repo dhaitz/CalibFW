@@ -79,10 +79,6 @@ def plot(op):
                 print "Doing %s in %s" % (p, module.__name__)
                 getattr(module, p)(files, op)
                 remaining_plots.remove(p)
-            elif module == plotdatamc and p in d_plots:    # if no function available, try dictionary
-                print "New plot: (from dictionary)", p,
-                plotdatamc.plotfromdict(files, op, p)
-                remaining_plots.remove(p)
         if op != startop:
             whichfunctions += [p + " in " + module.__name__]
         if op.verbose:

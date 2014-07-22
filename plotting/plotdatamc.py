@@ -10,7 +10,6 @@ import plotbase
 import ROOT
 import sys
 import os
-from dictionaries import d_plots
 import plotresponse
 import copy
 
@@ -286,21 +285,6 @@ def ratiosubplot(quantity, files, opt, settings):
     ax1.set_xlabel("")
 
     plotbase.Save(fig, settings)
-
-
-def plotfromdict(datamc, opt, name, blacklist=[]):
-    if len(d_plots[name]) == 0:  # emptylist
-        datamcplot(name, datamc, opt)
-
-    elif len(d_plots[name]) == 1:  # list contains only arguments
-        eval("datamcplot('" + name + "', datamc, opt, " + d_plots[name][0] + ")")
-
-    elif len(d_plots[name]) == 2:  # list contains arguments+function
-        eval(d_plots[name][1] + "('" + name + "', datamc, opt, " + d_plots[name][0] + ")")
-
-    elif len(d_plots[name]) == 3:  # list contains arguments+function+name
-        eval(d_plots[name][1] + "('" + d_plots[name][2] + "', datamc, opt, " + d_plots[name][0] + ")")
-
 
 plots = []
 
