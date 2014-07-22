@@ -67,15 +67,15 @@ def plot(op):
         sys.exit()
 
     remaining_plots = copy.deepcopy(plots)
+    # 1. Look if you can direcly call functions in the modules
     for module in modules:
-        #print "Doing plots in", module.__name__, "..."
         if op.verbose:
             print "%1.2f | Start plotting" % clock()
         if not plots:
             print "Nothing to do. Please list the plots you want!"
             plots = []
         for p in plots:
-            if hasattr(module, p):    # plot directly as a function
+            if hasattr(module, p):  # plot directly as a function
                 print "Doing %s in %s" % (p, module.__name__)
                 getattr(module, p)(files, op)
                 remaining_plots.remove(p)
@@ -83,10 +83,10 @@ def plot(op):
             whichfunctions += [p + " in " + module.__name__]
         if op.verbose:
             print "%1.2f | End" % clock()
-    # remaining plots are given to the function_selector
+    # 2. remaining plots are given to the functionSelector
     if len(remaining_plots) > 0:
         print "Doing remaining plots via function selector..."
-        function_selector(remaining_plots, files, op)
+        functionSelector(remaining_plots, files, op)
 
     # check whether the options have changed and warn
     if op != startop:
@@ -107,8 +107,10 @@ except NameError:
     pass  # not running with profiler
 
 
-# function_selector: takes a list of plots and assigns them to the according funtion
-def function_selector(plots, datamc, opt):
+def functionSelector(plots, datamc, opt):
+    """ The functionSelector takes a list of plots and assigns them to a funtion,
+        according to naming conventions.
+    """
     for plot in plots:
         if '2D' in plot:
             plot2d.twoD(plot[3:], datamc, opt)
@@ -130,8 +132,8 @@ def function_selector(plots, datamc, opt):
             plotresponse.ratioplot(datamc, opt,
                             types=plot.split('_ratio_')[0].split('_'),
                             over=plot.split('_ratio_')[1])
-        else:
-            plotdatamc.datamcplot(plot, datamc, opt)
+        else: # simple 1D plot
+            plotdatamc.plot1d(plot, datamc, opt)
 
 
 def debug(string):
@@ -202,17 +204,7 @@ def printquantities(files, opt):
                 print "  %s" % q
 
 
-def get_selection(settings):
-    """Prepare the selections."""
-
-    if 'selection' in settings and settings['selection'] is not None:
-        selections = settings['selection'].split(" && ")
-    else:
-        selections = []
-    return " && ".join(list(set(selections)))
-
-
-def apply_changes(settings, changes):
+def applyChanges(settings, changes):
     """This function updates the settings dictionary with the changes function
        in a way that the selection is not overwritten but combined.
     """
@@ -233,10 +225,9 @@ def getsettings(opt, changes=None, settings=None, quantity=None):
        The customizable parameters can be accessed via the settings directory
        that is created from the global 'opt' module and optional other arguments.
     """
-    #opt = copy.deepcopy(opt)
     # if a setting dictionary is given, apply changes (if any)
     if settings is not None:
-        settings = apply_changes(settings, changes)
+        settings = applyChanges(settings, changes)
         return settings
 
     # 1. create a local copy of the default_settings
@@ -244,11 +235,11 @@ def getsettings(opt, changes=None, settings=None, quantity=None):
 
     # 2. overwrite the default_settings with settings(function argument, e.g. from dictionary):
     if changes is not None:
-        settings = apply_changes(settings, changes)
+        settings = applyChanges(settings, changes)
 
     # 3. overwrite the default_settings with user-settings (=command line arguments):
     if opt.user_options is not {}:
-        settings = apply_changes(settings, opt.user_options)
+        settings = applyChanges(settings, opt.user_options)
 
     # 4. create the local settings for quantites and axes:
     if quantity is not None and settings['xynames'] is None:
@@ -376,20 +367,6 @@ def nicetext(s):
     elif s == 'jet2toZpt':
         return r"2nd Jet Cut"
     return s
-
-
-#def getreweighting(datahisto, mchisto, drop=True):
-#    if drop:
-#        datahisto.dropbin(0)
-#        datahisto.dropbin(-1)
-#        mchisto.dropbin(0)
-#        mchisto.dropbin(-1)
-#    reweighting = []
-#    for i in range(len(mchisto)):
-#        if i > 13:
-#            break
-#        reweighting.append(datahisto.y[i] / mchisto.y[i])
-#    return reweighting
 
 
 def newplot(ratio=False, run=False, subplots=1, subplots_X=None,

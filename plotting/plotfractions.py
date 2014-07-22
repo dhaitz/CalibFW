@@ -17,7 +17,7 @@ import fit
 def getvalues(nickname, f, opt, over = 'zpt', settings=None, changes=None):
 
     graph = TGraphErrors()
-    settings = plotbase.apply_changes(settings, changes)
+    settings = plotbase.applyChanges(settings, changes)
   
     graph = getroot.getgraph(over, nickname, f, opt, settings=settings, 
                                                                 changes=changes)

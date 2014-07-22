@@ -15,7 +15,12 @@ import copy
 
 
 def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
-    """Template for all data/MC comparison plots for basic quantities."""
+    """Keep this function only for backward compatibility. """
+    plot1d(quantity, files, opt, fig_axes, changes, settings)
+
+
+def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
+    """Template for all 1D data/MC comparison plots for basic quantities."""
 
     # if no settings are given, create:
     settings = plotbase.getsettings(opt, changes, settings, quantity)
@@ -59,6 +64,7 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
 
     # create an additional ratio subplot at the bottom:
+    # TODO fix this! this function should not be called here!
     if settings['ratiosubplot'] and not settings['subplot']:
         ratiosubplot(quantity, files, opt, settings)
         return
@@ -126,6 +132,19 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         ax.text(0.03, 0.95-(len(datamc)/20.), r"$\mathrm{Ratio:\hspace{1.5}} R = %1.3f\pm%1.3f$" % (ratio, ratioerr),
                va='top', ha='left', transform=ax.transAxes, color='black')
 
+    formatting(ax, settings, opt, datamc, rootobjects=None)
+
+    # save it
+    if settings['subplot']:
+        del rootobjects
+        return
+    else:
+        plotbase.Save(fig, settings)
+
+
+def formatting(ax, settings, opt, datamc, rootobjects=None):
+    """This function takes an axis object and formats it according to settings."""
+
     # set the axis labels and limits
     plotbase.labels(ax, opt, settings, settings['subplot'])
     plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1],
@@ -154,12 +173,6 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
             ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in datamc) * 2)
         ax.set_yscale('log')
 
-    # save it
-    if settings['subplot']:
-        del rootobjects
-        return
-    else:
-        plotbase.Save(fig, settings)
 
 try:
     datamcplot = profile(datamcplot)

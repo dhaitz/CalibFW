@@ -225,7 +225,6 @@ def options(
     general.add_argument('-u', '--uncertaintyband', action='store_true',
         help="responseratio plots: add an uncertaintyband in the ratio")
 
-
     opt, unknown_arguments = parser.parse_known_args()
 
     # unknown arguments are also added to opt, so one can use them
@@ -257,7 +256,6 @@ def options(
     # add values from dic to opt
     for value in dic.keys():
         setattr(opt, value, dic[value])
-        
 
     opt.fit_offset = 0
     parser.set_defaults(fit_offset=0)
@@ -279,7 +277,6 @@ def options(
         opt.npv = [(0, 3), (4, 5), (6, 7), (8, 10), (11, 24)]
         opt.lumi = 5.1
         opt.energy = 7
-
 
     if opt.mconly:
         opt.labels = opt.labels[1:]
@@ -305,6 +302,10 @@ def options(
 
 
 if __name__ == "__main__":
+    """ This is the starting point for plotting.
+        Options are parsed from command line, the plotbase plotting function is
+        called and some commands for live and web plotting are issued.
+    """
     print "Merlin - the plot wizard"
 
     opt = options()

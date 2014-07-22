@@ -239,7 +239,7 @@ def histofromfile(quantity, rootfile, settings, changes=None, twoD=False):
     If quantity is an object in the rootfile it is returned.
     If not, the histo is filled from ntuple variables via the histofromntuple function
     """
-    settings = plotbase.apply_changes(settings, changes)
+    settings = plotbase.applyChanges(settings, changes)
     histo = objectfromfile(quantity, rootfile, warn=False)
     if histo:
         return histo
@@ -786,7 +786,7 @@ def getgraph(x, y, f, opt, settings, changes=None, key='var', var=None, drop=Tru
        and the settings in 'changes'. The x axis is the variation in 'var'.
     """
 
-    settings = plotbase.apply_changes(settings, changes)
+    settings = plotbase.applyChanges(settings, changes)
     try:
         f1 = f[0]
         f2 = f[1]
