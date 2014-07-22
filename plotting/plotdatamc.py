@@ -16,6 +16,7 @@ import copy
 
 def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     """Keep this function only for backward compatibility. """
+    #TODO remove at some point
     plot1d(quantity, files, opt, fig_axes, changes, settings)
 
 
@@ -43,10 +44,7 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     if settings['subtract']:
         rootobjects[0].Add(rootobjects[1], -1)
         rootobjects = [rootobjects[0]]
-        
         datamc = [getroot.root2histo(rootobjects[0], files[0].GetName(), 1)]
-        
-
 
     # if true, create a ratio plot:
     if settings['ratio'] and len(datamc) == 2:
@@ -64,7 +62,7 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
 
     # create an additional ratio subplot at the bottom:
-    # TODO fix this! this function should not be called here!
+    #TODO this is only kept for backwards compatibility! remove at some point
     if settings['ratiosubplot'] and not settings['subplot']:
         ratiosubplot(quantity, files, opt, settings)
         return
@@ -128,8 +126,8 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
                                            index, scalefactor, offset)
     if len(settings.get('fitvalues', [])) == 2:
         ratio = settings['fitvalues'][1][0] / settings['fitvalues'][0][0]
-        ratioerr = math.sqrt(settings['fitvalues'][1][1]**2 + settings['fitvalues'][0][1]**2)
-        ax.text(0.03, 0.95-(len(datamc)/20.), r"$\mathrm{Ratio:\hspace{1.5}} R = %1.3f\pm%1.3f$" % (ratio, ratioerr),
+        ratioerr = math.sqrt(settings['fitvalues'][1][1] ** 2 + settings['fitvalues'][0][1] ** 2)
+        ax.text(0.03, 0.95 - (len(datamc) / 20.), r"$\mathrm{Ratio:\hspace{1.5}} R = %1.3f\pm%1.3f$" % (ratio, ratioerr),
                va='top', ha='left', transform=ax.transAxes, color='black')
 
     formatting(ax, settings, opt, datamc, rootobjects=None)
@@ -202,72 +200,17 @@ def runplot_diff(files, datamc, ax, settings, quantity):
             new_y.append(y_elem - offset)
 
     datamc[0].y = new_y
-    #ax.axhspan(mc.GetMeanError(),-mc.GetMeanError(),
-    #                                    color=settings2['colors'][0], alpha=0.4)
     return datamc, ax, offset
 
 
-#Some additional submodules ...
-def datamc_all(quantity, files, opt, fig_axes=(), subplot=False,
-                                             changes=None, settings=None):
-    """Plot subplots of one quantity in bins of different variation.
-       Loop over the different variations and the different alpha cut values.
-
-       plotbase.getvariationlist gets a list of 'changes' dictionaries, one for each variation bin:
-         ch_list = [{'var': 'var_JetEta_0to0_783'}, {'var': 'var_JetEta_0_783to1_305'}, ...]
-
-       fig_axes = plotbase.newplot(subplots=n) creates a plot figure (fig_axes[0]) with a list fig_axes[1]
-         of n 'axes' elements (=subplots), where fig_axes[1][n] is the n-th subplot
+def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
+    """ Basically the same as the plot1d function,
+        but creates an additional ratiosubplot at the bottom.
     """
-    if 'run' in quantity:
-        run = True
-        variations = ['eta', 'zpt']
-        rebin = 500
-        files = [d for d, name in zip(files, opt.files) if 'data' in name]
-    else:
-        variations = ['npv', 'jet1eta', 'zpt', 'alpha']
+    #TODO Currently the histograms are created twice, once normally and once
+    #     for the ratio plot. Improve this
 
-    subtexts = plotbase.getdefaultsubtexts()
-
-    # change this
-    run = False
-
-    if quantity in variations:
-        variations.remove(quantity)
-    for variation in variations:
-        for cut, cut_string in zip(opt.cut, getroot.cutstrings(opt.cut)):
-            ch_list = plotbase.getvariationlist(variation, opt)
-            fig_axes = plotbase.newplot(subplots=len(ch_list), run=run)
-            for ch, ax, subtext in zip(ch_list, fig_axes[1], subtexts):
-                if variation == 'zpt':
-                    ch['var'] = cut_string
-                elif variation is not 'alpha':
-                    ch['var'] = cut_string + "_" + ch['var']
-                if run:
-                    runplot(quantity, files, opt, changes=ch, fig_axes=(fig_axes[0], ax), subplot=True, log=log, subtext=subtext, rebin=rebin, legloc=legloc, fit=fit)
-                else:
-                    datamcplot(quantity, files, opt, changes=ch, subplot=True,
-                                   fig_axes=(fig_axes[0], ax), settings=settings)
-
-            if variation == 'alpha':
-                text = " for different " + plotbase.nicetext(variation) + " values "
-            else:
-                text = " in " + plotbase.nicetext(variation) + " bins for " + r"$\alpha$ " + str(cut) + "  "
-            title = plotbase.nicetext(quantity) + text + opt.algorithm + " " + opt.correction
-            fig_axes[0].suptitle(title, size='x-large')
-
-            if variation == 'alpha':
-                text = "_bins__"
-            else:
-                text = "_bins__alpha_" + str(cut).replace('.', '_') + "__"
-            filename = quantity + "/" + quantity + "_in_" + variation + text + opt.algorithm + opt.correction
-            plotbase.EnsurePathExists(opt.out + "/" + quantity)
-            plotbase.Save(fig_axes[0], filename, opt)
-            if variation == 'alpha':
-                break
-
-
-def ratiosubplot(quantity, files, opt, settings):
+    settings = plotbase.getsettings(opt, changes, settings, quantity)
 
     fig = plotbase.plt.figure(figsize=[7, 10])
     ax1 = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
@@ -299,10 +242,42 @@ def ratiosubplot(quantity, files, opt, settings):
 
     plotbase.Save(fig, settings)
 
-plots = []
+
+def ratiosubplot(quantity, files, opt, settings):
+    """ratiosubplot. This function os kept for backwards compatibility. Remove at some point."""
+    fig = plotbase.plt.figure(figsize=[7, 10])
+    ax1 = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
+    ax1.number = 1
+    ax2 = plotbase.plt.subplot2grid((3, 1), (2, 0))
+    ax2.number = 2
+    fig.add_axes(ax1)
+    fig.add_axes(ax2)
+
+    changes = {'subplot': True}
+
+    datamcplot(quantity, files, opt, fig_axes=(fig, ax1), changes=changes, settings=settings)
+
+    changes['energy'] = None
+    #changes['lumi'] = None
+    changes['ratio'] = True
+    changes['legloc'] = False
+    if 'ratiosubploty' in settings:
+        settings['ratiosubploty'] = [float(x) for x in settings['ratiosubploty']]
+    changes['y'] = [None, None] + settings.get('ratiosubploty', [0.5, 1.5])
+    changes['labels'] = ['Ratio']
+    changes['xynames'] = [settings['xynames'][0], 'datamcratio']
+    changes['fit'] = settings.get('ratiosubplotfit', None)
+    datamcplot(quantity, files, opt, fig_axes=(fig, ax2), changes=changes, settings=settings)
+
+    fig.subplots_adjust(hspace=0.05)
+    ax1.set_xticks([])
+    ax1.set_xlabel("")
+
+    plotbase.Save(fig, settings)
 
 if __name__ == "__main__":
     """Unit test: doing the plots standalone (not as a module)."""
+    #TODO do we really need this?
     import sys
     if len(sys.argv) < 2:
         print "Usage: python plotting/plotdatamc.py data_file.root mc_file.root"

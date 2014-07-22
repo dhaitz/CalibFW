@@ -132,7 +132,9 @@ def functionSelector(plots, datamc, opt):
             plotresponse.ratioplot(datamc, opt,
                             types=plot.split('_ratio_')[0].split('_'),
                             over=plot.split('_ratio_')[1])
-        else: # simple 1D plot
+        elif opt.ratiosubplot is True:
+            plotdatamc.plot1dratiosubplot(plot, datamc, opt)
+        else:  # simple 1D plot
             plotdatamc.plot1d(plot, datamc, opt)
 
 
