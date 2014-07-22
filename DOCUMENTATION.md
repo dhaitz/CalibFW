@@ -31,7 +31,7 @@ Please also see the following pages:
 - http://www-ekp.physik.uni-karlsruhe.de/twiki/bin/view/EkpCms/Zmumujetanalysis
   for an overview on the Z->mumu+jet analysis
 
-- https://ekptrac.physik.uni-karlsruhe.de/trac/CalibFW/wiki
+- https://ekptrac.physik.uni-karlsruhe.de/trac/excalibur/wiki
   for information and installation of *Excalibur*
 
 0. Installation
@@ -41,11 +41,11 @@ directory (if elsewhere, you are responsible for setting the paths correctly):
 
     Kappa
     KappaTools
-    CalibFW
+    excalibur
 
 Compilation of Excalibur:
 
-    cd CalibFW
+    cd excalibur
     scripts/ini_excalibur
     make check
     make
