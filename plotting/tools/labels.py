@@ -40,7 +40,7 @@ def labels(ax, opt, settings, subplot=False):
             textlabel(ax, settings['text'])
         if settings.get('cutlabel', None) is not None:
             cutlabel(ax, settings)
-    if type(settings['legloc']) == str:
+    if type(settings['legloc']) == str and settings['legloc'] != "None":
         if "," in settings['legloc']:
             settings['legloc'] = ([float(i) for i in settings['legloc'].split(",")])
         legend = ax.legend(loc=settings['legloc'], numpoints=1, fancybox=True,
@@ -121,7 +121,7 @@ def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
 
 
 def energylabel(ax, energy, xpos=1.00, ypos=1.01):
-    if (hasattr(ax, 'energylabel') and ax.energylabel == True) or (hasattr(ax, 'number') and ax.number == 2):
+    if (hasattr(ax, 'energylabel') and ax.energylabel == True) or (hasattr(ax, 'number') and ax.number == 2) or (energy == 0):
         return
     if energy is not None:
         ax.text(xpos, ypos, r"$\sqrt{s} = %u\,\mathrm{TeV}$" % (energy),
