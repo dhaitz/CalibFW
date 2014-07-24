@@ -33,8 +33,8 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     # create list with histograms from a ttree/tntuple
     datamc, rootobjects = [], []
     settings['events'] = []
-    for f in files:
-        rootobjects += [getroot.histofromfile(quantity, f, settings)]
+    for i, f in enumerate(files):
+        rootobjects += [getroot.histofromfile(quantity, f, settings, index=i)]
         datamc += [getroot.root2histo(rootobjects[-1], f.GetName(), 1)]
         settings['events'] += [datamc[-1].ysum()]
         if 'flavour' in settings['xynames'][0]:

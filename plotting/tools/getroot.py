@@ -109,7 +109,7 @@ def gettreename(settings, parts=['folder', 'algorithm', 'correction'], string="%
     return name
 
 
-def getselection(settings, mcWeights=False):
+def getselection(settings, mcWeights=False, index=0):
     # create the final selection from the settings
     selection = []
     if settings['folder'] == 'incut' and not settings['allalpha']:
@@ -117,7 +117,7 @@ def getselection(settings, mcWeights=False):
     if settings['folder'] == 'incut' and not settings['alleta']:
         selection += ["(abs(jet1eta) < 1.3)"]
     if settings['selection']:
-        selection += [settings['selection']]
+        selection += [settings['selection'][index]]
 
     # add weights
     weights = []
@@ -178,7 +178,7 @@ def getbinning(quantity, settings, axis='x'):
     return array.array('d', bins)
 
 
-def histofromntuple(quantities, name, ntuple, settings, twoD=False):
+def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
     xbins = getbinning(quantities[-1], settings)
     if twoD and len(quantities) > 1:
         ybins = getbinning(quantities[-2], settings, 'y')
@@ -191,7 +191,7 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False):
     isMC = bool(ntuple.GetLeaf("npu"))
 
     variables = ":".join(quantities)
-    selection = getselection(settings, isMC)
+    selection = getselection(settings, isMC, index=index)
 
     if settings['verbose']:
         plotbase.debug("Creating a plot with the following selection:\n   %s" % settings['selection'])
@@ -233,7 +233,7 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False):
     return roothisto
 
 
-def histofromfile(quantity, rootfile, settings, changes=None, twoD=False):
+def histofromfile(quantity, rootfile, settings, changes=None, twoD=False, index=0):
     """This function returns a root object
 
     If quantity is an object in the rootfile it is returned.
@@ -250,7 +250,7 @@ def histofromfile(quantity, rootfile, settings, changes=None, twoD=False):
     name = name.replace("/", "").replace(")", "").replace("(", "")
     #rootfile.Delete("%s;*" % name)
     quantities = quantity.split("_")
-    return histofromntuple(quantities, name, ntuple, settings, twoD=twoD)
+    return histofromntuple(quantities, name, ntuple, settings, twoD=twoD, index=index)
 
 
 try:

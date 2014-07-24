@@ -73,7 +73,7 @@ def options(
         default=files,
         help="data and Monte Carlo input root file(s). One data file and at " +
              "least one Monte Carlo file is assumed. Default: %(default)s")
-    source.add_argument('--selection', '-S', type=str,
+    source.add_argument('--selection', '-S', type=str, nargs='*',
         default=None,
         help='selection (cut) expression, C++ expressions are valid')
     source.add_argument('--folder', type=str,

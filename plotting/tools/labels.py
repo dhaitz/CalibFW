@@ -26,7 +26,7 @@ def labels(ax, opt, settings, subplot=False):
             plotbase.eventnumberlabel(ax, settings)
         if settings['run'] is True:
             plotbase.runlabel(ax, settings)
-        if 'selection' in opt.user_options:
+        if 'selection' in opt.user_options and len(opt.user_options['selection'])==1:
             ax.text(0.02, 0.98, opt.user_options['selection'], va='top', ha='left',
                             transform=ax.transAxes, size='small', color='black')
         if settings['subtext'] is not None:
