@@ -167,7 +167,7 @@ def formatting(ax, settings, opt, datamc, rootobjects=None):
         ax.axvline(6.5, color='black', linestyle=':')
 
     if settings['log'] and ax.number == 1:
-        if 'y' not in opt.user_options and 'y' not in changes:
+        if 'y' not in opt.user_options:
             ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in datamc) * 2)
         ax.set_yscale('log')
 

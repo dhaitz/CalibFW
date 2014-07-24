@@ -225,6 +225,9 @@ def options(
     general.add_argument('-u', '--uncertaintyband', action='store_true',
         help="responseratio plots: add an uncertaintyband in the ratio")
 
+    general.add_argument('--xaxis', type=str, nargs='+', default=None,
+        help="several quantities to be iterated over.")
+
     opt, unknown_arguments = parser.parse_known_args()
 
     # unknown arguments are also added to opt, so one can use them

@@ -182,6 +182,10 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
     xbins = getbinning(quantities[-1], settings)
     if twoD and len(quantities) > 1:
         ybins = getbinning(quantities[-2], settings, 'y')
+
+    if settings['xaxis'] is not None:
+        quantities[0] = settings['xaxis'][index]
+
     copy_of_quantities = quantities
     for key in ntuple_dict.keys():
         for quantity, i in zip(copy_of_quantities, range(len(copy_of_quantities))):
@@ -322,7 +326,7 @@ def saveasroot(rootobjects, opt, settings):
     filename = opt.out + "/%s.root" % settings['filename']
     f = ROOT.TFile(filename, "UPDATE")
     for rgraph, name in zip(rootobjects, settings['labels']):
-        plotname = settings['root']  
+        plotname = settings['root']
         plotname = "_".join([settings['root'], name])
         print "Saving %s in ROOT-file %s" % (plotname, filename)
         rgraph.SetTitle(plotname)
