@@ -52,7 +52,7 @@ def getNewestJson(variant="PromptReco_Collisions12"):
     return jsons[-1]
 
 
-def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=False):
+def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=False, lhe=False):
     """Basic configuration for Artus.
 
     Return a default configuration for Artus depending on
@@ -160,7 +160,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
     if inputtype == 'data':
         config = SetDataSpecific(config, run, analysis)
     elif inputtype == 'mc':
-        config = SetMcSpecific(config, run, analysis, rundepMC)
+        config = SetMcSpecific(config, run, analysis, rundepMC, lhe)
     else:
         print "The inputtype must be either 'data' or 'mc'."
         exit(1)
@@ -168,7 +168,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
     return config
 
 
-def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
+def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False, lhe=False):
     """Add Monte-Carlo specific settings to a config.
 
     The MC settings include
@@ -192,7 +192,15 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False):
     ]
     cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'gen_balance_producer', 'gen_met_producer', 'weight_producer', 'flavour_producer']
     cfg['AK5GenJets'] = 'AK5GenJetsNoNu'
-    cfg['LHE'] = ''
+
+    # Add LHE informations if available in skim
+    # TODO: make artus auto-detect stuff like LHE and run-dependency
+    if lhe:
+        cfg['GlobalProducer'] += ['lhe_producer']
+        cfg['LHE'] = 'LHE'
+        cfg['Pipelines']['default']['QuantitiesVector'] += ['lhezpt', 'lhezeta', 'lhezy', 'lhezphi', 'lhezmass']
+    else:
+        cfg['LHE'] = ''
 
     # Year-dependent settings
     if run == '2011':
