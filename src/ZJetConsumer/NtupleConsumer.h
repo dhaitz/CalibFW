@@ -820,6 +820,13 @@ private:
 		}
 		else if (string == "unc")
 			return metaData.leadingjetuncertainty[s.GetJetAlgorithm()];
+		else if (string == "hlt")
+		{
+			if (metaData.GetSelectedHlt().empty()) // no HLT found
+				return 0;
+			else
+				return event.m_eventmetadata->hltFired(metaData.GetSelectedHlt(), event.m_lumimetadata);
+		}
 
 		//some electron stuff
 		else if (string == "sf")
