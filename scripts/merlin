@@ -285,6 +285,15 @@ def options(
         opt.labels = opt.labels[1:]
         opt.files = opt.files[1:]
 
+    # set the channel (ee/mm) which is used when applying certain weights
+    # TODO should this be configurable from command line?
+    for f in opt.files:
+        print f
+        if "_ee" in f: 
+            opt.channel = 'ee'
+    if not hasattr(opt, 'channel'):
+        opt.channel = 'mm'
+
     # get a separate dictionary with only the user-set values
     user_options = {}
     default_options = {}

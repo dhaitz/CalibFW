@@ -127,10 +127,11 @@ def getselection(settings, mcWeights=False, index=0):
         weights += ["weight"]
     if mcWeights:  # add lumi weights always?
         weights += [str(settings['lumi'])]
-    if mcWeights and settings['efficiency']:
-        weights += [str(settings['efficiency'])]
-    if mcWeights and settings['factor']:
-        weights += [str(settings['factor'])]
+    if settings['channel'] is 'mm':
+        if mcWeights and settings['efficiency']:
+            weights += [str(settings['efficiency'])]
+        if mcWeights and settings['factor']:
+            weights += [str(settings['factor'])]
     selectionstr = " * ".join(weights)
 
     #create a copy of quantities to iterate over (to replace the from the dict):
