@@ -1,9 +1,9 @@
 import ArtusConfigBase as base
-import mc_rundep
+import mc
 
 
 def config():
-    conf = mc_rundep.conf()
+    conf = mc.conf()
     conf['VetoPileupJets'] = True
     return conf
 
