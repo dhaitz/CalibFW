@@ -240,6 +240,7 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
     ax1.set_xticks([])
     ax1.set_xlabel("")
 
+    settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
     plotbase.Save(fig, settings)
 
 
