@@ -9,6 +9,7 @@ def config():
     conf['NEvents'] = 30459503
     conf['XSection'] = 3503.71
 
+    conf['PileupWeights'] = base.getPath() + "data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_2014_06_23_zee_madgraph.root"
 
     conf = base.expand(conf, ['all', 'zcuts'])
     return conf
