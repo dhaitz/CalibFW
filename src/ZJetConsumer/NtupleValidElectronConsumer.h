@@ -9,7 +9,7 @@
 #include "NtupleObjectConsumerBase.h"
 
 /*
-    This consumer creates an ntuple with an entry for each electron in the event.
+	This consumer creates an ntuple with an entry for each electron in the event.
 */
 
 
@@ -28,7 +28,7 @@ protected:
 	virtual std::vector<std::string> GetStringvector() const
 	{
 		return {"pt", "eta", "phi", "mass",
-				"mvaid", "mvatrigid", "looseid", "mediumid", "tightid",
+				"mva", "mvaid", "mvatrigid", "looseid", "mediumid", "tightid",
 				"deltar"
 			   };
 	}
@@ -52,6 +52,33 @@ protected:
 			return metaData.m_listValidElectrons.at(n).idMvaNonTrigV0;
 		else if (string == "mvatrigid")
 			return metaData.m_listValidElectrons.at(n).idMvaTrigV0;
+		else if (string == "mva")
+		{
+			const KDataElectron it = metaData.m_listValidElectrons.at(n);
+			if (
+				(
+					(it.p4.Pt() < 10)
+					&&
+					(
+						(abs(it.p4.Eta()) < 0.8 && it.idMvaNonTrigV0 > 0.47)
+						|| (abs(it.p4.Eta()) > 0.8 && abs(it.p4.Eta()) < 1.479 && it.idMvaNonTrigV0 > 0.004)
+						|| (abs(it.p4.Eta()) > 1.479 && abs(it.p4.Eta()) < 2.5 && it.idMvaNonTrigV0 > 0.295)
+					)
+				)
+				||
+				(
+					(it.p4.Pt() > 10) &&
+					(
+						(abs(it.p4.Eta()) < 0.8 && it.idMvaNonTrigV0 > -0.34)
+						|| (abs(it.p4.Eta()) > 0.8 && abs(it.p4.Eta()) < 1.479 && it.idMvaNonTrigV0 > -0.65)
+						|| (abs(it.p4.Eta()) > 1.479 && abs(it.p4.Eta()) < 2.5 && it.idMvaNonTrigV0 > 0.6)
+					)
+				)
+			)
+				return 1.;
+			else
+				return 0.;
+		}
 		else if (string == "looseid")
 			return metaData.m_listValidElectrons.at(n).cutbasedIDloose;
 		else if (string == "mediumid")
