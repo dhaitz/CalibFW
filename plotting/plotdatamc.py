@@ -28,6 +28,11 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     print "A %s plot is created with the following selection: %s" % (quantity,
                                                           settings['selection'])
 
+    # if files are not given as argument, open:
+    # TODO: "[]" is a workaround because we cannot leave the files argument empty
+    if files == []:
+        files = [getroot.openfile(f) for f in settings['files']]
+
     if 'flavour' in settings['xynames'][0]:
         settings['nbins'] = 25
     # create list with histograms from a ttree/tntuple
