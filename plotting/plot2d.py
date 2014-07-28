@@ -118,7 +118,7 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         # labels:
         plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1], 
                                                             settings=settings)
-        plotbase.labels(ax, opt, settings, settings['subplot'])
+        plotbase.labels(ax, opt, settings, settings['subplot'], mc = ('MC' in label))
         plotbase.setaxislimits(ax, settings)
 
     if settings['subplot']: return

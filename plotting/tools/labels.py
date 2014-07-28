@@ -3,14 +3,14 @@ import copy
 from dictionaries import d_axes
 
 
-def labels(ax, opt, settings, subplot=False):
+def labels(ax, opt, settings, subplot=False, mc=False):
     """This function prints all labels and captions in a plot.
 
     Several functions are called for each type of label.
     """
     if not (settings['ratio'] and settings['subplot']
             and not settings['fit'] == 'intercept'):
-        if settings['lumi'] is not None and not settings['mconly']:
+        if settings['lumi'] is not None and not settings['mconly'] and settings.get('nolumilabel', True) != False and not mc:
             lumilabel(ax, settings['lumi'])    # always (if given) pure MC plots?
         statuslabel(ax, settings['status'])
         if settings['energy'] is not None:
