@@ -244,8 +244,8 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
     plotbase.Save(fig, settings)
 
 
-def ratiosubplot(quantity, files, opt, settings):
-    """ratiosubplot. This function os kept for backwards compatibility. Remove at some point."""
+def ratiosubplot(quantity, files, opt, settings, changes):
+    """WARNING!! ratiosubplot. This function is kept for backwards compatibility. Remove at some point."""
     fig = plotbase.plt.figure(figsize=[7, 10])
     ax1 = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
     ax1.number = 1
