@@ -226,7 +226,9 @@ def options(
         help="responseratio plots: add an uncertaintyband in the ratio")
 
     general.add_argument('--xaxis', type=str, nargs='+', default=None,
-        help="several quantities to be iterated over.")
+        help="several x quantities to be iterated over.")
+    general.add_argument('--yaxis', type=str, nargs='+', default=None,
+        help="several y quantities to be iterated over.")
 
     opt, unknown_arguments = parser.parse_known_args()
 

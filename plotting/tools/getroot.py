@@ -117,7 +117,10 @@ def getselection(settings, mcWeights=False, index=0):
     if settings['folder'] == 'incut' and not settings['alleta']:
         selection += ["(abs(jet1eta) < 1.3)"]
     if settings['selection']:
-        selection += [settings['selection'][index]]
+        if len(settings['selection']) > index:
+            selection += [settings['selection'][index]]
+        else:
+            selection += [settings['selection'][0]]
 
     # add weights
     weights = []
@@ -184,8 +187,10 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
     if twoD and len(quantities) > 1:
         ybins = getbinning(quantities[-2], settings, 'y')
 
-    if settings['xaxis'] is not None:
+    if settings['xaxis'] is not None and len(settings['xaxis']) > index:
         quantities[0] = settings['xaxis'][index]
+    if settings['yaxis'] is not None and len(settings['yaxis']) > index:
+        quantities[0] = settings['yaxis'][index]
 
     copy_of_quantities = quantities
     for key in ntuple_dict.keys():
