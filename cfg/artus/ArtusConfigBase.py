@@ -126,7 +126,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
             "eminusidloose", "eminusidmedium", "eminusidtight", "eminusidveto",
             "eidveto"
         ]
-        config['ElectronID'] = 'mva'
+        config['ElectronID'] = 'loose'
         config['muons'] = ''
         config['electrons'] = 'electrons'
     else:
