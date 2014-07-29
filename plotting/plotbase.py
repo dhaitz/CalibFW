@@ -260,6 +260,25 @@ def getsettings(opt, changes=None, settings=None, quantity=None):
     if settings['y'] is None:
         settings['y'] = plotbase.getaxislabels_list(settings['xynames'][1])[:2]
 
+    # consistency check: the length of xaxis, yaxis, selection, files should be
+    # either 1 or n
+    # TODO explain this better ...
+    # TODO Improve the hacky code below
+    # TODO automatize labelling
+    if not settings.get('xaxis', None):
+        settings['xaxis'] = []
+    if not settings.get('yaxis', None):
+        settings['yaxis'] = []
+    args = ['xaxis', 'yaxis', 'selection', 'files']
+    n = max([len(settings.get(a, []) or []) for a in args])
+    if n > 1:
+        for a in args:
+            if type(settings[a]) is list:
+                if len(settings[a]) == 1:
+                    settings[a] = settings[a] * n
+                elif len(settings.get(a)) != n and len(settings.get(a)) > 0:
+                    print "\033[93mWARNING!! '%s' has length %s! it should have length %s\033[0m" % (a, len(settings.get(a)), n)
+
     return settings
 
 
