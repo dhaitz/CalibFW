@@ -10,7 +10,7 @@ def labels(ax, opt, settings, subplot=False, mc=False):
     """
     if not (settings['ratio'] and settings['subplot']
             and not settings['fit'] == 'intercept'):
-        if settings['lumi'] is not None and not settings['mconly'] and settings.get('nolumilabel', True) != False and not mc:
+        if settings['lumi'] is not None and not settings['mconly'] and not settings.get('nolumilabel', False) != False and not mc:
             lumilabel(ax, settings['lumi'])    # always (if given) pure MC plots?
         statuslabel(ax, settings['status'])
         if settings['energy'] is not None:
@@ -26,7 +26,7 @@ def labels(ax, opt, settings, subplot=False, mc=False):
             plotbase.eventnumberlabel(ax, settings)
         if settings['run'] is True:
             plotbase.runlabel(ax, settings)
-        if 'selection' in opt.user_options and len(opt.user_options['selection'])==1:
+        if 'selection' in opt.user_options and len(opt.user_options['selection']) == 1:
             ax.text(0.02, 0.98, opt.user_options['selection'], va='top', ha='left',
                             transform=ax.transAxes, size='small', color='black')
         if settings['subtext'] is not None:

@@ -124,6 +124,7 @@ def getselection(settings, mcWeights=False, index=0):
 
     # add weights
     weights = []
+    mcWeights = mcWeights and settings.get('mcweights', True)
     if selection:
         weights = ["(" + " && ".join(selection) + ")"]
     if mcWeights and ('noweighting' not in settings or settings['noweighting']):
