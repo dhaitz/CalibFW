@@ -234,6 +234,18 @@ int main(int argc, char** argv)
 		ProfilerStop();
 #endif
 	}
+
+	// Write some stuff from the config into the root file
+	// TODO if we need this more often, turn into dedicated function
+	TObjString type(g_propTree.get<std::string> ("InputType").c_str());
+	TObjString channel(g_propTree.get<std::string> ("Channel").c_str());
+	TObjString year(g_propTree.get<std::string> ("Run").c_str());
+	g_resFile->cd();
+	type.Write("Type");
+	channel.Write("Channel");
+	year.Write("Year");
+
+
 	g_resFile->Close();
 	g_logFile->close();
 

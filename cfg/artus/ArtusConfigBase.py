@@ -75,6 +75,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
         'HcalCorrection': 0.0,
         'Jec': "data or mc?",
         'JsonFile': "year?",
+        'Run': run,
         'InputType': inputtype,
         'InputFiles': [],     # overridden by artus
         'OutputPath': "out",  # overridden by artus
@@ -129,6 +130,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
         config['ElectronID'] = 'loose'
         config['muons'] = ''
         config['electrons'] = 'electrons'
+        config['Channel'] = 'ee'
     else:
         # The order of these producers is important!
         config['GlobalProducer'] = [
@@ -145,6 +147,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
         ]
         config['muons'] = 'muons'
         config['electrons'] = ''
+        config['Channel'] = 'mm'
 
     if tagged:
         config['Pipelines']['default']['QuantitiesVector'] += [
