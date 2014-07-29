@@ -1,5 +1,5 @@
 import plotbase
-import plotdatamc
+import plot1d
 import getroot
 import plot2d
 import numpy as np
@@ -53,7 +53,7 @@ def tagging_truthfraction(files, opt):
                 'legloc':'None',
                 'lumi':0}
        quantity = "_".join([selection, tagger])
-       plotdatamc.datamcplot(quantity, files[1:], opt, changes=changes)
+       plot1d.datamcplot(quantity, files[1:], opt, changes=changes)
 
 
 def tagging_truthflavour(files, opt):
@@ -62,7 +62,7 @@ def tagging_truthflavour(files, opt):
         changes = {'selection':'%s > -1' % tagger, 'legloc':'None', 'colors':['maroon'],
                     'filename':'tagger-TRUTHtest_%s' % tagger,
                 }
-        plotdatamc.datamcplot('%s_%s' % (tagger, flavourdef), files[1:], opt, changes=changes)
+        plot1d.datamcplot('%s_%s' % (tagger, flavourdef), files[1:], opt, changes=changes)
 
 def tagging_2D(files, opt):
     """2D plots of the btag and qgtag distribution."""
@@ -107,12 +107,12 @@ def tagging_mpf(files, opt):
                         'markers':'f', 'rebin':4, 'legloc':'upper right',
                         'scalefactor':scalefactor
                         }
-            plotdatamc.datamcplot(response, files[1:], opt, (fig, ax), changes=changes)
+            plot1d.datamcplot(response, files[1:], opt, (fig, ax), changes=changes)
 
 
         changes = {'selection':'%s ' % zone, 'subplot':True, 'title':"%s-enriched" % title,
                         'rebin':4, 'legloc':'upper right'}
-        plotdatamc.datamcplot(response, files[:1], opt, (fig, ax), changes=changes)
+        plot1d.datamcplot(response, files[:1], opt, (fig, ax), changes=changes)
         settings['filename'] = plotbase.getdefaultfilename("%s_enriched_stacked_%s" % (response, enriched), opt, settings)
         settings['title'] = 'enriched'        
         plotbase.Save(fig, settings)
@@ -122,7 +122,7 @@ def tagging_mpf(files, opt):
         changes = {'selection':'%s ' % zone, 'rebin':4, 'fit':'vertical',
                     'legloc':'center right', 'filename':"mpf_enriched_%s" % enriched,
                     }
-        plotdatamc.datamcplot(response, files, opt, changes=changes)
+        plot1d.datamcplot(response, files, opt, changes=changes)
 
 
         
@@ -148,7 +148,7 @@ def tagging_stacked(files, opt):
             changes = {'selection':'%s ' % selection, 'labels':["%s" % title], 
                         'colors':[color], 'subplot':True,
                         'markers':'f', 'rebin':4, 'legloc':'upper center'}
-            plotdatamc.datamcplot(tagger, files[1:], opt, (fig, ax), changes=changes)
+            plot1d.datamcplot(tagger, files[1:], opt, (fig, ax), changes=changes)
 
         # determine a scalefactor such that the event-sum of the MCs corresponds to data
         settings = plotbase.getsettings(opt, {'selection':'(%s>-1)' % tagger}, quantity='zpt')
@@ -159,7 +159,7 @@ def tagging_stacked(files, opt):
 
         changes = {'subplot':True,
                         'rebin':4, 'legloc':'upper center', 'scalefactor':scalefactor}
-        plotdatamc.datamcplot(tagger, files[:1], opt, (fig, ax), changes=changes)
+        plot1d.datamcplot(tagger, files[:1], opt, (fig, ax), changes=changes)
         if tagger is 'btag':
             ax.set_ylim(bottom=1)
             ax.set_yscale('log')

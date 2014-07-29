@@ -286,7 +286,7 @@ if __name__ == "__main__":
     #TODO do we really need this?
     import sys
     if len(sys.argv) < 2:
-        print "Usage: python plotting/plotdatamc.py data_file.root mc_file.root"
+        print "Usage: python plotting/plot1d.py data_file.root mc_file.root"
         exit(0)
     datamc[0] = getroot.openfile(sys.argv[1])
     fmc = getroot.openfile(sys.argv[2])

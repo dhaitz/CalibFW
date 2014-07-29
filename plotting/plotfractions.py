@@ -11,7 +11,7 @@ import ROOT
 
 import getroot
 import plotbase
-import plotdatamc
+import plot1d
 import fit
 
 def getvalues(nickname, f, opt, over = 'zpt', settings=None, changes=None):
@@ -253,7 +253,7 @@ def fractions_run(files, opt, changes=None, fig_ax=None, subplot=False,
         changes['labels'] = [label]
         changes['colors'] = [color]
         changes['marker'] = [marker]
-        plotdatamc.datamcplot("(jet1%sfraction%s)_run" % (quant, suffix), 
+        plot1d.datamcplot("(jet1%sfraction%s)_run" % (quant, suffix), 
              files, opt, fig_axes=(fig, ax), changes=changes, settings=settings)
 
     if subplot:
@@ -372,7 +372,7 @@ def flavour_composition(files, opt, changes=None, x="zpt"):
             changes['xynames'] = [x, "%sfrac" % flavourdef]
             q = selection.replace("flavour", 
                                 flavourdef)
-            plotdatamc.datamcplot("_".join([q, x]), files, opt,fig_axes=(fig, ax), changes=changes, settings=settings)
+            plot1d.datamcplot("_".join([q, x]), files, opt,fig_axes=(fig, ax), changes=changes, settings=settings)
     settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
     plotbase.Save(fig, settings)
 

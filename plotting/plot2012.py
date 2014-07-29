@@ -24,7 +24,7 @@
 import plotbase
 import getroot
 
-import plotdatamc
+import plot1d
 import plotfractions
 import plotresponse
 import plot_resolution
@@ -39,14 +39,14 @@ def plot():
         correction="L1L2L3Res",
         lumi=920.039,
         energy=8,
-        plots=plotdatamc.plots +
+        plots=plot1d.plots +
               plotresponse.plots +
               plotfractions.plots +
               plot_resolution.plots,
         eta=[0, 1.305, 2.411, 5.0],
         npv=[(3, 5), (6, 11), (12, 19), (20, 100)],
         )
-    module_list = [plotdatamc, plotresponse, plotfractions, plot_resolution]
+    module_list = [plot1d, plotresponse, plotfractions, plot_resolution]
 
     # override commandline (3):
     op.normalize = True

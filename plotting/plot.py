@@ -25,7 +25,7 @@
 import plotbase
 import getroot
 
-import plotdatamc
+import plot1d
 import plotfractions
 import plotresponse
 import plot_resolution
@@ -49,11 +49,11 @@ def plot(cluster=False):
         plots=plotresponse.plots
             + plotfractions.plots
             + plot2d.plots
-            + plotdatamc.plots
+            + plot1d.plots
             #+ plot_resolution.plots
             #+ plot_mikko.plots
         )
-    module_list = [plotresponse, plotfractions, plot2d, plotdatamc, plot_resolution, plot_mikko]
+    module_list = [plotresponse, plotfractions, plot2d, plot1d, plot_resolution, plot_mikko]
 
     # override commandline (3):
     op.normalize = True

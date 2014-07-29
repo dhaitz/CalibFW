@@ -1,6 +1,6 @@
 import plotbase
 import copy
-import plotdatamc
+import plot1d
 import getroot
 import math
 import plotresponse
@@ -32,14 +32,14 @@ def eid(files, opt):
             'colors': [c],
             'selection': s,
         })
-        plotdatamc.datamcplot(quantity, files, opt, fig_axes = [fig, ax], changes=changes)
+        plot1d.datamcplot(quantity, files, opt, fig_axes = [fig, ax], changes=changes)
 
     settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
     plotbase.Save(fig, settings)"""
 
     ## id vs deltar
     for quantity in ["mvaid", "mvatrigid", "looseid", "mediumid", "tightid"]:
-        plotdatamc.datamcplot("%s_deltar" % quantity, files, opt, changes = {
+        plot1d.datamcplot("%s_deltar" % quantity, files, opt, changes = {
             'folder': 'electron_all',
             'nbins': 50,
             'xynames': ['$\Delta$R(reco, gen)', quantity],
@@ -100,7 +100,7 @@ def plots_2014_07_03(files, opt):
         'title': 'data',
         'labels': ['PUJetID applied', 'default'],
     }
-    plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+    plot1d.datamcplot('zpt', files, opt, changes=changes)
 
     for typ in ['mpf', 'ptbalance']:
         plotresponse.responseratio(files, opt, over='zpt', types=[typ], changes={
@@ -267,7 +267,7 @@ def electronupdate(files, opt):
          ]
     }
 
-    plotdatamc.datamcplot('eminuspt/geneminuspt_abs(eminuseta)', files, opt, changes=changes)
+    plot1d.datamcplot('eminuspt/geneminuspt_abs(eminuseta)', files, opt, changes=changes)
 
     changes={
         'ratiosubplot': True,
@@ -278,7 +278,7 @@ def electronupdate(files, opt):
         'folder': 'all',
         'ratiosubplotfit': 'chi2',
     }
-    plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+    plot1d.datamcplot('zpt', files, opt, changes=changes)
 
 
     #LHE information
@@ -303,7 +303,7 @@ def electronupdate(files, opt):
         changes['labels'] = [l]
         changes['markers'] = [m]
         changes['colors'] = [c]
-        plotdatamc.datamcplot(q, files[1:], opt, changes=changes, fig_axes=[fig, ax])
+        plot1d.datamcplot(q, files[1:], opt, changes=changes, fig_axes=[fig, ax])
     settings = plotbase.getsettings(opt, None, None, 'rapidity')
     settings['filename'] = 'rapidity'
     plotbase.Save(fig, settings)
@@ -338,7 +338,7 @@ def electronupdate(files, opt):
             'nbins': 50,
         }
         changes.update(c)
-        plotdatamc.datamcplot(q, files, opt, changes=changes)
+        plot1d.datamcplot(q, files, opt, changes=changes)
 
     # scale factors
     changes = {
@@ -365,7 +365,7 @@ def electronupdate(files, opt):
             'selection': 'abs(zy)>%s && abs(zy)<%s' % (ybin[0], ybin[1]),
             'filename': ('zpt_rap-%s-%s' % (ybin[0], ybin[1])).replace('.', '_'),
         }
-        plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+        plot1d.datamcplot('zpt', files, opt, changes=changes)
 
 
     # scale factor
@@ -406,7 +406,7 @@ def electronupdate(files, opt):
         changes['labels'] = [l]
         changes['markers'] = [m]
         changes['colors'] = [c]
-        plotdatamc.datamcplot("%s_eminuspt" % q, files, opt, changes=changes, fig_axes=[fig, ax])
+        plot1d.datamcplot("%s_eminuspt" % q, files, opt, changes=changes, fig_axes=[fig, ax])
     settings = plotbase.getsettings(opt, None, None, 'id')
     settings['filename'] = 'id'
     settings['title'] = 'MC'
@@ -532,7 +532,7 @@ def electrons(files, opt):
         'fit': 'gauss'
     }
     changes.update(base_changes)
-    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+    plot1d.datamcplot('zmass', files, opt, changes=changes)
 
     #electron quantities
     for charge in ['plus', 'minus']:
@@ -541,11 +541,11 @@ def electrons(files, opt):
             'nbins': 40,
         }
         changes.update(base_changes)
-        plotdatamc.datamcplot('e%spt' % charge, files, opt, changes=changes)
+        plot1d.datamcplot('e%spt' % charge, files, opt, changes=changes)
         changes['x'] = [-2.5, 2.5]
-        plotdatamc.datamcplot('e%seta' % charge, files, opt, changes=changes)
+        plot1d.datamcplot('e%seta' % charge, files, opt, changes=changes)
         changes['x'] = None
-        plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
+        plot1d.datamcplot('e%sphi' % charge, files, opt, changes=changes)
 
     changes['legloc'] = 'center right'
 
@@ -553,13 +553,13 @@ def electrons(files, opt):
     changes['selection'] = 'abs(epluseta)<1.0 && abs(eminuseta)<1.0'
     changes['title'] = '|eta(e)| < 1.0'
     changes['fit'] = 'gauss'
-    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+    plot1d.datamcplot('zmass', files, opt, changes=changes)
 
     changes['filename'] = 'zmass_endcap'
     changes['selection'] = 'abs(epluseta)>1.0 && abs(eminuseta)>1.0'
     changes['title'] = '|eta(e)| > 1.0'
     changes['fit'] = 'gauss'
-    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+    plot1d.datamcplot('zmass', files, opt, changes=changes)
 
     #electron quantities
     for charge in ['plus', 'minus']:
@@ -568,11 +568,11 @@ def electrons(files, opt):
             'nbins': 40,
         }
         changes.update(base_changes)
-        plotdatamc.datamcplot('e%spt' % charge, files, opt, changes=changes)
+        plot1d.datamcplot('e%spt' % charge, files, opt, changes=changes)
         changes['x'] = [-2.5, 2.5]
-        plotdatamc.datamcplot('e%seta' % charge, files, opt, changes=changes)
+        plot1d.datamcplot('e%seta' % charge, files, opt, changes=changes)
         changes['x'] = None
-        plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
+        plot1d.datamcplot('e%sphi' % charge, files, opt, changes=changes)
 
     # Z pT in rapidity bins
     rapbins = ['abs(zy)<1', 'abs(zy)>1 && abs(zy)<2', 'abs(zy)>2 && abs(zy)<3']
@@ -589,7 +589,7 @@ def electrons(files, opt):
         
         }
         changes.update(base_changes)
-        plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+        plot1d.datamcplot('zpt', files, opt, changes=changes)
 
     #electron quantities
     for charge in ['plus', 'minus']:
@@ -598,11 +598,11 @@ def electrons(files, opt):
             'nbins': 40,
         }
         changes.update(base_changes)
-        plotdatamc.datamcplot('e%spt' % charge, files, opt, changes=changes)
+        plot1d.datamcplot('e%spt' % charge, files, opt, changes=changes)
         changes['x'] = [-2.5, 2.5]
-        plotdatamc.datamcplot('e%seta' % charge, files, opt, changes=changes)
+        plot1d.datamcplot('e%seta' % charge, files, opt, changes=changes)
         changes['x'] = None
-        plotdatamc.datamcplot('e%sphi' % charge, files, opt, changes=changes)
+        plot1d.datamcplot('e%sphi' % charge, files, opt, changes=changes)
 
 
 
@@ -613,27 +613,27 @@ def electrons(files, opt):
     changes.update(base_changes)
     changes['folder'] = 'all'
 
-    plotdatamc.datamcplot('npv', files, opt, changes=changes)
+    plot1d.datamcplot('npv', files, opt, changes=changes)
     changes['noweighting'] = True
     changes['factor'] = 3503.71 / 30459503 * 1000
     changes['filename'] = 'npv_noweights'
 
-    plotdatamc.datamcplot('npv', files, opt, changes=changes)
+    plot1d.datamcplot('npv', files, opt, changes=changes)
     changes['noweighting'] = True
     changes['factor'] = 3503.71 / 30459503 * 1000
     changes['filename'] = 'npv_noweights'
-    plotdatamc.datamcplot('npv', files, opt, changes=changes)
+    plot1d.datamcplot('npv', files, opt, changes=changes)
 
     # z pt and rapidity
     changes = {
         'nbins': 40,
     }
     changes.update(base_changes)
-    plotdatamc.datamcplot('zy', files, opt, changes=changes)
-    plotdatamc.datamcplot('zeta', files, opt, changes=changes)
+    plot1d.datamcplot('zy', files, opt, changes=changes)
+    plot1d.datamcplot('zeta', files, opt, changes=changes)
     changes['x'] = [30, 750]
     changes['log'] = True
-    plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+    plot1d.datamcplot('zpt', files, opt, changes=changes)
 
 
     #powheg comparison
@@ -649,7 +649,7 @@ def electrons(files, opt):
 
     }
     changes.update(base_changes)
-    plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+    plot1d.datamcplot('zpt', files, opt, changes=changes)
 
     changes = {
         'nbins': 40,
@@ -657,7 +657,7 @@ def electrons(files, opt):
         'labels': ['data', 'madgraph', 'powheg'],
     }
     changes.update(base_changes)
-    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+    plot1d.datamcplot('zmass', files, opt, changes=changes)
 
     files = files[::2]
     filenames = filenames[::2]
@@ -669,7 +669,7 @@ def electrons(files, opt):
         'labels':['data', 'powheg'],
     }
     changes.update(base_changes)
-    plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+    plot1d.datamcplot('zpt', files, opt, changes=changes)
     
     #backgrounds
     filenames = ['data_ee', 'mc_ee', 'background_ee']
@@ -686,13 +686,13 @@ def electrons(files, opt):
     }
     changes.update(base_changes)
     changes['ratiosubplot'] = False
-    plotdatamc.datamcplot('zpt', files, opt, changes=changes)
+    plot1d.datamcplot('zpt', files, opt, changes=changes)
 
     changes.pop('x', None)
     changes['filename'] = 'zmass_backgrounds'
     changes['log'] = False
     changes['ratiosubplot'] = False
-    plotdatamc.datamcplot('zmass', files, opt, changes=changes)
+    plot1d.datamcplot('zmass', files, opt, changes=changes)
 
 
     # sync the plots
@@ -714,20 +714,20 @@ def an(files, opt):
 
     #MET
     for quantity in ['METpt', 'METphi']:
-        plotdatamc.datamcplot(quantity, files, opt, changes = {'title': 'CMS preliminary'})
+        plot1d.datamcplot(quantity, files, opt, changes = {'title': 'CMS preliminary'})
 
 
-    plotdatamc.datamcplot("npv", files, opt, changes = {'folder': 'all', 'title': 'CMS preliminary'})
+    plot1d.datamcplot("npv", files, opt, changes = {'folder': 'all', 'title': 'CMS preliminary'})
     for n in ['1', '2']:
         for quantity in ['pt', 'eta', 'phi']:
-            plotdatamc.datamcplot('mu%s%s' % (n, quantity), files, opt, changes = {'title': 'CMS preliminary'})
+            plot1d.datamcplot('mu%s%s' % (n, quantity), files, opt, changes = {'title': 'CMS preliminary'})
             if n is '2' and quantity is 'eta':
-                plotdatamc.datamcplot('jet%s%s' % (n, quantity), files, opt, changes = {'nbins': 10, 'correction': 'L1L2L3', 'title': 'CMS preliminary'})
+                plot1d.datamcplot('jet%s%s' % (n, quantity), files, opt, changes = {'nbins': 10, 'correction': 'L1L2L3', 'title': 'CMS preliminary'})
             else:
-                plotdatamc.datamcplot('jet%s%s' % (n, quantity), files, opt, changes = {'correction': 'L1L2L3', 'title': 'CMS preliminary'})
+                plot1d.datamcplot('jet%s%s' % (n, quantity), files, opt, changes = {'correction': 'L1L2L3', 'title': 'CMS preliminary'})
 
     for quantity in ['zpt', 'zeta', 'zy', 'zphi', 'zmass']:
-        plotdatamc.datamcplot(quantity, files, opt, changes = {'title': 'CMS preliminary'})
+        plot1d.datamcplot(quantity, files, opt, changes = {'title': 'CMS preliminary'})
 
     #response stuff
     plotresponse.responseratio(files, opt, over='zpt', types=['mpf'],
@@ -746,7 +746,7 @@ def an(files, opt):
     """
 
     for q in ['mpf', 'ptbalance']:
-        plotdatamc.datamcplot(q, files, opt, changes={'title': 'CMS preliminary', 
+        plot1d.datamcplot(q, files, opt, changes={'title': 'CMS preliminary', 
                                                         'correction': 'L1L2L3',
                                                         'legloc': 'center right',
                                                         'nbins': 100,
@@ -818,7 +818,7 @@ def an(files, opt):
                 'legloc'  : 'lower left',
                 'filename': 'recogen_physflavour_pythia-herwig'}
     files += [getroot.openfile("/storage/a/dhaitz/excalibur/work/mc_herwig/out/closure.root")]
-    plotdatamc.datamcplot("recogen_physflavour", files, opt, changes=changes)
+    plot1d.datamcplot("recogen_physflavour", files, opt, changes=changes)
     """
 
 
@@ -862,11 +862,11 @@ def paper(files, opt):
                 'y': [0, 400],
                 'markers': ['o', 'd'],
                 'colors': ['black', 'blue']}
-    plotdatamc.datamcplot("zpt_alpha", files, opt, changes=changes)
+    plot1d.datamcplot("zpt_alpha", files, opt, changes=changes)
     changes['labels'] = ['MC']
     changes['y'] = [0.98, 1.1]
     changes['mconly'] = [True]
-    plotdatamc.datamcplot("recogen_alpha", files[1:], opt, changes=changes)
+    plot1d.datamcplot("recogen_alpha", files[1:], opt, changes=changes)
 
     # HERWIG
     changes = {'cutlabel' : 'ptetaalpha',
@@ -879,7 +879,7 @@ def paper(files, opt):
                 'legloc'  : 'lower left',
                 'filename': 'recogen_physflavour_pythia-herwig'}
     files2 = files[1:] + [getroot.openfile("/storage/a/dhaitz/excalibur/work/mc_herwig/out/closure.root")]
-    plotdatamc.datamcplot("recogen_physflavour", files2, opt, changes=changes)
+    plot1d.datamcplot("recogen_physflavour", files2, opt, changes=changes)
 
     flavour_comp(files[1:], opt, changes={'title': 'CMS Simulation',
             'cutlabel': 'ptetaalpha',
@@ -892,8 +892,8 @@ def eleven(files, opt):
     """ Summary of the plots for the response studies with 2011 rereco. """
 
     runrange = [160000, 183000]
-    plotdatamc.datamcplot('npv', files, opt, changes={'rebin': 1})
-    plotdatamc.datamcplot('zmass', files, opt, changes={'fit': 'vertical', 'legloc': 'center right'})
+    plot1d.datamcplot('npv', files, opt, changes={'rebin': 1})
+    plot1d.datamcplot('zmass', files, opt, changes={'fit': 'vertical', 'legloc': 'center right'})
     plotresponse.extrapol(files, opt)
 
     plotresponse.responseratio(files, opt, over='zpt', types=['mpf'],
@@ -910,7 +910,7 @@ def eleven(files, opt):
     plotresponse.responseratio(files, opt, over='npv', types=['ptbalance'],
                      changes={'y': [0.91, 1.01, 0.92, 1.03], 'x': [0, 18, 0, 18], 'uncertaintyband': True})
 
-    plotdatamc.datamcplot('npv_run', files, opt, changes={'x': runrange,
+    plot1d.datamcplot('npv_run', files, opt, changes={'x': runrange,
                 'y': [0, 15], 'run': True, 'fit': True})
 
     plotfractions.fractions(files, opt, over='zpt', changes={'x': [0, 400]})
@@ -965,11 +965,11 @@ def rootfile(files, opt):
                 if "alpha" in quantity:
                     changes['rebin'] = 10
 
-                plotdatamc.datamcplot(quantity, files, opt, changes=changes)
+                plot1d.datamcplot(quantity, files, opt, changes=changes)
 
                 changes['ratio'] = True
                 changes['labels'] = ['ratio']
-                plotdatamc.datamcplot(quantity, files, opt, changes=changes)
+                plot1d.datamcplot(quantity, files, opt, changes=changes)
 
 
 def flavour_comp(files, opt, changes=None):
@@ -1004,7 +1004,7 @@ def flavour_comp(files, opt, changes=None):
         changes['labels'] = [l]
         changes['colors'] = [c]
 
-        plotdatamc.datamcplot("%s_physflavour" % n, files, opt,
+        plot1d.datamcplot("%s_physflavour" % n, files, opt,
                     fig_axes=(fig, ax), changes=changes, settings=settings)
 
     settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
@@ -1030,7 +1030,7 @@ def ineff(files, opt):
         changes['colors'] = c
         changes['markers'] = m
 
-        plotdatamc.datamcplot(quantity, files, opt, fig_axes=(fig, ax), changes=changes, settings=settings)
+        plot1d.datamcplot(quantity, files, opt, fig_axes=(fig, ax), changes=changes, settings=settings)
     settings['filename'] = plotbase.getdefaultfilename("physflavourfrac_zpt", opt, settings)
     plotbase.Save(fig, settings['filename'], opt)
 
@@ -1055,7 +1055,7 @@ def flav(files, opt):
     changes['filename']="flavour"
     for f_id, quantity in zip(['uds','c','b','gluon'], flist):
             changes['root']=f_id
-            plotdatamc.datamcplot("%s_zpt" % quantity, files, opt, changes=changes)
+            plot1d.datamcplot("%s_zpt" % quantity, files, opt, changes=changes)
     """
     for flavourdef, flavourdefinition in zip(flavourdefs, flavourdefinitions):
     # iterate over eta bins:
@@ -1070,7 +1070,7 @@ def flav(files, opt):
 
                 changes['root'] = f_id
 
-                plotdatamc.datamcplot("%s_zpt" % quantity.replace("flavour",
+                plot1d.datamcplot("%s_zpt" % quantity.replace("flavour",
                                     flavourdef), files, opt, changes=changes)
 
 
@@ -1080,7 +1080,7 @@ def gif(files, opt):
     for run, number in zip(runlist, range(len(runlist))):
         local_opt.lumi = (run - 190456) * 19500 / (209465 - 190456)
         print
-        plotbase.plotdatamc.datamcplot('balresp', files, local_opt,
+        plotbase.plot1d.datamcplot('balresp', files, local_opt,
              changes={'var': 'var_RunRange_0to%s' % run}, filename="%03d" % number)
 
 
@@ -1185,12 +1185,12 @@ def extrapola(files, opt):
     if opt.rebin is not None:
         rebin = opt.rebin
 
-    plotdatamc.datamcplot('ptbalance_alpha', files, local_opt, legloc='upper center',
+    plot1d.datamcplot('ptbalance_alpha', files, local_opt, legloc='upper center',
            changes=changes, rebin=rebin, subplot=True,
            subtext="", fig_axes=(fig, ax), fit='intercept', ratio=False)
 
     local_opt.colors = ['red', 'maroon']
-    plotdatamc.datamcplot('mpf_alpha', files, local_opt, legloc='upper center',
+    plot1d.datamcplot('mpf_alpha', files, local_opt, legloc='upper center',
            changes=changes, rebin=rebin, subplot=True, xy_names=['alpha', 'response'],
            subtext="", fig_axes=(fig, ax), fit='intercept', ratio=False, fit_offset=-0.1)
 
@@ -1485,11 +1485,11 @@ def factors(files, opt):
     local_opt.labels = labellist[0]
     local_opt.colors = ['blue', 'blue', 'red', 'red']
 
-    plotdatamc.datamcplot(quantity, files[0], local_opt, 'upper center', changes={'correction': ''}, fig_axes=(fig, axes[0]), fit=fit,
+    plot1d.datamcplot(quantity, files[0], local_opt, 'upper center', changes={'correction': ''}, fig_axes=(fig, axes[0]), fit=fit,
                         rebin=rebin, subplot=True, subtext="")
 
     local_opt.labels = labellist[1]
-    plotdatamc.datamcplot(quantity, files[1], local_opt, 'upper center', changes={'correction': ''}, fig_axes=(fig, axes[1]), fit=fit,
+    plot1d.datamcplot(quantity, files[1], local_opt, 'upper center', changes={'correction': ''}, fig_axes=(fig, axes[1]), fit=fit,
                         rebin=rebin, subplot=True, subtext="")
 
     file_name = "L1_comparison_"  # +name
@@ -1537,11 +1537,11 @@ def factors2(files, opt):
         local_opt.labels = [labellist[0]]
         local_opt.colors = ['blue', 'blue', 'red', 'red']
 
-        plotdatamc.datamcplot(quantity, [files[0]], local_opt, 'upper center', changes={'correction': ''}, fig_axes=(fig, axes[0]), fit=fit,
+        plot1d.datamcplot(quantity, [files[0]], local_opt, 'upper center', changes={'correction': ''}, fig_axes=(fig, axes[0]), fit=fit,
                             rebin=rebin, fit_offset=fit_offset, subplot=True, subtext="")
 
         local_opt.labels = [labellist[1]]
-        plotdatamc.datamcplot(quantity, [files[1]], local_opt, 'upper center', changes={'correction': ''}, fig_axes=(fig, axes[1]), fit=fit,
+        plot1d.datamcplot(quantity, [files[1]], local_opt, 'upper center', changes={'correction': ''}, fig_axes=(fig, axes[1]), fit=fit,
                             rebin=rebin, fit_offset=fit_offset, subplot=True, subtext="")
 
         file_name = "L1_comparison_" + name

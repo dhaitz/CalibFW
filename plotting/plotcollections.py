@@ -1,4 +1,4 @@
-import plotbase, plotdatamc, plotresponse, plotfractions, plot2d, plot_tagging
+import plotbase, plot1d, plotresponse, plotfractions, plot2d, plot_tagging
 import getroot, fit
 import math, copy, os
 
@@ -35,16 +35,16 @@ def e07lhe(files, opt):
         'labels': ['Reco', 'Gen'],
         'xaxis': ['zy', 'genzy'],
     })
-    plotdatamc.plot1dratiosubplot("zy", files, opt, changes = changes)
+    plot1d.plot1dratiosubplot("zy", files, opt, changes = changes)
     
     changes.update({
         'labels': ['Gen', 'LHE'],
         'xaxis': ['genzy', 'lhezy'],
         'filename': 'genzy',
     })
-    plotdatamc.plot1dratiosubplot("zy", files, opt, changes = changes)
+    plot1d.plot1dratiosubplot("zy", files, opt, changes = changes)
 
-    plotdatamc.plot1d("zmass", files, opt, changes = {
+    plot1d.plot1d("zmass", files, opt, changes = {
         'folder': 'zcuts',
         'channel': 'ee',
         'x': [81, 101],
@@ -62,7 +62,7 @@ def e07y(files, opt):
             [False, True],
             ['data', 'Madgraph'],
         ):
-        plotdatamc.plot1dratiosubplot("zy", files, opt, changes = {
+        plot1d.plot1dratiosubplot("zy", files, opt, changes = {
             'folder': 'zcuts',
             'channel': 'ee',
             'x': [-2.8, 2.8],
@@ -80,7 +80,7 @@ def e07geny(files, opt):
     """ Plot y and -y gen histograms, to check rapidity assymetry. """
     for a, title in zip(['mc_ee', 'mc_ee_powheg'], ['Madgraph', 'Powheg']):
         for i in ['genzy', 'lhezy']:
-            plotdatamc.plot1dratiosubplot(i, [], opt, changes = {
+            plot1d.plot1dratiosubplot(i, [], opt, changes = {
                 'folder': 'zcuts',
                 'channel': 'ee',
                 'x': [-2.8, 2.8],
@@ -115,7 +115,7 @@ def e07eff(files, opt):
         ['ideff', 'idfake'],
         ['Efficiency', 'Fake rate'],
     ):
-        plotdatamc.plot1d("id_pt", files, opt, changes = {
+        plot1d.plot1d("id_pt", files, opt, changes = {
             'folder': 'electron_zcuts',
             'channel': 'ee',
             'yaxis': ['mva', 'looseid', 'mediumid', 'tightid'],
@@ -140,7 +140,7 @@ def e07eeta(files, opt):
             [False, True],
             ['data', 'Madgraph'],
         ):
-        plotdatamc.plot1dratiosubplot("eta", files, opt, changes = {
+        plot1d.plot1dratiosubplot("eta", files, opt, changes = {
             'folder': 'zcuts',
             'channel': 'ee',
             'x': [-2.8, 2.8],
@@ -155,12 +155,12 @@ def e07eeta(files, opt):
 
 
 def e07pu(files, opt):
-    plotdatamc.plot1dratiosubplot('npv', [], opt, changes = {
+    plot1d.plot1dratiosubplot('npv', [], opt, changes = {
         'folder': 'all',
         'channel': 'ee',
         'files': ['work/%s_corr.root' % f for f in ['data_ee_corr', 'mc_ee_powheg_corr']]
     })
-    plotdatamc.plot1dratiosubplot('npv', [], opt, changes = {
+    plot1d.plot1dratiosubplot('npv', [], opt, changes = {
         'folder': 'all',
         'channel': 'ee',
         'labels': ['data', 'Madgraph'],
@@ -172,7 +172,7 @@ def e07pu(files, opt):
 def e07pt(files, opt):
     """ data vs MC for electron pT, raw and corrected. """
     for name, title in zip(['raw', 'corr'], ['raw', 'corrected']):
-        plotdatamc.plot1dratiosubplot('eminuspt', [], opt, changes = {
+        plot1d.plot1dratiosubplot('eminuspt', [], opt, changes = {
             'folder': 'zcuts',
             'channel': 'ee',
             'nbins': 50,
@@ -188,7 +188,7 @@ def e07pt(files, opt):
 def e07zmass(files, opt):
     """ data vs MC for Z mass, raw and corrected electrons. """
     for name, title in zip(['raw', 'corr'], ['raw', 'corrected']):
-        plotdatamc.plot1dratiosubplot('zmass', [], opt, changes = {
+        plot1d.plot1dratiosubplot('zmass', [], opt, changes = {
             'folder': 'zcuts',
             'channel': 'ee',
             'nbins': 50,
@@ -219,7 +219,7 @@ def e07z(files, opt):
         'filename': 'final_zmass',
     }
     changes.update(base_changes)
-    plotdatamc.plot1dratiosubplot('zmass', files, opt, changes = changes)
+    plot1d.plot1dratiosubplot('zmass', files, opt, changes = changes)
 
     changes = {
         'x': [30, 300],
@@ -227,7 +227,7 @@ def e07z(files, opt):
         'log': True,
     }
     changes.update(base_changes)
-    plotdatamc.plot1dratiosubplot('zpt', files, opt, changes = changes)
+    plot1d.plot1dratiosubplot('zpt', files, opt, changes = changes)
 
     changes = {
         'x': [-2.8, 2.8],
@@ -235,7 +235,7 @@ def e07z(files, opt):
         #'log': True,
     }
     changes.update(base_changes)
-    plotdatamc.plot1dratiosubplot('zy', files, opt, changes = changes)
+    plot1d.plot1dratiosubplot('zy', files, opt, changes = changes)
 
     for sel, filename, title in zip(['abs(zy)<1', 'abs(zy)>1 && abs(zy)<2', 'abs(zy)>2'],
         ['zpt01', 'zpt12', 'zpt2'],
@@ -251,7 +251,7 @@ def e07z(files, opt):
             'selection': ['%s && %s' % (sel, s) for s in base_changes['selection']],
             'filename': filename,
         })
-        plotdatamc.plot1dratiosubplot('zpt', files, opt, changes = changes)
+        plot1d.plot1dratiosubplot('zpt', files, opt, changes = changes)
 
 
 def e07roc(files, opt):
@@ -295,7 +295,7 @@ def e07roc(files, opt):
         'xynames': ['Fake rate', 'Efficiency'],
         'nolumilabel': True,
     })
-    plotdatamc.formatting(ax, settings, opt, None, rootobjects=None)
+    plot1d.formatting(ax, settings, opt, None, rootobjects=None)
     plotbase.Save(fig, settings)
 
 
@@ -326,7 +326,7 @@ def e07(files, opt):
     #electron_id
     files = [getroot.openfile("work/mc_ee_corr_noid_noc.root")]
     """for quantity in ["mvaid", "mvatrigid", "looseid", "mediumid", "tightid"]:
-        plotdatamc.datamcplot("%s_deltar" % quantity, files, opt, changes = {
+        plot1d.datamcplot("%s_deltar" % quantity, files, opt, changes = {
         'folder': 'electron_all',
         'nbins': 50,
         'lumi': 0,
@@ -361,7 +361,7 @@ def e07(files, opt):
             'colors': [c],
             'selection': s,
         })
-        plotdatamc.datamcplot(quantity, files, opt, fig_axes = [fig, ax], changes=changes)
+        plot1d.datamcplot(quantity, files, opt, fig_axes = [fig, ax], changes=changes)
 
     settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
     plotbase.Save(fig, settings)
@@ -375,7 +375,7 @@ def e07(files, opt):
         'legloc': None,
         'filename': 'fakerate',
     }
-    plotdatamc.datamcplot("(deltar>0.3||deltar<0)_mvaid", files, opt, changes=changes)
+    plot1d.datamcplot("(deltar>0.3||deltar<0)_mvaid", files, opt, changes=changes)
     """
 
     #lhe
@@ -402,7 +402,7 @@ def e07(files, opt):
         changes['labels'] = [l]
         changes['markers'] = [m]
         changes['colors'] = [c]
-        plotdatamc.datamcplot(q, files, opt, changes=changes, fig_axes=[fig, ax])
+        plot1d.datamcplot(q, files, opt, changes=changes, fig_axes=[fig, ax])
         
 
         #rootobjects += [getroot.histofromfile(quantity, files[0], settings)]
@@ -411,7 +411,7 @@ def e07(files, opt):
         
         
         
-    #plotdatamc.datamcplot("zy/genzy", files, opt, changes=changes, fig_axes=[fig, ax2])
+    #plot1d.datamcplot("zy/genzy", files, opt, changes=changes, fig_axes=[fig, ax2])
     """
     harry.py -i ../../../git/CalibFW/work/mc_ee_corr.root  --folder "zcuts_AK5PFJetsCHSL1L2L3" -x --xlims -2.6 2.6 --ratiosubplot -x lhezy genzy -e 8 --yname Events --xname "Z rapidity" --nbins 50 --labels "LHE" "Gen" --legloc "lower center" --filename zy-lhegen
     harry.py -i ../../../git/CalibFW/work/mc_ee_corr.root  --folder "zcuts_AK5PFJetsCHSL1L2L3"  --xlims -2.6 2.6 --ratiosubplot -x zy genzy -e 8 --yname Events --xname "Z rapidity" --nbins 50 --labels "Reco" "Gen" --legloc "lower center" --filename zy-recogen

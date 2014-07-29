@@ -17,7 +17,7 @@ from ROOT import TGraphErrors, TCanvas, TF1, TFile
 import ROOT
 
 import plotbase
-import plotdatamc
+import plot1d
 import getroot
 import numpy
 
@@ -389,14 +389,14 @@ def extrapol(files, opt,
         ### Response plot
 
         #   balance
-        plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, opt,
+        plotbase.plot1d.datamcplot('ptbalance_alpha', files, opt,
                 changes=changes, settings=settings, fig_axes=(fig, ax1))
 
         #   mpf
         changes['colors'] = ['red', 'maroon']
         changes['labels'] = ['%s (%s)' % (mpflabel, i) for i in settings['labels']]
         if extrapolate_mpf ==True:
-            plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, opt,
+            plotbase.plot1d.datamcplot(mpftype+'_alpha', files, opt,
                 changes=changes, settings=settings, fig_axes=(fig, ax1))
 
         else:
@@ -421,7 +421,7 @@ def extrapol(files, opt,
             changes['labels'] = ['MC-Truth Response']
             changes['colors'] = ['forestgreen']
             changes['markers'] = ['d']
-            plotbase.plotdatamc.datamcplot('recogen_alpha', files[1:], opt,
+            plotbase.plot1d.datamcplot('recogen_alpha', files[1:], opt,
                     changes=changes, fig_axes=(fig, ax1))
         else:
             mctruth = getroot.histofromfile('recogen', files[1], settings, 
@@ -453,7 +453,7 @@ def extrapol(files, opt,
 
         changes['y'] = [0.9455, 1.008]
 
-        plotbase.plotdatamc.datamcplot('ptbalance_alpha', files, opt,
+        plotbase.plot1d.datamcplot('ptbalance_alpha', files, opt,
                 changes=changes, settings=settings, fig_axes=(fig, ax2))
 
         changes['fitlabel_offset'] = -0.1
@@ -463,7 +463,7 @@ def extrapol(files, opt,
         changes['colors'] = ['red']
         if extrapolate_mpf ==True:
             settings['fit_offset'] = 0.1
-            plotbase.plotdatamc.datamcplot(mpftype+'_alpha', files, opt,
+            plotbase.plot1d.datamcplot(mpftype+'_alpha', files, opt,
                 changes=changes, settings=settings, fig_axes=(fig, ax2))
         else:
             if (mpfmean_mc != 0.0): R = mpfmean_data/mpfmean_mc
@@ -514,7 +514,7 @@ def response_run(files, opt, changes=None, settings=None):
         changes['labels'] = [label]
         changes['colors'] = [color]
         changes['fitlabel_offset']=-0.06*['blue', 'red'].index(color)
-        plotdatamc.datamcplot(quantity, files, opt, fig_axes=(fig, ax), 
+        plot1d.datamcplot(quantity, files, opt, fig_axes=(fig, ax), 
                                            changes=changes, settings=settings)
 
     settings['filename'] = plotbase.getdefaultfilename("response_run", opt, settings)
@@ -610,7 +610,7 @@ def response_physflavour(files, opt, changes=None, settings=None,
         else:
             if restrict_neutrals:
                 changes['selection'] = neutral_selection
-            plotdatamc.datamcplot("%s_%s" % (q, flavour), files, opt, fig_axes=(fig, ax), 
+            plot1d.datamcplot("%s_%s" % (q, flavour), files, opt, fig_axes=(fig, ax), 
                                             changes=changes, settings=settings)
 
     filename = "response_%s" % flavour
@@ -763,7 +763,7 @@ def response_components(files, opt, changes=None, settings=None):
         changes['labels'] = [l]
         changes['xynames'] = ['components', responsetype]
         changes['fitlabel_offset'] -= 0.06
-        plotdatamc.datamcplot("%s_%s" % (responsetype, comp), files, opt, fig_axes=(fig, ax), 
+        plot1d.datamcplot("%s_%s" % (responsetype, comp), files, opt, fig_axes=(fig, ax), 
                                             changes=changes, settings=settings)
 
 

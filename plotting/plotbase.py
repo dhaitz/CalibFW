@@ -23,7 +23,7 @@ gROOT.SetBatch(True)
 
 # use ls and imp to read all of them
 import plotrc
-import plotdatamc
+import plot1d
 import plotfractions
 import plotresponse
 import plot_resolution
@@ -46,7 +46,7 @@ def plot(op):
     whichfunctions = []
     plots = op.plots
 
-    modules = [plotresponse, plotfractions, plot2d, plotdatamc, plotcollections,
+    modules = [plotresponse, plotfractions, plot2d, plot1d, plotcollections,
                         plot_resolution, plot_mikko, plot_sandbox, plot_tagging]
 
     if op.verbose:
@@ -115,7 +115,7 @@ def functionSelector(plots, datamc, opt):
         if '2D' in plot:
             plot2d.twoD(plot[3:], datamc, opt)
         elif "_all" in plot:
-            plotdatamc.datamc_all(plot[:-4], datamc, opt)
+            plot1d.datamc_all(plot[:-4], datamc, opt)
 
         # for responseratio-plots
         elif 'responseratio' in plot and len(plot.split('_')) > 2:
@@ -133,9 +133,9 @@ def functionSelector(plots, datamc, opt):
                             types=plot.split('_ratio_')[0].split('_'),
                             over=plot.split('_ratio_')[1])
         elif opt.ratiosubplot is True:
-            plotdatamc.plot1dratiosubplot(plot, datamc, opt)
+            plot1d.plot1dratiosubplot(plot, datamc, opt)
         else:  # simple 1D plot
-            plotdatamc.plot1d(plot, datamc, opt)
+            plot1d.plot1d(plot, datamc, opt)
 
 
 def debug(string):
