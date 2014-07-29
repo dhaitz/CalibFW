@@ -300,16 +300,6 @@ def options(
     opt.user_options = user_options
     opt.default_options = default_options
 
-    # set the channel (ee/mm) which is used when applying certain weights
-    # TODO should this be configurable from command line?
-    # TODO things like this should be set automatically. maybe read from rootfile meta information?
-    opt.default_options['channel'] = 'mm'
-    for f in opt.files:
-        if "_ee" in f:
-            opt.channel = 'ee'
-    if not hasattr(opt, 'channel'):
-        opt.channel = 'mm'
-
     opt.brackets = False
 
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))

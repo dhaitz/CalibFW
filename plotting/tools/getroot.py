@@ -131,7 +131,7 @@ def getselection(settings, mcWeights=False, index=0):
         weights += ["weight"]
     if mcWeights:  # add lumi weights always?
         weights += [str(settings['lumi'])]
-    if settings['channel'] is 'mm':
+    if len(settings.get('channels', [])) <= index or settings['channels'][index] != 'ee':
         if mcWeights and settings['efficiency']:
             weights += [str(settings['efficiency'])]
         if mcWeights and settings['factor']:
@@ -199,7 +199,8 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
             if key in quantity:
                 quantities[i] = quantities[i].replace(key, dictconvert(key))
     #TODO with TTree UserInfo: http://root.cern.ch/phpBB3/viewtopic.php?f=3&t=16902
-    isMC = bool(ntuple.GetLeaf("npu"))
+    if len(settings.get('types', [])) > index:
+        isMC = settings['types'][index] == 'mc'
 
     variables = ":".join(quantities)
     selection = getselection(settings, isMC, index=index)

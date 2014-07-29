@@ -42,7 +42,6 @@ def plot(op):
     """Search for plots in the module and run them."""
     # dont display any graphics
     gROOT.SetBatch(True)
-    startop = copy.deepcopy(op)
     whichfunctions = []
     plots = op.plots
 
@@ -57,6 +56,11 @@ def plot(op):
     for f in op.files:
         print "Using as file", 1 + op.files.index(f), ":", f
         files += [getroot.openfile(f, op.verbose)]
+
+    op = readMetaInfosFromRootFiles(files, op)
+    print op.types
+
+    startop = copy.deepcopy(op)
 
     if op.list:
         printfunctions(modules)
@@ -476,6 +480,24 @@ def getdefaultfilename(quantity, opt, settings):
     for char in ["*", "/", " "]:
         filename = filename.replace(char, "_")
     return filename
+
+
+def readMetaInfosFromRootFiles(files, opt,
+                            metainfos=['Year', 'Channel', 'Type']):
+    """This function reads certain meta data (that must be present as
+        strings in the root files) and adds them to opt. """
+    # Create variables of the same name as the metainfos
+    for m in metainfos:
+        exec('%s = []' % m)
+    # Iterate over files, append metadata:
+    for f in files:
+        for m in metainfos:
+            eval(m).append(f.Get(m))
+    # Append to opt
+    for m in metainfos:
+        setattr(opt, m.lower() + 's', eval(m))
+        opt.default_options[m.lower() + 's'] = eval(m)
+    return opt
 
 
 def selfsave(settings):
