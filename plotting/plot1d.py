@@ -36,25 +36,25 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     if 'flavour' in settings['xynames'][0]:
         settings['nbins'] = 25
     # create list with histograms from a ttree/tntuple
-    datamc, rootobjects = [], []
+    mplhistos, rootobjects = [], []
     settings['events'] = []
     for i, f in enumerate(files):
         rootobjects += [getroot.histofromfile(quantity, f, settings, index=i)]
-        datamc += [getroot.root2histo(rootobjects[-1], f.GetName(), 1)]
-        settings['events'] += [datamc[-1].ysum()]
+        mplhistos += [getroot.root2histo(rootobjects[-1], f.GetName(), 1)]
+        settings['events'] += [mplhistos[-1].ysum()]
         if 'flavour' in settings['xynames'][0]:
-            datamc[-1].x = [5.5 if x == 20.5 else 6.5 if x == -0.5 else x for x in datamc[-1].x]
-            datamc[-1].xc = [6 if x == 21 else 7 if x == 0 else x for x in datamc[-1].xc]
+            mplhistos[-1].x = [5.5 if x == 20.5 else 6.5 if x == -0.5 else x for x in mplhistos[-1].x]
+            mplhistos[-1].xc = [6 if x == 21 else 7 if x == 0 else x for x in mplhistos[-1].xc]
 
     if settings['subtract']:
         rootobjects[0].Add(rootobjects[1], -1)
         rootobjects = [rootobjects[0]]
-        datamc = [getroot.root2histo(rootobjects[0], files[0].GetName(), 1)]
+        mplhistos = [getroot.root2histo(rootobjects[0], files[0].GetName(), 1)]
 
     # if true, create a ratio plot:
-    if settings['ratio'] and len(datamc) == 2:
+    if settings['ratio'] and len(mplhistos) == 2:
         rootobject = getroot.rootdivision(rootobjects, settings['normalize'])
-        datamc = [getroot.root2histo(rootobject, files[0].GetName(), 1)]
+        mplhistos = [getroot.root2histo(rootobject, files[0].GetName(), 1)]
     else:
         rootobject = None
 
@@ -69,10 +69,10 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         getroot.saveasroot(rootobjects, opt, settings)
         return
 
-    plotMpl(rootobjects, datamc, opt, settings, quantity, files)
+    plotMpl(rootobjects, mplhistos, opt, settings, quantity, files)
 
 
-def plotMpl(rootobjects, datamc, opt, settings, quantity, files):
+def plotMpl(rootobjects, mplhistos, opt, settings, quantity, files):
 
     # use the argument-given fig/axis or create new one:
     if settings['subplot'] == True:
@@ -82,13 +82,13 @@ def plotMpl(rootobjects, datamc, opt, settings, quantity, files):
 
     # if runplot_diff, get the mean from mc:
     if settings['run'] == 'diff':
-        datamc, ax, offset = runplot_diff(files, datamc, ax, settings, quantity)
+        mplhistos, ax, offset = runplot_diff(files, mplhistos, ax, settings, quantity)
     else:
         offset = 0
 
     bottom = []
     #loop over histograms: scale and plot
-    for f, l, c, s, rootfile, rootobj, index in reversed(zip(datamc, settings['labels'],
+    for f, l, c, s, rootfile, rootobj, index in reversed(zip(mplhistos, settings['labels'],
                   settings['colors'], settings['markers'], files, rootobjects, range(len(files))[::-1])):
         scalefactor = 1
         if 'Profile' in f.classname:
@@ -97,8 +97,8 @@ def plotMpl(rootobjects, datamc, opt, settings, quantity, files):
         elif settings['normalize']:
             if 'scalefactor' in settings:
                 f.scale(settings['scalefactor'])
-            elif (f.ysum() != 0 and datamc[0].ysum() != 0):
-                scalefactor = datamc[0].ysum() / f.ysum()
+            elif (f.ysum() != 0 and mplhistos[0].ysum() != 0):
+                scalefactor = mplhistos[0].ysum() / f.ysum()
                 f.scale(scalefactor)
 
         if settings['verbose']:
@@ -116,9 +116,9 @@ def plotMpl(rootobjects, datamc, opt, settings, quantity, files):
 
             if settings['stacked'] and index > 0:
                 if len(bottom) > 0:
-                    bottom = [b + d for b, d in zip(bottom, datamc[len(datamc) - index].y)]
+                    bottom = [b + d for b, d in zip(bottom, mplhistos[len(mplhistos) - index].y)]
                 else:
-                    bottom = datamc[len(datamc) - index].y
+                    bottom = mplhistos[len(mplhistos) - index].y
             else:
                 bottom = numpy.ones(len(f.x)) * 1e-6
 
@@ -135,10 +135,10 @@ def plotMpl(rootobjects, datamc, opt, settings, quantity, files):
     if len(settings.get('fitvalues', [])) == 2:
         ratio = settings['fitvalues'][1][0] / settings['fitvalues'][0][0]
         ratioerr = math.sqrt(settings['fitvalues'][1][1] ** 2 + settings['fitvalues'][0][1] ** 2)
-        ax.text(0.03, 0.95 - (len(datamc) / 20.), r"$\mathrm{Ratio:\hspace{1.5}} R = %1.3f\pm%1.3f$" % (ratio, ratioerr),
+        ax.text(0.03, 0.95 - (len(mplhistos) / 20.), r"$\mathrm{Ratio:\hspace{1.5}} R = %1.3f\pm%1.3f$" % (ratio, ratioerr),
                va='top', ha='left', transform=ax.transAxes, color='black')
 
-    formatting(ax, settings, opt, datamc, rootobjects)
+    formatting(ax, settings, opt, mplhistos, rootobjects)
 
     # save it
     if settings['subplot']:
@@ -149,7 +149,7 @@ def plotMpl(rootobjects, datamc, opt, settings, quantity, files):
         plotbase.Save(fig, settings)
 
 
-def formatting(ax, settings, opt, datamc, rootobjects=None):
+def formatting(ax, settings, opt, mplhistos, rootobjects=None):
     """This function takes an axis object and formats it according to settings."""
 
     # determine axis limits if not automatically determined
@@ -170,7 +170,7 @@ def formatting(ax, settings, opt, datamc, rootobjects=None):
                                                             settings=settings)
     plotbase.setaxislimits(ax, settings)
     if settings['xynames'][1] == 'events' and 'y' not in opt.user_options:
-        ax.set_ylim(top=max(d.ymax() for d in datamc) * 1.2)
+        ax.set_ylim(top=max(d.ymax() for d in mplhistos) * 1.2)
 
     #plot a vertical line at 1.0 for certain y-axis quantities:
     if ((settings['xynames'][1] in ['response', 'balresp', 'mpfresp', 'recogen',
@@ -189,7 +189,7 @@ def formatting(ax, settings, opt, datamc, rootobjects=None):
 
     if settings['log'] and ax.number == 1:
         if 'y' not in opt.user_options:
-            ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in datamc) * 2)
+            ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in mplhistos) * 2)
         ax.set_yscale('log')
 
 
@@ -199,7 +199,7 @@ except NameError:
     pass  # not running with profiler, that's ok.
 
 
-def runplot_diff(files, datamc, ax, settings, quantity):
+def runplot_diff(files, mplhistos, ax, settings, quantity):
 
     settings2 = copy.deepcopy(settings)
     if 'components' in settings['xynames'][1]:
@@ -211,17 +211,17 @@ def runplot_diff(files, datamc, ax, settings, quantity):
     offset = mc.GetMean()
 
     new_y = []
-    for x_elem, y_elem, yerr_elem in zip(datamc[0].xc, datamc[0].y,
-                                                                datamc[0].yerr):
+    for x_elem, y_elem, yerr_elem in zip(mplhistos[0].xc, mplhistos[0].y,
+                                                                mplhistos[0].yerr):
         if y_elem == 0.0:
-            datamc[0].xc.remove(x_elem)
-            datamc[0].y.remove(y_elem)
-            datamc[0].yerr.remove(yerr_elem)
+            mplhistos[0].xc.remove(x_elem)
+            mplhistos[0].y.remove(y_elem)
+            mplhistos[0].yerr.remove(yerr_elem)
         else:
             new_y.append(y_elem - offset)
 
-    datamc[0].y = new_y
-    return datamc, ax, offset
+    mplhistos[0].y = new_y
+    return mplhistos, ax, offset
 
 
 def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
@@ -304,9 +304,9 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Usage: python plotting/plot1d.py data_file.root mc_file.root"
         exit(0)
-    datamc[0] = getroot.openfile(sys.argv[1])
+    mplhistos[0] = getroot.openfile(sys.argv[1])
     fmc = getroot.openfile(sys.argv[2])
-    bins = getroot.getbins(datamc[0], [])
-    zpt(datamc, opt=plotbase.options(bins=bins))
-    jeteta(datamc, opt=plotbase.options(bins=bins))
-    cut_all_npv(datamc, opt=plotbase.options(bins=bins))
+    bins = getroot.getbins(mplhistos[0], [])
+    zpt(mplhistos, opt=plotbase.options(bins=bins))
+    jeteta(mplhistos, opt=plotbase.options(bins=bins))
+    cut_all_npv(mplhistos, opt=plotbase.options(bins=bins))
