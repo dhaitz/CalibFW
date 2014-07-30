@@ -184,9 +184,9 @@ def getbinning(quantity, settings, axis='x'):
 
 
 def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
-    xbins = getbinning(quantities[-1], settings)
-    if twoD and len(quantities) > 1:
-        ybins = getbinning(quantities[-2], settings, 'y')
+    """ Extract a ROOT histogram from a ROOT TNtuple, either via the 'Project'
+            method (for a predefined binning) or with 'Draw' method.
+    """
 
     if settings['xaxis'] is not None and len(settings['xaxis']) > index:
         quantities[0] = settings['xaxis'][index]
@@ -208,25 +208,32 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
     if settings['verbose']:
         plotbase.debug("Creating a plot with the following selection:\n   %s" % settings['selection'])
 
-    # determine the type of histogram to be created
-    if len(quantities) == 1:
-        roothisto = ROOT.TH1D(name, name, len(xbins) - 1, xbins)
-    elif len(quantities) == 2 and not twoD:
-        roothisto = ROOT.TProfile(name, name, len(xbins) - 1, xbins)
-    elif len(quantities) == 2 and twoD:
-        roothisto = ROOT.TH2D(name, name, len(xbins) - 1, xbins, len(ybins) - 1, ybins)
-    elif len(quantities) == 3:
-        roothisto = ROOT.TProfile2D(name, name, len(xbins) - 1, xbins, len(ybins) - 1, ybins)
-    else:
-        print "FATAL: could not determine histogram type from", quantities
-
     if settings['verbose']:
         plotbase.debug("Creating a %s with the following selection:\n   %s" % (roothisto.ClassName(), selection))
-
-    # fill the histogram from the ntuple
-    roothisto.Sumw2()
     print "Weights:", selection
-    ntuple.Project(name, variables, selection)
+
+    if settings['x'] != [0, 1]:
+        xbins = getbinning(quantities[-1], settings)
+        if twoD and len(quantities) > 1:
+            ybins = getbinning(quantities[-2], settings, 'y')
+
+        # determine the type of histogram to be created
+        if len(quantities) == 1:
+            roothisto = ROOT.TH1D(name, name, len(xbins) - 1, xbins)
+        elif len(quantities) == 2 and not twoD:
+            roothisto = ROOT.TProfile(name, name, len(xbins) - 1, xbins)
+        elif len(quantities) == 2 and twoD:
+            roothisto = ROOT.TH2D(name, name, len(xbins) - 1, xbins, len(ybins) - 1, ybins)
+        elif len(quantities) == 3:
+            roothisto = ROOT.TProfile2D(name, name, len(xbins) - 1, xbins, len(ybins) - 1, ybins)
+        else:
+            print "FATAL: could not determine histogram type from", quantities
+        roothisto.Sumw2()
+        ntuple.Project(name, variables, selection)
+    else:
+        ntuple.Draw("%s>>%s(%s)" % (variables, name, settings['nbins']), selection, "goff")
+        roothisto = ROOT.gDirectory.Get(name)
+
     ntuple.Delete()
 
     if roothisto.ClassName() == 'TH2D':

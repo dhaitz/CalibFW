@@ -135,7 +135,7 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         ax.text(0.03, 0.95 - (len(datamc) / 20.), r"$\mathrm{Ratio:\hspace{1.5}} R = %1.3f\pm%1.3f$" % (ratio, ratioerr),
                va='top', ha='left', transform=ax.transAxes, color='black')
 
-    formatting(ax, settings, opt, datamc, rootobjects=None)
+    formatting(ax, settings, opt, datamc, rootobjects)
 
     # save it
     if settings['subplot']:
@@ -147,6 +147,18 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
 
 def formatting(ax, settings, opt, datamc, rootobjects=None):
     """This function takes an axis object and formats it according to settings."""
+
+    # determine axis limits if not automatically determined
+    # TODO is there a better place for this?
+    if rootobjects is not None:
+        if settings['x'] == [0, 1]:
+            settings['x'][0] = min([histo.GetXaxis().GetXmin() for histo in rootobjects])
+            settings['x'][1] = max([histo.GetXaxis().GetXmax() for histo in rootobjects])
+            print "determine x axis borders automatically:", ",".join(settings['x'])
+        if 'TProfile' in [histo.ClassName() for histo in rootobjects] and settings['y'] == [0, 1]:
+            settings['y'][0] = min([histo.GetMinimum() for histo in rootobjects])
+            settings['y'][1] = max([histo.GetMaximum() for histo in rootobjects]) * 1.02
+            print "determine y axis borders automatically: %s, %s" % (settings['y'][0], settings['y'][1])
 
     # set the axis labels and limits
     plotbase.labels(ax, opt, settings, settings['subplot'])
