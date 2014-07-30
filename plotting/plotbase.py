@@ -58,7 +58,6 @@ def plot(op):
         files += [getroot.openfile(f, op.verbose)]
 
     op = readMetaInfosFromRootFiles(files, op)
-    print op.types
 
     startop = copy.deepcopy(op)
 
