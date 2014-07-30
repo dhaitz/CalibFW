@@ -449,12 +449,12 @@ def rootdivision(rootobjects, normalize=False):
                              rootobjects[1].Integral())
     rootobjects[0].Divide(rootobjects[1])
 
-    #account for error in empty bins:
-    for n in range(rootobjects[0].GetNbinsX()):
-        if ((rootobjects[0].GetBinError(n) < 1e-5
-                                and rootobjects[0].GetBinContent(n) > 0.1)
-                                or rootobjects[0].GetBinContent(n) > 1.15):
-            rootobjects[0].SetBinError(n, 0.1)
+    #TODO The code below is dangerous - what is the reason this was implemented?
+    #for n in range(rootobjects[0].GetNbinsX()):
+    #    if ((rootobjects[0].GetBinError(n) < 1e-5
+    #                            and rootobjects[0].GetBinContent(n) > 0.1)
+    #                            or rootobjects[0].GetBinContent(n) > 1.15):
+    #        rootobjects[0].SetBinError(n, 0.1)
 
     return(rootobjects[0])
 
