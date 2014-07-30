@@ -49,7 +49,7 @@ def fractions(files, opt, over='npv', fig_axes=None, settings=None, changes=None
     graphnames = ["jet1" + component + "fraction" for component in components]
 
 
-    settings = plotbase.getsettings(opt, changes=changes, settings=None, 
+    settings = plotbase.getSettings(opt, changes=changes, settings=None, 
                                                 quantity="components_%s" % over)
     
 
@@ -142,7 +142,7 @@ def fractions(files, opt, over='npv', fig_axes=None, settings=None, changes=None
     assert len(bins) == len(mcG[0]) + 1
 
     if settings['subplot'] is not True:
-        fig, ax = plotbase.newplot()
+        fig, ax = plotbase.newPlot()
     else:
         fig = fig_axes[0]
         ax = fig_axes[1]
@@ -168,13 +168,13 @@ def fractions(files, opt, over='npv', fig_axes=None, settings=None, changes=None
     plotbase.labels(ax, opt, settings, settings['subplot'])
     plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1], 
                                                             settings=settings)
-    plotbase.setaxislimits(ax, settings)
+    plotbase.setAxisLimits(ax, settings)
 
     if settings['subplot'] is not True:
-        settings['filename'] = plotbase.getdefaultfilename(
+        settings['filename'] = plotbase.getDefaultFilename(
                                     "fractions_%s" % over, opt, settings)
         plotbase.Save(fig, settings)
-        fig, ax = plotbase.newplot()
+        fig, ax = plotbase.newPlot()
     else:
         ax=fig_axes[2]
 
@@ -197,7 +197,7 @@ def fractions(files, opt, over='npv', fig_axes=None, settings=None, changes=None
     plotbase.labels(ax, opt, settings, settings['subplot'])
     plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1], 
                                                             settings=settings)
-    plotbase.setaxislimits(ax, settings)
+    plotbase.setAxisLimits(ax, settings)
 
     if settings['subplot'] is not True:
         settings['filename'] = "_diff_".join(settings['filename'].split("_",1))
@@ -234,11 +234,11 @@ def fractions_run(files, opt, changes=None, fig_ax=None, subplot=False,
     else:
         suffix = ""
 
-    settings = plotbase.getsettings(opt, changes=changes, settings=None, 
+    settings = plotbase.getSettings(opt, changes=changes, settings=None, 
                                                               quantity=quantity)
 
     if fig_ax is None:
-        fig, ax = plotbase.newplot(run=True)
+        fig, ax = plotbase.newPlot(run=True)
     else:
         fig, ax = fig_ax[0], fig_ax[1]
     
@@ -259,7 +259,7 @@ def fractions_run(files, opt, changes=None, fig_ax=None, subplot=False,
     if subplot:
         return
     else:
-        settings['filename'] = plotbase.getdefaultfilename(quantity, opt, 
+        settings['filename'] = plotbase.getDefaultFilename(quantity, opt, 
                                                                        settings)
         plotbase.Save(fig, settings)
 
@@ -269,7 +269,7 @@ def fractions_run_all(files, opt, change={}, diff=False, response=False):
 
     for quantity, variation_strings, var_bin in zip(['jet1eta', 'zpt', 'npv'], [getroot.etastrings(opt.eta), getroot.binstrings(opt.zbins), getroot.npvstrings(opt.npv)], ['var', 'bin', 'var']):
 
-        fig, ax = plotbase.newplot(subplots = len(variation_strings), run=True)
+        fig, ax = plotbase.newPlot(subplots = len(variation_strings), run=True)
 
         if diff:
             title = "Time dependence of the leading jet composition data/MC difference for various %s bins  " % quantity
@@ -288,7 +288,7 @@ def fractions_run_all(files, opt, change={}, diff=False, response=False):
         del change[var_bin]
 
         fig.suptitle(title+opt.algorithm+opt.correction, size='xx-large')
-        filename = plotbase.getdefaultfilename(filename, opt, change)
+        filename = plotbase.getDefaultFilename(filename, opt, change)
         plotbase.Save(fig, {})
 
 # classic fraction plots
@@ -336,7 +336,7 @@ def flavour_composition(files, opt, changes=None, x="zpt"):
     flavourdef = "physflavour"
 
     quantity="_".join([flavourdef, x])
-    settings = plotbase.getsettings(opt, changes, settings=None, quantity=quantity) 
+    settings = plotbase.getSettings(opt, changes, settings=None, quantity=quantity) 
 
 
     flist = ["(flavour>0&&flavour<4)", # uds
@@ -365,7 +365,7 @@ def flavour_composition(files, opt, changes=None, x="zpt"):
     if changes is not None:
         changes2.update(changes)
     changes = changes2
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
     for f_id, selection, c in zip(q_names, flist, colors):
             changes['labels']=[f_id]
             changes['colors']=[c]
@@ -373,7 +373,7 @@ def flavour_composition(files, opt, changes=None, x="zpt"):
             q = selection.replace("flavour", 
                                 flavourdef)
             plot1d.datamcplot("_".join([q, x]), files, opt,fig_axes=(fig, ax), changes=changes, settings=settings)
-    settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
     plotbase.Save(fig, settings)
 
 

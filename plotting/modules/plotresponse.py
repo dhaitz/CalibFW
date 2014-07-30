@@ -35,11 +35,11 @@ def responseplot(files, opt, types=None, over=None, settings=None,
         else:
             changes['alleta'] = True
 
-    settings = plotbase.getsettings(opt, changes=changes, settings=settings, 
+    settings = plotbase.getSettings(opt, changes=changes, settings=settings, 
                                                   quantity="response_%s" % over)
     
     if figaxes == None: 
-        figaxes = plotbase.newplot()
+        figaxes = plotbase.newPlot()
     fig =figaxes[0]
     ax=figaxes[1]
 
@@ -62,7 +62,7 @@ def responseplot(files, opt, types=None, over=None, settings=None,
     ax.axhline(1.0, color="black", linestyle='--')
     plotbase.labels(ax, opt, settings)
     plotbase.axislabels(ax, over, 'response', labels=settings['labels'], settings=settings)
-    plotbase.setaxislimits(ax, settings)
+    plotbase.setAxisLimits(ax, settings)
 
     #label with pt and eta cut
     #if over in ['jet1eta', 'jet1abseta'] :
@@ -76,7 +76,7 @@ def responseplot(files, opt, types=None, over=None, settings=None,
     if settings['subplot'] is True:
         return fig
     else:
-        settings['filename'] = plotbase.getdefaultfilename(
+        settings['filename'] = plotbase.getDefaultFilename(
                 "Response__%s_over_%s" % ("_".join(types), over), opt, settings)
         plotbase.Save(fig, settings)
 
@@ -105,11 +105,11 @@ def ratioplot(files, opt, types, labels=None,
         else:
             changes['alleta'] = True
 
-    settings = plotbase.getsettings(opt, changes=changes, settings=settings, 
+    settings = plotbase.getSettings(opt, changes=changes, settings=settings, 
                                                quantity="datamcratio_%s" % over)
 
 
-    if figaxes == None: figaxes = plotbase.newplot()
+    if figaxes == None: figaxes = plotbase.newPlot()
     fig =figaxes[0]
     ax=figaxes[1]
     if labels is None:
@@ -152,7 +152,7 @@ def ratioplot(files, opt, types, labels=None,
 
     # format plot
     plotbase.labels(ax, opt, settings)
-    plotbase.setaxislimits(ax, settings)
+    plotbase.setAxisLimits(ax, settings)
     plotbase.axislabels(ax, over, 'datamcratio', labels=settings['labels'], settings=settings)
     
 
@@ -195,7 +195,7 @@ def plot_all(files, opt, plottype='response'):
         if o == 'alpha':
             list_ac = [ac for ac in list_ac if 'L1L2L3' in ac['correction']]
 
-        fig_axes = plotbase.newplot(subplots=len(list_ac))
+        fig_axes = plotbase.newPlot(subplots=len(list_ac))
 
         for ch, subtext, ax in zip(list_ac, subtexts, fig_axes[1]):    # iterate over subplots in figure figaxes
             if plottype == 'ratio':
@@ -229,7 +229,7 @@ def respmpf(files, opt):
 def responseratio(files, opt, over='zpt', types=['balresp'], fit=False, 
                                                                   changes=None):
 
-    settings = plotbase.getsettings(opt, changes=changes, settings=None, 
+    settings = plotbase.getSettings(opt, changes=changes, settings=None, 
                                                   quantity="response_%s" % over)
 
     changes = {'subplot':True,
@@ -258,7 +258,7 @@ def responseratio(files, opt, over='zpt', types=['balresp'], fit=False,
     ax1.set_xlabel("")
 
     for ax in [ax1, ax2]:
-        plotbase.setaxislimits(ax, settings)
+        plotbase.setAxisLimits(ax, settings)
 
     extrapolation_dict = {None:'_', 'bin':'_bin-extrapol_', 
                                                 'global':'_global-extrapol_'}
@@ -293,7 +293,7 @@ def responseratio_all(files, opt, types=['balresp'], changes=None):
                 ax1.set_ylabel("")
                 ax2.set_ylabel("")
 
-            plotbase.setaxislimits(ax1, ax2, changes, opt)
+            plotbase.setAxisLimits(ax1, ax2, changes, opt)
 
     title="                               Jet Response ($p_T$ balance / MPF) vs. Z $p_T$, $N_{vtx}$ ,  Jet $\eta$   ("  +opt.algorithm+" "+opt.correction+")"
     fig.suptitle(title, size='x-large')
@@ -330,7 +330,7 @@ def extrapol(files, opt,
            extrapolate_mpf=True, # if false, use average for MET
            changes = None):
 
-    settings = plotbase.getsettings(opt, changes, None, "response_%s" % variation)   
+    settings = plotbase.getSettings(opt, changes, None, "response_%s" % variation)   
 
     if use_rawMET==True:
         mpftype='mpf-raw'
@@ -357,7 +357,7 @@ def extrapol(files, opt,
 
 
     l = len(variations)
-    fig, axes = plotbase.newplot(subplots=2*l, subplots_Y=2)
+    fig, axes = plotbase.newPlot(subplots=2*l, subplots_Y=2)
     subtexts = plotbase.getdefaultsubtexts()
 
     for cut, label, ax1, ax2, subtext1, subtext2 in zip(variations, variation_labels, axes[:l], axes[l:],
@@ -365,7 +365,7 @@ def extrapol(files, opt,
         files = [getroot.openfile(f, opt.verbose) for f in opt.files]
 
         if settings['save_individually']:
-            fig, ax1 = plotbase.newplot()
+            fig, ax1 = plotbase.newPlot()
 
         changes2 = {'legloc'     : 'lower left',
                     'xynames'   : ['alpha','response'],
@@ -432,9 +432,9 @@ def extrapol(files, opt,
 
 
         if settings['save_individually']:
-            settings['filename'] = plotbase.getdefaultfilename("extrapolation", opt, settings)
+            settings['filename'] = plotbase.getDefaultFilename("extrapolation", opt, settings)
             plotbase.Save(fig, settings)
-            fig, ax2 = plotbase.newplot()
+            fig, ax2 = plotbase.newPlot()
 
 
 
@@ -487,7 +487,7 @@ def extrapol(files, opt,
     #del changes[variation] # delete changes so this isn't included in the file names
     if extrapolate_mpf:
         mpflabel = "extrapol" + mpflabel
-    settings['filename'] = plotbase.getdefaultfilename("extrapolation_%s_%s" % (mpflabel, variation_label), opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename("extrapolation_%s_%s" % (mpflabel, variation_label), opt, settings)
 
     plotbase.Save(fig, settings)
 
@@ -505,9 +505,9 @@ def response_run(files, opt, changes=None, settings=None):
                 'fit':'slope',
                 'xynames':['run', 'response']})
 
-    settings = plotbase.getsettings(opt, changes, settings, "response_run")
+    settings = plotbase.getSettings(opt, changes, settings, "response_run")
 
-    fig, ax = plotbase.newplot(run=True)
+    fig, ax = plotbase.newPlot(run=True)
  
     for label, color, quantity in zip(['PtBalance (data)', 'MPF (data)'], 
                                 ['blue', 'red'], ['ptbalance_run', 'mpf_run']):
@@ -517,7 +517,7 @@ def response_run(files, opt, changes=None, settings=None):
         plot1d.datamcplot(quantity, files, opt, fig_axes=(fig, ax), 
                                            changes=changes, settings=settings)
 
-    settings['filename'] = plotbase.getdefaultfilename("response_run", opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename("response_run", opt, settings)
 
     plotbase.Save(fig, settings)
 
@@ -537,7 +537,7 @@ def response_physflavour(files, opt, changes=None, settings=None,
     """Get response vs. flavour (physics definition). This function only works with MC."""
 
     flavour = '%sflavour' % definition
-    settings = plotbase.getsettings(opt, changes, settings, "response_"+flavour)
+    settings = plotbase.getSettings(opt, changes, settings, "response_"+flavour)
 
     
     markers = ['o', 's', '*', 'd']
@@ -565,7 +565,7 @@ def response_physflavour(files, opt, changes=None, settings=None,
                  ]
     x = range(1,8)
 
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
 
     for m, c, q, l in zip(markers, colors, quantities, labels):
 
@@ -597,7 +597,7 @@ def response_physflavour(files, opt, changes=None, settings=None,
                 quantity = "%s_alpha" % q
 
                 rsettings = {}
-                rsettings = plotbase.getsettings(opt, changes, quantity=quantity)
+                rsettings = plotbase.getSettings(opt, changes, quantity=quantity)
 
                 rootobject = getroot.histofromfile(quantity, files[0], rsettings)
                 #rootobject.Rebin(rsettings['rebin'])
@@ -621,7 +621,7 @@ def response_physflavour(files, opt, changes=None, settings=None,
     if restrict_neutrals:
         filename += "_neutrals"
 
-    settings['filename'] = plotbase.getdefaultfilename(filename, opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename(filename, opt, settings)
                                              
 
     plotbase.Save(fig, settings)
@@ -638,7 +638,7 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
     flavour = "%sflavour" % definition
 
     changes = {'legloc':'lower center'}
-    settings = plotbase.getsettings(opt, changes, settings, "response_alpha")
+    settings = plotbase.getSettings(opt, changes, settings, "response_alpha")
 
     markers = ['o', 's', 'd', '*']
     colors = ['red', 'black', 'yellowgreen', 'lightskyblue', ]
@@ -670,7 +670,7 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
         'fit':'intercept',
             }
 
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
 
     #add neutrinos t genjets
     genneutrinos = False
@@ -694,7 +694,7 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
                 quantity = "%s_alpha" % responsetype
 
                 rsettings = {}
-                rsettings = plotbase.getsettings(opt, changes, settings, quantity)
+                rsettings = plotbase.getSettings(opt, changes, settings, quantity)
 
                 rootobject = getroot.histofromfile(quantity, files[0], rsettings)
                 rootobject.Rebin(rsettings['rebin'])
@@ -707,7 +707,7 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
                 quantity = responsetype
 
                 rsettings = {}
-                rsettings = plotbase.getsettings(opt, changes, settings, quantity)
+                rsettings = plotbase.getSettings(opt, changes, settings, quantity)
                 rsettings['x'] = [0, 2]
 
                 rootobject = getroot.getobjectfromtree(quantity, files[0], rsettings)
@@ -725,13 +725,13 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
     plotbase.labels(ax, opt, settings, settings['subplot'])
     plotbase.axislabels(ax, flavour, settings['xynames'][1], 
                                                             settings=settings)
-    plotbase.setaxislimits(ax, settings)
+    plotbase.setAxisLimits(ax, settings)
     ax.set_xlim(0, 5)
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.axhline(1.0, color='black', linestyle=':')
 
-    settings['filename'] = plotbase.getdefaultfilename("%s_alpha" % 
+    settings['filename'] = plotbase.getDefaultFilename("%s_alpha" % 
                     namedict.get(responsetype, responsetype), opt, settings)
     plotbase.Save(fig, settings)
 
@@ -741,7 +741,7 @@ def response_components(files, opt, changes=None, settings=None):
     """Get the response as a function of the PF fractions.
         Default responsetype is recogen, this can be changed in the code."""
 
-    settings = plotbase.getsettings(opt, changes, settings, "response_components")
+    settings = plotbase.getSettings(opt, changes, settings, "response_components")
 
     components = ["jet1chargedhadfraction", "jet1neutralhadfraction",
         "jet1photonfraction", "jet1chargedemfraction", "jet1HFemfraction",
@@ -754,7 +754,7 @@ def response_components(files, opt, changes=None, settings=None):
     labels = ["CHad", "NHad", "photon", "electron", "HFem", "HFhad"]
 
     
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
 
     changes = {'subplot':True, 'fitlabel_offset':0.1}
     for m, c, comp, l in zip(markers, colors, components, labels):
@@ -767,7 +767,7 @@ def response_components(files, opt, changes=None, settings=None):
                                             changes=changes, settings=settings)
 
 
-    settings['filename'] = plotbase.getdefaultfilename("response_components",
+    settings['filename'] = plotbase.getDefaultFilename("response_components",
                                                                 opt, settings)
     plotbase.Save(fig, settings)
 

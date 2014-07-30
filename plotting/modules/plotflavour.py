@@ -82,7 +82,7 @@ def flavours(files, opt, quantity='zpt', subplot=() , subtext="", normalized=Fal
     if subplot:
         fig, ax = fa
     else:
-        fig, ax = plotbase.newplot()
+        fig, ax = plotbase.newPlot()
 
 
     if subtext is not 'None':

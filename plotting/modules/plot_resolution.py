@@ -244,7 +244,7 @@ def combined_resolution( files, opt,
                         subtract_gen = True,
                         drop_first = 0,
                         drop_last = 0):
-    f,ax = plotbase.newplot()
+    f,ax = plotbase.newPlot()
 
     plotbase.labels(ax, opt)
     #plotbase.jetlabel(ax, algo, corr)
@@ -326,7 +326,7 @@ def combined_resolution( files, opt,
                      abs(mc_res.yerr[i] * (data_res.y[i] / (mc_res.y[i] * mc_res.y[i])))
                     )
 
-    f, ax = plotbase.newplot()
+    f, ax = plotbase.newPlot()
     ax.errorbar(ratio.x, ratio.y, ratio.yerr, fmt='o', capsize=2 )
     ax.axhline(1.0, color="black", linestyle='--')
 

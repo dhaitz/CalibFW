@@ -269,20 +269,20 @@ def e07roc(files, opt):
         'legloc': 'lower right',
     }
     quantity = "id"
-    settings = plotbase.getsettings(opt, changes, None, quantity)
+    settings = plotbase.getSettings(opt, changes, None, quantity)
 
     eff, fake = [], []
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
 
     for ID, c, l in zip(ids, ['black', 'blue', 'red', 'green'], labels):
         quantity = "%s_pt" % ID
         changes['selection'] = ['deltar<0.3']
-        settings = plotbase.getsettings(opt, changes, None, quantity)
+        settings = plotbase.getSettings(opt, changes, None, quantity)
         histo = getroot.getplotfromtree(quantity, files[0], settings, twoD=False, changes=None)
         eff += [histo.y[0]]
 
         changes['selection'] = ['deltar>0.3']
-        settings = plotbase.getsettings(opt, changes, None, quantity)
+        settings = plotbase.getSettings(opt, changes, None, quantity)
         histo = getroot.getplotfromtree(quantity, files[0], settings, twoD=False, changes=None)
         fake += [histo.y[0]]
         
@@ -347,8 +347,8 @@ def e07(files, opt):
         'subplot':True,
         'markers': ['f']
     }
-    settings = plotbase.getsettings(opt, quantity=quantity)
-    fig, ax = plotbase.newplot()
+    settings = plotbase.getSettings(opt, quantity=quantity)
+    fig, ax = plotbase.newPlot()
 
     for c, l, s  in zip(['#236BB2', '#E5AD3D'],
             #['fake', 'true'],
@@ -363,7 +363,7 @@ def e07(files, opt):
         })
         plot1d.datamcplot(quantity, files, opt, fig_axes = [fig, ax], changes=changes)
 
-    settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
     plotbase.Save(fig, settings)
 
     # fake rate
@@ -380,7 +380,7 @@ def e07(files, opt):
 
     #lhe
     files = [getroot.openfile("work/mc_ee_corr.root")]
-    fig, ax, ax2 = plotbase.newplot(ratio = True)
+    fig, ax, ax2 = plotbase.newPlot(ratio = True)
     quantity = 'y'
     changes ={
         'folder':'zcuts',
@@ -427,7 +427,7 @@ def e07(files, opt):
     
     """
     
-    settings = plotbase.getsettings(opt, None, None, 'rapidity')
+    settings = plotbase.getSettings(opt, None, None, 'rapidity')
     settings['filename'] = 'rapidity'
     plotbase.Save(fig, settings)
 

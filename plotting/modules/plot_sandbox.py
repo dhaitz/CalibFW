@@ -21,8 +21,8 @@ def eid(files, opt):
         'subplot':True,
         'markers': ['f'],
     }
-    settings = plotbase.getsettings(opt, quantity=quantity)
-    fig, ax = plotbase.newplot()
+    settings = plotbase.getSettings(opt, quantity=quantity)
+    fig, ax = plotbase.newPlot()
 
     for c, l, s  in zip(['#236BB2', '#E5AD3D'],
             ['fake', 'true'],
@@ -34,7 +34,7 @@ def eid(files, opt):
         })
         plot1d.datamcplot(quantity, files, opt, fig_axes = [fig, ax], changes=changes)
 
-    settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
     plotbase.Save(fig, settings)"""
 
     ## id vs deltar
@@ -167,8 +167,8 @@ def plots_2014_07_03(files, opt):
 def timedep(files, opt, changes = None):
     """ Plots for the time dependence, requested by Mikko 2014-06-25."""
 
-    settings = plotbase.getsettings(opt, quantity="response_run", changes=changes)
-    fig, ax = plotbase.newplot()
+    settings = plotbase.getSettings(opt, quantity="response_run", changes=changes)
+    fig, ax = plotbase.newPlot()
     factor = 2e4
     methods = ['mpf', 'ptbalance']
     labels = ['MPF', '$p_T$ balance']
@@ -197,7 +197,7 @@ def timedep(files, opt, changes = None):
 
     #formatting stuff
     settings['x'] = [0, 5]
-    plotbase.setaxislimits(ax, settings)
+    plotbase.setAxisLimits(ax, settings)
     plotbase.labels(ax, opt, settings)
     plotbase.axislabels(ax, 'Leading jet $\eta$', 'Response vs run: linear fit slope  (muliplied with 20 000)', settings=settings)
     ax.set_ylim(-0.1, 0.05)
@@ -214,7 +214,7 @@ def timedep(files, opt, changes = None):
 def npuplot(files, opt):
     """ Plots for the JEC paper that Mikko requested 24.4.: npv and rho in bins of npu."""
 
-    settings = plotbase.getsettings(opt, quantity='npv')
+    settings = plotbase.getSettings(opt, quantity='npv')
     settings['x'] = [-0.5, 99.5]
     settings['nbins'] = 100
     
@@ -282,8 +282,8 @@ def electronupdate(files, opt):
 
 
     #LHE information
-    fig, ax = plotbase.newplot()
-    fig2, ax2 = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
+    fig2, ax2 = plotbase.newPlot()
     changes ={
         'folder':'all',
         'x': [-4, 4],
@@ -304,7 +304,7 @@ def electronupdate(files, opt):
         changes['markers'] = [m]
         changes['colors'] = [c]
         plot1d.datamcplot(q, files[1:], opt, changes=changes, fig_axes=[fig, ax])
-    settings = plotbase.getsettings(opt, None, None, 'rapidity')
+    settings = plotbase.getSettings(opt, None, None, 'rapidity')
     settings['filename'] = 'rapidity'
     plotbase.Save(fig, settings)
 
@@ -384,7 +384,7 @@ def electronupdate(files, opt):
 
     ##############
     # Plot for ID acceptance
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
     changes ={
         'folder':'all',
         'x': [0, 150],
@@ -407,7 +407,7 @@ def electronupdate(files, opt):
         changes['markers'] = [m]
         changes['colors'] = [c]
         plot1d.datamcplot("%s_eminuspt" % q, files, opt, changes=changes, fig_axes=[fig, ax])
-    settings = plotbase.getsettings(opt, None, None, 'id')
+    settings = plotbase.getSettings(opt, None, None, 'id')
     settings['filename'] = 'id'
     settings['title'] = 'MC'
     plotbase.Save(fig, settings)
@@ -416,11 +416,11 @@ def electronupdate(files, opt):
 def mpfslopes(files, opt, changes=None):
     """ Plot the slope of a linear fit on MPF vs NPV, in Z pT bins."""
     quantity="mpf_npv"
-    settings = plotbase.getsettings(opt, quantity=quantity, changes=changes)
+    settings = plotbase.getSettings(opt, quantity=quantity, changes=changes)
     settings['special_binning'] = True
     print opt.zbins
 
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
 
     for f, c, l, m, in zip(files, settings['colors'], settings['labels'], 
             settings['markers']):
@@ -442,7 +442,7 @@ def mpfslopes(files, opt, changes=None):
 
     #formatting stuff
     settings['x'] = [30, 100]
-    plotbase.setaxislimits(ax, settings)
+    plotbase.setAxisLimits(ax, settings)
     plotbase.labels(ax, opt, settings)
     ax.set_xscale('log')
     settings['xticks'] = opt.zbins
@@ -472,7 +472,7 @@ def emucomparison(files, opt):
         files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
 
         for quantity in ['mpf', 'ptbalance']:
-            settings = plotbase.getsettings(opt, None, None, quantity)
+            settings = plotbase.getSettings(opt, None, None, quantity)
             settings['nbins'] = 40
             settings['correction'] = 'L1L2L3'
             if 'ee' in filenames[0]:
@@ -495,7 +495,7 @@ def emucomparison(files, opt):
 
             values.append(ratio)
             valueerrs.append(ratioerr)
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
 
     ax.errorbar(range(4), values, valueerrs, drawstyle='steps-mid', color='black',
                                                     fmt='o', capsize=0,)
@@ -976,7 +976,7 @@ def flavour_comp(files, opt, changes=None):
     """Plot the PF composition as a function of the MC truth flavour."""
 
     quantity = "components_physflavour"
-    settings = plotbase.getsettings(opt, changes, settings=None,
+    settings = plotbase.getSettings(opt, changes, settings=None,
                                             quantity=quantity)
     nbr = 5
     labels = ["NHad", r"$\gamma$       ", "CHad", r"$e$       ",
@@ -993,7 +993,7 @@ def flavour_comp(files, opt, changes=None):
     stacked = []
     for i in range(len(names)):
         stacked += ["(%s)" % "+".join(names[i:])]
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
 
     changes = {'subplot': True,
                 'rebin': 4,
@@ -1007,14 +1007,14 @@ def flavour_comp(files, opt, changes=None):
         plot1d.datamcplot("%s_physflavour" % n, files, opt,
                     fig_axes=(fig, ax), changes=changes, settings=settings)
 
-    settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
     plotbase.Save(fig, settings)
 
 
 def ineff(files, opt):
-    settings = plotbase.getsettings(opt, changes=None, settings=None, quantity="flavour_zpt")
+    settings = plotbase.getSettings(opt, changes=None, settings=None, quantity="flavour_zpt")
 
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
     labels = ["no matching partons", "two matching partons"]
     colors = ['red', 'blue']
     markers = ['o', 'd']
@@ -1031,7 +1031,7 @@ def ineff(files, opt):
         changes['markers'] = m
 
         plot1d.datamcplot(quantity, files, opt, fig_axes=(fig, ax), changes=changes, settings=settings)
-    settings['filename'] = plotbase.getdefaultfilename("physflavourfrac_zpt", opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename("physflavourfrac_zpt", opt, settings)
     plotbase.Save(fig, settings['filename'], opt)
 
 
@@ -1176,7 +1176,7 @@ def closure(files, opt):
 
 
 def extrapola(files, opt):
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
     changes = {}
     changes['var'] = "_var_CutSecondLeadingToZPt_0_3"
     local_opt = copy.deepcopy(opt)
@@ -1194,7 +1194,7 @@ def extrapola(files, opt):
            changes=changes, rebin=rebin, subplot=True, xy_names=['alpha', 'response'],
            subtext="", fig_axes=(fig, ax), fit='intercept', ratio=False, fit_offset=-0.1)
 
-    file_name = plotbase.getdefaultfilename("extrapolation_", opt, changes)
+    file_name = plotbase.getDefaultFilename("extrapolation_", opt, changes)
     plotbase.Save(fig, file_name, opt)
 
 
@@ -1236,7 +1236,7 @@ def comparison(datamc, opt):
     quantity = 'L1abs_npv'
 
     # ALL
-    fig, axes = plotbase.newplot(subplots=4)
+    fig, axes = plotbase.newPlot(subplots=4)
     for a, f1, f2, l in zip(axes, files[::2], files[1::2], labels):
         local_opt.labels = l
         datamcplot(quantity, (f1, f2), local_opt, 'upper center', changes={'correction': ''}, fig_axes=(fig, a),
@@ -1320,8 +1320,8 @@ def comparison(datamc, opt):
 
     for over, fit in zip(['zpt', 'jet1eta', 'npv'], [True, False, True]):
 
-        fig, axes= plotbase.newplot(subplots=4)
-        fig2, axes2= plotbase.newplot(subplots=4)
+        fig, axes= plotbase.newPlot(subplots=4)
+        fig2, axes2= plotbase.newPlot(subplots=4)
         for a1, a2, f1, f2, l in zip(axes, axes2, files[::2], files[1::2], labels):
             local_opt.labels = l
             changes ={}# {'correction':'L1L2L3'}
@@ -1478,7 +1478,7 @@ def factors(files, opt):
     rebin = 1
 
    # for files, labellist, name in zip(files, labellist, names)
-    fig, axes = plotbase.newplot(subplots=2)
+    fig, axes = plotbase.newPlot(subplots=2)
     quantity = 'L1abs_npv'
     local_opt.style = ['o', '*', 'o', '*']
 
@@ -1530,7 +1530,7 @@ def factors2(files, opt):
 
     for files, labellist, name in zip(files, labellistt, names):
         print labellist
-        fig, axes = plotbase.newplot(subplots=2)
+        fig, axes = plotbase.newPlot(subplots=2)
         quantity = 'L1abs_npv'
         local_opt.style = ['o', '*', 'o', '*']
 
@@ -1553,7 +1553,7 @@ import ROOT
 def allpu(files, opt, truth=True):
     print files
 
-    settings = plotbase.getsettings(opt, quantity='npu')
+    settings = plotbase.getSettings(opt, quantity='npu')
     #print settings
     print settings['folder']
     name = "_".join([settings['folder'], settings['algorithm'] + settings['correction']])
@@ -1630,7 +1630,7 @@ def allpu(files, opt, truth=True):
     histos[-1].SetTitle("data/MC'")
 
     plots = [getroot.root2histo(h) for h in histos]
-    fig, ax, ratio = plotbase.newplot(ratio=True)
+    fig, ax, ratio = plotbase.newPlot(ratio=True)
     fig = plotbase.plt.figure(figsize=[7, 10])
     ax = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
     ax.number = 1
@@ -1655,15 +1655,15 @@ def allpu(files, opt, truth=True):
         xaxistext = xaxistext.replace("observed", "true")
     plotbase.axislabels(ratio, xaxistext, "ratio", settings=settings)
     print ratio.number, r
-    plotbase.setaxislimits(ax, settings)
+    plotbase.setAxisLimits(ax, settings)
     plotbase.labels(ratio, opt, settings, settings['subplot'])
-    plotbase.setaxislimits(ratio, settings)
+    plotbase.setAxisLimits(ratio, settings)
     #handles, labels = ratio.get_legend_handles_labels()
     ratio.legend(bbox_to_anchor=[0.8, 1], loc='upper center')
     ax.set_xticklabels([])
     ax.set_xlabel("")
 
-    settings['filename'] = plotbase.getdefaultfilename("npus", opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename("npus", opt, settings)
 
     plotbase.Save(fig, settings)
 

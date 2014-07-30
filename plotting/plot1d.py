@@ -21,7 +21,7 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     """Main function for all 1D  plots."""
 
     # if no settings are given, create:
-    settings = plotbase.getsettings(opt, changes, settings, quantity)
+    settings = plotbase.getSettings(opt, changes, settings, quantity)
     print "A %s plot is created with the following selection: %s" % (quantity,
                                                           settings['selection'])
 
@@ -32,6 +32,7 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
 
     if 'flavour' in settings['xynames'][0]:
         settings['nbins'] = 25
+
     # create list with histograms from a ttree/tntuple
     mplhistos, rootobjects = [], []
     settings['events'] = []
@@ -66,16 +67,16 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         getroot.saveasroot(rootobjects, opt, settings)
         return
 
-    plotMpl(rootobjects, mplhistos, opt, settings, quantity, files)
+    plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes)
 
 
-def plotMpl(rootobjects, mplhistos, opt, settings, quantity, files):
+def plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes=None):
 
     # use the argument-given fig/axis or create new one:
     if settings['subplot'] == True:
         fig, ax = fig_axes
     else:
-        fig, ax = plotbase.newplot(run=settings['run'])
+        fig, ax = plotbase.newPlot(run=settings['run'])
 
     # if runplot_diff, get the mean from mc:
     if settings['run'] == 'diff':
@@ -142,7 +143,7 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, files):
         del rootobjects
         return
     else:
-        settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
+        settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
         plotbase.Save(fig, settings)
 
 
@@ -165,7 +166,7 @@ def formatting(ax, settings, opt, mplhistos, rootobjects=None):
     plotbase.labels(ax, opt, settings, settings['subplot'])
     plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1],
                                                             settings=settings)
-    plotbase.setaxislimits(ax, settings)
+    plotbase.setAxisLimits(ax, settings)
     if settings['xynames'][1] == 'events' and 'y' not in opt.user_options:
         ax.set_ylim(top=max(d.ymax() for d in mplhistos) * 1.2)
 
@@ -225,10 +226,10 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
     """ Basically the same as the plot1d function,
         but creates an additional ratiosubplot at the bottom.
     """
-    #TODO Currently the histograms are created twice, once normally and once
+    #TODO Currently the histograms are created twice, once 'normally' and once
     #     for the ratio plot. Improve this
 
-    settings = plotbase.getsettings(opt, changes, settings, quantity)
+    settings = plotbase.getSettings(opt, changes, settings, quantity)
 
     fig = plotbase.plt.figure(figsize=[7, 10])
     ax1 = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
@@ -240,25 +241,26 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
 
     changes = {'subplot': True}
 
-    datamcplot(quantity, files, opt, fig_axes=(fig, ax1), changes=changes, settings=settings)
+    plot1d(quantity, files, opt, fig_axes=(fig, ax1), changes=changes, settings=settings)
 
-    changes['energy'] = None
-    #changes['lumi'] = None
-    changes['ratio'] = True
-    changes['legloc'] = False
+    changes.update({
+        'ratio': True,
+        'legloc': False,
+        'y': [None, None] + settings.get('ratiosubploty', [0.5, 1.5]),
+        'labels': ['Ratio'],
+        'xynames': [settings['xynames'][0], " / ".join(settings['labels'][:2])],
+        'fit': settings.get('ratiosubplotfit', None),
+    })
     if 'ratiosubploty' in settings:
-        settings['ratiosubploty'] = [float(x) for x in settings['ratiosubploty']]
-    changes['y'] = [None, None] + settings.get('ratiosubploty', [0.5, 1.5])
-    changes['labels'] = ['Ratio']
-    changes['xynames'] = [settings['xynames'][0], 'datamcratio']
-    changes['fit'] = settings.get('ratiosubplotfit', None)
-    datamcplot(quantity, files, opt, fig_axes=(fig, ax2), changes=changes, settings=settings)
+        changes['ratiosubploty'] = [float(x) for x in settings['ratiosubploty']]    
+
+    plot1d(quantity, files, opt, fig_axes=(fig, ax2), changes=changes, settings=settings)
 
     fig.subplots_adjust(hspace=0.05)
     ax1.set_xticks([])
     ax1.set_xlabel("")
 
-    settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
     plotbase.Save(fig, settings)
 
 

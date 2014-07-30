@@ -19,7 +19,7 @@ def twoD_all(quantity, datamc, opt):
 def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
 
     # if no settings are given, create:
-    settings = plotbase.getsettings(opt, changes, settings, quantity)   
+    settings = plotbase.getSettings(opt, changes, settings, quantity)   
     print "A %s plot is created with the following selection: %s" % (quantity, 
                                                           settings['selection'])
 
@@ -119,7 +119,7 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1], 
                                                             settings=settings)
         plotbase.labels(ax, opt, settings, settings['subplot'], mc = ('MC' in label))
-        plotbase.setaxislimits(ax, settings)
+        plotbase.setAxisLimits(ax, settings)
 
     if settings['subplot']: return
 
@@ -128,7 +128,7 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     cb.set_label(plotbase.unitformat(plotbase.getaxislabels_list(z_name)[2], 
                                 plotbase.getaxislabels_list(z_name)[3], False))
     # create filename + folder
-    settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
 
     plotbase.Save(fig, settings)
 
@@ -148,7 +148,7 @@ def ThreeD(files, opt, changes=None):
 
     quantity = "mupluspt_muminuspt"
 
-    settings = plotbase.getsettings(opt, changes=changes, settings=None, quantity=quantity)
+    settings = plotbase.getSettings(opt, changes=changes, settings=None, quantity=quantity)
 
     rootobjects = []
     datamc = []

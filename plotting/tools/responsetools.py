@@ -148,7 +148,7 @@ def fitextrapolation(graph, verbose=True):
 def draw_extrapolation(graph, fit, ptbin, opt):
     ""
     ""
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
     ax.fill_between(fit.plotx(), fit.plotyl(), fit.plotyh(), facecolor='CornflowerBlue',
                     edgecolor='white', interpolate=True, alpha=0.3)
     ax.plot(fit.plotx(), fit.ploty(), '-', label='extrapolation')

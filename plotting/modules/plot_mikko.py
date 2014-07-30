@@ -36,7 +36,7 @@ def doPlot(resp, dtype, opt, cut, eta, cu_str, et_str, file1, file2=None):
     for corr in ["L1L2L3", "L1L2L3Res"]:
         changes['correction'] = corr
 
-        settings = plotbase.getsettings(opt, changes=changes, quantity="%s_zpt" % resp)
+        settings = plotbase.getSettings(opt, changes=changes, quantity="%s_zpt" % resp)
 
         rgraph = plotresponse.getresponse(resp, 'zpt', opt, settings, file1, file2)
         string = "_".join(filter(None, [dtype, d[resp], opt.algorithm.replace("AK5PFJets", ""), cu_str, et_str, corr]))

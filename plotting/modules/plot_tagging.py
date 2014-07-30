@@ -92,12 +92,12 @@ def tagging_mpf(files, opt):
     # mpf plots for each zone with the flavour composition stacked
     for zone, enriched in zip(zones_extended, titles_extended):
 
-        fig, ax = plotbase.newplot()
+        fig, ax = plotbase.newPlot()
 
         # determine a scalefactor such that the event-sum of the MCs corresponds to data
-        settings = plotbase.getsettings(opt, {'selection':'(%s)' % zone}, quantity=response)
+        settings = plotbase.getSettings(opt, {'selection':'(%s)' % zone}, quantity=response)
         a = getroot.root2histo(getroot.histofromfile(response, files[0], settings), "xx", 1).ysum()
-        settings = plotbase.getsettings(opt, {'selection':'(%s && %s)' % (zone, stacked[0])}, quantity=response)
+        settings = plotbase.getSettings(opt, {'selection':'(%s && %s)' % (zone, stacked[0])}, quantity=response)
         b = getroot.root2histo(getroot.histofromfile(response, files[1], settings), "xx", 1).ysum()
         scalefactor = a/b
 
@@ -113,7 +113,7 @@ def tagging_mpf(files, opt):
         changes = {'selection':'%s ' % zone, 'subplot':True, 'title':"%s-enriched" % title,
                         'rebin':4, 'legloc':'upper right'}
         plot1d.datamcplot(response, files[:1], opt, (fig, ax), changes=changes)
-        settings['filename'] = plotbase.getdefaultfilename("%s_enriched_stacked_%s" % (response, enriched), opt, settings)
+        settings['filename'] = plotbase.getDefaultFilename("%s_enriched_stacked_%s" % (response, enriched), opt, settings)
         settings['title'] = 'enriched'        
         plotbase.Save(fig, settings)
         
@@ -142,7 +142,7 @@ def tagging_stacked(files, opt):
 
     for tagger in ['qgtag', 'btag']:
 
-        fig, ax = plotbase.newplot()
+        fig, ax = plotbase.newPlot()
         for selection, title, color in zip(stacked, l_titles, l_colors):
 
             changes = {'selection':'%s ' % selection, 'labels':["%s" % title], 
@@ -151,9 +151,9 @@ def tagging_stacked(files, opt):
             plot1d.datamcplot(tagger, files[1:], opt, (fig, ax), changes=changes)
 
         # determine a scalefactor such that the event-sum of the MCs corresponds to data
-        settings = plotbase.getsettings(opt, {'selection':'(%s>-1)' % tagger}, quantity='zpt')
+        settings = plotbase.getSettings(opt, {'selection':'(%s>-1)' % tagger}, quantity='zpt')
         a = getroot.histofromfile('zpt', files[0], settings).GetEntries()
-        settings = plotbase.getsettings(opt, {'selection':'(%s && %s>-1)' % (stacked[0], tagger)}, quantity='zpt')
+        settings = plotbase.getSettings(opt, {'selection':'(%s && %s>-1)' % (stacked[0], tagger)}, quantity='zpt')
         b = getroot.histofromfile('zpt', files[1], settings).GetEntries()
         scalefactor = (b/a)
 
@@ -163,7 +163,7 @@ def tagging_stacked(files, opt):
         if tagger is 'btag':
             ax.set_ylim(bottom=1)
             ax.set_yscale('log')
-        settings['filename'] = plotbase.getdefaultfilename("stacked-%s" % tagger, opt, settings)
+        settings['filename'] = plotbase.getDefaultFilename("stacked-%s" % tagger, opt, settings)
         plotbase.Save(fig, settings)
     
 def tagging_response_corrected(files, opt):
@@ -174,8 +174,8 @@ def tagging_response(files, opt, PFcorrection = False):
     """Determine the response for each flavour from the response and
        flavour composition in each tagging zone."""
 
-    fig, ax = plotbase.newplot()
-    fig_raw, ax_raw = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
+    fig_raw, ax_raw = plotbase.newPlot()
     labels = titles
     markers = ['o', 's', 'd', '*']
     colors = ['red', 'black', 'yellowgreen', 'lightskyblue', ]
@@ -205,7 +205,7 @@ def tagging_response(files, opt, PFcorrection = False):
                 if name == 'mc':
                     changes = {'x':[-1, 2], 'selection':zone}
                     changes['selection'] = '(%s && %s>0)' % (changes['selection'], flavourdef)
-                    settings = plotbase.getsettings(opt, changes, quantity=quantity)
+                    settings = plotbase.getSettings(opt, changes, quantity=quantity)
                     obj = getroot.histofromfile(quantity, ffile, settings)
 
                     flavours.append(obj.GetMean())
@@ -213,7 +213,7 @@ def tagging_response(files, opt, PFcorrection = False):
                                                                  obj.GetMean())
 
             # get the response
-            settings = plotbase.getsettings(opt, changes, quantity=response)
+            settings = plotbase.getSettings(opt, changes, quantity=response)
             obj = getroot.histofromfile(response_local, ffile, settings)
             mean.append(obj.GetMean())
             mean_error.append(obj.GetMeanError())
@@ -264,7 +264,7 @@ def tagging_response(files, opt, PFcorrection = False):
     yerr = []
     for selection in selections:
         changes = {'selection':selection}
-        settings = plotbase.getsettings(opt, changes, quantity=response)
+        settings = plotbase.getSettings(opt, changes, quantity=response)
         obj = getroot.histofromfile(response_local, files[0], settings)
         y.append(obj.GetMean())
         yerr.append(obj.GetMeanError())
@@ -272,25 +272,25 @@ def tagging_response(files, opt, PFcorrection = False):
                       capsize=0 ,label='MC TruthFlavour')
 
     # set the axis labels and limits
-    settings = plotbase.getsettings(opt, {'legloc':'lower right'}, quantity = '_'.join([response, flavourdef]))
+    settings = plotbase.getSettings(opt, {'legloc':'lower right'}, quantity = '_'.join([response, flavourdef]))
 
     labels_enriched = ['%s-\nenriched' % s for s in labels]
     for ax_obj, l, xlabel in zip([ax, ax_raw], [labels, labels_enriched], ['tagflavour', 'zone']):
         plotbase.labels(ax_obj, opt, settings, settings['subplot'])
         plotbase.axislabels(ax_obj, xlabel, settings['xynames'][1], settings=settings)
-        plotbase.setaxislimits(ax_obj, settings)
+        plotbase.setAxisLimits(ax_obj, settings)
         ax_obj.set_xlim(0, 5)
         ax_obj.set_xticks(range(5)[1:])
         ax_obj.set_xticklabels(l)
         ax_obj.set_ylim(0.85, 1.1)
         ax_obj.axhline(1.0, color='black', linestyle=':')
 
-    settings['filename'] = plotbase.getdefaultfilename("flavour_response_tagged", opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename("flavour_response_tagged", opt, settings)
     if PFcorrection: settings['filename'] += '_corrected'
     plotbase.Save(fig, settings)
 
     del settings['filename']
-    settings['filename'] = plotbase.getdefaultfilename("flavour_response_raw-zones", opt, settings)
+    settings['filename'] = plotbase.getDefaultFilename("flavour_response_raw-zones", opt, settings)
     if PFcorrection: settings['filename'] += '_corrected'
     plotbase.Save(fig_raw, settings)
 

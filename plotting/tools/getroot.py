@@ -146,7 +146,7 @@ def getselection(settings, mcWeights=False, index=0):
     return selectionstr
 
 
-def getbinning(quantity, settings, axis='x'):
+def getBinning(quantity, settings, axis='x'):
     #missing: guess range from first entries (instead of 0,1)
     # variants: special_binning, float, int, log,
     xmin = settings[axis][0]
@@ -162,7 +162,7 @@ def getbinning(quantity, settings, axis='x'):
     #TODO: better log binning also for y etc.
     #print settings['xlog']
     if settings['xlog']:
-        print "LOG bins is not done -> getroot.getbinning"
+        print "LOG bins is not done -> getroot.getBinning"
         xmin = max(xmin, 1.0)
         print xmin, nbins
         #bins = [xmin * (float(xmax) / xmin ) ** (float(i) / nbins) for i in range(nbins + 1)]
@@ -213,9 +213,9 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
     print "Weights:", selection
 
     if settings['x'] != [0, 1]:
-        xbins = getbinning(quantities[-1], settings)
+        xbins = getBinning(quantities[-1], settings)
         if twoD and len(quantities) > 1:
-            ybins = getbinning(quantities[-2], settings, 'y')
+            ybins = getBinning(quantities[-2], settings, 'y')
 
         # determine the type of histogram to be created
         if len(quantities) == 1:

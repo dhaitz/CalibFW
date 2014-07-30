@@ -99,7 +99,7 @@ def fastplot(objectname, filenames, op=plotbase.options()):
         dresp = dextr = None
 
     # create the plot
-    fig, ax = plotbase.newplot()
+    fig, ax = plotbase.newPlot()
     ax.axhline(1.00, color = '#CCCCCC', zorder = -5)
     ax.axvline(0.52, color = '#000000', zorder = -5)
     ax.axvline(0.48, color = '#000000', zorder = -5)

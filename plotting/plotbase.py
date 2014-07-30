@@ -5,18 +5,15 @@ This module contains all the often used plotting tools
 
 """
 
-import socket
-import getpass
 import os
 import os.path
 import sys
 import copy
-import matplotlib
 import matplotlib.pyplot as plt
-from time import localtime, strftime, clock
-import argparse
+from time import clock
 import inspect
 import math
+
 from ROOT import gROOT, PyConfig
 PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
 gROOT.SetBatch(True)
@@ -224,7 +221,7 @@ def applyChanges(settings, changes):
     return nsettings
 
 
-def getsettings(opt, changes=None, settings=None, quantity=None):
+def getSettings(opt, changes=None, settings=None, quantity=None):
     """Create the local settings dictionary.
 
        The customizable parameters can be accessed via the settings directory
@@ -309,22 +306,6 @@ def getfactor(lumi, fdata, fmc, quantity='z_phi', change={}):
     return histo_data.ysum() / histo_mc.ysum()
 
 
-def getalgorithms(algorithm):
-    if "AK7" in algorithm:
-        algorithms = ['AK7PFJets', 'AK7PFJetsCHS']
-    else:
-        algorithms = ['AK5PFJets', 'AK5PFJetsCHS']
-    return algorithms
-
-
-def getgenname(opt):
-    if "AK7" in opt.algorithm:
-        gen = 'AK7GenJets'
-    else:
-        gen = 'AK5GenJets'
-    return gen
-
-
 def nicetext(s):
     if "run" in s:
         return r"Time dependence for " + nicetext(s[:-4])
@@ -393,7 +374,7 @@ def nicetext(s):
     return s
 
 
-def newplot(ratio=False, run=False, subplots=1, subplots_X=None,
+def newPlot(ratio=False, run=False, subplots=1, subplots_X=None,
                                                             subplots_Y=None):
     fig = plt.figure(figsize=[7, 7])
     #fig.suptitle(opt.title, size='xx-large')
@@ -440,7 +421,7 @@ def newplot(ratio=False, run=False, subplots=1, subplots_X=None,
     return fig
 
 
-def setaxislimits(ax, settings):
+def setAxisLimits(ax, settings):
     """
     Set the axis limits from changes and or options. Default operation mode is:
         1. By default, axis limits are taken from the dictionary
@@ -458,7 +439,7 @@ def setaxislimits(ax, settings):
         ax.set_ylim(settings['y'][0], settings['y'][1])
 
 
-def getdefaultfilename(quantity, opt, settings):
+def getDefaultFilename(quantity, opt, settings):
     """This function creates a default filename based on quantity, changes and
        algorithm/correction.
     """
@@ -499,10 +480,6 @@ def readMetaInfosFromRootFiles(files, opt,
     return opt
 
 
-def selfsave(settings):
-    pass
-
-
 def Save(figure, settings=None, crop=True, pad=None):
     """Save this figure in all listed data formats.
 
@@ -522,7 +499,7 @@ def Save(figure, settings=None, crop=True, pad=None):
     print ' -> Saving as',
     if settings is not None and settings['title'] is not "":
         title = figure.suptitle(settings['title'], size='large')
-    # this helps not to crop labels
+    # this hack helps not to crop labels
     elif crop:
         title = figure.suptitle("I", color='white')
     first = True
