@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
-"""Plot quantities from data and MC.
+"""Create a 1D histogram / profile plot.
 
-   This module is dedicated to the simple comparison of plots from data and MC.
+   This module contains several functions to create a 1D plot from opt and files.
 """
 import numpy
 import math
+import copy
+
 import getroot
 import plotbase
-import ROOT
-import sys
-import os
-import plotresponse
-import copy
 
 
 def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
@@ -21,7 +18,7 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
 
 
 def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
-    """Template for all 1D data/MC comparison plots for basic quantities."""
+    """Main function for all 1D  plots."""
 
     # if no settings are given, create:
     settings = plotbase.getsettings(opt, changes, settings, quantity)
@@ -297,16 +294,3 @@ def ratiosubplot(quantity, files, opt, settings, changes):
 
     plotbase.Save(fig, settings)
 
-if __name__ == "__main__":
-    """Unit test: doing the plots standalone (not as a module)."""
-    #TODO do we really need this?
-    import sys
-    if len(sys.argv) < 2:
-        print "Usage: python plotting/plot1d.py data_file.root mc_file.root"
-        exit(0)
-    mplhistos[0] = getroot.openfile(sys.argv[1])
-    fmc = getroot.openfile(sys.argv[2])
-    bins = getroot.getbins(mplhistos[0], [])
-    zpt(mplhistos, opt=plotbase.options(bins=bins))
-    jeteta(mplhistos, opt=plotbase.options(bins=bins))
-    cut_all_npv(mplhistos, opt=plotbase.options(bins=bins))
