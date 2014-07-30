@@ -58,30 +58,33 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     else:
         rootobject = None
 
-    # use the argument-given fig/axis or create new one:
-    if settings['subplot'] == True:
-        fig, ax = fig_axes
-    else:
-        fig, ax = plotbase.newplot(run=settings['run'])
-
-    settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
-
     # create an additional ratio subplot at the bottom:
     #TODO this is only kept for backwards compatibility! remove at some point
     if settings['ratiosubplot'] and not settings['subplot']:
         ratiosubplot(quantity, files, opt, settings)
         return
 
+    # if true, save as root file:
+    if settings['root'] is not False:
+        getroot.saveasroot(rootobjects, opt, settings)
+        return
+
+    plotMpl(rootobjects, datamc, opt, settings, quantity, files)
+
+
+def plotMpl(rootobjects, datamc, opt, settings, quantity, files):
+
+    # use the argument-given fig/axis or create new one:
+    if settings['subplot'] == True:
+        fig, ax = fig_axes
+    else:
+        fig, ax = plotbase.newplot(run=settings['run'])
+
     # if runplot_diff, get the mean from mc:
     if settings['run'] == 'diff':
         datamc, ax, offset = runplot_diff(files, datamc, ax, settings, quantity)
     else:
         offset = 0
-
-    # if true, save as root file:
-    if settings['root'] is not False:
-        getroot.saveasroot(rootobjects, opt, settings)
-        return
 
     bottom = []
     #loop over histograms: scale and plot
@@ -142,6 +145,7 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         del rootobjects
         return
     else:
+        settings['filename'] = plotbase.getdefaultfilename(quantity, opt, settings)
         plotbase.Save(fig, settings)
 
 
