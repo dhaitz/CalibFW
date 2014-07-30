@@ -322,8 +322,8 @@ def createGridControlConfig(settings, filename, original=None, timestamp=''):
     if original is None:
         original = getPath() + '/cfg/artus/base/gc.conf'
     jobs = {
-            'mc': 120,
-            'data': 180,
+            'mc': 240,
+            'data': 360,
     }
     fpj = len(settings['InputFiles']) / float(jobs.get(settings['InputType'], 70))
     fpj = int(fpj + 1)
