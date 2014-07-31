@@ -239,9 +239,9 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False, lhe=False):
         ]
         cfg['GlobalProducer'] += ['electron_sf_producer']
         if cfg['ElectronID'] == 'mva':
-            cfg['ScaleFactors'] = '/portal/ekpcms5/home/dhaitz/git/excalibur/data/Electron-NontrigMVAIdScaleFactors.root'
+            cfg['ScaleFactors'] = getPath() + '/data/Electron-NontrigMVAIdScaleFactors.root'
         elif cfg['ElectronID'] in ['loose', 'medium', 'tight', 'veto']:
-            cfg['ScaleFactors'] = '/portal/ekpcms5/home/dhaitz/git/excalibur/data/Electron-CutBasedIdScaleFactors.root'
+            cfg['ScaleFactors'] = getPath() + '/data/Electron-CutBasedIdScaleFactors.root'
     else:
         cfg['EnableLumiReweighting'] = True
         cfg['EnableTriggerReweighting'] = True
