@@ -21,7 +21,11 @@ if [ $USER = "dhaitz" ]; then
         export MC=`readlink $EXCALIBUR_BASE/work/mc.root`
     fi
     if [ $HOSTNAME = "ekpcms5" ]; then
-        export EXCALIBUR_WORK=/storage/a/dhaitz/excalibur
+        if [ -d /storage/a/dhaitz/ ]; then
+            export EXCALIBUR_WORK=/storage/a/dhaitz/excalibur
+        else
+            export EXCALIBUR_WORK=/storage/8/dhaitz/excalibur
+        fi
     elif [[ $HOSTNAME == *naf* ]]; then
         export EXCALIBUR_WORK=/nfs/dust/cms/user/dhaitz
     fi
