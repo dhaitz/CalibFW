@@ -52,6 +52,17 @@ def getNewestJson(variant="PromptReco_Collisions12"):
     return jsons[-1]
 
 
+def setInputFiles(ekppath, nafpath=None):
+    """Return ekppath if you're at EKP, nafpath if at NAF. """
+    if socket.gethostname().startswith('naf'):
+        if nafpath == None:
+            print "You're at NAF, but the path for this skim is not set here!"
+        else:
+            return nafpath
+    else:
+        return ekppath
+
+
 def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=False, lhe=False):
     """Basic configuration for Artus.
 

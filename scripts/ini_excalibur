@@ -25,7 +25,7 @@ if [ $USER = "dhaitz" ]; then
     elif [[ $HOSTNAME == *naf* ]]; then
         export EXCALIBUR_WORK=/nfs/dust/cms/user/dhaitz
     fi
-    export PATH=/home/dhaitz/git/grid-control:$PATH
+    export PATH=${HOME}/git/grid-control:$PATH
 elif [ $USER = "berger" ]; then
     export PATH=/home/berger/sw/bin:/home/berger/sw/grid-control:$PATH
     if [ $HOSTNAME = "ekpcms5" ]; then
