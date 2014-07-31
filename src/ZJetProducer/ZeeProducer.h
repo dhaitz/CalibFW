@@ -14,8 +14,8 @@ class ValidElectronProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
 
-	ValidElectronProducer(std::string id) : ZJetGlobalMetaDataProducerBase(),
-		m_idstr(id)
+	ValidElectronProducer(std::string id, bool excludeecalgap) : ZJetGlobalMetaDataProducerBase(),
+		m_idstr(id), m_excludeecalgap(excludeecalgap)
 	{
 		m_electronID = ToElectronID(m_idstr);
 	}
@@ -36,6 +36,10 @@ public:
 							&& std::abs(it->p4.Eta()) < 5.0;
 			//&& it->trackIso03 < 3.0
 			//&& it->idMvaNonTrigV0 > 0;
+
+			// ECAL gap
+			if (m_excludeecalgap)
+				good_electron = good_electron && (std::abs(it->p4.Eta()) < 1.4442 || std::abs(it->p4.Eta()) > 1.566);
 
 			if (good_electron) //only do the ID if not already vetoed before
 			{
@@ -95,6 +99,7 @@ public:
 	}
 private:
 	std::string m_idstr;
+	bool m_excludeecalgap;
 
 	enum class ElectronID : int
 	{

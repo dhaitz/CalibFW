@@ -92,7 +92,8 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new ZEEProducer());
 		else if (ValidElectronProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidElectronProducer(
-											 globalSettings.get<std::string>("ElectronID")));
+											 globalSettings.get<std::string>("ElectronID"),
+											 globalSettings.get<bool>("ExcludeECALGap")));
 		else if (ElectronSFProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ElectronSFProducer(globalSettings.get<std::string>("ScaleFactors"),
 										 globalSettings.get<std::string>("ElectronID")));

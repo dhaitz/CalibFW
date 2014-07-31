@@ -142,6 +142,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
         config['muons'] = ''
         config['electrons'] = 'electrons'
         config['Channel'] = 'ee'
+        config['ExcludeECALGap'] = True
     else:
         # The order of these producers is important!
         config['GlobalProducer'] = [
