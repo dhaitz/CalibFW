@@ -14,7 +14,7 @@ export SYNCDIR=${EXCALIBUR_BASE}/out/websync
 
 # Set some user specific variables
 if [ $USER = "dhaitz" ]; then
-    if [ $HOSTNAME != *blus* ]; then
+    if [[ $HOSTNAME != *blus* ]]; then
         if [ -f $EXCALIBUR_BASE/work/data.root ]; then
             export DATA=`readlink $EXCALIBUR_BASE/work/data.root`
         fi
