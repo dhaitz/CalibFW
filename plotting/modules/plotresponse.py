@@ -233,7 +233,6 @@ def responseratio(files, opt, over='zpt', types=['balresp'], fit=False,
                                                   quantity="response_%s" % over)
 
     changes = {'subplot':True,
-                'legloc':'lower right'
                 }
 
     fig = plotbase.plt.figure(figsize=[7, 7])
