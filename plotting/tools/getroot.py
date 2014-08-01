@@ -158,26 +158,29 @@ def getBinning(quantity, settings, axis='x'):
     if quantity in ['npv', 'npu', 'jet1nconst']:  # integer binning
         nbins = int(xmax - xmin)
 
-    bins = [xmin + (xmax - xmin) * float(i) / nbins for i in range(nbins + 1)]
-    #TODO: better log binning also for y etc.
-    #print settings['xlog']
-    if settings['xlog']:
-        print "LOG bins is not done -> getroot.getBinning"
-        xmin = max(xmin, 1.0)
-        print xmin, nbins
-        #bins = [xmin * (float(xmax) / xmin ) ** (float(i) / nbins) for i in range(nbins + 1)]
+    if settings.get('xbins', False):
+        bins = settings['xbins']
+    else:
+        bins = [xmin + (xmax - xmin) * float(i) / nbins for i in range(nbins + 1)]
+        #TODO: better log binning also for y etc.
+        #print settings['xlog']
+        if settings['xlog']:
+            print "LOG bins is not done -> getroot.getBinning"
+            xmin = max(xmin, 1.0)
+            print xmin, nbins
+            #bins = [xmin * (float(xmax) / xmin ) ** (float(i) / nbins) for i in range(nbins + 1)]
 
-    #special binning for certain quantities:
-    # No, opt is the wrong place, -> dict
-    bin_dict = {
-        'zpt': settings['zbins'],
-        '(abs(jet1eta))': settings['eta'],
-        'jet1eta': [-elem for elem in settings['eta'][1:][::-1]] + settings['eta'],
-        'npv': [a - 0.5 for a, b in settings['npv']] + [settings['npv'][-1][1] - 0.5]
-    }
+        #special binning for certain quantities:
+        # No, opt is the wrong place, -> dict
+        bin_dict = {
+            'zpt': settings['zbins'],
+            '(abs(jet1eta))': settings['eta'],
+            'jet1eta': [-elem for elem in settings['eta'][1:][::-1]] + settings['eta'],
+            'npv': [a - 0.5 for a, b in settings['npv']] + [settings['npv'][-1][1] - 0.5]
+        }
 
-    if settings['special_binning'] and quantity in bin_dict:
-        bins = bin_dict[quantity]
+        if settings['special_binning'] and quantity in bin_dict:
+            bins = bin_dict[quantity]
 
     print "Binning of", axis, ":", nbins, "bins from", xmin, "to", xmax, "for", quantity
     return array.array('d', bins)

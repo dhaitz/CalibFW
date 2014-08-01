@@ -204,6 +204,8 @@ def options(
         help='y-axis label names,')
     axis.add_argument('--xticks', type=float, nargs='+', default=None,
         help="add custom xticks")
+    axis.add_argument('--xbins', type=float, nargs='+', default=None,
+        help=" custom bins on x axis")
 
     # Other options
     group = parser.add_argument_group('Other options')
