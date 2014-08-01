@@ -378,11 +378,16 @@ def createFileList(files, fast=False):
             if "*" in files:
                 print "Creating file list from", files
                 files = glob.glob(files)
-            elif 'naf' in socket.gethostname(): # on NAF, get file list with lcg-ls, access files via DCAP
-                p1 = subprocess.Popen(['bash', '-c', 'lcg-ls srm://dcache-se-cms.desy.de%s' % files], stdout=subprocess.PIPE)
-                out, err = p1.communicate()
-                files = out.split('\n')
-                files = [f for f in files if ".root" in f]
+            elif 'naf' in socket.gethostname():
+                # on naf3, /pnfs is mounted so we can directly access the files
+                if socket.gethostname() == 'nafhh-cms03.desy.de':
+                    files = glob.glob(files + "/*.root")
+                else:
+                     # on NAF, get file list with lcg-ls, access files via DCAP
+                    p1 = subprocess.Popen(['bash', '-c', 'lcg-ls srm://dcache-se-cms.desy.de%s' % files], stdout=subprocess.PIPE)
+                    out, err = p1.communicate()
+                    files = out.split('\n')
+                    files = [f for f in files if ".root" in f]
                 files = ["dcap://dcache-cms-dcap.desy.de:22125" + f for f in files]
             else:
                 files = [files]
