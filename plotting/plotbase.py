@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from time import clock
 import inspect
 import math
+import matplotlib
 
 from ROOT import gROOT, PyConfig
 PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
