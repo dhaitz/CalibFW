@@ -480,6 +480,12 @@ def readMetaInfosFromRootFiles(files, opt,
         opt.default_options[m.lower() + 's'] = eval(m)
     return opt
 
+def getDefaultFiles():
+    """ Returns the default data and MC files, if they exist. """
+    files = []
+    for name in ['DATA', 'MC']:
+        if os.environ.get(name, False): 
+            files.append(os.environ[name])
 
 def Save(figure, settings=None, crop=True, pad=None):
     """Save this figure in all listed data formats.
