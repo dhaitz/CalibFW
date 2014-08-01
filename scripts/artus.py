@@ -320,10 +320,13 @@ def copyFile(source, target, replace={}):
 
 def createGridControlConfig(settings, filename, original=None, timestamp=''):
     if original is None:
-        original = getPath() + '/cfg/artus/base/gc.conf'
+        if 'naf' in socket.gethostname():
+            original = getPath() + '/cfg/artus/base/gc_naf.conf'
+        else:
+            original = getPath() + '/cfg/artus/base/gc.conf'
     jobs = {
-            'mc': 240,
-            'data': 360,
+            'mc': 120,
+            'data': 180,
     }
     fpj = len(settings['InputFiles']) / float(jobs.get(settings['InputType'], 70))
     fpj = int(fpj + 1)
@@ -335,9 +338,7 @@ def createGridControlConfig(settings, filename, original=None, timestamp=''):
         '$EXCALIBUR_WORK': getPath('EXCALIBUR_WORK'),
         '$BOOSTLIB': getPath('BOOSTLIB'),
     }
-    if 'naf' in socket.gethostname(): #On NAF, we want to use the 'short.q' queue
-        d['queue'] = 'short.q'
-    
+
     text = copyFile(original, filename, d)
     # return the name of output files
     text = text[text.find("se output pattern =") + 19:]
