@@ -263,6 +263,10 @@ public:
 	KGenParticles m_genZs;
 	KGenParticles m_genPhotons;
 
+	int m_nLHEElectrons;
+	int m_nLHEMuons;
+	int m_nLHETaus;
+
 	typedef std::map<std::string, KGenParticle> MetaParticleContainer;
 	mutable MetaParticleContainer m_algoparton;
 	mutable MetaParticleContainer m_physparton;

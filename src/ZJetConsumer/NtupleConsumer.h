@@ -534,7 +534,7 @@ private:
 			return 999;
 		}
 
-		//LHE Z information
+		//LHE information
 		else if (string == "lhezpt")
 			return metaData.GetLHEZ().p4.Pt();
 		else if (string == "lhezeta")
@@ -545,6 +545,12 @@ private:
 			return metaData.GetLHEZ().p4.Phi();
 		else if (string == "lhezmass")
 			return metaData.GetLHEZ().p4.mass();
+		else if (string == "nlhemuons")
+			return metaData.m_nLHEMuons;
+		else if (string == "nlheelectrons")
+			return metaData.m_nLHEElectrons;
+		else if (string == "nlhetaus")
+			return metaData.m_nLHETaus;
 
 
 		// electrons

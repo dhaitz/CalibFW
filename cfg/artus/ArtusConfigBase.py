@@ -213,7 +213,10 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False, lhe=False):
     if lhe:
         cfg['GlobalProducer'] += ['lhe_producer']
         cfg['LHE'] = 'LHE'
-        cfg['Pipelines']['default']['QuantitiesVector'] += ['lhezpt', 'lhezeta', 'lhezy', 'lhezphi', 'lhezmass']
+        cfg['Pipelines']['default']['QuantitiesVector'] += [
+            'lhezpt', 'lhezeta', 'lhezy', 'lhezphi', 'lhezmass',
+            'nlheelectrons', 'nlhemuons', 'nlhetaus',
+        ]
     else:
         cfg['LHE'] = ''
 

@@ -23,7 +23,7 @@ public:
 										ZJetMetaData& metaData,
 										ZJetPipelineSettings const& globalSettings) const
 	{
-		int zcount = 0;
+		int zcount = 0, nmuons = 0, ntaus = 0, nelectrons = 0;
 		for (auto it = data.m_lhe->begin(); it != data.m_lhe->end(); ++it)
 		{
 			if (it->pdgId() == 23)
@@ -31,7 +31,17 @@ public:
 				metaData.SetLHEZ(*it);
 				zcount += 1;
 			}
+			else if (std::abs(it->pdgId()) == 11)
+				nelectrons += 1;
+			else if (std::abs(it->pdgId()) == 13)
+				nmuons += 1;
+			else if (std::abs(it->pdgId()) == 15)
+				ntaus += 1;
 		}
+
+		metaData.m_nLHEElectrons = nelectrons;
+		metaData.m_nLHEMuons = nmuons;
+		metaData.m_nLHETaus = ntaus;
 
 		// Can this be removed after checking the full dataset?
 		if (zcount != 1)
