@@ -156,8 +156,8 @@ def formatting(ax, settings, opt, mplhistos, rootobjects=None):
         if settings['x'] == [0, 1]:
             settings['x'][0] = min([histo.GetXaxis().GetXmin() for histo in rootobjects])
             settings['x'][1] = max([histo.GetXaxis().GetXmax() for histo in rootobjects])
-            print "determine x axis borders automatically:", ",".join(settings['x'])
-        if 'TProfile' in [histo.ClassName() for histo in rootobjects] and settings['y'] == [0, 1]:
+            print "determine x axis borders automatically:", ",".join([str(x) for x in settings['x']])
+        if 'TProfile' in [histo.ClassName() for histo in rootobjects] and settings['y'] == [0, 1] and 'y' not in opt.user_options:
             settings['y'][0] = min([histo.GetMinimum() for histo in rootobjects])
             settings['y'][1] = max([histo.GetMaximum() for histo in rootobjects]) * 1.02
             print "determine y axis borders automatically: %s, %s" % (settings['y'][0], settings['y'][1])
@@ -252,7 +252,7 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
         'fit': settings.get('ratiosubplotfit', None),
     })
     if 'ratiosubploty' in settings:
-        changes['ratiosubploty'] = [float(x) for x in settings['ratiosubploty']]    
+        changes['ratiosubploty'] = [float(x) for x in settings['ratiosubploty']]
 
     plot1d(quantity, files, opt, fig_axes=(fig, ax2), changes=changes, settings=settings)
 
