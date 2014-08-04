@@ -14,22 +14,15 @@ from time import clock
 import inspect
 import math
 import matplotlib
+import pkgutil
 
 from ROOT import gROOT, PyConfig
 PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
 gROOT.SetBatch(True)
 
-# use ls and imp to read all of them
-import plotrc
 import plot1d
-import plotfractions
-import plotresponse
-import plot_resolution
-import plot_mikko
 import plot2d
-import plot_sandbox
-import plotcollections
-import plot_tagging
+import modules
 
 import getroot
 from labels import *
@@ -43,8 +36,8 @@ def plot(op):
     whichfunctions = []
     plots = op.plots
 
-    modules = [plotresponse, plotfractions, plot2d, plot1d, plotcollections,
-                        plot_resolution, plot_mikko, plot_sandbox, plot_tagging]
+    # get the list of all the modules in the 'modules' folder
+    module_list = [(module.find_module(name).load_module(name)) for module, name, is_pkg in pkgutil.walk_packages(modules.__path__)]
 
     if op.verbose:
         showoptions(op)
@@ -60,7 +53,7 @@ def plot(op):
     startop = copy.deepcopy(op)
 
     if op.list:
-        printfunctions(modules)
+        printfunctions(module_list)
         sys.exit()
 
     if op.quantities:
@@ -69,7 +62,7 @@ def plot(op):
 
     remaining_plots = copy.deepcopy(plots)
     # 1. Look if you can direcly call functions in the modules
-    for module in modules:
+    for module in module_list:
         if op.verbose:
             print "%1.2f | Start plotting" % clock()
         if not plots:
@@ -480,12 +473,14 @@ def readMetaInfosFromRootFiles(files, opt,
         opt.default_options[m.lower() + 's'] = eval(m)
     return opt
 
+
 def getDefaultFiles():
     """ Returns the default data and MC files, if they exist. """
     files = []
     for name in ['DATA', 'MC']:
-        if os.environ.get(name, False): 
+        if os.environ.get(name, False):
             files.append(os.environ[name])
+
 
 def Save(figure, settings=None, crop=True, pad=None):
     """Save this figure in all listed data formats.

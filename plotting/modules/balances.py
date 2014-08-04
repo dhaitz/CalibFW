@@ -23,7 +23,7 @@ def completeHisto(histo, xerr=0.4, yerr=0.0, shift=0.0):
     if len(histo.yerr) == 0:
         histo.yerr = [yerr]*len(histo)
 
-def fastplot(objectname, filenames, op=plotbase.options()):
+def fastplot(objectname, filenames, op):
     """
     
     data file is the first one (can be ignored with "nodata")
@@ -144,7 +144,3 @@ def fastplot(objectname, filenames, op=plotbase.options()):
     ax.set_ylabel("Response to reconstructed muon")
     plotbase.Save(fig, "balances", op)
 
-
-    
-    
-fastplot("NoBinning_allevents/jet2_pt_AK5PFJetsCHSL1L2L3", ["/storage/6/berger/closure/work/data_2012_534/out/closure.root", "/storage/6/berger/closure/work/mc_madgraphSummer12_534/out/closure.root"])

@@ -14,7 +14,7 @@ def zmassEBEE(files, opt):
         'abs(eminuseta)>1.5 && abs(epluseta)>1.5',
     ]
     filenames = ['zmass_ebeb', 'zmass_ebee', 'zmass_eeee']
-    titles = ['Barrel electrons only', 'One barrel, one endcap', 'Endcap electrons only']
+    titles = ['Barrel electrons only', 'One electron barrel, one endcap', 'Endcap electrons only']
     for selection, filename, title in zip(selections, filenames, titles):
         plot1d.plot1dratiosubplot("zmass", files, opt, changes = {
             'x': [81, 101],

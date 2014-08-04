@@ -13,7 +13,7 @@ import subprocess
 import artus
 
 import plotbase
-import plotrc
+import modules.plotrc as plotrc
 
 def options(
             # standard values go here:
