@@ -1,9 +1,16 @@
+# -*- coding: utf-8 -*-
+"""
+    Merlin module with tagging plots.
+    This module contains the plots created for the jet-tagging studies in 2013.
+"""
+
 import plotbase
 import plot1d
 import getroot
 import plot2d
 import numpy as np
 import copy
+
 
 taggers = ["qgtag",# "qgmlp", "trackcountinghigheffbjettag",
                 #"trackcountinghighpurbjettag", "jetprobabilitybjettag",

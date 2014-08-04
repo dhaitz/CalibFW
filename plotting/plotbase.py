@@ -158,7 +158,9 @@ def printfiles(filelist):
 
 def printfunctions(module_list):
     for module in module_list:
-        print '\033[92m%s' % module.__name__
+        print '\033[96m%s' % module.__name__
+        if module.__doc__ != None:
+            print "  \033[92m  ", module.__doc__
         for elem in inspect.getmembers(module, inspect.isfunction):
             if (inspect.getargspec(elem[1])[0][:2] == ['files', 'opt']):
                 print "\033[93m  %s \033[0m" % elem[0]

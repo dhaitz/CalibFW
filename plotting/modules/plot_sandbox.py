@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+    plotting sanbox module for merlin.
+    
+    This module is to be used for testing or development work.
+"""
+
 import plotbase
 import copy
 import plot1d
