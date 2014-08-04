@@ -3,28 +3,6 @@ import getroot, fit
 import math, copy, os
 
 
-def zmassEBEE(files, opt):
-    """ Plot the Z mass depending on where the electrons are reconstructed.
-
-        3 bins: EB-EB, EB-EE, EE-EE
-    """
-    selections = [
-        'abs(eminuseta)<1.5 && abs(epluseta)<1.5',
-        '(abs(eminuseta)>1.5 && abs(epluseta)<1.5) || abs(eminuseta)<1.5 && abs(epluseta)>1.5',
-        'abs(eminuseta)>1.5 && abs(epluseta)>1.5',
-    ]
-    filenames = ['zmass_ebeb', 'zmass_ebee', 'zmass_eeee']
-    titles = ['Barrel electrons only', 'One electron barrel, one endcap', 'Endcap electrons only']
-    for selection, filename, title in zip(selections, filenames, titles):
-        plot1d.plot1dratiosubplot("zmass", files, opt, changes = {
-            'x': [81, 101],
-            'selection': [selection],
-            'filename': filename,
-            'title': title,
-            'folder': 'zcuts',
-        })
-
-
 def e07hlt(files, opt):
     files = [getroot.openfile("work/mc_ee_corr.root")]
     plot2d.twoD("hlt_eeta_ept", files, opt, changes = {
