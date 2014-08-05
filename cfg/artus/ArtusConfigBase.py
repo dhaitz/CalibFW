@@ -234,6 +234,9 @@ def SetMcSpecific(cfg, run='2012', analysis='zmumu', rundepMC=False, lhe=False):
         cfg["EnablePuReweighting"] = True
         if analysis == 'zee':
             cfg['PileupWeights'] = getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_2014_01_31_zee_mc.root"
+            cfg['HltPaths'] = ["HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v%d" % v for v in range(15, 20)]
+            cfg['GlobalProducer'] += ['hlt_selector']
+            cfg['Pipelines']['default']['QuantitiesVector'].append('hlt')
         else:
             cfg['PileupWeights'] = getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_68_5mb_kappa539_MC12_madgraph_tags.root"
         cfg["MuonSmearing"] = True
