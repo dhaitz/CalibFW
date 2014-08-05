@@ -8,5 +8,6 @@ def config():
     conf['EnableTriggerReweighting'] = False
     conf['NEvents'] = 57709905
     conf['XSection'] = 37509.8
+    conf['electrons'] = 'correlectrons'
     conf = base.expand(conf, ['all', 'zcuts'])
     return conf
