@@ -32,13 +32,13 @@ def e07lhe(files, opt):
     }
     changes.update({
         'labels': ['Reco', 'Gen'],
-        'xaxis': ['zy', 'genzy'],
+        'xquantities': ['zy', 'genzy'],
     })
     plot1d.plot1dratiosubplot("zy", files, opt, changes = changes)
     
     changes.update({
         'labels': ['Gen', 'LHE'],
-        'xaxis': ['genzy', 'lhezy'],
+        'xquantities': ['genzy', 'lhezy'],
         'filename': 'genzy',
     })
     plot1d.plot1dratiosubplot("zy", files, opt, changes = changes)
@@ -50,7 +50,7 @@ def e07lhe(files, opt):
         'nolumilabel': True,
         'nbins': 50,
         'labels': ['Reco', 'Gen', 'LHE'],
-        'xaxis': ['zmass', 'genzmass', 'lhezmass'],
+        'xquantities': ['zmass', 'genzmass', 'lhezmass'],
     })
 
 def e07y(files, opt):
@@ -69,7 +69,7 @@ def e07y(files, opt):
             'nolumilabel': nolumilabel,
             'nbins': 50,
             'labels': ['y', '-y'],
-            'xaxis': ['zy', '-zy'],
+            'xquantities': ['zy', '-zy'],
             'filename': filename,
             'legloc': 'lower center',
             'title': title,
@@ -87,7 +87,7 @@ def e07geny(files, opt):
                 'nolumilabel': True,
                 'nbins': 25,
                 'labels': ['y', '-y'],
-                'xaxis': [i, '-%s' % i],
+                'xquantities': [i, '-%s' % i],
                 'legloc': 'lower center',
                 'title': title,
                 'files': ["work/%s_corr.root" % a]*2,
@@ -117,7 +117,7 @@ def e07eff(files, opt):
         plot1d.plot1d("id_pt", files, opt, changes = {
             'folder': 'electron_zcuts',
             'channel': 'ee',
-            'yaxis': ['mva', 'looseid', 'mediumid', 'tightid'],
+            'yquantities': ['mva', 'looseid', 'mediumid', 'tightid'],
             'x': [20, 120],
             'nbins': 50,
             'labels': ['MVA ID', 'Loose cutbased ID', 
@@ -147,7 +147,7 @@ def e07eeta(files, opt):
             'nolumilabel': nolumilabel,
             'nbins': 50,
             'labels': ['$\eta (e^{-})$', '$-\eta (e^{-})$'],
-            'xaxis': ['eminuseta', '-eminuseta'],
+            'xquantities': ['eminuseta', '-eminuseta'],
             'filename': filename,
             'title': title,
         })

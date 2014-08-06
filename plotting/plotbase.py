@@ -261,11 +261,11 @@ def getSettings(opt, changes=None, settings=None, quantity=None):
     # TODO explain this better ...
     # TODO Improve the hacky code below
     # TODO automatize labelling
-    if not settings.get('xaxis', None):
-        settings['xaxis'] = []
-    if not settings.get('yaxis', None):
-        settings['yaxis'] = []
-    args = ['xaxis', 'yaxis', 'selection', 'files']
+    if not settings.get('xquantities', None):
+        settings['xquantities'] = []
+    if not settings.get('yquantities', None):
+        settings['yquantities'] = []
+    args = ['xquantities', 'yquantities', 'selection', 'files']
     n = max([len(settings.get(a, []) or []) for a in args])
     if n > 1:
         for a in args:

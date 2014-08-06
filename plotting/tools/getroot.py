@@ -191,10 +191,10 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
             method (for a predefined binning) or with 'Draw' method.
     """
 
-    if settings['xaxis'] is not None and len(settings['xaxis']) > index:
-        quantities[0] = settings['xaxis'][index]
-    if settings['yaxis'] is not None and len(settings['yaxis']) > index:
-        quantities[0] = settings['yaxis'][index]
+    if settings['xquantities'] is not None and len(settings['xquantities']) > index:
+        quantities[0] = settings['xquantities'][index]
+    if settings['yquantities'] is not None and len(settings['yquantities']) > index:
+        quantities[0] = settings['yquantities'][index]
 
     copy_of_quantities = quantities
     for key in ntuple_dict.keys():
