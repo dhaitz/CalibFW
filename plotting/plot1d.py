@@ -112,7 +112,7 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes=Non
                 else:
                     widths = settings['x'][1] - settings['x'][0]
 
-            if settings['stacked'] and index > 0:
+            if settings['stacked'] and settings['types'][index] == 'mc':
                 if len(bottom) > 0:
                     bottom = [b + d for b, d in zip(bottom, mplhistos[len(mplhistos) - index].y)]
                 else:
