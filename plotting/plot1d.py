@@ -50,11 +50,20 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         mplhistos = [getroot.root2histo(rootobjects[0], files[0].GetName(), 1)]
 
     # if true, create a ratio plot:
-    if settings['ratio'] and len(mplhistos) == 2:
-        rootobject = getroot.rootdivision(rootobjects, settings['normalize'])
+    if settings['ratio']:
+        if len(mplhistos) == 2:
+            rootobject = getroot.rootdivision(rootobjects, settings['normalize'])
+            #mplhistos = [getroot.root2histo(rootobject, files[0].GetName(), 1)]
+        elif settings['stacked']:
+            # Get the sum of the stacked histos
+            stacked = []
+            for rootobject, typ in zip(rootobjects, settings['types']):
+                if typ == 'mc':
+                    stacked.append(rootobject)
+            for i in stacked[1:]:
+                stacked[0].Add(i)
+            rootobject = getroot.rootdivision([rootobjects[0], stacked[0]], settings['normalize'])
         mplhistos = [getroot.root2histo(rootobject, files[0].GetName(), 1)]
-    else:
-        rootobject = None
 
     # create an additional ratio subplot at the bottom:
     #TODO this is only kept for backwards compatibility! remove at some point
@@ -248,15 +257,18 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
         'legloc': False,
         'y': [None, None] + settings.get('ratiosubploty', [0.5, 1.5]),
         'labels': ['Ratio'],
-        'xynames': [settings['xynames'][0], " / ".join(settings['labels'][:2])],
         'fit': settings.get('ratiosubplotfit', None),
     })
+    if settings['stacked']:
+        changes['xynames'] = [settings['xynames'][0], " / ".join([settings['labels'][0], 'mc'])]
+    else:
+        changes['xynames'] = [settings['xynames'][0], " / ".join(settings['labels'][:2])]
     if 'ratiosubploty' in settings:
         changes['ratiosubploty'] = [float(x) for x in settings['ratiosubploty']]
 
     plot1d(quantity, files, opt, fig_axes=(fig, ax2), changes=changes, settings=settings)
 
-    fig.subplots_adjust(hspace=0.05)
+    fig.subplots_adjust(hspace=0.1)
     ax1.set_xticks([])
     ax1.set_xlabel("")
 
