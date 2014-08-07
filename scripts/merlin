@@ -363,7 +363,7 @@ if __name__ == "__main__":
             #if logged in from laptop, start image viewer directly on portal machine
            subprocess.Popen([imageviewer, image_with_path], stdout=subprocess.PIPE)
     elif opt.sync:
-        remote = "%s:plots/%s" % (userpc, opt.out.split('/')[-1])
+        remote = "%s:plots" % userpc
         subprocess.call(['rsync', opt.out, remote, "-r"])
         print "\033[92mFolder %s has been copied to %s\033[0m" % (opt.out, remote)
 
