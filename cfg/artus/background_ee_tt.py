@@ -10,7 +10,10 @@ def config():
     conf['EnableLumiReweighting'] = True
     conf['EnableTriggerReweighting'] = False
     conf['NEvents'] = 21675970
-    conf['XSection'] = 245.8  # NNLO, https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
+    conf['XSection'] = 26.75
+    # ttbar(NNLO ) * BR(W->l nu)^2
+    # https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
+    # W decay leptonic BR = 0.324
     conf['electrons'] = 'correlectrons'
     conf = base.expand(conf, ['all', 'zcuts'])
     return conf
