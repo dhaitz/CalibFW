@@ -209,10 +209,8 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
     selection = getselection(settings, isMC, index=index)
 
     if settings['verbose']:
-        plotbase.debug("Creating a plot with the following selection:\n   %s" % settings['selection'])
+        plotbase.debug("Creating a plot with the following selection:\n   %s" % settings['selection'][index])
 
-    if settings['verbose']:
-        plotbase.debug("Creating a %s with the following selection:\n   %s" % (roothisto.ClassName(), selection))
     print "Weights:", selection
 
     if settings['x'] != [0, 1]:

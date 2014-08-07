@@ -25,6 +25,7 @@ import plot2d
 import modules
 
 import getroot
+import plotrc
 from labels import *
 from fit import *
 
@@ -429,8 +430,8 @@ def setAxisLimits(ax, settings):
         ax.set_xlim(settings['x'][0], settings['x'][1])
 
     if hasattr(ax, 'number') and (len(settings['y']) >= 2 * ax.number):
-        ax.set_ylim(settings['y'][2 * ax.number - 2:][0],
-                    settings['y'][2 * ax.number - 2:][1])
+        ax.set_ylim(float(settings['y'][2 * ax.number - 2:][0]),
+                    float(settings['y'][2 * ax.number - 2:][1]))
     elif not hasattr(ax, 'number'):
         ax.set_ylim(settings['y'][0], settings['y'][1])
 
