@@ -3,6 +3,42 @@ import getroot, fit
 import math, copy, os
 
 
+def e08bkgr(files, opt):
+    """ Plot Z mass, pt and y for MC madgraph and powheg. """
+    for q, x in zip(
+        ['zpt', 'zmass', 'zy'],
+        [[30, 600], [81, 101], [-2.5, 2.5]]
+    ):
+        for f, label, filename, title in zip(
+            ['work/mc_ee_corr.root', 'work/mc_ee_powheg_corr.root'],
+            ['DY', r'DY$\rightarrow ee$'],
+            ['%s_mg' % q, '%s_pow' % q],
+            ['Madgraph DY', r'Powheg DY$\rightarrow ee$'],
+        ):
+            files = [getroot.openfile(f) for f in [
+                'work/data_ee_corr.root',
+                f,
+                'work/background_ee_tt.root',
+                'work/background_ee_wjets.root',
+                'work/background_ee_dytautau.root',
+            ]]
+            opt = plotbase.readMetaInfosFromRootFiles(files, opt)
+            plot1d.plot1dratiosubplot(q, files, opt, changes={
+                'labels': ['data', label, r'$t\bar{t}$', r'$W$+jets', r'DY$\rightarrow\tau\tau$'],
+                'selection': ['1', 'hlt', 'hlt', 'hlt*100/69', 'hlt*100/97'],  # account for missing jobs
+                'folder': 'zcuts',
+                'nbins': 40,
+                'normalize': False,
+                'markers': ['o', 'f', 'f', 'f', 'f'],
+                'stacked': True,
+                'log': True,
+                'x': x,
+                'ratiosubploty': [0, 2],
+                'filename': filename,
+                'title': title,
+            })
+
+
 def e07hlt(files, opt):
     files = [getroot.openfile("work/mc_ee_corr.root")]
     plot2d.twoD("hlt_eeta_ept", files, opt, changes = {
