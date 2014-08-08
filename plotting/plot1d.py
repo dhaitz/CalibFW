@@ -53,7 +53,7 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     if settings['ratio']:
         if len(mplhistos) == 2:
             rootobject = getroot.rootdivision(rootobjects, settings['normalize'])
-            #mplhistos = [getroot.root2histo(rootobject, files[0].GetName(), 1)]
+            mplhistos = [getroot.root2histo(rootobject, files[0].GetName(), 1)]
         elif settings['stacked']:
             # Get the sum of the stacked histos
             stacked = []
@@ -63,7 +63,14 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
             for i in stacked[1:]:
                 stacked[0].Add(i)
             rootobject = getroot.rootdivision([rootobjects[0], stacked[0]], settings['normalize'])
-        mplhistos = [getroot.root2histo(rootobject, files[0].GetName(), 1)]
+            mplhistos = [getroot.root2histo(rootobject, files[0].GetName(), 1)]
+        else:  # more than 2 files
+            newobjects, mplhistos = [], []
+            for obj in rootobjects[1:]:
+                copy = rootobjects[0].Clone()
+                newobjects += [getroot.rootdivision([copy, obj], settings['normalize'])]
+                mplhistos += [getroot.root2histo(newobjects[-1], files[0].GetName(), 1)]
+            rootobjects = newobjects
 
     # create an additional ratio subplot at the bottom:
     #TODO this is only kept for backwards compatibility! remove at some point
@@ -248,24 +255,35 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
     fig.add_axes(ax1)
     fig.add_axes(ax2)
 
-    changes = {'subplot': True}
+    # primary ploy
+    plot1d(quantity, files, opt, fig_axes=(fig, ax1), changes={'subplot': True}, settings=settings)
 
-    plot1d(quantity, files, opt, fig_axes=(fig, ax1), changes=changes, settings=settings)
-
-    changes.update({
+    # prepare ratiosubplot
+    changes = {'subplot': True,
         'ratio': True,
-        'legloc': False,
         'y': [None, None] + settings.get('ratiosubploty', [0.5, 1.5]),
-        'labels': ['Ratio'],
         'fit': settings.get('ratiosubplotfit', None),
-    })
+    }
+    if len(files) == 2:
+        changes.update({
+            'legloc': False,
+            'labels': ['Ratio'],
+            'xynames': [settings['xynames'][0], " / ".join(settings['labels'][:2])],
+        })
+    else:
+        changes.update({
+            'legloc': settings.get('ratiosubplotlegloc', 'lower right'),
+            'labels': settings['labels'][1:],
+            'colors': settings['colors'][1:],
+            'markers': settings['markers'][1:],
+            'xynames': [settings['xynames'][0], "Data/mc ratio"],
+        })
     if settings['stacked']:
         changes['xynames'] = [settings['xynames'][0], " / ".join([settings['labels'][0], 'mc'])]
-    else:
-        changes['xynames'] = [settings['xynames'][0], " / ".join(settings['labels'][:2])]
-    if 'ratiosubploty' in settings:
-        changes['ratiosubploty'] = [float(x) for x in settings['ratiosubploty']]
 
+    for i, marker in enumerate(changes['markers']):
+        if marker == 'f':
+            changes['markers'][i] = 'o'
     plot1d(quantity, files, opt, fig_axes=(fig, ax2), changes=changes, settings=settings)
 
     fig.subplots_adjust(hspace=0.1)
