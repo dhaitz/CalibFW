@@ -25,7 +25,7 @@ def e08bkgr(files, opt):
             opt = plotbase.readMetaInfosFromRootFiles(files, opt)
             plot1d.plot1dratiosubplot(q, files, opt, changes={
                 'labels': ['data', label, r'$t\bar{t}$', r'$W$+jets', r'DY$\rightarrow\tau\tau$'],
-                'selection': ['1', 'hlt', 'hlt', 'hlt*100/69', 'hlt*100/97'],  # account for missing jobs
+                'selection': ['1', 'hlt', 'hlt', 'hlt*100/98', 'hlt*100/97'],  # account for missing jobs
                 'folder': 'zcuts',
                 'nbins': 40,
                 'normalize': False,
@@ -33,7 +33,7 @@ def e08bkgr(files, opt):
                 'stacked': True,
                 'log': True,
                 'x': x,
-                'ratiosubploty': [0, 2],
+                'ratiosubploty': [0.5, 1.5],
                 'filename': filename,
                 'title': title,
             })
