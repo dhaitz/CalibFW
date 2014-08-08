@@ -51,11 +51,11 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
 
         ax.plot(x,scalefactor * p0 / ymax * mlab.normpdf(x, p1, p2), color = color)
 
-        ax.text(0.03, 0.97-(0.15-len(settings['files'])/20.)+(index/20.)+offset, r"$\mathrm{%s:}$" % label,
+        ax.text(0.03, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\mathrm{%s:}$" % label,
                va='top', ha='left', transform=ax.transAxes, color=color)
-        ax.text(0.20, 0.97-(0.15-len(settings['files'])/20.)+(index/20.)+offset, r"$\mu = %1.3f\pm%1.3f$" % (p1, p1err),
+        ax.text(0.25, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\mu = %1.3f\pm%1.3f$" % (p1, p1err),
                va='top', ha='left', transform=ax.transAxes, color=color)
-        ax.text(0.60, 0.97-(0.15-len(settings['files'])/20.)+(index/20.)+offset, r"$\sigma = %1.3f\pm%1.3f$" % (p2, p2err),
+        ax.text(0.65, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\sigma = %1.3f\pm%1.3f$" % (p2, p2err),
                va='top', ha='left', transform=ax.transAxes, color=color)
         if 'fitvalues' not in settings:
             settings['fitvalues'] = [[p1, p1err, p2, p2err]]
