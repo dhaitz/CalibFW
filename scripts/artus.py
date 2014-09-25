@@ -376,13 +376,15 @@ def showMessage(title, message):
 
 def createFileList(files, fast=False):
         if type(files) == str:
-            if "*" in files:
+            if "/*.root" in files:
                 print "Creating file list from", files
                 files = glob.glob(files)
             elif 'naf' in socket.gethostname():
                 # on naf3, /pnfs is mounted so we can directly access the files
                 if socket.gethostname() == 'nafhh-cms03.desy.de':
-                    files = glob.glob(files + "/*.root")
+                    if "*.root" not in files:
+                        files += "/*.root"
+                    files = glob.glob(files)
                 else:
                      # on NAF, get file list with lcg-ls, access files via DCAP
                     p1 = subprocess.Popen(['bash', '-c', 'lcg-ls srm://dcache-se-cms.desy.de%s' % files], stdout=subprocess.PIPE)
