@@ -3,7 +3,10 @@ import ArtusConfigBase as base
 
 def config():
     conf = base.BaseConfig('mc', '2012', analysis='zee')
-    conf['InputFiles'] = '/storage/a/dhaitz/skims/2014_02_28_zee_backgrounds/kappa_QCD_80-170_*.root'
+    conf["InputFiles"] = base.setInputFiles(
+        ekppath="",
+        nafpath="/pnfs/desy.de/cms/tier2/store/user/dhaitz/2014_08_08_data_QCD/kappa_QCD_80-170_*.root"
+    )
     conf['EnableLumiReweighting'] = True
     conf['EnableTriggerReweighting'] = False
     conf['NEvents'] = 34542763
