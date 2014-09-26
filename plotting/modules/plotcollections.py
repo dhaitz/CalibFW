@@ -15,21 +15,34 @@ def e08bkgr(files, opt):
             ['%s_mg' % q, '%s_pow' % q],
             ['Madgraph DY', r'Powheg DY$\rightarrow ee$'],
         ):
-            files = [getroot.openfile(f) for f in [
+            files = [getroot.openfile(fi) for fi in [
                 'work/data_ee_corr.root',
                 f,
+                'work/background_ee_zz.root',
+                'work/background_ee_wz.root',
                 'work/background_ee_tt.root',
+                'work/background_ee_ww.root',
                 'work/background_ee_wjets.root',
                 'work/background_ee_dytautau.root',
+                'work/background_ee_qcd.root',
             ]]
+            background_labels = [
+                'ZZ',
+                'WZ',
+                r'$t\bar{t}$',
+                'WW',
+                r'$W$+jets',
+                r'DY$\rightarrow\tau\tau$',
+                'QCD',
+            ]
             opt = plotbase.readMetaInfosFromRootFiles(files, opt)
             plot1d.plot1dratiosubplot(q, files, opt, changes={
-                'labels': ['data', label, r'$t\bar{t}$', r'$W$+jets', r'DY$\rightarrow\tau\tau$'],
-                'selection': ['1', 'hlt', 'hlt', 'hlt*100/98', 'hlt*100/97'],  # account for missing jobs
+                'labels': ['data', label] + background_labels,
+                'selection': ['1']+ ['hlt']*8,
                 'folder': 'zcuts',
                 'nbins': 40,
                 'normalize': False,
-                'markers': ['o', 'f', 'f', 'f', 'f'],
+                'markers': ['o'] + ['f']*8,
                 'stacked': True,
                 'log': True,
                 'x': x,
