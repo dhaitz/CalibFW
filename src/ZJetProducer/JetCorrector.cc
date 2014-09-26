@@ -33,7 +33,7 @@ void JetCorrector::InitCorrection(std::string algoName, std::string algoCorrecti
 	if (prefix == "")
 		prefix = m_corectionFileBase;
 
-	corLevel.push_back(m_l1correction);
+	corLevel.emplace_back(m_l1correction);
 	m_corrService.insert(algoCorrectionAlias, new JecCorrSet());
 	m_corrService[algoCorrectionAlias].m_l1.reset(new JECService(
 				event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
@@ -44,7 +44,7 @@ void JetCorrector::InitCorrection(std::string algoName, std::string algoCorrecti
 	{
 		//additional RC correction (for type-I)
 		corLevel.clear();
-		corLevel.push_back("RC");
+		corLevel.emplace_back("RC");
 		m_corrService.insert(algoCorrectionAlias, new JecCorrSet());
 		m_corrService[algoCorrectionAlias].m_rc.reset(new JECService(
 					event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
@@ -54,7 +54,7 @@ void JetCorrector::InitCorrection(std::string algoName, std::string algoCorrecti
 
 	// only apply one correction step in a round!
 	corLevel.clear();
-	corLevel.push_back("L2Relative");
+	corLevel.emplace_back("L2Relative");
 	m_corrService[algoCorrectionAlias].m_l2.reset(new JECService(
 				event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
 				prefix, corLevel, algoName, 0, 0, 0)
@@ -62,7 +62,7 @@ void JetCorrector::InitCorrection(std::string algoName, std::string algoCorrecti
 
 	// only apply one correction step in a round!
 	corLevel.clear();
-	corLevel.push_back("L3Absolute");
+	corLevel.emplace_back("L3Absolute");
 	m_corrService[algoCorrectionAlias].m_l3.reset(new JECService(
 				event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
 				prefix, corLevel, algoName, 0, 0, 0)
@@ -70,7 +70,7 @@ void JetCorrector::InitCorrection(std::string algoName, std::string algoCorrecti
 
 	// only used for data
 	corLevel.clear();
-	corLevel.push_back("L2L3Residual");
+	corLevel.emplace_back("L2L3Residual");
 	m_corrService[algoCorrectionAlias].m_l2l3res.reset(new JECService(
 				event.m_vertexSummary, event.m_jetArea, event.m_eventmetadata,
 				prefix, corLevel, algoName, 0, 0, rcorr)

@@ -33,14 +33,14 @@ public:
 
 		m_pileupweights.clear();
 		for (int i = 1; i <= pileuphisto->GetNbinsX(); ++i)
-			m_pileupweights.push_back(pileuphisto->GetBinContent(i));
+			m_pileupweights.emplace_back(pileuphisto->GetBinContent(i));
 		m_bins = 1.0 / pileuphisto->GetBinWidth(1);
 		delete pileuphisto;
 		file.Close();
 
 		double w[] = {1.0, 1.0133, 1.00312, 0.960151, 0.976782, 0.982018, 0.951591, 0.968691, 0.958286, 0.964922, 0.963885, 0.945895, 0.952558, 0.9771, 0.977798, 0.98852, 1.05932, 1.03958, 1.04062, 1.03216, 1.03077, 1.00564, 1.02296, 1.0295, 1.02713, 1.01387, 1.01669, 1.02451, 1.04553, 1.03359, 1.05437, 1.04735, 0.984159, 1.00111, 0.99083, 0.952875, 0.930611, 0.953789, 0.95413, 0.929454, 0.981264, 1.00026, 1.01724, 1.01122, 0.987915, 1.02896, 1.01948, 1.0};
 		for (int i = 0; i < 48; i++)
-			m_triggerweights.push_back(w[i]);
+			m_triggerweights.emplace_back(w[i]);
 		m_triggerbinwidth = 0.1;
 	}
 

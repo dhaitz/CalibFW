@@ -51,9 +51,9 @@ public:
 
 		// Get the pT and eta bin borders
 		for (int iy = 0; iy <= sfhisto->GetNbinsY(); iy ++)
-			m_ybins.push_back(2 * sfhisto->GetYaxis()->GetBinCenter(iy) - sfhisto->GetYaxis()->GetBinLowEdge(iy));
+			m_ybins.emplace_back(2 * sfhisto->GetYaxis()->GetBinCenter(iy) - sfhisto->GetYaxis()->GetBinLowEdge(iy));
 		for (int ix = 0; ix <= sfhisto->GetNbinsX(); ix ++)
-			m_xbins.push_back(2 * sfhisto->GetXaxis()->GetBinCenter(ix) - sfhisto->GetXaxis()->GetBinLowEdge(ix));
+			m_xbins.emplace_back(2 * sfhisto->GetXaxis()->GetBinCenter(ix) - sfhisto->GetXaxis()->GetBinLowEdge(ix));
 
 		// Fill the m_sf array with the values from the root histo
 		for (int iy = 1; iy <= sfhisto->GetNbinsY(); iy ++)

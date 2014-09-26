@@ -85,9 +85,9 @@ public:
 			}
 
 			if (good_electron)
-				metaData.m_listValidElectrons.push_back(*it);
+				metaData.m_listValidElectrons.emplace_back(*it);
 			else
-				metaData.m_listInvalidElectrons.push_back(*it);
+				metaData.m_listInvalidElectrons.emplace_back(*it);
 		}
 
 		return true;
@@ -121,7 +121,7 @@ private:
 		else if (electronID == "veto") return ElectronID::VETO;
 		else if (electronID == "none") return ElectronID::NONE;
 		else LOG_FATAL("Electron ID of type '" << electronID << "' not known!")
-	}
+		}
 
 	ElectronID m_electronID;
 

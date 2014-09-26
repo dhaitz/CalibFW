@@ -62,9 +62,9 @@ public:
 						&& it->track.nPixelLayers + it->track.nStripLayers > 5 + 3 * is2011;
 
 			if (good_muon)
-				metaData.m_listValidMuons.push_back(*it);
+				metaData.m_listValidMuons.emplace_back(*it);
 			else
-				metaData.m_listInvalidMuons.push_back(*it);
+				metaData.m_listInvalidMuons.emplace_back(*it);
 		}
 
 		return true;
@@ -129,7 +129,7 @@ public:
 				KDataPFTaggedJets* tjets = event.m_pfTaggedJets.at(sAlgoNameTagged);
 				event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
 				for (KDataPFTaggedJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
-					event.m_pfPointerJets[sAlgoName]->push_back(dynamic_cast<KDataPFJet*>(&(*it)));
+					event.m_pfPointerJets[sAlgoName]->emplace_back(dynamic_cast<KDataPFJet*>(&(*it)));
 			}
 		}
 		// for regular (non-tagged) PF jets: fill the m_pfPointerJets with simple pointers
@@ -144,7 +144,7 @@ public:
 				KDataPFJets* tjets = event.m_pfJets.at(sAlgoName);
 				event.m_pfPointerJets[sAlgoName] = new std::vector<KDataPFJet*>;
 				for (KDataPFJets::iterator it = tjets->begin(); it != tjets->end(); ++it)
-					event.m_pfPointerJets[sAlgoName]->push_back(&(*it));
+					event.m_pfPointerJets[sAlgoName]->emplace_back(&(*it));
 			}
 		}
 
@@ -217,9 +217,9 @@ public:
 				}
 
 				if (good_jet)
-					metaData.m_listValidJets[italgo->first].push_back(i);
+					metaData.m_listValidJets[italgo->first].emplace_back(i);
 				else
-					metaData.m_listInvalidJets[italgo->first].push_back(i);
+					metaData.m_listInvalidJets[italgo->first].emplace_back(i);
 				i++;
 			}
 		}
@@ -313,7 +313,7 @@ public:
 
 					if (z.p4.mass() > zmassRangeMin && z.p4.mass() < zmassRangeMax)
 					{
-						z_cand.push_back(z);
+						z_cand.emplace_back(z);
 						//LOG("Found possible Z with mass " << z.p4.mass())
 					}
 					else
@@ -413,39 +413,39 @@ public:
 			// Sort particles in lists in metaData
 			if (std::abs(it->pdgId()) == 13 && it->status() == 1)		// stable muon
 			{
-				metaData.m_genMuons.push_back(*it);
+				metaData.m_genMuons.emplace_back(*it);
 			}
 			else if (std::abs(it->pdgId()) == 13 && it->status() == 2)		// intermediate muon
 			{
-				metaData.m_genIntermediateMuons.push_back(*it);
+				metaData.m_genIntermediateMuons.emplace_back(*it);
 			}
 			else if (std::abs(it->pdgId()) == 13 && it->status() == 3)		// internal muon
 			{
-				metaData.m_genInternalMuons.push_back(*it);
+				metaData.m_genInternalMuons.emplace_back(*it);
 			}
 			else if (std::abs(it->pdgId()) == 11 && it->status() == 1)		// stable muon
 			{
-				metaData.m_genElectrons.push_back(*it);
+				metaData.m_genElectrons.emplace_back(*it);
 			}
 			else if (std::abs(it->pdgId()) == 11 && it->status() == 2)		// intermediate muon
 			{
-				metaData.m_genIntermediateElectrons.push_back(*it);
+				metaData.m_genIntermediateElectrons.emplace_back(*it);
 			}
 			else if (std::abs(it->pdgId()) == 11 && it->status() == 3)		// internal muon
 			{
-				metaData.m_genInternalElectrons.push_back(*it);
+				metaData.m_genInternalElectrons.emplace_back(*it);
 			}
 			else if (std::abs(it->pdgId()) == 23 && it->status() == 2)	// Z
 			{
-				metaData.m_genZs.push_back(*it);
+				metaData.m_genZs.emplace_back(*it);
 			}
 			else if (std::abs(it->pdgId()) == 22 && it->status() == 1)	// photon
 			{
-				metaData.m_genPhotons.push_back(*it);
+				metaData.m_genPhotons.emplace_back(*it);
 			}
 			else if (std::abs(it->pdgId()) < 7 || std::abs(it->pdgId()) == 21)	// parton
 			{
-				metaData.m_genPartons.push_back(*it);
+				metaData.m_genPartons.emplace_back(*it);
 			}
 			else if (it->pdgId() == 2212 && it->p4.Pt() < 1e-6) // ignore incoming protons
 			{
@@ -462,7 +462,7 @@ public:
 				{
 					if ((it2->second->size() > 0)
 						&& (ROOT::Math::VectorUtil::DeltaR(it->p4, it2->second->at(0).p4) < R))
-						metaData.m_neutrinos[it2->first].push_back(*it);
+						metaData.m_neutrinos[it2->first].emplace_back(*it);
 				}
 			}
 			else if (it->status() == 1 &&
@@ -477,11 +477,11 @@ public:
 					if ((it2->second->size() > 0)
 						&& (ROOT::Math::VectorUtil::DeltaR(it->p4, it2->second->at(0).p4) < R)
 						&& (it->p4.Pt() > pt_threshold))
-						metaData.m_neutrals5[it2->first].push_back(*it);
+						metaData.m_neutrals5[it2->first].emplace_back(*it);
 					if ((it2->second->size() > 0)
 						&& (ROOT::Math::VectorUtil::DeltaR(it->p4, it2->second->at(0).p4) < 0.3)
 						&& (it->p4.Pt() > pt_threshold))
-						metaData.m_neutrals3[it2->first].push_back(*it);
+						metaData.m_neutrals3[it2->first].emplace_back(*it);
 				}
 			}
 			else if (verbose) // unexpected particles apart from stable mesons and baryons

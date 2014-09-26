@@ -22,9 +22,9 @@ public:
 			std::string sAlgoName = it->first;
 			KGenParticles matching_algo_partons;
 			KGenParticles matching_phys_partons;
-			KGenParticle * hardest_parton = NULL;
-			KGenParticle * hardest_b_quark = NULL;
-			KGenParticle * hardest_c_quark = NULL;
+			KGenParticle* hardest_parton = NULL;
+			KGenParticle* hardest_b_quark = NULL;
+			KGenParticle* hardest_c_quark = NULL;
 
 			// get the reference jet:genjet by default, reco jet if no genjet available
 			KDataLV* ref_jet;
@@ -47,22 +47,22 @@ public:
 				{
 					if (std::abs(ROOT::Math::VectorUtil::DeltaR(ref_jet->p4, it->p4)) < dist)
 					{
-						matching_algo_partons.push_back(*it);
+						matching_algo_partons.emplace_back(*it);
 						if (std::abs(it->pdgId()) == 5)
-                        { 
-                            if (hardest_b_quark == NULL)
-							    hardest_b_quark = &(*it);
-                            else if (it->p4.Pt() > hardest_b_quark->p4.Pt())
-							    hardest_b_quark = &(*it);
-                        }
+						{
+							if (hardest_b_quark == NULL)
+								hardest_b_quark = &(*it);
+							else if (it->p4.Pt() > hardest_b_quark->p4.Pt())
+								hardest_b_quark = &(*it);
+						}
 						else if (std::abs(it->pdgId()) == 4)
-                        { 
-                            if (hardest_c_quark == NULL)
-							    hardest_c_quark = &(*it);
-                            else if (it->p4.Pt() > hardest_c_quark->p4.Pt())
-							    hardest_c_quark = &(*it);
-                        }
-                        else if (hardest_parton == NULL)
+						{
+							if (hardest_c_quark == NULL)
+								hardest_c_quark = &(*it);
+							else if (it->p4.Pt() > hardest_c_quark->p4.Pt())
+								hardest_c_quark = &(*it);
+						}
+						else if (hardest_parton == NULL)
 							hardest_parton = &(*it);
 						else if (it->p4.Pt() > hardest_parton->p4.Pt())
 							hardest_parton = &(*it);
@@ -72,7 +72,7 @@ public:
 				else
 				{
 					if (std::abs(ROOT::Math::VectorUtil::DeltaR(ref_jet->p4, it->p4)) < dist)
-						matching_phys_partons.push_back(*it);
+						matching_phys_partons.emplace_back(*it);
 				}
 			}
 

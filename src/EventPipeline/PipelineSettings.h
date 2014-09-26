@@ -52,7 +52,7 @@ TYPE Get##SNAME ( ) const { if (Cache##SNAME.IsCached()) { return Cache##SNAME.G
        return val;}            \
 void Set##SNAME ( TYPE val) { GetPropTree()->put( FullKey##SNAME (), val);     \
                                                                Cache##SNAME.SetCache( val );}  \
-
+ 
 /*
  * Implements a implicit caching using the VarCache class
  */
@@ -123,7 +123,7 @@ public:
 			BOOST_FOREACH(boost::property_tree::ptree::value_type & v,
 						  propTree->get_child(path))
 			{
-				fvec.push_back(v.second.data());
+				fvec.emplace_back(v.second.data());
 			}
 		}
 		catch (boost::property_tree::ptree_bad_path& e)
@@ -144,7 +144,7 @@ public:
 			BOOST_FOREACH(boost::property_tree::ptree::value_type & v,
 						  propTree->get_child(path))
 			{
-				fvec.push_back(atof(v.second.data().c_str()));
+				fvec.emplace_back(atof(v.second.data().c_str()));
 			}
 		}
 		catch (boost::property_tree::ptree_bad_path& e)
@@ -163,7 +163,7 @@ public:
 			BOOST_FOREACH(boost::property_tree::ptree::value_type & v,
 						  propTree.get_child(path))
 			{
-				fvec.push_back(atof(v.second.data().c_str()));
+				fvec.emplace_back(atof(v.second.data().c_str()));
 			}
 		}
 		catch (boost::property_tree::ptree_bad_path& e)
@@ -182,7 +182,7 @@ public:
 			BOOST_FOREACH(boost::property_tree::ptree::value_type & v,
 						  propTree.get_child(path))
 			{
-				fvec.push_back(atof(v.second.data().c_str()));
+				fvec.emplace_back(atof(v.second.data().c_str()));
 			}
 		}
 		catch (boost::property_tree::ptree_bad_path& e)
@@ -200,7 +200,7 @@ public:
 			BOOST_FOREACH(boost::property_tree::ptree::value_type & v,
 						  propTree->get_child(path))
 			{
-				fvec.push_back(atof(v.second.data().c_str()));
+				fvec.emplace_back(atof(v.second.data().c_str()));
 			}
 		}
 		catch (boost::property_tree::ptree_bad_path& e)

@@ -21,13 +21,13 @@ public:
 		{
 			if (m_basealgorithms[i] == "AK5PF")
 			{
-				m_algorithms.push_back("AK5PFJetsL1L2L3");
-				m_genalgorithms.push_back("AK5GenJets");
+				m_algorithms.emplace_back("AK5PFJetsL1L2L3");
+				m_genalgorithms.emplace_back("AK5GenJets");
 			}
 			else if (m_basealgorithms[i] == "AK5PFchs")
 			{
-				m_algorithms.push_back("AK5PFJetsCHSL1L2L3");
-				m_genalgorithms.push_back("AK5GenJets");
+				m_algorithms.emplace_back("AK5PFJetsCHSL1L2L3");
+				m_genalgorithms.emplace_back("AK5GenJets");
 			}
 			else
 				LOG_FATAL(Name() << ": Couldnt process base algorithm " << m_basealgorithms[i])
