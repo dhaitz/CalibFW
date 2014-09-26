@@ -309,38 +309,38 @@ private:
 		}
 		else if (string == "genmupluspt")
 		{
-			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
-				if (it->charge() > 0) return it->p4.Pt();
+			for (const auto & it : metaData.m_genMuons)
+				if (it.charge() > 0) return it.p4.Pt();
 			return -999;
 		}
 		else if (string == "genmupluseta")
 		{
-			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
-				if (it->charge() > 0) return it->p4.Eta();
+			for (const auto & it : metaData.m_genMuons)
+				if (it.charge() > 0) return it.p4.Eta();
 			return -999;
 		}
 		else if (string == "genmuplusphi")
 		{
-			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
-				if (it->charge() > 0) return it->p4.Phi();
+			for (const auto & it : metaData.m_genMuons)
+				if (it.charge() > 0) return it.p4.Phi();
 			return -999;
 		}
 		else if (string == "genmuminuspt")
 		{
-			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
-				if (it->charge() < 0) return it->p4.Pt();
+			for (const auto & it : metaData.m_genMuons)
+				if (it.charge() < 0) return it.p4.Pt();
 			return -999;
 		}
 		else if (string == "genmuminuseta")
 		{
-			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
-				if (it->charge() < 0) return it->p4.Eta();
+			for (const auto & it : metaData.m_genMuons)
+				if (it.charge() < 0) return it.p4.Eta();
 			return -999;
 		}
 		else if (string == "genmuminusphi")
 		{
-			for (auto it = metaData.m_genMuons.begin(); it != metaData.m_genMuons.end(); it++)
-				if (it->charge() < 0) return it->p4.Phi();
+			for (const auto & it : metaData.m_genMuons)
+				if (it.charge() < 0) return it.p4.Phi();
 			return -999;
 		}
 		else if (string == "nmuons")
@@ -351,38 +351,38 @@ private:
 		//gen electron
 		else if (string == "genepluspt")
 		{
-			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
-				if (it->charge() > 0) return it->p4.Pt();
+			for (const auto & it : metaData.m_genInternalElectrons)
+				if (it.charge() > 0) return it.p4.Pt();
 			return -999;
 		}
 		else if (string == "genepluseta")
 		{
-			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
-				if (it->charge() > 0) return it->p4.Eta();
+			for (const auto & it : metaData.m_genInternalElectrons)
+				if (it.charge() > 0) return it.p4.Eta();
 			return -999;
 		}
 		else if (string == "geneplusphi")
 		{
-			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
-				if (it->charge() > 0) return it->p4.Phi();
+			for (const auto & it : metaData.m_genInternalElectrons)
+				if (it.charge() > 0) return it.p4.Phi();
 			return -999;
 		}
 		else if (string == "geneminuspt")
 		{
-			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
-				if (it->charge() < 0) return it->p4.Pt();
+			for (const auto & it : metaData.m_genInternalElectrons)
+				if (it.charge() < 0) return it.p4.Pt();
 			return -999;
 		}
 		else if (string == "geneminuseta")
 		{
-			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
-				if (it->charge() < 0) return it->p4.Eta();
+			for (const auto & it : metaData.m_genInternalElectrons)
+				if (it.charge() < 0) return it.p4.Eta();
 			return -999;
 		}
 		else if (string == "geneminusphi")
 		{
-			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
-				if (it->charge() < 0) return it->p4.Phi();
+			for (const auto & it : metaData.m_genInternalElectrons)
+				if (it.charge() < 0) return it.p4.Phi();
 			return -999;
 		}
 		else if (string == "ngenelectrons")
@@ -410,11 +410,11 @@ private:
 		{
 			double dR = 999.;
 			double d = dR;
-			for (auto mu = metaData.m_genMuons.begin(); mu != metaData.m_genMuons.end(); mu++)
-				for (auto ph = metaData.m_genPhotons.begin(); ph != metaData.m_genPhotons.end(); ph++)
+			for (const auto & mu : metaData.m_genMuons)
+				for (const auto & ph : metaData.m_genPhotons)
 				{
-					d = ROOT::Math::VectorUtil::DeltaR(mu->p4, ph->p4);
-					if (d < dR && ph->p4.Pt() > 1)
+					d = ROOT::Math::VectorUtil::DeltaR(mu.p4, ph.p4);
+					if (d < dR && ph.p4.Pt() > 1)
 						dR = d;
 				}
 			return dR;
@@ -423,9 +423,9 @@ private:
 		{
 			const double dR = 0.3;
 			int n = 0;
-			for (auto mu = metaData.m_genMuons.begin(); mu != metaData.m_genMuons.end(); mu++)
-				for (auto ph = metaData.m_genPhotons.begin(); ph != metaData.m_genPhotons.end(); ph++)
-					if (ROOT::Math::VectorUtil::DeltaR(mu->p4, ph->p4) < dR)
+			for (const auto & mu : metaData.m_genMuons)
+				for (const auto & ph : metaData.m_genPhotons)
+					if (ROOT::Math::VectorUtil::DeltaR(mu.p4, ph.p4) < dR)
 						n++;
 			return n;
 		}
@@ -433,24 +433,24 @@ private:
 		{
 			const double dR = 0.3;
 			double pt = 0;
-			for (auto mu = metaData.m_genMuons.begin(); mu != metaData.m_genMuons.end(); mu++)
-				for (auto ph = metaData.m_genPhotons.begin(); ph != metaData.m_genPhotons.end(); ph++)
-					if (ROOT::Math::VectorUtil::DeltaR(mu->p4, ph->p4) < dR)
-						pt += ph->p4.Pt();
+			for (const auto & mu : metaData.m_genMuons)
+				for (const auto & ph : metaData.m_genPhotons)
+					if (ROOT::Math::VectorUtil::DeltaR(mu.p4, ph.p4) < dR)
+						pt += ph.p4.Pt();
 			return pt;
 		}
 		else if (string == "ptgenphotonsfar")
 		{
 			const double dR = 0.3;
 			double pt = 0;
-			for (auto mu = metaData.m_genMuons.begin(); mu != metaData.m_genMuons.end(); mu++)
+			for (const auto & mu : metaData.m_genMuons)
 			{
 				// look at a cone perpendicular to the muon
-				KGenParticle nomu = *mu;
+				KGenParticle nomu = mu;
 				nomu.p4.SetPhi(nomu.p4.Phi() + ROOT::Math::Pi() / 2);
-				for (auto ph = metaData.m_genPhotons.begin(); ph != metaData.m_genPhotons.end(); ph++)
-					if (ROOT::Math::VectorUtil::DeltaR(nomu.p4, ph->p4) < dR)
-						pt += ph->p4.Pt();
+				for (const auto & ph : metaData.m_genPhotons)
+					if (ROOT::Math::VectorUtil::DeltaR(nomu.p4, ph.p4) < dR)
+						pt += ph.p4.Pt();
 			}
 			return pt;
 		}
@@ -516,20 +516,20 @@ private:
 		else if (string == "deltaReplusgeneplus")
 		{
 
-			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
+			for (const auto & it : metaData.m_genInternalElectrons)
 			{
-				if (it->charge() > 0)
-					return ROOT::Math::VectorUtil::DeltaR(metaData.leadingeplus.p4, it->p4);
+				if (it.charge() > 0)
+					return ROOT::Math::VectorUtil::DeltaR(metaData.leadingeplus.p4, it.p4);
 			}
 			return 999;
 		}
 		else if (string == "deltaReminusgeneminus")
 		{
 
-			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
+			for (const auto & it : metaData.m_genInternalElectrons)
 			{
-				if (it->charge() < 0)
-					return ROOT::Math::VectorUtil::DeltaR(metaData.leadingeminus.p4, it->p4);
+				if (it.charge() < 0)
+					return ROOT::Math::VectorUtil::DeltaR(metaData.leadingeminus.p4, it.p4);
 			}
 			return 999;
 		}
@@ -732,8 +732,8 @@ private:
 
 			KDataLV v = * metaData.GetValidJet(s, event, 0, genName);
 			if (metaData.m_neutrinos[genName].size() > 0)
-				for (auto it = metaData.m_neutrinos[genName].begin(); it != metaData.m_neutrinos[genName].end(); ++it)
-					v.p4 += it->p4;
+				for (const auto & it : metaData.m_neutrinos[genName])
+					v.p4 += it.p4;
 			return v.p4.Pt();
 		}
 		else if (string == "genjet1eta")
@@ -792,8 +792,8 @@ private:
 			KDataLV v = * metaData.GetValidPrimaryJet(s, event);
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 			if (metaData.m_neutrinos[genName].size() > 0)
-				for (auto it = metaData.m_neutrinos[genName].begin(); it != metaData.m_neutrinos[genName].end(); ++it)
-					v.p4 += it->p4;
+				for (const auto & it : metaData.m_neutrinos[genName])
+					v.p4 += it.p4;
 			return v.p4.Pt();
 		}
 		else if (string == "mpfneutrinos")
@@ -801,8 +801,8 @@ private:
 			KDataPFMET met = * metaData.GetMet(event, s);
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 			if (metaData.m_neutrinos[genName].size() > 0)
-				for (auto it = metaData.m_neutrinos[genName].begin(); it != metaData.m_neutrinos[genName].end(); ++it)
-					met.p4 -= it->p4;
+				for (const auto & it : metaData.m_neutrinos[genName])
+					met.p4 -= it.p4;
 			met.p4.SetEta(0);
 			return metaData.GetMPF(&met);
 		}
@@ -811,8 +811,8 @@ private:
 			KDataLV v;
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 			if (metaData.m_neutrals3[genName].size() > 0)
-				for (auto it = metaData.m_neutrals3[genName].begin(); it != metaData.m_neutrals3[genName].end(); ++it)
-					v.p4 += it->p4;
+				for (const auto & it : metaData.m_neutrals3[genName])
+					v.p4 += it.p4;
 			return v.p4.Pt();
 		}
 		else if (string == "neutralpt5")
@@ -820,8 +820,8 @@ private:
 			KDataLV v;
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 			if (metaData.m_neutrals5[genName].size() > 0)
-				for (auto it = metaData.m_neutrals5[genName].begin(); it != metaData.m_neutrals5[genName].end(); ++it)
-					v.p4 += it->p4;
+				for (const auto & it : metaData.m_neutrals5[genName])
+					v.p4 += it.p4;
 			return v.p4.Pt();
 		}
 		else if (string == "unc")
