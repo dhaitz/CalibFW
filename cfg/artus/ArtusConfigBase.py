@@ -148,9 +148,9 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
         config['GlobalProducer'] = [
             'valid_electron_producer', 'electron_corrector',
             'valid_muon_producer', 'muon_corrector',
-            'zee_producer',
+            'zemu_producer',
         ]
-        config['Pipelines']['default']['QuantitiesVector'] + [
+        config['Pipelines']['default']['QuantitiesVector'] = [
             "zpt", "zmass"
         ]
         config['ElectronID'] = 'loose'
@@ -176,7 +176,7 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
         config['electrons'] = ''
         config['Channel'] = 'mm'
 
-    if tagged:
+    if tagged and analysis is not 'zemu':
         config['Pipelines']['default']['QuantitiesVector'] += [
             "qglikelihood", "qgmlp",
             "combinedsecondaryvertexbjettag", "combinedsecondaryvertexmvabjettag",
@@ -420,7 +420,7 @@ def GetCuts(analysis='zmumu'):
             'CutBack2Back': 0.34,
 
             'Filter': ['valid_z', 'valid_jet', 'metfilter', 'incut'],
-        }
+        },
         'zemu': {
             'GenCuts': False,
             'Cuts': [

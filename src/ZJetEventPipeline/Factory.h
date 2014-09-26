@@ -93,6 +93,8 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else if (ZEEProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ZEEProducer());
+		else if (ZEMuProducer::Name() == *it)
+			runner.AddGlobalMetaProducer(new ZEMuProducer());
 		else if (ValidElectronProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new ValidElectronProducer(
 											 globalSettings.get<std::string>("ElectronID"),

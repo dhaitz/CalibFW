@@ -200,7 +200,7 @@ public:
 		return "zee_producer";
 	}
 
-protected:
+private:
 	const double zmassRangeMin;
 	const double zmassRangeMax;
 };
@@ -209,9 +209,14 @@ protected:
     This Producer combines an electron and a muon to a Z-boson.
     To be used for data-driven background estimation studies.
 */
-class ZEMuProducer: public ZEEProducer
+class ZEMuProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
+
+	ZEMuProducer() : ZJetGlobalMetaDataProducerBase(),
+		//zmassRangeMin(71.19), zmassRangeMax(111.19)
+		zmassRangeMin(.0), zmassRangeMax(1000.)
+	{}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
 										ZJetMetaData& metaData,
@@ -261,8 +266,12 @@ public:
 
 	static std::string Name()
 	{
-		return "zee_producer";
+		return "zemu_producer";
 	}
+
+private:
+	const double zmassRangeMin;
+	const double zmassRangeMax;
 };
 
 }
