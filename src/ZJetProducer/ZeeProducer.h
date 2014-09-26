@@ -200,9 +200,69 @@ public:
 		return "zee_producer";
 	}
 
-private:
+protected:
 	const double zmassRangeMin;
 	const double zmassRangeMax;
+};
+
+/*
+    This Producer combines an electron and a muon to a Z-boson.
+    To be used for data-driven background estimation studies.
+*/
+class ZEMuProducer: public ZEEProducer
+{
+public:
+
+	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
+										ZJetMetaData& metaData,
+										ZJetPipelineSettings const& globalSettings) const
+	{
+		KDataElectrons const& valid_electrons = metaData.GetValidElectrons();
+		KDataMuons const& valid_muons = metaData.GetValidMuons();
+
+		if (valid_muons.size() < 1 || valid_electrons.size() < 1 || valid_muons.size() + valid_electrons.size() < 2)
+		{
+			// too few muons or electrons - no Z to produce here!
+			metaData.SetValidZ(false);
+			return false;
+		}
+
+		std::vector<KDataLV> z_cand;
+
+		// iterate over all electron-muon combination and look for valid combinations
+		for (const auto & m : valid_muons)
+		{
+			for (const auto & e : valid_electrons)
+			{
+				if (e.charge + m.charge == 0)
+				{
+					KDataLV z;
+					z.p4 = e.p4 + m.p4;
+
+					if (z.p4.mass() > zmassRangeMin && z.p4.mass() < zmassRangeMax)
+						z_cand.emplace_back(z);
+				}
+			}
+		}
+
+		//only return true if unambiguous result (= exactly one candidate found)
+		if (z_cand.size() == 1)
+		{
+			metaData.SetZ(z_cand[0]);
+			metaData.SetValidZ(true);
+			return true;
+		}
+		else
+		{
+			metaData.SetValidZ(false);
+			return false;
+		}
+	}
+
+	static std::string Name()
+	{
+		return "zee_producer";
+	}
 };
 
 }
