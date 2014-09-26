@@ -1,4 +1,7 @@
 #include "ZJetProducer/MetadataProducer.h"
+#include "ZJetProducer/ZProducer.h"
+#include "ZJetProducer/ValidMuonProducer.h"
+#include "ZJetProducer/ValidJetProducer.h"
 #include "ZJetProducer/Cuts.h"
 #include "ZJetProducer/WeightProducer.h"
 #include "ZJetProducer/PileupTruthProducer.h"
