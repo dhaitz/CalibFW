@@ -30,7 +30,9 @@ def options(
 
             labels=["data", "MC", "powheg"],
             colors=['black', '#CBDBF9', #'#236BB2',
-                    '#CC2828', '#458E2F', '#E5AD3D'],
+                    '#CC2828', '#458E2F', '#E5AD3D',
+                    'cornflowerblue', 'salmon', 'grey', 'mediumaquamarine'
+                    ],
             markers=["o", "f", "-"],
             lumi=19.789,
             energy=8,

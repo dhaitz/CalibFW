@@ -263,21 +263,23 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
         'ratio': True,
         'y': [None, None] + settings.get('ratiosubploty', [0.5, 1.5]),
         'fit': settings.get('ratiosubplotfit', None),
+        'legloc': False,
     }
     if len(files) == 2:
         changes.update({
-            'legloc': False,
             'labels': ['Ratio'],
+            'markers': ['o'],
             'xynames': [settings['xynames'][0], " / ".join(settings['labels'][:2])],
         })
     else:
         changes.update({
-            'legloc': settings.get('ratiosubplotlegloc', 'lower right'),
+            #'legloc': settings.get('ratiosubplotlegloc', 'lower right'),
             'labels': settings['labels'][1:],
             'colors': settings['colors'][1:],
             'markers': settings['markers'][1:],
             'xynames': [settings['xynames'][0], "Data/mc ratio"],
         })
+        
     if settings['stacked']:
         changes['xynames'] = [settings['xynames'][0], " / ".join([settings['labels'][0], 'mc'])]
 
