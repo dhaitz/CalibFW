@@ -143,6 +143,21 @@ def BaseConfig(inputtype, run='2012', analysis='zmumu', tagged=True, rundepMC=Fa
         config['electrons'] = 'electrons'
         config['Channel'] = 'ee'
         config['ExcludeECALGap'] = True
+    elif analysis == 'zemu':
+        # The order of these producers is important!
+        config['GlobalProducer'] = [
+            'valid_electron_producer', 'electron_corrector',
+            'valid_muon_producer', 'muon_corrector',
+            'zee_producer',
+        ]
+        config['Pipelines']['default']['QuantitiesVector'] + [
+            "zpt", "zmass"
+        ]
+        config['ElectronID'] = 'loose'
+        config['muons'] = 'muons'
+        config['electrons'] = 'correlectrons'
+        config['Channel'] = 'emu'
+        config['ExcludeECALGap'] = True
     else:
         # The order of these producers is important!
         config['GlobalProducer'] = [
@@ -405,6 +420,29 @@ def GetCuts(analysis='zmumu'):
             'CutBack2Back': 0.34,
 
             'Filter': ['valid_z', 'valid_jet', 'metfilter', 'incut'],
+        }
+        'zemu': {
+            'GenCuts': False,
+            'Cuts': [
+                'muon_pt',
+                'muon_eta',
+
+                'electron_eta',
+                'electron_pt',
+
+                'zmass_window',
+                'zpt',
+            ],
+            'CutMuonEta': 2.3,
+            'CutMuonPt': 20.0,
+
+            'CutElectronEta': 2.4,
+            'CutElectronPt': 25.0,
+
+            'CutZMassWindow': 10.0,
+            'CutZPt': 30.0,
+
+            'Filter': ['valid_z', 'incut'],
         }
     }
     if analysis not in cuts:
