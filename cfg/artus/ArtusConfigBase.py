@@ -323,6 +323,8 @@ def SetDataSpecific(cfg, run='2012', analysis='zmumu'):
         cfg['JsonFile'] = getPath() + "/data/json/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt"
         if analysis == 'zee':
             cfg['HltPaths'] = ["HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v%d" % v for v in range(15, 20)]
+        elif analysis == 'zemu':
+            cfg['HltPaths'] = ["HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v%d" % v for v in range(3, 10)] + ["HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v%d" % v for v in range(3, 10)]
         else:
             cfg['HltPaths'] = ["HLT_Mu17_Mu8_v%d" % v for v in range(1, 30)]
         cfg['PileupTruth'] = getPath() + "/data/pileup/pumean_pixelcorr.txt"
@@ -424,11 +426,11 @@ def GetCuts(analysis='zmumu'):
         'zemu': {
             'GenCuts': False,
             'Cuts': [
-                'muon_pt',
-                'muon_eta',
+                #'muon_pt',
+                #'muon_eta',
 
-                'electron_eta',
-                'electron_pt',
+                #'electron_eta',
+                #'electron_pt',
 
                 'zmass_window',
                 'zpt',
