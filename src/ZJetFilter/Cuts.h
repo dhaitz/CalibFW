@@ -622,5 +622,47 @@ public:
 	static const long CutId = 1 << 19;
 };
 
+/*
+    This cut class implements some cuts specific to the e-mu channel.
+*/
+class ZemuCuts: public ZJetCutBase
+{
+public:
+
+	virtual void PopulateLocal(ZJetEventData const& data, ZJetMetaData const& metaData,
+							   ZJetMetaData::LocalMetaDataType& localMetaData,
+							   ZJetPipelineSettings const& m_pipelineSettings) const
+	{
+		bool allPassed = true;
+
+		for (auto mu: metaData.m_listValidMuons)
+			allPassed = allPassed 
+				&& mu.p4.Pt() > m_pipelineSettings.GetCutMuonPt()
+				&& abs(mu.p4.Eta()) < m_pipelineSettings.GetCutMuonEta();
+
+		for (auto e: metaData.m_listValidElectrons)
+			allPassed = allPassed 
+				&& e.p4.Pt() > m_pipelineSettings.GetCutElectronPt()
+				&& abs(e.p4.Eta()) < m_pipelineSettings.GetCutElectronEta();
+
+
+		localMetaData.SetCutResult(this->GetId(), allPassed);
+	}
+
+	unsigned long GetId() const
+	{
+		return ZemuCuts::CutId;
+	}
+	std::string GetCutName()
+	{
+		return "11) Zemu cut";
+	}
+	std::string GetCutShortName() const
+	{
+		return "zemu_cuts";
+	}
+	static const long CutId = 1 << 20;
+};
+
 
 }

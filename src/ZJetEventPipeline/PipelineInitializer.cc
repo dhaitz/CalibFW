@@ -78,11 +78,13 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 		else if (id == MuonPtCut().GetCutShortName())
 			pLine->AddMetaDataProducer(new MuonPtCut());
 
-
 		else if (id == ElectronEtaCut().GetCutShortName())
 			pLine->AddMetaDataProducer(new ElectronEtaCut());
 		else if (id == ElectronPtCut().GetCutShortName())
 			pLine->AddMetaDataProducer(new ElectronPtCut());
+
+		else if (id == ZemuCuts().GetCutShortName())
+			pLine->AddMetaDataProducer(new ZemuCuts());
 
 		else if (id == ZPtCut().GetCutShortName())
 			pLine->AddMetaDataProducer(new ZPtCut());

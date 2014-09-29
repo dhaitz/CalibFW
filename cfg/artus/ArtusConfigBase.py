@@ -428,6 +428,7 @@ def GetCuts(analysis='zmumu'):
             'Cuts': [
                 #'muon_pt',
                 #'muon_eta',
+                'zemu_cuts',
 
                 #'electron_eta',
                 #'electron_pt',
