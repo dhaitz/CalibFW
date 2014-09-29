@@ -1,7 +1,7 @@
 #include "EventPipeline/JetTools.h"
 
 #include "ZJetEventPipeline/Pipeline.h"
-#include "ZJetProducer/Cuts.h"
+#include "ZJetFilter/Cuts.h"
 
 
 using namespace Artus;

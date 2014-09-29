@@ -2,7 +2,7 @@
 
 #include "ZJetEventPipeline/PipelineInitializer.h"
 
-#include "ZJetProducer/Cuts.h"
+#include "ZJetFilter/Cuts.h"
 #include "ZJetProducer/WeightProducer.h"
 #include "ZJetProducer/MetadataProducer.h"
 #include "ZJetProducer/HltSelector.h"

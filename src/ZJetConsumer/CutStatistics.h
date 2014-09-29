@@ -11,7 +11,7 @@
 #include "../ZJetEventPipeline/Pipeline.h"
 #include "ZJetConsumer.h"
 
-#include "../ZJetProducer/Cuts.h"
+#include "../ZJetFilter/Cuts.h"
 #include "../ZJetFilter/InCutFilter.h"
 
 namespace Artus

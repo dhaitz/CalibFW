@@ -2,7 +2,7 @@
 #include "ZJetProducer/ZProducer.h"
 #include "ZJetProducer/ValidMuonProducer.h"
 #include "ZJetProducer/ValidJetProducer.h"
-#include "ZJetProducer/Cuts.h"
+#include "ZJetFilter/Cuts.h"
 #include "ZJetProducer/WeightProducer.h"
 #include "ZJetProducer/PileupTruthProducer.h"
 #include "ZJetProducer/JetCorrector.h"
