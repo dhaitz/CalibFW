@@ -20,19 +20,40 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
 def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     """Main function for all 1D  plots."""
 
+    # if files are not given as argument, open:
+    # TODO: "[]" is a workaround because we cannot leave the files argument empty
+    if files == []:
+        files, opt = openRootFiles(settings['files'], opt)
+
     # if no settings are given, create:
     settings = plotbase.getSettings(opt, changes, settings, quantity)
     print "A %s plot is created with the following selection: %s" % (quantity,
                                                           settings['selection'])
 
-    # if files are not given as argument, open:
-    # TODO: "[]" is a workaround because we cannot leave the files argument empty
-    if files == []:
-        files = [getroot.openfile(f) for f in settings['files']]
+    mplhistos, rootobjects = getHistos(quantity, files, settings)
 
-    if 'flavour' in settings['xynames'][0]:
-        settings['nbins'] = 25
+    # if true, save as root file:
+    if settings['root'] is not False:
+        getroot.saveasroot(rootobjects, opt, settings)
+        return
 
+    fig, ax = plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes)
+
+    formatting(ax, settings, opt, mplhistos, rootobjects)
+
+    # save it
+    if settings['subplot']:
+        del rootobjects
+        return
+    else:
+        settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
+        plotbase.Save(fig, settings)
+
+
+def getHistos(quantity, files, settings):
+    """
+        Creates and returns lists of the root and MPL histograms
+    """
     # create list with histograms from a ttree/tntuple
     mplhistos, rootobjects = [], []
     settings['events'] = []
@@ -71,22 +92,13 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
                 newobjects += [getroot.rootdivision([copy, obj], settings['normalize'])]
                 mplhistos += [getroot.root2histo(newobjects[-1], files[0].GetName(), 1)]
             rootobjects = newobjects
-
-    # create an additional ratio subplot at the bottom:
-    #TODO this is only kept for backwards compatibility! remove at some point
-    if settings['ratiosubplot'] and not settings['subplot']:
-        ratiosubplot(quantity, files, opt, settings)
-        return
-
-    # if true, save as root file:
-    if settings['root'] is not False:
-        getroot.saveasroot(rootobjects, opt, settings)
-        return
-
-    plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes)
+    return mplhistos, rootobjects
 
 
 def plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes=None):
+    """
+        Creates the figure and axis objects and plots the histogram lists
+    """
 
     # use the argument-given fig/axis or create new one:
     if settings['subplot'] == True:
@@ -151,16 +163,7 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes=Non
         ratioerr = math.sqrt(settings['fitvalues'][1][1] ** 2 + settings['fitvalues'][0][1] ** 2)
         ax.text(0.03, 0.95 - (len(mplhistos) / 20.), r"$\mathrm{Ratio:\hspace{1.5}} R = %1.3f\pm%1.3f$" % (ratio, ratioerr),
                va='top', ha='left', transform=ax.transAxes, color='black')
-
-    formatting(ax, settings, opt, mplhistos, rootobjects)
-
-    # save it
-    if settings['subplot']:
-        del rootobjects
-        return
-    else:
-        settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
-        plotbase.Save(fig, settings)
+    return fig, ax
 
 
 def formatting(ax, settings, opt, mplhistos, rootobjects=None):
@@ -279,7 +282,7 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
             'markers': settings['markers'][1:],
             'xynames': [settings['xynames'][0], "Data/mc ratio"],
         })
-        
+
     if settings['stacked']:
         changes['xynames'] = [settings['xynames'][0], " / ".join([settings['labels'][0], 'mc'])]
 

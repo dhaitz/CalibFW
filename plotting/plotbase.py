@@ -43,13 +43,7 @@ def plot(op):
     if op.verbose:
         showoptions(op)
 
-    print "Number of files:", len(op.files)
-    files = []
-    for f in op.files:
-        print "Using as file", 1 + op.files.index(f), ":", f
-        files += [getroot.openfile(f, op.verbose)]
-
-    op = readMetaInfosFromRootFiles(files, op)
+    files, op = openRootFiles(op.files, op)
 
     startop = copy.deepcopy(op)
 
@@ -63,27 +57,25 @@ def plot(op):
 
     remaining_plots = copy.deepcopy(plots)
     # 1. Look if you can direcly call functions in the modules
-    for module in module_list:
-        if op.verbose:
-            print "%1.2f | Start plotting" % clock()
-        if not plots:
-            print "Nothing to do. Please list the plots you want!"
-            plots = []
-        for p in plots:
+    if not plots:
+        print "Nothing to do. Please list the plots you want!"
+        plots = []
+    for p in plots:
+        for module in module_list:
             if hasattr(module, p):  # plot directly as a function
                 print "Doing %s in %s" % (p, module.__name__)
                 getattr(module, p)(files, op)
                 remaining_plots.remove(p)
         if op != startop:
             whichfunctions += [p + " in " + module.__name__]
-        if op.verbose:
-            print "%1.2f | End" % clock()
     # 2. remaining plots are given to the functionSelector
     if len(remaining_plots) > 0:
         print "Doing remaining plots via function selector..."
-        functionSelector(remaining_plots, files, op)
+        for plot in remaining_plots:
+            functionSelector(plot, files, op)
 
     # check whether the options have changed and warn
+    # TODO remove the focus on the opt object, rather check the settings?
     if op != startop:
         print "WARNING: The following options have been modified by a plot:"
         for key in dir(op):
@@ -102,35 +94,34 @@ except NameError:
     pass  # not running with profiler
 
 
-def functionSelector(plots, datamc, opt):
+def functionSelector(plot, datamc, opt):
     """ The functionSelector takes a list of plots and assigns them to a funtion,
         according to naming conventions.
     """
-    for plot in plots:
-        if '2D' in plot:
-            plot2d.twoD(plot[3:], datamc, opt)
-        elif "_all" in plot:
-            plot1d.datamc_all(plot[:-4], datamc, opt)
+    if '2D' in plot:
+        plot2d.twoD(plot[3:], datamc, opt)
+    elif "_all" in plot:
+        plot1d.datamc_all(plot[:-4], datamc, opt)
 
-        # for responseratio-plots
-        elif 'responseratio' in plot and len(plot.split('_')) > 2:
-            plotresponse.responseratio(datamc, opt,
-                            types=plot.split('_responseratio_')[0].split('_'),
-                            over=plot.split('_responseratio_')[1])
-        elif 'response' in plot and len(plot.split('_')) > 2:
-            plot = plot.replace('bal', 'balresp')
-            plotresponse.responseplot(datamc, opt,
-                            types=plot.split('_response_')[0].split('_'),
-                            over=plot.split('_response_')[1])
-        elif 'ratio' in plot and len(plot.split('_')) > 2:
-            plot = plot.replace('bal', 'balresp')
-            plotresponse.ratioplot(datamc, opt,
-                            types=plot.split('_ratio_')[0].split('_'),
-                            over=plot.split('_ratio_')[1])
-        elif opt.ratiosubplot is True:
-            plot1d.plot1dratiosubplot(plot, datamc, opt)
-        else:  # simple 1D plot
-            plot1d.plot1d(plot, datamc, opt)
+    # for responseratio-plots
+    elif 'responseratio' in plot and len(plot.split('_')) > 2:
+        plotresponse.responseratio(datamc, opt,
+                        types=plot.split('_responseratio_')[0].split('_'),
+                        over=plot.split('_responseratio_')[1])
+    elif 'response' in plot and len(plot.split('_')) > 2:
+        plot = plot.replace('bal', 'balresp')
+        plotresponse.responseplot(datamc, opt,
+                        types=plot.split('_response_')[0].split('_'),
+                        over=plot.split('_response_')[1])
+    elif 'ratio' in plot and len(plot.split('_')) > 2:
+        plot = plot.replace('bal', 'balresp')
+        plotresponse.ratioplot(datamc, opt,
+                        types=plot.split('_ratio_')[0].split('_'),
+                        over=plot.split('_ratio_')[1])
+    elif opt.ratiosubplot is True:
+        plot1d.plot1dratiosubplot(plot, datamc, opt)
+    else:  # simple 1D plot
+        plot1d.plot1d(plot, datamc, opt)
 
 
 def debug(string):
@@ -143,6 +134,23 @@ def debug(string):
 def fail(fail_message):
     print fail_message
     exit(0)
+
+
+def openRootFiles(filenames, opt=None):
+    """
+        Open the root files and read out the meta information
+    """
+    if len(filenames) == None:
+        return [], opt
+
+    print "Number of files:", len(filenames)
+    files = []
+    for f in opt.files:
+        print "Using as file", 1 + opt.files.index(f), ":", f
+        files += [getroot.openfile(f, opt.verbose)]
+
+    op = readMetaInfosFromRootFiles(files, opt)
+    return files, opt
 
 
 def printfiles(filelist):
@@ -483,6 +491,7 @@ def getDefaultFiles():
     for name in ['DATA', 'MC']:
         if os.environ.get(name, False):
             files.append(os.environ[name])
+    return files
 
 
 def Save(figure, settings=None, crop=True, pad=None):
