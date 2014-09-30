@@ -9,7 +9,7 @@ algorithms = ["AK5PFJetsL1L2L3"]
 base.addCHS(algorithms)
 base_algorithms = ["AK5PFJets", "AK5PFJetsCHS"]
 
-conf = base.ExpandConfig(algorithms, conf, expandptbins=False, alletaFolder=True, zcutsFolder=True)
+conf = base.ExpandConfig(algorithms, conf, expandptbins=False, alletaFolder=True, zcuts', 'incutFolder=True)
 
 base.AddCorrectionPlots(conf, base_algorithms, l3residual=False)
 base.AddCutConsumer(conf, algorithms)

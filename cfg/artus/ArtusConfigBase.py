@@ -536,21 +536,23 @@ def expand(config, variations=[], algorithms=[], default="default"):
             pipelines[v]['Cuts'] = []
             if 'incut' in pipelines[v]['Filter']:
                     pipelines[v]['Filter'].remove('incut')
-        if v == 'zcuts':
+        elif v == 'zcuts':
             pipelines[v] = copy.deepcopy(p)
             removelist = ['leadingjet_pt', 'back_to_back']
             for cut in removelist:
                 if cut in pipelines[v]['Cuts']:
                     pipelines[v]['Cuts'].remove(cut)
-        if v == 'fullcuts':
+        elif v == 'fullcuts':
             pipelines[v] = copy.deepcopy(p)
             pipelines[v]['Cuts'].append('leadingjet_eta')
             pipelines[v]['Cuts'].append('secondleading_to_zpt')
             pipelines[v]['CutLeadingJetEta'] = 1.3
             pipelines[v]['CutSecondLeadingToZPt'] = 0.2
+        elif v == 'incut':
+            pipelines[v] = copy.deepcopy(p)
 
-    # rename template pipline default to incut
-    pipelines['incut'] = pipelines.pop(default)
+    # remove template pipeline
+    pipelines.pop(default)
 
     # copy for algorithms, naming scheme: incut_algo
     for name, p in pipelines.items():

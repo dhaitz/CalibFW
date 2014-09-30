@@ -9,5 +9,5 @@ def config():
     )
     #conf['GlobalProducer'].remove('hlt_selector')
     #conf['Pipelines']['default']['Filter'].remove('hlt')
-    conf = base.expand(conf, ['all', 'zcuts'])
+    conf = base.expand(conf, ['all', 'zcuts', 'incut'])
     return conf

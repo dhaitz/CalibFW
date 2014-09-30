@@ -11,5 +11,5 @@ def config():
     conf['EnableTriggerReweighting'] = False
     conf['NEvents'] = 9799908
     conf['XSection'] = 17.654
-    conf = base.expand(conf, ['all', 'zcuts'])
+    conf = base.expand(conf, ['all', 'zcuts', 'incut'])
     return conf

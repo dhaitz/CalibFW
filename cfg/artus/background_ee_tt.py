@@ -15,5 +15,5 @@ def config():
     # https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
     # W decay leptonic BR = 0.324
     conf['electrons'] = 'correlectrons'
-    conf = base.expand(conf, ['all', 'zcuts'])
+    conf = base.expand(conf, ['all', 'zcuts', 'incut'])
     return conf

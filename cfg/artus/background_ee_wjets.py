@@ -12,5 +12,5 @@ def config():
     conf['NEvents'] = 57709905
     conf['XSection'] = 37509.8
     conf['electrons'] = 'correlectrons'
-    conf = base.expand(conf, ['all', 'zcuts'])
+    conf = base.expand(conf, ['all', 'zcuts', 'incut'])
     return conf

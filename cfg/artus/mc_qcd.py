@@ -9,4 +9,4 @@ def get_template():
     base.addCHS(algorithms)
     base_algorithms = ["AK5PFJets", "AK5PFJetsCHS"]
 
-    conf = base.ExpandConfig(algorithms, conf, expandptbins=False, alletaFolder=True, zcutsFolder=True)
+    conf = base.ExpandConfig(algorithms, conf, expandptbins=False, alletaFolder=True, zcuts', 'incutFolder=True)

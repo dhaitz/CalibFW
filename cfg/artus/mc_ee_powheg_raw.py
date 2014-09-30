@@ -11,6 +11,6 @@ def config():
     conf['NEvents'] = 3297045
     conf['XSection'] = 1966.7
     conf['PileupWeights'] = base.getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_2014_07_24_zee_powheg.root"
-    conf = base.expand(conf, ['all', 'zcuts'])
+    conf = base.expand(conf, ['all', 'zcuts', 'incut'])
     return conf
 
