@@ -9,39 +9,41 @@ class TypeIMETProducer: public ZJetGlobalMetaDataProducerBase
 public:
 
 	TypeIMETProducer(bool EnableMetPhiCorrection, stringvector baseAlgos, bool rc, bool isData) :
-		ZJetGlobalMetaDataProducerBase(), m_basealgorithms(baseAlgos), m_metphi(EnableMetPhiCorrection), m_rc(rc), m_isData(isData)
+		ZJetGlobalMetaDataProducerBase(), m_basealgorithms(baseAlgos),
+		m_metphi(EnableMetPhiCorrection), m_rc(rc), m_isData(isData),
+		jet_min_pt(10.)
 	{
 		if (m_rc)
 			LOG("Using RC Offset to calculate type-I corrections")
-			
-		for (unsigned int i = 0; i < m_basealgorithms.size(); i++)
-		{
-			std::string algoname_raw, algoname_l1;
-			std::vector<std::string> algorithms;
 
-			if (std::string::npos == m_basealgorithms[i].find("chs"))
+			for (unsigned int i = 0; i < m_basealgorithms.size(); i++)
 			{
-				m_isCHS.push_back(false);
-				algoname_raw = m_basealgorithms[i] + "Jets";
-			}
-			else
-			{
-				m_isCHS.push_back(true);
-				algoname_raw = m_basealgorithms[i].substr(0, 5) + "JetsCHS";
-			}
+				std::string algoname_raw, algoname_l1;
+				std::vector<std::string> algorithms;
 
-		if (m_rc)
-				m_l1algorithms.emplace_back(algoname_raw + "RC");
-			else
-				m_l1algorithms.emplace_back(algoname_raw + "L1");
-				
-			algorithms.emplace_back(algoname_raw + "L1L2L3");
-			//if data, add residuals:
-			if (m_isData)
-				algorithms.emplace_back(algoname_raw + "L1L2L3Res");
-				
-			m_algorithms.emplace_back(algorithms);
-		}
+				if (std::string::npos == m_basealgorithms[i].find("chs"))
+				{
+					m_isCHS.push_back(false);
+					algoname_raw = m_basealgorithms[i] + "Jets";
+				}
+				else
+				{
+					m_isCHS.push_back(true);
+					algoname_raw = m_basealgorithms[i].substr(0, 5) + "JetsCHS";
+				}
+
+				if (m_rc)
+					m_l1algorithms.emplace_back(algoname_raw + "RC");
+				else
+					m_l1algorithms.emplace_back(algoname_raw + "L1");
+
+				algorithms.emplace_back(algoname_raw + "L1L2L3");
+				//if data, add residuals:
+				if (m_isData)
+					algorithms.emplace_back(algoname_raw + "L1L2L3Res");
+
+				m_algorithms.emplace_back(algorithms);
+			}
 	}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
@@ -68,7 +70,7 @@ public:
 				{
 					KDataPFJet* corrjet = &metaData.m_validPFJets.at(m_algorithms[i][j]).at(k);
 
-					if (corrjet->p4.Pt() > 10)
+					if (corrjet->p4.Pt() > jet_min_pt)
 					{
 						KDataPFJet* l1jet = &metaData.m_validPFJets.at(m_l1algorithms[i]).at(k);
 						correction.p4 +=  l1jet->p4 - corrjet->p4;
@@ -110,9 +112,10 @@ public:
 
 private:
 	std::vector<std::string> m_basealgorithms;
-	bool m_metphi;
-	bool m_rc;
-	bool m_isData;
+	const bool m_metphi;
+	const bool m_rc;
+	const bool m_isData;
+	const float jet_min_pt;
 	std::vector<std::vector<std::string>> m_algorithms;
 	std::vector<std::string> m_l1algorithms;
 	std::vector<bool> m_isCHS;

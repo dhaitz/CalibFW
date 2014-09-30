@@ -1,7 +1,5 @@
 #pragma once
 
-//#include "ZJetEventPipeline/ZJetMetaData.h"
-
 namespace Artus
 {
 
@@ -9,22 +7,20 @@ class FlavourProducer: public ZJetGlobalMetaDataProducerBase
 {
 public:
 
-	FlavourProducer() : ZJetGlobalMetaDataProducerBase() {}
+	FlavourProducer() : ZJetGlobalMetaDataProducerBase(), dist(0.3) {}
 
 	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
 										ZJetMetaData& metaData, ZJetPipelineSettings const& globalsettings) const
 	{
-		const float dist = 0.3;
 
-		for (ZJetMetaData::MetaPFJetContainer::iterator it = metaData.m_validPFJets.begin();
-			 it != metaData.m_validPFJets.end(); ++ it)
+		for (const auto & jetcontainer : metaData.m_validPFJets)
 		{
-			std::string sAlgoName = it->first;
+			std::string sAlgoName = jetcontainer.first;
 			KGenParticles matching_algo_partons;
 			KGenParticles matching_phys_partons;
-			KGenParticle* hardest_parton = NULL;
-			KGenParticle* hardest_b_quark = NULL;
-			KGenParticle* hardest_c_quark = NULL;
+			const KGenParticle* hardest_parton = NULL;
+			const KGenParticle* hardest_b_quark = NULL;
+			const KGenParticle* hardest_c_quark = NULL;
 
 			// get the reference jet:genjet by default, reco jet if no genjet available
 			KDataLV* ref_jet;
@@ -32,52 +28,35 @@ public:
 			KDataLVs* genJets = SafeMap<std::string, KDataLVs*>::Get(genName, event.m_genJets);
 			if (genJets->size() > 0)
 				ref_jet = &genJets->at(0);
-			else if (it->second->size() > 0)
-			{
-				ref_jet = & it->second->at(0);
-			}
+			else if (jetcontainer.second->size() > 0)
+				ref_jet = & jetcontainer.second->at(0);
 			else
 				return 0;
 
 			// iterate over all partons and select the ones close to the leading jet
-			for (auto it = metaData.m_genPartons.begin(); it != metaData.m_genPartons.end(); ++it)
+			for (const auto & parton : metaData.m_genPartons)
 			{
-				// Algorithmic:
-				if (it->status() != 3)
+				if (std::abs(ROOT::Math::VectorUtil::DeltaR(ref_jet->p4, parton.p4)) < dist)
 				{
-					if (std::abs(ROOT::Math::VectorUtil::DeltaR(ref_jet->p4, it->p4)) < dist)
+					// Algorithmic definition: hardest b-/c-quark/parton have to be determined
+					if (parton.status() != 3)
 					{
-						matching_algo_partons.emplace_back(*it);
-						if (std::abs(it->pdgId()) == 5)
-						{
-							if (hardest_b_quark == NULL)
-								hardest_b_quark = &(*it);
-							else if (it->p4.Pt() > hardest_b_quark->p4.Pt())
-								hardest_b_quark = &(*it);
-						}
-						else if (std::abs(it->pdgId()) == 4)
-						{
-							if (hardest_c_quark == NULL)
-								hardest_c_quark = &(*it);
-							else if (it->p4.Pt() > hardest_c_quark->p4.Pt())
-								hardest_c_quark = &(*it);
-						}
-						else if (hardest_parton == NULL)
-							hardest_parton = &(*it);
-						else if (it->p4.Pt() > hardest_parton->p4.Pt())
-							hardest_parton = &(*it);
+						matching_algo_partons.emplace_back(parton);
+						if (std::abs(parton.pdgId()) == 5 && (hardest_b_quark == NULL || parton.p4.Pt() > hardest_b_quark->p4.Pt()))
+							hardest_b_quark = &parton;
+						else if (std::abs(parton.pdgId()) == 4 && (hardest_c_quark == NULL || parton.p4.Pt() > hardest_c_quark->p4.Pt()))
+							hardest_c_quark = &parton;
+						else if (hardest_parton == NULL || parton.p4.Pt() > hardest_parton->p4.Pt())
+							hardest_parton = &parton;
 					}
-				}
-				// Physics
-				else
-				{
-					if (std::abs(ROOT::Math::VectorUtil::DeltaR(ref_jet->p4, it->p4)) < dist)
-						matching_phys_partons.emplace_back(*it);
+					// Physics definition
+					else
+						matching_phys_partons.emplace_back(parton);
 				}
 			}
 
 			// ALGORITHMIC DEFINITION
-			if (matching_algo_partons.size() == 1)      // exactly one match
+			if (matching_algo_partons.size() == 1)	  // exactly one match
 				metaData.m_algoparton[sAlgoName] = matching_algo_partons[0];
 			else if (hardest_b_quark && hardest_b_quark->p4.Pt() > 0.)
 				metaData.m_algoparton[sAlgoName] = * hardest_b_quark;
@@ -99,6 +78,10 @@ public:
 	{
 		return "flavour_producer";
 	}
+
+protected:
+	const float dist;
+
 };
 
 }

@@ -1,12 +1,5 @@
 #pragma once
 
-#include <boost/algorithm/string.hpp>
-#include <string>
-
-/*
-taken from https://twiki.cern.ch/twiki/bin/view/Main/EGammaScaleFactors2012
-*/
-
 namespace Artus
 {
 
@@ -23,19 +16,15 @@ public:
 										ZJetMetaData& metaData,
 										ZJetPipelineSettings const& globalSettings) const
 	{
-		int zcount = 0, nmuons = 0, ntaus = 0, nelectrons = 0;
-		for (auto it = data.m_lhe->begin(); it != data.m_lhe->end(); ++it)
+		int nmuons = 0, ntaus = 0, nelectrons = 0;
+
+		for (const auto & lheparticle : *data.m_lhe)
 		{
-			if (it->pdgId() == 23)
-			{
-				metaData.SetLHEZ(*it);
-				zcount += 1;
-			}
-			else if (std::abs(it->pdgId()) == 11)
+			if (std::abs(lheparticle.pdgId()) == 11)
 				nelectrons += 1;
-			else if (std::abs(it->pdgId()) == 13)
+			else if (std::abs(lheparticle.pdgId()) == 13)
 				nmuons += 1;
-			else if (std::abs(it->pdgId()) == 15)
+			else if (std::abs(lheparticle.pdgId()) == 15)
 				ntaus += 1;
 		}
 
@@ -43,10 +32,7 @@ public:
 		metaData.m_nLHEMuons = nmuons;
 		metaData.m_nLHETaus = ntaus;
 
-		// Can this be removed after checking the full dataset?
-		if (zcount != 1)
-			LOG_FATAL(zcount << " LHE Z bosons in the Event!?")
-			return true;
+		return true;
 	}
 
 	static std::string Name()

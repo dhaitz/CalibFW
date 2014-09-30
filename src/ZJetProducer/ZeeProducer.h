@@ -1,9 +1,5 @@
 #pragma once
 
-// from ROOT
-#include <Math/VectorUtil.h>
-#include "ZJetEventPipeline/Pipeline.h"
-
 namespace Artus
 {
 
@@ -133,7 +129,6 @@ class ZEEProducer: public ZJetGlobalMetaDataProducerBase
 public:
 
 	ZEEProducer() : ZJetGlobalMetaDataProducerBase(),
-		//zmassRangeMin(71.19), zmassRangeMax(111.19)
 		zmassRangeMin(.0), zmassRangeMax(1000.)
 	{}
 

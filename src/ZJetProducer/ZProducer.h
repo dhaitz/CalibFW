@@ -1,9 +1,5 @@
 #pragma once
 
-// from ROOT
-//#include <Math/VectorUtil.h>
-//#include "ZJetEventPipeline/Pipeline.h"
-
 namespace Artus
 {
 
@@ -59,14 +55,7 @@ public:
 					z.p4 = m1.p4 + m2.p4;
 
 					if (z.p4.mass() > zmassRangeMin && z.p4.mass() < zmassRangeMax)
-					{
 						z_cand.emplace_back(z);
-						//LOG("Found possible Z with mass " << z.p4.mass())
-					}
-					else
-					{
-						//LOG("Dropping Z because of wrong mass " << z.p4.mass())
-					}
 				}
 			}
 		}
