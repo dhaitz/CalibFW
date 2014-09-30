@@ -381,7 +381,7 @@ def createFileList(files, fast=False):
                 files = glob.glob(files)
             elif 'naf' in socket.gethostname():
                 # on naf3, /pnfs is mounted so we can directly access the files
-                if socket.gethostname() == 'nafhh-cms03.desy.de':
+                if socket.gethostname() in ['nafhh-cms04.desy.de', 'nafhh-cms03.desy.de']:
                     if "*.root" not in files:
                         files += "/*.root"
                     files = glob.glob(files)
