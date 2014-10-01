@@ -145,8 +145,8 @@ def openRootFiles(filenames, opt=None):
 
     print "Number of files:", len(filenames)
     files = []
-    for f in opt.files:
-        print "Using as file", 1 + opt.files.index(f), ":", f
+    for f in filenames:
+        print "Using as file", 1 + filenames.index(f), ":", f
         files += [getroot.openfile(f, opt.verbose)]
 
     op = readMetaInfosFromRootFiles(files, opt)

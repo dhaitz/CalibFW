@@ -15,6 +15,7 @@ import artus
 import plotbase
 import modules.plotrc as plotrc
 
+
 def options(
             # standard values go here:
 
@@ -29,16 +30,16 @@ def options(
             formats=['png'],
 
             labels=["data", "MC", "powheg"],
-            colors=['black', 
-                    '#7293cb', #light blue
-                    '#e1974c', #mustard yellow
-                    '#808585', #grey
-                    '#d35e60', #light red
-                    '#9067a7', #violet
-                    '#ab6857', #brown
-                    '#84ba5b', #green
-                    '#ccc210', #dirty yellow
-                    'cornflowerblue', 'salmon', 'grey', 'mediumaquamarine'
+            colors=['black',
+                    '#7293cb',  # light blue
+                    '#e1974c',  # mustard yellow
+                    '#808585',  # grey
+                    '#d35e60',  # light red
+                    '#9067a7',  # violet
+                    '#ab6857',  # brown
+                    '#84ba5b',  # green
+                    '#ccc210',  # dirty yellow
+                    'salmon', 'mediumaquamarine'
                     ],
             markers=["o", "f", "-"],
             lumi=19.789,
@@ -120,13 +121,13 @@ def options(
         help='special binning for npv, zpt, eta')
     general.add_argument('--nbins', type=int, default=nbins,
         help='number of bins in histogram. Default is %(default)s')
-    general.add_argument('-n', '--normalize', action='store_false', #make it float 0.0 is default
+    general.add_argument('-n', '--normalize', action='store_false',  # make it float 0.0 is default
         help="normalize Monte Carlo samples to the event count in data ")
     general.add_argument('-Y', '--year', type=int, default=2012,
         help="Year of data-taking. Default is %(default)s")
     general.add_argument('--factor', type=float, default=1.26,
         help="additional external weight for each MC event %(default)s")
-    general.add_argument('--efficiency', type=float, default=0.965**2,
+    general.add_argument('--efficiency', type=float, default=0.965 ** 2,
         help="trigger efficiency. Default is %(default)s")
     general.add_argument('--stacked', action='store_true',
         help="Stack the MC samples")
@@ -231,7 +232,7 @@ def options(
         help="Don't show the merlin logo at startup")
     general.add_argument('-w', '--www', action='store_true',
         help="Push output plots directly to your public EKP webspace")
-    general.add_argument( '--sync', action='store_true',
+    general.add_argument('--sync', action='store_true',
         help="After plotting, push all files in the output directory into the \
         corresponding folder on your local desktop ('plots/...')")
     general.add_argument('-u', '--uncertaintyband', action='store_true',
@@ -252,7 +253,7 @@ def options(
             if argument.startswith('-'):
                 print "\n  %s " % argument,
                 argument = argument.replace('-', '')
-                try: #make sure a negative number is parsed as value, not argument
+                try:  # make sure a negative number is parsed as value, not argument
                     argument = float(argument)
                     dic[arg].append(argument)
                 except:
@@ -263,7 +264,7 @@ def options(
                 #argument = float(argument)
                 dic[arg].append(argument)
         print "\033[0m"
-        
+
     # edit lists with one or no entries
     for key in dic.keys():
         if len(dic[key]) == 0:
@@ -282,6 +283,7 @@ def options(
     opt.npv = npv
     opt.cut = cut
     opt.eta = eta
+    opt.twoD = False
 
     if opt.www:
         opt.out = artus.getPath('SYNCDIR')
@@ -305,13 +307,9 @@ def options(
     opt.user_options = user_options
     opt.default_options = default_options
 
-    opt.brackets = False
-
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
 
     return opt
-
-
 
 
 if __name__ == "__main__":
@@ -355,7 +353,7 @@ if __name__ == "__main__":
         image_with_path = '%s/%s' % (opt.out, image)
         if 'ekplx' in userpc:
 
-            subprocess.call(['rsync', image_with_path, 
+            subprocess.call(['rsync', image_with_path,
                                       '%s:/usr/users/%s/plot.pdf' % (userpc, user)])
 
             # check if the imageviewer is running on the users local machine:
@@ -371,7 +369,7 @@ if __name__ == "__main__":
                     'DISPLAY=:0 %s /usr/users/%s/%s &' % (imageviewer, user, image)])
         else:
             #if logged in from laptop, start image viewer directly on portal machine
-           subprocess.Popen([imageviewer, image_with_path], stdout=subprocess.PIPE)
+            subprocess.Popen([imageviewer, image_with_path], stdout=subprocess.PIPE)
     elif opt.sync:
         remote = "%s:plots" % userpc
         subprocess.call(['rsync', opt.out, remote, "-r"])

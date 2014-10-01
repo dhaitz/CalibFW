@@ -15,41 +15,46 @@ def e08bkgr(files, opt):
             ['%s_mg' % q, '%s_pow' % q],
             ['Madgraph DY', r'Powheg DY$\rightarrow ee$'],
         ):
-            files = [getroot.openfile(fi) for fi in [
+            filenames = [
                 'work/data_ee_corr.root',
                 f,
                 'work/background_ee_zz.root',
                 'work/background_ee_wz.root',
                 'work/background_ee_tt.root',
+                'work/background_ee_tw.root',
                 'work/background_ee_ww.root',
                 'work/background_ee_wjets.root',
                 'work/background_ee_dytautau.root',
                 'work/background_ee_qcd.root',
-            ]]
+            ]
             background_labels = [
                 'ZZ',
                 'WZ',
                 r'$t\bar{t}$',
+                r'$t$W',
                 'WW',
                 r'$W$+jets',
                 r'DY$\rightarrow\tau\tau$',
                 'QCD',
             ]
-            opt = plotbase.readMetaInfosFromRootFiles(files, opt)
-            plot1d.plot1dratiosubplot(q, files, opt, changes={
+            changes  = {
                 'labels': ['data', label] + background_labels,
-                'selection': ['1']+ ['hlt']*8,
+                'selection': ['1']+ ['hlt']*15,
                 'folder': 'zcuts',
                 'nbins': 40,
                 'normalize': False,
-                'markers': ['o'] + ['f']*8,
+                'markers': ['o'] + ['f']*15,
                 'stacked': True,
                 'log': True,
                 'x': x,
                 'ratiosubploty': [0.5, 1.5],
                 'filename': filename,
                 'title': title,
-            })
+            }
+            if q != 'zpt':
+                changes['legloc'] = None
+            files, opt = plotbase.openRootFiles(filenames, opt)
+            plot1d.plot1dratiosubplot(q, files, opt, changes=changes)
 
 
 def e07hlt(files, opt):

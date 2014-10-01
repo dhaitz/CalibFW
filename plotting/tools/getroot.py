@@ -85,8 +85,8 @@ def getplotfromnick(nickname, rootfile, changes, settings):
     return root2histo(rootobject, rootfile.GetName(), rebin)
 
 
-def getplotfromtree(nickname, rootfile, settings, twoD=False, changes=None):
-    rootobject = histofromfile(nickname, rootfile, settings, twoD=False, changes=None)
+def getplotfromtree(nickname, rootfile, settings, changes=None):
+    rootobject = histofromfile(nickname, rootfile, settings, changes=None)
     histo = root2histo(rootobject, rootfile.GetName(), settings['rebin'])
     rootobject.Delete()
     return histo
@@ -186,7 +186,7 @@ def getBinning(quantity, settings, axis='x'):
     return array.array('d', bins)
 
 
-def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
+def histofromntuple(quantities, name, ntuple, settings, index=0):
     """ Extract a ROOT histogram from a ROOT TNtuple, either via the 'Project'
             method (for a predefined binning) or with 'Draw' method.
     """
@@ -201,7 +201,6 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
         for quantity, i in zip(copy_of_quantities, range(len(copy_of_quantities))):
             if key in quantity:
                 quantities[i] = quantities[i].replace(key, dictconvert(key))
-    #TODO with TTree UserInfo: http://root.cern.ch/phpBB3/viewtopic.php?f=3&t=16902
     if len(settings.get('types', [])) > index:
         isMC = settings['types'][index] == 'mc'
 
@@ -215,15 +214,15 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
 
     if settings['x'] != [0, 1]:
         xbins = getBinning(quantities[-1], settings)
-        if twoD and len(quantities) > 1:
+        if settings['twoD'] and len(quantities) > 1:
             ybins = getBinning(quantities[-2], settings, 'y')
 
         # determine the type of histogram to be created
         if len(quantities) == 1:
             roothisto = ROOT.TH1D(name, name, len(xbins) - 1, xbins)
-        elif len(quantities) == 2 and not twoD:
+        elif len(quantities) == 2 and not settings['twoD']:
             roothisto = ROOT.TProfile(name, name, len(xbins) - 1, xbins)
-        elif len(quantities) == 2 and twoD:
+        elif len(quantities) == 2 and settings['twoD']:
             roothisto = ROOT.TH2D(name, name, len(xbins) - 1, xbins, len(ybins) - 1, ybins)
         elif len(quantities) == 3:
             roothisto = ROOT.TProfile2D(name, name, len(xbins) - 1, xbins, len(ybins) - 1, ybins)
@@ -253,7 +252,7 @@ def histofromntuple(quantities, name, ntuple, settings, twoD=False, index=0):
     return roothisto
 
 
-def histofromfile(quantity, rootfile, settings, changes=None, twoD=False, index=0):
+def histofromfile(quantity, rootfile, settings, changes=None, index=0):
     """This function returns a root object
 
     If quantity is an object in the rootfile it is returned.
@@ -270,7 +269,7 @@ def histofromfile(quantity, rootfile, settings, changes=None, twoD=False, index=
     name = name.replace("/", "").replace(")", "").replace("(", "")
     #rootfile.Delete("%s;*" % name)
     quantities = quantity.split("_")
-    return histofromntuple(quantities, name, ntuple, settings, twoD=twoD, index=index)
+    return histofromntuple(quantities, name, ntuple, settings, index=index)
 
 
 try:
@@ -387,8 +386,8 @@ def root2histo(histo, rootfile='', rebin=1):
         hst.meanerr = histo.GetMeanError()
     elif histo.ClassName() == 'TH2D' or histo.ClassName() == 'TH2F' or histo.ClassName() == 'TProfile2D':
         hst = Histo2D()
-        histo.RebinX(rebin[0])
-        histo.RebinY(rebin[1])
+        histo.RebinX(rebin)
+        histo.RebinY(rebin)
         hst.source = rootfile
         hst.name = histo.GetName()
         hst.title = histo.GetTitle()
