@@ -11,6 +11,7 @@ public:
 
 	HltSelector(stringvector paths) : m_hltpaths(paths), m_verbose(false)
 	{
+		m_bestHltName.clear();
 	}
 
 	virtual void PopulateMetaData(ZJetEventData const& data,
@@ -23,30 +24,41 @@ public:
 	{
 		if (m_verbose)
 		{
-			for (std::vector< std::string >::const_iterator it = data.GetDataLumiMetadata()->hltNames.begin();
-				 it != data.GetDataLumiMetadata()->hltNames.end(); ++it)
+			for (const auto & it : data.GetDataLumiMetadata()->hltNames)
 			{
-				std::cout << *it << std::endl;
+				LOG(it);
 			}
 		}
 
+		// first, it is checked whether the m_bestHltName (set in a previous event)
+		// is also available and unprescaled for the current event
+		if (!m_bestHltName.empty()
+			&& metaData.m_hltInfo->isAvailable(m_bestHltName)
+			&& ! metaData.m_hltInfo->isPrescaled(m_bestHltName))
+		{
+			metaData.SetSelectedHlt(m_bestHltName);
+			return true;
+		}
+
+
 		bool unprescaledPathFound = false;
-		std::string bestHltName, curName;
+		std::string curName;
 
 		if (m_hltpaths.size() == 0)
 			LOG_FATAL("No Hlt Trigger path list configured");
 
-		for (stringvector::const_iterator it = m_hltpaths.begin();
-			 it != m_hltpaths.end(); ++it)
+		// second, if m_bestHltName cant be used, the entire list of trigger paths
+		// is checked for availability and prescale
+		for (const auto & it : m_hltpaths)
 		{
-			curName = metaData.m_hltInfo->getHLTName(*it);
+			curName = metaData.m_hltInfo->getHLTName(it);
 
 			if (m_verbose)
-				std::cout << *it << " becomes " << curName << std::endl;
+				std::cout << it << " becomes " << curName << std::endl;
 
 			if (!curName.empty())
 			{
-				bestHltName = curName;
+				m_bestHltName = curName;
 				if (!metaData.m_hltInfo->isPrescaled(curName))
 				{
 					unprescaledPathFound = true;
@@ -57,24 +69,23 @@ public:
 
 		if (!unprescaledPathFound)
 		{
-			LOG("Available Triggers:");
+			LOG("Available Triggers:")
 
-			for (std::vector< std::string >::const_iterator it = data.GetDataLumiMetadata()->hltNames.begin();
-				 it != data.GetDataLumiMetadata()->hltNames.end(); ++ it)
+			for (const auto & it : data.GetDataLumiMetadata()->hltNames)
 			{
-				LOG((*it) << " prescale: " << metaData.m_hltInfo->getPrescale(*it));
+				LOG(it << " prescale: " << metaData.m_hltInfo->getPrescale(it));
 			}
 
-			LOG_FATAL("No unprescaled trigger found for " << bestHltName << ", prescale: " << metaData.m_hltInfo->getPrescale(bestHltName) << ", event: " << data.m_eventmetadata->nRun);
+			LOG_FATAL("No unprescaled trigger found for " << m_bestHltName << ", prescale: " << metaData.m_hltInfo->getPrescale(m_bestHltName) << ", event: " << data.m_eventmetadata->nRun);
 		}
 
 		if (m_verbose)
-			LOG("selected " << bestHltName << " as best HLT, prescale: " << metaData.m_hltInfo->getPrescale(bestHltName));
+			LOG("selected " << m_bestHltName << " as best HLT, prescale: " << metaData.m_hltInfo->getPrescale(m_bestHltName));
 
-		if (bestHltName.empty())
+		if (m_bestHltName.empty())
 			LOG_FATAL("No HLT trigger path found at all!");
 
-		metaData.SetSelectedHlt(bestHltName);
+		metaData.SetSelectedHlt(m_bestHltName);
 		return true;
 	}
 
@@ -83,6 +94,8 @@ public:
 		return "hlt_selector";
 	}
 
+private:
+	mutable std::string m_bestHltName;
 	stringvector m_hltpaths;
 	bool m_verbose;
 
