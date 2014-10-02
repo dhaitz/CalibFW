@@ -16,16 +16,16 @@ public:
 	HltFilter() {}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
-		if (metaData.GetSelectedHlt().empty())
+		if (product.GetSelectedHlt().empty())
 			// no HLT found
 			return false;
 
 		// TODO: Report that we changed the HLT, if we did
 		// std::cout << "using trigger " << curName << std::endl;
-		return event.m_eventmetadata->hltFired(metaData.GetSelectedHlt(), event.m_lumimetadata);
+		return event.m_eventproduct->hltFired(product.GetSelectedHlt(), event.m_lumiproduct);
 	}
 
 	virtual std::string GetFilterId()

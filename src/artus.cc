@@ -159,7 +159,7 @@ int main(int argc, char** argv)
 		ZJetPipelineInitializer plineInit;
 		ZJetPipelineSettings* pset = NULL;
 
-		EventPipelineRunner<ZJetPipeline, ZJetGlobalMetaDataProducerBase> pRunner;
+		EventPipelineRunner<ZJetPipeline, ZJetGlobalProductProducerBase> pRunner;
 
 		BOOST_FOREACH(boost::property_tree::ptree::value_type & v,
 					  g_propTree.get_child("Pipelines"))
@@ -227,7 +227,7 @@ int main(int argc, char** argv)
 		ProfilerStart("artus.prof");
 #endif
 		//HeapProfilerStart( "resp_cuts.heap");
-		nevents = pRunner.RunPipelines<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>(evtProvider, settings);
+		nevents = pRunner.RunPipelines<ZJetEventData, ZJetProduct, ZJetPipelineSettings>(evtProvider, settings);
 
 		//HeapProfilerStop();
 #ifdef USE_PERFTOOLS

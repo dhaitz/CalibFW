@@ -34,39 +34,39 @@ protected:
 	}
 
 	virtual int getsize(ZJetEventData const& event,
-						ZJetMetaData const& metaData, ZJetPipelineSettings const& settings) const
+						ZJetProduct const& product, ZJetPipelineSettings const& settings) const
 	{
-		return metaData.GetValidJetCount(settings, event);
+		return product.GetValidJetCount(settings, event);
 	}
 
 	virtual KDataLV GetSingleObject(int n, ZJetEventData const& event,
-									ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
+									ZJetProduct const& product, ZJetPipelineSettings const& s) const
 	{
-		return * metaData.GetValidJet(s, event, n);
+		return * product.GetValidJet(s, event, n);
 	};
 
 
 	virtual float returnvalue(int n, std::string string, ZJetEventData const& event,
-							  ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
+							  ZJetProduct const& product, ZJetPipelineSettings const& s) const
 	{
 		if (string == "run")
-			return event.m_eventmetadata->nRun;
+			return event.m_eventproduct->nRun;
 		else if (string == "photonfraction")
-			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->photonFraction;
+			return static_cast<KDataPFJet*>(product.GetValidJet(s, event, n))->photonFraction;
 		else if (string == "chargedemfraction")
-			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->chargedEMFraction;
+			return static_cast<KDataPFJet*>(product.GetValidJet(s, event, n))->chargedEMFraction;
 		else if (string == "chargedhadfraction")
-			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->chargedHadFraction;
+			return static_cast<KDataPFJet*>(product.GetValidJet(s, event, n))->chargedHadFraction;
 		else if (string == "neutralhadfraction")
-			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->neutralHadFraction;
+			return static_cast<KDataPFJet*>(product.GetValidJet(s, event, n))->neutralHadFraction;
 		else if (string == "muonfraction")
-			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->muonFraction;
+			return static_cast<KDataPFJet*>(product.GetValidJet(s, event, n))->muonFraction;
 		else if (string == "HFhadfraction")
-			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->HFHadFraction;
+			return static_cast<KDataPFJet*>(product.GetValidJet(s, event, n))->HFHadFraction;
 		else if (string == "HFemfraction")
-			return static_cast<KDataPFJet*>(metaData.GetValidJet(s, event, n))->HFEMFraction;
+			return static_cast<KDataPFJet*>(product.GetValidJet(s, event, n))->HFEMFraction;
 		else
-			return NtupleObjectConsumerBase::returnvalue(n, string, event, metaData, s);
+			return NtupleObjectConsumerBase::returnvalue(n, string, event, product, s);
 	};
 
 };

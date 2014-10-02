@@ -4,7 +4,6 @@
 
 #include "ZJetFilter/Cuts.h"
 #include "ZJetProducer/WeightProducer.h"
-#include "ZJetProducer/MetadataProducer.h"
 #include "ZJetProducer/HltSelector.h"
 
 #include "ZJetFilter/ValidZFilter.h"
@@ -31,7 +30,7 @@
 using namespace Artus;
 
 //load filter, cuts and consumer from the settings and add them
-void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>* pLine,
+void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetProduct, ZJetPipelineSettings>* pLine,
 		ZJetPipelineSettings const& pset) const
 {
 	// Filter
@@ -74,46 +73,46 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetMeta
 	BOOST_FOREACH(std::string id, pset.GetCuts())
 	{
 		if (id == MuonEtaCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new MuonEtaCut());
+			pLine->AddProducer(new MuonEtaCut());
 		else if (id == MuonPtCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new MuonPtCut());
+			pLine->AddProducer(new MuonPtCut());
 
 		else if (id == ElectronEtaCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new ElectronEtaCut());
+			pLine->AddProducer(new ElectronEtaCut());
 		else if (id == ElectronPtCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new ElectronPtCut());
+			pLine->AddProducer(new ElectronPtCut());
 
 		else if (id == ZemuCuts().GetCutShortName())
-			pLine->AddMetaDataProducer(new ZemuCuts());
+			pLine->AddProducer(new ZemuCuts());
 
 		else if (id == ZPtCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new ZPtCut());
+			pLine->AddProducer(new ZPtCut());
 		else if (id == ZMassWindowCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new ZMassWindowCut());
+			pLine->AddProducer(new ZMassWindowCut());
 
 		else if (id == LeadingJetPtCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new LeadingJetPtCut());
+			pLine->AddProducer(new LeadingJetPtCut());
 		else if (id == LeadingJetEtaCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new LeadingJetEtaCut());
+			pLine->AddProducer(new LeadingJetEtaCut());
 
 		else if (id == BackToBackCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new BackToBackCut());
+			pLine->AddProducer(new BackToBackCut());
 		else if (id == SecondLeadingToZPtCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new SecondLeadingToZPtCut());
+			pLine->AddProducer(new SecondLeadingToZPtCut());
 		else if (id == SecondLeadingToZPtRegionCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new SecondLeadingToZPtRegionCut());
+			pLine->AddProducer(new SecondLeadingToZPtRegionCut());
 
 		// VBF
 		else if (id == SecondJetPtCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new SecondJetPtCut());
+			pLine->AddProducer(new SecondJetPtCut());
 		else if (id == SecondJetEtaCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new SecondJetEtaCut());
+			pLine->AddProducer(new SecondJetEtaCut());
 		else if (id == RapidityGapCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new RapidityGapCut());
+			pLine->AddProducer(new RapidityGapCut());
 		else if (id == InvariantMassCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new InvariantMassCut());
+			pLine->AddProducer(new InvariantMassCut());
 		else if (id == DeltaEtaCut().GetCutShortName())
-			pLine->AddMetaDataProducer(new DeltaEtaCut());
+			pLine->AddProducer(new DeltaEtaCut());
 		else
 			LOG_FATAL("Cut " << id << " not found.");
 	}

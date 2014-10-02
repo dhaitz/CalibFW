@@ -46,8 +46,8 @@ void KappaEventProvider<ZJetEventData>::WireEvent(boost::property_tree::ptree pr
 			m_event.m_lhe = m_fi.Get<KGenParticles>("LHE");
 	}
 
-	m_event.m_filtermetadata = m_fi.GetMeta<KFilterMetadata>("KFilterMetadata");
-	m_event.m_taggermetadata = m_fi.GetMeta<KTaggerMetadata>("KTaggerMetadata");
+	m_event.m_filterproduct = m_fi.GetMeta<KFilterMetadata>("KFilterMetadata");
+	m_event.m_taggerproduct = m_fi.GetMeta<KTaggerMetadata>("KTaggerMetadata");
 	m_event.m_filter = m_fi.Get<KFilterSummary>("filterSummary");
 }
 

@@ -10,13 +10,13 @@ namespace Artus
     1. muon isolation
     1. tight muonID
 */
-class ValidMuonProducer: public ZJetGlobalMetaDataProducerBase
+class ValidMuonProducer: public ZJetGlobalProductProducerBase
 {
 public:
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& globalSettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& data,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& globalSettings) const
 	{
 		// Apply muon isolation and MuonID
 		for (KDataMuons::iterator it = data.m_muons->begin();
@@ -55,9 +55,9 @@ public:
 						&& it->track.nPixelLayers + it->track.nStripLayers > 5 + 3 * is2011;
 
 			if (good_muon)
-				metaData.m_listValidMuons.emplace_back(*it);
+				product.m_listValidMuons.emplace_back(*it);
 			else
-				metaData.m_listInvalidMuons.emplace_back(*it);
+				product.m_listInvalidMuons.emplace_back(*it);
 		}
 
 		return true;

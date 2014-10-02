@@ -3,18 +3,18 @@
 namespace Artus
 {
 
-typedef GlobalMetaDataProducerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
-ZJetGlobalMetaDataProducerBase;
+typedef GlobalProductProducerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>
+ZJetGlobalProductProducerBase;
 
-class LHEProducer: public ZJetGlobalMetaDataProducerBase
+class LHEProducer: public ZJetGlobalProductProducerBase
 {
 public:
 
-	LHEProducer() : ZJetGlobalMetaDataProducerBase() {}
+	LHEProducer() : ZJetGlobalProductProducerBase() {}
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& globalSettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& data,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& globalSettings) const
 	{
 		int nmuons = 0, ntaus = 0, nelectrons = 0;
 
@@ -28,9 +28,9 @@ public:
 				ntaus += 1;
 		}
 
-		metaData.m_nLHEElectrons = nelectrons;
-		metaData.m_nLHEMuons = nmuons;
-		metaData.m_nLHETaus = ntaus;
+		product.m_nLHEElectrons = nelectrons;
+		product.m_nLHEMuons = nmuons;
+		product.m_nLHETaus = ntaus;
 
 		return true;
 	}

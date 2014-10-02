@@ -23,22 +23,22 @@ public:
 	}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
 		double response;
 
-		if (!metaData.HasValidZ() || !metaData.HasValidJet(settings, event))
+		if (!product.HasValidZ() || !product.HasValidJet(settings, event))
 			return false;
 
 		if (m_respType == Balance)
 		{
-			response = metaData.GetValidPrimaryJet(settings, event)->p4.Pt();
-			response /= metaData.GetRefZ().p4.Pt();
+			response = product.GetValidPrimaryJet(settings, event)->p4.Pt();
+			response /= product.GetRefZ().p4.Pt();
 		}
 		else
 		{
-			response = metaData.GetMPF(metaData.GetMet(event, settings));
+			response = product.GetMPF(product.GetMet(event, settings));
 		}
 
 		return (response >= settings.GetFilterResponseLow() &&

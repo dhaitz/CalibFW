@@ -3,22 +3,22 @@
 namespace Artus
 {
 
-typedef GlobalMetaDataProducerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
-ZJetGlobalMetaDataProducerBase;
+typedef GlobalProductProducerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>
+ZJetGlobalProductProducerBase;
 
-class ValidElectronProducer: public ZJetGlobalMetaDataProducerBase
+class ValidElectronProducer: public ZJetGlobalProductProducerBase
 {
 public:
 
-	ValidElectronProducer(std::string id, bool excludeecalgap) : ZJetGlobalMetaDataProducerBase(),
+	ValidElectronProducer(std::string id, bool excludeecalgap) : ZJetGlobalProductProducerBase(),
 		m_idstr(id), m_excludeecalgap(excludeecalgap)
 	{
 		m_electronID = ToElectronID(m_idstr);
 	}
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& globalSettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& data,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& globalSettings) const
 	{
 
 		for (KDataElectrons::iterator it = data.m_electrons->begin();
@@ -81,9 +81,9 @@ public:
 			}
 
 			if (good_electron)
-				metaData.m_listValidElectrons.emplace_back(*it);
+				product.m_listValidElectrons.emplace_back(*it);
 			else
-				metaData.m_listInvalidElectrons.emplace_back(*it);
+				product.m_listInvalidElectrons.emplace_back(*it);
 		}
 
 		return true;
@@ -124,24 +124,24 @@ private:
 };
 
 
-class ZEEProducer: public ZJetGlobalMetaDataProducerBase
+class ZEEProducer: public ZJetGlobalProductProducerBase
 {
 public:
 
-	ZEEProducer() : ZJetGlobalMetaDataProducerBase(),
+	ZEEProducer() : ZJetGlobalProductProducerBase(),
 		zmassRangeMin(.0), zmassRangeMax(1000.)
 	{}
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& globalSettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& data,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& globalSettings) const
 	{
-		KDataElectrons const& valid_electrons = metaData.GetValidElectrons();
+		KDataElectrons const& valid_electrons = product.GetValidElectrons();
 
 		if (valid_electrons.size() < 2)
 		{
 			// no Z to produce here
-			metaData.SetValidZ(false);
+			product.SetValidZ(false);
 			return false;
 		}
 
@@ -168,25 +168,25 @@ public:
 		if (leading_minus == -1 || leading_plus == -1)
 		{
 			// no Z to produce here
-			metaData.SetValidZ(false);
+			product.SetValidZ(false);
 			return false;
 		}
 
 
-		metaData.leadingeminus = valid_electrons.at(leading_minus);
-		metaData.leadingeplus = valid_electrons.at(leading_plus);
+		product.leadingeminus = valid_electrons.at(leading_minus);
+		product.leadingeplus = valid_electrons.at(leading_plus);
 
-		if (metaData.leadingeplus.p4.Pt() > metaData.leadingeminus.p4.Pt())
-			metaData.leadinge = metaData.leadingeplus;
+		if (product.leadingeplus.p4.Pt() > product.leadingeminus.p4.Pt())
+			product.leadinge = product.leadingeplus;
 		else
-			metaData.leadinge = metaData.leadingeminus;
+			product.leadinge = product.leadingeminus;
 
 
 		KDataLV z;
 		z.p4 = valid_electrons.at(leading_plus).p4 + valid_electrons.at(leading_minus).p4;
 
-		metaData.SetZ(z);
-		metaData.SetValidZ(true);
+		product.SetZ(z);
+		product.SetValidZ(true);
 		return true;
 	}
 
@@ -204,26 +204,26 @@ private:
     This Producer combines an electron and a muon to a Z-boson.
     To be used for data-driven background estimation studies.
 */
-class ZEMuProducer: public ZJetGlobalMetaDataProducerBase
+class ZEMuProducer: public ZJetGlobalProductProducerBase
 {
 public:
 
-	ZEMuProducer() : ZJetGlobalMetaDataProducerBase(),
+	ZEMuProducer() : ZJetGlobalProductProducerBase(),
 		//zmassRangeMin(71.19), zmassRangeMax(111.19)
 		zmassRangeMin(.0), zmassRangeMax(1000.)
 	{}
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& globalSettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& data,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& globalSettings) const
 	{
-		KDataElectrons const& valid_electrons = metaData.GetValidElectrons();
-		KDataMuons const& valid_muons = metaData.GetValidMuons();
+		KDataElectrons const& valid_electrons = product.GetValidElectrons();
+		KDataMuons const& valid_muons = product.GetValidMuons();
 
 		if (valid_muons.size() < 1 || valid_electrons.size() < 1 || valid_muons.size() + valid_electrons.size() < 2)
 		{
 			// too few muons or electrons - no Z to produce here!
-			metaData.SetValidZ(false);
+			product.SetValidZ(false);
 			return false;
 		}
 
@@ -248,13 +248,13 @@ public:
 		//only return true if unambiguous result (= exactly one candidate found)
 		if (z_cand.size() == 1)
 		{
-			metaData.SetZ(z_cand[0]);
-			metaData.SetValidZ(true);
+			product.SetZ(z_cand[0]);
+			product.SetValidZ(true);
 			return true;
 		}
 		else
 		{
-			metaData.SetValidZ(false);
+			product.SetValidZ(false);
 			return false;
 		}
 	}

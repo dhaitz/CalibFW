@@ -13,19 +13,19 @@
 namespace Artus
 {
 
-template<class TData, class TMetaData, class TSettings>
+template<class TData, class TProduct, class TSettings>
 class EventPipeline;
 
 /* Base class for your custom PipelineInitializer. Your custom code
  * can add Filters and Consumers to newly created pipelines.
  */
 
-template<class TData, class TMetaData, class TSettings>
+template<class TData, class TProduct, class TSettings>
 class PipelineInitilizerBase
 {
 public:
 	virtual void InitPipeline(
-		EventPipeline<TData, TMetaData, TSettings>* pLine,
+		EventPipeline<TData, TProduct, TSettings>* pLine,
 		TSettings const& pset) const = 0;
 
 };
@@ -35,10 +35,10 @@ public:
 
  \brief Base implementation of the EventPipeline paradigm
 
-  The EventPipline contains settings, filter and MetaDataProducer and Consumer which, when combined,
+  The EventPipline contains settings, filter and Producer and Consumer which, when combined,
   produce the desired output of a pipeline as soon as Events are send to the pipeline. An incoming event
   must not be changed by the pipeline but the pipeline can create additional data for an event using
-  MetaDataProducers.
+  Producers.
   Most of the time, the EventPipeline will not be used stand-alone but by an EventPipelineRunner class.
 
   The intention of the
@@ -47,10 +47,10 @@ public:
 
   - Settings
   Contain all specifics for the behaviour of this pipeline. The Settings object of type TSettings must be used
-  to steer the behaviour of the MetaDataProducers, Filters and Consumers
+  to steer the behaviour of the Producers, Filters and Consumers
 
-  - MetaDataProducers
-  Create additional, pipeline-specific, data for an event and stores this information in a TMetaData object
+  - Producers
+  Create additional, pipeline-specific, data for an event and stores this information in a TProduct object
 
   - Filter
   Filter decide whether an input event is suitable to be processed by this pipeline. An event might not be in the desired
@@ -58,29 +58,29 @@ public:
   Filter process.
 
   - Consumer
-  The Consumer can access the input event, the created metadata, the settings and the filter result and produce the output they
+  The Consumer can access the input event, the created product, the settings and the filter result and produce the output they
   desire, like Histograms -> PLOTS PLOTS PLOTS
 
   Execution order is easy:
-  MetaDataProducers -> Filters -> Consumers
+  Producers -> Filters -> Consumers
 
  */
 
-template<class TData, class TMetaData, class TSettings>
+template<class TData, class TProduct, class TSettings>
 class EventPipeline: public boost::noncopyable
 {
 public:
-	typedef EventConsumerBase<TData, TMetaData, TSettings> ConsumerForThisPipeline;
-	typedef boost::ptr_vector<EventConsumerBase<TData, TMetaData, TSettings> > ConsumerVector;
+	typedef EventConsumerBase<TData, TProduct, TSettings> ConsumerForThisPipeline;
+	typedef boost::ptr_vector<EventConsumerBase<TData, TProduct, TSettings> > ConsumerVector;
 	typedef typename ConsumerVector::iterator ConsumerVectorIterator;
-	typedef FilterBase<TData, TMetaData, TSettings> FilterForThisPipeline;
-	typedef boost::ptr_vector<FilterBase<TData, TMetaData, TSettings> >	FilterVector;
+	typedef FilterBase<TData, TProduct, TSettings> FilterForThisPipeline;
+	typedef boost::ptr_vector<FilterBase<TData, TProduct, TSettings> >	FilterVector;
 	typedef typename FilterVector::iterator FilterVectorIterator;
 
-	typedef LocalMetaDataProducerBase<TData, TMetaData, TSettings> MetaDataProducerForThisPipeline;
+	typedef LocalProducerBase<TData, TProduct, TSettings> ProducerForThisPipeline;
 
-	typedef boost::ptr_vector< MetaDataProducerForThisPipeline > MetaDataProducerVector;
-	typedef typename MetaDataProducerVector::iterator MetaDataVectorIterator;
+	typedef boost::ptr_vector< ProducerForThisPipeline > ProducerVector;
+	typedef typename ProducerVector::iterator productVectorIterator;
 
 
 	/* Virtual constructor */
@@ -92,7 +92,7 @@ public:
 	 */
 	virtual void InitPipeline(
 		TSettings pset,
-		PipelineInitilizerBase<TData, TMetaData, TSettings> const& initializer)
+		PipelineInitilizerBase<TData, TProduct, TSettings> const& initializer)
 	{
 		m_pipelineSettings = pset;
 		initializer.InitPipeline(this, pset);
@@ -153,22 +153,22 @@ public:
 	}
 
 	/* Run the pipeline with one specific event as input
-	 * The globalMetaData is meta data which is equal for all pipelines and has therefore
+	 * The globalproduct is meta data which is equal for all pipelines and has therefore
 	 * been created only once.
 	 */
-	virtual void RunEvent(TData const& evt, TMetaData const& globalMetaData)
+	virtual void RunEvent(TData const& evt, TProduct const& globalproduct)
 	{
-		// create the pipeline local data and set the pointer to the localMetaData
-		TMetaData& nonconst_metaData = const_cast<TMetaData&>(globalMetaData);
-		typename TMetaData::LocalMetaDataType localMetaData;
-		nonconst_metaData.SetLocalMetaData(&localMetaData);
+		// create the pipeline local data and set the pointer to the localproduct
+		TProduct& nonconst_product = const_cast<TProduct&>(globalproduct);
+		typename TProduct::LocalproductType localproduct;
+		nonconst_product.SetLocalproduct(&localproduct);
 
-		// run MetaDataProducers
-		// Pipeline private MetaDataProducers not supported at the moment
-		for (MetaDataVectorIterator it = m_producer.begin();
+		// run Producers
+		// Pipeline private Producers not supported at the moment
+		for (productVectorIterator it = m_producer.begin();
 			 it != m_producer.end(); it++)
 		{
-			it->PopulateLocal(evt, globalMetaData, localMetaData, m_pipelineSettings);
+			it->PopulateLocal(evt, globalproduct, localproduct, m_pipelineSettings);
 		}
 
 		// run Filters
@@ -177,7 +177,7 @@ public:
 			 itfilter != m_filter.end(); itfilter++)
 		{
 			fres.SetFilterDecisions(itfilter->GetFilterId(),
-									itfilter->DoesEventPass(evt, globalMetaData, m_pipelineSettings));
+									itfilter->DoesEventPass(evt, globalproduct, m_pipelineSettings));
 		}
 
 		// run Consumer
@@ -185,16 +185,16 @@ public:
 			 itcons != m_consumer.end(); itcons++)
 		{
 			if (fres.HasPassed())
-				itcons->ProcessFilteredEvent(evt, globalMetaData);
+				itcons->ProcessFilteredEvent(evt, globalproduct);
 
-			itcons->ProcessEvent(evt, globalMetaData, fres);
+			itcons->ProcessEvent(evt, globalproduct, fres);
 		}
 	}
 
 	/*
 	 * Find and return a Filter by it's id in this pipeline
 	 */
-	virtual FilterBase<TData, TMetaData, TSettings>* FindFilter(std::string sFilterId)
+	virtual FilterBase<TData, TProduct, TSettings>* FindFilter(std::string sFilterId)
 	{
 		for (FilterVectorIterator it = m_filter.begin(); it != m_filter.end(); it++)
 		{
@@ -229,17 +229,17 @@ public:
 		m_consumer.push_back(pConsumer);
 	}
 
-	/* Add a new MetaDataProducer to this Pipeline
+	/* Add a new Producer to this Pipeline
 	 * The object will be freed in EventPipelines destructor
 	 */
-	virtual void AddMetaDataProducer(MetaDataProducerForThisPipeline* pProd)
+	virtual void AddProducer(ProducerForThisPipeline* pProd)
 	{
 		m_producer.push_back(pProd);
 	}
 
 
 	/* Return a list of filters is this pipeline */
-	const boost::ptr_vector<FilterBase<TData, TMetaData, TSettings> >& GetFilters()
+	const boost::ptr_vector<FilterBase<TData, TProduct, TSettings> >& GetFilters()
 	{
 		return m_filter;
 	}
@@ -247,7 +247,7 @@ public:
 private:
 	ConsumerVector m_consumer;
 	FilterVector m_filter;
-	MetaDataProducerVector m_producer;
+	ProducerVector m_producer;
 	TSettings m_pipelineSettings;
 };
 

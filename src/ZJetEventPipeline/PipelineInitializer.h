@@ -7,13 +7,13 @@
 namespace Artus
 {
 
-class ZJetPipelineInitializer: public PipelineInitilizerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
+class ZJetPipelineInitializer: public PipelineInitilizerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>
 {
 public:
 	~ZJetPipelineInitializer() {}
 
 	virtual void InitPipeline(
-		EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>* pLine,
+		EventPipeline<ZJetEventData, ZJetProduct, ZJetPipelineSettings>* pLine,
 		ZJetPipelineSettings const& pset) const;
 };
 

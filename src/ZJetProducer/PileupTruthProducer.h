@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ZJetProducer/MetadataProducer.h"
 #include <map>
 
 
@@ -12,7 +11,7 @@ namespace Artus
 
     This can only be used on MC.
 */
-class PileupTruthProducer: public ZJetGlobalMetaDataProducerBase
+class PileupTruthProducer: public ZJetGlobalProductProducerBase
 {
 private:
 	std::map<int, std::map<int, double> > m_pumean;
@@ -44,9 +43,9 @@ public:
 		}
 	}
 
-	virtual void PopulateMetaData(ZJetEventData const& data,
-								  ZJetMetaData& metaData,
-								  ZJetPipelineSettings const& m_pipelineSettings) const
+	virtual void PopulateProduct(ZJetEventData const& data,
+								 ZJetProduct& product,
+								 ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		// nothing todo here
 	}
@@ -57,12 +56,12 @@ public:
 	}
 
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& m_pipelineSettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& data,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& m_pipelineSettings) const
 	{
-		const int run = data.m_eventmetadata->nRun;
-		const int ls = data.m_eventmetadata->nLumi;
+		const int run = data.m_eventproduct->nRun;
+		const int ls = data.m_eventproduct->nLumi;
 		double npu = 0;
 
 		try
@@ -79,7 +78,7 @@ public:
 		}
 
 		//LOG("per event: " << run << ":" << ls << " npu = " << npu);
-		metaData.SetNpuTruth(npu);
+		product.SetNpuTruth(npu);
 		return true;
 	}
 };

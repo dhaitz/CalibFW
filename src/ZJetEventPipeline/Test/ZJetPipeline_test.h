@@ -10,7 +10,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include "../MetaDataProducer/ZJetCuts.h"
+#include "../Producer/ZJetCuts.h"
 
 #include "ZJetTestSupport.h"
 
@@ -23,32 +23,32 @@ namespace Artus
 {
 
 
-BOOST_AUTO_TEST_CASE( test_filter_ptwin )
+BOOST_AUTO_TEST_CASE(test_filter_ptwin)
 {
 
 	TestZJetEventData evt;
-	ZJetMetaData mData;
+	ZJetProduct mData;
 
 	ZJetPipelineSettings set;
 	set.CacheCutZPt.SetCache(15.0f);
 	set.CacheJetAlgorithm.SetCache("AK5PFJets");
 
-	mData.m_listValidJets[set.GetJetAlgorithm()].push_back( 0);
-	mData.m_listValidJets[set.GetJetAlgorithm()].push_back( 1);
+	mData.m_listValidJets[set.GetJetAlgorithm()].push_back(0);
+	mData.m_listValidJets[set.GetJetAlgorithm()].push_back(1);
 
-	PtWindowFilter ptfilter( PtWindowFilter::Jet1PtBinning );
+	PtWindowFilter ptfilter(PtWindowFilter::Jet1PtBinning);
 
 	set.CacheFilterPtBinHigh.SetCache(100.0f);
 	set.CacheFilterPtBinLow.SetCache(10.0f);
 
 	evt.m_jets[0].p4.SetPt(123.0f);
-	BOOST_CHECK_EQUAL(ptfilter.DoesEventPass( evt, mData, set ), false );
+	BOOST_CHECK_EQUAL(ptfilter.DoesEventPass(evt, mData, set), false);
 
 	evt.m_jets[0].p4.SetPt(23.0f);
-	BOOST_CHECK_EQUAL(ptfilter.DoesEventPass( evt, mData, set ), true );
+	BOOST_CHECK_EQUAL(ptfilter.DoesEventPass(evt, mData, set), true);
 
 	evt.m_jets[0].p4.SetPt(3.2f);
-	BOOST_CHECK_EQUAL(ptfilter.DoesEventPass( evt, mData, set ), false );
+	BOOST_CHECK_EQUAL(ptfilter.DoesEventPass(evt, mData, set), false);
 
 
 	// default is PtWindowFilter::ZPtBinning
@@ -58,50 +58,50 @@ BOOST_AUTO_TEST_CASE( test_filter_ptwin )
 	set.CacheFilterPtBinLow.SetCache(10.0f);
 
 	mData.SetValidZ(true);
-	BOOST_CHECK( mData.HasValidZ());
-	KDataLV v =mData.GetZ();
+	BOOST_CHECK(mData.HasValidZ());
+	KDataLV v = mData.GetZ();
 	v.p4.SetPt(123.0f);
-	mData.SetZ( v );
-	BOOST_CHECK_EQUAL(zfilter.DoesEventPass( evt, mData, set ), false );
+	mData.SetZ(v);
+	BOOST_CHECK_EQUAL(zfilter.DoesEventPass(evt, mData, set), false);
 
 	v.p4.SetPt(23.0f);
-	mData.SetZ( v );
-	zfilter.DoesEventPass( evt, mData, set );
-	BOOST_CHECK_EQUAL(zfilter.DoesEventPass( evt, mData, set ), true );
+	mData.SetZ(v);
+	zfilter.DoesEventPass(evt, mData, set);
+	BOOST_CHECK_EQUAL(zfilter.DoesEventPass(evt, mData, set), true);
 
 	v.p4.SetPt(3.2f);
-	mData.SetZ( v );
-	BOOST_CHECK_EQUAL(zfilter.DoesEventPass( evt, mData, set ), false );
+	mData.SetZ(v);
+	BOOST_CHECK_EQUAL(zfilter.DoesEventPass(evt, mData, set), false);
 }
 
 
-BOOST_AUTO_TEST_CASE( test_filter_incut )
+BOOST_AUTO_TEST_CASE(test_filter_incut)
 {
 	TestZJetEventData evt;
-	ZJetMetaData mData;
-    typename ZJetMetaData::LocalMetaDataType localData;
+	ZJetProduct mData;
+	typename ZJetProduct::LocalproductType localData;
 	ZJetPipelineSettings set;
 
 	InCutFilter filter;
 
 	set.CacheFilterInCutIgnored.SetCache(0);
-    mData.SetLocalMetaData ( &localData );
+	mData.SetLocalproduct(&localData);
 
-	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), true );
+	BOOST_CHECK_EQUAL(filter.DoesEventPass(evt, mData, set), true);
 
 	localData.SetCutResult(8, false);
-	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), false );
+	BOOST_CHECK_EQUAL(filter.DoesEventPass(evt, mData, set), false);
 
 	localData.SetCutResult(8, true);
-	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), true );
+	BOOST_CHECK_EQUAL(filter.DoesEventPass(evt, mData, set), true);
 
 }
 
 
-BOOST_AUTO_TEST_CASE( test_filter_valid_z )
+BOOST_AUTO_TEST_CASE(test_filter_valid_z)
 {
 	TestZJetEventData evt;
-	ZJetMetaData mData;
+	ZJetProduct mData;
 	ZJetPipelineSettings set;
 
 	ValidZFilter filter;
@@ -109,10 +109,10 @@ BOOST_AUTO_TEST_CASE( test_filter_valid_z )
 	set.CacheFilterInCutIgnored.SetCache(0);
 
 	mData.SetValidZ(true);
-	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), true );
+	BOOST_CHECK_EQUAL(filter.DoesEventPass(evt, mData, set), true);
 
 	mData.SetValidZ(false);
-	BOOST_CHECK_EQUAL(filter.DoesEventPass( evt, mData, set ), false );
+	BOOST_CHECK_EQUAL(filter.DoesEventPass(evt, mData, set), false);
 
 }
 

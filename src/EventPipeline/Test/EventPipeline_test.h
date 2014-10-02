@@ -12,40 +12,40 @@
 
 namespace Artus
 {
-class TestMetaData
+class Testproduct
 {
 public:
-	TestMetaData() :  iGlobalMetaData(0) {}
+	Testproduct() :  iGlobalProduct(0) {}
 
-    struct LocalData 
-    {
-        LocalData () : iMetaData( 0 ) {} 
+	struct LocalData
+	{
+		LocalData() : iproduct(0) {}
 
-        int iMetaData;
-    };
-
-	
-    typedef LocalData  LocalMetaDataType; 
+		int iproduct;
+	};
 
 
-    void SetLocalMetaData( LocalMetaDataType * pipelineMetaData ) 
-    {
-        m_localData = pipelineMetaData;
-    }
+	typedef LocalData  LocalproductType;
 
-	void ClearContent(){}
 
-    LocalMetaDataType * GetLocalMetaData () const
-    {
-        assert( m_localData != NULL );
-        return m_localData;
-    }
-	int iGlobalMetaData;
+	void SetLocalproduct(LocalproductType* pipelineproduct)
+	{
+		m_localData = pipelineproduct;
+	}
+
+	void ClearContent() {}
+
+	LocalproductType* GetLocalproduct() const
+	{
+		assert(m_localData != NULL);
+		return m_localData;
+	}
+	int iGlobalProduct;
 
 
 private:
 
-    LocalMetaDataType  * m_localData;
+	LocalproductType*   m_localData;
 };
 
 
@@ -72,7 +72,7 @@ public:
 
 };
 
-class TestFilter: public FilterBase<TestData, TestMetaData,TestSettings>
+class TestFilter: public FilterBase<TestData, Testproduct, TestSettings>
 {
 public:
 
@@ -81,13 +81,13 @@ public:
 		return "testfilter";
 	}
 
-	virtual bool DoesEventPass( const TestData & event,  TestMetaData const& metaData, TestSettings const& settings)
+	virtual bool DoesEventPass(const TestData& event,  Testproduct const& product, TestSettings const& settings)
 	{
-		return ( event.iVal < 2 );
+		return (event.iVal < 2);
 	}
 };
 
-class TestFilter2: public FilterBase<TestData, TestMetaData,TestSettings>
+class TestFilter2: public FilterBase<TestData, Testproduct, TestSettings>
 {
 public:
 
@@ -96,50 +96,50 @@ public:
 		return "testfilter2";
 	}
 
-	virtual bool DoesEventPass( const TestData & event,  TestMetaData const& metaData, TestSettings const& settings)
+	virtual bool DoesEventPass(const TestData& event,  Testproduct const& product, TestSettings const& settings)
 	{
 		return false;
 	}
 };
 
 
-class TestLocalMetaDataProducer : public LocalMetaDataProducerBase<TestData, TestMetaData,TestSettings>
+class TestLocalProducer : public LocalProducerBase<TestData, Testproduct, TestSettings>
 {
 public:
 
 	// for each pipeline
-	virtual void PopulateLocal(TestData const& data, TestMetaData const& metaData,
-            typename TestMetaData::LocalMetaDataType & localMetaData,	
-			TestSettings const& m_pipelineSettings) const 
+	virtual void PopulateLocal(TestData const& data, Testproduct const& product,
+							   typename Testproduct::LocalproductType& localproduct,
+							   TestSettings const& m_pipelineSettings) const
 	{
-		localMetaData.iMetaData =  data.iVal + 1;
+		localproduct.iproduct =  data.iVal + 1;
 	}
 };
 
-class TestGlobalMetaDataProducer : public GlobalMetaDataProducerBase<TestData, TestMetaData,TestSettings>
+class TestGlobalProductProducer : public GlobalProductProducerBase<TestData, Testproduct, TestSettings>
 {
 public:
 
-	// for the global metadata producer
-	virtual bool  PopulateGlobalMetaData(TestData const& data, TestMetaData & metaData,
-			TestSettings const& m_pipelineSettings) const
+	// for the global product producer
+	virtual bool  PopulateGlobalProduct(TestData const& data, Testproduct& product,
+										TestSettings const& m_pipelineSettings) const
 	{
-		metaData.iGlobalMetaData = data.iVal + 5;
-        return true;
+		product.iGlobalProduct = data.iVal + 5;
+		return true;
 	}
 
 };
 
 
-class TestEventConsumer: public EventConsumerBase< TestData, TestMetaData,TestSettings>
+class TestEventConsumer: public EventConsumerBase< TestData, Testproduct, TestSettings>
 {
 public:
 	TestEventConsumer():
-		iFinish( 0 ), iInit( 0 ), iProcessFilteredEvent( 0), iProcessEvent(0)
-		{}
+		iFinish(0), iInit(0), iProcessFilteredEvent(0), iProcessEvent(0)
+	{}
 
 
-	virtual void Init(EventPipeline<TestData, TestMetaData, TestSettings> * pset)
+	virtual void Init(EventPipeline<TestData, Testproduct, TestSettings>* pset)
 	{
 		m_pipeline = pset;
 		iInit++;
@@ -151,31 +151,31 @@ public:
 	}
 
 	virtual void ProcessFilteredEvent(TestData const& event,
-			TestMetaData const& metaData)
+									  Testproduct const& product)
 	{
 		iProcessFilteredEvent++;
 	}
 
 	// this method is called for all events
 	virtual void ProcessEvent(TestData const& event,
-			TestMetaData const& metaData,
-			FilterResult & result)
+							  Testproduct const& product,
+							  FilterResult& result)
 	{
-		// did metaData work ?
-		BOOST_CHECK_EQUAL(event.iVal + 1, metaData.GetLocalMetaData()->iMetaData);
-        BOOST_CHECK_EQUAL(event.iVal + 5, metaData.iGlobalMetaData);
+		// did product work ?
+		BOOST_CHECK_EQUAL(event.iVal + 1, product.GetLocalproduct()->iproduct);
+		BOOST_CHECK_EQUAL(event.iVal + 5, product.iGlobalProduct);
 
 		iProcessEvent++;
 		fres = result;
 	}
 
-	void CheckCalls( int ProcessFilteredEvent, int ProcessEvent)
+	void CheckCalls(int ProcessFilteredEvent, int ProcessEvent)
 	{
-		BOOST_CHECK_EQUAL( iInit, 1 );
-		BOOST_CHECK_EQUAL( iFinish, 1 );
+		BOOST_CHECK_EQUAL(iInit, 1);
+		BOOST_CHECK_EQUAL(iFinish, 1);
 
-		BOOST_CHECK_EQUAL( iProcessFilteredEvent, ProcessFilteredEvent );
-		BOOST_CHECK_EQUAL( iProcessFilteredEvent, ProcessFilteredEvent );
+		BOOST_CHECK_EQUAL(iProcessFilteredEvent, ProcessFilteredEvent);
+		BOOST_CHECK_EQUAL(iProcessFilteredEvent, ProcessFilteredEvent);
 	}
 
 	int iFinish;
@@ -185,46 +185,46 @@ public:
 	FilterResult fres;
 };
 
-class TestPipelineInitilizer: public PipelineInitilizerBase< TestData, TestMetaData,TestSettings>
+class TestPipelineInitilizer: public PipelineInitilizerBase< TestData, Testproduct, TestSettings>
 {
 public:
 	virtual void InitPipeline(
-			EventPipeline<TestData, TestMetaData,TestSettings> * pLine,
-			TestSettings const& pset) const {}
+		EventPipeline<TestData, Testproduct, TestSettings>* pLine,
+		TestSettings const& pset) const {}
 
 };
 
-BOOST_AUTO_TEST_CASE( test_event_pipeline )
+BOOST_AUTO_TEST_CASE(test_event_pipeline)
 {
-	TestEventConsumer * pCons1 = new TestEventConsumer();
-	TestEventConsumer * pCons2 = new TestEventConsumer();
+	TestEventConsumer* pCons1 = new TestEventConsumer();
+	TestEventConsumer* pCons2 = new TestEventConsumer();
 
-	EventPipeline<TestData, TestMetaData, TestSettings> pline;
+	EventPipeline<TestData, Testproduct, TestSettings> pline;
 
-	pline.AddConsumer( pCons1 );
-	pline.AddConsumer( pCons2 );
+	pline.AddConsumer(pCons1);
+	pline.AddConsumer(pCons2);
 
-    pline.AddMetaDataProducer( new TestLocalMetaDataProducer() );
+	pline.AddProducer(new TestLocalProducer());
 
 	TestPipelineInitilizer init;
 
-    TestSettings settings; 
-	pline.InitPipeline( settings, init  );
+	TestSettings settings;
+	pline.InitPipeline(settings, init);
 
-    TestGlobalMetaDataProducer globalProducer;
-	TestMetaData global;
+	TestGlobalProductProducer globalProducer;
+	Testproduct global;
 	TestData td;
-    td.iVal = 23;
+	td.iVal = 23;
 
-    // run global meta data
-    globalProducer.PopulateGlobalMetaData( td, global, settings );
-	pline.RunEvent( td, global );
+	// run global meta data
+	globalProducer.PopulateGlobalProduct(td, global, settings);
+	pline.RunEvent(td, global);
 
-    globalProducer.PopulateGlobalMetaData( td, global, settings );
-	pline.RunEvent( td, global );
+	globalProducer.PopulateGlobalProduct(td, global, settings);
+	pline.RunEvent(td, global);
 
-    globalProducer.PopulateGlobalMetaData( td, global, settings );
-	pline.RunEvent( td, global );
+	globalProducer.PopulateGlobalProduct(td, global, settings);
+	pline.RunEvent(td, global);
 
 	pline.FinishPipeline();
 
@@ -232,47 +232,47 @@ BOOST_AUTO_TEST_CASE( test_event_pipeline )
 	pCons2->CheckCalls(3, 3);
 }
 
-BOOST_AUTO_TEST_CASE( test_add_one_filter2times )
+BOOST_AUTO_TEST_CASE(test_add_one_filter2times)
 {
-	EventPipeline<TestData, TestMetaData, TestSettings> pline;
+	EventPipeline<TestData, Testproduct, TestSettings> pline;
 
-	pline.AddFilter( new TestFilter() );
-	BOOST_CHECK_THROW( pline.AddFilter( new TestFilter() ),
-			std::exception );
+	pline.AddFilter(new TestFilter());
+	BOOST_CHECK_THROW(pline.AddFilter(new TestFilter()),
+					  std::exception);
 
 }
 
 
-BOOST_AUTO_TEST_CASE( test_event_filter )
+BOOST_AUTO_TEST_CASE(test_event_filter)
 {
-	TestEventConsumer * pCons1 = new TestEventConsumer();
-	TestEventConsumer * pCons2 = new TestEventConsumer();
+	TestEventConsumer* pCons1 = new TestEventConsumer();
+	TestEventConsumer* pCons2 = new TestEventConsumer();
 
-	EventPipeline<TestData, TestMetaData, TestSettings> pline;
+	EventPipeline<TestData, Testproduct, TestSettings> pline;
 
-	pline.AddConsumer( pCons1 );
-	pline.AddConsumer( pCons2 );
+	pline.AddConsumer(pCons1);
+	pline.AddConsumer(pCons2);
 
-	pline.AddFilter( new TestFilter() );
-    pline.AddMetaDataProducer( new TestLocalMetaDataProducer() );
+	pline.AddFilter(new TestFilter());
+	pline.AddProducer(new TestLocalProducer());
 
 	TestPipelineInitilizer init;
 
-    TestSettings settings;
-	pline.InitPipeline( settings, init  );
+	TestSettings settings;
+	pline.InitPipeline(settings, init);
 
 	TestData td;
-	TestMetaData global;
-    TestGlobalMetaDataProducer globalProducer;
+	Testproduct global;
+	TestGlobalProductProducer globalProducer;
 
-    globalProducer.PopulateGlobalMetaData( td, global, settings );
-	pline.RunEvent( td, global );
+	globalProducer.PopulateGlobalProduct(td, global, settings);
+	pline.RunEvent(td, global);
 	td.iVal++;
-    globalProducer.PopulateGlobalMetaData( td, global, settings );
-	pline.RunEvent( td, global );
+	globalProducer.PopulateGlobalProduct(td, global, settings);
+	pline.RunEvent(td, global);
 	td.iVal++;
-    globalProducer.PopulateGlobalMetaData( td, global, settings );
-	pline.RunEvent( td, global );
+	globalProducer.PopulateGlobalProduct(td, global, settings);
+	pline.RunEvent(td, global);
 
 	pline.FinishPipeline();
 
@@ -281,35 +281,35 @@ BOOST_AUTO_TEST_CASE( test_event_filter )
 }
 
 
-BOOST_AUTO_TEST_CASE( test_event_multiplefilter )
+BOOST_AUTO_TEST_CASE(test_event_multiplefilter)
 {
-	TestEventConsumer * pCons1 = new TestEventConsumer();
+	TestEventConsumer* pCons1 = new TestEventConsumer();
 
-    TestGlobalMetaDataProducer globalProducer;  
-	EventPipeline<TestData, TestMetaData, TestSettings> pline;
+	TestGlobalProductProducer globalProducer;
+	EventPipeline<TestData, Testproduct, TestSettings> pline;
 
-	pline.AddConsumer( pCons1 );
+	pline.AddConsumer(pCons1);
 
-	pline.AddFilter( new TestFilter2() );
-	pline.AddFilter( new TestFilter() );
+	pline.AddFilter(new TestFilter2());
+	pline.AddFilter(new TestFilter());
 
-	pline.AddMetaDataProducer( new TestLocalMetaDataProducer() );
+	pline.AddProducer(new TestLocalProducer());
 
 	TestPipelineInitilizer init;
-    TestSettings settings;
-	pline.InitPipeline( settings, init  );
+	TestSettings settings;
+	pline.InitPipeline(settings, init);
 
 	TestData td;
-	TestMetaData global;
+	Testproduct global;
 
-    globalProducer.PopulateGlobalMetaData( td, global, settings );
-	pline.RunEvent( td,global );
+	globalProducer.PopulateGlobalProduct(td, global, settings);
+	pline.RunEvent(td, global);
 
 	pline.FinishPipeline();
 
-	BOOST_CHECK( pCons1->fres.GetFilterDecisions().at("testfilter") == true );
-	BOOST_CHECK( pCons1->fres.GetFilterDecisions().at("testfilter2") == false );
-	BOOST_CHECK( pCons1->fres.HasPassed() == false);
+	BOOST_CHECK(pCons1->fres.GetFilterDecisions().at("testfilter") == true);
+	BOOST_CHECK(pCons1->fres.GetFilterDecisions().at("testfilter2") == false);
+	BOOST_CHECK(pCons1->fres.HasPassed() == false);
 	/*
 	for ( FilterResult::FilterDecisions::const_iterator it = pCons1->fres.GetFilterDecisions().begin();
 			it != pCons1->fres.GetFilterDecisions().end();

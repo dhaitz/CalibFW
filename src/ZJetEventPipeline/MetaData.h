@@ -15,10 +15,10 @@ namespace Artus
 {
 
 
-class ZJetLocalMetaData : public boost::noncopyable
+class ZJetLocalproduct : public boost::noncopyable
 {
 public:
-	ZJetLocalMetaData(): m_CutBitmask(0) {}
+	ZJetLocalproduct(): m_CutBitmask(0) {}
 
 	// cutPassed is true, if the event was not dropped by the cut
 	void SetCutResult(long cutId, bool cutPassed)
@@ -43,38 +43,38 @@ private:
 };
 
 
-class ZJetMetaData : public boost::noncopyable
+class ZJetProduct : public boost::noncopyable
 {
 public:
-	ZJetMetaData();
+	ZJetProduct();
 
-	~ZJetMetaData()
+	~ZJetProduct()
 	{
 		ClearContent();
 	}
 
-	typedef ZJetLocalMetaData LocalMetaDataType;
+	typedef ZJetLocalproduct LocalproductType;
 
 	void ClearContent();
 
-	void SetLocalMetaData(LocalMetaDataType* pipelineMetaData)
+	void SetLocalproduct(LocalproductType* pipelineproduct)
 	{
-		assert(pipelineMetaData != NULL);
-		m_pipelineMetaData = pipelineMetaData;
+		assert(pipelineproduct != NULL);
+		m_pipelineproduct = pipelineproduct;
 	}
 
-	// holds pipeline specific metadata
-	LocalMetaDataType* GetLocalMetaData() const
+	// holds pipeline specific product
+	LocalproductType* GetLocalproduct() const
 	{
-		assert(m_pipelineMetaData != NULL);
-		return m_pipelineMetaData;
+		assert(m_pipelineproduct != NULL);
+		return m_pipelineproduct;
 	}
 
 	std::string GetContent() const;
 
 
-	KEventMetadata* GetKappaMetaData(ZJetEventData const& evtData,
-									 ZJetPipelineSettings const& psettings) const;
+	KEventMetadata* GetKappaproduct(ZJetEventData const& evtData,
+									ZJetPipelineSettings const& psettings) const;
 
 	bool IsMetaJetAlgo(std::string const& algoName) const
 	{
@@ -160,7 +160,7 @@ public:
 
 	long GetCutBitmask() const
 	{
-		return GetLocalMetaData()->GetCutBitmask();
+		return GetLocalproduct()->GetCutBitmask();
 	}
 
 
@@ -398,8 +398,8 @@ public:
 			return new KDataLV;
 	}
 
-	// holds pipeline specific metadata of the current pipeline
-	LocalMetaDataType* m_pipelineMetaData;
+	// holds pipeline specific product of the current pipeline
+	LocalproductType* m_pipelineproduct;
 
 	//Leading jet uncertainty
 	typedef std::map<std::string, float> uncertainty_map;

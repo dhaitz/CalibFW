@@ -27,11 +27,11 @@ MuonCorrector::MuonCorrector(std::string parameterfile, std::string parameterfil
 }
 
 
-bool MuonCorrector::PopulateGlobalMetaData(ZJetEventData const& event,
-		ZJetMetaData& metaData,	ZJetPipelineSettings const& m_pipelineSettings) const
+bool MuonCorrector::PopulateGlobalProduct(ZJetEventData const& event,
+		ZJetProduct& product,	ZJetPipelineSettings const& m_pipelineSettings) const
 {
 	bool isRunD = (m_pipelineSettings.Global()->GetInputType() == DataInput &&
-				   event.m_eventmetadata->nRun > startRunD);
+				   event.m_eventproduct->nRun > startRunD);
 	double corrPt = 0;
 	double smearedPt = 0;
 	if (isRunD)
@@ -41,7 +41,7 @@ bool MuonCorrector::PopulateGlobalMetaData(ZJetEventData const& event,
 	}
 
 	// loop over valid muons an correct in place
-	for (auto mu = metaData.m_listValidMuons.begin(); mu != metaData.m_listValidMuons.end(); mu++)
+	for (auto mu = product.m_listValidMuons.begin(); mu != product.m_listValidMuons.end(); mu++)
 	{
 		// double before = mu->p4.Pt();  // for log debug
 

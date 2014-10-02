@@ -73,7 +73,7 @@ public:
 	/*
 	 * Run the GlobalMetaProducers and all pipelines.
 	 */
-	template<class TEvent, class TMetaData, class TSettings>
+	template<class TEvent, class TProduct, class TSettings>
 	long long RunPipelines(EventProvider<TEvent>& evtProvider, TSettings const& settings)
 	{
 		long long firstEvent = settings.Global()->GetSkipEvents();
@@ -96,14 +96,14 @@ public:
 			// TODO refactor the evtProvider to clean up this mess with the hltTools
 			if (!evtProvider.GotoEvent(i, hltTools, sampleinit))
 				break;
-			TMetaData metaDataGlobal;
-			metaDataGlobal.m_hltInfo = hltTools;
+			TProduct productGlobal;
+			productGlobal.m_hltInfo = hltTools;
 
 			// create global meta data
 			for (GlobalMetaProducerIterator it = m_globalMetaProducer.begin();
 				 it != m_globalMetaProducer.end(); it++)
 			{
-				bEventValid = it->PopulateGlobalMetaData(evtProvider.GetCurrentEvent(), metaDataGlobal, settings);
+				bEventValid = it->PopulateGlobalProduct(evtProvider.GetCurrentEvent(), productGlobal, settings);
 				//LOG(it->GetContent())
 				if (!bEventValid)
 					break;
@@ -114,9 +114,9 @@ public:
 			{
 				if (unlikely(nEvents - firstEvent < 100)) // debug output
 					LOG("Event "
-						<< evtProvider.GetCurrentEvent().m_eventmetadata->nRun << ":"
-						<< evtProvider.GetCurrentEvent().m_eventmetadata->nLumi << ":"
-						<< evtProvider.GetCurrentEvent().m_eventmetadata->nEvent);
+						<< evtProvider.GetCurrentEvent().m_eventproduct->nRun << ":"
+						<< evtProvider.GetCurrentEvent().m_eventproduct->nLumi << ":"
+						<< evtProvider.GetCurrentEvent().m_eventproduct->nEvent);
 				for (PipelinesIterator it = m_pipelines.begin(); it != m_pipelines.end(); it++)
 				{
 					//if (it->GetSettings().GetLevel() == 1)
@@ -125,11 +125,11 @@ public:
 							LOG("Event:" << i
 								<< ", new pipeline: " << it->GetSettings().GetName()
 								<< ", algorithm: " << it->GetSettings().GetJetAlgorithm());
-						it->RunEvent(evtProvider.GetCurrentEvent(), metaDataGlobal);
+						it->RunEvent(evtProvider.GetCurrentEvent(), productGlobal);
 					}
 				}
 			}
-			metaDataGlobal.ClearContent();
+			productGlobal.ClearContent();
 		}
 
 		// first safe the results ( > plots ) from all level one pipelines
@@ -137,7 +137,7 @@ public:
 			 !(it == m_pipelines.end()); it++)
 		{
 			//if (it->GetSettings().GetLevel() == 1)
-				it->FinishPipeline();
+			it->FinishPipeline();
 		}
 		/*
 		// run the pipelines greater level one

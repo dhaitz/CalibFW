@@ -6,11 +6,11 @@
 namespace Artus
 {
 
-class ZJetPipeline: public EventPipeline <ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
+class ZJetPipeline: public EventPipeline <ZJetEventData, ZJetProduct, ZJetPipelineSettings>
 {
 public:
 	// returns a list of metaproducer which are cuts and modify the cut list
-	static void GetSupportedCuts(ZJetPipeline::MetaDataProducerVector& cuts);
+	static void GetSupportedCuts(ZJetPipeline::ProducerVector& cuts);
 };
 
 }

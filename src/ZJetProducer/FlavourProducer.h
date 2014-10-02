@@ -3,17 +3,17 @@
 namespace Artus
 {
 
-class FlavourProducer: public ZJetGlobalMetaDataProducerBase
+class FlavourProducer: public ZJetGlobalProductProducerBase
 {
 public:
 
-	FlavourProducer() : ZJetGlobalMetaDataProducerBase(), dist(0.3) {}
+	FlavourProducer() : ZJetGlobalProductProducerBase(), dist(0.3) {}
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
-										ZJetMetaData& metaData, ZJetPipelineSettings const& globalsettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& event,
+									   ZJetProduct& product, ZJetPipelineSettings const& globalsettings) const
 	{
 
-		for (const auto & jetcontainer : metaData.m_validPFJets)
+		for (const auto & jetcontainer : product.m_validPFJets)
 		{
 			std::string sAlgoName = jetcontainer.first;
 			KGenParticles matching_algo_partons;
@@ -34,7 +34,7 @@ public:
 				return 0;
 
 			// iterate over all partons and select the ones close to the leading jet
-			for (const auto & parton : metaData.m_genPartons)
+			for (const auto & parton : product.m_genPartons)
 			{
 				if (std::abs(ROOT::Math::VectorUtil::DeltaR(ref_jet->p4, parton.p4)) < dist)
 				{
@@ -57,18 +57,18 @@ public:
 
 			// ALGORITHMIC DEFINITION
 			if (matching_algo_partons.size() == 1)	  // exactly one match
-				metaData.m_algoparton[sAlgoName] = matching_algo_partons[0];
+				product.m_algoparton[sAlgoName] = matching_algo_partons[0];
 			else if (hardest_b_quark && hardest_b_quark->p4.Pt() > 0.)
-				metaData.m_algoparton[sAlgoName] = * hardest_b_quark;
+				product.m_algoparton[sAlgoName] = * hardest_b_quark;
 			else if (hardest_c_quark && hardest_c_quark->p4.Pt() > 0.)
-				metaData.m_algoparton[sAlgoName] = * hardest_c_quark;
+				product.m_algoparton[sAlgoName] = * hardest_c_quark;
 			else if (matching_algo_partons.size() != 0)
-				metaData.m_algoparton[sAlgoName] = * hardest_parton;
+				product.m_algoparton[sAlgoName] = * hardest_parton;
 
 			// PHYSICS DEFINITION
 			// flavour is only well defined if exactly ONE matching parton!
 			if (matching_phys_partons.size() == 1)
-				metaData.m_physparton[sAlgoName] = matching_phys_partons[0];
+				product.m_physparton[sAlgoName] = matching_phys_partons[0];
 		}
 
 		return true;

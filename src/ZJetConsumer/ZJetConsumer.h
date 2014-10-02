@@ -8,7 +8,7 @@
 namespace Artus
 {
 
-typedef EventConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> ZJetConsumerBase;
+typedef EventConsumerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings> ZJetConsumerBase;
 
 class BulkConsumer : ZJetConsumerBase
 {

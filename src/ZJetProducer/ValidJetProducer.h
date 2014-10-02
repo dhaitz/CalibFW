@@ -10,33 +10,33 @@ namespace Artus
     1. muon isolation
     1. jetID
 */
-class ValidJetProducer: public ZJetGlobalMetaDataProducerBase
+class ValidJetProducer: public ZJetGlobalProductProducerBase
 {
 
 public:
 
 	ValidJetProducer(bool Tagged, bool VetoPu, bool MuonIso) :
-		ZJetGlobalMetaDataProducerBase(), tagged(Tagged), vetopu(VetoPu), muonIso(MuonIso)
+		ZJetGlobalProductProducerBase(), tagged(Tagged), vetopu(VetoPu), muonIso(MuonIso)
 	{
 		Init();
 	}
 	ValidJetProducer(bool Tagged, bool VetoPu) :
-		ZJetGlobalMetaDataProducerBase(), tagged(Tagged), vetopu(VetoPu),  muonIso(true)
+		ZJetGlobalProductProducerBase(), tagged(Tagged), vetopu(VetoPu),  muonIso(true)
 	{
 		Init();
 	}
 
 
-	virtual void PopulateMetaData(ZJetEventData const& data,
-								  ZJetMetaData& metaData,
-								  ZJetPipelineSettings const& m_pipelineSettings) const
+	virtual void PopulateProduct(ZJetEventData const& data,
+								 ZJetProduct& product,
+								 ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		// nothing to do here
 	}
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& globalSettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& event,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& globalSettings) const
 	{
 
 		// for tagged PF jets: fill the m_pfPointerJets with a collection of
@@ -81,8 +81,8 @@ public:
 		{
 			// init collections for this algorithm
 			std::string sAlgoName = italgo->first;
-			metaData.m_listValidJets.insert(sAlgoName, new std::vector<unsigned int> ());
-			metaData.m_listInvalidJets.insert(sAlgoName, new std::vector<unsigned int> ());
+			product.m_listValidJets.insert(sAlgoName, new std::vector<unsigned int> ());
+			product.m_listInvalidJets.insert(sAlgoName, new std::vector<unsigned int> ());
 
 			int i = 0;
 
@@ -100,22 +100,22 @@ public:
 				dr1 = 99999.0f;
 				dr2 = 99999.0f;
 
-				if (metaData.HasValidZ())
+				if (product.HasValidZ())
 				{
 
 					if (muonIso)
 					{
 						dr1 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
-															 metaData.GetValidMuons().at(0).p4);
+															 product.GetValidMuons().at(0).p4);
 						dr2 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
-															 metaData.GetValidMuons().at(1).p4);
+															 product.GetValidMuons().at(1).p4);
 					}
 					else
 					{
 						dr1 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
-															 metaData.GetValidElectrons().at(0).p4);
+															 product.GetValidElectrons().at(0).p4);
 						dr2 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
-															 metaData.GetValidElectrons().at(1).p4);
+															 product.GetValidElectrons().at(1).p4);
 					}
 
 				}
@@ -139,14 +139,14 @@ public:
 
 				if (vetopu)
 				{
-					bool puID = static_cast<KDataPFTaggedJet*>(*itjet)->getpuJetID("puJetIDFullMedium", event.m_taggermetadata);
+					bool puID = static_cast<KDataPFTaggedJet*>(*itjet)->getpuJetID("puJetIDFullMedium", event.m_taggerproduct);
 					good_jet = good_jet && puID;
 				}
 
 				if (good_jet)
-					metaData.m_listValidJets[italgo->first].emplace_back(i);
+					product.m_listValidJets[italgo->first].emplace_back(i);
 				else
-					metaData.m_listInvalidJets[italgo->first].emplace_back(i);
+					product.m_listInvalidJets[italgo->first].emplace_back(i);
 				i++;
 			}
 		}

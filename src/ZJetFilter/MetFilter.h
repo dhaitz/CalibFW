@@ -24,11 +24,11 @@ public:
 	}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
 		if (m_useFilters)
-			return event.m_filter->passedFilters(m_filters, event.m_filtermetadata);
+			return event.m_filter->passedFilters(m_filters, event.m_filterproduct);
 		else
 			return event.m_filter->passedFilters();
 	}

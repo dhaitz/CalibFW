@@ -13,13 +13,13 @@ class DeltaEtaFilter: public ZJetFilterBase
 {
 public:
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData, ZJetPipelineSettings const& settings)
+							   ZJetProduct const& product, ZJetPipelineSettings const& settings)
 	{
-		if (!metaData.HasValidJet(settings, event) || !metaData.HasValidZ())
+		if (!product.HasValidJet(settings, event) || !product.HasValidZ())
 			//No valid objects found to apply this filter
 			return false;
 
-		double deltaeta = TMath::Abs(metaData.GetValidPrimaryJet(settings, event)->p4.Eta() - metaData.GetRefZ().p4.Eta());
+		double deltaeta = TMath::Abs(product.GetValidPrimaryJet(settings, event)->p4.Eta() - product.GetRefZ().p4.Eta());
 
 		return (deltaeta >= settings.GetFilterDeltaEtaLow()) &&
 			   (deltaeta < settings.GetFilterDeltaEtaHigh());

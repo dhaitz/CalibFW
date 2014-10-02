@@ -11,11 +11,11 @@ class RunRangeFilter: public ZJetFilterBase
 public:
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
 		bool bPass = true;
-		unsigned int run = event.m_eventmetadata->nRun;
+		unsigned int run = event.m_eventproduct->nRun;
 
 		if (run < settings.GetFilterRunRangeLow())
 			bPass = false;
@@ -26,18 +26,18 @@ public:
 		if (settings.GetFilterRunRangeLumiLow() > 0)
 		{
 		    // also check for the lumi section
-		    if (event.m_eventmetadata->nLumi < settings.GetFilterRunRangeLumiLow())
+		    if (event.m_eventproduct->nLumi < settings.GetFilterRunRangeLumiLow())
 			    bPass = false;
-		    if (event.m_eventmetadata->nLumi > settings.GetFilterRunRangeLumiHigh())
+		    if (event.m_eventproduct->nLumi > settings.GetFilterRunRangeLumiHigh())
 			    bPass = false;
 		}
 
 		if (settings.GetFilterRunRangeEventLow() > 0)
 		{
 		    // also check for event !
-		    if (event.m_eventmetadata->nEvent < settings.GetFilterRunRangeEventLow())
+		    if (event.m_eventproduct->nEvent < settings.GetFilterRunRangeEventLow())
 			    bPass = false;
-		    if (event.m_eventmetadata->nEvent > settings.GetFilterRunRangeEventHigh())
+		    if (event.m_eventproduct->nEvent > settings.GetFilterRunRangeEventHigh())
 			    bPass = false;
 		}
 		*/

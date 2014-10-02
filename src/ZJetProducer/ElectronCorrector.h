@@ -7,21 +7,21 @@ This producer corrects electron momenta
 namespace Artus
 {
 
-typedef GlobalMetaDataProducerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
-ZJetGlobalMetaDataProducerBase;
+typedef GlobalProductProducerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>
+ZJetGlobalProductProducerBase;
 
-class ElectronCorrector: public ZJetGlobalMetaDataProducerBase
+class ElectronCorrector: public ZJetGlobalProductProducerBase
 {
 public:
 
-	ElectronCorrector() : ZJetGlobalMetaDataProducerBase() {}
+	ElectronCorrector() : ZJetGlobalProductProducerBase() {}
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& globalSettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& data,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& globalSettings) const
 	{
-		for (auto it = metaData.m_listValidElectrons.begin();
-			 it != metaData.m_listValidElectrons.end(); it++)
+		for (auto it = product.m_listValidElectrons.begin();
+			 it != product.m_listValidElectrons.end(); it++)
 		{
 			//correct
 		}

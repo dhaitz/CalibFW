@@ -34,27 +34,27 @@ protected:
 	}
 
 	virtual int getsize(ZJetEventData const& event,
-						ZJetMetaData const& metaData, ZJetPipelineSettings const& settings) const
+						ZJetProduct const& product, ZJetPipelineSettings const& settings) const
 	{
-		return metaData.m_listValidElectrons.size();
+		return product.m_listValidElectrons.size();
 	}
 
 	virtual KDataLV GetSingleObject(int n, ZJetEventData const& event,
-									ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
+									ZJetProduct const& product, ZJetPipelineSettings const& s) const
 	{
-		return metaData.m_listValidElectrons.at(n);
+		return product.m_listValidElectrons.at(n);
 	};
 
 	virtual float returnvalue(int n, std::string string, ZJetEventData const& event,
-							  ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
+							  ZJetProduct const& product, ZJetPipelineSettings const& s) const
 	{
 		if (string == "mvaid")
-			return metaData.m_listValidElectrons.at(n).idMvaNonTrigV0;
+			return product.m_listValidElectrons.at(n).idMvaNonTrigV0;
 		else if (string == "mvatrigid")
-			return metaData.m_listValidElectrons.at(n).idMvaTrigV0;
+			return product.m_listValidElectrons.at(n).idMvaTrigV0;
 		else if (string == "mva")
 		{
-			const KDataElectron it = metaData.m_listValidElectrons.at(n);
+			const KDataElectron it = product.m_listValidElectrons.at(n);
 			if (
 				(
 					(it.p4.Pt() < 10)
@@ -80,22 +80,22 @@ protected:
 				return 0.;
 		}
 		else if (string == "looseid")
-			return metaData.m_listValidElectrons.at(n).cutbasedIDloose;
+			return product.m_listValidElectrons.at(n).cutbasedIDloose;
 		else if (string == "mediumid")
-			return metaData.m_listValidElectrons.at(n).cutbasedIDmedium;
+			return product.m_listValidElectrons.at(n).cutbasedIDmedium;
 		else if (string == "tightid")
-			return metaData.m_listValidElectrons.at(n).cutbasedIDtight;
+			return product.m_listValidElectrons.at(n).cutbasedIDtight;
 		else if (string == "deltar") // Delta R between matching reco and gen electron
 		{
-			for (auto it = metaData.m_genInternalElectrons.begin(); it != metaData.m_genInternalElectrons.end(); it++)
+			for (auto it = product.m_genInternalElectrons.begin(); it != product.m_genInternalElectrons.end(); it++)
 			{
-				if (it->charge() == int(metaData.m_listValidElectrons.at(n).charge))
-					return ROOT::Math::VectorUtil::DeltaR(GetSingleObject(n, event, metaData, s).p4, it->p4);
+				if (it->charge() == int(product.m_listValidElectrons.at(n).charge))
+					return ROOT::Math::VectorUtil::DeltaR(GetSingleObject(n, event, product, s).p4, it->p4);
 			}
 			return 999;
 		}
 		else
-			return NtupleObjectConsumerBase::returnvalue(n, string, event, metaData, s);
+			return NtupleObjectConsumerBase::returnvalue(n, string, event, product, s);
 	};
 
 

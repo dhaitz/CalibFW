@@ -31,26 +31,26 @@ protected:
 	}
 
 	virtual int getsize(ZJetEventData const& event,
-						ZJetMetaData const& metaData, ZJetPipelineSettings const& settings) const
+						ZJetProduct const& product, ZJetPipelineSettings const& settings) const
 	{
 		return event.m_particles->size();
 	}
 
 	virtual KDataLV GetSingleObject(int n, ZJetEventData const& event,
-									ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
+									ZJetProduct const& product, ZJetPipelineSettings const& s) const
 	{
 		return event.m_particles->at(n);
 	};
 
 	virtual float returnvalue(int n, std::string string, ZJetEventData const& event,
-							  ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
+							  ZJetProduct const& product, ZJetPipelineSettings const& s) const
 	{
 		if (string == "id")
 			return event.m_particles->at(n).pdgId();
 		else if (string == "status")
 			return event.m_particles->at(n).status();
 		else
-			return NtupleObjectConsumerBase::returnvalue(n, string, event, metaData, s);
+			return NtupleObjectConsumerBase::returnvalue(n, string, event, product, s);
 	};
 
 };

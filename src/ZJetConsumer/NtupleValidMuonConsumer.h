@@ -31,15 +31,15 @@ protected:
 	}
 
 	virtual int getsize(ZJetEventData const& event,
-						ZJetMetaData const& metaData, ZJetPipelineSettings const& settings) const
+						ZJetProduct const& product, ZJetPipelineSettings const& settings) const
 	{
-		return metaData.m_listValidMuons.size();
+		return product.m_listValidMuons.size();
 	}
 
 	virtual KDataLV GetSingleObject(int n, ZJetEventData const& event,
-									ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
+									ZJetProduct const& product, ZJetPipelineSettings const& s) const
 	{
-		return metaData.m_listValidMuons.at(n);
+		return product.m_listValidMuons.at(n);
 	};
 
 };

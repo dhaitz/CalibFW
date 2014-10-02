@@ -3,7 +3,6 @@
 #include <memory>
 
 #include "ZJetEventPipeline/MetaData.h"
-#include "ZJetProducer/MetadataProducer.h"
 
 #define USE_JEC
 #include "RootTools/JECTools.h"
@@ -20,8 +19,11 @@ struct JecCorrSet
 	boost::scoped_ptr<JECService> m_l2l3res;
 };
 
+typedef GlobalProductProducerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>
+ZJetGlobalProductProducerBase;
+
 // takes the jets contained in an event and applies the necessary corrections
-class JetCorrector: public ZJetGlobalMetaDataProducerBase
+class JetCorrector: public ZJetGlobalProductProducerBase
 {
 public:
 
@@ -33,13 +35,13 @@ public:
 
 	JetCorrector(std::string corBase, std::string l1cor, stringvector baseAlgos, bool rc);
 
-	virtual void PopulateMetaData(ZJetEventData const& data,
-								  ZJetMetaData& metaData,
-								  ZJetPipelineSettings const& m_pipelineSettings) const;
+	virtual void PopulateProduct(ZJetEventData const& data,
+								 ZJetProduct& product,
+								 ZJetPipelineSettings const& m_pipelineSettings) const;
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& m_pipelineSettings) const;
+	virtual bool PopulateGlobalProduct(ZJetEventData const& event,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& m_pipelineSettings) const;
 
 	void InitCorrection(std::string algoName,
 						std::string algoCorrectionAlias,
@@ -49,13 +51,13 @@ public:
 	void CorrectJetCollection(std::string algoName, std::string newAlgoName,
 							  boost::scoped_ptr< JECService > const& corrService,
 							  ZJetEventData const& event,
-							  ZJetMetaData& metaData,
+							  ZJetProduct& product,
 							  ZJetPipelineSettings const& settings) const;
 
 	void CreateCorrections(std::string algoName,
 						   std::string algoPostfix,
 						   ZJetEventData const& event,
-						   ZJetMetaData& metaData,
+						   ZJetProduct& product,
 						   ZJetPipelineSettings const& settings,
 						   std::string algoAlias) const;
 

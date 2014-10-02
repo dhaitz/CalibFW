@@ -155,11 +155,11 @@ public:
 		init(level, jeuDir, prefix, algo);
 	}
 
-	JECService(KVertexSummary* vertexSummary, KJetArea* jetArea, KEventMetadata* eventmetadata,
+	JECService(KVertexSummary* vertexSummary, KJetArea* jetArea, KEventMetadata* eventproduct,
 			   const std::string prefix, const std::vector<std::string>& level, const std::string algo,
 			   const double R, const int jeuDir = 0, double rcorr = 0.0,
 			   unsigned int* run = 0)
-		: vs(vertexSummary), area(-1), ja(jetArea), evtMeta(eventmetadata),
+		: vs(vertexSummary), area(-1), ja(jetArea), evtMeta(eventproduct),
 		  jeuType(jec_center), JEC(0), JEU(0), runCorr(rcorr), nRun0(201000)
 	{
 		init(level, jeuDir, prefix , algo);

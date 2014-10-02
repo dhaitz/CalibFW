@@ -9,7 +9,7 @@ namespace Artus
 {
 
 // forward define to be able to use the event pipeline here
-template<class TData, class TMetaData, class TSettings>
+template<class TData, class TProduct, class TSettings>
 class EventPipeline;
 
 class FilterResult
@@ -92,7 +92,7 @@ private:
 	mutable bool m_IsCachedHasPassed;
 };
 
-template<class TData, class TMetaData, class TSettings>
+template<class TData, class TProduct, class TSettings>
 class FilterBase: public boost::noncopyable
 {
 public:
@@ -101,7 +101,7 @@ public:
 	}
 
 	// TODO: Do we event need this init?
-	virtual void Init(EventPipeline<TData, TMetaData, TSettings>* pset)
+	virtual void Init(EventPipeline<TData, TProduct, TSettings>* pset)
 	{
 		//m_pipeline = pset;
 	}
@@ -112,7 +112,7 @@ public:
 
 	virtual std::string GetFilterId() = 0;
 
-	virtual bool DoesEventPass(TData const& event, TMetaData const& metaData, TSettings const& settings) = 0;
+	virtual bool DoesEventPass(TData const& event, TProduct const& product, TSettings const& settings) = 0;
 
 	virtual std::string ToString(bool bVerbose = false)
 	{

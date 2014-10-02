@@ -14,7 +14,7 @@ class NpvFilter: public ZJetFilterBase
 public:
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
 		bool bPass = true;

@@ -10,34 +10,34 @@ namespace Artus
  */
 
 // Basis for producers attached to a pipeline and producing local results for this pipeline
-template<class TData, class TMetaData,  class TSettings>
-class LocalMetaDataProducerBase: public boost::noncopyable
+template<class TData, class TProduct,  class TSettings>
+class LocalProducerBase: public boost::noncopyable
 {
 public:
 
-	virtual ~LocalMetaDataProducerBase()
+	virtual ~LocalProducerBase()
 	{
 
 	}
 
-	virtual void PopulateLocal(TData const& data, TMetaData const& metaData,
-							   typename TMetaData::LocalMetaDataType& localMetaData,
+	virtual void PopulateLocal(TData const& data, TProduct const& product,
+							   typename TProduct::LocalproductType& localproduct,
 							   TSettings const& m_pipelineSettings) const = 0;
 };
 
 // Basis for producers which are run before the pipelines and produce
 // results useful to all
-template<class TData, class TGlobalMetaData, class TSettings>
-class GlobalMetaDataProducerBase: public boost::noncopyable
+template<class TData, class TGlobalProduct, class TSettings>
+class GlobalProductProducerBase: public boost::noncopyable
 {
 public:
-	virtual ~GlobalMetaDataProducerBase()
+	virtual ~GlobalProductProducerBase()
 	{
 	}
 
 	// if false is returned, the event is dropped as it does not meet the minimum requirements for the producer
-	virtual bool PopulateGlobalMetaData(TData const& data, TGlobalMetaData& metaData,
-										TSettings const& globalSettings) const = 0;
+	virtual bool PopulateGlobalProduct(TData const& data, TGlobalProduct& product,
+									   TSettings const& globalSettings) const = 0;
 };
 
 

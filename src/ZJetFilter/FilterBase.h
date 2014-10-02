@@ -9,6 +9,6 @@
 namespace Artus
 {
 
-typedef FilterBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings> ZJetFilterBase;
+typedef FilterBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings> ZJetFilterBase;
 
 }

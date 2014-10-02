@@ -10,14 +10,14 @@
 namespace Artus
 {
 
-template <class TEvent, class TMetaData, class TSettings>
-class NtupleConsumerBase : public EventConsumerBase<TEvent, TMetaData, TSettings>
+template <class TEvent, class TProduct, class TSettings>
+class NtupleConsumerBase : public EventConsumerBase<TEvent, TProduct, TSettings>
 {
 public:
-	typedef EventPipeline<TEvent, TMetaData, TSettings> PipelineTypeForThis;
+	typedef EventPipeline<TEvent, TProduct, TSettings> PipelineTypeForThis;
 };
 
-class NtupleConsumer : public NtupleConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
+class NtupleConsumer : public NtupleConsumerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>
 {
 public:
 	static std::string GetName()
@@ -27,7 +27,7 @@ public:
 
 	void Init(PipelineTypeForThis* pset)
 	{
-		EventConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>::Init(pset);
+		EventConsumerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>::Init(pset);
 		std::string quantities = this->GetPipelineSettings().GetQuantitiesString();
 		m_ntuple = new TNtuple("NTuple", "NTuple", quantities.c_str());
 
@@ -38,14 +38,14 @@ public:
 	}
 
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
-									  ZJetMetaData const& metaData)
+									  ZJetProduct const& product)
 	{
-		EventConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings>::ProcessFilteredEvent(event, metaData);
+		EventConsumerBase< ZJetEventData, ZJetProduct, ZJetPipelineSettings>::ProcessFilteredEvent(event, product);
 
 		std::vector<float> array;
 		//iterate over string vector and fill the array for each quantitiy
 		for (const auto & e : m_enumvector)
-			array.push_back(returnvalue(e, event, metaData, this->GetPipelineSettings()));
+			array.push_back(returnvalue(e, event, product, this->GetPipelineSettings()));
 
 		// add the array to the ntuple
 		m_ntuple->Fill(&array[0]);
@@ -244,181 +244,181 @@ private:
 
 
 	float returnvalue(E e, ZJetEventData const& event,
-					  ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
+					  ZJetProduct const& product, ZJetPipelineSettings const& s) const
 	{
 		// general quantities
 		if (e == E::npv)
 			return event.m_vertexSummary->nVertices;
 		else if (e == E::npu)
-			return event.m_geneventmetadata->numPUInteractions0;
+			return event.m_geneventproduct->numPUInteractions0;
 		else if (e == E::nputruth)
 		{
 			if (s.IsMC())
-				return event.m_geneventmetadata->numPUInteractionsTruth;
-			return metaData.GetNpuTruth();
+				return event.m_geneventproduct->numPUInteractionsTruth;
+			return product.GetNpuTruth();
 		}
 
 		// QG tag
 		else if (e == E::qglikelihood)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("QGlikelihood", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("QGlikelihood", event.m_taggerproduct);
 		else if (e == E::qgmlp)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("QGmlp", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("QGmlp", event.m_taggerproduct);
 		// b tags
 		else if (e == E::trackcountinghigheffbjettag)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("trackCountingHighEffBTag", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("trackCountingHighEffBTag", event.m_taggerproduct);
 		else if (e == E::trackcountinghighpurbjettag)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("trackCountingHighPurBTag", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("trackCountingHighPurBTag", event.m_taggerproduct);
 		else if (e == E::jetprobabilitybjettag)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("jetProbabilityBTag", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("jetProbabilityBTag", event.m_taggerproduct);
 		else if (e == E::jetbprobabilitybjettag)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("jetBProbabilityBTag", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("jetBProbabilityBTag", event.m_taggerproduct);
 		else if (e == E::softelectronbjettag)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("softElectronBTag", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("softElectronBTag", event.m_taggerproduct);
 		else if (e == E::softmuonbjettag)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("softMuonBTag", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("softMuonBTag", event.m_taggerproduct);
 		else if (e == E::softmuonbyip3dbjettag)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("softMuonByIP3dBTag", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("softMuonByIP3dBTag", event.m_taggerproduct);
 		else if (e == E::softmuonbyptbjettag)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("softMuonByPtBTag", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("softMuonByPtBTag", event.m_taggerproduct);
 		else if (e == E::simplesecondaryvertexbjettag)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("simpleSecondaryVertexBTag", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("simpleSecondaryVertexBTag", event.m_taggerproduct);
 		else if (e == E::combinedsecondaryvertexbjettag)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("CombinedSecondaryVertexBJetTags", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("CombinedSecondaryVertexBJetTags", event.m_taggerproduct);
 		else if (e == E::combinedsecondaryvertexmvabjettag)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getTagger("CombinedSecondaryVertexMVABJetTags", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getTagger("CombinedSecondaryVertexMVABJetTags", event.m_taggerproduct);
 
 		// jet 1 PU
 		else if (e == E::jet1puJetIDFullTight)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDFullTight", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDFullTight", event.m_taggerproduct);
 		else if (e == E::jet1puJetIDFullMedium)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDFullMedium", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDFullMedium", event.m_taggerproduct);
 		else if (e == E::jet1puJetIDFullLoose)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDFullLoose", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDFullLoose", event.m_taggerproduct);
 		else if (e == E::jet1puJetIDCutbasedTight)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDCutbasedTight", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDCutbasedTight", event.m_taggerproduct);
 		else if (e == E::jet1puJetIDCutbasedMedium)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDCutbasedMedium", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDCutbasedMedium", event.m_taggerproduct);
 		else if (e == E::jet1puJetIDCutbasedLoose)
-			return static_cast<KDataPFTaggedJet*>(metaData.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDCutbasedLoose", event.m_taggermetadata);
+			return static_cast<KDataPFTaggedJet*>(product.GetValidPrimaryJet(s, event))->getpuJetID("puJetIDCutbasedLoose", event.m_taggerproduct);
 
 		// jet 2 PU
 		else if (e == E::jet2puJetIDFullTight)
 		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->getpuJetID("puJetIDFullTight", event.m_taggermetadata);
+			if (product.GetValidJetCount(s, event) > 1)
+				return static_cast<KDataPFTaggedJet*>(product.GetValidJet(s, event, 1))->getpuJetID("puJetIDFullTight", event.m_taggerproduct);
 			else return 0;
 		}
 		else if (e == E::jet2puJetIDFullMedium)
 		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->getpuJetID("puJetIDFullMedium", event.m_taggermetadata);
+			if (product.GetValidJetCount(s, event) > 1)
+				return static_cast<KDataPFTaggedJet*>(product.GetValidJet(s, event, 1))->getpuJetID("puJetIDFullMedium", event.m_taggerproduct);
 			else return 0;
 		}
 		else if (e == E::jet2puJetIDFullLoose)
 		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->getpuJetID("puJetIDFullLoose", event.m_taggermetadata);
+			if (product.GetValidJetCount(s, event) > 1)
+				return static_cast<KDataPFTaggedJet*>(product.GetValidJet(s, event, 1))->getpuJetID("puJetIDFullLoose", event.m_taggerproduct);
 			else return 0;
 		}
 		else if (e == E::jet2puJetIDCutbasedTight)
 		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->getpuJetID("puJetIDCutbasedTight", event.m_taggermetadata);
+			if (product.GetValidJetCount(s, event) > 1)
+				return static_cast<KDataPFTaggedJet*>(product.GetValidJet(s, event, 1))->getpuJetID("puJetIDCutbasedTight", event.m_taggerproduct);
 			else return 0;
 		}
 		else if (e == E::jet2puJetIDCutbasedMedium)
 		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->getpuJetID("puJetIDCutbasedMedium", event.m_taggermetadata);
+			if (product.GetValidJetCount(s, event) > 1)
+				return static_cast<KDataPFTaggedJet*>(product.GetValidJet(s, event, 1))->getpuJetID("puJetIDCutbasedMedium", event.m_taggerproduct);
 			else return 0;
 		}
 		else if (e == E::jet2puJetIDCutbasedLoose)
 		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return static_cast<KDataPFTaggedJet*>(metaData.GetValidJet(s, event, 1))->getpuJetID("puJetIDCutbasedLoose", event.m_taggermetadata);
+			if (product.GetValidJetCount(s, event) > 1)
+				return static_cast<KDataPFTaggedJet*>(product.GetValidJet(s, event, 1))->getpuJetID("puJetIDCutbasedLoose", event.m_taggerproduct);
 			else return 0;
 		}
 		else if (e == E::rho)
 			return event.m_jetArea->median;
 		else if (e == E::run)
-			return event.m_eventmetadata->nRun;
+			return event.m_eventproduct->nRun;
 		else if (e == E::weight)
-			return metaData.GetWeight();
+			return product.GetWeight();
 		else if (e == E::eff)
-			return metaData.GetEfficiency();
+			return product.GetEfficiency();
 		// Z
 		else if (e == E::zpt)
-			return metaData.GetRefZ().p4.Pt();
+			return product.GetRefZ().p4.Pt();
 		else if (e == E::zeta)
-			return metaData.GetRefZ().p4.Eta();
+			return product.GetRefZ().p4.Eta();
 		else if (e == E::zphi)
-			return metaData.GetRefZ().p4.Phi();
+			return product.GetRefZ().p4.Phi();
 		else if (e == E::zy)
-			return metaData.GetRefZ().p4.Rapidity();
+			return product.GetRefZ().p4.Rapidity();
 		else if (e == E::zmass)
-			return metaData.GetRefZ().p4.mass();
+			return product.GetRefZ().p4.mass();
 
 		// muons
 		else if (e == E::mupluspt)
 		{
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
 				if (it->charge == 1) return it->p4.Pt();
 			}
 		}
 		else if (e == E::mupluseta)
 		{
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
 				if (it->charge == 1) return it->p4.Eta();
 			}
 		}
 		else if (e == E::muplusphi)
 		{
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
 				if (it->charge == 1) return it->p4.Phi();
 			}
 		}
 		else if (e == E::muminuspt)
 		{
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
 				if (it->charge == -1) return it->p4.Pt();
 			}
 		}
 		else if (e == E::muminuseta)
 		{
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
 				if (it->charge == -1) return it->p4.Eta();
 			}
 		}
 		else if (e == E::muminusphi)
 		{
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
 				if (it->charge == -1) return it->p4.Phi();
 			}
 		}
 		else if (e == E::muplusiso)
 		{
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
 				if (it->charge == +1) return it->trackIso03;
 			}
 		}
 		else if (e == E::muminusiso)
 		{
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
 				if (it->charge == -1) return it->trackIso03;
 			}
@@ -426,10 +426,10 @@ private:
 		else if (e == E::mu1pt)
 		{
 			KDataMuon muon;
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
-				if ((it == metaData.m_listValidMuons.begin()) || (it->p4.Pt() > muon.p4.Pt()))
+				if ((it == product.m_listValidMuons.begin()) || (it->p4.Pt() > muon.p4.Pt()))
 					muon = *it;
 			}
 			return muon.p4.Pt();
@@ -437,10 +437,10 @@ private:
 		else if (e == E::mu1phi)
 		{
 			KDataMuon muon;
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
-				if ((it == metaData.m_listValidMuons.begin()) || (it->p4.Pt() > muon.p4.Pt()))
+				if ((it == product.m_listValidMuons.begin()) || (it->p4.Pt() > muon.p4.Pt()))
 					muon = *it;
 			}
 			return muon.p4.Phi();
@@ -448,10 +448,10 @@ private:
 		else if (e == E::mu1eta)
 		{
 			KDataMuon muon;
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
-				if ((it == metaData.m_listValidMuons.begin()) || (it->p4.Pt() > muon.p4.Pt()))
+				if ((it == product.m_listValidMuons.begin()) || (it->p4.Pt() > muon.p4.Pt()))
 					muon = *it;
 			}
 			return muon.p4.Eta();
@@ -459,10 +459,10 @@ private:
 		else if (e == E::mu2pt)
 		{
 			KDataMuon muon;
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
-				if ((it == metaData.m_listValidMuons.begin()) || (it->p4.Pt() < muon.p4.Pt()))
+				if ((it == product.m_listValidMuons.begin()) || (it->p4.Pt() < muon.p4.Pt()))
 					muon = *it;
 			}
 			return muon.p4.Pt();
@@ -470,10 +470,10 @@ private:
 		else if (e == E::mu2phi)
 		{
 			KDataMuon muon;
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
-				if ((it == metaData.m_listValidMuons.begin()) || (it->p4.Pt() < muon.p4.Pt()))
+				if ((it == product.m_listValidMuons.begin()) || (it->p4.Pt() < muon.p4.Pt()))
 					muon = *it;
 			}
 			return muon.p4.Phi();
@@ -481,119 +481,119 @@ private:
 		else if (e == E::mu2eta)
 		{
 			KDataMuon muon;
-			for (KDataMuons::const_iterator it = metaData.m_listValidMuons.begin();
-				 it != metaData.m_listValidMuons.end(); it ++)
+			for (KDataMuons::const_iterator it = product.m_listValidMuons.begin();
+				 it != product.m_listValidMuons.end(); it ++)
 			{
-				if ((it == metaData.m_listValidMuons.begin()) || (it->p4.Pt() < muon.p4.Pt()))
+				if ((it == product.m_listValidMuons.begin()) || (it->p4.Pt() < muon.p4.Pt()))
 					muon = *it;
 			}
 			return muon.p4.Eta();
 		}
 		else if (e == E::genmupluspt)
 		{
-			for (const auto & it : metaData.m_genMuons)
+			for (const auto & it : product.m_genMuons)
 				if (it.charge() > 0) return it.p4.Pt();
 			return -999;
 		}
 		else if (e == E::genmupluseta)
 		{
-			for (const auto & it : metaData.m_genMuons)
+			for (const auto & it : product.m_genMuons)
 				if (it.charge() > 0) return it.p4.Eta();
 			return -999;
 		}
 		else if (e == E::genmuplusphi)
 		{
-			for (const auto & it : metaData.m_genMuons)
+			for (const auto & it : product.m_genMuons)
 				if (it.charge() > 0) return it.p4.Phi();
 			return -999;
 		}
 		else if (e == E::genmuminuspt)
 		{
-			for (const auto & it : metaData.m_genMuons)
+			for (const auto & it : product.m_genMuons)
 				if (it.charge() < 0) return it.p4.Pt();
 			return -999;
 		}
 		else if (e == E::genmuminuseta)
 		{
-			for (const auto & it : metaData.m_genMuons)
+			for (const auto & it : product.m_genMuons)
 				if (it.charge() < 0) return it.p4.Eta();
 			return -999;
 		}
 		else if (e == E::genmuminusphi)
 		{
-			for (const auto & it : metaData.m_genMuons)
+			for (const auto & it : product.m_genMuons)
 				if (it.charge() < 0) return it.p4.Phi();
 			return -999;
 		}
 		else if (e == E::nmuons)
-			return metaData.m_listValidMuons.size();
+			return product.m_listValidMuons.size();
 		else if (e == E::ngenmuons)
-			return metaData.m_genMuons.size();
+			return product.m_genMuons.size();
 
 		//gen electron
 		else if (e == E::genepluspt)
 		{
-			for (const auto & it : metaData.m_genInternalElectrons)
+			for (const auto & it : product.m_genInternalElectrons)
 				if (it.charge() > 0) return it.p4.Pt();
 			return -999;
 		}
 		else if (e == E::genepluseta)
 		{
-			for (const auto & it : metaData.m_genInternalElectrons)
+			for (const auto & it : product.m_genInternalElectrons)
 				if (it.charge() > 0) return it.p4.Eta();
 			return -999;
 		}
 		else if (e == E::geneplusphi)
 		{
-			for (const auto & it : metaData.m_genInternalElectrons)
+			for (const auto & it : product.m_genInternalElectrons)
 				if (it.charge() > 0) return it.p4.Phi();
 			return -999;
 		}
 		else if (e == E::geneminuspt)
 		{
-			for (const auto & it : metaData.m_genInternalElectrons)
+			for (const auto & it : product.m_genInternalElectrons)
 				if (it.charge() < 0) return it.p4.Pt();
 			return -999;
 		}
 		else if (e == E::geneminuseta)
 		{
-			for (const auto & it : metaData.m_genInternalElectrons)
+			for (const auto & it : product.m_genInternalElectrons)
 				if (it.charge() < 0) return it.p4.Eta();
 			return -999;
 		}
 		else if (e == E::geneminusphi)
 		{
-			for (const auto & it : metaData.m_genInternalElectrons)
+			for (const auto & it : product.m_genInternalElectrons)
 				if (it.charge() < 0) return it.p4.Phi();
 			return -999;
 		}
 		else if (e == E::ngenelectrons)
-			return metaData.m_genElectrons.size();
+			return product.m_genElectrons.size();
 		else if (e == E::ngeninternalelectrons)
-			return metaData.m_genInternalElectrons.size();
+			return product.m_genInternalElectrons.size();
 		else if (e == E::ngenintermediateelectrons)
-			return metaData.m_genIntermediateElectrons.size();
+			return product.m_genIntermediateElectrons.size();
 
 
 		// jets
 		else if (e == E::njets)
-			return metaData.GetValidJetCount(s, event);
+			return product.GetValidJetCount(s, event);
 		else if (e == E::njetsinv)
-			return metaData.m_listInvalidJets["AK5PFJetsCHS"].size();
+			return product.m_listInvalidJets["AK5PFJetsCHS"].size();
 		else if (e == E::ngenphotons)
-			return metaData.m_genPhotons.size();
+			return product.m_genPhotons.size();
 		else if (e == E::nzs)
-			return metaData.m_genZs.size();
+			return product.m_genZs.size();
 		else if (e == E::ninternalmuons)
-			return metaData.m_genInternalMuons.size();
+			return product.m_genInternalMuons.size();
 		else if (e == E::nintermediatemuons)
-			return metaData.m_genIntermediateMuons.size();
+			return product.m_genIntermediateMuons.size();
 		else if (e == E::closestphotondr)
 		{
 			double dR = 999.;
 			double d = dR;
-			for (const auto & mu : metaData.m_genMuons)
-				for (const auto & ph : metaData.m_genPhotons)
+			for (const auto & mu : product.m_genMuons)
+				for (const auto & ph : product.m_genPhotons)
 				{
 					d = ROOT::Math::VectorUtil::DeltaR(mu.p4, ph.p4);
 					if (d < dR && ph.p4.Pt() > 1)
@@ -605,8 +605,8 @@ private:
 		{
 			const double dR = 0.3;
 			int n = 0;
-			for (const auto & mu : metaData.m_genMuons)
-				for (const auto & ph : metaData.m_genPhotons)
+			for (const auto & mu : product.m_genMuons)
+				for (const auto & ph : product.m_genPhotons)
 					if (ROOT::Math::VectorUtil::DeltaR(mu.p4, ph.p4) < dR)
 						n++;
 			return n;
@@ -615,8 +615,8 @@ private:
 		{
 			const double dR = 0.3;
 			double pt = 0;
-			for (const auto & mu : metaData.m_genMuons)
-				for (const auto & ph : metaData.m_genPhotons)
+			for (const auto & mu : product.m_genMuons)
+				for (const auto & ph : product.m_genPhotons)
 					if (ROOT::Math::VectorUtil::DeltaR(mu.p4, ph.p4) < dR)
 						pt += ph.p4.Pt();
 			return pt;
@@ -625,12 +625,12 @@ private:
 		{
 			const double dR = 0.3;
 			double pt = 0;
-			for (const auto & mu : metaData.m_genMuons)
+			for (const auto & mu : product.m_genMuons)
 			{
 				// look at a cone perpendicular to the muon
 				KGenParticle nomu = mu;
 				nomu.p4.SetPhi(nomu.p4.Phi() + ROOT::Math::Pi() / 2);
-				for (const auto & ph : metaData.m_genPhotons)
+				for (const auto & ph : product.m_genPhotons)
 					if (ROOT::Math::VectorUtil::DeltaR(nomu.p4, ph.p4) < dR)
 						pt += ph.p4.Pt();
 			}
@@ -638,261 +638,261 @@ private:
 		}
 		else if (e == E::ptdiff13)
 		{
-			if (metaData.m_genMuons.size() < 2 || metaData.m_genInternalMuons.size() < 2)
+			if (product.m_genMuons.size() < 2 || product.m_genInternalMuons.size() < 2)
 				return -999;
 			double diff = 0;
-			diff = metaData.m_genMuons[0].p4.Pt()
-				   + metaData.m_genMuons[1].p4.Pt()
-				   - metaData.m_genInternalMuons[0].p4.Pt()
-				   - metaData.m_genInternalMuons[1].p4.Pt();
+			diff = product.m_genMuons[0].p4.Pt()
+				   + product.m_genMuons[1].p4.Pt()
+				   - product.m_genInternalMuons[0].p4.Pt()
+				   - product.m_genInternalMuons[1].p4.Pt();
 			return diff;
 		}
 		else if (e == E::ptdiff12)
 		{
-			if (metaData.m_genMuons.size() < 2 || metaData.m_genIntermediateMuons.size() < 2)
+			if (product.m_genMuons.size() < 2 || product.m_genIntermediateMuons.size() < 2)
 				return -999;
 			double diff = 0;
-			diff = metaData.m_genMuons[0].p4.Pt()
-				   + metaData.m_genMuons[1].p4.Pt()
-				   - metaData.m_genIntermediateMuons[0].p4.Pt()
-				   - metaData.m_genIntermediateMuons[1].p4.Pt();
+			diff = product.m_genMuons[0].p4.Pt()
+				   + product.m_genMuons[1].p4.Pt()
+				   - product.m_genIntermediateMuons[0].p4.Pt()
+				   - product.m_genIntermediateMuons[1].p4.Pt();
 			return diff;
 		}
 		else if (e == E::ptdiff23)
 		{
-			if (metaData.m_genIntermediateMuons.size() < 2 || metaData.m_genInternalMuons.size() < 2)
+			if (product.m_genIntermediateMuons.size() < 2 || product.m_genInternalMuons.size() < 2)
 				return -999;
 			double diff = 0;
-			diff = metaData.m_genMuons[0].p4.Pt()
-				   + metaData.m_genMuons[1].p4.Pt()
-				   - metaData.m_genIntermediateMuons[0].p4.Pt()
-				   - metaData.m_genIntermediateMuons[1].p4.Pt();
+			diff = product.m_genMuons[0].p4.Pt()
+				   + product.m_genMuons[1].p4.Pt()
+				   - product.m_genIntermediateMuons[0].p4.Pt()
+				   - product.m_genIntermediateMuons[1].p4.Pt();
 			return diff;
 		}
 		else if (e == E::genzpt)
 		{
-			if (metaData.m_genZs.size() < 1)
+			if (product.m_genZs.size() < 1)
 				return -1;
-			return metaData.m_genZs[0].p4.Pt();
+			return product.m_genZs[0].p4.Pt();
 		}
 		else if (e == E::genzy)
 		{
-			if (metaData.m_genZs.size() < 1)
+			if (product.m_genZs.size() < 1)
 				return -1;
-			return metaData.m_genZs[0].p4.Rapidity();
+			return product.m_genZs[0].p4.Rapidity();
 		}
 		else if (e == E::genzmass)
 		{
-			if (metaData.m_genZs.size() < 1)
+			if (product.m_genZs.size() < 1)
 				return -1;
-			return metaData.m_genZs[0].p4.mass();
+			return product.m_genZs[0].p4.mass();
 		}
 		else if (e == E::deltaRzgenz)
 		{
-			if (metaData.m_genZs.size() < 1)
+			if (product.m_genZs.size() < 1)
 				return -1;
 			else
-				return ROOT::Math::VectorUtil::DeltaR(metaData.m_genZs[0].p4,
-													  metaData.GetRefZ().p4);
+				return ROOT::Math::VectorUtil::DeltaR(product.m_genZs[0].p4,
+													  product.GetRefZ().p4);
 		}
 		else if (e == E::deltaReplusgeneplus)
 		{
 
-			for (const auto & it : metaData.m_genInternalElectrons)
+			for (const auto & it : product.m_genInternalElectrons)
 			{
 				if (it.charge() > 0)
-					return ROOT::Math::VectorUtil::DeltaR(metaData.leadingeplus.p4, it.p4);
+					return ROOT::Math::VectorUtil::DeltaR(product.leadingeplus.p4, it.p4);
 			}
 			return 999;
 		}
 		else if (e == E::deltaReminusgeneminus)
 		{
 
-			for (const auto & it : metaData.m_genInternalElectrons)
+			for (const auto & it : product.m_genInternalElectrons)
 			{
 				if (it.charge() < 0)
-					return ROOT::Math::VectorUtil::DeltaR(metaData.leadingeminus.p4, it.p4);
+					return ROOT::Math::VectorUtil::DeltaR(product.leadingeminus.p4, it.p4);
 			}
 			return 999;
 		}
 
 		//LHE information
 		else if (e == E::lhezpt)
-			return metaData.GetLHEZ().p4.Pt();
+			return product.GetLHEZ().p4.Pt();
 		else if (e == E::lhezeta)
-			return metaData.GetLHEZ().p4.Eta();
+			return product.GetLHEZ().p4.Eta();
 		else if (e == E::lhezy)
-			return metaData.GetLHEZ().p4.Rapidity();
+			return product.GetLHEZ().p4.Rapidity();
 		else if (e == E::lhezphi)
-			return metaData.GetLHEZ().p4.Phi();
+			return product.GetLHEZ().p4.Phi();
 		else if (e == E::lhezmass)
-			return metaData.GetLHEZ().p4.mass();
+			return product.GetLHEZ().p4.mass();
 		else if (e == E::nlhemuons)
-			return metaData.m_nLHEMuons;
+			return product.m_nLHEMuons;
 		else if (e == E::nlheelectrons)
-			return metaData.m_nLHEElectrons;
+			return product.m_nLHEElectrons;
 		else if (e == E::nlhetaus)
-			return metaData.m_nLHETaus;
+			return product.m_nLHETaus;
 
 
 		// electrons
 		else if (e == E::nelectrons)
-			return metaData.GetValidElectrons().size();
+			return product.GetValidElectrons().size();
 
 		else if (e == E::emass)
-			return metaData.leadinge.p4.mass();
+			return product.leadinge.p4.mass();
 		else if (e == E::ept)
-			return metaData.leadinge.p4.Pt();
+			return product.leadinge.p4.Pt();
 		else if (e == E::eeta)
-			return metaData.leadinge.p4.Eta();
+			return product.leadinge.p4.Eta();
 		else if (e == E::eminusmass)
-			return metaData.leadingeminus.p4.mass();
+			return product.leadingeminus.p4.mass();
 		else if (e == E::eminuspt)
-			return metaData.leadingeminus.p4.Pt();
+			return product.leadingeminus.p4.Pt();
 		else if (e == E::eminuseta)
-			return metaData.leadingeminus.p4.Eta();
+			return product.leadingeminus.p4.Eta();
 		else if (e == E::eminusphi)
-			return metaData.leadingeminus.p4.Phi();
+			return product.leadingeminus.p4.Phi();
 		else if (e == E::eplusmass)
-			return metaData.leadingeplus.p4.mass();
+			return product.leadingeplus.p4.mass();
 		else if (e == E::epluspt)
-			return metaData.leadingeplus.p4.Pt();
+			return product.leadingeplus.p4.Pt();
 		else if (e == E::epluseta)
-			return metaData.leadingeplus.p4.Eta();
+			return product.leadingeplus.p4.Eta();
 		else if (e == E::eplusphi)
-			return metaData.leadingeplus.p4.Phi();
+			return product.leadingeplus.p4.Phi();
 
 
 
 		else if (e == E::eminusiso)
-			return metaData.leadingeminus.trackIso03;
+			return product.leadingeminus.trackIso03;
 		else if (e == E::eplusiso)
-			return metaData.leadingeplus.trackIso03;
+			return product.leadingeplus.trackIso03;
 
 		else if (e == E::eminusecaliso03)
-			return metaData.leadingeminus.ecalIso03;
+			return product.leadingeminus.ecalIso03;
 		else if (e == E::eplusecaliso03)
-			return metaData.leadingeplus.ecalIso03;
+			return product.leadingeplus.ecalIso03;
 
 		else if (e == E::eminusecaliso04)
-			return metaData.leadingeminus.ecalIso04;
+			return product.leadingeminus.ecalIso04;
 		else if (e == E::eplusecaliso04)
-			return metaData.leadingeplus.ecalIso04;
+			return product.leadingeplus.ecalIso04;
 
 		else if (e == E::eminusid)
-			return metaData.leadingeminus.idMvaNonTrigV0;
+			return product.leadingeminus.idMvaNonTrigV0;
 		else if (e == E::eplusid)
-			return metaData.leadingeplus.idMvaNonTrigV0;
+			return product.leadingeplus.idMvaNonTrigV0;
 
 		else if (e == E::eminustrigid)
-			return metaData.leadingeminus.idMvaTrigV0;
+			return product.leadingeminus.idMvaTrigV0;
 		else if (e == E::eplustrigid)
-			return metaData.leadingeplus.idMvaTrigV0;
+			return product.leadingeplus.idMvaTrigV0;
 
 
 		// leading jet
 		else if (e == E::jet1pt)
-			return metaData.GetValidPrimaryJet(s, event)->p4.Pt();
+			return product.GetValidPrimaryJet(s, event)->p4.Pt();
 		else if (e == E::jet1eta)
-			return metaData.GetValidPrimaryJet(s, event)->p4.Eta();
+			return product.GetValidPrimaryJet(s, event)->p4.Eta();
 		else if (e == E::jet1phi)
-			return metaData.GetValidPrimaryJet(s, event)->p4.Phi();
+			return product.GetValidPrimaryJet(s, event)->p4.Phi();
 
 		// leading jet composition
 		else if (e == E::jet1photonfraction)
-			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->photonFraction;
+			return static_cast<KDataPFJet*>(product.GetValidPrimaryJet(s, event))->photonFraction;
 		else if (e == E::jet1chargedemfraction)
-			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->chargedEMFraction;
+			return static_cast<KDataPFJet*>(product.GetValidPrimaryJet(s, event))->chargedEMFraction;
 		else if (e == E::jet1chargedhadfraction)
-			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->chargedHadFraction;
+			return static_cast<KDataPFJet*>(product.GetValidPrimaryJet(s, event))->chargedHadFraction;
 		else if (e == E::jet1neutralhadfraction)
-			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->neutralHadFraction;
+			return static_cast<KDataPFJet*>(product.GetValidPrimaryJet(s, event))->neutralHadFraction;
 		else if (e == E::jet1muonfraction)
-			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->muonFraction;
+			return static_cast<KDataPFJet*>(product.GetValidPrimaryJet(s, event))->muonFraction;
 		else if (e == E::jet1HFhadfraction)
-			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->HFHadFraction;
+			return static_cast<KDataPFJet*>(product.GetValidPrimaryJet(s, event))->HFHadFraction;
 		else if (e == E::jet1HFemfraction)
-			return static_cast<KDataPFJet*>(metaData.GetValidPrimaryJet(s, event))->HFEMFraction;
+			return static_cast<KDataPFJet*>(product.GetValidPrimaryJet(s, event))->HFEMFraction;
 
 		// second jet
 		else if (e == E::jet2pt)
 		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return metaData.GetValidJet(s, event, 1)->p4.Pt();
+			if (product.GetValidJetCount(s, event) > 1)
+				return product.GetValidJet(s, event, 1)->p4.Pt();
 			else
 				return 0;
 		}
 		else if (e == E::jet2phi)
 		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return metaData.GetValidJet(s, event, 1)->p4.Phi();
+			if (product.GetValidJetCount(s, event) > 1)
+				return product.GetValidJet(s, event, 1)->p4.Phi();
 			else
 				return 0;
 		}
 		else if (e == E::jet2eta)
 		{
-			if (metaData.GetValidJetCount(s, event) > 1)
-				return metaData.GetValidJet(s, event, 1)->p4.Eta();
+			if (product.GetValidJetCount(s, event) > 1)
+				return product.GetValidJet(s, event, 1)->p4.Eta();
 			else
 				return 0;
 		}
 
 		// MET & sumEt
 		else if (e == E::METpt)
-			return metaData.GetMet(event, s)->p4.Pt();
+			return product.GetMet(event, s)->p4.Pt();
 		else if (e == E::METphi)
-			return metaData.GetMet(event, s)->p4.Phi();
+			return product.GetMet(event, s)->p4.Phi();
 		else if (e == E::sumEt)
-			return metaData.GetMet(event, s)->sumEt;
+			return product.GetMet(event, s)->sumEt;
 		else if (e == E::rawMETpt)
 			return event.GetMet(s)->p4.Pt();
 		else if (e == E::rawMETphi)
 			return event.GetMet(s)->p4.Phi();
 
 		else if (e == E::uept)
-			return metaData.GetUE(event, s)->p4.Pt();
+			return product.GetUE(event, s)->p4.Pt();
 		else if (e == E::uephi)
-			return metaData.GetUE(event, s)->p4.Phi();
+			return product.GetUE(event, s)->p4.Phi();
 		else if (e == E::ueeta)
-			return metaData.GetUE(event, s)->p4.Eta();
+			return product.GetUE(event, s)->p4.Eta();
 		else if (e == E::mpf)
-			return metaData.GetMPF(metaData.GetMet(event, s));
+			return product.GetMPF(product.GetMet(event, s));
 		else if (e == E::rawmpf)
-			return metaData.GetMPF(event.GetMet(s));
+			return product.GetMPF(event.GetMet(s));
 		else if (e == E::otherjetspt)
 		{
-			if (metaData.GetValidJetCount(s, event) < 2)
+			if (product.GetValidJetCount(s, event) < 2)
 				return 0;
 			else
-				return (-(metaData.GetRefZ().p4
-						  + metaData.GetValidPrimaryJet(s, event)->p4
-						  + metaData.GetMet(event, s)->p4
-						  + metaData.GetValidJet(s, event, 1)->p4
-						  + metaData.GetUE(event, s)->p4
+				return (-(product.GetRefZ().p4
+						  + product.GetValidPrimaryJet(s, event)->p4
+						  + product.GetMet(event, s)->p4
+						  + product.GetValidJet(s, event, 1)->p4
+						  + product.GetUE(event, s)->p4
 						 )).Pt();
 		}
 		else if (e == E::otherjetsphi)
 		{
-			if (metaData.GetValidJetCount(s, event) < 2)
+			if (product.GetValidJetCount(s, event) < 2)
 				return 0;
 			else
-				return (-(metaData.GetRefZ().p4
-						  + metaData.GetValidPrimaryJet(s, event)->p4
-						  + metaData.GetMet(event, s)->p4
-						  + metaData.GetValidJet(s, event, 1)->p4
-						  + metaData.GetUE(event, s)->p4
+				return (-(product.GetRefZ().p4
+						  + product.GetValidPrimaryJet(s, event)->p4
+						  + product.GetMet(event, s)->p4
+						  + product.GetValidJet(s, event, 1)->p4
+						  + product.GetUE(event, s)->p4
 						 )).Phi();
 		}
 		else if (e == E::otherjetseta)
 		{
-			if (metaData.GetValidJetCount(s, event) < 2)
+			if (product.GetValidJetCount(s, event) < 2)
 				return 0;
 			else
-				return (-(metaData.GetRefZ().p4
-						  + metaData.GetValidPrimaryJet(s, event)->p4
-						  + metaData.GetMet(event, s)->p4
-						  + metaData.GetValidJet(s, event, 1)->p4
-						  + metaData.GetUE(event, s)->p4
+				return (-(product.GetRefZ().p4
+						  + product.GetValidPrimaryJet(s, event)->p4
+						  + product.GetMet(event, s)->p4
+						  + product.GetValidJet(s, event, 1)->p4
+						  + product.GetUE(event, s)->p4
 						 )).Eta();
 		}
 		//gen jets
@@ -900,21 +900,21 @@ private:
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 
-			if (metaData.GetValidJetCount(s, event, genName) == 0)
+			if (product.GetValidJetCount(s, event, genName) == 0)
 				return false;
 
-			return metaData.GetValidJet(s, event, 0, genName)->p4.Pt();
+			return product.GetValidJet(s, event, 0, genName)->p4.Pt();
 		}
 		else if (e == E::genjet1ptneutrinos)
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 
-			if (metaData.GetValidJetCount(s, event, genName) == 0)
+			if (product.GetValidJetCount(s, event, genName) == 0)
 				return false;
 
-			KDataLV v = * metaData.GetValidJet(s, event, 0, genName);
-			if (metaData.m_neutrinos[genName].size() > 0)
-				for (const auto & it : metaData.m_neutrinos[genName])
+			KDataLV v = * product.GetValidJet(s, event, 0, genName);
+			if (product.m_neutrinos[genName].size() > 0)
+				for (const auto & it : product.m_neutrinos[genName])
 					v.p4 += it.p4;
 			return v.p4.Pt();
 		}
@@ -922,76 +922,76 @@ private:
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 
-			if (metaData.GetValidJetCount(s, event, genName) == 0)
+			if (product.GetValidJetCount(s, event, genName) == 0)
 				return false;
 
-			return metaData.GetValidJet(s, event, 0, genName)->p4.Eta();
+			return product.GetValidJet(s, event, 0, genName)->p4.Eta();
 		}
 		else if (e == E::genjet1phi)
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 
-			if (metaData.GetValidJetCount(s, event, genName) == 0)
+			if (product.GetValidJetCount(s, event, genName) == 0)
 				return false;
 
-			return metaData.GetValidJet(s, event, 0, genName)->p4.Phi();
+			return product.GetValidJet(s, event, 0, genName)->p4.Phi();
 		}
 		else if (e == E::matchedgenjet1pt)
 		{
-			return metaData.GetMatchedGenJet(event, s, 0)->p4.Pt();
+			return product.GetMatchedGenJet(event, s, 0)->p4.Pt();
 		}
 		else if (e == E::matchedgenjet2pt)
 		{
-			return metaData.GetMatchedGenJet(event, s, 1)->p4.Pt();
+			return product.GetMatchedGenJet(event, s, 1)->p4.Pt();
 		}
 		else if (e == E::genjet2pt)
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
 
-			if (metaData.GetValidJetCount(s, event, genName) < 2)
+			if (product.GetValidJetCount(s, event, genName) < 2)
 				return false;
 
-			return metaData.GetValidJet(s, event, 1, genName)->p4.Pt();
+			return product.GetValidJet(s, event, 1, genName)->p4.Pt();
 		}
 		else if (e == E::genmpf)
-			return metaData.GetGenMPF(metaData.GetPtGenMet());
+			return product.GetGenMPF(product.GetPtGenMet());
 		else if (e == E::algoflavour)
-			return metaData.GetAlgoFlavour(s);
+			return product.GetAlgoFlavour(s);
 		else if (e == E::physflavour)
-			return metaData.GetPhysFlavour(s);
+			return product.GetPhysFlavour(s);
 		else if (e == E::algopt)
-			return metaData.GetAlgoPt(s);
+			return product.GetAlgoPt(s);
 		else if (e == E::physpt)
-			return metaData.GetPhysPt(s);
+			return product.GetPhysPt(s);
 		else if (e == E::eventnr)
-			return event.m_eventmetadata->nEvent;
+			return event.m_eventproduct->nEvent;
 		else if (e == E::lumisec)
-			return event.m_eventmetadata->nLumi;
+			return event.m_eventproduct->nLumi;
 		else if (e == E::jet1ptneutrinos)
 		{
-			KDataLV v = * metaData.GetValidPrimaryJet(s, event);
+			KDataLV v = * product.GetValidPrimaryJet(s, event);
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-			if (metaData.m_neutrinos[genName].size() > 0)
-				for (const auto & it : metaData.m_neutrinos[genName])
+			if (product.m_neutrinos[genName].size() > 0)
+				for (const auto & it : product.m_neutrinos[genName])
 					v.p4 += it.p4;
 			return v.p4.Pt();
 		}
 		else if (e == E::mpfneutrinos)
 		{
-			KDataPFMET met = * metaData.GetMet(event, s);
+			KDataPFMET met = * product.GetMet(event, s);
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-			if (metaData.m_neutrinos[genName].size() > 0)
-				for (const auto & it : metaData.m_neutrinos[genName])
+			if (product.m_neutrinos[genName].size() > 0)
+				for (const auto & it : product.m_neutrinos[genName])
 					met.p4 -= it.p4;
 			met.p4.SetEta(0);
-			return metaData.GetMPF(&met);
+			return product.GetMPF(&met);
 		}
 		else if (e == E::neutralpt3)
 		{
 			KDataLV v;
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-			if (metaData.m_neutrals3[genName].size() > 0)
-				for (const auto & it : metaData.m_neutrals3[genName])
+			if (product.m_neutrals3[genName].size() > 0)
+				for (const auto & it : product.m_neutrals3[genName])
 					v.p4 += it.p4;
 			return v.p4.Pt();
 		}
@@ -999,46 +999,46 @@ private:
 		{
 			KDataLV v;
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-			if (metaData.m_neutrals5[genName].size() > 0)
-				for (const auto & it : metaData.m_neutrals5[genName])
+			if (product.m_neutrals5[genName].size() > 0)
+				for (const auto & it : product.m_neutrals5[genName])
 					v.p4 += it.p4;
 			return v.p4.Pt();
 		}
 		else if (e == E::unc)
-			return metaData.leadingjetuncertainty[s.GetJetAlgorithm()];
+			return product.leadingjetuncertainty[s.GetJetAlgorithm()];
 		else if (e == E::hlt)
 		{
-			if (metaData.GetSelectedHlt().empty()) // no HLT found
+			if (product.GetSelectedHlt().empty()) // no HLT found
 				return 0;
 			else
-				return event.m_eventmetadata->hltFired(metaData.GetSelectedHlt(), event.m_lumimetadata);
+				return event.m_eventproduct->hltFired(product.GetSelectedHlt(), event.m_lumiproduct);
 		}
 
 		//some electron stuff
 		else if (e == E::sf)
-			return metaData.scalefactor;
+			return product.scalefactor;
 		else if (e == E::sfplus)
-			return metaData.sfplus;
+			return product.sfplus;
 		else if (e == E::sfminus)
-			return metaData.sfminus;
+			return product.sfminus;
 		else if (e == E::eidveto)
-			return metaData.electronidveto;
+			return product.electronidveto;
 		else if (e == E::eplusidloose)
-			return metaData.leadingeplus.cutbasedIDloose;
+			return product.leadingeplus.cutbasedIDloose;
 		else if (e == E::eplusidmedium)
-			return metaData.leadingeplus.cutbasedIDmedium;
+			return product.leadingeplus.cutbasedIDmedium;
 		else if (e == E::eplusidtight)
-			return metaData.leadingeplus.cutbasedIDtight;
+			return product.leadingeplus.cutbasedIDtight;
 		else if (e == E::eplusidveto)
-			return metaData.leadingeplus.cutbasedIDveto;
+			return product.leadingeplus.cutbasedIDveto;
 		else if (e == E::eminusidloose)
-			return metaData.leadingeminus.cutbasedIDloose;
+			return product.leadingeminus.cutbasedIDloose;
 		else if (e == E::eminusidmedium)
-			return metaData.leadingeminus.cutbasedIDmedium;
+			return product.leadingeminus.cutbasedIDmedium;
 		else if (e == E::eminusidtight)
-			return metaData.leadingeminus.cutbasedIDtight;
+			return product.leadingeminus.cutbasedIDtight;
 		else if (e == E::eminusidveto)
-			return metaData.leadingeminus.cutbasedIDveto;
+			return product.leadingeminus.cutbasedIDveto;
 
 		LOG_FATAL("None found");
 		assert(false);

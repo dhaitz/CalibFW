@@ -19,11 +19,11 @@ public:
 		m_prevRun(-1), m_prevLumi(-1), m_inpType(inpType), m_fi(fi)
 	{
 		// setup pointer to collections
-		m_event.m_eventmetadata = fi.Get<KEventMetadata>();
+		m_event.m_eventproduct = fi.Get<KEventMetadata>();
 
 		if (inpType == McInput)
 		{
-			m_event.m_geneventmetadata = fi.Get<KGenEventMetadata>();
+			m_event.m_geneventproduct = fi.Get<KGenEventMetadata>();
 			m_event.m_pthatbin = -2;  // sample reweighting might be enabled
 		}
 		else
@@ -81,26 +81,26 @@ public:
 				LOG_FATAL("No pthat bin found but sample weights expected: " << filename << " (bin: " << m_event.m_pthatbin << ")");
 		}
 
-		if (m_prevRun != m_event.m_eventmetadata->nRun)
+		if (m_prevRun != m_event.m_eventproduct->nRun)
 		{
-			m_prevRun = m_event.m_eventmetadata->nRun;
+			m_prevRun = m_event.m_eventproduct->nRun;
 			m_prevLumi = -1;
 		}
 
-		if (m_prevLumi != m_event.m_eventmetadata->nLumi)
+		if (m_prevLumi != m_event.m_eventproduct->nLumi)
 		{
-			m_prevLumi = m_event.m_eventmetadata->nLumi;
+			m_prevLumi = m_event.m_eventproduct->nLumi;
 			m_fi.GetMetaEntry();
 
 			// load the correct lumi information
 			if (m_inpType == McInput)
 			{
-				m_event.m_genlumimetadata = m_fi.GetMeta<KGenLumiMetadata>("KLumiMetadata");
-				m_event.m_lumimetadata = m_fi.GetMeta<KGenLumiMetadata>("KLumiMetadata");
+				m_event.m_genlumiproduct = m_fi.GetMeta<KGenLumiMetadata>("KLumiMetadata");
+				m_event.m_lumiproduct = m_fi.GetMeta<KGenLumiMetadata>("KLumiMetadata");
 			}
 			else if (m_inpType == DataInput)
 			{
-				m_event.m_lumimetadata = m_fi.GetMeta<KDataLumiMetadata>("KLumiMetadata");
+				m_event.m_lumiproduct = m_fi.GetMeta<KDataLumiMetadata>("KLumiMetadata");
 			}
 			else
 			{
@@ -109,7 +109,7 @@ public:
 
 			//std::cout << "Loading new lumi info" << std::endl;
 			// reload the HLT information associated with this lumi
-			hltInfo->setLumiMetadata(m_event.m_lumimetadata);
+			hltInfo->setLumiMetadata(m_event.m_lumiproduct);
 		}
 
 		return true;

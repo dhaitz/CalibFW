@@ -6,7 +6,7 @@
 
 using namespace Artus;
 
-void ZJetPipeline::GetSupportedCuts(ZJetPipeline::MetaDataProducerVector& cuts)
+void ZJetPipeline::GetSupportedCuts(ZJetPipeline::ProducerVector& cuts)
 {
 	cuts.clear();
 	cuts.push_back(new MuonEtaCut());
@@ -14,7 +14,7 @@ void ZJetPipeline::GetSupportedCuts(ZJetPipeline::MetaDataProducerVector& cuts)
 
 	cuts.push_back(new ElectronEtaCut());
 	cuts.push_back(new ElectronPtCut());
-	
+
 	cuts.push_back(new ZemuCuts());
 
 	cuts.push_back(new ZPtCut());

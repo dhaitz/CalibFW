@@ -9,10 +9,10 @@ class ValidZFilter: public ZJetFilterBase
 {
 public:
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
-		return metaData.HasValidZ();
+		return product.HasValidZ();
 	}
 
 	virtual std::string GetFilterId()

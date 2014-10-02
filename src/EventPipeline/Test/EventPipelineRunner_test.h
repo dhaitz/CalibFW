@@ -14,21 +14,21 @@
 namespace Artus
 {
 
-class TestPipeline : public EventPipeline<TestData, TestMetaData,TestSettings>
+class TestPipeline : public EventPipeline<TestData, Testproduct, TestSettings>
 {
 public:
 
-	TestPipeline() : iRunEvent( 0 ), iFinish(0), bCheckMetaProducer( false)
+	TestPipeline() : iRunEvent(0), iFinish(0), bCheckMetaProducer(false)
 	{
 
 	}
 
-	virtual void RunEvent(TestData const& evt, TestMetaData const& meta)
+	virtual void RunEvent(TestData const& evt, Testproduct const& meta)
 	{
 		iRunEvent++;
-		if ( bCheckMetaProducer)
+		if (bCheckMetaProducer)
 		{
-			BOOST_CHECK( meta.iGlobalMetaData == 1 );
+			BOOST_CHECK(meta.iGlobalProduct == 1);
 		}
 	}
 
@@ -38,10 +38,10 @@ public:
 	}
 
 
-	void CheckCalls( int RunEvent )
+	void CheckCalls(int RunEvent)
 	{
-		BOOST_CHECK_EQUAL( iFinish, 1 );
-		BOOST_CHECK_EQUAL( iRunEvent, RunEvent );
+		BOOST_CHECK_EQUAL(iFinish, 1);
+		BOOST_CHECK_EQUAL(iRunEvent, RunEvent);
 	}
 
 	int iRunEvent;
@@ -53,23 +53,24 @@ public:
 class TestEventProvider : public EventProvider< TestData >
 {
 	virtual TestData const& GetCurrentEvent() const
-			{
+	{
 		return m_data;
-			}
-	virtual bool GotoEvent( long long lEventNumber,HLTTools * hltInfo )
+	}
+	virtual bool GotoEvent(long long lEventNumber, HLTTools* hltInfo)
 	{
 		return true;
 	}
 	virtual long long GetOverallEventCount() const
-			{
+	{
 		return 10;
-			}
+	}
 
 	TestData m_data;
 };
 
-BOOST_AUTO_TEST_CASE( test_event_prunner_global_metadata )
-{/*
+BOOST_AUTO_TEST_CASE(test_event_prunner_global_product)
+{
+	/*
 	TestPipeline * tline1 = new TestPipeline;
 	TestPipeline * tline2 = new TestPipeline;
 	TestPipeline * tline3 = new TestPipeline;
@@ -91,12 +92,12 @@ BOOST_AUTO_TEST_CASE( test_event_prunner_global_metadata )
 	tline4->InitPipeline( tset, TestPipelineInitilizer() );
 	tline5->InitPipeline( tset, TestPipelineInitilizer() );
 
-	EventPipelineRunner<TestPipeline, TestMetaDataProducerBase> prunner;
+	EventPipelineRunner<TestPipeline, TestProducerBase> prunner;
 
 	prunner.AddPipeline( tline1 );
 	prunner.AddPipeline( tline2 );
 
-	prunner.AddGlobalMetaProducer( new TestMetaDataProducer() );
+	prunner.AddGlobalMetaProducer( new TestProducer() );
 
 	std::vector<TestPipeline *> vPipes;
 	vPipes.push_back( tline3 );
@@ -105,7 +106,7 @@ BOOST_AUTO_TEST_CASE( test_event_prunner_global_metadata )
 	prunner.AddPipelines( vPipes );
 
 	TestEventProvider evtProvider;
-	prunner.RunPipelines<TestData, TestMetaData, TestSettings>( evtProvider, tset );
+	prunner.RunPipelines<TestData, Testproduct, TestSettings>( evtProvider, tset );
 
 	tline1->CheckCalls(10);
 	tline2->CheckCalls(10);
@@ -116,8 +117,9 @@ BOOST_AUTO_TEST_CASE( test_event_prunner_global_metadata )
 }
 
 
-BOOST_AUTO_TEST_CASE( test_event_prunner )
-{/*
+BOOST_AUTO_TEST_CASE(test_event_prunner)
+{
+	/*
 	TestPipeline * tline1 = new TestPipeline;
 	TestPipeline * tline2 = new TestPipeline;
 	TestPipeline * tline3 = new TestPipeline;
@@ -133,7 +135,7 @@ BOOST_AUTO_TEST_CASE( test_event_prunner )
 	tline4->InitPipeline( tset, TestPipelineInitilizer() );
 	tline5->InitPipeline( tset, TestPipelineInitilizer() );
 
-	EventPipelineRunner<TestPipeline, TestMetaDataProducerBase> prunner;
+	EventPipelineRunner<TestPipeline, TestProducerBase> prunner;
 
 	prunner.AddPipeline( tline1 );
 	prunner.AddPipeline( tline2 );
@@ -145,14 +147,14 @@ BOOST_AUTO_TEST_CASE( test_event_prunner )
 	prunner.AddPipelines( vPipes );
 
 	TestEventProvider evtProvider;
-	prunner.RunPipelines<TestData, TestMetaData, TestSettings>( evtProvider, tset );
+	prunner.RunPipelines<TestData, Testproduct, TestSettings>( evtProvider, tset );
 
 	tline1->CheckCalls(10);
 	tline2->CheckCalls(10);
 	tline3->CheckCalls(10);
 	tline4->CheckCalls(10);
 	tline5->CheckCalls(10);
-*/
+	*/
 }
 
 

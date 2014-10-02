@@ -4,12 +4,12 @@ namespace Artus
 {
 
 //apply typeI-corrections to MET
-class TypeIMETProducer: public ZJetGlobalMetaDataProducerBase
+class TypeIMETProducer: public ZJetGlobalProductProducerBase
 {
 public:
 
 	TypeIMETProducer(bool EnableMetPhiCorrection, stringvector baseAlgos, bool rc, bool isData) :
-		ZJetGlobalMetaDataProducerBase(), m_basealgorithms(baseAlgos),
+		ZJetGlobalProductProducerBase(), m_basealgorithms(baseAlgos),
 		m_metphi(EnableMetPhiCorrection), m_rc(rc), m_isData(isData),
 		jet_min_pt(10.)
 	{
@@ -46,9 +46,9 @@ public:
 			}
 	}
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& globalsettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& event,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& globalsettings) const
 	{
 
 		for (unsigned int i = 0; i < m_algorithms.size(); i++)
@@ -66,13 +66,13 @@ public:
 			for (unsigned int j = 0; j < m_algorithms[i].size(); j++)
 			{
 				KDataLV correction;
-				for (unsigned int k = 0; k < metaData.m_validPFJets.at(m_algorithms[i][j]).size(); ++ k)
+				for (unsigned int k = 0; k < product.m_validPFJets.at(m_algorithms[i][j]).size(); ++ k)
 				{
-					KDataPFJet* corrjet = &metaData.m_validPFJets.at(m_algorithms[i][j]).at(k);
+					KDataPFJet* corrjet = &product.m_validPFJets.at(m_algorithms[i][j]).at(k);
 
 					if (corrjet->p4.Pt() > jet_min_pt)
 					{
-						KDataPFJet* l1jet = &metaData.m_validPFJets.at(m_l1algorithms[i]).at(k);
+						KDataPFJet* l1jet = &product.m_validPFJets.at(m_l1algorithms[i]).at(k);
 						correction.p4 +=  l1jet->p4 - corrjet->p4;
 						sumEt_correction += correction.p4.Pt();
 					}
@@ -97,7 +97,7 @@ public:
 					corrmet.p4.SetPhi(atan2(py, px));
 				}
 
-				metaData.m_MET[m_algorithms[i][j]] = corrmet;
+				product.m_MET[m_algorithms[i][j]] = corrmet;
 			}
 		}
 		return true;

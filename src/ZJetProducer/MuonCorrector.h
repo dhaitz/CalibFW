@@ -1,27 +1,27 @@
 #pragma once
 
 #include "ZJetEventPipeline/MetaData.h"
-#include "ZJetProducer/MetadataProducer.h"
-
 #include "MuScleFitCorrection/MuScleFitCorrector.h"
-
 #include <Math/LorentzVector.h>
 
 namespace Artus
 {
 
-class MuonCorrector: public ZJetGlobalMetaDataProducerBase
+typedef GlobalProductProducerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>
+ZJetGlobalProductProducerBase;
+
+class MuonCorrector: public ZJetGlobalProductProducerBase
 {
 public:
 	MuonCorrector(std::string parameterfile, std::string parameterfileRunD, bool smeared = true, bool deterministic = false, bool radiation = false);
 
-	virtual void PopulateMetaData(ZJetEventData const& data,
-								  ZJetMetaData& metaData,
-								  ZJetPipelineSettings const& m_pipelineSettings) const {};
+	virtual void PopulateProduct(ZJetEventData const& data,
+								 ZJetProduct& product,
+								 ZJetPipelineSettings const& m_pipelineSettings) const {};
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& m_pipelineSettings) const;
+	virtual bool PopulateGlobalProduct(ZJetEventData const& event,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& m_pipelineSettings) const;
 
 	static std::string Name()
 	{

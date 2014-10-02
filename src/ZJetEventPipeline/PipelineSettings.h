@@ -233,9 +233,9 @@ public:
 	}
 
 	VarCache<stringvector> m_producers;
-	stringvector GetMetaDataProducers() const
+	stringvector GetProducers() const
 	{
-		RETURN_CACHED(m_producers, PropertyTreeSupport::GetAsStringList(GetPropTree(), "Pipelines." + GetName() + ".MetaDataProducers"))
+		RETURN_CACHED(m_producers, PropertyTreeSupport::GetAsStringList(GetPropTree(), "Pipelines." + GetName() + ".Producers"))
 	}
 
 	VarCache<stringvector> m_consumer;

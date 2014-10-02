@@ -14,16 +14,16 @@ public:
 	JetPtFilter() : ZJetFilterBase() {}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
 		bool bPass = true;
 		double fBinVal;
 
-		if (!metaData.HasValidJet(settings, event))
+		if (!product.HasValidJet(settings, event))
 			return false;
 
-		KDataLV* pJet = metaData.GetValidPrimaryJet(settings, event);
+		KDataLV* pJet = product.GetValidPrimaryJet(settings, event);
 		fBinVal = pJet->p4.Pt();
 
 		if (fBinVal < settings.GetFilterJetPtLow())

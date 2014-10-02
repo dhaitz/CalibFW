@@ -14,14 +14,14 @@ the scale factors (different axes, binning in absolute eta)
 namespace Artus
 {
 
-typedef GlobalMetaDataProducerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
-ZJetGlobalMetaDataProducerBase;
+typedef GlobalProductProducerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>
+ZJetGlobalProductProducerBase;
 
-class ElectronSFProducer: public ZJetGlobalMetaDataProducerBase
+class ElectronSFProducer: public ZJetGlobalProductProducerBase
 {
 public:
 
-	ElectronSFProducer(std::string sffile, std::string id) : ZJetGlobalMetaDataProducerBase(),
+	ElectronSFProducer(std::string sffile, std::string id) : ZJetGlobalProductProducerBase(),
 		m_sffile(sffile), m_id(id)
 	{
 		std::string histoname;
@@ -67,13 +67,13 @@ public:
 		file.Close();
 	}
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& globalSettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& data,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& globalSettings) const
 	{
-		metaData.sfminus = getscalefactor(metaData.leadingeminus);
-		metaData.sfplus = getscalefactor(metaData.leadingeplus);
-		metaData.scalefactor = metaData.sfplus * metaData.sfminus;
+		product.sfminus = getscalefactor(product.leadingeminus);
+		product.sfplus = getscalefactor(product.leadingeplus);
+		product.scalefactor = product.sfplus * product.sfminus;
 		return true;
 	}
 

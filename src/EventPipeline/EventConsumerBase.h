@@ -11,7 +11,7 @@
 namespace Artus
 {
 
-template<class TData, class TMetaData, class TSettings>
+template<class TData, class TProduct, class TSettings>
 class EventPipeline;
 
 /*
@@ -22,7 +22,7 @@ class EventPipeline;
 
  */
 
-template<class TData, class TMetaData, class TSettings>
+template<class TData, class TProduct, class TSettings>
 class EventConsumerBase: public boost::noncopyable
 {
 public:
@@ -33,7 +33,7 @@ public:
 	/*
 	 * Called before the first Event is passed to this consumer
 	 */
-	virtual void Init(EventPipeline<TData, TMetaData, TSettings>* pipeline)
+	virtual void Init(EventPipeline<TData, TProduct, TSettings>* pipeline)
 	{
 		m_pipeline = pipeline;
 	}
@@ -43,15 +43,15 @@ public:
 	 * pipeline
 	 */
 	virtual void ProcessFilteredEvent(TData const& event,
-									  TMetaData const& metaData)
+									  TProduct const& product)
 	{
 	}
 
 	/*
 	 *  this method is called for all events
 	 */
-	virtual void ProcessEvent(TData const& event, TMetaData const& metaData,
-			FilterResult& result)
+	virtual void ProcessEvent(TData const& event, TProduct const& product,
+							  FilterResult& result)
 	{
 	}
 
@@ -85,7 +85,7 @@ public:
 	}
 
 protected:
-	EventPipeline<TData, TMetaData, TSettings>* m_pipeline;
+	EventPipeline<TData, TProduct, TSettings>* m_pipeline;
 };
 
 

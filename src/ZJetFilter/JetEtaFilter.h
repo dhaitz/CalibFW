@@ -14,14 +14,14 @@ class JetEtaFilter: public ZJetFilterBase
 {
 public:
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
-		if (!metaData.HasValidJet(settings, event))
+		if (!product.HasValidJet(settings, event))
 			//No valid objects found to apply this filter
 			return false;
 
-		KDataLV* jet1 = metaData.GetValidPrimaryJet(settings, event);
+		KDataLV* jet1 = product.GetValidPrimaryJet(settings, event);
 		double eta = TMath::Abs(jet1->p4.Eta());
 		return (eta >= settings.GetFilterJetEtaLow()) &&
 			   (eta < settings.GetFilterJetEtaHigh());

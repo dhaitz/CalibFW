@@ -11,7 +11,7 @@
 #include "../ZJetPipeline.h"
 #include "ZJetConsumer.h"
 
-#include "../MetaDataProducer/ZJetCuts.h"
+#include "../Producer/ZJetCuts.h"
 #include "../Filter/InCutFilter.h"
 
 namespace Artus
@@ -24,7 +24,7 @@ public:
 	{
 	}
 
-	virtual void Init(EventPipeline<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>* pset)
+	virtual void Init(EventPipeline<ZJetEventData, ZJetProduct, ZJetPipelineSettings>* pset)
 	{
 		ZJetConsumerBase::Init(pset);
 	}
@@ -40,21 +40,21 @@ public:
 
 	// this method is only called for events which have passed the filter imposed on the
 	// pipeline
-	virtual void ProcessFilteredEvent(ZJetEventData const& event, ZJetMetaData const& metaData)
+	virtual void ProcessFilteredEvent(ZJetEventData const& event, ZJetProduct const& product)
 	{
 	}
 
 	// this method is called for all events
 	virtual void ProcessEvent(ZJetEventData const& event,
-							  ZJetMetaData const& metaData,
+							  ZJetProduct const& product,
 							  FilterResult& result)
 	{
 		std::cout << "## Event" << std::endl << event.GetContent(this->GetPipelineSettings());
-		std::cout << "## MetaData" << std::endl << metaData.GetContent();
+		std::cout << "## product" << std::endl << product.GetContent();
 	}
 
 	std::map<std::string, unsigned long> m_cutRejected;
-	ZJetPipeline::MetaDataProducerVector m_cuts;
+	ZJetPipeline::ProducerVector m_cuts;
 	bool m_isMC;
 	unsigned long m_conditional2ndJetPtCut;
 	unsigned long m_conditional2ndJetPtCutBase;

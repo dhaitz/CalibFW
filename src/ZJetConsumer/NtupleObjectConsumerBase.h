@@ -21,7 +21,7 @@
 namespace Artus
 {
 
-class NtupleObjectConsumerBase : public NtupleConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>
+class NtupleObjectConsumerBase : public NtupleConsumerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>
 {
 public:
 	virtual std::string GetName() const
@@ -31,26 +31,26 @@ public:
 
 	void Init(PipelineTypeForThis* pset)
 	{
-		EventConsumerBase<ZJetEventData, ZJetMetaData, ZJetPipelineSettings>::Init(pset);
+		EventConsumerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>::Init(pset);
 		m_ntuple = new TNtuple((m_name + "NTuple").c_str(), (m_name + "NTuple").c_str(), GetQuantitiesString().c_str());
 
 	}
 
 	virtual void ProcessFilteredEvent(ZJetEventData const& event,
-									  ZJetMetaData const& metaData)
+									  ZJetProduct const& product)
 	{
-		EventConsumerBase< ZJetEventData, ZJetMetaData, ZJetPipelineSettings>::ProcessFilteredEvent(event, metaData);
+		EventConsumerBase< ZJetEventData, ZJetProduct, ZJetPipelineSettings>::ProcessFilteredEvent(event, product);
 
 		std::vector<float> array;
 		std::vector<std::string> strvec = GetStringvector();
 
-		int n = getsize(event, metaData, this->GetPipelineSettings());
+		int n = getsize(event, product, this->GetPipelineSettings());
 		//iterate over each object in the event
 		for (int i = 0; i < n; i++)
 		{
 			//iterate over string vector and fill the array for each quantitiy
 			for (std::vector<std::string>::iterator it = strvec.begin(); it != strvec.end(); ++it)
-				array.push_back(returnvalue(i, *it, event, metaData, this->GetPipelineSettings()));
+				array.push_back(returnvalue(i, *it, event, product, this->GetPipelineSettings()));
 			// add the array to the ntuple
 			m_ntuple->Fill(&array.front());
 			array.clear();
@@ -84,30 +84,30 @@ protected:
 	}
 
 	virtual float returnvalue(int n, std::string string, ZJetEventData const& event,
-							  ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
+							  ZJetProduct const& product, ZJetPipelineSettings const& s) const
 	{
 		// basic kinematics
 		if (string == "pt")
-			return GetSingleObject(n, event, metaData, s).p4.Pt();
+			return GetSingleObject(n, event, product, s).p4.Pt();
 		else if (string == "phi")
-			return GetSingleObject(n, event, metaData, s).p4.Phi();
+			return GetSingleObject(n, event, product, s).p4.Phi();
 		else if (string == "eta")
-			return GetSingleObject(n, event, metaData, s).p4.Eta();
+			return GetSingleObject(n, event, product, s).p4.Eta();
 		else if (string == "mass")
-			return GetSingleObject(n, event, metaData, s).p4.mass();
+			return GetSingleObject(n, event, product, s).p4.mass();
 		else
 			LOG_FATAL(GetObjectName() << "NtupleConsumer: Quantity (" << string << ") not available!");
 
 	};
 
 	virtual int getsize(ZJetEventData const& event,
-						ZJetMetaData const& metaData, ZJetPipelineSettings const& settings) const
+						ZJetProduct const& product, ZJetPipelineSettings const& settings) const
 	{
 		return 0;
 	};
 
 	virtual KDataLV GetSingleObject(int n, ZJetEventData const& event,
-									ZJetMetaData const& metaData, ZJetPipelineSettings const& s) const
+									ZJetProduct const& product, ZJetPipelineSettings const& s) const
 	{
 		return * new KDataLV;
 	};

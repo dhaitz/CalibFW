@@ -20,10 +20,10 @@ public:
 	}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
-		KEventMetadata* p =  metaData.GetKappaMetaData(event, settings);
+		KEventMetadata* p =  product.GetKappaproduct(event, settings);
 
 		return m_lumiSelector->accept(p->nRun, p->nLumi);
 	}

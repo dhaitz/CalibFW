@@ -9,14 +9,15 @@
 #include "../ZJetCuts.h"
 
 #include "../../Test/ZJetTestSupport.h"
-#include "ZJet/MetaDataProducer/JetMatcher.h"
+#include "ZJet/Producer/JetMatcher.h"
 
 namespace Artus
 {
 
-BOOST_AUTO_TEST_CASE( test_jetmatcher )
-{/*
-	ZJetMetaData mdata;
+BOOST_AUTO_TEST_CASE(test_jetmatcher)
+{
+	/*
+	ZJetProduct mdata;
 	TestZJetEventData data;
 	ZJetPipelineSettings set;
 
@@ -53,17 +54,17 @@ BOOST_AUTO_TEST_CASE( test_jetmatcher )
 
 	JetMatcher jm( algo1, algo2, match_prod );
 
-	jm.PopulateGlobalMetaData( data, mdata, set );
+	jm.PopulateGlobalProduct( data, mdata, set );
 
 	MatchingResult & mres = mdata.GetMatchingResults( match_prod );
-*/
-/*	BOOST_CHECK_EQUAL( mres.GetEntryCount(),3 );
-	BOOST_CHECK_EQUAL( mres.GetMatchingJet(0),1 );
-	BOOST_CHECK_EQUAL( mres.GetMatchingJet(1),0 );
-	BOOST_CHECK_EQUAL( mres.GetMatchingJet(1),MatchingPair::NoMatchFound );
+	*/
+	/*	BOOST_CHECK_EQUAL( mres.GetEntryCount(),3 );
+		BOOST_CHECK_EQUAL( mres.GetMatchingJet(0),1 );
+		BOOST_CHECK_EQUAL( mres.GetMatchingJet(1),0 );
+		BOOST_CHECK_EQUAL( mres.GetMatchingJet(1),MatchingPair::NoMatchFound );
 
-	// jet 3 is not there an was never matched ...
-	BOOST_CHECK_EQUAL( mres.GetMatchingJet(3),MatchingPair::NotMatched );*/
+		// jet 3 is not there an was never matched ...
+		BOOST_CHECK_EQUAL( mres.GetMatchingJet(3),MatchingPair::NotMatched );*/
 }
 
 

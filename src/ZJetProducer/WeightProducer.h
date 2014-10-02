@@ -2,9 +2,9 @@
 
 // from ROOT
 #include <Math/VectorUtil.h>
-#include "ZJetProducer/MetadataProducer.h"
 #include "RootTools/RootIncludes.h"
 #include "ZJetProducer/TriggerWeights.h"
+
 
 namespace Artus
 {
@@ -14,7 +14,11 @@ namespace Artus
 
     This can only be used on MC.
 */
-class WeightProducer: public ZJetGlobalMetaDataProducerBase
+
+typedef GlobalProductProducerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>
+ZJetGlobalProductProducerBase;
+
+class WeightProducer: public ZJetGlobalProductProducerBase
 {
 private:
 	std::vector<double> m_pileupweights;
@@ -44,9 +48,9 @@ public:
 		m_triggerbinwidth = 0.1;
 	}
 
-	virtual void PopulateMetaData(ZJetEventData const& data,
-								  ZJetMetaData& metaData,
-								  ZJetPipelineSettings const& m_pipelineSettings) const
+	virtual void PopulateProduct(ZJetEventData const& data,
+								 ZJetProduct& product,
+								 ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		// nothing todo here
 	}
@@ -57,17 +61,17 @@ public:
 	}
 
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& m_pipelineSettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& data,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		double weight = 1.0;
 
 		// pu reweighting
 		if (m_pipelineSettings.Global()->GetEnablePuReweighting())
 		{
-			assert(data.m_geneventmetadata != NULL);
-			double npu = data.m_geneventmetadata->numPUInteractionsTruth;
+			assert(data.m_geneventproduct != NULL);
+			double npu = data.m_geneventproduct->numPUInteractionsTruth;
 			if (npu < m_pileupweights.size())
 				weight *= m_pileupweights.at(int(npu * m_bins));
 			else
@@ -76,9 +80,9 @@ public:
 
 		// 2nd jet pt reweighting
 		if (m_pipelineSettings.Global()->GetEnable2ndJetReweighting() &&
-			metaData.GetValidJetCount(m_pipelineSettings, data, "AK5PFJetsCHSL1L2L3") < 2)
+			product.GetValidJetCount(m_pipelineSettings, data, "AK5PFJetsCHSL1L2L3") < 2)
 		{
-			KDataLV* jet2 = metaData.GetValidJet(m_pipelineSettings, data, 1, "AK5PFJetsCHSL1L2L3");
+			KDataLV* jet2 = product.GetValidJet(m_pipelineSettings, data, 1, "AK5PFJetsCHSL1L2L3");
 			// apply a new weight for 2 GeV pt bins
 			if (m_pipelineSettings.Global()->Get2ndJetReweighting().size() > unsigned(jet2->p4.Pt() / 2.0))
 				weight *= m_pipelineSettings.Global()->Get2ndJetReweighting().at(
@@ -107,22 +111,22 @@ public:
 			//evaluate in this order: config, external, internal
 			if (m_pipelineSettings.Global()->GetXSection() > 0)
 				xsec = m_pipelineSettings.Global()->GetXSection();
-			else if (data.m_genlumimetadata->xSectionExt > 0)
-				xsec = data.m_genlumimetadata->xSectionExt;
-			else if (data.m_genlumimetadata->xSectionInt > 0)
-				xsec *= data.m_genlumimetadata->xSectionInt;
+			else if (data.m_genlumiproduct->xSectionExt > 0)
+				xsec = data.m_genlumiproduct->xSectionExt;
+			else if (data.m_genlumiproduct->xSectionInt > 0)
+				xsec *= data.m_genlumiproduct->xSectionInt;
 			else
 				LOG_FATAL("Lumi reweighting enabled but no cross section given");
 
-			if (data.m_genlumimetadata->filterEff > 0)
-				xsec *= data.m_genlumimetadata->filterEff;
+			if (data.m_genlumiproduct->filterEff > 0)
+				xsec *= data.m_genlumiproduct->filterEff;
 			weight *= xsec / ntotal * 1000.0;  // normalize to 1/fb
 
 			if (unlikely(xsec <= 0))
 				LOG("cfg=" << m_pipelineSettings.Global()->GetXSection() <<
-					", ext=" << data.m_genlumimetadata->xSectionExt <<
-					", int=" << data.m_genlumimetadata->xSectionInt <<
-					", eff=" << data.m_genlumimetadata->filterEff <<
+					", ext=" << data.m_genlumiproduct->xSectionExt <<
+					", int=" << data.m_genlumiproduct->xSectionInt <<
+					", eff=" << data.m_genlumiproduct->filterEff <<
 					", nevents=" << ntotal <<
 					", xsec=" << xsec << ", weight=" << weight);
 		}
@@ -131,10 +135,10 @@ public:
 		//
 		if (m_pipelineSettings.Global()->GetEnableTriggerReweighting())
 		{
-			double eta1 = metaData.m_listValidMuons[0].p4.Eta();
-			double eta2 = metaData.m_listValidMuons[1].p4.Eta();
-			double pt1 = metaData.m_listValidMuons[0].p4.Pt();
-			double pt2 = metaData.m_listValidMuons[1].p4.Pt();
+			double eta1 = product.m_listValidMuons[0].p4.Eta();
+			double eta2 = product.m_listValidMuons[1].p4.Eta();
+			double pt1 = product.m_listValidMuons[0].p4.Pt();
+			double pt2 = product.m_listValidMuons[1].p4.Pt();
 
 			// ϵ(8,A) · ϵ(17,B) + ϵ(17,A) · ϵ(8,B) - ϵ(17,A) · ϵ(17,B)
 			double eff = efficiencyMu17(eta1) * efficiencyMu8(eta2)
@@ -148,10 +152,10 @@ public:
 			eff *= m_triggerweights.at(int((eta1 + 2.4) / m_triggerbinwidth));
 			eff *= m_triggerweights.at(int((eta2 + 2.4) / m_triggerbinwidth));
 			weight *= eff;
-			metaData.SetEfficiency(eff);
+			product.SetEfficiency(eff);
 		}
 
-		metaData.SetWeight(metaData.GetWeight() * weight);
+		product.SetWeight(product.GetWeight() * weight);
 		return true;
 	}
 };

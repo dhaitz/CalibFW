@@ -9,12 +9,12 @@ namespace Artus
  * Sorts the Jets in the Globalb Meta Data by Transverse Momentum
  */
 
-class JetSorter: public ZJetGlobalMetaDataProducerBase
+class JetSorter: public ZJetGlobalProductProducerBase
 {
 public:
-	virtual void PopulateMetaData(ZJetEventData const& data,
-								  ZJetMetaData& metaData,
-								  ZJetPipelineSettings const& m_pipelineSettings) const
+	virtual void PopulateProduct(ZJetEventData const& data,
+								 ZJetProduct& product,
+								 ZJetPipelineSettings const& m_pipelineSettings) const
 	{
 		// nothing to do here
 	}
@@ -24,11 +24,11 @@ public:
 		return "jet_sorter";
 	}
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& globalSettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& data,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& globalSettings) const
 	{
-		metaData.SortJetCollections();
+		product.SortJetCollections();
 		return true;
 	}
 };

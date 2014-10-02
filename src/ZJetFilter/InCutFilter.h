@@ -10,14 +10,14 @@ class InCutFilter: public ZJetFilterBase
 public:
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
 		//unsigned long ignoredCut = settings.GetFilterInCutIgnored();
 		// no section here is allowed to set to true again, just to false ! avoids coding errors
 		//return event.IsInCutWhenIgnoringCut(ignoredCut);
 		// todo
-		return metaData.IsAllCutsPassed();
+		return product.IsAllCutsPassed();
 	}
 
 	virtual std::string GetFilterId()
@@ -40,11 +40,11 @@ class ValidJetFilter: public ZJetFilterBase
 {
 public:
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
-		// std::cout << "val z " << metaData.HasValidZ() << std::endl;
-		return metaData.HasValidJet(settings, event);
+		// std::cout << "val z " << product.HasValidZ() << std::endl;
+		return product.HasValidJet(settings, event);
 	}
 
 	virtual std::string GetFilterId()

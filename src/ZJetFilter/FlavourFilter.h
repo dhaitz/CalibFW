@@ -16,19 +16,19 @@ class FlavourFilter: public ZJetFilterBase
 {
 public:
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
-		// other option: metaData.GetLeadingParton().pdgId())
+		// other option: product.GetLeadingParton().pdgId())
 		try
 		{
-			if (!metaData.GetRefValidParton())
+			if (!product.GetRefValidParton())
 				return false;
 
-			if (metaData.GetPtLeadingParton() == NULL)
+			if (product.GetPtLeadingParton() == NULL)
 				return false;
 
-			int flavour = std::abs(metaData.GetRefLeadingParton().pdgId());
+			int flavour = std::abs(product.GetRefLeadingParton().pdgId());
 			const int request = settings.GetFilterFlavour();
 			if (unlikely(flavour > 5 && flavour != 21))
 				return false; //LOG_FATAL("Strange flavour in event: " << flavour);

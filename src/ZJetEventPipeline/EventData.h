@@ -167,9 +167,9 @@ public:
 	{
 		std::stringstream s;
 		s << "EventMetadada " << std::endl;
-		s << "Run: " << m_eventmetadata->nRun;
-		s << " LumiSec: " << m_eventmetadata->nLumi;
-		s << " EventNum: " << m_eventmetadata->nEvent << std::endl;
+		s << "Run: " << m_eventproduct->nRun;
+		s << " LumiSec: " << m_eventproduct->nLumi;
+		s << " EventNum: " << m_eventproduct->nEvent << std::endl;
 
 		if (settings.IsData())
 		{
@@ -204,12 +204,12 @@ public:
 	}
 
 	KDataMuons* Muons;
-	KGenEventMetadata* m_geneventmetadata;
-	KEventMetadata* m_eventmetadata;
-	KLumiMetadata* m_lumimetadata;
-	KGenLumiMetadata* m_genlumimetadata;
-	KFilterMetadata* m_filtermetadata;
-	KTaggerMetadata* m_taggermetadata;
+	KGenEventMetadata* m_geneventproduct;
+	KEventMetadata* m_eventproduct;
+	KLumiMetadata* m_lumiproduct;
+	KGenLumiMetadata* m_genlumiproduct;
+	KFilterMetadata* m_filterproduct;
+	KTaggerMetadata* m_taggerproduct;
 	KFilterSummary* m_filter;
 	KVertexSummary* m_vertexSummary;
 	KDataBeamSpot* m_beamSpot;
@@ -218,12 +218,12 @@ public:
 
 	KGenLumiMetadata* GetGenLumiMetadata() const
 	{
-		return (KGenLumiMetadata*) m_lumimetadata;
+		return (KGenLumiMetadata*) m_lumiproduct;
 	}
 
 	KDataLumiMetadata* GetDataLumiMetadata() const
 	{
-		return (KDataLumiMetadata*) m_lumimetadata;
+		return (KDataLumiMetadata*) m_lumiproduct;
 	}
 
 };

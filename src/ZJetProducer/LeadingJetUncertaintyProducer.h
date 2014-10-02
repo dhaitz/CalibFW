@@ -6,13 +6,13 @@
 namespace Artus
 {
 
-class LeadingJetUncertaintyProducer: public ZJetGlobalMetaDataProducerBase
+class LeadingJetUncertaintyProducer: public ZJetGlobalProductProducerBase
 {
 public:
 
 	LeadingJetUncertaintyProducer(std::string corBase,
 								  std::vector<std::string> baseAlgos) :
-		ZJetGlobalMetaDataProducerBase(), m_corectionFileBase(corBase),
+		ZJetGlobalProductProducerBase(), m_corectionFileBase(corBase),
 		m_basealgorithms(baseAlgos)
 	{
 		// iterate over base algorithms and write the respective uncertainty
@@ -25,9 +25,9 @@ public:
 		}
 	}
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& event,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& settings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& event,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& settings) const
 	{
 		bool multiple_uncertainty_files = true;
 		SimpleJetCorrectionUncertainty* uncertainty = new SimpleJetCorrectionUncertainty();
@@ -40,8 +40,8 @@ public:
 		}
 
 		// iterate over jet collections and get the uncertainty for the leading jet
-		for (auto italgo = metaData.m_validPFJets.begin();
-			 italgo != metaData.m_validPFJets.end(); ++italgo)
+		for (auto italgo = product.m_validPFJets.begin();
+			 italgo != product.m_validPFJets.end(); ++italgo)
 		{
 			if (italgo->second->size() < 1)
 				return false;
@@ -49,13 +49,13 @@ public:
 			// if there are multiple uncertainty files in use, we have to select
 			// the correct one for each algorithm
 			if (multiple_uncertainty_files)
-				uncertainty = & m_uncertainties.at(metaData.GetCorrespondingBaseJetAlgorithm(italgo->first));
+				uncertainty = & m_uncertainties.at(product.GetCorrespondingBaseJetAlgorithm(italgo->first));
 
 			std::vector<float> vec(1, italgo->second->at(0).p4.Eta());
 			if (unlikely(uncertainty->uncertainty(vec, italgo->second->at(0).p4.Pt(), 0) == 999))
 				return false;
 			else
-				metaData.leadingjetuncertainty[italgo->first] = uncertainty->uncertainty(vec, italgo->second->at(0).p4.Pt(), 0);
+				product.leadingjetuncertainty[italgo->first] = uncertainty->uncertainty(vec, italgo->second->at(0).p4.Pt(), 0);
 		}
 		return true;
 	}

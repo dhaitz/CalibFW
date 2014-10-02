@@ -28,7 +28,7 @@ public:
 	}
 
 	virtual bool DoesEventPass(ZJetEventData const& event,
-							   ZJetMetaData const& metaData,
+							   ZJetProduct const& product,
 							   ZJetPipelineSettings const& settings)
 	{
 		bool bPass = true;
@@ -36,17 +36,17 @@ public:
 
 		if (m_binWith == ZPtBinning)
 		{
-			if (metaData.HasValidZ() == false)
+			if (product.HasValidZ() == false)
 				return false;
 
-			fBinVal = metaData.GetRefZ().p4.Pt();
+			fBinVal = product.GetRefZ().p4.Pt();
 		}
 		else
 		{
-			if (!metaData.HasValidJet(settings, event))
+			if (!product.HasValidJet(settings, event))
 				return false;
 
-			KDataLV* pJet = metaData.GetValidPrimaryJet(settings, event);
+			KDataLV* pJet = product.GetValidPrimaryJet(settings, event);
 			fBinVal = pJet->p4.Pt();
 		}
 

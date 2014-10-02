@@ -8,24 +8,24 @@ namespace Artus
     There must be 2 or 3 valid muons that fullfil the Z requirements.
     This requires the @see ValidMuonProducer before.
 */
-class ZProducer: public ZJetGlobalMetaDataProducerBase
+class ZProducer: public ZJetGlobalProductProducerBase
 {
 public:
 
-	ZProducer() : ZJetGlobalMetaDataProducerBase(),
+	ZProducer() : ZJetGlobalProductProducerBase(),
 		zmassRangeMin(71.19), zmassRangeMax(111.19)
 	{}
 
-	virtual bool PopulateGlobalMetaData(ZJetEventData const& data,
-										ZJetMetaData& metaData,
-										ZJetPipelineSettings const& globalSettings) const
+	virtual bool PopulateGlobalProduct(ZJetEventData const& data,
+									   ZJetProduct& product,
+									   ZJetPipelineSettings const& globalSettings) const
 	{
-		KDataMuons const& valid_muons = metaData.GetValidMuons();
+		KDataMuons const& valid_muons = product.GetValidMuons();
 
 		if (valid_muons.size() < 2)
 		{
 			// no Z to produce here
-			metaData.SetValidZ(false);
+			product.SetValidZ(false);
 			return false;
 		}
 
@@ -35,7 +35,7 @@ public:
 		if (valid_muons.size() > 3)
 		{
 			LOG("Warning: 4 valid muons? Skipping Event.")
-			metaData.SetValidZ(false);
+			product.SetValidZ(false);
 			return false;
 		}
 
@@ -63,18 +63,18 @@ public:
 		if (z_cand.size() > 1)
 		{
 			LOG(" -- more than 1 Z boson candidate found." << z_cand.size() << " in an event. Not sure how to combine this. Dropping event for now.")
-			metaData.SetValidZ(false);
+			product.SetValidZ(false);
 			return false;
 		}
 
 		if (z_cand.size() == 0)
 		{
-			metaData.SetValidZ(false);
+			product.SetValidZ(false);
 			return false;
 		}
 
-		metaData.SetZ(z_cand[0]);
-		metaData.SetValidZ(true);
+		product.SetZ(z_cand[0]);
+		product.SetValidZ(true);
 
 		return true;
 	}

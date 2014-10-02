@@ -1,4 +1,4 @@
-#include "ZJetProducer/MetadataProducer.h"
+#include "ZJetProducer/GenProducer.h"
 #include "ZJetProducer/ZProducer.h"
 #include "ZJetProducer/ValidMuonProducer.h"
 #include "ZJetProducer/ValidJetProducer.h"
@@ -24,7 +24,7 @@ using namespace Artus;
 
 
 void AddGlobalMetaProducers(std::vector<std::string> const& producer,
-							EventPipelineRunner<ZJetPipeline, ZJetGlobalMetaDataProducerBase>& runner,
+							EventPipelineRunner<ZJetPipeline, ZJetGlobalProductProducerBase>& runner,
 							boost::property_tree::ptree& globalSettings)
 {
 	// extend here, if you want to provide a new global meta producer
@@ -108,6 +108,6 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 		else if (ElectronCorrector::Name() == *it)
 			runner.AddGlobalMetaProducer(new ElectronCorrector());
 		else
-			LOG_FATAL("Global MetaData producer of name " << *it << " not found");
+			LOG_FATAL("Global product producer of name " << *it << " not found");
 	}
 }
