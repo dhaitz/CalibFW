@@ -15,6 +15,33 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     """Keep this function only for backward compatibility. """
     #TODO remove at some point
     plot1d(quantity, files, opt, fig_axes, changes, settings)
+"""
+#overload!
+def plot1(settings, files=None, changes=None, fig=None, ax=None):
+
+    if files == []:
+        files, opt = openRootFiles(settings['files'], opt)
+
+    fileToPlot(
+
+    if not settings['subplot']:
+        settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
+        plotbase.Save(fig, settings)
+
+
+def fileToPlot(
+    mplhistos, rootobjects = getHistos(quantity, files, settings)
+
+    # if true, save as root file:
+    if settings['root'] is not False:
+        getroot.saveasroot(rootobjects, opt, settings)
+        return
+
+    fig, ax = plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes)
+
+    formatting(ax, settings, opt, mplhistos, rootobjects)
+
+"""
 
 
 def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):

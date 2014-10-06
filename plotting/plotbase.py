@@ -38,7 +38,7 @@ def plot(op):
     plots = op.plots
 
     # get the list of all the modules in the 'modules' folder
-    module_list = [(module.find_module(name).load_module(name)) for module, name, is_pkg in pkgutil.walk_packages(modules.__path__)]
+    module_list = getModuleList()
 
     if op.verbose:
         showoptions(op)
@@ -55,24 +55,17 @@ def plot(op):
         printquantities(files, op)
         sys.exit()
 
-    remaining_plots = copy.deepcopy(plots)
     # 1. Look if you can direcly call functions in the modules
     if not plots:
         print "Nothing to do. Please list the plots you want!"
         plots = []
-    for p in plots:
+
+    for plotname, modulename, function in zip(op. plots, op.modules, op.functions):
         for module in module_list:
-            if hasattr(module, p):  # plot directly as a function
-                print "Doing %s in %s" % (p, module.__name__)
-                getattr(module, p)(files, op)
-                remaining_plots.remove(p)
-        if op != startop:
-            whichfunctions += [p + " in " + module.__name__]
-    # 2. remaining plots are given to the functionSelector
-    if len(remaining_plots) > 0:
-        print "Doing remaining plots via function selector..."
-        for plot in remaining_plots:
-            functionSelector(plot, files, op)
+            if module.__name__ == modulename:
+                print "Calling function %s in module %s" % (modulename, function)
+                getattr(module, function)(plotname, files, op)
+                break
 
     # check whether the options have changed and warn
     # TODO remove the focus on the opt object, rather check the settings?
@@ -94,34 +87,8 @@ except NameError:
     pass  # not running with profiler
 
 
-def functionSelector(plot, datamc, opt):
-    """ The functionSelector takes a list of plots and assigns them to a funtion,
-        according to naming conventions.
-    """
-    if '2D' in plot:
-        plot2d.twoD(plot[3:], datamc, opt)
-    elif "_all" in plot:
-        plot1d.datamc_all(plot[:-4], datamc, opt)
-
-    # for responseratio-plots
-    elif 'responseratio' in plot and len(plot.split('_')) > 2:
-        plotresponse.responseratio(datamc, opt,
-                        types=plot.split('_responseratio_')[0].split('_'),
-                        over=plot.split('_responseratio_')[1])
-    elif 'response' in plot and len(plot.split('_')) > 2:
-        plot = plot.replace('bal', 'balresp')
-        plotresponse.responseplot(datamc, opt,
-                        types=plot.split('_response_')[0].split('_'),
-                        over=plot.split('_response_')[1])
-    elif 'ratio' in plot and len(plot.split('_')) > 2:
-        plot = plot.replace('bal', 'balresp')
-        plotresponse.ratioplot(datamc, opt,
-                        types=plot.split('_ratio_')[0].split('_'),
-                        over=plot.split('_ratio_')[1])
-    elif opt.ratiosubplot is True:
-        plot1d.plot1dratiosubplot(plot, datamc, opt)
-    else:  # simple 1D plot
-        plot1d.plot1d(plot, datamc, opt)
+def getModuleList():
+    return [(module.find_module(name).load_module(name)) for module, name, is_pkg in pkgutil.walk_packages(modules.__path__)]
 
 
 def debug(string):

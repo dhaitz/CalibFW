@@ -312,9 +312,54 @@ def options(
     return opt
 
 
+def extendOptions(opt):
+    module_list = plotbase.getModuleList()
+    modules, functions = [], []
+    for plotname in opt.plots:
+        findPlot(plotname, modules, functions, module_list)
+    opt.modules = modules
+    opt.functions = functions
+
+
+def findPlot(plotname, modules, functions, module_list):
+    for module in module_list:
+        if hasattr(module, plotname):
+            modules.append(module.__name__)
+            functions.append(plotname)
+            return
+    # if there is no function of that name, use sth like the function selector
+    if '2D' in plotname:
+        modules.append("plot2d")
+        functions.append("twoD")
+    elif opt.ratiosubplot is True:
+        modules.append("plot1d")
+        functions.append("plot1dratiosubplot")
+    else:
+        modules.append("plot1d")
+        functions.append("plot1d")
+    #TODO: make this available here
+    """
+    # for responseratio-plots
+    elif 'responseratio' in plot and len(plot.split('_')) > 2:
+        plotresponse.responseratio(datamc, opt,
+                        types=plot.split('_responseratio_')[0].split('_'),
+                        over=plot.split('_responseratio_')[1])
+    elif 'response' in plot and len(plot.split('_')) > 2:
+        plot = plot.replace('bal', 'balresp')
+        plotresponse.responseplot(datamc, opt,
+                        types=plot.split('_response_')[0].split('_'),
+                        over=plot.split('_response_')[1])
+    elif 'ratio' in plot and len(plot.split('_')) > 2:
+        plot = plot.replace('bal', 'balresp')
+        plotresponse.ratioplot(datamc, opt,
+                        types=plot.split('_ratio_')[0].split('_'),
+                        over=plot.split('_ratio_')[1])
+        """
+
+
 if __name__ == "__main__":
     """ This is the starting point for plotting.
-        1. Get options  from command line
+        1. Get options from command line
         2. Call the plotbase plotting function
         3. some additional commands for live and web plotting are used
     """
@@ -338,6 +383,7 @@ if __name__ == "__main__":
          /   *  *  \                                    
         / *_  *  _  \                                   
 """
+    extendOptions(opt)
 
     plotbase.plot(opt)
 
@@ -374,5 +420,3 @@ if __name__ == "__main__":
         remote = "%s:plots" % userpc
         subprocess.call(['rsync', opt.out, remote, "-r"])
         print "\033[92mFolder %s has been copied to %s\033[0m" % (opt.out, remote)
-
-
