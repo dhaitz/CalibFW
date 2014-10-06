@@ -31,7 +31,7 @@ public:
 			m_event.m_pthatbin = -1;  // sample reweighting is off
 		}
 		WireEvent(propTree);
-		m_fi.SpeedupTree();
+		m_fi.SpeedupTree(128 * 1024 * 1024);
 
 		// auto-delete objects when moving to a new object. Not defult root behaviour
 		//fi.eventdata.SetAutoDelete(kTRUE);
