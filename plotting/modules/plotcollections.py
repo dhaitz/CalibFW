@@ -3,6 +3,42 @@ import getroot, fit
 import math, copy, os
 
 
+def bkgremu(files, opt):
+    """ plot the background estimation for the e mu method. """
+    filenames = [
+        'work/data_emu.root',
+        'work/background_ee_tt.root',
+        'work/background_ee_tw.root',
+        'work/background_ee_ww.root',
+        'work/background_ee_wjets.root',
+        'work/background_ee_dytautau.root',
+    ]
+    labels = [
+        r'est. $ee$ from $e\mu$',
+        r'$t\bar{t}$',
+        r'$t$W',
+        'WW',
+        r'$W$+jets',
+        r'DY$\rightarrow\tau\tau$',
+    ]
+    changes  = {
+        'quantity': 'zmass',
+        'labels': labels,
+        'selection': ['0.5']+ ['hlt']*7,
+        'folder': 'zcuts',
+        'nbins': 20,
+        'normalize': False,
+        'markers': ['o'] + ['f']*15,
+        'stacked': True,
+        'x': [81, 101],
+        'ratiosubploty': [0, 3],
+        'legendcolumns': 2,
+        'xname': r'$m_{ee}$ / GeV',
+    }
+    files, opt = plotbase.openRootFiles(filenames, opt)
+    plot1d.plot1dratiosubplot(changes['quantity'], files, opt, changes=changes)
+
+
 def e08bkgr(files, opt):
     """ Plot Z mass, pt and y for MC madgraph and powheg. """
     for q, x in zip(
