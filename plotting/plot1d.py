@@ -149,7 +149,7 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes=Non
                 bottom = numpy.ones(len(f.x)) * 1e-6
 
             ax.bar(f.x, f.y, widths, bottom=bottom,
-              yerr=f.yerr, ecolor=c, label=l, fill=True, facecolor=c, edgecolor=c)
+              yerr=f.yerr, ecolor=c, label=l, fill=True, facecolor=c, edgecolor=c, alpha=0.9)
         else:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c,
                                                     fmt=s, capsize=0, label=l)
@@ -292,7 +292,7 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
     plot1d(quantity, files, opt, fig_axes=(fig, ax2), changes=changes, settings=settings)
 
     fig.subplots_adjust(hspace=0.1)
-    ax1.set_xticks([])
+    ax1.set_xticklabels([])
     ax1.set_xlabel("")
 
     settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
