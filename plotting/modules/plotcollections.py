@@ -3,8 +3,41 @@ import getroot, fit
 import math, copy, os
 
 
+def eerawcorr(files, opt):
+    """
+        1. Z-> ee mass peak, once with raw, once with corrected electrons.
+        2. Reco/gen ratio
+    """
+    for typ in ['raw', 'corr']:
+        filenames = [filename + typ + ".root" for filename in ['work/data_ee_', 'work/mc_ee_']]
+        plot1d.plot1dratiosubplotFromFilenames('zmass', filenames, opt, changes={
+            'x': [81, 101],
+            'folder': 'zcuts',
+            'title': typ + ' electrons',
+            'selection': ['1', 'hlt'],
+            'normalize': False,
+            'nbins': 50,
+            'filename': 'zmass_' + typ,
+            'fit': 'bw',
+            'legloc': 'center left',
+        })
+        plot1d.plot1dFromFilenames('zmass/genzmass', ['work/mc_ee_%s.root' % typ], opt,
+            changes={
+                'x': [0.85, 1.15],
+                'legloc': None,
+                'folder': 'zcuts',
+                'nbins': 40,
+                'fit': 'gauss',
+                'colors': ['maroon'],
+                'filename': 'recogen_%s' % typ,
+                'xname': r'Z mass  Reco/Gen',
+                'title': typ + ' electrons',
+            }
+        )
+
+
 def bkgremu(files, opt):
-    """ plot the background estimation for the e mu method. """
+    """ Plot the background estimation for the e mu method: e-mu-data vs MC samples. """
     filenames = [
         'work/data_emu.root',
         'work/background_ee_tt.root',
