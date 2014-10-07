@@ -17,13 +17,14 @@ def datamcplot(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     plot1d(quantity, files, opt, fig_axes, changes, settings)
 
 
+def plot1dFromFilenames(quantity, filenames, opt, fig_axes=(), changes=None, settings=None):
+    """ Same as plot1d, but open files before."""
+    files, opt = plotbase.openRootFiles(filenames, opt)
+    plot1d(quantity, files, opt, fig_axes=fig_axes, changes=changes, settings=settings)
+
+
 def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     """Main function for all 1D  plots."""
-
-    # if files are not given as argument, open:
-    # TODO: "[]" is a workaround because we cannot leave the files argument empty
-    if files == []:
-        files, opt = openRootFiles(settings['files'], opt)
 
     # if no settings are given, create:
     settings = plotbase.getSettings(opt, changes, settings, quantity)
@@ -239,6 +240,12 @@ def runplot_diff(files, mplhistos, ax, settings, quantity):
 
     mplhistos[0].y = new_y
     return mplhistos, ax, offset
+
+
+def plot1dratiosubplotFromFilenames(quantity, filenames, opt, changes=None, settings=None):
+    """ Same as plot1dratiosubplot, but open files before."""
+    files, opt = plotbase.openRootFiles(filenames, opt)
+    plot1dratiosubplot(quantity, files, opt, changes=changes, settings=settings)
 
 
 def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
