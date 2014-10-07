@@ -9,7 +9,9 @@ import matplotlib.mlab as mlab
 
 def fit(ax, quantity, rootobject, settings, color='black', label="", index=0, 
                                                                 scalefactor=1, offset=None):
-    """One of several fits is added to an axis element, fit parameters are added as text element"""
+    """One of several fits is added to an axis element, fit parameters are added as text element."""
+    #TODO: Review this function! Find a better design approach
+
     if color in ['#CBDBF9', 'lightskyblue']: color = 'blue'
 
     limits = settings['x']
@@ -43,10 +45,10 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
         va='top', ha='right', transform=ax.transAxes, color=color)
          
 
-    elif settings['fit'] == 'gauss':
+    elif settings['fit'] == 'gauss' :
         p0, p0err, p1, p1err, p2, p2err, chi2, ndf, conf_intervals = fitline2(rootobject, gauss=True, limits=limits)
 
-        x=numpy.linspace(limits[0], limits[1], 500)            
+        x=numpy.linspace(limits[0], limits[1], 500)
         ymax = max(mlab.normpdf(x, p1, p2))
 
         ax.plot(x,scalefactor * p0 / ymax * mlab.normpdf(x, p1, p2), color = color)
@@ -61,7 +63,19 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
             settings['fitvalues'] = [[p1, p1err, p2, p2err]]
         else:
             settings['fitvalues'] += [[p1, p1err, p2, p2err]]
+    elif settings['fit'] == 'bw':
+        p0, p0err, p1, p1err, p2, p2err, chi2, ndf, conf_intervals = fitline2(rootobject, breitwigner=True, limits=limits)
+        par = [p0, p1, p2]
+        x=numpy.linspace(limits[0], limits[1], 500)
+        y = [bw([i], par) for i in x]
+        ax.plot(x, y, color = color)
 
+        ax.text(0.03, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\mathrm{%s:}$" % label,
+               va='top', ha='left', transform=ax.transAxes, color=color)
+        ax.text(0.25, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\mathrm{mean} = %1.2f\pm%1.2f$" % (p1, p1err),
+               va='top', ha='left', transform=ax.transAxes, color=color)
+        ax.text(0.65, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\mathrm{RMS} = %1.2f\pm%1.2f$" % (p2, p2err),
+               va='top', ha='left', transform=ax.transAxes, color=color)
 
     else:
         intercept, ierr, slope, serr,  chi2, ndf, conf_intervals = fitline2(rootobject)
@@ -121,16 +135,21 @@ def fitline(rootgraph, limits=[0, 1]):
         rootgraph.Approximate(0)
     return (fitf.GetParameter(0), fitf.GetParError(0), fitres.Chi2(), fitres.Ndf())
 
-def fitline2(rootgraph, quadratic=False, gauss=False, limits = [0, 1000]):
+def fitline2(rootgraph, quadratic=False, gauss=False, breitwigner=False, limits = [0, 1000]):
     if 'Profile' in rootgraph.ClassName():
         rootgraph.Approximate() # call this function so zero-error (one entry) bins don't distort the fit
-    if quadratic:
-        f = "1*[0]+x*[1]+x*x*[2]"
-    elif gauss:
-        f = "gaus"
+    if breitwigner:
+        f =bw
+        fitf = ROOT.TF1("fitf", f, limits[0], limits[1], 3)
+        fitf.SetParameters(10, 10, 10, 10)
     else:
-        f = "1*[0]+x*[1]"
-    fitf = ROOT.TF1("fit1", f, *limits)
+        if quadratic:
+            f = "1*[0]+x*[1]+x*x*[2]"
+        elif gauss:
+            f = "gaus"
+        else:
+            f = "1*[0]+x*[1]"
+        fitf = ROOT.TF1("fitf", f, *limits)
     fitres = rootgraph.Fit(fitf,"SQN")
     #Get conf intervals as an array and then convert to list
     points = []
@@ -144,7 +163,7 @@ def fitline2(rootgraph, quadratic=False, gauss=False, limits = [0, 1000]):
     fitres.GetConfidenceIntervals(len(points), 1, 1, x, y, 0.683)
     conf_intervals = [i for i in y]
 
-    if quadratic or gauss:
+    if quadratic or gauss or breitwigner:
         return (fitf.GetParameter(0), fitf.GetParError(0),
             fitf.GetParameter(1), fitf.GetParError(1),
             fitf.GetParameter(2), fitf.GetParError(2),
@@ -153,5 +172,19 @@ def fitline2(rootgraph, quadratic=False, gauss=False, limits = [0, 1000]):
         return (fitf.GetParameter(0), fitf.GetParError(0),
             fitf.GetParameter(1), fitf.GetParError(1),
             fitres.Chi2(), fitres.Ndf(), conf_intervals)
+
+def bw(x, par):
+    """Breit-Wigner function. """
+    arg1 = 14.0/22.0 # 2 over pi
+    arg2 = par[2]*par[2]*par[1]*par[1] #Gamma=par[1]  M=par[2]
+    arg3 = ((x[0]*x[0]) - (par[1]*par[1]))*((x[0]*x[0]) - (par[1]*par[1]))
+    arg4 = x[0]*x[0]*x[0]*x[0]*((par[2]*par[2])/(par[1]*par[1]))
+    #x = array.array('d', par[0]*arg1*arg2/(arg3 + arg4))
+    return par[0]*arg1*arg2/(arg3 + arg4)
+
+
+
+
+
 
 
