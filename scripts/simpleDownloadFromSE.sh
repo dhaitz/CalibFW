@@ -19,7 +19,7 @@ export MYSEDIR="2014_07_18_ee-mm-mcRD"
 CONTINUE=false;
 export GRIDSITE="gridka"
 
-while getopts hcd:s: opt
+while getopts hcd:s:p: opt
 do
    case $opt in
        c) CONTINUE=true;;
