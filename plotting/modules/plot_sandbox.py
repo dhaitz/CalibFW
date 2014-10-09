@@ -854,22 +854,34 @@ def an(files, opt):
 def paper(files, opt):
     """ Plots for the 2012 JEC paper. """
 
+    for quantity in ['npv', 'rho']:
+        plot1d.plot1dFromFilenames(quantity,
+            ['work/data.root', 'work/mc.root'],
+            opt,
+            changes={
+                'folder': 'all',
+                'nbins': 35,
+                'x': [-0.5, 34.5],
+            }
+        )
+
     for method in ['mpf', 'ptbalance']:
         plot2d.twoD("abs((recogen-%s)/recogen)*abs((recogen-%s)/recogen)_npv_zpt" % (method, method),
                 files[1:],
                 opt,
                 changes={'x': [0, 250],
-                            'binroot': True,
-                            'z': [0, 0.3],
-                            'xynames': ["zpt", "npv", "RMS((recogen-%s)/recogen)" % method],
-                            'filename': '2D_RMS_%s' % method,
-                            #'labels': ["RMS((recogen-%s)/recogen)" % method],
-                            'labels': ["CMS Simulation"],
-                            #'cutlabel':'ptetaalpha03',
-                            #'cutlabeloffset':-0.2,
-                            'selection': 'alpha<0.3',
-                            'allalpha': True,
-                            'mconly':True,
+                    'binroot': True,
+                    'z': [0, 0.3],
+                    'xynames': ["zpt", "npv", "RMS((recogen-%s)/recogen)" % method],
+                    'filename': '2D_RMS_%s' % method,
+                    #'labels': ["RMS((recogen-%s)/recogen)" % method],
+                    'labels': ["CMS Simulation"],
+                    #'cutlabel':'ptetaalpha03',
+                    #'cutlabeloffset':-0.2,
+                    'selection': ['alpha<0.3'],
+                    'allalpha': True,
+                    'mconly':True,
+                    'colormap': 'copper',
                 }
         )
     local_opt = copy.deepcopy(opt)
@@ -878,7 +890,7 @@ def paper(files, opt):
         for b in [0, 1]:
             for c in [0, 1]:
                 plotresponse.response_physflavour(files[1:], local_opt,
-                    changes={'title': 'CMS Simulation','mconly':True},
+                    changes={'title': 'CMS Simulation','mconly':True, 'nbins':25,},
                     add_neutrinopt=a,
                     restrict_neutrals=b,
                     extrapolation=c)
@@ -891,11 +903,11 @@ def paper(files, opt):
                 'y': [0, 400],
                 'markers': ['o', 'd'],
                 'colors': ['black', 'blue']}
-    plot1d.datamcplot("zpt_alpha", files, opt, changes=changes)
+    #plot1d.datamcplot("zpt_alpha", files, opt, changes=changes)
     changes['labels'] = ['MC']
     changes['y'] = [0.98, 1.1]
     changes['mconly'] = [True]
-    plot1d.datamcplot("recogen_alpha", files[1:], opt, changes=changes)
+    #plot1d.datamcplot("recogen_alpha", files[1:], opt, changes=changes)
 
     # HERWIG
     changes = {'cutlabel' : 'ptetaalpha',
@@ -904,16 +916,20 @@ def paper(files, opt):
                 'markers' : ['o', 'd'],
                 'colors'  : ['red', 'blue'],
                 'title'   : 'CMS Simulation',
+                'normalize': False,
                 'mconly'  : True,
+                'nbins'   : 25,
                 'legloc'  : 'lower left',
+                'yname'   : r'Jet Response $p_{\mathrm{T}}^{\mathrm{jet}} / p_{\mathrm{T}}^{\mathrm{ptcl}}$',
                 'filename': 'recogen_physflavour_pythia-herwig'}
-    files2 = files[1:] + [getroot.openfile("/storage/a/dhaitz/excalibur/work/mc_herwig/out/closure.root")]
-    plot1d.datamcplot("recogen_physflavour", files2, opt, changes=changes)
+    files2, opt2 = plotbase.openRootFiles(["work/mc.root", "work/mc_herwig.root"], opt)
+    plot1d.datamcplot("recogen_physflavour", files2, opt2, changes=changes)
 
     flavour_comp(files[1:], opt, changes={'title': 'CMS Simulation',
             'cutlabel': 'ptetaalpha',
             'cutlabeloffset': 0.07,
             'mconly'  : True,
+            'y': [0, 1],
             'legloc': '0.05,0.5'})
 
 
@@ -1025,7 +1041,9 @@ def flavour_comp(files, opt, changes=None):
     fig, ax = plotbase.newPlot()
 
     changes = {'subplot': True,
-                'rebin': 4,
+                'nbins': 25,
+                'y': [0, 0.9],
+                
                 'xynames': ['physflavour', 'components'],
                 'markers': ['f']}
 
