@@ -372,7 +372,7 @@ def extrapol(files, opt,
                     'rebin'     : 10,
                     'nbins'     : 5,
                     'x'         : [0, 0.3],
-                    'selection' : cut + "&& alpha>0",
+                    'selection' : [cut + "&& alpha>0"],
                     'subplot'   : True,
                     'allalpha'  : True,
                     'colors'    : ['black', 'blue'],
@@ -450,7 +450,7 @@ def extrapol(files, opt,
         changes['colors']  = ['blue']
         changes['fitlabel_offset'] = -0.0
 
-        changes['y'] = [0.9455, 1.008]
+        changes['y'] = [0.9655, 1.018]
 
         plotbase.plot1d.datamcplot('ptbalance_alpha', files, opt,
                 changes=changes, settings=settings, fig_axes=(fig, ax2))
@@ -585,10 +585,10 @@ def response_physflavour(files, opt, changes=None, settings=None,
             y = []
             yerr = []
             for s in flavours:
-                changes['selection'] = "%s && %s" % ("alpha<0.3", s)
+                changes['selection'] = ["%s && %s" % ("alpha<0.3", s)]
 
                 if restrict_neutrals:
-                    changes['selection'] = ' && '.join([changes['selection'], neutral_selection])
+                    changes['selection'] = [' && '.join([changes['selection'][0], neutral_selection])]
 
                 changes['allalpha'] = True
                 changes['xynames'] = ['alpha', q]
@@ -608,7 +608,7 @@ def response_physflavour(files, opt, changes=None, settings=None,
                           capsize=0 ,label=l)
         else:
             if restrict_neutrals:
-                changes['selection'] = neutral_selection
+                changes['selection'] = [neutral_selection]
             plot1d.datamcplot("%s_%s" % (q, flavour), files, opt, fig_axes=(fig, ax), 
                                             changes=changes, settings=settings)
 
@@ -687,7 +687,7 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
 
         for s in  selections:
             if settings['extrapolation']:
-                changes['selection'] = "%s && %s" % ("alpha<0.3", s)
+                changes['selection'] = ["%s && %s" % ("alpha<0.3", s)]
                 changes['allalpha'] = True
             
                 quantity = "%s_alpha" % responsetype
@@ -702,7 +702,7 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
                 y += [intercept]
                 yerr += [ierr]
             else:
-                changes['selection'] = "%s && %s" % ("alpha<0.3", s)
+                changes['selection'] = ["%s && %s" % ("alpha<0.3", s)]
                 quantity = responsetype
 
                 rsettings = {}

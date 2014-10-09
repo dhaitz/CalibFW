@@ -149,7 +149,7 @@ def openRootFiles(filenames, opt=None):
         print "Using as file", 1 + filenames.index(f), ":", f
         files += [getroot.openfile(f, opt.verbose)]
 
-    op = readMetaInfosFromRootFiles(files, opt)
+    opt = readMetaInfosFromRootFiles(files, opt)
     return files, opt
 
 
@@ -470,7 +470,7 @@ def getDefaultFilename(quantity, opt, settings):
 def readMetaInfosFromRootFiles(files, opt,
                             metainfos=['Year', 'Channel', 'Type']):
     """This function reads certain meta data (that must be present as
-        strings in the root files) and adds them to opt. """
+        strings in the root files) and adds them to a copy of opt. """
     # Create variables of the same name as the metainfos
     for m in metainfos:
         exec('%s = []' % m)
@@ -478,11 +478,12 @@ def readMetaInfosFromRootFiles(files, opt,
     for f in files:
         for m in metainfos:
             eval(m).append(f.Get(m))
-    # Append to opt
+    # Append to copy of opt
+    opt2=copy.deepcopy(opt)
     for m in metainfos:
-        setattr(opt, m.lower() + 's', eval(m))
-        opt.default_options[m.lower() + 's'] = eval(m)
-    return opt
+        setattr(opt2, m.lower() + 's', eval(m))
+        opt2.default_options[m.lower() + 's'] = eval(m)
+    return opt2
 
 
 def getDefaultFiles():

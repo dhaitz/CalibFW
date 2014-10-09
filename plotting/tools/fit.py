@@ -47,7 +47,6 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
 
     elif settings['fit'] == 'gauss' :
         p0, p0err, p1, p1err, p2, p2err, chi2, ndf, conf_intervals = fitline2(rootobject, gauss=True, limits=limits)
-
         x=numpy.linspace(limits[0], limits[1], 500)
         ymax = max(mlab.normpdf(x, p1, p2))
 
@@ -55,9 +54,9 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
 
         ax.text(0.03, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\mathrm{%s:}$" % label,
                va='top', ha='left', transform=ax.transAxes, color=color)
-        ax.text(0.25, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\mu = %1.3f\pm%1.3f$" % (p1, p1err),
+        ax.text(0.25, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\mu = %1.3f\pm%1.5f$" % (p1, p1err),
                va='top', ha='left', transform=ax.transAxes, color=color)
-        ax.text(0.65, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\sigma = %1.3f\pm%1.3f$" % (p2, p2err),
+        ax.text(0.65, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\sigma = %1.3f\pm%1.5f$" % (p2, p2err),
                va='top', ha='left', transform=ax.transAxes, color=color)
         if 'fitvalues' not in settings:
             settings['fitvalues'] = [[p1, p1err, p2, p2err]]

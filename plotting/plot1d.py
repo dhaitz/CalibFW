@@ -150,7 +150,7 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes=Non
                 bottom = numpy.ones(len(f.x)) * 1e-6
 
             ax.bar(f.x, f.y, widths, bottom=bottom,
-              yerr=f.yerr, ecolor=c, label=l, fill=True, facecolor=c, edgecolor=c, alpha=0.9)
+              yerr=f.yerr, ecolor=c, label=l, fill=True, facecolor=c, edgecolor=c, alpha=0.98)
         else:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c,
                                                     fmt=s, capsize=0, label=l)
@@ -244,8 +244,8 @@ def runplot_diff(files, mplhistos, ax, settings, quantity):
 
 def plot1dratiosubplotFromFilenames(quantity, filenames, opt, changes=None, settings=None):
     """ Same as plot1dratiosubplot, but open files before."""
-    files, opt = plotbase.openRootFiles(filenames, opt)
-    plot1dratiosubplot(quantity, files, opt, changes=changes, settings=settings)
+    files, opt2 = plotbase.openRootFiles(filenames, opt)
+    plot1dratiosubplot(quantity, files, opt2, changes=changes, settings=settings)
 
 
 def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
