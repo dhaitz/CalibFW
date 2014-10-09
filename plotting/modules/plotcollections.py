@@ -9,7 +9,7 @@ def eerawcorr(files, opt):
         2. Reco/gen ratio
     """
     for typ in ['raw', 'corr']:
-        filenames = [filename + typ + ".root" for filename in ['work/data_ee_', 'work/mc_ee_']]
+        filenames = [filename + typ + ".root" for filename in ['work/data_ee_', 'work/mc_ee_powheg_']]
         plot1d.plot1dratiosubplotFromFilenames('zmass', filenames, opt, changes={
             'x': [81, 101],
             'folder': 'zcuts',
@@ -21,19 +21,26 @@ def eerawcorr(files, opt):
             'fit': 'bw',
             'legloc': 'center left',
         })
-        plot1d.plot1dFromFilenames('zmass/genzmass', ['work/mc_ee_%s.root' % typ], opt,
-            changes={
-                'x': [0.85, 1.15],
-                'legloc': None,
-                'folder': 'zcuts',
-                'nbins': 40,
-                'fit': 'gauss',
-                'colors': ['maroon'],
-                'filename': 'recogen_%s' % typ,
-                'xname': r'Z mass  Reco/Gen',
-                'title': typ + ' electrons',
-            }
-        )
+        for quantity, xlabel in zip(
+            ['zmass', 'zpt'],
+            ['Z mass', r'Z $p_T$']
+        ):
+            plot1d.plot1dFromFilenames('%s/gen%s' % ((quantity,)*2),
+                ['work/mc_ee_%s.root' % typ], opt,
+                changes={
+                    'x': [0.85, 1.15],
+                    'legloc': None,
+                    'folder': 'zcuts',
+                    'nbins': 40,
+                    'normalize': False,
+                    'fit': 'gauss',
+                    'markers': ['f'],
+                    'colors': ['maroon'],
+                    'filename': 'recogen_%s_%s' % (quantity, typ),
+                    'xname': r'%s  Reco/Gen' % xlabel,
+                    'title': typ + ' electrons',
+                }
+            )
 
 
 def bkgremu(files, opt):
@@ -43,7 +50,7 @@ def bkgremu(files, opt):
         'work/background_ee_tt.root',
         'work/background_ee_tw.root',
         'work/background_ee_ww.root',
-        'work/background_ee_wjets.root',
+        #'work/background_ee_wjets.root',
         'work/background_ee_dytautau.root',
     ]
     labels = [
@@ -51,7 +58,7 @@ def bkgremu(files, opt):
         r'$t\bar{t}$',
         r'$t$W',
         'WW',
-        r'$W$+jets',
+        #r'$W$+jets',
         r'DY$\rightarrow\tau\tau$',
     ]
     changes  = {
@@ -61,7 +68,7 @@ def bkgremu(files, opt):
         'folder': 'zcuts',
         'nbins': 20,
         'normalize': False,
-        'markers': ['o'] + ['f']*15,
+        'markers': ['o'] + ['f']*7,
         'stacked': True,
         'x': [81, 101],
         'ratiosubploty': [0, 3],
@@ -108,7 +115,7 @@ def e08bkgr(files, opt):
             ]
             changes  = {
                 'labels': ['data', label] + background_labels,
-                'selection': ['1']+ ['hlt']*15,
+                'selection': ['jet1pt>80']+ ['jet1pt>80 * hlt']*15,
                 'folder': 'zcuts',
                 'nbins': 40,
                 'normalize': False,
