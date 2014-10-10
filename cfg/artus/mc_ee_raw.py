@@ -2,7 +2,7 @@ import ArtusConfigBase as base
 
 
 def config():
-    conf = base.BaseConfig('mc', '2012', analysis='zee', rundepMC=True, lhe=True)
+    conf = base.BaseConfig('mc', '2012', analysis='ee', rundepMC=True, lhe=True)
     conf["InputFiles"] = base.setInputFiles(
         ekppath="/storage/9/dhaitz/skims/2014_07_18_ee-mm-mcRD/*.root",
         nafpath="/nfs/dust/cms/user/dhaitz/skims/2014_07_18_ee-mm-mcRD/*.root"
