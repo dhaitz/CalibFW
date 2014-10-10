@@ -2,11 +2,15 @@ import ArtusConfigBase as base
 
 
 def config():
-    conf = base.BaseConfig('mc', '2012', rundepMC=True)
-    conf["InputFiles"] = "/storage/a/dhaitz/skims/2014_07_18_mc_ee_mm/*.root"
-    conf = base.expand(conf, ['all', 'zcuts', 'incut'])
-    conf['Jec'] = base.getPath() + "/data/jec/Winter14/Winter14_V1_MC"
-    conf['PileupWeights'] = base.getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_kappa5313_MC12_madgraph_rundep-2.root"
-    conf['RC'] = True
-    return conf
+    cfg = base.BaseConfig('mc', '2012', rundepMC=True)
+    cfg["InputFiles"] = "/storage/a/dhaitz/skims/2014_07_18_mc_ee_mm/*.root"
+    cfg = base.expand(cfg, ['all', 'zcuts', 'incut'])
+    cfg['Jec'] = base.getPath() + "/data/jec/Winter14/Winter14_V1_MC"
+    cfg['PileupWeights'] = base.getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_kappa5313_MC12_madgraph_rundep-2.root"
+    cfg['RC'] = True
+    cfg['EnableLumiReweighting'] = True
+    cfg['EnableTriggerReweighting'] = True
+    cfg['NEvents'] = 30459503
+    cfg['XSection'] = 3503.71
+    return cfg
 
