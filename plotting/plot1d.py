@@ -38,7 +38,13 @@ def plot1d(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         getroot.saveasroot(rootobjects, opt, settings)
         return
 
-    fig, ax = plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes)
+    plot1dFromMplHistos(rootobjects, mplhistos, opt, settings, quantity=quantity, fig_axes=fig_axes)
+
+
+def plot1dFromMplHistos(rootobjects, mplhistos, opt, settings=None, quantity=None, changes=None, fig_axes=None):
+    settings = plotbase.getSettings(opt, changes, settings, quantity)
+
+    fig, ax = plotMpl(rootobjects, mplhistos, opt, settings, quantity, fig_axes)
 
     formatting(ax, settings, opt, mplhistos, rootobjects)
 
@@ -96,7 +102,7 @@ def getHistos(quantity, files, settings):
     return mplhistos, rootobjects
 
 
-def plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes=None):
+def plotMpl(rootobjects, mplhistos, opt, settings, quantity, fig_axes=None):
     """
         Creates the figure and axis objects and plots the histogram lists
     """
@@ -115,10 +121,10 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, files, fig_axes=Non
 
     bottom = []
     #loop over histograms: scale and plot
-    for f, l, c, s, rootfile, rootobj, index in reversed(zip(mplhistos, settings['labels'],
-                  settings['colors'], settings['markers'], files, rootobjects, range(len(files))[::-1])):
+    for f, l, c, s, rootobj, index in reversed(zip(mplhistos, settings['labels'],
+                  settings['colors'], settings['markers'], rootobjects, range(len(rootobjects))[::-1])):
         scalefactor = 1
-        if 'Profile' in f.classname:
+        if 'Profile' in f.classname or settings['ratio']:
             scalefactor = 1
             #s = s.replace('f','o')
         elif settings['normalize']:

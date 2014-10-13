@@ -228,12 +228,12 @@ def histofromntuple(quantities, name, ntuple, settings, index=0):
             roothisto = ROOT.TProfile2D(name, name, len(xbins) - 1, xbins, len(ybins) - 1, ybins)
         else:
             print "FATAL: could not determine histogram type from", quantities
-        roothisto.Sumw2()
         ntuple.Project(name, variables, selection)
     else:
         ntuple.Draw("%s>>%s(%s)" % (variables, name, settings['nbins']), selection, "goff")
         roothisto = ROOT.gDirectory.Get(name)
 
+    roothisto.Sumw2()
     ntuple.Delete()
 
     if roothisto.ClassName() == 'TH2D':
@@ -440,23 +440,15 @@ def root2histo(histo, rootfile='', rebin=1):
 
 def rootdivision(rootobjects, normalize=False):
     #convert TProfiles into TH1Ds because ROOT cannot correctly divide TProfiles
-    if (rootobjects[0].ClassName() != 'TH1D' and
-           rootobjects[1].ClassName() != 'TH1D'):
+    if ('TH1' not in rootobjects[0].ClassName() and
+           'TH1' not in rootobjects[1].ClassName()):
         rootobjects[0] = ROOT.TH1D(rootobjects[0].ProjectionX())
         rootobjects[1] = ROOT.TH1D(rootobjects[1].ProjectionX())
-    elif normalize:
-        rootobjects[1].Scale(rootobjects[0].Integral() /
-                             rootobjects[1].Integral())
+    if normalize:
+        rootobjects[1].Scale(rootobjects[0].Integral() / rootobjects[1].Integral())
     rootobjects[0].Divide(rootobjects[1])
 
-    #TODO The code below is dangerous - what is the reason this was implemented?
-    #for n in range(rootobjects[0].GetNbinsX()):
-    #    if ((rootobjects[0].GetBinError(n) < 1e-5
-    #                            and rootobjects[0].GetBinContent(n) > 0.1)
-    #                            or rootobjects[0].GetBinContent(n) > 1.15):
-    #        rootobjects[0].SetBinError(n, 0.1)
-
-    return(rootobjects[0])
+    return rootobjects[0]
 
 
 class Histo:
