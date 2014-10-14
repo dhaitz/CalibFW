@@ -304,32 +304,23 @@ def responseratio_all(files, opt, types=['balresp'], changes=None):
 def extrapol_raw(files, opt):
     extrapol(files, opt, use_rawMET=True)
 
-def extrapol_zpt(files, opt):
-    extrapol(files, opt, variation='zpt')
-def extrapol_zpt_raw(files, opt):
-    extrapol(files, opt, variation='zpt', use_rawMET=True)
-
-
-def extrapol_npv(files, opt):
-    extrapol(files, opt, variation='npv')
-def extrapol_npv_raw(files, opt):
-    extrapol(files, opt, variation='npv', use_rawMET=True)
-
-
-def extrapol_eta(files, opt):
-    extrapol(files, opt, variation='jet1eta')
-
 def extrapolation_noMPF(files, opt):
     extrapol(files, opt, extrapolate_mpf = False)
 
 
 def extrapol(files, opt, 
-           variation='alpha',
-           use_rawMET=False,       # use raw MET instead of type-I MET
+           use_rawMET=False,     # use raw MET instead of type-I MET
            extrapolate_mpf=True, # if false, use average for MET
+           recogen = False,      # plot the mc truth response
            changes = None):
 
-    settings = plotbase.getSettings(opt, changes, None, "response_%s" % variation)   
+    if recogen:
+        if changes == None:
+            changes = {'recogen': recogen}
+        else:
+            changes['recogen'] = recogen
+
+    settings = plotbase.getSettings(opt, changes, None, "response_alpha")   
 
     if use_rawMET==True:
         mpftype='mpf-raw'
@@ -338,158 +329,123 @@ def extrapol(files, opt,
         mpftype='mpf'
         mpflabel='MPF'
 
+    fig, axes = plotbase.newPlot(subplots=2, subplots_Y=2)
+    ax1 = axes[0]
+    ax2 = axes[1]
 
-    if variation=='alpha':
-        variations = getroot.alphacuts(opt.cut)
-        variation_label="alpha"
+    if settings['save_individually']:
+        fig, ax1 = plotbase.newPlot()
+
+    changes2 = {'legloc'     : 'lower left',
+                'xynames'   : ['alpha','response'],
+                'fit'       : True,
+                'rebin'     : 10,
+                'nbins'     : 6,
+                'x'         : [0, 0.3],
+                'selection' : ["alpha>0"],
+                'subplot'   : True,
+                'allalpha'  : True,
+                'colors'    : ['black', 'blue'],
+                'markers'   : ['o', '*'],
+                'labels'    : ['$p_\mathrm{T}$ balance (%s)' % i for i in settings['labels']],
+                'y'         : [0.91, 1.04],
+                'cutlabel' : 'pteta',
+              }
+    if changes is not None:
+        changes2.update(changes)
+    changes = changes2
+
+    ### Response plot  ####################
+
+    #   balance
+    plotbase.plot1d.datamcplot('ptbalance_alpha', files, opt,
+            changes=changes, settings=settings, fig_axes=(fig, ax1))
+
+    #   mpf
+    changes['colors'] = ['red', 'maroon']
+    changes['labels'] = ['%s (%s)' % (mpflabel, i) for i in settings['labels']]
+    if extrapolate_mpf ==True:
+        plotbase.plot1d.datamcplot(mpftype+'_alpha', files, opt,
+            changes=changes, settings=settings, fig_axes=(fig, ax1))
+
     else:
-        pass
+        mpfmean_data = getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMean()
+        mpfmean_mc = getroot.getobjectfromnick('mpfresp', files[1], changes, rebin=1).GetMean()
+        mpfmeanerror_data = getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMeanError()
+        mpfmeanerror_mc = getroot.getobjectfromnick('mpfresp', files[1], changes, rebin=1).GetMeanError()
+        ax1.axhline(mpfmean_data, color=changes['colors'][0])
+        ax1.axhspan(mpfmean_data + mpfmeanerror_data, mpfmean_data - mpfmeanerror_data, color=local_opt.colors[0], alpha=0.2)
+        ax1.axhline(mpfmean_mc, color=changes['colors'][1])
+        ax1.axhspan(mpfmean_mc + mpfmeanerror_mc, mpfmean_mc - mpfmeanerror_mc, color=local_opt.colors[1], alpha=0.2)
 
-    # for subplots:
-    cuts = ["zpt>30", "zpt>30 && zpt<80", "zpt>80 && zpt<120", "zpt>120"]
-    variations = ["alpha<0.3 && %s" % cut for cut in cuts]
-    variation_labels = cuts
+    plotbase.cutlabel(ax1, settings)
 
-    cuts = ["1"]
-    variations = ["alpha<0.3"]
-    variation_labels = [""]
-
-
-    l = len(variations)
-    fig, axes = plotbase.newPlot(subplots=2*l, subplots_Y=2)
-    subtexts = plotbase.getdefaultsubtexts()
-
-    for cut, label, ax1, ax2, subtext1, subtext2 in zip(variations, variation_labels, axes[:l], axes[l:],
-                                                    subtexts[:l], subtexts[l:]):
-        files = [getroot.openfile(f, opt.verbose) for f in opt.files]
-
-        if settings['save_individually']:
-            fig, ax1 = plotbase.newPlot()
-
-        changes2 = {'legloc'     : 'lower left',
-                    'xynames'   : ['alpha','response'],
-                    'fit'       : True,
-                    'rebin'     : 10,
-                    'nbins'     : 5,
-                    'x'         : [0, 0.3],
-                    'selection' : [cut + "&& alpha>0"],
-                    'subplot'   : True,
-                    'allalpha'  : True,
-                    'colors'    : ['black', 'blue'],
-                    'markers'   : ['o', '*'],
-                    'labels'    : ['$p_\mathrm{T}$ balance (%s)' % i for i in settings['labels']],
-                    'y'         : [0.91, 1.04],
-                    'cutlabel' : 'pteta',
-                  }
-        if changes is not None:
-            changes2.update(changes)
-        changes = changes2
-
-        ### Response plot
-
-        #   balance
-        plotbase.plot1d.datamcplot('ptbalance_alpha', files, opt,
-                changes=changes, settings=settings, fig_axes=(fig, ax1))
-
-        #   mpf
-        changes['colors'] = ['red', 'maroon']
-        changes['labels'] = ['%s (%s)' % (mpflabel, i) for i in settings['labels']]
-        if extrapolate_mpf ==True:
-            plotbase.plot1d.datamcplot(mpftype+'_alpha', files, opt,
-                changes=changes, settings=settings, fig_axes=(fig, ax1))
-
-        else:
-            mpfmean_data = getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMean()
-            mpfmean_mc = getroot.getobjectfromnick('mpfresp', files[1], changes, rebin=1).GetMean()
-            mpfmeanerror_data = getroot.getobjectfromnick('mpfresp', files[0], changes, rebin=1).GetMeanError()
-            mpfmeanerror_mc = getroot.getobjectfromnick('mpfresp', files[1], changes, rebin=1).GetMeanError()
-            ax1.axhline(mpfmean_data, color=changes['colors'][0])
-            ax1.axhspan(mpfmean_data + mpfmeanerror_data, mpfmean_data - mpfmeanerror_data, color=local_opt.colors[0], alpha=0.2)
-            ax1.axhline(mpfmean_mc, color=changes['colors'][1])
-            ax1.axhspan(mpfmean_mc + mpfmeanerror_mc, mpfmean_mc - mpfmeanerror_mc, color=local_opt.colors[1], alpha=0.2)
-
-        plotbase.cutlabel(ax1, settings)
-        plotbase.statuslabel(ax1, label)
-
-        yticks = numpy.arange(changes['y'][0], changes['y'][1], 0.01)
-        ax1.set_yticks(yticks[1:])
-        yticklabels = [str(i) for i in yticks[1:]]
-
-        # Add a clearly visible tick mark to indicate MC TRUTH respons
-        if False:
+    # Add a clearly visible tick mark to indicate MC TRUTH respons
+    # configurable from command line
+    if settings.get('recogen', False):
+        if settings['recogen'] == 'slope':
             changes['labels'] = ['MC-Truth Response']
             changes['colors'] = ['forestgreen']
             changes['markers'] = ['d']
             plotbase.plot1d.datamcplot('recogen_alpha', files[1:], opt,
                     changes=changes, fig_axes=(fig, ax1))
-        else:
+        elif settings['recogen'] == 'horizontal':
             mctruth = getroot.histofromfile('recogen', files[1], settings, 
                                             changes = {'x':[0, 2]}).GetMean()
             ax1.axhline(mctruth, color='forestgreen', linewidth=3)
             ax1.text(0.272, mctruth+0.001, "MC-Truth Response", ha='right', color='forestgreen')
 
+    if settings['save_individually']:
+        settings['filename'] = plotbase.getDefaultFilename("extrapolation", opt, settings)
+        plotbase.Save(fig, settings)
+        fig, ax2 = plotbase.newPlot()
 
 
-        if settings['save_individually']:
-            settings['filename'] = plotbase.getDefaultFilename("extrapolation", opt, settings)
-            plotbase.Save(fig, settings)
-            fig, ax2 = plotbase.newPlot()
+    ### Ratio ####################
 
+    #   balance
+    changes.update({
+        'ratio':            True,
+        'xynames':          ['alpha','datamcratio'],
+        'fit':              'intercept',
+        'legloc':           'lower left',
+        'labels':           [r'$p_\mathrm{T}$ balance'],
+        'colors':           ['blue'],
+        'y':                [0.9655, 1.018],
+        'fitlabel_offset':  -0.1,
+    })
+    plotbase.plot1d.datamcplot('ptbalance_alpha', files, opt,
+            changes=changes, settings=settings, fig_axes=(fig, ax2))
 
+    # MPF
+    changes['labels'] = [mpflabel]
+    changes['colors'] = ['red']
+    changes['fitlabel_offset'] = 0
 
-        # re-open files because we're using the same histograms again
-        files = [getroot.openfile(f, opt.verbose) for f in opt.files]
+    if extrapolate_mpf ==True:
+        plotbase.plot1d.datamcplot(mpftype+'_alpha', files, opt,
+            changes=changes, settings=settings, fig_axes=(fig, ax2))
+    else:
+        if (mpfmean_mc != 0.0): R = mpfmean_data/mpfmean_mc
+        else: R =0
+        if (R != 0.0):
+            Rerr=abs(mpfmean_data / mpfmean_mc)*math.sqrt((mpfmeanerror_data / mpfmean_data)**2 + (mpfmeanerror_mc / mpfmean_mc)**2)
+        else: Rerr=0
+        ax2.axhline(R, color=changes['colors'][0])
+        ax2.axhspan(R+Rerr, R-Rerr, color=changes['colors'][0], alpha=0.2)
+        ax2.text(0.97, 0.67, r" Ratio $=%1.4f\pm%1.4f$" %(R, Rerr), va='top', ha='right', transform=ax2.transAxes, color='maroon')
 
-        ### Ratio
-        #   balance
-        changes['ratio']   = True
-        changes['xynames'] = ['alpha','datamcratio']
-        changes['fit']     = 'intercept'
-        changes['legloc']  = 'lower left'
-        changes['labels']  = [r'$p_\mathrm{T}$ balance']
-        changes['colors']  = ['blue']
-        changes['fitlabel_offset'] = -0.0
+    plotbase.cutlabel(ax2, settings)
 
-        changes['y'] = [0.9655, 1.018]
+    if settings['save_individually']:
+        settings['filename'] = "ratio_extrapolation"
+        plotbase.Save(fig, settings)
+    else:
+        if extrapolate_mpf:
+            mpflabel = "extrapol" + mpflabel
+        settings['filename'] = plotbase.getDefaultFilename("extrapolation__%s" % mpflabel, opt, settings)
 
-        plotbase.plot1d.datamcplot('ptbalance_alpha', files, opt,
-                changes=changes, settings=settings, fig_axes=(fig, ax2))
-
-        changes['fitlabel_offset'] = -0.1
-
-        #   mpf
-        changes['labels'] = [mpflabel]
-        changes['colors'] = ['red']
-        if extrapolate_mpf ==True:
-            settings['fit_offset'] = 0.1
-            plotbase.plot1d.datamcplot(mpftype+'_alpha', files, opt,
-                changes=changes, settings=settings, fig_axes=(fig, ax2))
-        else:
-            if (mpfmean_mc != 0.0): R = mpfmean_data/mpfmean_mc
-            else: R =0
-            if (R != 0.0):
-                Rerr=abs(mpfmean_data / mpfmean_mc)*math.sqrt((mpfmeanerror_data / mpfmean_data)**2 + (mpfmeanerror_mc / mpfmean_mc)**2)
-            else: Rerr=0
-            ax2.axhline(R, color=changes['colors'][0])
-            ax2.axhspan(R+Rerr, R-Rerr, color=changes['colors'][0], alpha=0.2)
-            ax2.text(0.97, 0.67, r" Ratio $=%1.4f\pm%1.4f$" %(R, Rerr), va='top', ha='right', transform=ax2.transAxes, color='maroon')
-
-
-        plotbase.cutlabel(ax2, settings)
-        plotbase.statuslabel(ax2, label)
-
-        if settings['save_individually']:
-            settings['filename'] = "ratio_extrapolation"
-            plotbase.Save(fig, settings)
-            return
-
-    #del changes[variation] # delete changes so this isn't included in the file names
-    if extrapolate_mpf:
-        mpflabel = "extrapol" + mpflabel
-    settings['filename'] = plotbase.getDefaultFilename("extrapolation_%s_%s" % (mpflabel, variation_label), opt, settings)
-
-    plotbase.Save(fig, settings)
-
+        plotbase.Save(fig, settings)
 
 
 def response_run(files, opt, changes=None, settings=None):
