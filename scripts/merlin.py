@@ -29,7 +29,7 @@ def options(
             out="out",
             formats=['png'],
 
-            labels=["data", "MC", "powheg"],
+            labels=[],
             colors=['black',
                     '#7293cb',  # light blue
                     '#e1974c',  # mustard yellow
@@ -274,6 +274,10 @@ def options(
     # add values from dic to opt
     for value in dic.keys():
         setattr(opt, value, dic[value])
+
+    # if labels are not explicitly give, take file names without extension
+    if opt.labels == []:
+        opt.labels = [f.split(".root")[0].split("/")[-1] for f in opt.files]
 
     opt.fit_offset = 0
     parser.set_defaults(fit_offset=0)
