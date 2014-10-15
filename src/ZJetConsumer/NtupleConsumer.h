@@ -182,6 +182,7 @@ private:
 		eplustrigid,
 		jet1pt,
 		jet1eta,
+		jet1y,
 		jet1phi,
 		jet1photonfraction,
 		jet1chargedemfraction,
@@ -795,6 +796,8 @@ private:
 			return product.GetValidPrimaryJet(s, event)->p4.Pt();
 		else if (e == E::jet1eta)
 			return product.GetValidPrimaryJet(s, event)->p4.Eta();
+		else if (e == E::jet1y)
+			return product.GetValidPrimaryJet(s, event)->p4.Rapidity();
 		else if (e == E::jet1phi)
 			return product.GetValidPrimaryJet(s, event)->p4.Phi();
 
@@ -1287,6 +1290,8 @@ private:
 				m_enumvector.push_back(E::jet1pt);
 			else if (string == "jet1eta")
 				m_enumvector.push_back(E::jet1eta);
+			else if (string == "jet1y")
+				m_enumvector.push_back(E::jet1y);
 			else if (string == "jet1phi")
 				m_enumvector.push_back(E::jet1phi);
 			else if (string == "jet1photonfraction")

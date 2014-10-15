@@ -28,7 +28,7 @@ def getBaseConfig(tagged, **kwargs):
                     "zpt", "zeta", "zy",
                     "zphi", "zmass", "npv", "rho",
                     "weight",
-                    "jet1pt", "jet1eta", "jet1phi", "mpf", "rawmpf",
+                    "jet1pt", "jet1eta", "jet1y", "jet1phi", "mpf", "rawmpf",
                     "METpt", "METphi", "rawMETpt", "rawMETphi", "sumEt", "jet1photonfraction",
                     "jet1chargedemfraction", "jet1chargedhadfraction", "jet1neutralhadfraction",
                     "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
