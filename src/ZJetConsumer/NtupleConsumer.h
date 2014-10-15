@@ -133,6 +133,8 @@ private:
 		ngeninternalelectrons,
 		ngenintermediateelectrons,
 		njets,
+		njets30,
+		njets30barrel,
 		njetsinv,
 		ngenphotons,
 		nzs,
@@ -575,10 +577,29 @@ private:
 		else if (e == E::ngenintermediateelectrons)
 			return product.m_genIntermediateElectrons.size();
 
-
 		// jets
 		else if (e == E::njets)
 			return product.GetValidJetCount(s, event);
+		else if (e == E::njets30) // needed for Zee studies
+		{
+			float count = 0.;
+			for (unsigned int i = 0; i < product.GetValidJetCount(s, event); i++)
+			{
+				if (product.GetValidJet(s, event, i)->p4.Pt() > 30)
+					count += 1.;
+			}
+			return count;
+		}
+		else if (e == E::njets30barrel) // needed for Zee studies
+		{
+			float count = 0.;
+			for (unsigned int i = 0; i < product.GetValidJetCount(s, event); i++)
+			{
+				if (product.GetValidJet(s, event, i)->p4.Pt() > 30 && std::abs(product.GetValidJet(s, event, i)->p4.Eta()) < 2.4)
+					count += 1.;
+			}
+			return count;
+		}
 		else if (e == E::njetsinv)
 			return product.m_listInvalidJets["AK5PFJetsCHS"].size();
 		else if (e == E::ngenphotons)
@@ -1190,6 +1211,10 @@ private:
 				m_enumvector.push_back(E::ngenintermediateelectrons);
 			else if (string == "njets")
 				m_enumvector.push_back(E::njets);
+			else if (string == "njets30")
+				m_enumvector.push_back(E::njets30);
+			else if (string == "njets30barrel")
+				m_enumvector.push_back(E::njets30barrel);
 			else if (string == "njetsinv")
 				m_enumvector.push_back(E::njetsinv);
 			else if (string == "ngenphotons")

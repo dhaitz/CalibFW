@@ -33,7 +33,8 @@ def getBaseConfig(tagged, **kwargs):
                     "jet1chargedemfraction", "jet1chargedhadfraction", "jet1neutralhadfraction",
                     "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
                     "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta",
-                    "otherjetspt", "otherjetseta", "otherjetsphi", "njets", "njetsinv",
+                    "otherjetspt", "otherjetseta", "otherjetsphi",
+                    "njets", "njetsinv", "njets30", "njets30barrel",
                     "unc", "nputruth",
                 ]
             }
@@ -277,19 +278,18 @@ def mc_2012(cfg, **kwargs):
 
 
 def mcee(cfg, **kwargs):
-    if analysis is 'zee':
-        cfg['Pipelines']['default']['QuantitiesVector'] += [
-            "ngenelectrons", "ngeninternalelectrons", "ngenintermediateelectrons",
-            "genepluspt", "genepluseta", "geneplusphi",
-            "geneminuspt", "geneminuseta", "geneminusphi",
-            "deltaReplusgeneplus", "deltaReminusgeneminus",
-            'sf', 'sfplus', 'sfminus'
-        ]
-        cfg['GlobalProducer'] += ['electron_sf_producer']
-        if cfg['ElectronID'] == 'mva':
-            cfg['ScaleFactors'] = ArtusConfigBase.getPath() + '/data/Electron-NontrigMVAIdScaleFactors.root'
-        elif cfg['ElectronID'] in ['loose', 'medium', 'tight', 'veto']:
-            cfg['ScaleFactors'] = ArtusConfigBase.getPath() + '/data/Electron-CutBasedIdScaleFactors.root'
+    cfg['Pipelines']['default']['QuantitiesVector'] += [
+        "ngenelectrons", "ngeninternalelectrons", "ngenintermediateelectrons",
+        "genepluspt", "genepluseta", "geneplusphi",
+        "geneminuspt", "geneminuseta", "geneminusphi",
+        "deltaReplusgeneplus", "deltaReminusgeneminus",
+        'sf', 'sfplus', 'sfminus'
+    ]
+    cfg['GlobalProducer'] += ['electron_sf_producer']
+    if cfg['ElectronID'] == 'mva':
+        cfg['ScaleFactors'] = ArtusConfigBase.getPath() + '/data/Electron-NontrigMVAIdScaleFactors.root'
+    elif cfg['ElectronID'] in ['loose', 'medium', 'tight', 'veto']:
+        cfg['ScaleFactors'] = ArtusConfigBase.getPath() + '/data/Electron-CutBasedIdScaleFactors.root'
 
 
 def _2011mm(cfg, **kwargs):
