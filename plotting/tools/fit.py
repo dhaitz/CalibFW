@@ -66,15 +66,15 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
         p0, p0err, p1, p1err, p2, p2err, chi2, ndf, conf_intervals = fitline2(rootobject, breitwigner=True, limits=limits)
         par = [p0, p1, p2]
         x=numpy.linspace(limits[0], limits[1], 500)
-        y = [bw([i], par) for i in x]
+        y = [scalefactor * bw([i], par) for i in x]
         ax.plot(x, y, color = color)
 
-        ax.text(0.03, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\mathrm{%s:}$" % label,
-               va='top', ha='left', transform=ax.transAxes, color=color)
-        ax.text(0.25, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\mathrm{mean} = %1.2f\pm%1.2f$" % (p1, p1err),
-               va='top', ha='left', transform=ax.transAxes, color=color)
-        ax.text(0.65, 0.97-0.06*(len(settings['files']) - index - 1)+offset, r"$\mathrm{RMS} = %1.2f\pm%1.2f$" % (p2, p2err),
-               va='top', ha='left', transform=ax.transAxes, color=color)
+        for x, text in zip([0.03, 0.25, 0.65], [r"$\mathrm{%s:}$" % label.replace("_", "\ "),
+        r"$\mathrm{mean} = %1.2f\pm%1.2f$" % (p1, p1err),
+        r"$\mathrm{RMS} = %1.2f\pm%1.2f$" % (p2, p2err),
+        ]):
+            ax.text(x, 0.92-0.06*(len(settings['files']) - index - 1)+offset, text,
+               va='bottom', ha='left', transform=ax.transAxes, color=color)
 
     else:
         intercept, ierr, slope, serr,  chi2, ndf, conf_intervals = fitline2(rootobject)

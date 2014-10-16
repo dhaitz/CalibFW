@@ -126,7 +126,7 @@ def getselection(settings, mcWeights=False, index=0):
     weights = []
     mcWeights = mcWeights and settings.get('mcweights', True)
     if selection:
-        weights = ["(" + " && ".join(selection) + ")"]
+        weights = ["(" + " * ".join(selection) + ")"]
     if mcWeights and ('noweighting' not in settings or settings['noweighting']):
         weights += ["weight"]
     if mcWeights:  # add lumi weights always?
@@ -444,7 +444,7 @@ def rootdivision(rootobjects, normalize=False):
            'TH1' not in rootobjects[1].ClassName()):
         rootobjects[0] = ROOT.TH1D(rootobjects[0].ProjectionX())
         rootobjects[1] = ROOT.TH1D(rootobjects[1].ProjectionX())
-    if normalize:
+    elif normalize:
         rootobjects[1].Scale(rootobjects[0].Integral() / rootobjects[1].Integral())
     rootobjects[0].Divide(rootobjects[1])
 

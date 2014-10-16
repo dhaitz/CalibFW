@@ -275,10 +275,6 @@ def options(
     for value in dic.keys():
         setattr(opt, value, dic[value])
 
-    # if labels are not explicitly give, take file names without extension
-    if opt.labels == []:
-        opt.labels = [f.split(".root")[0].split("/")[-1] for f in opt.files]
-
     opt.fit_offset = 0
     parser.set_defaults(fit_offset=0)
     opt.subplot = False
@@ -310,6 +306,11 @@ def options(
             user_options[key] = vars(opt)[key]
     opt.user_options = user_options
     opt.default_options = default_options
+
+    # if labels are not explicitly give, take file names without extension
+    if opt.labels == []:
+        opt.labels = [r"%s" % f.split(".root")[0].split("/")[-1] for f in opt.files]
+        opt.default_options['labels'] = opt.labels
 
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
 
