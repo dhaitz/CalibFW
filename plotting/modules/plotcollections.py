@@ -81,56 +81,64 @@ def bkgremu(files, opt):
 
 def e08bkgr(files, opt):
     """ Plot Z mass, pt and y for MC madgraph and powheg. """
-    for q, x in zip(
-        ['zpt', 'zmass', 'zy'],
-        [[30, 600], [81, 101], [-2.5, 2.5]]
-    ):
-        for f, label, filename, title in zip(
-            ['work/mc_ee_corr.root', 'work/mc_ee_powheg_corr.root'],
-            ['DY', r'DY$\rightarrow ee$'],
-            ['%s_mg' % q, '%s_pow' % q],
-            ['Madgraph DY', r'Powheg DY$\rightarrow ee$'],
+    for log in [True, False]:
+        for q, x in zip(
+            ['zpt', 'zmass', 'zy', 'njets30barrel'],
+            [[30, 600], [81, 101], [-2.5, 2.5], [-0.5, 7.5]]
         ):
-            filenames = [
-                'work/data_ee_corr.root',
-                f,
-                'work/background_ee_zz.root',
-                'work/background_ee_wz.root',
-                'work/background_ee_tt.root',
-                'work/background_ee_tw.root',
-                'work/background_ee_ww.root',
-                'work/background_ee_wjets.root',
-                'work/background_ee_dytautau.root',
-                'work/background_ee_qcd.root',
-            ]
-            background_labels = [
-                'ZZ',
-                'WZ',
-                r'$t\bar{t}$',
-                r'$t$W',
-                'WW',
-                r'$W$+jets',
-                r'DY$\rightarrow\tau\tau$',
-                'QCD',
-            ]
-            changes  = {
-                'labels': ['data', label] + background_labels,
-                'selection': ['jet1pt>80']+ ['jet1pt>80 * hlt']*15,
-                'folder': 'zcuts',
-                'nbins': 40,
-                'normalize': False,
-                'markers': ['o'] + ['f']*15,
-                'stacked': True,
-                'log': True,
-                'x': x,
-                'ratiosubploty': [0.5, 1.5],
-                'filename': filename,
-                'title': title,
-            }
-            if q != 'zpt':
-                changes['legloc'] = None
-            files, opt = plotbase.openRootFiles(filenames, opt)
-            plot1d.plot1dratiosubplot(q, files, opt, changes=changes)
+            for f, label, filename, title in zip(
+                ['work/mc_ee_corr.root', 'work/mc_ee_powheg_corr.root'],
+                ['DY', r'DY$\rightarrow ee$'],
+                ['%s_mg' % q, '%s_pow' % q],
+                ['Madgraph DYJetsToLL', r'Powheg DYToEE'],
+            ):
+                filenames = [
+                    'work/data_ee_corr.root',
+                    f,
+                    'work/background_ee_zz.root',
+                    'work/background_ee_wz.root',
+                    'work/background_ee_tt.root',
+                    'work/background_ee_tw.root',
+                    'work/background_ee_ww.root',
+                    'work/background_ee_wjets.root',
+                    'work/background_ee_dytautau.root',
+                    'work/background_ee_qcd.root',
+                ]
+                background_labels = [
+                    'ZZ',
+                    'WZ',
+                    r'$t\bar{t}$',
+                    r'$t$W',
+                    'WW',
+                    r'$W$+jets',
+                    r'DY$\rightarrow\tau\tau$',
+                    'QCD',
+                ]
+                changes  = {
+                    'labels': ['data', label] + background_labels,
+                    'selection': ['1']+ ['hlt']*15,
+                    'folder': 'zcuts',
+                    'nbins': 40,
+                    'normalize': False,
+                    'markers': ['o'] + ['f']*15,
+                    'stacked': True,
+                    'log': log,
+                    'x': x,
+                    'ratiosubploty': [0.5, 1.5],
+                    'filename': filename,
+                    'title': title,
+                }
+                if q == 'njets30barrel':
+                    changes['nbins'] = int(x[1] - x[0])
+                    changes['xname'] = r"Number of jets (with $p_\mathrm{T} > 30$ GeV)"
+                if q != 'zpt':
+                    changes['legloc'] = None
+                if q == 'njets30barrel' and log is False:
+                    changes['legloc'] = 'upper right'
+                if log is True:
+                    changes['filename'] += '_log'
+                files, opt = plotbase.openRootFiles(filenames, opt)
+                plot1d.plot1dratiosubplot(q, files, opt, changes=changes)
 
 
 def e07hlt(files, opt):
