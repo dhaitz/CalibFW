@@ -29,6 +29,7 @@ import os
 import array
 import numpy as np
 import plotbase
+import random
 from labels import getaxislabels_list as getaxis
 from dictionaries import ntuple_dict
 
@@ -212,6 +213,7 @@ def histofromntuple(quantities, name, ntuple, settings, index=0):
 
     print "Weights:", selection
 
+    name += str(random.random())[2:]
     if settings['x'] != [0, 1]:
         xbins = getBinning(quantities[-1], settings)
         if settings['twoD'] and len(quantities) > 1:
