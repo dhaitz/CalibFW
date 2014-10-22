@@ -18,6 +18,136 @@ import fit
 import os
 
 
+def zmassFitted(files, opt, changes=None, settings=None):
+    """ Plots the FITTED Z mass peak position depending on pT, NPV, y."""
+
+    quantity = "zmass"
+
+    # iterate over raw vs corr electrons
+    for mode in ['raw', 'corr']:
+        filenames = ['work/data_ee_%s.root' % mode, 'work/mc_ee_powheg_%s.root' % mode]
+        files, opt = plotbase.openRootFiles(filenames, opt)
+
+        # iterate over quantities
+        for xq, xbins in zip(
+            ['npv', 'zpt', 'zy'],
+            [
+                [a - 0.5 for a, b in opt.npv] + [opt.npv[-1][1] - 0.5],
+                opt.zbins,
+                [(i/2.)-2. for i in range(0, 9)],
+            ]
+        ):
+
+            # iterate over Z pt (inclusive/low,medium,high)
+            for ptregion, ptselection, ptstring in zip(["_inclusivept", "_lowpt", "_mediumpt", "_highpt"],
+                [
+                    "1",
+                    "zpt<60",
+                    "zpt>60 && zpt < 120",
+                    "zpt>120",
+                ],
+                [
+                    "",
+                    "Z $p_\mathrm{T}$ < 60 GeV",
+                    "60 < Z $p_\mathrm{T}$ < 120 GeV",
+                    "Z $p_\mathrm{T}$ > 120 GeV",
+                ]):
+
+                # we dont need pt-binned Z pT plots:
+                if xq == 'zpt' and ptselection is not "1":
+                    continue
+
+                rootobjects, rootobjects2 = [], []
+                fig = plotbase.plt.figure(figsize=[7, 10])
+                ax = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
+                ax.number = 1
+                ax2 = plotbase.plt.subplot2grid((3, 1), (2, 0))
+                ax2.number = 2
+                fig.add_axes(ax)
+                fig.add_axes(ax2)
+
+                # print the pt region on the plot
+                ax.text(0.98, 0.98, ptstring, va='top', ha='right', transform=ax.transAxes)
+
+                changes = {
+                    'y': [91, 92.5],
+                    'yname': r'$m^{\mathrm{Z}}$ (peak position from Breit-Wigner fit) / GeV',
+                    'legloc': 'upper left',
+                    'title': mode + " electrons",
+                    'labels': ['data', 'powheg'],
+                }
+                settings = plotbase.getSettings(opt, changes=changes, quantity=quantity + "_" + xq)
+
+                # iterate over files
+                markers = ['o', 'D']
+                hlt_selection = ['1', 'hlt']
+                ys, yerrs, xs = [], [], []
+                for i, f in enumerate(files):
+                    bins = xbins
+                    y, yerr, x = [], [], []
+
+                    # iterate over bins
+                    for lower, upper in zip(bins[:-1], bins[1:]):
+                        changes = {
+                            'selection': ['(%s > %s && %s < %s) && (%s) && (%s)' % (xq,
+                                     lower, xq, upper, ptselection, hlt_selection[i])],
+                            'nbins': 40,
+                            'folder': 'zcuts',
+                        }
+                        local_settings = plotbase.getSettings(opt, changes, None, quantity)
+
+                        # get the zmass, fit, get the xq distribution; append to lists
+                        rootobjects += [getroot.histofromfile(quantity, f, local_settings, index=i)]
+                        p0, p0err, p1, p1err, p2, p2err, chi2, ndf, conf_intervals = fit.fitline2(rootobjects[-1], breitwigner=True, limits=local_settings['x'])
+                        y += [p1]
+                        yerr += [p1err]
+                        changes['x'] = [lower, upper]
+                        local_settings = plotbase.getSettings(opt, changes, None, quantity)
+                        rootobjects2 += [getroot.histofromfile(xq, f, local_settings, index=i)]
+                        x += [rootobjects2[-1].GetMean()]
+
+                        # fine line to indicate bin borders
+                        ax.add_line(plotbase.matplotlib.lines.Line2D((lower, upper), (y[-1],y[-1]), color='black', alpha=0.05))
+
+                    ys.append(y)
+                    yerrs.append(yerr)
+                    xs.append(x)
+
+                    #plot
+                    ax.errorbar(x, y, yerr, drawstyle='steps-mid', color=settings['colors'][i],
+                                                fmt=markers[i], capsize=0, label=settings['labels'][i])
+
+                # format and save
+                if xq == 'zpt':
+                    settings['xlog'] = True
+                    settings['x'] = [30, 1000]
+                    settings['xticks'] = [30, 50, 70, 100, 200, 400, 1000]
+                plot1d.formatting(ax, settings, opt, [], [])
+
+                # calculate ratio values
+                ratio_y = [d/m for d, m in zip(ys[0], ys[1])]
+                ratio_yerrs = [math.sqrt((derr/d)**2 + (merr/m)**2)for d, derr, m, merr in zip(ys[0], yerrs[0], ys[1], yerrs[1])]
+                ratio_x = [0.5 * (d + m) for d, m in zip(xs[0], xs[1])]
+
+                #format ratio plot
+                ax2.errorbar(ratio_x, ratio_y, ratio_yerrs, drawstyle='steps-mid', color='black',
+                                                fmt='o', capsize=0, label='ratio')
+                ax.axhline(1.0)
+                fig.subplots_adjust(hspace=0.1)
+                ax.set_xticklabels([])
+                ax.set_xlabel("")
+                settings['ratio'] = True
+                settings['legloc'] = None
+                settings['xynames'][1] = 'ratio'
+
+                plot1d.formatting(ax2, settings, opt, [], [])
+                ax2.set_ylim(0.99, 1.02)
+
+                settings['filename'] = plotbase.getDefaultFilename(quantity + "_" + xq, opt, settings)
+                settings['filename'] += "_" + mode + ptregion
+                plotbase.Save(fig, settings)
+
+
 def zmassEBEE(files, opt):
     """ Plot the Z mass depending on where the electrons are reconstructed.
 
@@ -33,7 +163,9 @@ def zmassEBEE(files, opt):
     for selection, filename, title in zip(selections, filenames, titles):
         plot1d.plot1dratiosubplot("zmass", files, opt, changes = {
             'x': [81, 101],
-            'selection': [selection],
+            'selection': [selection, "hlt * (%s)" % selection],
+            'fit': 'bw',
+            'nbins': 40,
             'filename': filename,
             'title': title,
             'folder': 'zcuts',
