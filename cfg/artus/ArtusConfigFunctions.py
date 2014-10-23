@@ -313,6 +313,7 @@ def mc_2012ee(cfg, **kwargs):
     cfg['PileupWeights'] = ArtusConfigBase.getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_2014_01_31_zee_mc.root"
     cfg['HltPaths'] = ["HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v%d" % v for v in range(15, 20)]
     cfg['GlobalProducer'] += ['hlt_selector']
+    cfg['Pipelines']['default']['Filter'].append('hlt')
     cfg['Pipelines']['default']['QuantitiesVector'].append('hlt')
 
 
