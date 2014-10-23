@@ -70,7 +70,7 @@ def zmassFitted(files, opt, changes=None, settings=None):
                 ax.text(0.98, 0.98, ptstring, va='top', ha='right', transform=ax.transAxes)
 
                 changes = {
-                    'y': [91, 92.5],
+                    'y': [90.8, 92.8],
                     'yname': r'$m^{\mathrm{Z}}$ (peak position from Breit-Wigner fit) / GeV',
                     'legloc': 'upper left',
                     'title': mode + " electrons",
@@ -80,7 +80,6 @@ def zmassFitted(files, opt, changes=None, settings=None):
 
                 # iterate over files
                 markers = ['o', 'D']
-                hlt_selection = ['1', 'hlt']
                 ys, yerrs, xs = [], [], []
                 for i, f in enumerate(files):
                     bins = xbins
@@ -89,8 +88,8 @@ def zmassFitted(files, opt, changes=None, settings=None):
                     # iterate over bins
                     for lower, upper in zip(bins[:-1], bins[1:]):
                         changes = {
-                            'selection': ['(%s > %s && %s < %s) && (%s) && (%s)' % (xq,
-                                     lower, xq, upper, ptselection, hlt_selection[i])],
+                            'selection': ['(%s > %s && %s < %s) && (%s)' % (xq,
+                                     lower, xq, upper, ptselection)],
                             'nbins': 40,
                             'folder': 'zcuts',
                         }
@@ -141,7 +140,7 @@ def zmassFitted(files, opt, changes=None, settings=None):
                 settings['xynames'][1] = 'ratio'
 
                 plot1d.formatting(ax2, settings, opt, [], [])
-                ax2.set_ylim(0.99, 1.02)
+                ax2.set_ylim(0.99, 1.01)
 
                 settings['filename'] = plotbase.getDefaultFilename(quantity + "_" + xq, opt, settings)
                 settings['filename'] += "_" + mode + ptregion
