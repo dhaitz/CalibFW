@@ -15,6 +15,7 @@
 #include "ZJetProducer/FlavourProducer.h"
 #include "ZJetProducer/LeadingJetUncertaintyProducer.h"
 #include "ZJetProducer/ZeeProducer.h"
+#include "ZJetProducer/ValidElectronProducer.h"
 #include "ZJetProducer/LHEProducer.h"
 #include "ZJetProducer/ElectronSFProducer.h"
 #include "ZJetProducer/ElectronCorrector.h"
