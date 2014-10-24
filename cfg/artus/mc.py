@@ -7,7 +7,6 @@ def config():
         ekppath="/storage/9/dhaitz/skims/2014_07_18_ee-mm-mcRD/*.root",
         nafpath="/nfs/dust/cms/user/dhaitz/skims/2014_07_18_ee-mm-mcRD/*.root"
     )
-    cfg["InputFiles"] = "/storage/a/dhaitz/skims/2014_07_18_mc_ee_mm/*.root"
     cfg = base.expand(cfg, ['all', 'zcuts', 'incut'])
     cfg['PileupWeights'] = base.getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_kappa5313_MC12_madgraph_rundep-2.root"
     cfg['RC'] = True
