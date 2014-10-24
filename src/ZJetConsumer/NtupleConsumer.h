@@ -241,7 +241,9 @@ private:
 		eminusidloose,
 		eminusidmedium,
 		eminusidtight,
-		eminusidveto
+		eminusidveto,
+		algol5pt,
+		physl5pt
 	};
 	std::vector<E> m_enumvector;
 
@@ -1064,6 +1066,29 @@ private:
 		else if (e == E::eminusidveto)
 			return product.leadingeminus.cutbasedIDveto;
 
+		// some stuff for flavour corrections
+		else if (e == E::algol5pt || e == E::physl5pt)
+		{
+			int flavour;
+			if (e == E::algol5pt)
+				flavour = std::abs(product.GetAlgoFlavour(s));
+			else if (e == E::physl5pt)
+				flavour = std::abs(product.GetPhysFlavour(s));
+
+			if (flavour == 21)
+				return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5g").at(0).p4.Pt();
+			else if (flavour == 4)
+				return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5c").at(0).p4.Pt();
+			else if (flavour == 5)
+				return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5b").at(0).p4.Pt();
+			else if (flavour == 5)
+				return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5b").at(0).p4.Pt();
+			else if (flavour > 0 && flavour < 4)
+				return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5q").at(0).p4.Pt();
+			else
+				return product.GetValidPrimaryJet(s, event)->p4.Pt();
+		}
+
 		LOG_FATAL("None found");
 		assert(false);
 		return -999;
@@ -1429,6 +1454,10 @@ private:
 				m_enumvector.push_back(E::eminusidtight);
 			else if (string == "eminusidveto")
 				m_enumvector.push_back(E::eminusidveto);
+			else if (string == "algol5pt")
+				m_enumvector.push_back(E::algol5pt);
+			else if (string == "physl5pt")
+				m_enumvector.push_back(E::physl5pt);
 			else
 				LOG_FATAL("NtupleConsumer: Quantity (" << string << ") not available!");
 

@@ -5,9 +5,9 @@
 namespace Artus
 {
 
-JetCorrector::JetCorrector(std::string corBase, std::string l1cor, std::vector<std::string> baseAlgos, bool rc) :
+JetCorrector::JetCorrector(std::string corBase, std::string l1cor, std::vector<std::string> baseAlgos, bool rc, bool flavour) :
 	ZJetGlobalProductProducerBase(), m_corectionFileBase(corBase),
-	m_l1correction(l1cor), m_basealgorithms(baseAlgos), m_rc(rc)
+	m_l1correction(l1cor), m_basealgorithms(baseAlgos), m_rc(rc), m_flavour(flavour)
 {
 	LOG_FILE("Loading JEC from " << m_corectionFileBase);
 }
@@ -68,6 +68,36 @@ void JetCorrector::InitCorrection(std::string algoName, std::string algoCorrecti
 				prefix, corLevel, algoName, 0, 0, 0)
 												 );
 
+	// flavour-dependent corrections
+	if (m_flavour)
+	{
+		corLevel.clear();
+		corLevel.emplace_back("L5Flavor_qJ");
+		m_corrService[algoCorrectionAlias].m_l5q.reset(new JECService(
+					event.m_vertexSummary, event.m_jetArea, event.m_eventproduct,
+					prefix, corLevel, algoName, 0, 0, 0)
+													  );
+		corLevel.clear();
+		corLevel.emplace_back("L5Flavor_cJ");
+		m_corrService[algoCorrectionAlias].m_l5c.reset(new JECService(
+					event.m_vertexSummary, event.m_jetArea, event.m_eventproduct,
+					prefix, corLevel, algoName, 0, 0, 0)
+													  );
+		corLevel.clear();
+		corLevel.emplace_back("L5Flavor_bJ");
+		m_corrService[algoCorrectionAlias].m_l5b.reset(new JECService(
+					event.m_vertexSummary, event.m_jetArea, event.m_eventproduct,
+					prefix, corLevel, algoName, 0, 0, 0)
+													  );
+		corLevel.clear();
+		corLevel.emplace_back("L5Flavor_gJ");
+		m_corrService[algoCorrectionAlias].m_l5g.reset(new JECService(
+					event.m_vertexSummary, event.m_jetArea, event.m_eventproduct,
+					prefix, corLevel, algoName, 0, 0, 0)
+													  );
+	}
+
+
 	// only used for data
 	corLevel.clear();
 	corLevel.emplace_back("L2L3Residual");
@@ -92,6 +122,10 @@ void JetCorrector::CreateCorrections(
 	std::string algoName_rc = algoName_raw + "RC";
 	std::string algoName_l2 = algoName_raw + "L1L2";
 	std::string algoName_l3 = algoName_raw + "L1L2L3";
+	std::string algoName_l5q = algoName_raw + "L1L2L3L5q";
+	std::string algoName_l5g = algoName_raw + "L1L2L3L5g";
+	std::string algoName_l5c = algoName_raw + "L1L2L3L5c";
+	std::string algoName_l5b = algoName_raw + "L1L2L3L5b";
 	std::string algoName_l3res = algoName_raw + "L1L2L3Res";
 
 	CorrectJetCollection(algoName_raw, algoName_l1,
@@ -109,6 +143,22 @@ void JetCorrector::CreateCorrections(
 	CorrectJetCollection(algoName_l2, algoName_l3,
 						 this->m_corrService.at(algoCorrectionAlias).m_l3,
 						 event, product, settings);
+
+	if (m_flavour)
+	{
+		CorrectJetCollection(algoName_l3, algoName_l5q,
+							 this->m_corrService.at(algoCorrectionAlias).m_l5q,
+							 event, product, settings);
+		CorrectJetCollection(algoName_l3, algoName_l5c,
+							 this->m_corrService.at(algoCorrectionAlias).m_l5c,
+							 event, product, settings);
+		CorrectJetCollection(algoName_l3, algoName_l5b,
+							 this->m_corrService.at(algoCorrectionAlias).m_l5b,
+							 event, product, settings);
+		CorrectJetCollection(algoName_l3, algoName_l5g,
+							 this->m_corrService.at(algoCorrectionAlias).m_l5g,
+							 event, product, settings);
+	}
 
 	// residual for data
 	if (settings.Global()->GetInputType() == DataInput)

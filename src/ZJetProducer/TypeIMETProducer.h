@@ -8,10 +8,10 @@ class TypeIMETProducer: public ZJetGlobalProductProducerBase
 {
 public:
 
-	TypeIMETProducer(bool EnableMetPhiCorrection, stringvector baseAlgos, bool rc, bool isData) :
+	TypeIMETProducer(bool EnableMetPhiCorrection, stringvector baseAlgos, bool rc, bool isData, bool flavourCorrections) :
 		ZJetGlobalProductProducerBase(), m_basealgorithms(baseAlgos),
 		m_metphi(EnableMetPhiCorrection), m_rc(rc), m_isData(isData),
-		jet_min_pt(10.)
+		m_flavourCorrections(flavourCorrections), jet_min_pt(10.)
 	{
 		if (m_rc)
 			LOG("Using RC Offset to calculate type-I corrections")
@@ -41,6 +41,13 @@ public:
 				//if data, add residuals:
 				if (m_isData)
 					algorithms.emplace_back(algoname_raw + "L1L2L3Res");
+				else if (m_flavourCorrections)
+				{
+					algorithms.emplace_back(algoname_raw + "L1L2L3L5q");
+					//algorithms.emplace_back(algoname_raw + "L1L2L3L5g");
+					//algorithms.emplace_back(algoname_raw + "L1L2L3L5c");
+					//algorithms.emplace_back(algoname_raw + "L1L2L3L5b");
+				}
 
 				m_algorithms.emplace_back(algorithms);
 			}
@@ -115,6 +122,7 @@ private:
 	const bool m_metphi;
 	const bool m_rc;
 	const bool m_isData;
+	const bool m_flavourCorrections;
 	const float jet_min_pt;
 	std::vector<std::vector<std::string>> m_algorithms;
 	std::vector<std::string> m_l1algorithms;

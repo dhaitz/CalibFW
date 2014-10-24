@@ -16,6 +16,10 @@ struct JecCorrSet
 	boost::scoped_ptr<JECService> m_rc;
 	boost::scoped_ptr<JECService> m_l2;
 	boost::scoped_ptr<JECService> m_l3;
+	boost::scoped_ptr<JECService> m_l5g;
+	boost::scoped_ptr<JECService> m_l5q;
+	boost::scoped_ptr<JECService> m_l5b;
+	boost::scoped_ptr<JECService> m_l5c;
 	boost::scoped_ptr<JECService> m_l2l3res;
 };
 
@@ -33,7 +37,7 @@ public:
 	}
 
 
-	JetCorrector(std::string corBase, std::string l1cor, stringvector baseAlgos, bool rc);
+	JetCorrector(std::string corBase, std::string l1cor, stringvector baseAlgos, bool rc, bool flavour);
 
 	virtual void PopulateProduct(ZJetEventData const& data,
 								 ZJetProduct& product,
@@ -67,6 +71,7 @@ private:
 	std::string m_l1correction;
 	std::vector<std::string> m_basealgorithms;
 	bool m_rc;
+	bool m_flavour;
 
 };
 

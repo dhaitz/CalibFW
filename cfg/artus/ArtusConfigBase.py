@@ -19,9 +19,11 @@ import sys
 import ArtusConfigFunctions
 
 
-def BaseConfig(inputtype, run='2012', analysis='mm', tagged=True, rundepMC=False, lhe=False):
+def BaseConfig(inputtype, run='2012', analysis='mm', tagged=True,
+                        rundepMC=False, lhe=False, flavourCorrections=False):
     """This functions is here for backward compatibility."""
-    return getConfig(inputtype, run, analysis, tagged=tagged, rundep=rundepMC, addLHE=lhe)
+    return getConfig(inputtype, run, analysis, tagged=tagged, rundep=rundepMC,
+        addLHE=lhe, flavourCorrections=flavourCorrections)
 
 
 def getConfig(inputtype, year, channel, **kwargs):

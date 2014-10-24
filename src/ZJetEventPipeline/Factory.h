@@ -62,13 +62,16 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 											 globalSettings.get<std::string>("Jec"),
 											 globalSettings.get<std::string>("L1Correction"),
 											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms"),
-											 globalSettings.get<bool>("RC")));
+											 globalSettings.get<bool>("RC"),
+											 globalSettings.get<bool>("FlavourCorrections")));
 		else if (JetSorter::Name() == *it)
 			runner.AddGlobalMetaProducer(new JetSorter());
 		else if (HltSelector::Name() == *it)
 			runner.AddGlobalMetaProducer(new HltSelector(PropertyTreeSupport::GetAsStringList(&globalSettings, "HltPaths", true)));
 		else if (JetMatcher::Name() == *it)
-			runner.AddGlobalMetaProducer(new JetMatcher(PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
+			runner.AddGlobalMetaProducer(new JetMatcher(
+											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms"),
+											 globalSettings.get<bool>("FlavourCorrections")));
 		else if (GenMetProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new GenMetProducer());
 		else if (GenProducer::Name() == *it)
@@ -82,7 +85,8 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 											 globalSettings.get<bool>("EnableMetPhiCorrection"),
 											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms"),
 											 globalSettings.get<bool>("RC"),
-											 globalSettings.get<std::string>("InputType") == "data"));
+											 globalSettings.get<std::string>("InputType") == "data",
+											 globalSettings.get<bool>("FlavourCorrections")));
 
 		else if (UnclusteredEnergyProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(new UnclusteredEnergyProducer(

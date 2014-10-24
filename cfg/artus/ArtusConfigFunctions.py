@@ -44,11 +44,11 @@ def getBaseConfig(tagged, **kwargs):
         'VetoPileupJets': False,
         'checkKappa': False,
         'RC': False,  # also provide random cone offset JEC, and use for type-I
+        'FlavourCorrections': False,  # calculate additional MC flavour corrections
 
         # Wire kappa objects
         'electrons': 'electrons',
     }
-
     if tagged:
         cfg['Pipelines']['default']['QuantitiesVector'] += [
             "qglikelihood", "qgmlp",
@@ -73,7 +73,7 @@ def data(cfg, **kwargs):
     cfg['GlobalProducer'] += ['hlt_selector', 'pileuptruth_producer']
 
 
-def mc(cfg, addLHE, rundep, **kwargs):
+def mc(cfg, addLHE, rundep, flavourCorrections, **kwargs):
     cfg['InputType'] = 'mc'
     cfg['Pipelines']['default']['QuantitiesVector'] += [
                     "npu", "eff",
@@ -101,10 +101,13 @@ def mc(cfg, addLHE, rundep, **kwargs):
         cfg['LHE'] = ''
     if rundep:
         cfg['Pipelines']['default']['QuantitiesVector'] += ['run', 'eventnr', 'lumisec']
-
+    if flavourCorrections:
+        cfg['FlavourCorrections'] = True
+        cfg['Pipelines']['default']['QuantitiesVector'] += ["algol5pt", "physl5pt"]
 
 ##
 ##
+
 
 def _2011(cfg, **kwargs):
     cfg['Run'] = 2011
@@ -112,6 +115,7 @@ def _2011(cfg, **kwargs):
 
 def _2012(cfg, **kwargs):
     cfg['Run'] = '2012'
+
 
 ##
 ##
