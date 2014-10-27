@@ -87,7 +87,9 @@ def mc(cfg, addLHE, rundep, flavourCorrections, **kwargs):
                     "ngenmuons", "ngenphotons", "ngenphotonsclose", "closestphotondr", "nzs", "ninternalmuons", "nintermediatemuons", "ptgenphotonsclose", "ptdiff13", "ptdiff12", "ptdiff23",
                     "genzpt", "genzy", "genzmass", "deltaRzgenz"
     ]
-    cfg['GlobalProducer'] += ['jet_matcher', 'gen_producer', 'gen_balance_producer', 'gen_met_producer', 'weight_producer', 'flavour_producer']
+    cfg['GlobalProducer'] += ['jet_matcher', 'gen_balance_producer', 'gen_met_producer', 'weight_producer', 'flavour_producer']
+    # put the gen_producer first since e.g. l5_producer depend on it
+    cfg['GlobalProducer'].insert(0, 'gen_producer')
     cfg['AK5GenJets'] = 'AK5GenJetsNoNu'
 
     if addLHE:
@@ -104,6 +106,9 @@ def mc(cfg, addLHE, rundep, flavourCorrections, **kwargs):
     if flavourCorrections:
         cfg['FlavourCorrections'] = True
         cfg['Pipelines']['default']['QuantitiesVector'] += ["algol5pt", "physl5pt"]
+        #insert l5_producer directly after jet corrector
+        cfg['GlobalProducer'].insert(cfg['GlobalProducer'].index('jet_corrector') + 1, 'l5_producer')
+        cfg['Pipelines']['default']['QuantitiesVector'] += ["mpfalgo", "mpfphys"]
 
 ##
 ##

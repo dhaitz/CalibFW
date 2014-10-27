@@ -43,10 +43,8 @@ public:
 					algorithms.emplace_back(algoname_raw + "L1L2L3Res");
 				else if (m_flavourCorrections)
 				{
-					algorithms.emplace_back(algoname_raw + "L1L2L3L5q");
-					//algorithms.emplace_back(algoname_raw + "L1L2L3L5g");
-					//algorithms.emplace_back(algoname_raw + "L1L2L3L5c");
-					//algorithms.emplace_back(algoname_raw + "L1L2L3L5b");
+					algorithms.emplace_back(algoname_raw + "L1L2L3L5Algo");
+					algorithms.emplace_back(algoname_raw + "L1L2L3L5Phys");
 				}
 
 				m_algorithms.emplace_back(algorithms);
@@ -72,6 +70,7 @@ public:
 			//iterate over the jet collection and sum up the differences between L1L2L3(res) and L1
 			for (unsigned int j = 0; j < m_algorithms[i].size(); j++)
 			{
+
 				KDataLV correction;
 				for (unsigned int k = 0; k < product.m_validPFJets.at(m_algorithms[i][j]).size(); ++ k)
 				{

@@ -19,6 +19,7 @@
 #include "ZJetProducer/LHEProducer.h"
 #include "ZJetProducer/ElectronSFProducer.h"
 #include "ZJetProducer/ElectronCorrector.h"
+#include "ZJetProducer/L5Producer.h"
 
 
 using namespace Artus;
@@ -112,6 +113,8 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 			runner.AddGlobalMetaProducer(new LHEProducer());
 		else if (ElectronCorrector::Name() == *it)
 			runner.AddGlobalMetaProducer(new ElectronCorrector());
+		else if (L5Producer::Name() == *it)
+			runner.AddGlobalMetaProducer(new L5Producer(PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else
 			LOG_FATAL("Global product producer of name " << *it << " not found");
 	}

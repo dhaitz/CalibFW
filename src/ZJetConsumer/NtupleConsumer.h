@@ -243,7 +243,9 @@ private:
 		eminusidtight,
 		eminusidveto,
 		algol5pt,
-		physl5pt
+		physl5pt,
+		mpfalgo,
+		mpfphys
 	};
 	std::vector<E> m_enumvector;
 
@@ -1088,6 +1090,10 @@ private:
 			else
 				return product.GetValidPrimaryJet(s, event)->p4.Pt();
 		}
+		else if (e == E::mpfalgo)
+			return product.GetMPF(&product.m_MET[s.GetJetAlgorithm() + "L5Algo"]);
+		else if (e == E::mpfphys)
+			return product.GetMPF(&product.m_MET[s.GetJetAlgorithm() + "L5Phys"]);
 
 		LOG_FATAL("None found");
 		assert(false);
@@ -1458,6 +1464,10 @@ private:
 				m_enumvector.push_back(E::algol5pt);
 			else if (string == "physl5pt")
 				m_enumvector.push_back(E::physl5pt);
+			else if (string == "mpfphys")
+				m_enumvector.push_back(E::mpfphys);
+			else if (string == "mpfalgo")
+				m_enumvector.push_back(E::mpfalgo);
 			else
 				LOG_FATAL("NtupleConsumer: Quantity (" << string << ") not available!");
 
