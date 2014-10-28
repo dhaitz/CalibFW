@@ -284,6 +284,7 @@ def options(
     opt.cut = cut
     opt.eta = eta
     opt.twoD = False
+    opt.git_commit_hash = get_git_revision_short_hash()
 
     if opt.www:
         opt.out = artus.getPath('SYNCDIR')
@@ -315,6 +316,12 @@ def options(
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
 
     return opt
+
+
+def get_git_revision_short_hash():
+    p = subprocess.Popen(['git', 'rev-parse', '--short', 'HEAD'], stdout=subprocess.PIPE)
+    out, err = p.communicate()
+    return out[:-1]
 
 
 if __name__ == "__main__":
