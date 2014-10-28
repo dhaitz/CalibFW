@@ -221,9 +221,13 @@ def applyChanges(settings, changes):
     nsettings = copy.deepcopy(settings)
     if changes is not None:
         if 'selection' in changes and settings['selection'] is not None:
-            selection = " && ".join([changes['selection'], settings['selection']])
+            if len(changes['selection']) == 1 and len(settings['selection']) == 1:
+                selection = " && ".join([changes['selection'][0], settings['selection'][0]])
+            else:
+                print "please implement the code to combine selection-lists of different length!"
+                sys.exit()
             nsettings.update(changes)
-            nsettings['selection'] = selection
+            nsettings['selection'] = [selection]
         else:
             nsettings.update(changes)
     return nsettings
