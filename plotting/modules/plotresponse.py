@@ -488,7 +488,8 @@ def response_physflavour(files, opt, changes=None, settings=None,
             definition='phys',
             add_neutrinopt=False,
             restrict_neutrals=False,
-            extrapolation=True):
+            extrapolation=True,
+            l5=False):
     """Get response vs. flavour (physics definition). This function only works with MC."""
 
     flavour = '%sflavour' % definition
@@ -497,14 +498,19 @@ def response_physflavour(files, opt, changes=None, settings=None,
     
     markers = ['o', 's', '*', 'd']
     colors = ['red', 'black', 'lightskyblue', 'yellowgreen', ]
+    
+    if l5:
+        suffix = 'algo'
+    else:
+        suffix = ""
 
     if add_neutrinopt:
         plotbase.debug("\nneutrino-inclusive quantities are used\n")
         ################################################################################
-        quantities = ['jet1ptneutrinos/zpt', 'mpfneutrinos', 'genjet1ptneutrinos/zpt', 'jet1ptneutrinos/genjet1ptneutrinos']
+        quantities = ['jet1ptneutrinos%s/zpt' % suffix, 'mpfneutrinos%s' % suffix, 'genjet1ptneutrinos/zpt', 'jet1ptneutrinos%s/genjet1ptneutrinos' % suffix]
         ################################################################################
     else:
-        quantities = ['jet1pt/zpt', 'mpf', 'genjet1pt/zpt', 'jet1pt/genjet1pt']
+        quantities = ['jet1pt%s/zpt' % suffix, 'mpf%s' % suffix, 'genjet1pt/zpt', 'jet1pt%s/genjet1pt' % suffix]
 
     labels = ['PtBalance', 'MPF', 'GenJet/RecoZ', 'RecoJet/GenJet']
     
@@ -575,6 +581,8 @@ def response_physflavour(files, opt, changes=None, settings=None,
         filename += "_extrapol"
     if restrict_neutrals:
         filename += "_neutrals"
+    if l5:
+        filename += "_l5"
 
     settings['filename'] = plotbase.getDefaultFilename(filename, opt, settings)
                                              
