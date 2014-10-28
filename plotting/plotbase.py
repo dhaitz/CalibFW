@@ -15,6 +15,9 @@ import inspect
 import math
 import matplotlib
 import pkgutil
+from matplotlib.backends.backend_pdf import PdfPages
+from PIL import Image
+from PIL import PngImagePlugin
 
 from ROOT import gROOT, PyConfig
 PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
@@ -479,7 +482,7 @@ def readMetaInfosFromRootFiles(files, opt,
         for m in metainfos:
             eval(m).append(f.Get(m))
     # Append to copy of opt
-    opt2=copy.deepcopy(opt)
+    opt2 = copy.deepcopy(opt)
     for m in metainfos:
         setattr(opt2, m.lower() + 's', eval(m))
         opt2.default_options[m.lower() + 's'] = eval(m)
@@ -495,11 +498,12 @@ def getDefaultFiles():
     return files
 
 
-def Save(figure, settings=None, crop=True, pad=None):
+def Save(figure, settings=None, crop=True, pad=0.1):
     """Save this figure in all listed data formats.
 
     The standard data formats are png and pdf.
     Available graphics formats are: pdf, png, ps, eps and svg
+    For pdf, the settings are written into metadata.
     """
     if not settings:
         print "Please use mpl savefig if no settings are given"
@@ -519,20 +523,48 @@ def Save(figure, settings=None, crop=True, pad=None):
         title = figure.suptitle("I", color='white')
     first = True
     for f in settings['formats']:
-        if f in ['pdf', 'png', 'ps', 'eps', 'svg']:
-            if not first:
-                print ",",
-            else:
-                first = False
-            print name + '.' + f
+        if not first:
+            print ",",
+        else:
+            first = False
+        filename = name + '.' + f
+        print filename
+        if f in ['png', 'ps', 'eps', 'svg']:
             if crop:
-                if pad is not None:
-                    figure.savefig(name + '.' + f, bbox_inches='tight', bbox_extra_artists=[title], pad_inches=pad)
-                else:
-                    figure.savefig(name + '.' + f, bbox_inches='tight', bbox_extra_artists=[title])
+                figure.savefig(filename, bbox_inches='tight', bbox_extra_artists=[title], pad_inches=pad)
             else:
-                figure.savefig(name + '.' + f)
-            plt.close(figure)
+                figure.savefig(filename)
+        elif f == 'pdf':
+                pdffig = PdfPages(filename)
+                pdffig.savefig(figure, bbox_inches='tight', bbox_extra_artists=[title], pad_inches=pad)
 
+                # write complete settings into PDF metadata:
+                metadata = pdffig.infodict()
+                metadata['Author'] = os.environ['USER']
+                metadata['Keywords'] = getDictionaryString(settings)
+                pdffig.close()
         else:
             print f, "failed. Output type is unknown or not supported."
+        # for PNG, we can only add the metadata afterwards
+        if f == 'png':
+            im = Image.open(filename)
+            meta = PngImagePlugin.PngInfo()
+            for x in settings:
+                if str(settings[x]):
+                    meta.add_text(x, str(settings[x]))
+                elif type(settings[x]) == list and all(str(item) for item in settings[x]):
+                    meta.add_text(x, ",".join([str(item) for item in settings[x]]))
+            im.save(filename, "png", pnginfo=meta)
+
+    plt.close(figure)
+
+
+def getDictionaryString(dictio):
+    "This function returns one string containing all string key-value pairs from a given dictionary."""
+    string = ""
+    for key in dictio.keys():
+        if str(dictio[key]):
+            string += "%s: %s; \n" % (key, str(dictio[key]))
+        elif type(dictio[key] == list) and all(str(item) for item in dictio[key]):
+            string += "%s: %s; \n" % (key, ",".join(str(dictio[key])))
+    return string
