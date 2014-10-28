@@ -127,7 +127,7 @@ def getselection(settings, mcWeights=False, index=0):
     weights = []
     mcWeights = mcWeights and settings.get('mcweights', True)
     if selection:
-        weights = ["(" + " * ".join(selection) + ")"]
+        weights = ["(" + " && ".join(selection) + ")"]
     if mcWeights and ('noweighting' not in settings or settings['noweighting']):
         weights += ["weight"]
     if mcWeights:  # add lumi weights always?

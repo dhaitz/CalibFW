@@ -486,8 +486,8 @@ def response_physflavour_n(files, opt):
 
 def response_physflavour(files, opt, changes=None, settings=None, 
             definition='phys',
-            add_neutrinopt=False,
-            restrict_neutrals=False,
+            add_neutrinopt=True,
+            restrict_neutrals=True,
             extrapolation=True,
             l5=False):
     """Get response vs. flavour (physics definition). This function only works with MC."""
@@ -547,7 +547,7 @@ def response_physflavour(files, opt, changes=None, settings=None,
             y = []
             yerr = []
             for s in flavours:
-                changes['selection'] = ["%s && %s" % ("alpha<0.3", s)]
+                changes['selection'] = ["%s && %s" % ("alpha<0.3 && alpha>0", s)]
 
                 if restrict_neutrals:
                     changes['selection'] = [' && '.join([changes['selection'][0], neutral_selection])]

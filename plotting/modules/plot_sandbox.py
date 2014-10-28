@@ -66,13 +66,15 @@ def paper(files, opt):
         )
 
     # The response-vs-flavour plots
-    local_opt = copy.deepcopy(opt)
+    #local_opt = copy.deepcopy(opt)
+    filenames = [opt.files[1]]
+    local_files, local_opt = plotbase.openRootFiles(filenames, opt)
     local_opt.out = opt.out + '/flavour_response/'
     for a in [0, 1]:
         for b in [0, 1]:
             for c in [0, 1]:
                 for d in [0, 1]:
-                    plotresponse.response_physflavour(files[1:], local_opt,
+                    plotresponse.response_physflavour(local_files, local_opt,
                         changes={'title': 'CMS Simulation','mconly':True, 'nbins':25,},
                         add_neutrinopt=a,
                         restrict_neutrals=b,

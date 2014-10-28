@@ -17,6 +17,8 @@ ntuple_dict = {
             'deltaphi-jet1-jet2': '(abs(abs(abs(jet1phi-jet2phi)-TMath: :Pi())-TMath: :Pi()))',
             'deltaphi-z-MET': '(abs(abs(abs(zphi-METphi)-TMath: :Pi())-TMath: :Pi()))',
             'jet1abseta': '(abs(jet1eta))',
+            'jet1ptalgo': 'algol5pt',
+            'jet1ptphys': 'physl5pt',
             'jet2abseta': '(abs(jet2eta))',
             'recogen': '(jet1pt/genjet1pt)',
             'btag': 'combinedsecondaryvertexbjettag',
