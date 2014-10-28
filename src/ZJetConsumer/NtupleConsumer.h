@@ -245,7 +245,11 @@ private:
 		algol5pt,
 		physl5pt,
 		mpfalgo,
-		mpfphys
+		mpfphys,
+		mpfneutrinosalgo,
+		mpfneutrinosphys,
+		jet1ptneutrinosalgo,
+		jet1ptneutrinosphys
 	};
 	std::vector<E> m_enumvector;
 
@@ -1094,6 +1098,46 @@ private:
 			return product.GetMPF(&product.m_MET[s.GetJetAlgorithm() + "L5Algo"]);
 		else if (e == E::mpfphys)
 			return product.GetMPF(&product.m_MET[s.GetJetAlgorithm() + "L5Phys"]);
+		else if (e == E::mpfneutrinosalgo)
+		{
+			KDataPFMET met = product.m_MET[s.GetJetAlgorithm() + "L5Algo"];
+			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+			if (product.m_neutrinos[genName].size() > 0)
+				for (const auto & it : product.m_neutrinos[genName])
+					met.p4 -= it.p4;
+			met.p4.SetEta(0);
+			return product.GetMPF(&met);
+		}
+		else if (e == E::mpfneutrinosphys)
+		{
+			KDataPFMET met = product.m_MET[s.GetJetAlgorithm() + "L5Phys"];
+			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+			if (product.m_neutrinos[genName].size() > 0)
+				for (const auto & it : product.m_neutrinos[genName])
+					met.p4 -= it.p4;
+			met.p4.SetEta(0);
+			return product.GetMPF(&met);
+		}
+		else if (e == E::jet1ptneutrinosalgo)
+		{
+
+			KDataLV v = * product.GetValidJet(s, event, 0, s.GetJetAlgorithm() + "L5Algo");
+			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+			if (product.m_neutrinos[genName].size() > 0)
+				for (const auto & it : product.m_neutrinos[genName])
+					v.p4 += it.p4;
+			return v.p4.Pt();
+		}
+		else if (e == E::jet1ptneutrinosphys)
+		{
+
+			KDataLV v = * product.GetValidJet(s, event, 0, s.GetJetAlgorithm() + "L5Phys");
+			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+			if (product.m_neutrinos[genName].size() > 0)
+				for (const auto & it : product.m_neutrinos[genName])
+					v.p4 += it.p4;
+			return v.p4.Pt();
+		}
 
 		LOG_FATAL("None found");
 		assert(false);
@@ -1468,6 +1512,14 @@ private:
 				m_enumvector.push_back(E::mpfphys);
 			else if (string == "mpfalgo")
 				m_enumvector.push_back(E::mpfalgo);
+			else if (string == "mpfneutrinosalgo")
+				m_enumvector.push_back(E::mpfneutrinosalgo);
+			else if (string == "mpfneutrinosphys")
+				m_enumvector.push_back(E::mpfneutrinosphys);
+			else if (string == "jet1ptneutrinosalgo")
+				m_enumvector.push_back(E::jet1ptneutrinosalgo);
+			else if (string == "jet1ptneutrinosphys")
+				m_enumvector.push_back(E::jet1ptneutrinosphys);
 			else
 				LOG_FATAL("NtupleConsumer: Quantity (" << string << ") not available!");
 

@@ -108,7 +108,8 @@ def mc(cfg, addLHE, rundep, flavourCorrections, **kwargs):
         cfg['Pipelines']['default']['QuantitiesVector'] += ["algol5pt", "physl5pt"]
         #insert l5_producer directly after jet corrector
         cfg['GlobalProducer'].insert(cfg['GlobalProducer'].index('jet_corrector') + 1, 'l5_producer')
-        cfg['Pipelines']['default']['QuantitiesVector'] += ["mpfalgo", "mpfphys"]
+        cfg['Pipelines']['default']['QuantitiesVector'] += ["mpfalgo", "mpfphys",
+            "mpfneutrinosalgo", "mpfneutrinosphys", "jet1ptneutrinosalgo", "jet1ptneutrinosphys"]
 
 ##
 ##
