@@ -155,98 +155,114 @@ def zmassFitted(files, opt, changes=None, settings=None):
                     "Z $p_\mathrm{T}$ > 120 GeV",
                 ]):
 
-                # we dont need pt-binned Z pT plots:
-                if xq == 'zpt' and ptselection is not "1":
-                    continue
+                # iterate over electron eta regions
+                for etaregion, etaselection, etastring in zip(
+                ["_all", "_EBEB", "_EBEE", "_EEEE"],
+                    [
+                        "1",
+                        "abs(eminuseta) < 1.5 && abs(epluseta) < 1.5",
+                        "((abs(eminuseta) < 1.5 && abs(epluseta) > 1.6) || (abs(epluseta) < 1.5 && abs(eminuseta) > 1.6))",
+                        "abs(eminuseta) > 1.6 && abs(epluseta) > 1.6",
+                    ],
+                    [
+                        "",
+                        "EB-EB",
+                        "EB-EE & EE-EB",
+                        "EE-EE",
+                    ]):
+                        # we dont need pt-binned Z pT plots:
+                    if xq == 'zpt' and ptselection is not "1":
+                        continue
 
-                rootobjects, rootobjects2 = [], []
-                fig = plotbase.plt.figure(figsize=[7, 10])
-                ax = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
-                ax.number = 1
-                ax2 = plotbase.plt.subplot2grid((3, 1), (2, 0))
-                ax2.number = 2
-                fig.add_axes(ax)
-                fig.add_axes(ax2)
+                    rootobjects, rootobjects2 = [], []
+                    fig = plotbase.plt.figure(figsize=[7, 10])
+                    ax = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
+                    ax.number = 1
+                    ax2 = plotbase.plt.subplot2grid((3, 1), (2, 0))
+                    ax2.number = 2
+                    fig.add_axes(ax)
+                    fig.add_axes(ax2)
 
-                # print the pt region on the plot
-                ax.text(0.98, 0.98, ptstring, va='top', ha='right', transform=ax.transAxes)
+                    # print the Z pt and electron eta region on the plot
+                    ax.text(0.98, 0.98, ptstring, va='top', ha='right', transform=ax.transAxes)
+                    ax.text(0.98, 0.9, etastring, va='top', ha='right', transform=ax.transAxes)
 
-                changes = {
-                    'y': [90.8, 92.8],
-                    'yname': r'$m^{\mathrm{Z}}$ (peak position from Breit-Wigner fit) / GeV',
-                    'legloc': 'upper left',
-                    'title': mode + " electrons",
-                    'labels': ['data', 'powheg'],
-                }
-                settings = plotbase.getSettings(opt, changes=changes, quantity=quantity + "_" + xq)
+                    changes = {
+                        'y': [90.8, 94.8],
+                        'yname': r'$m^{\mathrm{Z}}$ (peak position from Breit-Wigner fit) / GeV',
+                        'legloc': 'upper left',
+                        'title': mode + " electrons",
+                        'labels': ['data', 'powheg'],
+                    }
+                    settings = plotbase.getSettings(opt, changes=changes, quantity=quantity + "_" + xq)
 
-                # iterate over files
-                markers = ['o', 'D']
-                ys, yerrs, xs = [], [], []
-                for i, f in enumerate(files):
-                    bins = xbins
-                    y, yerr, x = [], [], []
+                    # iterate over files
+                    markers = ['o', 'D']
+                    ys, yerrs, xs = [], [], []
+                    for i, f in enumerate(files):
+                        bins = xbins
+                        y, yerr, x = [], [], []
 
-                    # iterate over bins
-                    for lower, upper in zip(bins[:-1], bins[1:]):
-                        changes = {
-                            'selection': ['(%s > %s && %s < %s) && (%s)' % (xq,
-                                     lower, xq, upper, ptselection)],
-                            'nbins': 40,
-                            'folder': 'zcuts',
-                        }
-                        local_settings = plotbase.getSettings(opt, changes, None, quantity)
+                        # iterate over bins
+                        for lower, upper in zip(bins[:-1], bins[1:]):
+                            changes = {
+                                'selection': ['(%s > %s && %s < %s) && (%s) && (%s)' % (xq,
+                                         lower, xq, upper, ptselection, etaselection)],
+                                'nbins': 40,
+                                'folder': 'zcuts',
+                                'x': [71, 101],
+                            }
+                            local_settings = plotbase.getSettings(opt, changes, None, quantity)
 
-                        # get the zmass, fit, get the xq distribution; append to lists
-                        rootobjects += [getroot.histofromfile(quantity, f, local_settings, index=i)]
-                        p0, p0err, p1, p1err, p2, p2err, chi2, ndf, conf_intervals = fit.fitline2(rootobjects[-1], breitwigner=True, limits=local_settings['x'])
-                        y += [p1]
-                        yerr += [p1err]
-                        changes['x'] = [lower, upper]
-                        local_settings = plotbase.getSettings(opt, changes, None, quantity)
-                        rootobjects2 += [getroot.histofromfile(xq, f, local_settings, index=i)]
-                        x += [rootobjects2[-1].GetMean()]
+                            # get the zmass, fit, get the xq distribution; append to lists
+                            rootobjects += [getroot.histofromfile(quantity, f, local_settings, index=i)]
+                            p0, p0err, p1, p1err, p2, p2err, chi2, ndf, conf_intervals = fit.fitline2(rootobjects[-1], breitwigner=True, limits=local_settings['x'])
+                            y += [p1]
+                            yerr += [p1err]
+                            changes['x'] = [lower, upper]
+                            local_settings = plotbase.getSettings(opt, changes, None, quantity)
+                            rootobjects2 += [getroot.histofromfile(xq, f, local_settings, index=i)]
+                            x += [rootobjects2[-1].GetMean()]
 
-                        # fine line to indicate bin borders
-                        ax.add_line(plotbase.matplotlib.lines.Line2D((lower, upper), (y[-1],y[-1]), color='black', alpha=0.05))
+                            # fine line to indicate bin borders
+                            ax.add_line(plotbase.matplotlib.lines.Line2D((lower, upper), (y[-1],y[-1]), color='black', alpha=0.05))
 
-                    ys.append(y)
-                    yerrs.append(yerr)
-                    xs.append(x)
+                        ys.append(y)
+                        yerrs.append(yerr)
+                        xs.append(x)
 
-                    #plot
-                    ax.errorbar(x, y, yerr, drawstyle='steps-mid', color=settings['colors'][i],
-                                                fmt=markers[i], capsize=0, label=settings['labels'][i])
+                        #plot
+                        ax.errorbar(x, y, yerr, drawstyle='steps-mid', color=settings['colors'][i],
+                                                    fmt=markers[i], capsize=0, label=settings['labels'][i])
 
-                # format and save
-                if xq == 'zpt':
-                    settings['xlog'] = True
-                    settings['x'] = [30, 1000]
-                    settings['xticks'] = [30, 50, 70, 100, 200, 400, 1000]
-                plot1d.formatting(ax, settings, opt, [], [])
+                    # format and save
+                    if xq == 'zpt':
+                        settings['xlog'] = True
+                        settings['x'] = [30, 1000]
+                        settings['xticks'] = [30, 50, 70, 100, 200, 400, 1000]
+                    plot1d.formatting(ax, settings, opt, [], [])
 
-                # calculate ratio values
-                ratio_y = [d/m for d, m in zip(ys[0], ys[1])]
-                ratio_yerrs = [math.sqrt((derr/d)**2 + (merr/m)**2)for d, derr, m, merr in zip(ys[0], yerrs[0], ys[1], yerrs[1])]
-                ratio_x = [0.5 * (d + m) for d, m in zip(xs[0], xs[1])]
+                    # calculate ratio values
+                    ratio_y = [d/m for d, m in zip(ys[0], ys[1])]
+                    ratio_yerrs = [math.sqrt((derr/d)**2 + (merr/m)**2)for d, derr, m, merr in zip(ys[0], yerrs[0], ys[1], yerrs[1])]
+                    ratio_x = [0.5 * (d + m) for d, m in zip(xs[0], xs[1])]
 
-                #format ratio plot
-                ax2.errorbar(ratio_x, ratio_y, ratio_yerrs, drawstyle='steps-mid', color='black',
-                                                fmt='o', capsize=0, label='ratio')
-                ax.axhline(1.0)
-                fig.subplots_adjust(hspace=0.1)
-                ax.set_xticklabels([])
-                ax.set_xlabel("")
-                settings['ratio'] = True
-                settings['legloc'] = None
-                settings['xynames'][1] = 'ratio'
+                    #format ratio plot
+                    ax2.errorbar(ratio_x, ratio_y, ratio_yerrs, drawstyle='steps-mid', color='black',
+                                                    fmt='o', capsize=0, label='ratio')
+                    ax.axhline(1.0)
+                    fig.subplots_adjust(hspace=0.1)
+                    ax.set_xticklabels([])
+                    ax.set_xlabel("")
+                    settings['ratio'] = True
+                    settings['legloc'] = None
+                    settings['xynames'][1] = 'ratio'
 
-                plot1d.formatting(ax2, settings, opt, [], [])
-                ax2.set_ylim(0.99, 1.01)
+                    plot1d.formatting(ax2, settings, opt, [], [])
+                    ax2.set_ylim(0.99, 1.01)
 
-                settings['filename'] = plotbase.getDefaultFilename(quantity + "_" + xq, opt, settings)
-                settings['filename'] += "_" + mode + ptregion
-                plotbase.Save(fig, settings)
+                    settings['filename'] = plotbase.getDefaultFilename(quantity + "_" + xq + "_" + mode + ptregion + etaregion, opt, settings)
+                    plotbase.Save(fig, settings)
 
 
 def zmassEBEE(files, opt):
