@@ -35,7 +35,7 @@ def getBaseConfig(tagged, **kwargs):
                     "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta",
                     "otherjetspt", "otherjetseta", "otherjetsphi",
                     "njets", "njetsinv", "njets30", "njets30barrel",
-                    "unc", "nputruth",
+                    "jet1unc", "nputruth",
                 ]
             }
         },
