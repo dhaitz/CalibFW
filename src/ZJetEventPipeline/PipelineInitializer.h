@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ZJetFilter/FilterBase.h"
-#include "ZJetEventPipeline/MetaData.h"
+#include "ZJetEventPipeline/Product.h"
 #include "ZJetEventPipeline/EventData.h"
 
 namespace Artus

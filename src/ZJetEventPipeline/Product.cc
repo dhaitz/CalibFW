@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "ZJetEventPipeline/MetaData.h"
+#include "ZJetEventPipeline/Product.h"
 #include "EventPipeline/JetTools.h"
 
 namespace Artus

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ZJetEventPipeline/MetaData.h"
+#include "ZJetEventPipeline/Product.h"
 #include "MuScleFitCorrection/MuScleFitCorrector.h"
 #include <Math/LorentzVector.h>
 

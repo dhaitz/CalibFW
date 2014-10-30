@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "ZJetEventPipeline/MetaData.h"
+#include "ZJetEventPipeline/Product.h"
 
 #define USE_JEC
 #include "RootTools/JECTools.h"

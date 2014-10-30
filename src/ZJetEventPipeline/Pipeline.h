@@ -1,6 +1,6 @@
 #pragma once
 #include "ZJetFilter/FilterBase.h"
-#include "MetaData.h"
+#include "Product.h"
 #include "EventData.h"
 
 namespace Artus

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ZJetEventPipeline/EventData.h"
-#include "ZJetEventPipeline/MetaData.h"
+#include "ZJetEventPipeline/Product.h"
 #include "ZJetEventPipeline/PipelineSettings.h"
 
 #include "ZJetFilter/FilterBase.h"
