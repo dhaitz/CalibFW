@@ -40,36 +40,41 @@ bool MuonCorrector::PopulateGlobalProduct(ZJetEventData const& event,
 			LOG_FATAL("Tried to correct muons in Run D, but no parameters given!");
 	}
 
+	// Create an empty LV to sum up the differences between uncorrected and raw electrons
+	KDataLV muondiff;
+
 	// loop over valid muons an correct in place
-	for (auto mu = product.m_listValidMuons.begin(); mu != product.m_listValidMuons.end(); mu++)
+	for (auto & mu : product.m_listValidMuons)
 	{
 		// double before = mu->p4.Pt();  // for log debug
+		muondiff.p4 += mu.p4;
 
 		if (isRunD)
-			corrPt = m_correctorRunD.getCorrectPt(mu->p4, mu->charge);
+			corrPt = m_correctorRunD.getCorrectPt(mu.p4, mu.charge);
 		else
-			corrPt = m_corrector.getCorrectPt(mu->p4, mu->charge);
+			corrPt = m_corrector.getCorrectPt(mu.p4, mu.charge);
 
-		mu->p4.SetPt(corrPt);
+		mu.p4.SetPt(corrPt);
 
 		if (m_smearing)
 		{
 			if (isRunD)
-				smearedPt = m_correctorRunD.getSmearedPt(mu->p4, mu->charge, m_deterministic);
+				smearedPt = m_correctorRunD.getSmearedPt(mu.p4, mu.charge, m_deterministic);
 			else
-				smearedPt = m_corrector.getSmearedPt(mu->p4, mu->charge, m_deterministic);
+				smearedPt = m_corrector.getSmearedPt(mu.p4, mu.charge, m_deterministic);
 
-			mu->p4.SetPt(smearedPt);
+			mu.p4.SetPt(smearedPt);
 		}
 
 		if (m_radiationcorr)
 		{
-			mu->p4.SetPt(1.004 * mu->p4.Pt());
+			mu.p4.SetPt(1.004 * mu.p4.Pt());
 		}
 		//LOG("Muon Correction: " << before << " -> " << corrPt << " -> " << smearedPt
-		//	<< " (charge: " << int(mu->charge) <<")");
+		//	<< " (charge: " << int(mu.charge) <<")");
+		muondiff.p4 -= mu.p4;
 	}
-
+	product.muondiff = muondiff;
 	return true;
 }
 

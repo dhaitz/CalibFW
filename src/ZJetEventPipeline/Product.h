@@ -423,6 +423,9 @@ public:
 	float sfminus;
 
 	bool electronidveto;
+
+	// sum up the differences between raw and corrected muons:
+	KDataLV muondiff;
 };
 
 }
