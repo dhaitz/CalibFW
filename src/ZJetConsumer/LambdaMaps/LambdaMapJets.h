@@ -217,6 +217,48 @@ public:
 					return product.GetValidJet(s, event, 1, genName)->p4.Pt();
 				}
 			},
+			{
+				"deltaRgenjet1genjet2", [](ZJetEventData const & event, ZJetProduct const & product, ZJetPipelineSettings const & s) -> float
+				{
+					std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+
+					if (product.GetValidJetCount(s, event, genName) < 2)
+						return false;
+
+					return ROOT::Math::VectorUtil::DeltaR(product.GetValidJet(s, event, 0, genName)->p4,
+					product.GetValidJet(s, event, 1, genName)->p4);
+				}
+			},
+			{
+				"deltaRjet1jet2", [](ZJetEventData const & event, ZJetProduct const & product, ZJetPipelineSettings const & s) -> float
+				{
+					if (product.GetValidJetCount(s, event) < 2)
+						return false;
+
+					return ROOT::Math::VectorUtil::DeltaR(product.GetValidJet(s, event, 0)->p4,
+					product.GetValidJet(s, event, 1)->p4);
+				}
+			},
+			{
+				"deltaRjet1genjet1", [](ZJetEventData const & event, ZJetProduct const & product, ZJetPipelineSettings const & s) -> float
+				{
+					std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+					if (product.GetValidJetCount(s, event, genName) < 1)
+						return false;
+					return ROOT::Math::VectorUtil::DeltaR(product.GetValidJet(s, event, 0)->p4,
+					product.GetValidJet(s, event, 0, genName)->p4);
+				}
+			},
+			{
+				"deltaRjet2genjet2", [](ZJetEventData const & event, ZJetProduct const & product, ZJetPipelineSettings const & s) -> float
+				{
+					std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+					if (product.GetValidJetCount(s, event, genName) < 2 || product.GetValidJetCount(s, event) < 2)
+						return false;
+					return ROOT::Math::VectorUtil::DeltaR(product.GetValidJet(s, event, 1)->p4,
+					product.GetValidJet(s, event, 1, genName)->p4);
+				}
+			},
 		};
 		return lambdaMap;
 	};

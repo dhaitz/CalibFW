@@ -85,7 +85,8 @@ def mc(cfg, addLHE, rundep, flavourCorrections, **kwargs):
                     "genmupluspt", "genmupluseta", "genmuplusphi",
                     "genmuminuspt", "genmuminuseta", "genmuminusphi",
                     "ngenmuons", "ngenphotons", "ngenphotonsclose", "closestphotondr", "nzs", "ninternalmuons", "nintermediatemuons", "ptgenphotonsclose", "ptdiff13", "ptdiff12", "ptdiff23",
-                    "genzpt", "genzy", "genzmass", "deltaRzgenz"
+                    "genzpt", "genzy", "genzmass", "deltaRzgenz",
+                    "deltaRgenjet1genjet2", "deltaRjet1jet2", "deltaRjet1genjet1", "deltaRjet2genjet2"
     ]
     cfg['GlobalProducer'] += ['jet_matcher', 'gen_balance_producer', 'gen_met_producer', 'weight_producer', 'flavour_producer']
     # put the gen_producer first since e.g. l5_producer depend on it
