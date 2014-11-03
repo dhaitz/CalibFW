@@ -40,7 +40,7 @@ def labels(ax, opt, settings, subplot=False, mc=False):
             textlabel(ax, settings['text'])
         if settings.get('cutlabel', None) is not None:
             cutlabel(ax, settings)
-    if type(settings['legloc']) == str and settings['legloc'] != "None":
+    if type(settings['legloc']) == str and settings['legloc'] != "None" and len(settings['labels']) > 1:
         if "," in settings['legloc']:
             settings['legloc'] = ([float(i) for i in settings['legloc'].split(",")])
         legend = ax.legend(loc=settings['legloc'], numpoints=1, fancybox=True, ncol=int(settings.get('legendcolumns', 1)),

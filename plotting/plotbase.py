@@ -222,12 +222,16 @@ def applyChanges(settings, changes):
     if changes is not None:
         if 'selection' in changes and settings['selection'] is not None:
             if len(changes['selection']) == 1 and len(settings['selection']) == 1:
-                selection = " && ".join([changes['selection'][0], settings['selection'][0]])
+                selection = [" && ".join([changes['selection'][0], settings['selection'][0]])]
+            elif len(changes['selection']) == 1:
+                selection = ["%s && %s" % (x, changes['selection'][0]) for x in settings['selection']]
+            elif len(settings['selection']) == 1:
+                selection = ["%s && %s" % (x, settings['selection'][0]) for x in changes['selection']]
             else:
                 print "please implement the code to combine selection-lists of different length!"
                 sys.exit()
             nsettings.update(changes)
-            nsettings['selection'] = [selection]
+            nsettings['selection'] = selection
         else:
             nsettings.update(changes)
     return nsettings
