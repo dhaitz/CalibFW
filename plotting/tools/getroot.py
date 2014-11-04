@@ -175,6 +175,8 @@ def getBinning(quantity, settings, axis='x'):
         # No, opt is the wrong place, -> dict
         bin_dict = {
             'zpt': settings['zbins'],
+            'jet1pt': settings['zbins'],
+            'genjet1pt': settings['zbins'],
             '(abs(jet1eta))': settings['eta'],
             'jet1eta': [-elem for elem in settings['eta'][1:][::-1]] + settings['eta'],
             'npv': [a - 0.5 for a, b in settings['npv']] + [settings['npv'][-1][1] - 0.5]
