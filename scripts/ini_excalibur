@@ -58,7 +58,7 @@ complete -F _artuscomplete_ artus
 # Use this to open a root file directly in the TBrowser
 rot()
 {
-    root -l $@ $EXCALIBUR_BASE/scripts/tbrowser.cxx
+    ipython -i $EXCALIBUR_BASE/scripts/rot.py $@
 }
 
 # Use this to open the default data and mc files directly in a TBrowser
