@@ -168,7 +168,6 @@ def getBinning(quantity, settings, axis='x'):
         if settings['xlog']:
             print "LOG bins is not done -> getroot.getBinning"
             xmin = max(xmin, 1.0)
-            print xmin, nbins
             #bins = [xmin * (float(xmax) / xmin ) ** (float(i) / nbins) for i in range(nbins + 1)]
 
         #special binning for certain quantities:
