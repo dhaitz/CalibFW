@@ -1,5 +1,8 @@
 #pragma once
 
+#include <functional>
+#include "ZJetEventPipeline/Product.h"
+
 
 namespace Artus
 {
