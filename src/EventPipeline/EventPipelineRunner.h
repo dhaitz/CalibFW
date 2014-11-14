@@ -54,9 +54,18 @@ public:
 	/*
 	 * Add a GlobalMetaProducer. The object is destroy in the destructor of the EventPipelineRunner
 	 */
-	void AddGlobalMetaProducer(TGlobalMetaProducer* metaProd)
+	void AddGlobalMetaProducer(std::string producerName, TGlobalMetaProducer* metaProd)
 	{
 		m_globalMetaProducer.push_back(metaProd);
+
+		//chech for needed producers
+		for (auto neededProducer : metaProd->GetListOfNeededProducers())
+		{
+			if (std::find(m_listOfProducerNames.begin(), m_listOfProducerNames.end(),
+						  neededProducer) == m_listOfProducerNames.end())
+				LOG_FATAL("Producer '" << producerName << "' needs '" << neededProducer << "' to be run before.")
+			}
+		m_listOfProducerNames.push_back(producerName);
 	}
 
 	/*
@@ -158,6 +167,7 @@ public:
 		return (nEvents - firstEvent);
 	}
 
+	stringvector m_listOfProducerNames;
 
 private:
 

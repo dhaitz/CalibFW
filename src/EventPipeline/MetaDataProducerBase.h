@@ -38,6 +38,11 @@ public:
 	// if false is returned, the event is dropped as it does not meet the minimum requirements for the producer
 	virtual bool PopulateGlobalProduct(TData const& data, TGlobalProduct& product,
 									   TSettings const& globalSettings) const = 0;
+
+	virtual stringvector GetListOfNeededProducers()
+	{
+		return stringvector();
+	};
 };
 
 

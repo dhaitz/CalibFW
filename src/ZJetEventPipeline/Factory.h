@@ -35,54 +35,54 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 	{
 		std::string mucorr = globalSettings.get<std::string>("MuonCorrectionParameters", "missing");
 		if (ValidMuonProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new ValidMuonProducer());
+			runner.AddGlobalMetaProducer(*it, new ValidMuonProducer());
 		else if (ZProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new ZProducer());
+			runner.AddGlobalMetaProducer(*it, new ZProducer());
 		else if (WeightProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new WeightProducer(globalSettings.get<std::string>("PileupWeights")));
+			runner.AddGlobalMetaProducer(*it, new WeightProducer(globalSettings.get<std::string>("PileupWeights")));
 		else if (PileupTruthProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new PileupTruthProducer(
+			runner.AddGlobalMetaProducer(*it, new PileupTruthProducer(
 											 globalSettings.get<std::string>("PileupTruth"),
 											 globalSettings.get<double>("MinBiasXS")));
 		else if (MuonCorrector::Name() == *it)
-			runner.AddGlobalMetaProducer(new MuonCorrector(
+			runner.AddGlobalMetaProducer(*it, new MuonCorrector(
 											 mucorr,
 											 globalSettings.get<std::string>("MuonCorrectionParametersRunD", mucorr),
 											 globalSettings.get<bool>("MuonSmearing", false),
 											 globalSettings.get<bool>("MuonRadiationCorrection", false)));
 		else if (ValidJetProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new ValidJetProducer(
+			runner.AddGlobalMetaProducer(*it, new ValidJetProducer(
 											 globalSettings.get<bool>("Tagged"),
 											 globalSettings.get<bool>("VetoPileupJets")));
 		else if (ValidJetEEProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new ValidJetEEProducer(
+			runner.AddGlobalMetaProducer(*it, new ValidJetEEProducer(
 											 globalSettings.get<bool>("Tagged"),
 											 globalSettings.get<bool>("VetoPileupJets")));
 		else if (JetCorrector::Name() == *it)
-			runner.AddGlobalMetaProducer(new JetCorrector(
+			runner.AddGlobalMetaProducer(*it, new JetCorrector(
 											 globalSettings.get<std::string>("Jec"),
 											 globalSettings.get<std::string>("L1Correction"),
 											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms"),
 											 globalSettings.get<bool>("RC"),
 											 globalSettings.get<bool>("FlavourCorrections")));
 		else if (JetSorter::Name() == *it)
-			runner.AddGlobalMetaProducer(new JetSorter());
+			runner.AddGlobalMetaProducer(*it, new JetSorter());
 		else if (HltSelector::Name() == *it)
-			runner.AddGlobalMetaProducer(new HltSelector(PropertyTreeSupport::GetAsStringList(&globalSettings, "HltPaths", true)));
+			runner.AddGlobalMetaProducer(*it, new HltSelector(PropertyTreeSupport::GetAsStringList(&globalSettings, "HltPaths", true)));
 		else if (JetMatcher::Name() == *it)
-			runner.AddGlobalMetaProducer(new JetMatcher(
+			runner.AddGlobalMetaProducer(*it, new JetMatcher(
 											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms"),
 											 globalSettings.get<bool>("FlavourCorrections")));
 		else if (GenMetProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new GenMetProducer());
+			runner.AddGlobalMetaProducer(*it, new GenMetProducer());
 		else if (GenProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new GenProducer());
+			runner.AddGlobalMetaProducer(*it, new GenProducer());
 		else if (GenBalanceProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new GenBalanceProducer());
+			runner.AddGlobalMetaProducer(*it, new GenBalanceProducer());
 		else if (GenDibalanceProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new GenDibalanceProducer());
+			runner.AddGlobalMetaProducer(*it, new GenDibalanceProducer());
 		else if (TypeIMETProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new TypeIMETProducer(
+			runner.AddGlobalMetaProducer(*it, new TypeIMETProducer(
 											 globalSettings.get<bool>("EnableMetPhiCorrection"),
 											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms"),
 											 globalSettings.get<bool>("RC"),
@@ -90,31 +90,31 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 											 globalSettings.get<bool>("FlavourCorrections")));
 
 		else if (UnclusteredEnergyProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new UnclusteredEnergyProducer(
+			runner.AddGlobalMetaProducer(*it, new UnclusteredEnergyProducer(
 											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else if (FlavourProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new FlavourProducer());
+			runner.AddGlobalMetaProducer(*it, new FlavourProducer());
 		else if (LeadingJetUncertaintyProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new LeadingJetUncertaintyProducer(
+			runner.AddGlobalMetaProducer(*it, new LeadingJetUncertaintyProducer(
 											 globalSettings.get<std::string>("Jec"),
 											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else if (ZEEProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new ZEEProducer());
+			runner.AddGlobalMetaProducer(*it, new ZEEProducer());
 		else if (ZEMuProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new ZEMuProducer());
+			runner.AddGlobalMetaProducer(*it, new ZEMuProducer());
 		else if (ValidElectronProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new ValidElectronProducer(
+			runner.AddGlobalMetaProducer(*it, new ValidElectronProducer(
 											 globalSettings.get<std::string>("ElectronID"),
 											 globalSettings.get<bool>("ExcludeECALGap")));
 		else if (ElectronSFProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new ElectronSFProducer(globalSettings.get<std::string>("ScaleFactors"),
+			runner.AddGlobalMetaProducer(*it, new ElectronSFProducer(globalSettings.get<std::string>("ScaleFactors"),
 										 globalSettings.get<std::string>("ElectronID")));
 		else if (LHEProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(new LHEProducer());
+			runner.AddGlobalMetaProducer(*it, new LHEProducer());
 		else if (ElectronCorrector::Name() == *it)
-			runner.AddGlobalMetaProducer(new ElectronCorrector());
+			runner.AddGlobalMetaProducer(*it, new ElectronCorrector());
 		else if (L5Producer::Name() == *it)
-			runner.AddGlobalMetaProducer(new L5Producer(PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
+			runner.AddGlobalMetaProducer(*it, new L5Producer(PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else
 			LOG_FATAL("Global product producer of name " << *it << " not found");
 	}

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ValidMuonProducer.h"
+
 namespace Artus
 {
 
@@ -82,6 +84,10 @@ public:
 	static std::string Name()
 	{
 		return "z_producer";
+	}
+	stringvector GetListOfNeededProducers()
+	{
+		return stringvector {ValidMuonProducer::Name()};
 	}
 
 private:
