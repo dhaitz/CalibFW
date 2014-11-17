@@ -18,6 +18,62 @@ import fit
 import os
 
 
+def corrs(files, opt):
+    fig, ax = plotbase.newPlot()
+    settings = plotbase.getSettings(opt, quantity='recogen_genpt')
+    for quantity, marker, color, label in zip(
+        ['raw/recogen_genpt', 'l1/recogen_genpt', 'l1l2l3/recogen_genpt'],
+        ['o', 'D', '-'],
+        ['black', '#7293cb', '#e1974c'],
+        ['raw', 'L1', 'L1L2L3']
+        
+    ):
+        plot1d.datamcplot(quantity, files, opt, fig_axes = [fig, ax], changes={
+            'algorithm': "",
+            'markers':[marker],
+            'colors':[color],
+            'labels':[label, ""],
+            'correction':"",
+            'subplot':True,
+            'grid': True,
+            'y': [0.9, 1.5],
+            'legloc': 'upper right',
+            'x': [20, 100],
+            'yname': 'recogen',
+            'xname':'genpt'
+        })
+
+    settings['filename'] = plotbase.getDefaultFilename('recogen', opt, settings)
+    plotbase.Save(fig, settings)
+
+def corrbins(files, opt):
+    fig, ax = plotbase.newPlot()
+    settings = plotbase.getSettings(opt, quantity='recogen')
+    for quantity, marker, color, label, n in zip(
+        ['l1l2l3/recogen3040', 'l1l2l3/recogen5080', 'l1l2l3/recogen100'],
+        ['o', 'f', '-'],
+        ['black', '#7293cb', '#e1974c'],
+        ['pT 20-40', 'pT 50-80', 'pT >100'],
+        range(10)
+        
+    ):
+        plot1d.datamcplot(quantity, files, opt, fig_axes = [fig, ax], changes={
+            'algorithm': "",
+            'markers':[marker],
+            'colors':[color],
+            'labels':[label, ""],
+            'correction':"",
+            'subplot':True,
+            'grid': True,
+            'fitlabel_offset':-0.07*n,
+            'legloc': 'upper right',
+            'x': [0, 2],
+            'xname':'recogen'
+        })
+
+    settings['filename'] = plotbase.getDefaultFilename('recogen-bins', opt, settings)
+    plotbase.Save(fig, settings)
+
 def paper(files, opt):
     """ Plots for the 2012 JEC paper. """
 
