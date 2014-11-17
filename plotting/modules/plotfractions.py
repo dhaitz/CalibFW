@@ -27,10 +27,10 @@ def getvalues(nickname, f, opt, over = 'zpt', settings=None, changes=None):
 
     # return plot (fit values are stored in the last point of result)
     result = getroot.root2histo(graph)
-    result.x.append(0)
-    result.xc.append(0)
-    result.y.append(par)
-    result.yerr.append(parerror)
+    #result.x.append(0)
+    #result.xc.append(0)
+    #result.y.append(par)
+    #result.yerr.append(parerror)
     return result
 
 
@@ -75,6 +75,13 @@ def fractions(files, opt, over='npv', fig_axes=None, settings=None, changes=None
     elif over == 'npv':
         bins = [0]+[b+0.5 for a,b in opt.npv]
         fit = True
+        x = bins[:-1]
+        barWidth = []
+        for i in range(len(bins)-1):
+            barWidth.append(bins[i+1] - bins[i])
+    elif over == 'recogen':
+        bins = [0, 0.5, 1, 1.5, 2]
+        fit = False
         x = bins[:-1]
         barWidth = []
         for i in range(len(bins)-1):
@@ -294,6 +301,10 @@ def fractions_run_all(files, opt, change={}, diff=False, response=False):
 # classic fraction plots
 def fractions_zpt (files, opt):
     fractions(files, opt, over='zpt')
+    
+    
+def fractions_recogen(files, opt):
+    fractions(files, opt, over='recogen')
 
 def fractions_jet1abseta (files, opt):
     fractions(files, opt, over='jet1abseta')
