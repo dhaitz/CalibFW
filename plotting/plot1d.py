@@ -150,8 +150,10 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, fig_axes=None):
             if settings['stacked'] and settings['types'][index] == 'mc':
                 if len(bottom) > 0:
                     bottom = [b + d for b, d in zip(bottom, mplhistos[len(mplhistos) - index].y)]
-                else:
+                elif index > 0:
                     bottom = mplhistos[len(mplhistos) - index].y
+                else:
+                    bottom = [0] * len(mplhistos[0].y)
             else:
                 bottom = numpy.ones(len(f.x)) * 1e-6
 

@@ -107,6 +107,8 @@ def gettreename(settings, parts=['folder', 'algorithm', 'correction'], string="%
             exit(1)
     part = [settings[p] for p in parts]
     name = string % tuple(part)
+    if name.endswith("_"):
+        name = name[:-1]
     return name
 
 

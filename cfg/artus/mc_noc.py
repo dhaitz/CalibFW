@@ -14,8 +14,8 @@ def config():
             del conf['Pipelines'][pipeline]
     for pipeline in conf['Pipelines']:
         conf['Pipelines'][pipeline]['Consumer'] = [
-            "muonntuple",
-            #"jetntuple",
+            #"muonntuple",
+            "jetntuple",
         ]
     return conf
 

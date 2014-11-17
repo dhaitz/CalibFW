@@ -75,6 +75,7 @@ d_axes = {
         'genjet1pt': [0, 250, r"$p_\mathrm{T}^\mathrm{Leading Gen Jet}$", 'GeV'],
         'genjet2pt': [0, 100, r"$p_\mathrm{T}^\mathrm{GenJet2}$", 'GeV'],
         'genmpf': [0.501, 1.501, r"Gen MPF Response", ""],
+        'genpt': [0, 250, r"$p_\mathrm{T}^\mathrm{Gen Jet}$", 'GeV'],
         'genzep': [0.0, 3.0, r"Zeppenfeld variable (Gen level)", ""],
         'genzetarapidityratio': [-4, 4, r"$\eta^\mathrm{GenZ} / y^\mathrm{GenZ}$", ""],
         'genzmass': [70, 110, r"$m^\mathrm{GenZ}$", "GeV"],
