@@ -9,6 +9,7 @@
 #include "LambdaMaps/LambdaMapMET.h"
 #include "LambdaMaps/LambdaMapTagger.h"
 
+#include <boost/algorithm/string/join.hpp>
 
 namespace Artus
 {
@@ -16,9 +17,9 @@ void NtupleConsumer::Init(PipelineTypeForThis* pset)
 {
 	// set up NTuple and fetch config parameters
 	EventConsumerBase<ZJetEventData, ZJetProduct, ZJetPipelineSettings>::Init(pset);
-	std::string quantities = this->GetPipelineSettings().GetQuantitiesString();
-	m_ntuple = new TNtuple("NTuple", "NTuple", quantities.c_str());
 	stringvector quantitiesvector = this->GetPipelineSettings().GetQuantities();
+	std::string quantities = boost::algorithm::join(quantitiesvector, ":");
+	m_ntuple = new TNtuple("NTuple", "NTuple", quantities.c_str());
 
 	InitializeLambdaMap();
 

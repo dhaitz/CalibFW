@@ -171,9 +171,6 @@ def expand(config, variations=[], algorithms=[], default="default"):
             pipelines[name + "_" + algo]["JetAlgorithm"] = algo
         del pipelines[name]
 
-    for p in pipelines.values():
-        p['QuantitiesString'] = ":".join(p['QuantitiesVector'])
-
     return config
 
 
