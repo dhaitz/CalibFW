@@ -73,16 +73,11 @@ protected:
 			if (product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n) > -1)
 			{
 				if (product.GetLHEZ().p4.Pt() > 24.44 && product.GetLHEZ().p4.Pt() < 24.46)
-					product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n),
-												 genName)->p4.Pt())
 					return product.GetValidJet(s, event,
 											   product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n),
 											   genName)->p4.Pt();
-
-				}
-			else
-				return 0;
-
+			}
+			return 0;
 		}
 		else if (string == "rawpt")
 		{
@@ -102,7 +97,6 @@ protected:
 			return float(product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n) > -1);
 		else if (string == "eventnr")
 			return event.m_eventproduct->nEvent;
-
 		else
 			return NtupleObjectConsumerBase::returnvalue(n, string, event, product, s);
 	};
