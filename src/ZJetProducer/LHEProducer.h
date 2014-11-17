@@ -26,6 +26,9 @@ public:
 				nmuons += 1;
 			else if (std::abs(lheparticle.pdgId()) == 15)
 				ntaus += 1;
+			else if (std::abs(lheparticle.pdgId()) == 23)
+				product.SetLHEZ(lheparticle);
+
 		}
 
 		product.m_nLHEElectrons = nelectrons;

@@ -43,7 +43,7 @@ public:
 	void Init(PipelineTypeForThis* pset);
 
 	void ProcessFilteredEvent(ZJetEventData const& event,
-									  ZJetProduct const& product);
+							  ZJetProduct const& product);
 
 	void Finish();
 

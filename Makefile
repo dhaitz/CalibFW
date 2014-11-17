@@ -18,7 +18,7 @@ LDFLAGS        = $(ROOTLDFLAGS) -lGenVector\
  -L$(KAPPAPATH)/lib/ -L$(KAPPATOOLSPATH)/lib/ -lKappa -lKRootTools -lKToolbox
 
 OBJECTS = $(patsubst %.cc,%.o,$(wildcard\
-	src/*.cc src/*/*.cc external/OfflineCorrection/CondFormats/JetMETObjects/src/*Corr*.cc\
+	src/*.cc src/*/*.cc src/*/*/*.cc external/OfflineCorrection/CondFormats/JetMETObjects/src/*Corr*.cc\
 	external/MuScleFitCorrection/*.cc))
 
 HEADERS = $(wildcard src/*.h src/*/*.h\
