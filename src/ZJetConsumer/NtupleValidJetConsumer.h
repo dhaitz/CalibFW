@@ -29,7 +29,8 @@ protected:
 	{
 		return {"pt", "eta", "phi", "run",
 				"photonfraction", "chargedemfraction", "chargedhadfraction",
-				"neutralhadfraction", "muonfraction", "HFhadfraction", "HFemfraction"
+				"neutralhadfraction", "muonfraction", "HFhadfraction", "HFemfraction",
+				"genpt", "rawpt", "l1pt", "lhezpt", "hasmatch", "eventnr"
 			   };
 	}
 
@@ -46,7 +47,7 @@ protected:
 	};
 
 
-	virtual float returnvalue(int n, std::string string, ZJetEventData const& event,
+	virtual float returnvalue(const int n, std::string string, ZJetEventData const& event,
 							  ZJetProduct const& product, ZJetPipelineSettings const& s) const
 	{
 		if (string == "run")
@@ -65,6 +66,43 @@ protected:
 			return static_cast<KDataPFJet*>(product.GetValidJet(s, event, n))->HFHadFraction;
 		else if (string == "HFemfraction")
 			return static_cast<KDataPFJet*>(product.GetValidJet(s, event, n))->HFEMFraction;
+		else if (string == "genpt")
+		{
+			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+
+			if (product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n) > -1)
+			{
+				if (product.GetLHEZ().p4.Pt() > 24.44 && product.GetLHEZ().p4.Pt() < 24.46)
+					product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n),
+												 genName)->p4.Pt())
+					return product.GetValidJet(s, event,
+											   product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n),
+											   genName)->p4.Pt();
+
+				}
+			else
+				return 0;
+
+		}
+		else if (string == "rawpt")
+		{
+			for (auto rawjet : *event.m_pfTaggedJets.at("AK5PFTaggedJetsCHS"))
+			{
+				if (ROOT::Math::VectorUtil::DeltaR(rawjet.p4,
+												   GetSingleObject(n, event, product, s).p4) < 0.01)
+					return rawjet.p4.Pt();
+			}
+			return 0.;
+		}
+		else if (string == "l1pt")
+			return product.m_validPFJets.at("AK5PFJetsCHSL1").at(n).p4.Pt();
+		else if (string == "lhezpt")
+			return product.GetLHEZ().p4.Pt();
+		else if (string == "hasmatch")
+			return float(product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n) > -1);
+		else if (string == "eventnr")
+			return event.m_eventproduct->nEvent;
+
 		else
 			return NtupleObjectConsumerBase::returnvalue(n, string, event, product, s);
 	};
