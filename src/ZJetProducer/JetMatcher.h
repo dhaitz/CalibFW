@@ -22,7 +22,8 @@ public:
 		m_jets1(input_jets1), m_jets2(input_jets2), m_matching_name(matching_name)
 	{}
 
-	JetMatcher(stringvector baseAlgos, bool flavourCorrections): m_basealgorithms(baseAlgos)
+	JetMatcher(stringvector baseAlgos, bool flavourCorrections): m_basealgorithms(baseAlgos),
+		m_dR(0.25)
 	{
 		std::string prefix;
 		std::vector<std::string> stringvec;
@@ -68,6 +69,7 @@ private:
 	std::vector<std::string> m_basealgorithms;
 	std::vector<std::string> m_algorithms;
 	std::vector<std::string> m_genalgorithms;
+	double m_dR;
 };
 
 }

@@ -15,7 +15,7 @@ bool JetMatcher::PopulateGlobalProduct(ZJetEventData const& data,
 		KDataLVs* genJets = data.GetGenJetCollection(m_genalgorithms[i]);
 
 		std::vector<int> matching_result = matchSort_Matrix<KDataLV, KDataPFTaggedJet>(
-											   *genJets, genJets->size(), pfJets, pfJets.size(), 0.3);
+											   *genJets, genJets->size(), pfJets, pfJets.size(), m_dR);
 		product.m_matchingResults[m_algorithms[i]] = matching_result;
 	}
 
