@@ -27,7 +27,7 @@ protected:
 
 	virtual std::vector<std::string> GetStringvector() const
 	{
-		return {"pt", "eta", "phi", "run",
+		return {"pt", "eta", "phi", "run", "weight",
 				"photonfraction", "chargedemfraction", "chargedhadfraction",
 				"neutralhadfraction", "muonfraction", "HFhadfraction", "HFemfraction",
 				"genpt", "rawpt", "l1pt", "lhezpt", "hasmatch", "eventnr"

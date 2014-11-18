@@ -95,6 +95,8 @@ protected:
 			return GetSingleObject(n, event, product, s).p4.Eta();
 		else if (string == "mass")
 			return GetSingleObject(n, event, product, s).p4.mass();
+		else if (string == "weight")
+			return product.GetWeight();
 		else
 			LOG_FATAL(GetObjectName() << "NtupleConsumer: Quantity (" << string << ") not available!");
 
