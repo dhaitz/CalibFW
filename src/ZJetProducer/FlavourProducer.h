@@ -1,5 +1,7 @@
 #pragma once
 
+#include "FlavourProducer.h"
+
 namespace Artus
 {
 
@@ -77,6 +79,11 @@ public:
 	static std::string Name()
 	{
 		return "flavour_producer";
+	}
+
+	stringvector GetListOfNeededProducers()
+	{
+		return stringvector {GenProducer::Name()};
 	}
 
 protected:
