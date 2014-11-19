@@ -22,6 +22,7 @@
 
 #include "ZJetConsumer/NtupleConsumer.h"
 #include "ZJetConsumer/NtupleValidJetConsumer.h"
+#include "ZJetConsumer/NtupleGenJetConsumer.h"
 #include "ZJetConsumer/NtupleValidElectronConsumer.h"
 #include "ZJetConsumer/NtupleValidMuonConsumer.h"
 #include "ZJetConsumer/NtupleGenParticleConsumer.h"
@@ -126,6 +127,8 @@ void ZJetPipelineInitializer::InitPipeline(EventPipeline<ZJetEventData, ZJetProd
 			pLine->AddConsumer(new NtupleConsumer());
 		else if (id == NtupleValidJetConsumer().GetName())
 			pLine->AddConsumer(new NtupleValidJetConsumer());
+		else if (id == NtupleGenJetConsumer().GetName())
+			pLine->AddConsumer(new NtupleGenJetConsumer());
 		else if (id == NtupleValidElectronConsumer().GetName())
 			pLine->AddConsumer(new NtupleValidElectronConsumer());
 		else if (id == NtupleValidMuonConsumer().GetName())
