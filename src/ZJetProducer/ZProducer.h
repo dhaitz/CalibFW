@@ -68,8 +68,7 @@ public:
 			product.SetValidZ(false);
 			return false;
 		}
-
-		if (z_cand.size() == 0)
+		else if (z_cand.size() == 0)
 		{
 			product.SetValidZ(false);
 			return false;
