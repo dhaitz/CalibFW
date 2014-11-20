@@ -75,7 +75,9 @@ protected:
 	// TODO Make this configurable
 	virtual std::vector<std::string> GetStringvector() const
 	{
-		return {};
+		return {"pt", "eta", "phi", "n",
+				"run", "weight", "eventnr",
+			   };
 	}
 
 	virtual std::string GetObjectName() const
@@ -97,6 +99,8 @@ protected:
 			return GetSingleObject(n, event, product, s).p4.mass();
 		else if (string == "weight")
 			return product.GetWeight();
+		else if (string == "n")
+			return n;
 		else
 			LOG_FATAL(GetObjectName() << "NtupleConsumer: Quantity (" << string << ") not available!");
 

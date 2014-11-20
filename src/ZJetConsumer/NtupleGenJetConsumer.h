@@ -25,12 +25,14 @@ protected:
 		return "genjet";
 	}
 
-	virtual std::vector<std::string> GetStringvector() const
+	virtual stringvector GetStringvector() const
 	{
-		return {"pt", "eta", "phi", "run", "weight", "n",
-				"recopt", "lhezpt", "hasmatch", "eventnr", "deltar", "deltarmuon",
-				"flavour"
-			   };
+		stringvector s =
+		{
+			"recopt", "lhezpt", "hasmatch", "deltar", "deltarmuon", "flavour"
+		};
+		s.insert(s.end(), NtupleObjectConsumerBase::GetStringvector().begin(), NtupleObjectConsumerBase::GetStringvector().end());
+		return s;
 	}
 
 	virtual int getsize(ZJetEventData const& event,
