@@ -9,15 +9,25 @@ import array
 
 """This is a tool for pile-up reweighting.
 
-   It requires: python, ROOT, CMSSW 5.2 (pileupCalc).
+   It requires: python, ROOT, CMSSW 5.2+ (pileupCalc).
    It calculates the pu distribution in data with the official tool.
    Then it calculates the pu distribution from a skim.
-   From these distributions it calculates the weights and saves them to a json
-   file. Data and MC distributions are saved to root files.
+   From these distributions it calculates the weights and saves them to a root file.
+   Data and MC distributions are saved to root files.
    Pleas use --help or read the options function for further information.
+
+   Use cases:
+   - produce data distribution: weightCalc.py Cert.json -i lumi.json
+   - produce mc distribution:   weightCalc.py /path/to/skim/*root
+   - produce weight distribution: weightCalc.py Cert.json -i lumi.json /path/to/skim/*root
+   - produce weight distribution from precalculated distributions:
+     - weightCalc.py Cert.json -i lumi.json mc.root  # reuse MC
+     - weightCalc.py data.root /path/to/skim/*root   # reuse data
+     - weightCalc.py data.root mc.root               # reuse both
 """
 ROOT.gROOT.SetBatch(True)
 ROOT.gErrorIgnoreLevel = ROOT.kError
+import __main__
 
 
 def main():
@@ -56,11 +66,11 @@ def main():
 
 	if data and mc:
 		print data.GetNbinsX(), mc.GetNbinsX()
-		if data.GetNbinsX() > 1000:
-			data.Rebin()
-		if mc.GetNbinsX() > 1000:
-			mc.Rebin()
-		weights = calcWeights(data, mc, op.verbose, not op.no_warning, op.rebin, op.binning)
+		#if data.GetNbinsX() > 1000:
+		#	data.Rebin()
+		#if mc.GetNbinsX() > 1000:
+		#	mc.Rebin()
+		weights = calcWeights(data, mc, op.verbose, not op.no_warning, op.binning)
 		saveDistributionToFile(op.output, weights)
 	else:
 		print "No weights calculated."
@@ -169,9 +179,7 @@ def getDistributionFromFile(filename, histoname="pileup"):
 def options():
 	parser = argparse.ArgumentParser(
 		description="%(prog)s calculates the weights for MC reweighting "
-			"according to the number of pile-up interactions. Use cases: "
-			"%(prog)s /path/to/skim/*.root Cert_JSON.txt pileup_JSON.txt or"
-			"%(prog)s mcdist.root datadist.root")
+			"according to the number of pile-up interactions." + module.__doc__)
 	parser.add_argument('files', metavar='input', type=str, nargs='*',
 		help="input files, possible combinations:"
 			"[data] [mc] where data can be a rootfile containing the estimated true number of pile-up "
@@ -182,9 +190,9 @@ def options():
 			"specified with -M.")
 #Pileup calc options:
 	parser.add_argument('-M', '--mc-histo', type=str, default="pileup",
-		help="histogram name of the pile-up distribution in the MC file %(default)s")
+		help="histogram name of the pile-up distribution in the MC file, default: %(default)s")
 	parser.add_argument('-D', '--data-histo', type=str, default="pileup",
-		help="histogram name of the pile-up distribution in the data file %(default)s")
+		help="histogram name of the pile-up distribution in the data file, default: %(default)s")
 	parser.add_argument('-d', '--dataoutput', type=str, default="",
 		help="Output file for the data distribution. Determined automatically "
 			"if not specified.")
@@ -204,8 +212,8 @@ def options():
 		help="Maximum number of pile-up interactions (default: %(default)s).")
 	parser.add_argument('-b', '--numPileupBins', type=int, default=800,
 		help="Number of bins (default: %(default)s).")
-	parser.add_argument('-r', '--rebin', action='store_true',
-		help="verbosity")
+#	parser.add_argument('-r', '--rebin', action='store_true',
+#	help="rebin")
 
 	parser.add_argument('-v', '--verbose', action='store_true',
 		help="verbosity")
