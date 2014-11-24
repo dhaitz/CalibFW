@@ -62,7 +62,7 @@ bool ValidJetProducer::PopulateGlobalProduct(ZJetEventData const& event,
 			bool good_jet = true;
 
 			// 5 GeV minimum pT
-			good_jet = good_jet && ((*itjet)->p4.Pt() > 5);
+			good_jet = good_jet && ((*itjet)->p4.Pt() > 12);
 
 			//isolation DeltaR > 0.5
 
@@ -70,16 +70,22 @@ bool ValidJetProducer::PopulateGlobalProduct(ZJetEventData const& event,
 			dr1 = 99999.0f;
 			dr2 = 99999.0f;
 
-			if (product.GetValidZ())
+			if (product.HasValidZ())
 			{
-
-
-				if (muonIso && product.GetValidMuons().size() > 1)
+				if (muonIso)
 				{
-					dr1 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
-														 product.GetValidMuons().at(0).p4);
-					dr2 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
-														 product.GetValidMuons().at(1).p4);
+					//for (auto muon: product.GetValidMuons())
+					for (const auto muon : *event.m_muons)
+					{
+						good_jet = good_jet && (ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
+												muon.p4) > 0.5);
+					}
+					//if (product.GetValidMuons().size() > 0)
+					//dr1 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
+					//									 product.GetValidMuons().at(0).p4);
+					//if (product.GetValidMuons().size() > 1)
+					//dr2 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
+					//									 product.GetValidMuons().at(1).p4);
 				}
 				else
 				{
@@ -90,30 +96,41 @@ bool ValidJetProducer::PopulateGlobalProduct(ZJetEventData const& event,
 				}
 
 			}
-			good_jet = good_jet && (dr1 > 0.5) && (dr2 > 0.5);
+			//good_jet = good_jet && (dr1 > 0.5) && (dr2 > 0.5);
+			/*
+						// JetID
+						// https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
+						// PFJets, all eta
+						good_jet = good_jet
+								   && (*itjet)->neutralHadFraction + (*itjet)->HFHadFraction < 0.99
+								   && (*itjet)->neutralEMFraction < 0.99
+								   && (*itjet)->nConst > 1;
+						// PFJets, |eta| < 2.4 (tracker)
+						if (std::abs((*itjet)->p4.eta()) < 2.4)
+						{
+							good_jet = good_jet
+									   && (*itjet)->chargedHadFraction > 0.0
+									   && (*itjet)->nCharged > 0
+									   && (*itjet)->chargedEMFraction < 0.99;
+						}
 
-			// JetID
-			// https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID
-			// PFJets, all eta
-			good_jet = good_jet
-					   && (*itjet)->neutralHadFraction + (*itjet)->HFHadFraction < 0.99
-					   && (*itjet)->neutralEMFraction < 0.99
-					   && (*itjet)->nConst > 1;
-			// PFJets, |eta| < 2.4 (tracker)
-			if (std::abs((*itjet)->p4.eta()) < 2.4)
-			{
-				good_jet = good_jet
-						   && (*itjet)->chargedHadFraction > 0.0
-						   && (*itjet)->nCharged > 0
-						   && (*itjet)->chargedEMFraction < 0.99;
-			}
+						if (vetopu)
+						{
+							bool puID = static_cast<KDataPFTaggedJet*>(*itjet)->getpuJetID("puJetIDFullMedium", event.m_taggerproduct);
+							good_jet = good_jet && puID;
+						}
+			*/
+			if (good_jet)
+				product.m_listValidJets[italgo->first].emplace_back(i);
+			else
+				product.m_listInvalidJets[italgo->first].emplace_back(i);
+			i++;
+		}
+	}
 
-			if (vetopu)
-			{
-				bool puID = static_cast<KDataPFTaggedJet*>(*itjet)->getpuJetID("puJetIDFullMedium", event.m_taggerproduct);
-				good_jet = good_jet && puID;
-			}
-
+	return true;
+}
+}
 			if (good_jet)
 				product.m_listValidJets[italgo->first].emplace_back(i);
 			else

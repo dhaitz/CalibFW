@@ -27,10 +27,10 @@ protected:
 
 	virtual std::vector<std::string> GetStringvector() const
 	{
-		return {"pt", "eta", "phi", "run", "weight",
+		return {"pt", "eta", "phi", "run", "weight", "area", "npv", "n",
 				"photonfraction", "chargedemfraction", "chargedhadfraction",
 				"neutralhadfraction", "muonfraction", "HFhadfraction", "HFemfraction",
-				"genpt", "rawpt", "l1pt", "lhezpt", "hasmatch", "eventnr"
+				"genpt", "rawpt", "l1pt", "lhezpt", "hasmatch", "eventnr", "deltar"
 			   };
 	}
 
@@ -66,18 +66,20 @@ protected:
 			return static_cast<KDataPFJet*>(product.GetValidJet(s, event, n))->HFHadFraction;
 		else if (string == "HFemfraction")
 			return static_cast<KDataPFJet*>(product.GetValidJet(s, event, n))->HFEMFraction;
+		else if (string == "area")
+			return static_cast<KDataPFJet*>(product.GetValidJet(s, event, n))->area;
+		else if (string == "npv")
+			return event.m_vertexSummary->nVertices;
 		else if (string == "genpt")
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-
 			if (product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n) > -1)
 			{
-				if (product.GetLHEZ().p4.Pt() > 24.44 && product.GetLHEZ().p4.Pt() < 24.46)
-					return product.GetValidJet(s, event,
-											   product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n),
-											   genName)->p4.Pt();
+				return product.GetValidJet(s, event,
+										   product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n), genName)->p4.Pt();
 			}
-			return 0;
+			else
+				return 0;
 		}
 		else if (string == "rawpt")
 		{
@@ -97,6 +99,18 @@ protected:
 			return float(product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n) > -1);
 		else if (string == "eventnr")
 			return event.m_eventproduct->nEvent;
+		else if (string == "deltar")
+		{
+			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
+			if (product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n) > -1)
+			{
+				return ROOT::Math::VectorUtil::DeltaR(product.GetValidJet(s, event,
+													  product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n), genName)->p4,
+													  product.GetValidJet(s, event, n)->p4);
+			}
+			else
+				return 99.;
+		}
 		else
 			return NtupleObjectConsumerBase::returnvalue(n, string, event, product, s);
 	};

@@ -43,6 +43,7 @@ def labels(ax, opt, settings, subplot=False, mc=False):
     if type(settings['legloc']) == str and settings['legloc'] != "None" and len(settings['labels']) > 1:
         if "," in settings['legloc']:
             settings['legloc'] = ([float(i) for i in settings['legloc'].split(",")])
+        print settings['legloc']
         legend = ax.legend(loc=settings['legloc'], numpoints=1, fancybox=True, ncol=int(settings.get('legendcolumns', 1)),
                                                                     shadow=True)
     if settings['subtext'] is not None:
@@ -341,7 +342,7 @@ def axislabels(ax, x='zpt', y='events', brackets=False, labels=['', ''], setting
                 function[0]((d_axes['abseta'][0], d_axes['abseta'][1]), d_axes['abseta'][2] % plotbase.nicetext(quantity.replace("abseta", "")), d_axes['abseta'][3])
             else:
                 function[0]((d_axes['eta'][0], d_axes['eta'][1]), d_axes['eta'][2] % plotbase.nicetext(quantity.replace("eta", "")), d_axes['eta'][3])
-        elif 'deltar' in quantity and quantity != 'deltar':
+        elif quantity.startswith('deltar') and quantity != 'deltar':
             function[0]((d_axes['deltar'][0], d_axes['deltar'][1]), d_axes['deltar'][2] % (plotbase.nicetext(quantity.replace("deltar-", "").split("-")[0]),
                     plotbase.nicetext(quantity.replace("deltar-", "").split("-")[1])), d_axes['deltar'][3])
         elif 'events' == quantity:

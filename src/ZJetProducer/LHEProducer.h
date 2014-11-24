@@ -35,6 +35,11 @@ public:
 		product.m_nLHEMuons = nmuons;
 		product.m_nLHETaus = ntaus;
 
+		//#########################
+		if (nmuons < 2)
+			return false;
+		//#########################
+
 		return true;
 	}
 

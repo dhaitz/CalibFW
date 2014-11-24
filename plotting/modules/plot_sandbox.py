@@ -76,7 +76,7 @@ def corrbins(files, opt):
 
 def paper(files, opt):
     """ Plots for the 2012 JEC paper. """
-
+    """
     # The Z pT vs alpha plot requested by Viola 23.10.14
     plot1d.datamcplot("zpt_alpha", files, opt, changes={
         'allalpha': True,
@@ -167,11 +167,11 @@ def paper(files, opt):
                 'filename': 'recogen_physflavour_pythia-herwig'}
     files2, opt2 = plotbase.openRootFiles(["work/mc.root", "work/mc_herwig.root"], opt)
     plot1d.datamcplot("recogen_physflavour", files2, opt2, changes=changes)
-
+    """
     flavour_comp(files[1:], opt, changes={'title': 'CMS Simulation',
             'cutlabel': 'ptetaalpha',
             'cutlabeloffset': 0.07,
-            'mconly'  : True,
+            #'mconly'  : True,
             'y': [0, 1],
             'legloc': '0.05,0.5'})
 
@@ -1265,13 +1265,13 @@ def flavour_comp(files, opt, changes=None):
 
     changes = {'subplot': True,
                 'nbins': 25,
-                'y': [0, 0.9],
+                #'y': [0, 1],
                 
                 'xynames': ['physflavour', 'components'],
                 'markers': ['f']}
 
     for n, l, c in zip(stacked, labels, colours):
-        changes['labels'] = [l]
+        changes['labels'] = [l, l]
         changes['colors'] = [c]
 
         plot1d.datamcplot("%s_physflavour" % n, files, opt,
