@@ -76,8 +76,6 @@ bool ValidJetProducer::PopulateGlobalProduct(ZJetEventData const& event,
 
 				if (muonIso && product.GetValidMuons().size() > 1)
 				{
-					LOG("do muon iso")
-
 					dr1 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
 														 product.GetValidMuons().at(0).p4);
 					dr2 = ROOT::Math::VectorUtil::DeltaR((*itjet)->p4,
