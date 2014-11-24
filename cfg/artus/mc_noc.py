@@ -6,7 +6,7 @@ def config():
     conf = mc.config()
     l = []
     for pipeline in conf['Pipelines']:
-        if not pipeline.startswith('all'):
+        if not 'cut' in pipeline:
             l.append(pipeline)
         elif 'CHS' not in pipeline:
             l.append(pipeline)
