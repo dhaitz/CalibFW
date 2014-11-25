@@ -302,6 +302,7 @@ def axislabels(ax, x='zpt', y='events', brackets=False, labels=['', ''], setting
 
     def setyaxis(limits=(0, 1), quantity="y", unit="", bottom=None):
         string = unitformat(quantity, unit, brackets)
+        ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
         if y in ["datamcratio", "ratio", "Ratio"]:
             if labels != ['', '']:
                 string = "%s/%s" % (labels[0], labels[1])
