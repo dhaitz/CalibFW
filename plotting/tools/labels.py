@@ -11,10 +11,8 @@ def labels(ax, opt, settings, subplot=False, mc=False):
     if not (settings['ratio'] and settings['subplot']
             and not settings['fit'] == 'intercept'):
         if (settings['lumi'] is not None and not settings.get('nolumilabel', False) != False and 'data' in settings['types']):
-            lumilabel(ax, settings['lumi'])    # always (if given) pure MC plots?
+            lumilabel(ax, settings['lumi'], settings['energy'])    # always (if given) pure MC plots?
         statuslabel(ax, settings['status'])
-        if settings['energy'] is not None:
-            energylabel(ax, settings['energy'])
         #if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
         #if changes.has_key('var') or changes.has_key('bin'):
         #    binlabel(ax, bin, changes=changes, color=color)
@@ -106,13 +104,13 @@ def eventnumberlabel(ax, settings):
             transform=ax.transAxes)
 
 
-def lumilabel(ax, lumi=0.0, xpos=0.00, ypos=1.01):
+def lumilabel(ax, lumi=0.0, energy=0, xpos=1.00, ypos=1.01):
     if (hasattr(ax, 'lumilabel') and ax.lumilabel == True):
         return
     if (hasattr(ax, 'number') and ax.number != 2) or (not hasattr(ax, 'number')):
         if lumi >= 1.0:
-            ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{fb}^{-1}$" %
-                (lumi), va='bottom', ha='left', transform=ax.transAxes)
+            ax.text(xpos, ypos, "%2.1f fb${}^{\mathrm{-1}}$ (%s TeV)" % (lumi, energy),
+                va='bottom', ha='right', transform=ax.transAxes)
         elif lumi > 0.0:
             ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{pb}^{-1}$" %
                 (lumi * 1000.0), va='bottom', ha='left', transform=ax.transAxes)
