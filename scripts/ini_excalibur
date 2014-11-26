@@ -36,11 +36,13 @@ elif [ $USER = "berger" ]; then
     export PATH=/home/berger/sw/bin:/home/berger/sw/grid-control:$PATH
     if [ $HOSTNAME = "ekpcms5" ]; then
         export EXCALIBUR_WORK=/storage/8/berger/excalibur
+        export DATA=`readlink $EXCALIBUR_BASE/work/data.root`
+        export MC=`readlink $EXCALIBUR_BASE/work/mc.root`
     elif [[ $HOSTNAME == *naf* ]]; then
         export EXCALIBUR_WORK=/nfs/dust/cms/user/jberger
     fi
-    export DATA=/storage/8/berger/excalibur/artus/data/out.root
-    export MC=/storage/8/berger/excalibur/artus/mc/out.root
+    #export DATA=/storage/8/berger/excalibur/artus/data/out.root
+    #export MC=/storage/8/berger/excalibur/artus/mc/out.root
 fi
 
 ###artus auto-completion
