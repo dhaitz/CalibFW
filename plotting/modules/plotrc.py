@@ -56,7 +56,7 @@ class MplStyles():
 		'font.family': 'serif',
 		'font.serif': 'Computer Modern Roman',
 		'font.sans-serif': 'Computer Modern Sans serif',
-		'font.cursive': 'Zapf Chancery',
+		'font.cursive': 'Computer Modern Roman',
 		'font.monospace': 'Computer Modern Typewriter',
 
 		'figure.subplot.left': 0.125,
@@ -68,7 +68,7 @@ class MplStyles():
 	})
 
 
-def getstyle(style='defaultstyle'):
+def getstyle(style='cmsstyle_JetMET'):
 	s = MplStyles()
 	if not hasattr(s, style):
 		print "Style %r not defined!" % style
