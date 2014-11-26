@@ -47,7 +47,7 @@ def options(
             status=None,
             author=None,
             date=None,
-            layout='generic',
+            layout='cmsstyle_JetMET',
             title="",
             eventnumberlabel=None,
             legloc='best',
@@ -166,7 +166,7 @@ def options(
     formatting.add_argument('-t', '--title', type=str, default=title,
          help="plot title")
     formatting.add_argument('--layout', type=str,
-        default='generic',
+        default='cmsstyle_JetMET',
         help="layout for the plots. E.g. 'document': serif, LaTeX, pdf; " +
              "'slides': sans serif, big, png; 'generic': slides + pdf. " +
              "This is not implemented yet.")
