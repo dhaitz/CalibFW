@@ -3,6 +3,7 @@
 """
 import sys
 import copy
+import matplotlib.font_manager
 
 
 class MplStyles():
@@ -47,7 +48,8 @@ class MplStyles():
 	})
 
 	# style for own documents and thesis
-	documentstyle = defaultstyle.update({
+	documentstyle = copy.deepcopy(defaultstyle)
+	documentstyle.update({
 		#'figure.figsize': (6.299:  3.832),
 		'figure.dpi': 600,
 		'savefig.dpi': 600,
@@ -79,9 +81,14 @@ def getstyle(style='cmsstyle_JetMET'):
 if __name__ == "__main__":
     styles = sys.argv[1:]
     s = MplStyles()
+    availableFonts = matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
+    availableFonts = [f[f.rfind('/') + 1:-4] for f in availableFonts]
+    print availableFonts
     if not styles:
         styles = [d for d in dir(s) if type(getattr(s, d)) == dict]
     for style in styles:
 		print "Style: %s" % style
 		for k, v in getattr(s, style).items():
-			print "  %s: %s" % (k, v)
+			print "  {0:24}: {1}".format(k, repr(v))
+			if k in ['font.serif', 'font.sans-serif', 'font.cursive', 'font.monospace'] and v not in availableFonts:
+				print "       Font %s not available!" % v

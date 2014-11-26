@@ -25,7 +25,7 @@ ntuple_dict = {
             'qgtag': 'qglikelihood',
             'eemass': 'zmass',
             'eeeta': 'zeta',
-            }
+}
 
 #   Quantity:[ax_min, ax_max, Name, unit, z_min, z_max]
 d_axes = {
@@ -163,4 +163,4 @@ d_axes = {
         'zone': [-0.5, 24.5, r"Tagging Zones", ""],
         'zresp': [0.501, 1.501, r"Z Response $p_\text{T}^\text{Z, reco}/p_\text{T}^\text{Z,gen}$", ""],
         'zy': [-2.2, 2.2, r"$y^Z$", ""],
-        }
+}
