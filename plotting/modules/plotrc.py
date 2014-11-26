@@ -32,6 +32,16 @@ class MplStyles():
 		# 'lines.markersize': 2.5:   # size of markers
 		'text.usetex': True,
 		'legend.numpoints': 1,
+		'legend.fancybox': False,
+		'legend.shadow': False,
+
+		'font.family': 'sans-serif',
+		'font.serif': ['Computer Modern Roman'],
+		'font.sans-serif': ['Computer Modern Sans serif'],
+		'font.cursive': ['Computer Modern Roman'],
+		'font.monospace': ['Computer Modern Typewriter'],
+		'mathtext.sf': 'sans',
+		'mathtext.rm': 'sans',
 	}
 
 	# style for slides (usually more bold lines for reduced resolution)
@@ -39,12 +49,18 @@ class MplStyles():
 
 	# CMS Style guidelines
 	cmsstyle = copy.deepcopy(defaultstyle)
-	cmsstyle.update({})
+	cmsstyle.update({
+		'font.sans-serif': ['arial'],
+		'font.serif': ['arial'],
+		'font.sans-serif': ['arial', 'timesss'],
+		'font.cursive': ['arial'],
+		'font.monospace': ['arial'],
+	})
 
 	# specific changes for JetMET publication
 	cmsstyle_JetMET = copy.deepcopy(cmsstyle)
 	cmsstyle_JetMET.update({
-		'font.sans-serif': 'Helvetica',
+		'font.sans-serif': 'arial',
 	})
 
 	# style for own documents and thesis
@@ -55,7 +71,7 @@ class MplStyles():
 		'savefig.dpi': 600,
 
 		# font
-		'font.family': 'serif',
+		'font.family': 'sans-serif',
 		'font.serif': 'Computer Modern Roman',
 		'font.sans-serif': 'Computer Modern Sans serif',
 		'font.cursive': 'Computer Modern Roman',
