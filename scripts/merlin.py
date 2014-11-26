@@ -314,6 +314,7 @@ def options(
         opt.default_options['labels'] = opt.labels
 
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
+    matplotlib.rc('text.latex', preamble=r'\usepackage{helvet},\usepackage{sfmath}')
 
     return opt
 

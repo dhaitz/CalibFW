@@ -41,8 +41,8 @@ def labels(ax, opt, settings, subplot=False, mc=False):
     if type(settings['legloc']) == str and settings['legloc'] != "None" and len(settings['labels']) > 1:
         if "," in settings['legloc']:
             settings['legloc'] = ([float(i) for i in settings['legloc'].split(",")])
-        legend = ax.legend(loc=settings['legloc'], numpoints=1, fancybox=True, ncol=int(settings.get('legendcolumns', 1)),
-                                                                    shadow=True, frameon=settings.get('nolegendframe', True))
+        legend = ax.legend(loc=settings['legloc'], ncol=int(settings.get('legendcolumns', 1)),
+                                                                    frameon=settings.get('nolegendframe', False))
     if settings['subtext'] is not None:
         ax.text(-0.04, 1.01, settings['subtext'], va='bottom', ha='right',
                          transform=ax.transAxes, size='xx-large', color='black')
