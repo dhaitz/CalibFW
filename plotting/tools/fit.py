@@ -111,7 +111,7 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
             ax.text(0.97, 0.95-(index/10.)+offset, r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{%g}$" % (slope/(10**fit_slope_exponent), serr/(10**fit_slope_exponent), fit_slope_exponent),
                va='top', ha='right', transform=ax.transAxes, color=color,
                size='x-large')
-        elif settings['fit'] == 'intercept':
+        elif False: #settings['fit'] == 'intercept':
             #display intercept ...
             ax.text(0.97, 0.35-(index/10.)+offset, r"$\mathrm{y(0)} = %1.3f\pm%1.3f$" % (intercept, ierr),
                va='top', ha='right', transform=ax.transAxes, color=color, size='x-large')
@@ -119,7 +119,7 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
             # ... and chi2 (smaller)
             ax.text(0.97, 0.30-(index/10.)+offset, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
                 va='top', ha='right', transform=ax.transAxes, color=color, size='small')
-        elif settings['fit'] == 'chi2_linear':
+        elif False: #settings['fit'] == 'chi2_linear':
             # display chi2
             ax.text(0.97, 0.20-(index/10.)+offset, r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
                 va='top', ha='right', transform=ax.transAxes, color=color, size='x-large')
