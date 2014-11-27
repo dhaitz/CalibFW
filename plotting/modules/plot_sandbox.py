@@ -979,7 +979,7 @@ def electrons(files, opt):
         'x': [30, 750],
         'nbins': 40,
         'filename': 'zpt_mad-pow',
-        'labels': ['data', 'madgraph', 'powheg'],
+        'labels': ['Data', 'Madgraph', 'Powheg'],
 
     }
     changes.update(base_changes)
@@ -988,7 +988,7 @@ def electrons(files, opt):
     changes = {
         'nbins': 40,
         'filename': 'zmass_mad-pow',
-        'labels': ['data', 'madgraph', 'powheg'],
+        'labels': ['Data', 'Madgraph', 'Powheg'],
     }
     changes.update(base_changes)
     plot1d.datamcplot('zmass', files, opt, changes=changes)
@@ -1012,7 +1012,7 @@ def electrons(files, opt):
         'log': True,
         'x': [30, 750],
         'filename': 'zpt_backgrounds',
-        'labels': ['Data', 'MC', 'backgrounds'],
+        'labels': ['Data', 'MC', 'Backgrounds'],
         'markers': ['o', 'f', 'f'],
         'stacked': True,
         'ratiosubplot': False,

@@ -295,7 +295,7 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
             'labels': settings['labels'][1:],
             'colors': settings['colors'][1:],
             'markers': settings['markers'][1:],
-            'xynames': [settings['xynames'][0], "Data/mc ratio"],
+            'xynames': [settings['xynames'][0], "Data/MC ratio"],
         })
 
     if settings['stacked']:
