@@ -13,12 +13,13 @@ class MplStyles():
 	# Default settings that fit any usecase (may be overwritten)
 	defaultstyle = {
 		# font size
-		'font.size': 16,
-		'text.fontsize': 16,
-		'legend.fontsize': 16,
-		'xtick.labelsize': 16,
-		'ytick.labelsize': 16,
-		'axes.labelsize': 16,
+		'font.size': 12,
+		'text.fontsize': 12,
+		'legend.fontsize': 12,
+		'xtick.labelsize': 12,
+		'ytick.labelsize': 12,
+		'axes.labelsize': 12,
+		'lines.markersize': 3,
 
 		'grid.color': 'gray',
 		'grid.linestyle': '-',
@@ -42,6 +43,8 @@ class MplStyles():
 		'font.monospace': ['Computer Modern Typewriter'],
 		'mathtext.sf': 'sans',
 		'mathtext.rm': 'sans',
+		'figure.dpi': 600,
+		'savefig.dpi': 600,
 	}
 
 	# style for slides (usually more bold lines for reduced resolution)

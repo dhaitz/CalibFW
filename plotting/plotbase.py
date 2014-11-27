@@ -396,7 +396,7 @@ def nicetext(s):
 
 def newPlot(ratio=False, run=False, subplots=1, subplots_X=None,
                                                             subplots_Y=None):
-    fig = plt.figure(figsize=[7, 7])
+    fig = plt.figure(figsize=[3.1, 3.1])
     #fig.suptitle(opt.title, size='xx-large')
     if subplots is not 1:  # Get 4 config numbers: FigXsize, FigYsize, NaxesY, NaxesX
         d = {3: 3, 2: 2, 7: 2}
