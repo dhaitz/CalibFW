@@ -82,7 +82,7 @@ def paper(files, opt):
         'allalpha': True,
         'nbins': 6,
         'x': [0, 0.3],
-        'labels': ['data', 'MC'],
+        'labels': ['Data', 'MC'],
         'y': [0, 250],
         'markers': ['o', '-'],
         'grid': True,
@@ -248,7 +248,7 @@ def zmassFitted(files, opt, changes=None, settings=None):
                         'yname': r'$m^{\mathrm{Z}}$ (peak position from Breit-Wigner fit) / GeV',
                         'legloc': 'upper left',
                         'title': mode + " electrons",
-                        'labels': ['data', 'powheg'],
+                        'labels': ['Data', 'Powheg'],
                     }
                     settings = plotbase.getSettings(opt, changes=changes, quantity=quantity + "_" + xq)
 
@@ -431,7 +431,7 @@ def plots_2014_07_03(files, opt):
         'ratiosubploty': [0.8, 1.2],
         'out': 'out/2014_07_03',
         'x': [30, 250],
-        'title': 'data',
+        'title': 'Data',
         'labels': ['PUJetID applied', 'default'],
     }
     plot1d.datamcplot('zpt', files, opt, changes=changes)
@@ -666,7 +666,7 @@ def electronupdate(files, opt):
             {'x': [80, 102], 'ratiosubploty':[0.9, 1.1]},
         ]):
         changes = {
-            'labels': ['data', 'Madgraph'],
+            'labels': ['Data', 'Madgraph'],
             'ratiosubplot': True,
             'folder':'zcuts',
             'nbins': 50,
@@ -1000,19 +1000,19 @@ def electrons(files, opt):
         'x': [30, 750],
         'nbins': 40,
         'filename': 'zpt_pow',
-        'labels':['data', 'powheg'],
+        'labels':['Data', 'Powheg'],
     }
     changes.update(base_changes)
-    plot1d.datamcplot('zpt', files, opt, changes=changes)
+    plot1d.Datamcplot('zpt', files, opt, changes=changes)
     
     #backgrounds
-    filenames = ['data_ee', 'mc_ee', 'background_ee']
+    filenames = ['Data_ee', 'mc_ee', 'background_ee']
     files = [getroot.openfile("%s/work/%s.root" % (plotbase.os.environ['EXCALIBUR_BASE'], f), opt.verbose) for f in filenames]
     changes = {
         'log': True,
         'x': [30, 750],
         'filename': 'zpt_backgrounds',
-        'labels': ['data', 'MC', 'backgrounds'],
+        'labels': ['Data', 'MC', 'backgrounds'],
         'markers': ['o', 'f', 'f'],
         'stacked': True,
         'ratiosubplot': False,
@@ -1703,38 +1703,38 @@ def Fall12(files, opt):
 def factors(files, opt):
     local_opt = copy.deepcopy(opt)
     filelist = [
-                 ['/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC/out/closure.root',
+                 ['/storage/8/dhaitz/CalibFW/work/Data_2012_Fall12JEC/out/closure.root',
                  '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC/out/closure.root',
-                 '/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_L1Offset/out/closure.root',
+                 '/storage/8/dhaitz/CalibFW/work/Data_2012_Fall12JEC_L1Offset/out/closure.root',
                  '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_L1Offset/out/closure.root'],
 
-                 ['/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_V4/out/closure.root',
+                 ['/storage/8/dhaitz/CalibFW/work/Data_2012_Fall12JEC_V4/out/closure.root',
                  '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_V4/out/closure.root',
-                 '/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_V4_L1Offset/out/closure.root',
+                 '/storage/8/dhaitz/CalibFW/work/Data_2012_Fall12JEC_V4_L1Offset/out/closure.root',
                  '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_V4_L1Offset/out/closure.root']
                 ]
     labellist = [
-                ['data FastJet V1', 'MC FastJet V1', 'data Offset V1', 'MC Offset V1'],
-                ['data FastJet V4', 'MC FastJet V4', 'data Offset V4', 'MC Offset V4']]
+                ['Data FastJet V1', 'MC FastJet V1', 'Data Offset V1', 'MC Offset V1'],
+                ['Data FastJet V4', 'MC FastJet V4', 'Data Offset V4', 'MC Offset V4']]
 
     """filelistt = [
-                 ['/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC/out/closure.root',
-                 '/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_V4/out/closure.root'],
+                 ['/storage/8/dhaitz/CalibFW/work/Data_2012_Fall12JEC/out/closure.root',
+                 '/storage/8/dhaitz/CalibFW/work/Data_2012_Fall12JEC_V4/out/closure.root'],
 
                  ['/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC/out/closure.root',
                  '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_V4/out/closure.root'],
 
-                 ['/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_L1Offset/out/closure.root',
-                 '/storage/8/dhaitz/CalibFW/work/data_2012_Fall12JEC_V4_L1Offset/out/closure.root'],
+                 ['/storage/8/dhaitz/CalibFW/work/Data_2012_Fall12JEC_L1Offset/out/closure.root',
+                 '/storage/8/dhaitz/CalibFW/work/Data_2012_Fall12JEC_V4_L1Offset/out/closure.root'],
 
                  ['/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_L1Offset/out/closure.root',
                  '/storage/8/dhaitz/CalibFW/work/mc_madgraphSummer12_Fall12JEC_V4_L1Offset/out/closure.root']
 
                 ]
-    labellistt = ['data FastJet V1', 'data FastJet V4'], ['MC FastJet V1',  'MC FastJet V4'], ['data Offset V1',  'data Offset V4'], ['MC Offset V1','MC Offset V4'
+    labellistt = ['Data FastJet V1', 'Data FastJet V4'], ['MC FastJet V1',  'MC FastJet V4'], ['Data Offset V1',  'Data Offset V4'], ['MC Offset V1','MC Offset V4'
 ]]
 
-    names = ['dataV1', 'MCV1', 'dataV4', 'MCV4' ]"""
+    names = ['DataV1', 'MCV1', 'DataV4', 'MCV4' ]"""
 
     files = []
     #for sublist in filelist:
@@ -1840,7 +1840,7 @@ def allpu(files, opt, truth=True):
         histos = [getroot.getobject("pileup;2", files[2])]
         histos[-1].Rebin(10)
         print histos[-1].GetNbinsX(), "pu2"
-    histos[0].SetTitle("data")
+    histos[0].SetTitle("Data")
     histos += [ROOT.TH1D("mcraw", "MC", 1600, 0, 80)]
     if truth:
         histos += [ROOT.TH1D("mcraw", "MC", 1600, 0, 80)]
@@ -1886,7 +1886,7 @@ def allpu(files, opt, truth=True):
 		    histos[i].Scale(ff)
 
     histos += [histos[0].Clone("dataraw")]
-    histos[-1].SetTitle("data/MC")
+    histos[-1].SetTitle("Data/MC")
     histos[-1].Divide(histos[1])
     if len(files) > 3:
         histos += [getroot.getobject("pileup", files[3])]
@@ -1897,7 +1897,7 @@ def allpu(files, opt, truth=True):
     histos[-1].SetTitle("MC'/MC")
     histos += [histos[0].Clone("datamc")]
     histos[-1].Divide(histos[2])
-    histos[-1].SetTitle("data/MC'")
+    histos[-1].SetTitle("Data/MC'")
 
     plots = [getroot.root2histo(h) for h in histos]
     fig, ax, ratio = plotbase.newPlot(ratio=True)

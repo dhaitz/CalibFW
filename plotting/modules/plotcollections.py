@@ -115,7 +115,7 @@ def e08bkgr(files, opt):
                     'QCD',
                 ]
                 changes  = {
-                    'labels': ['data', label] + background_labels,
+                    'labels': ['Data', label] + background_labels,
                     'selection': ['1']+ ['hlt']*15,
                     'folder': 'zcuts',
                     'nbins': 40,
@@ -197,7 +197,7 @@ def e07y(files, opt):
             [[getroot.openfile("work/data_ee_corr.root")]*2, [getroot.openfile("work/mc_ee_corr.root")]*2],
             ['zy_data', 'zy_mc'],
             [False, True],
-            ['data', 'Madgraph'],
+            ['Data', 'Madgraph'],
         ):
         plot1d.plot1dratiosubplot("zy", files, opt, changes = {
             'folder': 'zcuts',
@@ -275,7 +275,7 @@ def e07eeta(files, opt):
             [[getroot.openfile("work/data_ee_corr.root")]*2, [getroot.openfile("work/mc_ee_corr.root")]*2],
             ['eeta_data', 'eeta_mc'],
             [False, True],
-            ['data', 'Madgraph'],
+            ['Data', 'Madgraph'],
         ):
         plot1d.plot1dratiosubplot("eta", files, opt, changes = {
             'folder': 'zcuts',
@@ -348,7 +348,7 @@ def e07z(files, opt):
             'normalize': False,
             'selection': ['1', 'hlt * sfminus * sfplus'],
             'ratiosubploty': [0.8, 1.2],
-            'labels': ['data', 'Madgraph'],
+            'labels': ['Data', 'Madgraph'],
     }
 
     changes = {
