@@ -278,7 +278,7 @@ def axislabel_2d(ax, y_q, y_obj, x_q='pt', x_obj='Z', brackets=False):
     return axislabels(ax, x_q, y_q, brackets)
 
 
-def axislabels(ax, x='zpt', y='events', brackets=False, labels=['', ''], settings=None):
+def axislabels(ax, x='zpt', y='events', brackets=True, labels=['', ''], settings=None):
     """same as the old version, but can handle and and y axis indpendetly
 
        new idea: improve automatic scaling:
@@ -402,7 +402,7 @@ def getaxislabels_list(quantity, ax=None):
     return labels_list
 
 
-def unitformat(quantity="", unit="", brackets=False):
+def unitformat(quantity="", unit="", brackets=True):
     """Returns a string according to SI standards
 
        (r"$p_\mathrm{T}$", "GeV") yields "$p_\mathrm{T}$ / GeV"
@@ -416,7 +416,7 @@ def unitformat(quantity="", unit="", brackets=False):
         if "/" in unit:
             unit = "(%s)" % unit
         if brackets:        # units with [] (not allowed by SI system!)
-            quantity = r"%s [%s]" % (quantity, unit)
+            quantity = r"%s (%s)" % (quantity, unit)
         else:                # units with /
             quantity = r"%s / %s" % (quantity, unit)
     #print "The axis legend string is:", repr(quantity)
