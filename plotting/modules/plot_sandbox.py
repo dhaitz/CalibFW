@@ -131,15 +131,14 @@ def paper(files, opt):
             for c in [0, 1]:
                 for d in [0, 1]:
                     plotresponse.response_physflavour(local_files, local_opt,
-                        changes={'title': 'CMS Simulation','mconly':True, 'nbins':25,},
+                        changes={'mconly':True, 'nbins':25,},
                         add_neutrinopt=a,
                         restrict_neutrals=b,
                         extrapolation=c,
                         l5=d)
 
     ## extrapolation plot
-    plotresponse.extrapol(files, opt, changes={'title': 'CMS preliminary',
-                                        'save_individually': True})
+    plotresponse.extrapol(files, opt, changes={'save_individually': True})
 
     # alpha dependencies
     changes = {'allalpha': True,
@@ -158,7 +157,6 @@ def paper(files, opt):
                 'y'       : [0.98, 1.05],
                 'markers' : ['o', 'd'],
                 'colors'  : ['red', 'blue'],
-                'title'   : 'CMS Simulation',
                 'normalize': False,
                 'mconly'  : True,
                 'nbins'   : 25,
@@ -168,7 +166,7 @@ def paper(files, opt):
     files2, opt2 = plotbase.openRootFiles(["work/mc.root", "work/mc_herwig.root"], opt)
     plot1d.datamcplot("recogen_physflavour", files2, opt2, changes=changes)
 
-    flavour_comp(files[1:], opt, changes={'title': 'CMS Simulation',
+    flavour_comp(files[1:], opt, changes={
             'cutlabel': 'ptetaalpha',
             'cutlabeloffset': 0.07,
             'mconly'  : True,
@@ -1080,14 +1078,12 @@ def an(files, opt):
     """
 
     for q in ['mpf', 'ptbalance']:
-        plot1d.datamcplot(q, files, opt, changes={'title': 'CMS preliminary', 
-                                                        'correction': 'L1L2L3',
+        plot1d.datamcplot(q, files, opt, changes={'correction': 'L1L2L3',
                                                         'legloc': 'center right',
                                                         'nbins': 100,
                                                         'fit': 'gauss'})
 
-    plotresponse.extrapol(files, opt, changes={'title': 'CMS preliminary',
-                                        'save_individually': True,
+    plotresponse.extrapol(files, opt, changes={'save_individually': True,
                                         'correction': 'L1L2L3'})
     """
     plotfractions.fractions(files, opt, over='zpt', changes={'x': [0, 400], 'title': 'CMS preliminary'})

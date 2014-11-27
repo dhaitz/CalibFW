@@ -218,6 +218,9 @@ def formatting(ax, settings, opt, mplhistos, rootobjects=None):
             ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in mplhistos) * 2)
         ax.set_yscale('log')
 
+    if True: # TODO settings: setting['preliminary']:
+        ax.text(0.05, 0.95, r"\textbf{CMS}", size=14, va='top', ha='left', transform=ax.transAxes, color='black')
+        ax.text(0.05, 0.88, r"\textit{Preliminary}", size=10, va='top', ha='left', transform=ax.transAxes, color='black')
 
 try:
     datamcplot = profile(datamcplot)
