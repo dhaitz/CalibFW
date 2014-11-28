@@ -86,6 +86,7 @@ def incutlabel(ax, color='black', incut=''):
     return ax
 
 cutlabeldict = {
+    'eta': r"$|\eta|<1.3$",
     'pteta': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3$",
     'ptetaalpha': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad |\eta^\mathrm{Jet1}|<1.3  \quad  \alpha<0.2$",
     'ptalpha': r"$p_\mathrm{T}^\mathrm{Z}>30\ \mathrm{GeV}  \quad  \alpha<0.2$",
