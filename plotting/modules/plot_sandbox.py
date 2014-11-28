@@ -165,7 +165,6 @@ def paper(files, opt):
         'y': [0, 250],
         'markers': ['o', '-'],
         'grid': True,
-        'formats': ['pdf', 'png']
     })
     
     npvrhopaper(files, opt)
