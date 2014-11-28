@@ -115,17 +115,14 @@ def eventnumberlabel(ax, settings):
 
 def lumilabel(ax, lumi=0.0, energy=0, xpos=1.00, ypos=1.01, withlumi=True):
     values = {'lumi': lumi, 'energy': energy, 'lumiunit': 'fb'}
-    #        if (settings['lumi'] is not None and not settings.get('nolumilabel', False) != False and 'data' in settings['types']):
     if (hasattr(ax, 'lumilabel') and ax.lumilabel == True):
         return  # no energy or lumi label
-    string = "{lumi:2.1f} {lumiunit}${{}}^{{\mathrm{{-1}}}}$ ({energy} TeV)"
-    print string.format(**values)
-    if values['lumi'] < 1:
+    if values['lumi'] < 1: # lumi in /pb (energy in TeV)
         values['lumi'] *= 1000
         values['lumiunit'] = 'pb'
-    if lumi <= 0.0 or not withlumi: # lumi in /pb (energy in TeV)
+    string = "{lumi:2.1f} {lumiunit}${{}}^{{\mathrm{{-1}}}}$ ({energy} TeV)"
+    if lumi <= 0.0 or not withlumi:  # no lumi only energy
         string = r"{energy:d} TeV"
-    print lumi, energy, values, string
     ax.text(xpos, ypos, string.format(**values), va='bottom', ha='right', transform=ax.transAxes)
     ax.lumilabel = True
     return ax
@@ -284,7 +281,6 @@ def statuslabel(ax, status=None, xpos=0.1, ypos=0.9):
         status = status.replace('cms-', '').replace('CMS-', '').replace('cms', '')
         string = r"\noindent\textbf{CMS}\\"
     string += r"{\small \textit{%s}}" % status
-    print string
     ax.text(0.05, 0.95, string, size=14, va='top', ha='left', transform=ax.transAxes, color='black')
 
 
