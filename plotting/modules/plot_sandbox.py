@@ -145,7 +145,7 @@ def rmspaper(files, opt):
                     'filename': '2D_RMS_%s' % method,
                     #'labels': ["RMS((recogen-%s)/recogen)" % method],
                     'labels': [''],
-                    #'cutlabel':'ptetaalpha03',
+                    'cutlabel':'eta',
                     #'cutlabeloffset':-0.2,
                     'selection': ['alpha<0.3'],
                     'allalpha': True,
@@ -182,7 +182,7 @@ def paper(files, opt):
             for c in [0, 1]:
                 for d in [0, 1]:
                     plotresponse.response_physflavour(local_files, local_opt,
-                        changes={'mconly':True, 'nbins':25,},
+                        changes={'mconly':True, 'nbins':25, 'cutlabel': 'eta'},
                         add_neutrinopt=a,
                         restrict_neutrals=b,
                         extrapolation=c,
@@ -204,7 +204,7 @@ def paper(files, opt):
     #plot1d.datamcplot("recogen_alpha", files[1:], opt, changes=changes)
 
     # HERWIG
-    changes = {'cutlabel' : 'ptetaalpha',
+    changes = {'cutlabel' : 'eta',
                 'labels'  : ['Pythia 6 Tune Z2*', 'Herwig++ Tune EE3C'],
                 'y'       : [0.98, 1.05],
                 'markers' : ['o', 'd'],
@@ -219,7 +219,7 @@ def paper(files, opt):
     plot1d.datamcplot("recogen_physflavour", files2, opt2, changes=changes)
 
     flavour_comp(files[1:], opt, changes={
-            'cutlabel': 'ptetaalpha',
+            'cutlabel': 'eta',
             'cutlabeloffset': 0.07,
             'mconly'  : True,
             'y': [0, 1],
