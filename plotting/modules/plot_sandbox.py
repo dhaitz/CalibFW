@@ -116,7 +116,6 @@ def rmspaper(files, opt):
                     'allalpha': True,
                     'mconly':True,
                     #'colormap': 'copper',
-                    'status': 'Preliminary',
                 }
         )
 
@@ -1282,7 +1281,10 @@ def flavour_comp(files, opt, changes=None):
         'nbins': 25,
         'xynames': ['physflavour', 'components'],
         'markers': ['f'],
-        'legbox': (0.05, 0.6),
+        'legbox': (0.04, 0.65),
+        'nolegendframe': True,
+        'legendcolumns': 2,
+        'legloc': 'center left',
     }
 
     for n, l, c in zip(stacked, labels, colours):

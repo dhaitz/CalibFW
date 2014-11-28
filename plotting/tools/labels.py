@@ -272,12 +272,19 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.95, changes={}, colo
 
 
 def statuslabel(ax, status=None, xpos=0.1, ypos=0.9):
-    if status is not None:
-        if status.lower()[:3] in ['cms', 'pre', 'sim' 'unp']:
-            ax.text(0.05, 0.95, r"\textbf{CMS}", size=14, va='top', ha='left', transform=ax.transAxes, color='black')
-        if status:
-            ax.text(0.05, 0.86, r"\textit{%s}" % status.title(), size=10, va='top', ha='left', transform=ax.transAxes, color='black')
-        #ax.text(xpos, ypos, r"%s" % status, va='bottom', ha='left', transform=ax.transAxes)
+    """Print status labels like 'CMS Preliminary'
+
+    values: cms, CMS, cms-preliminary
+    """
+    if status is None:
+        return
+    string = ''
+    if status.lower()[:3] in ['cms', 'pre', 'sim' 'unpublished']:
+        status = status.replace('cms-', '').replace('CMS-', '').replace('cms', '')
+        string = r"\noindent\textbf{CMS}\\"
+    string += r"{\small \textit{%s}}" % status
+    print string
+    ax.text(0.05, 0.95, string, size=14, va='top', ha='left', transform=ax.transAxes, color='black')
 
 
 def resultlabel(ax, text=None, xpos=0.05, ypos=0.05):
