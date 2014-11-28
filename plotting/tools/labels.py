@@ -10,8 +10,8 @@ def labels(ax, opt, settings, subplot=False, mc=False):
     """
     if not (settings['ratio'] and settings['subplot']
             and not settings['fit'] == 'intercept'):
-        if (settings['lumi'] is not None and not settings.get('nolumilabel', False) != False and 'data' in settings['types']):
-            lumilabel(ax, settings['lumi'], settings['energy'])    # always (if given) pure MC plots?
+             
+        lumilabel(ax, settings['lumi'], settings['energy'], not settings.get('nolumilabel', False))
         statuslabel(ax, settings['status'])
         #if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
         #if changes.has_key('var') or changes.has_key('bin'):
@@ -43,6 +43,7 @@ def labels(ax, opt, settings, subplot=False, mc=False):
             settings['legloc'] = ([float(i) for i in settings['legloc'].split(",")])
         legend = ax.legend(loc=settings['legloc'], ncol=int(settings.get('legendcolumns', 1)),
                                                                     frameon=settings.get('nolegendframe', False))
+        legend.get_frame().set_lw(0.4)
     if settings['subtext'] is not None:
         ax.text(-0.04, 1.01, settings['subtext'], va='bottom', ha='right',
                          transform=ax.transAxes, size='xx-large', color='black')
@@ -104,21 +105,26 @@ def eventnumberlabel(ax, settings):
             transform=ax.transAxes)
 
 
-def lumilabel(ax, lumi=0.0, energy=0, xpos=1.00, ypos=1.01):
+def lumilabel(ax, lumi=0.0, energy=0, xpos=1.00, ypos=1.01, withlumi=True):
+    values = {'lumi': lumi, 'energy': energy, 'lumiunit': 'fb'}
+    #        if (settings['lumi'] is not None and not settings.get('nolumilabel', False) != False and 'data' in settings['types']):
     if (hasattr(ax, 'lumilabel') and ax.lumilabel == True):
-        return
-    if (hasattr(ax, 'number') and ax.number != 2) or (not hasattr(ax, 'number')):
-        if lumi >= 1.0:
-            ax.text(xpos, ypos, "%2.1f fb${}^{\mathrm{-1}}$ (%s TeV)" % (lumi, energy),
-                va='bottom', ha='right', transform=ax.transAxes)
-        elif lumi > 0.0:
-            ax.text(xpos, ypos, r"$\mathcal{L} = %1.1f\,\mathrm{pb}^{-1}$" %
-                (lumi * 1000.0), va='bottom', ha='left', transform=ax.transAxes)
-        ax.lumilabel = True
+        return  # no energy or lumi label
+    string = "{lumi:2.1f} {lumiunit}${{}}^{{\mathrm{{-1}}}}$ ({energy} TeV)"
+    print string.format(**values)
+    if values['lumi'] < 1:
+        values['lumi'] *= 1000
+        values['lumiunit'] = 'pb'
+    if lumi <= 0.0 or not withlumi: # lumi in /pb (energy in TeV)
+        string = r"{energy:d} TeV"
+    print lumi, energy, values, string
+    ax.text(xpos, ypos, string.format(**values), va='bottom', ha='right', transform=ax.transAxes)
+    ax.lumilabel = True
     return ax
 
 
 def energylabel(ax, energy, xpos=1.00, ypos=1.01):
+    print "Deprecated. Should not be used!"
     if (hasattr(ax, 'energylabel') and ax.energylabel == True) or (hasattr(ax, 'number') and ax.number == 2) or (energy == 0):
         return
     if energy is not None:
