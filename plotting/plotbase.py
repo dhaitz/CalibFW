@@ -18,8 +18,9 @@ import pkgutil
 from matplotlib.backends.backend_pdf import PdfPages
 PIL_available = False
 try:
-	import PIL
-	PIL_available = True
+    from PIL import Image
+    from PIL import PngImagePlugin
+    PIL_available = True
 except:
 	print "Could not import PIL: No image metadata."
 
@@ -568,8 +569,8 @@ def Save(figure, settings=None, crop=True, pad=0.1):
             print f, "failed. Output type is unknown or not supported."
         # for PNG, we can only add the metadata afterwards
         if f == 'png' and PIL_available:
-            im = PIL.Image.open(filename)
-            meta = PIL.PngImagePlugin.PngInfo()
+            im = Image.open(filename)
+            meta = PngImagePlugin.PngInfo()
             for x in settings:
                 if str(settings[x]):
                     meta.add_text(x, str(settings[x]))
