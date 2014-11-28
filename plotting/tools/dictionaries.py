@@ -126,7 +126,7 @@ d_axes = {
         'neutralhad': [0, 1., r"%s neutral hadron fraction", ""],
         'npv': [-0.5, 35.5, r"$n_\mathrm{PV}$", ""],
         'numpu': [-0.5, 35.5, r"$n_{PU}$", ""],
-        'numputruth': [0, 35, r"$\mu_\mathrm{PU}$", ""],
+        'nputruth': [-0.5, 35.5, r"$\mu$", ""],
         'parton': [0.0, 1.8, r"Leading parton$p_\mathrm{T}$ / $p_\mathrm{T}^\mathrm{GenZ}$ ", ""],
         'phi': [-3.141592653, 3.141592653, r"$\phi^\mathrm{%s}$", ""],
         'photon': [0, 1., r"%s photon fraction", ""],

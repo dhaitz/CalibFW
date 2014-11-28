@@ -114,7 +114,6 @@ def npvrhopaper(files, opt):
             opt,
             changes={
                 'folder': 'all',
-                'nolegendframe': True,
                 'labels': ['Data', 'MC'], 
                 'nbins': 35,
                 'x': [-0.5, 34.5],
@@ -149,7 +148,7 @@ def rmspaper(files, opt):
                     #'cutlabeloffset':-0.2,
                     'selection': ['alpha<0.3'],
                     'allalpha': True,
-                    'mconly':True,
+                    'mconly': True,
                     #'colormap': 'copper',
                 }
         )

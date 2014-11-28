@@ -10,7 +10,7 @@ def labels(ax, opt, settings, subplot=False, mc=False):
     """
     if not (settings['ratio'] and settings['subplot']
             and not settings['fit'] == 'intercept'):
-             
+
         lumilabel(ax, settings['lumi'], settings['energy'], not settings.get('nolumilabel', False))
         statuslabel(ax, settings['status'])
         #if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
@@ -45,10 +45,10 @@ def labels(ax, opt, settings, subplot=False, mc=False):
         legbox = settings.get('legbox', False)
         if type(legbox) == tuple:
             legend = ax.legend(loc=settings['legloc'], ncol=int(settings.get('legendcolumns', 1)),
-                frameon=settings.get('nolegendframe', False), bbox_to_anchor=legbox)
+                frameon=settings.get('legendframe', False), bbox_to_anchor=legbox)
         else:
             legend = ax.legend(loc=settings['legloc'], ncol=int(settings.get('legendcolumns', 1)),
-                frameon=settings.get('nolegendframe', False))
+                frameon=settings.get('legendframe', False))
 
         legend.get_frame().set_lw(0.4)
     if settings['subtext'] is not None:
@@ -116,8 +116,8 @@ def eventnumberlabel(ax, settings):
 def lumilabel(ax, lumi=0.0, energy=0, xpos=1.00, ypos=1.01, withlumi=True):
     values = {'lumi': lumi, 'energy': energy, 'lumiunit': 'fb'}
     if (hasattr(ax, 'lumilabel') and ax.lumilabel == True):
-        return  # no energy or lumi label
-    if values['lumi'] < 1: # lumi in /pb (energy in TeV)
+        return                       # no energy or lumi label
+    if values['lumi'] < 1:           # lumi in /pb (energy in TeV)
         values['lumi'] *= 1000
         values['lumiunit'] = 'pb'
     string = "{lumi:2.1f} {lumiunit}${{}}^{{\mathrm{{-1}}}}$ ({energy} TeV)"
