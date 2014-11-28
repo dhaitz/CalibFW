@@ -13,20 +13,23 @@ class MplStyles():
 	# Default settings that fit any usecase (may be overwritten)
 	defaultstyle = {
 		# font size
-		'font.size': 12,
-		'text.fontsize': 12,
-		'legend.fontsize': 12,
-		'xtick.labelsize': 12,
-		'ytick.labelsize': 12,
-		'axes.labelsize': 12,
+		'font.size': 11,
+		'text.fontsize': 11,
+		'legend.fontsize': 10,
+		'xtick.labelsize': 10,
+		'ytick.labelsize': 10,
+		'axes.labelsize': 11,
 		'lines.markersize': 3,
+		'lines.linewidth': 0.4,
 
 		'grid.color': 'gray',
 		'grid.linestyle': '-',
 		'grid.linewidth': 0.5,
+		'image.cmap': 'Blues',
 
 		# linewidth
-		'axes.linewidth': 0.8,   # thickness of main box lines
+		'axes.linewidth': 0.4,   # thickness of main box lines
+		'axes.formatter.limits': (-3, 3),
 		# 'patch.linewidth':  1.5:   # thickness of legend pictures and border
 		# 'grid.linewidth':   1.3:   # thickness of grid lines
 		# 'lines.linewidth':  2.5:   # thickness of error bars
@@ -35,6 +38,18 @@ class MplStyles():
 		'legend.numpoints': 1,
 		'legend.fancybox': False,
 		'legend.shadow': False,
+		'legend.borderpad': 0.3,    # border whitespace in fontsize units
+		#legend.markerscale   : 1.0    # the relative size of legend markers vs. original
+		'legend.labelspacing': 0.2,    # the vertical space between the legend entries in fraction of fontsize
+		#legend.handlelength  : 2.     # the length of the legend lines in fraction of fontsize
+		#legend.handleheight  : 0.7     # the height of the legend handle in fraction of fontsize
+		'legend.handletextpad': 0.4,    # the space between the legend line and legend text in fraction of fontsize
+		#legend.borderaxespad : 0.5   # the border between the axes and legend edge in fraction of fontsize
+		#legend.columnspacing : 2.    # the border between the axes and legend edge in fraction of fontsize
+		#legend.shadow        : False
+		#legend.frameon       : True   # whether or not to draw a frame around legend
+		#legend.framealpha    : 1.0    # opacity of of legend frame
+		#legend.scatterpoints : 3 # number of scatter points
 
 		'font.family': 'sans-serif',
 		'font.serif': ['Computer Modern Roman'],
