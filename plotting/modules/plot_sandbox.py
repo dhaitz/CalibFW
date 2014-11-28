@@ -74,9 +74,55 @@ def corrbins(files, opt):
     settings['filename'] = plotbase.getDefaultFilename('recogen-bins', opt, settings)
     plotbase.Save(fig, settings)
 
+def npvrhopaper(files, opt):
+    opt.status = 'Preliminary'
+    ##basic rho and npv plots
+    for quantity in ['npv', 'rho']:
+        plot1d.plot1dFromFilenames(quantity,
+            ['work/data.root', 'work/mc.root'],
+            opt,
+            changes={
+                'folder': 'all',
+                'nbins': 35,
+                'x': [-0.5, 34.5],
+                'yname': 'Events per bin' if quantity == 'npv' else 'Events per GeV',
+            }
+        )
+        
+def rmspaper(files, opt):
+    for method in ['mpf', 'ptbalance']:
+        mlabelstr = "RMS(($R^\mathrm{sim} - R^{%s})/R^\mathrm{sim}$)"
+        mlabel = {
+            'mpf': mlabelstr % "p_\mathrm{T}",
+            'ptbalance': mlabelstr % "\mathrm{MPF}",
+            'notfound': "",
+        }
+        plot2d.twoD("abs((recogen-%s)/recogen)*abs((recogen-%s)/recogen)_npv_zpt" % (method, method),
+                files[1:],
+                opt,
+                changes={
+                    'binroot': True,
+                    'x': [30, 250],
+                    'y': [0.5, 47.5],
+                    'z': [0, 0.3],
+                    'nbins': 22,
+                    'xynames': ["zpt", "npv", mlabel.get(method, mlabel['notfound'])],
+                    'filename': '2D_RMS_%s' % method,
+                    #'labels': ["RMS((recogen-%s)/recogen)" % method],
+                    'labels': [''],
+                    #'cutlabel':'ptetaalpha03',
+                    #'cutlabeloffset':-0.2,
+                    'selection': ['alpha<0.3'],
+                    'allalpha': True,
+                    'mconly':True,
+                    #'colormap': 'copper',
+                    'status': 'Preliminary',
+                }
+        )
+
 def paper(files, opt):
     """ Plots for the 2012 JEC paper. """
-
+    opt.status = 'Preliminary'
     # The Z pT vs alpha plot requested by Viola 23.10.14
     plot1d.datamcplot("zpt_alpha", files, opt, changes={
         'allalpha': True,
@@ -88,38 +134,10 @@ def paper(files, opt):
         'grid': True,
         'formats': ['pdf', 'png']
     })
+    
+    npvrhopaper(files, opt)
 
-    ##basic rho and npv plots
-    for quantity in ['npv', 'rho']:
-        plot1d.plot1dFromFilenames(quantity,
-            ['work/data.root', 'work/mc.root'],
-            opt,
-            changes={
-                'folder': 'all',
-                'nbins': 35,
-                'x': [-0.5, 34.5],
-            }
-        )
-
-    for method in ['mpf', 'ptbalance']:
-        plot2d.twoD("abs((recogen-%s)/recogen)*abs((recogen-%s)/recogen)_npv_zpt" % (method, method),
-                files[1:],
-                opt,
-                changes={'x': [0, 250],
-                    'binroot': True,
-                    'z': [0, 0.3],
-                    'xynames': ["zpt", "npv", "RMS((recogen-%s)/recogen)" % method],
-                    'filename': '2D_RMS_%s' % method,
-                    #'labels': ["RMS((recogen-%s)/recogen)" % method],
-                    'labels': ["CMS Simulation"],
-                    #'cutlabel':'ptetaalpha03',
-                    #'cutlabeloffset':-0.2,
-                    'selection': ['alpha<0.3'],
-                    'allalpha': True,
-                    'mconly':True,
-                    'colormap': 'copper',
-                }
-        )
+    rmspaper(files, opt) 
 
     # The response-vs-flavour plots
     #local_opt = copy.deepcopy(opt)
