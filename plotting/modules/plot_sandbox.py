@@ -156,7 +156,7 @@ def paper(files, opt):
                         l5=d)
 
     ## extrapolation plot
-    plotresponse.extrapol(files, opt, changes={'save_individually': True})
+    plotresponse.extrapol(files, opt, changes={'save_individually': True, 'labels' : ['Data', 'MC']})
 
     # alpha dependencies
     changes = {'allalpha': True,
@@ -1279,13 +1279,11 @@ def flavour_comp(files, opt, changes=None):
 
     changes = {'subplot': True,
                 'nbins': 25,
-                'y': [0, 0.9],
-                
                 'xynames': ['physflavour', 'components'],
                 'markers': ['f']}
 
     for n, l, c in zip(stacked, labels, colours):
-        changes['labels'] = [l]
+        changes['labels'] = [l, l]
         changes['colors'] = [c]
 
         plot1d.datamcplot("%s_physflavour" % n, files, opt,

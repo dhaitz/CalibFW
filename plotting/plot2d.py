@@ -78,14 +78,14 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
         grid = [fig_axes[1]]
     else:
         # create figure  + axes
-        fig = plt.figure(figsize=(10. * len(datamc), 7.))
+        fig = plt.figure(figsize=(3.1 * len(datamc), 3.1))
         grid = AxesGrid(fig, 111,
                         nrows_ncols=(1, len(datamc)),
                         axes_pad=0.4,
                         share_all=True,
                         aspect=False,
                         label_mode="L",
-                        cbar_pad=0.2,
+                        cbar_pad=0.05,
                         cbar_location="right",
                         cbar_mode='single',
                         )

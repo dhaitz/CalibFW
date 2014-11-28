@@ -158,7 +158,7 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, fig_axes=None):
                 bottom = numpy.ones(len(f.x)) * 1e-6
 
             ax.bar(f.x, f.y, widths, bottom=bottom,
-              yerr=f.yerr, ecolor=c, label=l, fill=True, facecolor=c, edgecolor=c, alpha=0.98)
+              yerr=f.yerr, ecolor=c, label=l, fill=True, facecolor=c, edgecolor=c)
         else:
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c,
                                                     fmt=s, capsize=0, label=l)
@@ -195,7 +195,7 @@ def formatting(ax, settings, opt, mplhistos, rootobjects=None):
     plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1],
                                                             settings=settings)
     plotbase.setAxisLimits(ax, settings)
-    if settings['xynames'][1] == 'events' and 'y' not in opt.user_options:
+    if 'events' in settings['xynames'][1].lower() and 'y' not in opt.user_options:
         ax.set_ylim(top=max(d.ymax() for d in mplhistos) * 1.2)
 
     #plot a vertical line at 1.0 for certain y-axis quantities:
@@ -218,9 +218,6 @@ def formatting(ax, settings, opt, mplhistos, rootobjects=None):
             ax.set_ylim(bottom=1.0, top=max(d.ymax() for d in mplhistos) * 2)
         ax.set_yscale('log')
 
-    if True: # TODO settings: setting['preliminary']:
-        ax.text(0.05, 0.95, r"\textbf{CMS}", size=14, va='top', ha='left', transform=ax.transAxes, color='black')
-        ax.text(0.05, 0.88, r"\textit{Preliminary}", size=10, va='top', ha='left', transform=ax.transAxes, color='black')
 
 try:
     datamcplot = profile(datamcplot)

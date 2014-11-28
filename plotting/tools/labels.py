@@ -259,10 +259,12 @@ def binlabel(ax, bin=None, low=0, high=0, xpos=0.03, ypos=0.95, changes={}, colo
 
 
 def statuslabel(ax, status=None, xpos=0.1, ypos=0.9):
-    if (status is not None and hasattr(ax, "statuslabel") and ax.statuslabel is True):
-        ax.text(xpos, ypos, r"%s" % status, va='bottom', ha='left',
-                transform=ax.transAxes)
-        ax.statuslabel = True
+    if status is not None:
+        if status.lower()[:3] in ['cms', 'pre', 'sim' 'unp']:
+            ax.text(0.05, 0.95, r"\textbf{CMS}", size=14, va='top', ha='left', transform=ax.transAxes, color='black')
+        if status:
+            ax.text(0.05, 0.86, r"\textit{%s}" % status.title(), size=10, va='top', ha='left', transform=ax.transAxes, color='black')
+        #ax.text(xpos, ypos, r"%s" % status, va='bottom', ha='left', transform=ax.transAxes)
 
 
 def resultlabel(ax, text=None, xpos=0.05, ypos=0.05):
@@ -300,7 +302,8 @@ def axislabels(ax, x='zpt', y='events', brackets=True, labels=['', ''], settings
 
     def setyaxis(limits=(0, 1), quantity="y", unit="", bottom=None):
         string = unitformat(quantity, unit, brackets)
-        ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+        #if settings and settings.get('sciaxis', True):
+            #ax.ticklabel_format(style='sci', axis='y')
         if y in ["datamcratio", "ratio", "Ratio"]:
             if labels != ['', '']:
                 string = "%s/%s" % (labels[0], labels[1])
