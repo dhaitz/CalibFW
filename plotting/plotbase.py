@@ -422,6 +422,15 @@ def newPlot(ratio=False, run=False, subplots=1, subplots_X=None,
         ax = [fig.add_subplot(a[2], a[3], n + 1) for n in range(subplots)]
         return fig, ax
     elif ratio:
+        fig = plt.figure(figsize=[3.1, 4.5])
+        ax1 = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
+        ax1.number = 1
+        ax2 = plotbase.plt.subplot2grid((3, 1), (2, 0))
+        ax2.number = 2
+        fig.add_axes(ax1)
+        fig.add_axes(ax2)
+        return fig, ax1, ax2
+        
         ax = fig.add_subplot(111, position=[0.13, 0.35, 0.83, 0.58])
         ax.number = 1
         ax.set_xlabel([])

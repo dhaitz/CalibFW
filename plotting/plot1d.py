@@ -256,7 +256,8 @@ def plot1dratiosubplotFromFilenames(quantity, filenames, opt, changes=None, sett
     plot1dratiosubplot(quantity, files, opt2, changes=changes, settings=settings)
 
 
-def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
+def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None,
+        fig_axes=None):
     """ Basically the same as the plot1d function,
         but creates an additional ratiosubplot at the bottom.
     """
@@ -265,27 +266,31 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
 
     settings = plotbase.getSettings(opt, changes, settings, quantity)
 
-    fig = plotbase.plt.figure(figsize=[7, 10])
-    ax1 = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
-    ax1.number = 1
-    ax2 = plotbase.plt.subplot2grid((3, 1), (2, 0))
-    ax2.number = 2
-    fig.add_axes(ax1)
-    fig.add_axes(ax2)
+    if fig_axes is None:
+        fig = plotbase.newplot()
+        ax1 = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
+        ax1.number = 1
+        ax2 = plotbase.plt.subplot2grid((3, 1), (2, 0))
+        ax2.number = 2
+        fig.add_axes(ax1)
+        fig.add_axes(ax2)
+    else:
+        fig, ax1, ax2 = fig_axes
 
     # primary ploy
     plot1d(quantity, files, opt, fig_axes=(fig, ax1), changes={'subplot': True}, settings=settings)
 
     # prepare ratiosubplot
-    changes = {'subplot': True,
+    changes = {
+        'subplot': True,
         'ratio': True,
         'y': [None, None] + settings.get('ratiosubploty', [0.5, 1.5]),
         'fit': settings.get('ratiosubplotfit', None),
-        'legloc': False,
+        'legloc': settings.get('ratiosubplotlegloc', None),
     }
     if len(files) == 2:
         changes.update({
-            'labels': ['Ratio'],
+            'labels': [settings.get('ratiosubplotlabel', 'Ratio'), None],
             'markers': ['o'],
             'xynames': [settings['xynames'][0], " / ".join(settings['labels'][:2])],
         })
@@ -310,8 +315,9 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None):
     ax1.set_xticklabels([])
     ax1.set_xlabel("")
 
-    settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
-    plotbase.Save(fig, settings)
+    if not settings['subplot']:
+        settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
+        plotbase.Save(fig, settings)
 
 
 def ratiosubplot(quantity, files, opt, settings, changes):

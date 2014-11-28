@@ -74,6 +74,38 @@ def corrbins(files, opt):
     settings['filename'] = plotbase.getDefaultFilename('recogen-bins', opt, settings)
     plotbase.Save(fig, settings)
 
+
+def extrapolationpaper(files, opt):
+    #new extrapolation plot
+    fig, ax1, ax2 = plotbase.newPlot(ratio=True)
+    changes = {'subplot': True,
+        'y': [0.85, 1.07],
+        'fit': True,
+        'x': [0, 0.3],
+        'legloc': 'lower left',
+        'nbins': 6,
+        'yname': 'response',
+        'allalpha': True,
+        'markers': ['o', '*'],
+        'ratiosubploty': [0.975, 1.025],
+        'ratiosubplotfit': True,
+        'ratiosubplotlegloc': 'lower left',
+    }
+
+    for quantity, color, name in zip(['mpf','ptbalance'], [['black', 'blue'], ['red', 'maroon']],
+        ['MPF', '$p_\mathrm{T}$ balance']):
+        changes['labels'] = ["%s (Data)" % name, "%s (MC)" % name]
+        changes['colors'] = color
+        changes['ratiosubplotlabel'] = name
+        plot1d.plot1dratiosubplot("%s_alpha" % quantity, files, opt, changes=changes,
+                fig_axes=[fig, ax1, ax2])
+
+    ax2.set_ylabel("Data / MC")
+    settings = plotbase.getSettings(opt, quantity='response_alpha')
+    settings['filename'] = plotbase.getDefaultFilename('extrapol', opt, settings)
+    plotbase.Save(fig, settings)
+
+
 def npvrhopaper(files, opt):
     opt.status = 'Preliminary'
     ##basic rho and npv plots
@@ -83,6 +115,8 @@ def npvrhopaper(files, opt):
             opt,
             changes={
                 'folder': 'all',
+                'nolegendframe': True,
+                'labels': ['Data', 'MC'], 
                 'nbins': 35,
                 'x': [-0.5, 34.5],
                 'yname': 'Events per bin' if quantity == 'npv' else 'Events per GeV',
@@ -155,7 +189,8 @@ def paper(files, opt):
                         l5=d)
 
     ## extrapolation plot
-    plotresponse.extrapol(files, opt, changes={'save_individually': True, 'labels' : ['Data', 'MC']})
+    #plotresponse.extrapol(files, opt, changes={'title': 'CMS preliminary',
+    #                                    'save_individually': True})
 
     # alpha dependencies
     changes = {'allalpha': True,
@@ -1293,7 +1328,7 @@ def flavour_comp(files, opt, changes=None):
 
         plot1d.datamcplot("%s_physflavour" % n, files, opt,
                     fig_axes=(fig, ax), changes=changes, settings=settings)
-
+        
     settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
     plotbase.Save(fig, settings)
 
