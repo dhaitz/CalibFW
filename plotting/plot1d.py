@@ -212,6 +212,7 @@ def formatting(ax, settings, opt, mplhistos, rootobjects=None):
         ax.axvline(6.5, color='black', linestyle=':')
         import matplotlib.ticker as ticker
         ax.set_xticks([0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5])
+        ax.set_xticklabels([])
         ax.xaxis.set_minor_locator(ticker.FixedLocator([1, 2, 3, 4, 5, 6, 7]))
         for tic in ax.xaxis.get_minor_ticks():
             tic.tick1On = tic.tick2On = False
