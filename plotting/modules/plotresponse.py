@@ -538,8 +538,7 @@ def response_physflavour(files, opt, changes=None, settings=None,
             'markers': [m],
             'colors': [c],
             'labels': [l],
-            'cutlabel': 'ptetaalpha',
-            'y': [0.84, 1.11],
+            'y': [0.87, 1.15],
         }
         if extrapolation and quantities.index(q) not in [1, 3]:
             #iterate over flavours;

@@ -195,7 +195,7 @@ def formatting(ax, settings, opt, mplhistos, rootobjects=None):
     plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1],
                                                             settings=settings)
     plotbase.setAxisLimits(ax, settings)
-    if 'events' in settings['xynames'][1].lower() and 'y' not in opt.user_options:
+    if 'events' in settings['xynames'][1].lower() and 'y' not in opt.user_options and not settings.get('noautoscale', False):
         ax.set_ylim(top=max(d.ymax() for d in mplhistos) * 1.2)
 
     #plot a vertical line at 1.0 for certain y-axis quantities:

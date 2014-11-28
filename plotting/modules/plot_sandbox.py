@@ -107,9 +107,8 @@ def extrapolationpaper(files, opt):
 
 
 def npvrhopaper(files, opt):
-    opt.status = 'Preliminary'
     ##basic rho and npv plots
-    for quantity in ['npv', 'rho']:
+    for quantity, yrange in zip(['npv', 'rho'], [[0, 1e6], [0, 1.1e6]]):
         plot1d.plot1dFromFilenames(quantity,
             ['work/data.root', 'work/mc.root'],
             opt,
@@ -119,6 +118,8 @@ def npvrhopaper(files, opt):
                 'labels': ['Data', 'MC'], 
                 'nbins': 35,
                 'x': [-0.5, 34.5],
+                'y': yrange,
+                'noautoscale': True,
                 'yname': 'Events per bin' if quantity == 'npv' else 'Events per GeV',
             }
         )
@@ -155,7 +156,6 @@ def rmspaper(files, opt):
 
 def paper(files, opt):
     """ Plots for the 2012 JEC paper. """
-    opt.status = 'Preliminary'
     # The Z pT vs alpha plot requested by Viola 23.10.14
     plot1d.datamcplot("zpt_alpha", files, opt, changes={
         'allalpha': True,
