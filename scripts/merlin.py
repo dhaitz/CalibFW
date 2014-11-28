@@ -310,7 +310,7 @@ def options(
 
     # if labels are not explicitly give, take file names without extension
     if opt.labels == []:
-        opt.labels = [r"%s" % f.split(".root")[0].split("/")[-1].title() for f in opt.files]
+        opt.labels = [r"%s" % f.split(".root")[0].split("/")[-1].title().replace('Mc', 'MC') for f in opt.files]
         opt.default_options['labels'] = opt.labels
 
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
