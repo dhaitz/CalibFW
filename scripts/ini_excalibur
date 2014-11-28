@@ -38,6 +38,7 @@ elif [ $USER = "berger" ]; then
         export EXCALIBUR_WORK=/storage/8/berger/excalibur
         export DATA=`readlink $EXCALIBUR_BASE/work/data.root`
         export MC=`readlink $EXCALIBUR_BASE/work/mc.root`
+        export USERPC=ekplx32
     elif [[ $HOSTNAME == *naf* ]]; then
         export EXCALIBUR_WORK=/nfs/dust/cms/user/jberger
     fi
