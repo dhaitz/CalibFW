@@ -185,7 +185,7 @@ def formatting(ax, settings, opt, mplhistos, rootobjects=None):
             settings['x'][0] = min([histo.GetXaxis().GetXmin() for histo in rootobjects])
             settings['x'][1] = max([histo.GetXaxis().GetXmax() for histo in rootobjects])
             print "determine x axis borders automatically:", ",".join([str(x) for x in settings['x']])
-        if 'TProfile' in [histo.ClassName() for histo in rootobjects] and settings['y'] == [0, 1] and 'y' not in opt.user_options:
+        if 'TProfile' in [histo.ClassName() for histo in rootobjects] and settings['y'] == [0, 0] and 'y' not in opt.user_options:
             settings['y'][0] = min([histo.GetMinimum() for histo in rootobjects])
             settings['y'][1] = max([histo.GetMaximum() for histo in rootobjects]) * 1.02
             print "determine y axis borders automatically: %s, %s" % (settings['y'][0], settings['y'][1])

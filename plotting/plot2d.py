@@ -93,15 +93,18 @@ def twoD(quantity, files, opt, fig_axes=(), changes=None, settings=None):
     for plot, label, ax in zip(datamc, settings['labels'], grid):
         ax.set_title(label)
 
-        cmap1 = matplotlib.cm.get_cmap(settings.get('colormap', 'afmhot'))
-        image = ax.imshow(plot.BinContents,
+        cmap1 = matplotlib.cm.get_cmap(settings.get('colormap', matplotlib.rcParams['image.cmap']))
+
+        image = ax.imshow(
+            plot.BinContents,
             interpolation='nearest',
-            cmap=cmap1,
             origin='lower',
             aspect='auto',
             extent=[plot.xborderlow, plot.xborderhigh, plot.yborderlow, plot.yborderhigh],
             vmin=settings['z'][0],
-            vmax=settings['z'][1])
+            vmax=settings['z'][1],
+            cmap=cmap1,
+        )
 
         # labels:
         plotbase.axislabels(ax, settings['xynames'][0], settings['xynames'][1], settings=settings)
