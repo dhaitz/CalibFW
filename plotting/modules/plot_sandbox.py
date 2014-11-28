@@ -87,7 +87,7 @@ def extrapolationpaper(files, opt):
         'yname': 'response',
         'allalpha': True,
         'markers': ['o', '*'],
-        'ratiosubploty': [0.975, 1.025],
+        'ratiosubploty': [0.95, 1.025],
         'ratiosubplotfit': True,
         'ratiosubplotlegloc': 'lower left',
     }
@@ -166,6 +166,8 @@ def paper(files, opt):
         'markers': ['o', '-'],
         'grid': True,
     })
+    
+    extrapolationpaper(files, opt)
     
     npvrhopaper(files, opt)
 
