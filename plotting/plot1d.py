@@ -209,9 +209,14 @@ def formatting(ax, settings, opt, mplhistos, rootobjects=None):
 
     if 'flavour' in settings['xynames'][0]:
         ax.set_xlim(0.5, 7.5)
-        ax.set_xticks([1, 2, 3, 4, 5, 6, 7])
-        ax.set_xticklabels(['d', 'u', 's', 'c', 'b', 'g', 'undef.'])
         ax.axvline(6.5, color='black', linestyle=':')
+        import matplotlib.ticker as ticker
+        ax.set_xticks([0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5])
+        ax.xaxis.set_minor_locator(ticker.FixedLocator([1, 2, 3, 4, 5, 6, 7]))
+        for tic in ax.xaxis.get_minor_ticks():
+            tic.tick1On = tic.tick2On = False
+            tic.set_pad(25)
+        ax.xaxis.set_minor_formatter(ticker.FixedFormatter(['d', 'u', 's', 'c', 'b', 'g', 'undef.']))
 
     if settings['log'] and ax.number == 1:
         if 'y' not in opt.user_options:
