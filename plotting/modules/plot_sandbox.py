@@ -153,6 +153,73 @@ def rmspaper(files, opt):
                 }
         )
 
+def npvrhomupaper(files, opt):
+    for q in ['npv', 'rho']:
+        print opt.selection
+        changes = {
+            'removeruns': True,
+            'markers': ['o', 'd'],
+            'colors': ['black', 'green'],
+            'nbins': 31,
+            'folder': 'all',
+            'fit': 'quadratic_function',
+            'x': [-0.5, 30.5],
+            'y': [0, 30],
+            'legloc': 'lower right',
+        }
+        plot1d.datamcplot("%s_nputruth" % q, files, opt, changes=changes)
+
+def flavour_comp(files, opt, changes=None):
+    """Plot the PF composition as a function of the MC truth flavour."""
+
+    quantity = "components_physflavour"
+    settings = plotbase.getSettings(opt, changes, settings=None,
+                                            quantity=quantity)
+    nbr = 5
+    labels = ["N. hadron", "C. hadron", r"$\gamma$       ",  r"$e$       ",
+                                        r"$\mu$       ", "HFem", "HFhad"][:nbr]
+    labels.reverse()
+    colours = ['YellowGreen', 'LightSkyBlue', 'Orange', 'MediumBlue',
+                  'Darkred', 'yellow', 'grey'][:nbr]
+    colours.reverse()
+    components = ["neutralhad", "chargedhad", "photon",  "chargedem", "muon",
+                                                         "HFem", "HFhad"][:nbr]
+    components.reverse()
+    names = ["jet1" + component + "fraction" for component in components]
+
+    stacked = []
+    for i in range(len(names)):
+        stacked += ["(%s)" % "+".join(names[i:])]
+    fig, ax = plotbase.newPlot()
+
+    if len(files) > 1:
+        files = [files[1]]
+    changes = {
+        'subplot': True,
+        'nbins': 25,
+        'xynames': ['physflavour', 'components'],
+        'markers': ['f'],
+        'legbox': (0.04, 0.3),
+        'legendframe': True,
+        'legendcolumns': 2,
+        'cutlabel': 'eta',
+        'cutlabeloffset': 0.07,
+        'mconly'  : True,
+        'y': [0, 1],
+        'legloc': '0.05,0.5'
+    }
+
+    for n, l, c in zip(stacked, labels, colours):
+        changes['labels'] = [l, l]
+        changes['colors'] = [c]
+
+        plot1d.datamcplot("%s_physflavour" % n, files, opt,
+                    fig_axes=(fig, ax), changes=changes, settings=settings)
+        
+    settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
+    plotbase.Save(fig, settings)
+
+
 def paper(files, opt):
     """ Plots for the 2012 JEC paper. """
     # The Z pT vs alpha plot requested by Viola 23.10.14
@@ -169,6 +236,7 @@ def paper(files, opt):
     extrapolationpaper(files, opt)
     
     npvrhopaper(files, opt)
+    npvrhomupaper(files, opt)
 
     rmspaper(files, opt) 
 
@@ -218,13 +286,7 @@ def paper(files, opt):
     files2, opt2 = plotbase.openRootFiles(["work/mc.root", "work/mc_herwig.root"], opt)
     plot1d.datamcplot("recogen_physflavour", files2, opt2, changes=changes)
 
-    flavour_comp(files[1:], opt, changes={
-            'cutlabel': 'eta',
-            'cutlabeloffset': 0.07,
-            'mconly'  : True,
-            'y': [0, 1],
-            'legloc': '0.05,0.5'})
-
+    flavour_comp(files, opt)
 
 def zmassFitted(files, opt, changes=None, settings=None):
     """ Plots the FITTED Z mass peak position depending on pT, NPV, y."""
@@ -1288,49 +1350,7 @@ def rootfile(files, opt):
                 plot1d.datamcplot(quantity, files, opt, changes=changes)
 
 
-def flavour_comp(files, opt, changes=None):
-    """Plot the PF composition as a function of the MC truth flavour."""
 
-    quantity = "components_physflavour"
-    settings = plotbase.getSettings(opt, changes, settings=None,
-                                            quantity=quantity)
-    nbr = 5
-    labels = ["NHad", r"$\gamma$       ", "CHad", r"$e$       ",
-                                        r"$\mu$       ", "HFem", "HFhad"][:nbr]
-    labels.reverse()
-    colours = ['YellowGreen', 'LightSkyBlue', 'Orange', 'MediumBlue',
-                  'Darkred', 'yellow', 'grey'][:nbr]
-    colours.reverse()
-    components = ["neutralhad", "photon", "chargedhad", "chargedem", "muon",
-                                                         "HFem", "HFhad"][:nbr]
-    components.reverse()
-    names = ["jet1" + component + "fraction" for component in components]
-
-    stacked = []
-    for i in range(len(names)):
-        stacked += ["(%s)" % "+".join(names[i:])]
-    fig, ax = plotbase.newPlot()
-
-    changes = {
-        'subplot': True,
-        'nbins': 25,
-        'xynames': ['physflavour', 'components'],
-        'markers': ['f'],
-        'legbox': (0.04, 0.65),
-        'nolegendframe': True,
-        'legendcolumns': 2,
-        'legloc': 'center left',
-    }
-
-    for n, l, c in zip(stacked, labels, colours):
-        changes['labels'] = [l, l]
-        changes['colors'] = [c]
-
-        plot1d.datamcplot("%s_physflavour" % n, files, opt,
-                    fig_axes=(fig, ax), changes=changes, settings=settings)
-        
-    settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
-    plotbase.Save(fig, settings)
 
 
 def ineff(files, opt):
