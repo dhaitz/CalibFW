@@ -1277,10 +1277,13 @@ def flavour_comp(files, opt, changes=None):
         stacked += ["(%s)" % "+".join(names[i:])]
     fig, ax = plotbase.newPlot()
 
-    changes = {'subplot': True,
-                'nbins': 25,
-                'xynames': ['physflavour', 'components'],
-                'markers': ['f']}
+    changes = {
+        'subplot': True,
+        'nbins': 25,
+        'xynames': ['physflavour', 'components'],
+        'markers': ['f'],
+        'legbox': (0.05, 0.6),
+    }
 
     for n, l, c in zip(stacked, labels, colours):
         changes['labels'] = [l, l]

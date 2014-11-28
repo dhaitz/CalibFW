@@ -41,8 +41,15 @@ def labels(ax, opt, settings, subplot=False, mc=False):
     if type(settings['legloc']) == str and settings['legloc'] != "None" and len(settings['labels']) > 1:
         if "," in settings['legloc']:
             settings['legloc'] = ([float(i) for i in settings['legloc'].split(",")])
-        legend = ax.legend(loc=settings['legloc'], ncol=int(settings.get('legendcolumns', 1)),
-                                                                    frameon=settings.get('nolegendframe', False))
+        d = {}
+        legbox = settings.get('legbox', False)
+        if type(legbox) == tuple:
+            legend = ax.legend(loc=settings['legloc'], ncol=int(settings.get('legendcolumns', 1)),
+                frameon=settings.get('nolegendframe', False), bbox_to_anchor=legbox)
+        else:
+            legend = ax.legend(loc=settings['legloc'], ncol=int(settings.get('legendcolumns', 1)),
+                frameon=settings.get('nolegendframe', False))
+
         legend.get_frame().set_lw(0.4)
     if settings['subtext'] is not None:
         ax.text(-0.04, 1.01, settings['subtext'], va='bottom', ha='right',
