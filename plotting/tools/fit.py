@@ -44,7 +44,7 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
         ax.text(0.97, 0.20-(index/10.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
         va='top', ha='right', transform=ax.transAxes, color=color)
 
-    elif 'fit' in settings and 'quadratic' in settings['fit']:
+    elif 'fit' in settings and 'quadratic' in str(settings['fit']):
         pa, paerr, pb, pberr, pc, pcerr, chi2, ndf, conf_intervals = fitline2(rootobject, quadratic=True)
         def func(x):
             return pc*x*x + pb*x + pa
