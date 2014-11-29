@@ -6,8 +6,9 @@ import ROOT
 import numpy
 import math
 import matplotlib.mlab as mlab
+import dictionaries
 
-def fit(ax, quantity, rootobject, settings, color='black', label="", index=0, 
+def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
                                                                 scalefactor=1, offset=None):
     """One of several fits is added to an axis element, fit parameters are added as text element."""
     #TODO: Review this function! Find a better design approach
@@ -15,7 +16,6 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
     if color in ['#CBDBF9', 'lightskyblue']: color = 'blue'
 
     limits = settings['x']
-
     if settings['fit']=='vertical':
         if quantity == 'METpt': unit = r' \/ / \/ GeV'
         else: unit = ""
@@ -35,15 +35,51 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
         intercept, ierr, chi2, ndf = fitline(rootobject, limits)
         #account for scaling and rebinning:
         intercept = scalefactor * intercept
-        ax.axhline(intercept, color=color, linestyle='--')
-        ax.axhspan(intercept+ierr, intercept-ierr, color=color, alpha=0.2)
+        ax.axhline(intercept, color=color, linestyle='-')
+        #ax.axhspan(intercept+ierr, intercept-ierr, color=color, alpha=0.2)
 
         # and display chi^2
         ax.text(0.97, 0.25-(index/10.), r"y average: %1.3f$\pm$%1.3f" % (intercept, ierr),
         va='top', ha='right', transform=ax.transAxes, color=color)
         ax.text(0.97, 0.20-(index/10.), r"$\chi^2$ / n.d.f. = {0:.2f} / {1:.0f} ".format(chi2, ndf),
         va='top', ha='right', transform=ax.transAxes, color=color)
-         
+
+    elif 'fit' in settings and 'quadratic' in settings['fit']:
+        pa, paerr, pb, pberr, pc, pcerr, chi2, ndf, conf_intervals = fitline2(rootobject, quadratic=True)
+        def func(x):
+            return pc*x*x + pb*x + pa
+        conf_intervals = [conf_intervals[0]] + conf_intervals + [conf_intervals[-1]]
+
+        # insert a (0, 0) bin because the conf_intervals list also contains an additional (0., conf)-point
+        plot = getroot.root2histo(rootobject)
+        plot.xc.insert(0, 0.)
+
+        # fit line:
+        xvals = [limits[0]] + plot.xc + [limits[1]]
+
+        if 'function' in settings['fit']:
+            qstr = dictionaries.d_axes.get(quantity.split('_')[-1], [0,0,False])[2] or 'x'
+            fstr = dictionaries.d_axes.get(quantity.split('_')[-2], [0,0,False])[2] or 'f'
+            qstr = qstr.replace('$', '')
+            fstr = fstr.replace('$', '')
+            ax.text(0.05, 0.78-(index/15.), r"${3:s}({4:s}) = {0:.2f} {1:+.2f}\,{4:s} {2:+.4f}\,{4:s}^2$".format(pa, pb, pc, fstr, qstr),
+              va='top', ha='left', transform=ax.transAxes, color=color, size=9.5)
+            line_fit = ax.plot(xvals ,[func(x)*scalefactor for x in xvals], color = color, linestyle='-')
+
+        # display confidence intervals
+        if 'intervals' in settings['fit']:
+            ax.fill_between(xvals,
+              [(func(x)-c)*scalefactor for x, c in zip(xvals, conf_intervals)],
+              [(func(x)+c)*scalefactor for x, c in zip(xvals, conf_intervals)],
+              facecolor=color, edgecolor=color, interpolate=True, alpha=0.2)
+
+        # insert a (0, 0) bin because the conf_intervals list also contains an additional (0., conf)-point
+        plot = getroot.root2histo(rootobject)
+        plot.xc.insert(0, 0.)
+        plot.xc.append(2*plot.xc[-1] - plot.xc[-2])
+
+
+
 
     elif settings['fit'] == 'gauss' :
         p0, p0err, p1, p1err, p2, p2err, chi2, ndf, conf_intervals = fitline2(rootobject, gauss=True, limits=limits)
@@ -82,7 +118,7 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
         intercept -= offset
 
         # fit line:
-        line_fit = ax.plot(limits[:2],[(intercept+limits[0]*slope)*scalefactor, 
+        line_fit = ax.plot(limits[:2],[(intercept+limits[0]*slope)*scalefactor,
             (intercept+limits[1]*slope)*scalefactor], color = color, linestyle='--')
 
         # insert a (0, 0) bin because the conf_intervals list also contains an additional (0., conf)-point
@@ -90,9 +126,9 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
         plot.xc.insert(0, 0.)
 
         # display confidence intervals
-        ax.fill_between(plot.xc, 
+        ax.fill_between(plot.xc,
               [(intercept+x*slope + c)*scalefactor for x, c in zip(plot.xc, conf_intervals)],
-              [(intercept+x*slope - c)*scalefactor for x, c in zip(plot.xc, conf_intervals)], 
+              [(intercept+x*slope - c)*scalefactor for x, c in zip(plot.xc, conf_intervals)],
               facecolor=color, edgecolor=color, interpolate=True, alpha=0.2)
 
         if 'fitlabel_offset' in settings:
@@ -105,7 +141,7 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
             else:
                 try:
                     fit_slope_exponent = int(math.log10(abs(slope)))-1
-                    settings['fit_slope_exponent'] = fit_slope_exponent                
+                    settings['fit_slope_exponent'] = fit_slope_exponent
                 except:
                     return
             ax.text(0.97, 0.95-(index/10.)+offset, r"$\mathrm{Fit\/slope} = (%1.2f\pm%1.2f) \times 10^{%g}$" % (slope/(10**fit_slope_exponent), serr/(10**fit_slope_exponent), fit_slope_exponent),
