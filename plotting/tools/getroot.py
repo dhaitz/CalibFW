@@ -35,6 +35,7 @@ from dictionaries import ntuple_dict
 
 
 ROOT.PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
+globalnumber = 0
 
 
 def ptcuts(ptvalues):
@@ -130,6 +131,9 @@ def getselection(settings, mcWeights=False, index=0):
     mcWeights = mcWeights and settings.get('mcweights', True)
     if selection:
         weights = ["(" + " && ".join(selection) + ")"]
+    if globalnumber % 2 == 1 and settings.get('removeruns', False):
+        print "Runs are removed", globalnumber
+        weights += ["(nputruth>0.5 && run!=198049 && run!=198050 && run!=198063 && run!=201727 && run!=203830 && run!=203832 && run!=203833 && run!=203834 && run!=203835 && run!=203987 && run!=203992 && run!=203994 && run!=204100 && run!=20191411 && run!=198049 && run!=198050 && run!=198063 && run!=201727 && run!=203830 && run!=203832 && run!=203833 && run!=203834 && run!=203835 && run!=203987 && run!=203992 && run!=203994 && run!=204100 && run!=204101 && run!=208509)"]
     if mcWeights and ('noweighting' not in settings or settings['noweighting']):
         weights += ["weight"]
     if mcWeights:  # add lumi weights always?
@@ -270,7 +274,9 @@ def histofromfile(quantity, rootfile, settings, changes=None, index=0):
 
     treename = gettreename(settings)
     ntuple = objectfromfile(treename, rootfile)
-    name = quantity + rootfile.GetName()
+    global globalnumber
+    globalnumber += 1
+    name = quantity + rootfile.GetName() + str(globalnumber)
     name = name.replace("/", "").replace(")", "").replace("(", "")
     #rootfile.Delete("%s;*" % name)
     quantities = quantity.split("_")
