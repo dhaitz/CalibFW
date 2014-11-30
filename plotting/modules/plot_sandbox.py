@@ -86,12 +86,16 @@ def extrapolationpaper(files, opt):
         'nbins': 6,
         'yname': 'response',
         'allalpha': True,
-        'markers': ['o', '*'],
+        'markers': ['D'],
         'ratiosubploty': [0.95, 1.025],
         'ratiosubplotfit': True,
         'ratiosubplotlegloc': 'lower left',
+        'colors': ['green'],
+        'labels': ['$p_\mathrm{T}^{\mathrm{reco}}$/$p_\mathrm{T}^{\mathrm{ptcl}}$'],
     }
+    plot1d.plot1d("recogen_alpha", files[1:], opt, changes=changes, fig_axes = [fig, ax1])
 
+    changes['markers']=['o', '*']
     for quantity, color, name in zip(['mpf','ptbalance'], [['black', 'blue'], ['red', 'maroon']],
         ['MPF', '$p_\mathrm{T}$ balance']):
         changes['labels'] = ["%s (Data)" % name, "%s (MC)" % name]
@@ -152,6 +156,22 @@ def rmspaper(files, opt):
                     #'colormap': 'copper',
                 }
         )
+def herwigpaper(files, opt):
+    files2, opt2 = plotbase.openRootFiles(["store/mc_l1.root", "work/mc_herwig.root"], opt)
+    for  quantity, suffix in zip(['recogen', '(physl5pt/genjet1pt)'],["","_l5"]):
+        changes = {'cutlabel' : 'eta',
+                'labels'  : ['Pythia 6 Tune Z2*', 'Herwig++ Tune EE3C'],
+                'y'       : [0.98, 1.05],
+                'markers' : ['o', 'd'],
+                'colors'  : ['red', 'blue'],
+                'normalize': False,
+                'mconly'  : True,
+                'nbins'   : 25,
+                'legloc'  : 'lower left',
+                'yname'   : r'Jet Response $p_{\mathrm{T}}^{\mathrm{jet}} / p_{\mathrm{T}}^{\mathrm{ptcl}}$',
+                'filename': 'recogen_physflavour_pythia-herwig' + suffix}
+        plot1d.datamcplot("%s_physflavour" % quantity, files2, opt2, changes=changes)
+
 
 def npvrhomupaper(files, opt):
     for q in ['npv', 'rho']:
@@ -272,19 +292,7 @@ def paper(files, opt):
     #plot1d.datamcplot("recogen_alpha", files[1:], opt, changes=changes)
 
     # HERWIG
-    changes = {'cutlabel' : 'eta',
-                'labels'  : ['Pythia 6 Tune Z2*', 'Herwig++ Tune EE3C'],
-                'y'       : [0.98, 1.05],
-                'markers' : ['o', 'd'],
-                'colors'  : ['red', 'blue'],
-                'normalize': False,
-                'mconly'  : True,
-                'nbins'   : 25,
-                'legloc'  : 'lower left',
-                'yname'   : r'Jet Response $p_{\mathrm{T}}^{\mathrm{jet}} / p_{\mathrm{T}}^{\mathrm{ptcl}}$',
-                'filename': 'recogen_physflavour_pythia-herwig'}
-    files2, opt2 = plotbase.openRootFiles(["work/mc.root", "work/mc_herwig.root"], opt)
-    plot1d.datamcplot("recogen_physflavour", files2, opt2, changes=changes)
+    herwigpaper(files, opt)
 
     flavour_comp(files, opt)
 
