@@ -34,6 +34,7 @@ def paper(files, opt):
     npvrhomupaper(files, opt)
 
     rmspaper(files, opt)
+    rmsmupaper(files, opt)
 
     # The response-vs-flavour plots
     #local_opt = copy.deepcopy(opt)
@@ -125,7 +126,7 @@ def npvrhopaper(files, opt):
         )
 
 
-def rmspaper(files, opt):
+def rmspaper(files, opt, yval='npv'):
     for method in ['mpf', 'ptbalance']:
         mlabelstr = "RMS(($R^\mathrm{sim} - R^{%s})/R^\mathrm{sim}$)"
         mlabel = {
@@ -142,8 +143,8 @@ def rmspaper(files, opt):
                     'y': [0.5, 47.5],
                     'z': [0, 0.3],
                     'nbins': 22,
-                    'xynames': ["zpt", "npv", mlabel.get(method, mlabel['notfound'])],
-                    'filename': '2D_RMS_%s' % method,
+                    'xynames': ["zpt", yval, mlabel.get(method, mlabel['notfound'])],
+                    'filename': '2D_RMS_%s_%s' % (method, yval),
                     #'labels': ["RMS((recogen-%s)/recogen)" % method],
                     'labels': [''],
                     'cutlabel': 'eta',
@@ -155,6 +156,8 @@ def rmspaper(files, opt):
                 }
         )
 
+def rmsmupaper(files, opt):
+    rmspaper(files, opt, 'nputruth')
 
 def herwigpaper(files, opt):
     files2, opt2 = plotbase.openRootFiles(["store/mc_l1.root", "work/mc_herwig.root"], opt)
@@ -174,6 +177,7 @@ def herwigpaper(files, opt):
 
 
 def npvrhomupaper(files, opt):
+    """npv vs. mu and rho vs. mu profile plots with quadratic fit"""
     for q in ['npv', 'rho']:
         print opt.selection
         changes = {
