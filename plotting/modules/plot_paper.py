@@ -122,16 +122,19 @@ def npvrhopaper(files, opt):
                 'yname': 'Events per bin',
         }
         if quantity == 'nputruth':
-            changes['nbins'] = 40
+            changes['nbins'] = 200
             changes['x'] = [0, 40]
-            changes['y'] = [0, 1.1e6]
-            filelist = filelist[1:]
-            changes['labels'] = ['Data'] 
-            changes['makers'] = ['f']
+            changes['y'] = [0, 1.3e5]
+            filelist.reverse()
+            changes['labels'] = ['Data', 'Data']
+            changes['markers'] = ['f']
+            changes['colors'] = ['SteelBlue']*2
+            changes['nolumilabel'] = False
         if quantity == 'rho':
             changes['yname'] = 'Events per GeV'
-            changes['y'] = [0, 8e5]
-	plot1d.plot1dFromFilenames(quantity, filelist, opt, changes)
+            changes['y'] = [0, 1.1e6]
+        print 'pap', changes
+	plot1d.plot1dFromFilenames(quantity, filelist, opt, changes=changes)
 
 
 def rmspaper(files, opt, yval='npv'):

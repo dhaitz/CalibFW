@@ -148,7 +148,7 @@ def openRootFiles(filenames, opt=None):
     """
         Open the root files and read out the meta information
     """
-    if len(filenames) == None:
+    if filenames == None or len(filenames) == 0:
         return [], opt
 
     print "Number of files:", len(filenames)
