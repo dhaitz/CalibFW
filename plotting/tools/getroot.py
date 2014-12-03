@@ -158,7 +158,12 @@ def getBinning(quantity, settings, axis='x'):
     # variants: special_binning, float, int, log,
     xmin = settings[axis][0]
     xmax = settings[axis][1]
-    nbins = settings['nbins']
+    if axis == 'x':
+        nbins = settings['nbins']
+    elif axis == 'y' and 'nybins' in settings:
+        nbins = settings['nybins']
+    else:
+        nbins = 20
 
     if nbins < 0:
         pass  # set it automatically
