@@ -18,7 +18,7 @@ import plot_sandbox
 def paper(files, opt):
     """ Plots for the 2012 JEC paper. """
     # The Z pT vs alpha plot requested by Viola 23.10.14
-    plot1d.datamcplot("zpt_alpha", files, opt, changes={
+    changes={
         'allalpha': True,
         'nbins': 6,
         'x': [0, 0.3],
@@ -26,7 +26,9 @@ def paper(files, opt):
         'y': [0, 250],
         'markers': ['o', '-'],
         'grid': True,
-    })
+    }
+    #plot1d.datamcplot("zpt_alpha", files, opt, changes=changes)
+
 
     extrapolationpaper(files, opt)
 
