@@ -11,7 +11,7 @@ def labels(ax, opt, settings, subplot=False, mc=False):
     if not (settings['ratio'] and settings['subplot']
             and not settings['fit'] == 'intercept'):
 
-        lumilabel(ax, settings['lumi'], settings['energy'], not settings.get('nolumilabel', False), withlumi=('data'in settings['types']))
+        lumilabel(ax, settings['lumi'], settings['energy'], withlumi=not settings.get('nolumilabel', False) and ('data'in settings['types']))
         statuslabel(ax, settings['status'])
         #if jet==True:  jetlabel(ax, changes, sub_plot)    # on demand
         #if changes.has_key('var') or changes.has_key('bin'):

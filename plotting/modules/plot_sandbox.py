@@ -109,6 +109,7 @@ def flavour_comp(files, opt, changes=None):
         'legbox': (0.04, 0.3),
         'legendframe': True,
         'legendcolumns': 2,
+        'nolumilabel': True,
         'cutlabel': 'eta',
         'cutlabeloffset': 0.07,
         'mconly'  : True,

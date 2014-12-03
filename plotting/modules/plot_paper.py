@@ -179,6 +179,7 @@ def herwigpaper(files, opt):
                 'colors'  : ['red', 'blue'],
                 'normalize': False,
                 'mconly'  : True,
+                'nolumilabel': True,
                 'nbins'   : 25,
                 'legloc'  : 'lower left',
                 'yname'   : r'Jet Response $p_{\mathrm{T}}^{\mathrm{jet}} / p_{\mathrm{T}}^{\mathrm{ptcl}}$',
