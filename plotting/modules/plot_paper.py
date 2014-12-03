@@ -109,21 +109,29 @@ def extrapolationpaper(files, opt):
 
 
 def npvrhopaper(files, opt):
-    ##basic rho and npv plots
-    for quantity, yrange in zip(['npv', 'rho'], [[0, 1e6], [0, 1.1e6]]):
-        plot1d.plot1dFromFilenames(quantity,
-            ['work/data.root', 'work/mc.root'],
-            opt,
-            changes={
+    """basic rho and npv plots"""
+    for quantity in ['npv', 'rho', 'nputruth']:
+        filelist = ['work/data.root', 'work/mc.root'] 
+        changes={
                 'folder': 'all',
                 'labels': ['Data', 'MC'],
-                'nbins': 35,
-                'x': [-0.5, 34.5],
-                'y': yrange,
+                'nbins': 36,
+                'x': [-0.5, 35.5],
+                'y': [0, 1e6],
                 'noautoscale': True,
-                'yname': 'Events per bin' if quantity == 'npv' else 'Events per GeV',
-            }
-        )
+                'yname': 'Events per bin',
+        }
+        if quantity == 'nputruth':
+            changes['nbins'] = 40
+            changes['x'] = [0, 40]
+            changes['y'] = [0, 1.1e6]
+            filelist = filelist[1:]
+            changes['labels'] = ['Data'] 
+            changes['makers'] = ['f']
+        if quantity == 'rho':
+            changes['yname'] = 'Events per GeV'
+            changes['y'] = [0, 8e5]
+	plot1d.plot1dFromFilenames(quantity, filelist, opt, changes)
 
 
 def rmspaper(files, opt, yval='npv'):
