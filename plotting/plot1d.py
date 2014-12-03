@@ -160,6 +160,7 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, fig_axes=None):
             ax.bar(f.x, f.y, widths, bottom=bottom, #yerr=f.yerr,
                ecolor=c, label=l, fill=True, facecolor=c, edgecolor=c, lw=0)
         else:
+            f.y = numpy.ma.masked_less_equal(f.y, 0)
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c,
                                                     fmt=s, capsize=0, label=l, lw=0.8)
 
