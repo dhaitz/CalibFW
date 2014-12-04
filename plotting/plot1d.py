@@ -163,11 +163,13 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, fig_axes=None):
 
             ax.bar(f.x, f.y, widths, bottom=bottom,  # yerr=f.yerr,
                ecolor=c, label=l, fill=True, facecolor=c, edgecolor=c, lw=0)
+        elif s == 'O' or s == 'D':
+            ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', markerfacecolor='none', markeredgecolor=c, ecolor=c, fmt=s.lower(), capsize=0, label=l, lw=0.8)
         else:
             if settings.get('masked', None) is not None:
                 yMask = int(settings.get('masked', 0))
                 f.y = numpy.ma.masked_less_equal(f.y, yMask)
-            ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c,
+            ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, ecolor=c, markeredgecolor=c,
                                                     fmt=s, capsize=0, label=l, lw=0.8)
 
     if len(settings.get('fitvalues', [])) == 2:
@@ -300,7 +302,7 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None,
     if len(files) == 2:
         changes.update({
             'labels': [settings.get('ratiosubplotlabel', 'Ratio'), None],
-            'markers': ['o'],
+            'markers': settings.get('ratiomarker', ['o']),
             'xynames': [settings['xynames'][0], " / ".join(settings['labels'][:2])],
         })
     else:
