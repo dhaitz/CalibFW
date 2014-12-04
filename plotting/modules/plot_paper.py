@@ -137,7 +137,7 @@ def npvrhopaper(files, opt):
             changes['x'] = [0, 40]
             changes['y'] = [0, 1.3e5]
             filelist.reverse()
-            changes['labels'] = ['Data', 'Data']
+            changes['labels'] = [None, 'Data', 'Data']
             changes['markers'] = ['f']
             changes['colors'] = ['SteelBlue']*2
             changes['nolumilabel'] = False
