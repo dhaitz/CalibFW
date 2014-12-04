@@ -221,9 +221,6 @@ def histofromntuple(quantities, name, ntuple, settings, index=0):
     variables = ":".join(quantities)
     selection = getselection(settings, isMC, index=index)
 
-    if settings['verbose']:
-        plotbase.debug("Creating a plot with the following selection:\n   %s" % settings['selection'][index])
-
     print "Weights:", selection
 
     name += str(random.random())[2:]
@@ -245,7 +242,10 @@ def histofromntuple(quantities, name, ntuple, settings, index=0):
             print "FATAL: could not determine histogram type from", quantities
         ntuple.Project(name, variables, selection)
     else:
-        ntuple.Draw("%s>>%s(%s)" % (variables, name, settings['nbins']), selection, "goff")
+        option = 'goff'
+        if not settings['twoD']:
+            option += "prof"
+        ntuple.Draw("%s>>%s(%s)" % (variables, name, settings['nbins']), selection, option)
         roothisto = ROOT.gDirectory.Get(name)
 
     roothisto.Sumw2()
@@ -617,6 +617,8 @@ class Histo:
         text += "           yerr            ynormerr\n"
         if len(self.y) != len(self.x):
             print "This will fail because x and y have not the same length."
+            print "Length x:", len(self.x)
+            print "Length y:", len(self.y)
         if self.xc == []:
             self.xc = self.x
         for i in range(len(self.y)):
