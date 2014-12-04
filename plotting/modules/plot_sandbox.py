@@ -106,15 +106,16 @@ def flavour_comp(files, opt, changes=None):
         'nbins': 25,
         'xynames': ['physflavour', 'components'],
         'markers': ['f'],
-        'legbox': (0.04, 0.3),
+        'legbox': (0.04, 0.2),
         'legendframe': True,
-        'legendcolumns': 2,
+        'legendcolumns': 1,
         'nolumilabel': True,
         'cutlabel': 'eta',
         'cutlabeloffset': 0.07,
         'mconly'  : True,
         'y': [0, 1],
-        'legloc': '0.05,0.5'
+        'legloc': '0.05,0.5',
+        'legreverse': False,
     }
 
     for n, l, c in zip(stacked, labels, colours):

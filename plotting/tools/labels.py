@@ -38,16 +38,19 @@ def labels(ax, opt, settings, subplot=False, mc=False):
             textlabel(ax, settings['text'])
         if settings.get('cutlabel', None) is not None:
             cutlabel(ax, settings)
-    if type(settings['legloc']) == str and settings['legloc'] != "None" and len(settings['labels']) > 1:
+    if type(settings['legloc']) == str and settings['legloc'] != "None" and len(settings['labels']) > 1:  # legend
         if "," in settings['legloc']:
             settings['legloc'] = ([float(i) for i in settings['legloc'].split(",")])
-        d = {}
+        handles, labels = ax.get_legend_handles_labels()
+        if settings.get('legreverse', False):
+            handles.reverse()
+            labels.reverse()
         legbox = settings.get('legbox', False)
         if type(legbox) == tuple:
-            legend = ax.legend(loc=settings['legloc'], ncol=int(settings.get('legendcolumns', 1)),
+            legend = ax.legend(handles, labels, loc=settings['legloc'], ncol=int(settings.get('legendcolumns', 1)),
                 frameon=settings.get('legendframe', False), bbox_to_anchor=legbox)
         else:
-            legend = ax.legend(loc=settings['legloc'], ncol=int(settings.get('legendcolumns', 1)),
+            legend = ax.legend(handles, labels, loc=settings['legloc'], ncol=int(settings.get('legendcolumns', 1)),
                 frameon=settings.get('legendframe', False))
 
         legend.get_frame().set_lw(0.4)
