@@ -421,7 +421,7 @@ def getaxislabels_list(quantity, ax=None):
     elif quantity in d_axes:
         labels_list = [d_axes[quantity][0], d_axes[quantity][1], d_axes[quantity][2], d_axes[quantity][3]]
     else:
-        labels_list = [0, 1, quantity, ""]
+        labels_list = [0, 0, quantity, ""]
     return labels_list
 
 

@@ -224,7 +224,7 @@ def histofromntuple(quantities, name, ntuple, settings, index=0):
     print "Weights:", selection
 
     name += str(random.random())[2:]
-    if settings['x'] != [0, 1]:
+    if settings['x'] != [0, 0]:
         xbins = getBinning(quantities[-1], settings)
         if settings['twoD'] and len(quantities) > 1:
             ybins = getBinning(quantities[-2], settings, 'y')

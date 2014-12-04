@@ -186,7 +186,7 @@ def formatting(ax, settings, opt, mplhistos, rootobjects=None):
     # determine axis limits if not automatically determined
     # TODO is there a better place for this?
     if rootobjects is not None:
-        if settings['x'] == [0, 1]:
+        if settings['x'] == [0, 0]:
             settings['x'][0] = min([histo.GetXaxis().GetXmin() for histo in rootobjects])
             settings['x'][1] = max([histo.GetXaxis().GetXmax() for histo in rootobjects])
             print "determine x axis borders automatically:", ",".join([str(x) for x in settings['x']])
