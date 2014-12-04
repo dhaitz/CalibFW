@@ -210,11 +210,12 @@ def npvrhomupaper(files, opt):
             'masked': 0,
             'markers': ['o', 'd'],
             'colors': ['black', 'green'],
-            'nbins': 31,
+            'nbins': 41,
             'folder': 'all',
             'fit': 'quadratic_function',
-            'x': [-0.5, 30.5],
-            'y': [0, 30],
+            'x': [-0.5, 40.5],
+            'y': [0, 30] if q == "rho" else [0, 33],
             'legloc': 'lower right',
+            'legreverse': True,
         }
         plot1d.datamcplot("%s_nputruth" % q, files, opt, changes=changes)
