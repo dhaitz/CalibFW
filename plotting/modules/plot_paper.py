@@ -198,6 +198,7 @@ def npvrhomupaper(files, opt):
         print opt.selection
         changes = {
             'removeruns': True,
+            'masked': 0,
             'markers': ['o', 'd'],
             'colors': ['black', 'green'],
             'nbins': 31,
