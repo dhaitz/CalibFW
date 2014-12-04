@@ -78,7 +78,8 @@ def paper(files, opt):
 def extrapolationpaper(files, opt):
     #new extrapolation plot
     fig, ax1, ax2 = plotbase.newPlot(ratio=True)
-    changes = {'subplot': True,
+    changes = {
+        'subplot': True,
         'y': [0.85, 1.07],
         'fit': True,
         'x': [0, 0.3],
@@ -86,23 +87,31 @@ def extrapolationpaper(files, opt):
         'nbins': 6,
         'yname': 'response',
         'allalpha': True,
-        'markers': ['D'],
-        'ratiosubploty': [0.95, 1.025],
+        'markers': ['*'],
+        'legreverse': True,
+        'ratiosubploty': [0.975, 1.025],
         'ratiosubplotfit': True,
         'ratiosubplotlegloc': 'lower left',
         'colors': ['green'],
         'labels': ['$p_\mathrm{T}^{\mathrm{reco}}$/$p_\mathrm{T}^{\mathrm{ptcl}}$'],
     }
     plot1d.plot1d("recogen_alpha", files[1:], opt, changes=changes, fig_axes = [fig, ax1])
-
-    changes['markers'] = ['o', '*']
-    for quantity, color, name in zip(['mpf', 'ptbalance'], [['black', 'blue'], ['red', 'maroon']],
-        ['MPF', '$p_\mathrm{T}$ balance']):
-        changes['labels'] = ["%s (Data)" % name, "%s (MC)" % name]
-        changes['colors'] = color
-        changes['ratiosubplotlabel'] = name
-        plot1d.plot1dratiosubplot("%s_alpha" % quantity, files, opt, changes=changes,
-                fig_axes=[fig, ax1, ax2])
+    changes.update({
+        'markers': ['O', 'S'],
+        'ratiomarker': ['O'],
+        'ratiosubplotlabel': '$p_\mathrm{T}$ balance',
+        'colors': ['DarkRed', 'Orange'],
+    })
+    changes['labels'] = ["%s (%s)" % (changes['ratiosubplotlabel'], t) for t in ['Data', 'MC']]
+    plot1d.plot1dratiosubplot("ptbalance_alpha", files, opt, changes=changes, fig_axes=[fig, ax1, ax2])
+    changes.update({
+        'markers': ['o', 's'],
+        'ratiomarker': ['o'],
+        'ratiosubplotlabel': 'MPF',
+        'colors': ['Navy', 'DodgerBlue'],
+    })
+    changes['labels'] = ["%s (%s)" % (changes['ratiosubplotlabel'], t) for t in ['Data', 'MC']]
+    plot1d.plot1dratiosubplot("mpf_alpha", files, opt, changes=changes, fig_axes=[fig, ax1, ax2])
 
     ax2.set_ylabel("Data / MC")
     settings = plotbase.getSettings(opt, quantity='response_alpha')
