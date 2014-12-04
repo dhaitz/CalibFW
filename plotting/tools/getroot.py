@@ -133,7 +133,7 @@ def getselection(settings, mcWeights=False, index=0):
         weights = ["(" + " && ".join(selection) + ")"]
     if globalnumber % 2 == 1 and settings.get('removeruns', False):
         print "Runs are removed", globalnumber
-        weights += ["(nputruth>0.5 && run!=198049 && run!=198050 && run!=198063 && run!=201727 && run!=203830 && run!=203832 && run!=203833 && run!=203834 && run!=203835 && run!=203987 && run!=203992 && run!=203994 && run!=204100 && run!=20191411 && run!=198049 && run!=198050 && run!=198063 && run!=201727 && run!=203830 && run!=203832 && run!=203833 && run!=203834 && run!=203835 && run!=203987 && run!=203992 && run!=203994 && run!=204100 && run!=204101 && run!=208509 && run!=202973 && run!=206207)"]
+        weights += ["(nputruth>4.5 && run!=191411 && run!=198049 && run!=198050 && run!=198063 && run!=201727 && run!=203830 && run!=203832 && run!=203833 && run!=203834 && run!=203835 && run!=203987 && run!=203992 && run!=203994 && run!=204100 && run!=204101 && run!=208509 && run!=202973 && run!=206207)"]
     if mcWeights and ('noweighting' not in settings or settings['noweighting']):
         weights += ["weight"]
     if mcWeights:  # add lumi weights always?
