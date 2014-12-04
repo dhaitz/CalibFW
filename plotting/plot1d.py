@@ -137,6 +137,10 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, fig_axes=None):
         if settings['verbose']:
             print "\n\033[92mHistogram for '%s'\033[0m\n" % l, f
 
+        if settings['fit'] is not None and ("MC" not in l or settings['run'] is
+                                                                    not "diff"):
+            plotbase.fit(ax, quantity, rootobj, settings, c, l,
+                                           index, scalefactor, offset)
         if s == 'f':
             if settings['special_binning']:
                 widths = [(a - b) for a, b in zip(f.x[1:], f.x[:-1])]
@@ -157,7 +161,7 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, fig_axes=None):
             else:
                 bottom = numpy.ones(len(f.x)) * 1e-6
 
-            ax.bar(f.x, f.y, widths, bottom=bottom, #yerr=f.yerr,
+            ax.bar(f.x, f.y, widths, bottom=bottom,  # yerr=f.yerr,
                ecolor=c, label=l, fill=True, facecolor=c, edgecolor=c, lw=0)
         else:
             if settings.get('masked', None) is not None:
@@ -166,10 +170,6 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, fig_axes=None):
             ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c,
                                                     fmt=s, capsize=0, label=l, lw=0.8)
 
-        if settings['fit'] is not None and ("MC" not in l or settings['run'] is
-                                                                    not "diff"):
-            plotbase.fit(ax, quantity, rootobj, settings, c, l,
-                                           index, scalefactor, offset)
     if len(settings.get('fitvalues', [])) == 2:
         ratio = settings['fitvalues'][1][0] / settings['fitvalues'][0][0]
         ratioerr = math.sqrt(settings['fitvalues'][1][1] ** 2 + settings['fitvalues'][0][1] ** 2)
