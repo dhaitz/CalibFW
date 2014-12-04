@@ -11,6 +11,7 @@ import argparse
 import matplotlib
 import subprocess
 import artus
+import os
 
 import plotbase
 import modules.plotrc as plotrc
@@ -325,6 +326,22 @@ def get_git_revision_short_hash():
     return out[:-1]
 
 
+htmlTemplate = """<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">div { float:left; }</style>
+</head>
+<body>
+<h1>Plot overview</h1>
+<p>A <a href=".">file list</a> is also available and all plots can be downloaded using</p>
+<p><code>wget -r -l 1 %s</code></p>
+%s
+</body>
+</html>
+"""
+htmlTemplatePlot = """<div><a href="%s" title="%s"><img src="%s" height="400"></a></div>\n"""
+
+
 if __name__ == "__main__":
     """ This is the starting point for plotting.
         1. Get options  from command line
@@ -354,12 +371,33 @@ if __name__ == "__main__":
 
     plotbase.plot(opt)
 
-    if opt.www:
-        subprocess.call(['. plotsync.sh'], shell=True)
-        exit(0)
-
     user = artus.getPath('USER')
     userpc = "%s@%s" % (user, artus.getPath('USERPC'))
+
+    if opt.www:
+        if not os.path.exists(opt.out):
+            print "No syncdir %r found!" % opt.out
+            exit(1)
+        print "Copying plots to webspace..."
+        # make gallery
+        date = '2014_12_04'
+        url = "http://www-ekp.physik.uni-karlsruhe.de/~%s/plots_archive/%s/overview.html" % (user, date)
+        plots = sorted(os.listdir(opt.out))
+        content = ""
+        for plot in [p for p in plots if '.png' in p]:
+            href = plot.replace('.png', '.pdf')
+            if href not in plots:
+                href = plot
+            content += htmlTemplatePlot % (href, plot.split('/')[-1][:-4], plot)
+        with open(opt.out + '/overview.html', 'w') as f:
+            f.write(htmlTemplate % (url, content))
+        # sync
+        command = ['rsync'] + [os.path.join(opt.out, p) for p in plots] + ['%s:/disks/ekpwww/web/%s/public_html/plots_archive/%s/' % (userpc, user, date)]
+        print command
+        subprocess.call(command)
+        print "Copied %d plots to %s" % (len(plots), url)
+        exit(0)
+
     if opt.live:
         imageviewer = 'evince'
         image = '%s.%s' % (opt.filename, opt.formats[0])
