@@ -12,6 +12,7 @@ import matplotlib
 import subprocess
 import artus
 import os
+import datetime
 
 import plotbase
 import modules.plotrc as plotrc
@@ -380,7 +381,7 @@ if __name__ == "__main__":
             exit(1)
         print "Copying plots to webspace..."
         # make gallery
-        date = '2014_12_04'
+        date = datetime.date.today().strftime('%Y_%m_%d')
         url = "http://www-ekp.physik.uni-karlsruhe.de/~%s/plots_archive/%s/overview.html" % (user, date)
         plots = sorted(os.listdir(opt.out))
         content = ""
