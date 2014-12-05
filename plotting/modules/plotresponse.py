@@ -497,7 +497,7 @@ def response_physflavour(files, opt, changes=None, settings=None,
 
     
     markers = ['o', 's', '*', 'd']
-    colors = ['red', 'black', 'lightskyblue', 'yellowgreen', ]
+    colors = ['red', 'black', 'blue', 'green', ]
     
     if l5:
         suffix = 'algo'
@@ -679,7 +679,7 @@ def physflavour_extrapol(files, opt, changes=None, settings=None,
                 yerr += [rootobject.GetMeanError()]
 
 
-        ax.errorbar(x, y, yerr, drawstyle='steps-mid', color=c, fmt=m, 
+        ax.errorbar(x, y, yerr, drawstyle='steps-mid', color=c, fmt=m, ecolor=c,
                           capsize=0 ,label=l)
 
 
