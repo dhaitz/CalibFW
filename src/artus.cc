@@ -141,7 +141,7 @@ int main(int argc, char** argv)
 		{
 			gset.m_recovertWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "RecovertWeight");
 			gset.m_2ndJetWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "2ndJetWeight");
-			gset.m_sampleWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "SampleWeight");
+			gset.m_sampleWeight = PropertyTreeSupport::GetAsDoubleList(&g_propTree, "SampleWeights");
 			if (gset.GetEnableSampleReweighting() && gset.m_sampleWeight.size() == 0)
 				LOG_FATAL("Sample reweighting is enabled but no weights given!");
 			if (gset.GetEnableLumiReweighting() && gset.GetNEvents() < 0)

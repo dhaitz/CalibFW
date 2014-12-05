@@ -95,18 +95,58 @@ def ApplySampleReweighting(conf, sample="herwig", referencelumi_fbinv=1.0):
     """Weights for pt hat binned samples"""
     picobarn2femtobarn = 1000
     d = {
-        "herwig": [
-            0.0,  # 400.8834/6167020,# 0-15 (not existing, prep/das inconsistent)
-            70.551230 / 200000,  # 15-20
-            77.535330 / 150154,  # 20-30 (old sample)
-            62.745670 / 150000,  # 30-50
-            28.738060 / 100160,  # 50-80 (old sample)
-            9.7459310 / 96000,   # 80-120
-            2.8100250 / 98560,   # 120-170
-            0.7702934 / 100000,  # 170-230
-            0.2142680 / 96640,   # 230-300
-            0.08858213 / 90517,  # 300-inf
-        ],
+        "herwig": {
+            "weights":[
+                0.0,  # 400.8834/6167020,# 0-15 (not existing, prep/das inconsistent)
+                70.551230 / 200000,  # 15-20
+                77.535330 / 150154,  # 20-30 (old sample)
+                62.745670 / 150000,  # 30-50
+                28.738060 / 100160,  # 50-80 (old sample)
+                9.7459310 / 96000,   # 80-120
+                2.8100250 / 98560,   # 120-170
+                0.7702934 / 100000,  # 170-230
+                0.2142680 / 96640,   # 230-300
+                0.08858213 / 90517,  # 300-inf
+            ],
+            "names": [
+                "0-15",
+                "15-20",
+                "20-30",
+                "30-50",
+                "50-80",
+                "80-120",
+                "120-170",
+                "170-230",
+                "230-300",
+                "300_"
+            ],
+        },
+        "herwigRD": {
+            "weights": [
+                0.0,  # 400.8834/6167020,# 0-15 (not existing, prep/das inconsistent)
+                0.0, #70.551230 / 1,  # 15-20 (not existing for RD?)
+                77.535330 / 141323,  # 20-30
+                62.745670 / 150000,  # 30-50
+                28.738060 / 100160,  # 50-80
+                9.7459310 / 100000,   # 80-120
+                2.8100250 / 100000,   # 120-170
+                0.7702934 / 121460,  # 170-230
+                0.2142680 / 100000,   # 230-300
+                0.08858213 / 100000,  # 300-inf
+            ],
+            "names": [
+                "0-15",
+                "15-20",
+                "20-30",
+                "30-50",
+                "50-80",
+                "80-120",
+                "120-170",
+                "170-230",
+                "230-300",
+                "300_"
+            ],
+        },
     }
 
     if sample not in d:
@@ -115,9 +155,10 @@ def ApplySampleReweighting(conf, sample="herwig", referencelumi_fbinv=1.0):
         print "Please add them in ArtusConfigBase or do not use ApplySampleReweighting."
         exit(0)
 
-    result = [picobarn2femtobarn * referencelumi_fbinv * w for w in d[sample]]
+    result = [picobarn2femtobarn * referencelumi_fbinv * w for w in d[sample]['weights']]
     conf["EnableSampleReweighting"] = True
-    conf["SampleWeight"] = result
+    conf["SampleWeights"] = result
+    conf["SampleNames"] = d[sample]['names']
     return conf
 
 

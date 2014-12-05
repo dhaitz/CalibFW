@@ -16,7 +16,7 @@ class KappaEventProvider: public EventProvider<TEventType>
 {
 public:
 	KappaEventProvider(FileInterface2& fi, InputTypeEnum inpType, boost::property_tree::ptree propTree) :
-		m_prevRun(-1), m_prevLumi(-1), m_inpType(inpType), m_fi(fi)
+		m_prevRun(-1), m_prevLumi(-1), m_inpType(inpType), m_fi(fi), samplenames(PropertyTreeSupport::GetAsStringList(&propTree, "SampleNames"))
 	{
 		// setup pointer to collections
 		m_event.m_eventproduct = fi.Get<KEventMetadata>();
@@ -53,32 +53,24 @@ public:
 		m_event.m_pthatbin = sampleinit;
 
 		// this should be avoided, weights should be in skim!
+		//m_event.m_pthatbin = -1; set to -1 somewhere once if sample rew. is off set to -2 if enabled
 		if (m_event.m_pthatbin != -1)
 		{
-			//m_event.m_pthatbin = -1; set to -1 somewhere once if sample rew. is off set to -2 if enabled
+		    if (samplenames.size() < 1)
+    		    LOG_FATAL("Sample reweighting enabled but no names given?")
+		
 			std::string filename = m_fi.eventdata.GetFile()->GetName();
-			if (boost::algorithm::contains(filename, "_Pt-0to15_"))
-				m_event.m_pthatbin = 0;
-			else if (boost::algorithm::contains(filename, "_Pt-15to20_"))
-				m_event.m_pthatbin = 1;
-			else if (boost::algorithm::contains(filename, "_Pt-20to30_"))
-				m_event.m_pthatbin = 2;
-			else if (boost::algorithm::contains(filename, "_Pt-30to50_"))
-				m_event.m_pthatbin = 3;
-			else if (boost::algorithm::contains(filename, "_Pt-50to80_"))
-				m_event.m_pthatbin = 4;
-			else if (boost::algorithm::contains(filename, "_Pt-80to120_"))
-				m_event.m_pthatbin = 5;
-			else if (boost::algorithm::contains(filename, "_Pt-120to170_"))
-				m_event.m_pthatbin = 6;
-			else if (boost::algorithm::contains(filename, "_Pt-170to230_"))
-				m_event.m_pthatbin = 7;
-			else if (boost::algorithm::contains(filename, "_Pt-230to300_"))
-				m_event.m_pthatbin = 8;
-			else if (boost::algorithm::contains(filename, "_Pt-300_"))
-				m_event.m_pthatbin = 9;
-			else
-				LOG_FATAL("No pthat bin found but sample weights expected: " << filename << " (bin: " << m_event.m_pthatbin << ")");
+            bool weight_found = false;
+			for (unsigned int i = 0; i < samplenames.size(); i++)
+			{
+				if (boost::algorithm::contains(filename, samplenames.at(i)) && !weight_found)
+    			{
+    				m_event.m_pthatbin = i;
+    				weight_found = true;
+    			}
+			}
+			if (!weight_found)
+			LOG_FATAL("No pthat bin found but sample weights expected: " << filename << " (bin: " << m_event.m_pthatbin << ")");
 		}
 
 		if (m_prevRun != m_event.m_eventproduct->nRun)
@@ -145,11 +137,11 @@ protected:
 	TEventType m_event;
 
 	InputTypeEnum m_inpType;
-	bool phicorrection;
-	bool tagged;
 	boost::scoped_ptr<ProgressMonitor> m_mon;
 
 	FileInterface2& m_fi;
+
+	std::vector<std::string> samplenames;
 };
 
 }
