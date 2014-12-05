@@ -340,7 +340,7 @@ htmlTemplate = """<!DOCTYPE html>
 </body>
 </html>
 """
-htmlTemplatePlot = """<div>%s:<br><a href="%s" title="%s"><img src="%s" height="400"></a></div>\n"""
+htmlTemplatePlot = """<div><h3>%s</h3><a href="%s" title="%s"><img src="%s" height="400"></a></div>\n"""
 
 
 if __name__ == "__main__":
@@ -389,7 +389,8 @@ if __name__ == "__main__":
             href = plot.replace('.png', '.pdf')
             if href not in plots:
                 href = plot
-            content += htmlTemplatePlot % (href, plot, plot.split('/')[-1][:-4], plot)
+            title = plot.split('/')[-1][:-4].replace('_', ' ')
+            content += htmlTemplatePlot % (title, href, title, plot)
         with open(opt.out + '/overview.html', 'w') as f:
             f.write(htmlTemplate % (url, content))
         plots.append("overview.html")
