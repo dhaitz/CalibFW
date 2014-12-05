@@ -1,13 +1,14 @@
 import ArtusConfigBase as base
-import socket
 
 def config():
-    conf = base.BaseConfig('mc', '2012')
-    conf["InputFiles"] = "/storage/a/dhaitz/skims/2014_05_12_Herwig/*.root"
-    #base.ApplyPUReweighting(conf, 'kappa539_MC12_herwig_190456-208686_8TeV_22Jan2013ReReco')
-    #conf['PileupWeights'] = base.getPath() + 
-    base.ApplySampleReweighting(conf)
-    conf = base.expand(conf, ['all', 'zcuts', 'incut'])
-    if socket.gethostname().startswith('naf'):
-        conf['InputFiles'] = "/pnfs/desy.de/cms/tier2/store/user/dhaitz/2014_05_07_herwig"
-    return conf
+    cfg = base.BaseConfig('mc', '2012', rundepMC=True, flavourCorrections=True)
+    cfg["InputFiles"] = base.setInputFiles(
+        ekppath="",
+        nafpath="/pnfs/desy.de/cms/tier2/store/user/dhaitz/2014_11_25_mm_mc_herwig"
+    )
+    base.ApplySampleReweighting(cfg, sample = 'herwigRD')
+    cfg['RC'] = True
+    cfg['EnableLumiReweighting'] = False
+    cfg['EnableTriggerReweighting'] = False
+    cfg = base.expand(cfg, ['all', 'zcuts', 'incut'])
+    return cfg
