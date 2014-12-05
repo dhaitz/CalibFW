@@ -47,6 +47,7 @@ def tagging(files, opt):
     tagging_stacked(files, opt)
     tagging_response(files, opt)
     tagging_response_corrected(files, opt)
+    tagging_zpt(files, opt)
 
 
 def tagging_truthfraction(files, opt):
@@ -57,6 +58,7 @@ def tagging_truthfraction(files, opt):
        changes = {'selection':['%s>0' % flavourdef],
                 'xynames':[tagger, "Fraction of %s" % flavour],
                 'filename':"_".join([flavour, tagger]),
+                'y': [0, 1],
                 'legloc':'None',
                 'types': ['mc'],
                 }
@@ -315,4 +317,24 @@ def tagging_response(files, opt, PFcorrection = False):
     plotbase.Save(fig_raw, settings)
 
     files.reverse()
+
+def tagging_zpt(files, opt):
+    """Do a flavour vs pT plot for all the zones."""
+    for zone, title in zip(zones_extended, titles_extended):
+            changes = {
+                'y': [0, 1],
+                'yname': 'Flavour fraction ',
+                'selection': ['%s > 0 && %s' % (flavourdef, zone)],
+                'special_binning': True,
+                'yquantities': selections,
+                'x': [30, 1000],
+                'xlog': True,
+                'xticks':[30, 50, 70, 100, 200, 400, 1000],
+                'labels': ['uds', 'c', 'b', 'g'],
+                'markers': ['o', 'D', '-', '*'],
+                'title': "%s-zone" % title,
+                'filename': "flavour_zpt_%s_%s" % (title, flavourdef[:4]),
+            }
+            plot1d.plot1dFromFilenames("%s_zpt" % flavourdef, ["work/mc.root"]*4, opt, changes=changes)
+    
 
