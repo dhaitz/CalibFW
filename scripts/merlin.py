@@ -289,7 +289,7 @@ def options(
     opt.git_commit_hash = get_git_revision_short_hash()
 
     if opt.www:
-        opt.out = artus.getPath('SYNCDIR')
+        opt.out = artus.getPath('SYNCDIR') + "/" + datetime.date.today().strftime('%Y_%m_%d')
     elif opt.live:
         opt.filename = 'plot'
         opt.formats = ['pdf']
@@ -340,7 +340,7 @@ htmlTemplate = """<!DOCTYPE html>
 </body>
 </html>
 """
-htmlTemplatePlot = """<div><a href="%s" title="%s"><img src="%s" height="400"></a></div>\n"""
+htmlTemplatePlot = """<div>%s:<br><a href="%s" title="%s"><img src="%s" height="400"></a></div>\n"""
 
 
 if __name__ == "__main__":
@@ -389,13 +389,14 @@ if __name__ == "__main__":
             href = plot.replace('.png', '.pdf')
             if href not in plots:
                 href = plot
-            content += htmlTemplatePlot % (href, plot.split('/')[-1][:-4], plot)
+            content += htmlTemplatePlot % (href, plot, plot.split('/')[-1][:-4], plot)
         with open(opt.out + '/overview.html', 'w') as f:
             f.write(htmlTemplate % (url, content))
+        plots.append("overview.html")
         # sync
         command = ['rsync'] + [os.path.join(opt.out, p) for p in plots] + ['%s:/disks/ekpwww/web/%s/public_html/plots_archive/%s/' % (userpc, user, date)]
         subprocess.call(command)
-        print "Copied %d plots to %s" % (len(plots), url)
+        print "Copied %d plots to %s" % (len(plots) - 1, url)
         exit(0)
 
     if opt.live:
