@@ -133,6 +133,8 @@ d_axes = {
         'photonresponse': [0, 1., r"%s photon fraction * response", ""],
         'pt': [0, 250, r"$p_\mathrm{T}$", 'GeV'],
         'ptbalance': [0., 2., r"$p_\mathrm{T}$ balance", ""],
+        'qgtag': [0., 1., "qgtag", ""],
+        'btag': [0., 1., "btag", ""],
         'ratio': [0.95, 1.05, r"%s / %s ratio", ""],
         'rawMETpt': [0, 80, r"$E_\mathrm{T}^\mathrm{miss}$ (RAW)", 'GeV'],
         'reco': [0, 35, r"Number of Reconstructed Vertices $n$", ""],

@@ -54,30 +54,35 @@ def tagging_truthfraction(files, opt):
 
     for tagger, flavour, selection in zip(['qgtag', 'btag'], ['uds', 'b'], 
                                 ['(%s<4)' % flavourdef,'(%s==5)' % flavourdef]):
-       changes = {'selection':'%s>0' % flavourdef,
+       changes = {'selection':['%s>0' % flavourdef],
                 'xynames':[tagger, "Fraction of %s" % flavour],
                 'filename':"_".join([flavour, tagger]),
                 'legloc':'None',
-                'lumi':0}
+                'types': ['mc'],
+                }
        quantity = "_".join([selection, tagger])
-       plot1d.datamcplot(quantity, files[1:], opt, changes=changes)
+       plot1d.plot1d(quantity, files[1:], opt, changes=changes)
 
 
 def tagging_truthflavour(files, opt):
     """Simple plots: Average tagger value vs. MC Truth flavour."""
     for tagger in taggers:
-        changes = {'selection':'%s > -1' % tagger, 'legloc':'None', 'colors':['maroon'],
+        changes = {'selection':['%s > -1' % tagger], 'legloc':'None', 'colors':['maroon'],
                     'filename':'tagger-TRUTHtest_%s' % tagger,
                 }
         plot1d.datamcplot('%s_%s' % (tagger, flavourdef), files[1:], opt, changes=changes)
 
 def tagging_2D(files, opt):
     """2D plots of the btag and qgtag distribution."""
-    for rebin in [1, 10]:
+    for nbins in [10, 100]:
         for selection, title in zip(selections, titles):
-            changes = {#'selection':'%s' % selection,
+            changes = {
+                        #'selection':['%s' % selection],
+                        'z': [0, 1],
+                        'nbins': nbins,
+                        'nybins': nbins,
                          'labels':['Fraction of %s' % title],
-                        'filename':"2D_%s_%s" % (title, rebin), 'rebin':rebin,
+                        'filename':"2D_%s_%s" % (title, nbins),
                     }
             plot2d.twoD('%s_qgtag_btag' % selection, files[1:], opt, changes=changes)
 
@@ -102,23 +107,29 @@ def tagging_mpf(files, opt):
         fig, ax = plotbase.newPlot()
 
         # determine a scalefactor such that the event-sum of the MCs corresponds to data
-        settings = plotbase.getSettings(opt, {'selection':'(%s)' % zone}, quantity=response)
+        settings = plotbase.getSettings(opt, {'selection':['(%s)' % zone]}, quantity=response)
         a = getroot.root2histo(getroot.histofromfile(response, files[0], settings), "xx", 1).ysum()
-        settings = plotbase.getSettings(opt, {'selection':'(%s && %s)' % (zone, stacked[0])}, quantity=response)
+        settings = plotbase.getSettings(opt, {'selection':['(%s && %s)' % (zone, stacked[0])]}, quantity=response)
         b = getroot.root2histo(getroot.histofromfile(response, files[1], settings), "xx", 1).ysum()
         scalefactor = a/b
 
         for selection, title, color in zip(stacked, l_titles, l_colors):
-            changes = {'selection':'%s ' % " && ".join([selection, zone]), 'labels':["%s" % title], 
-                        'title':"%s-enriched" % title, 'colors':[color], 'subplot':True,
-                        'markers':'f', 'rebin':4, 'legloc':'upper right',
+            changes = {'selection':['%s ' % " && ".join([selection, zone])],
+                         'labels':["%s" % title], 
+                        'title':"%s-enriched" % title, 'colors':[color],
+                        'subplot':True,
+                        'markers':'f', 
+                        'rebin':4,
+                        'legloc':'upper right',
                         'scalefactor':scalefactor
                         }
             plot1d.datamcplot(response, files[1:], opt, (fig, ax), changes=changes)
 
 
-        changes = {'selection':'%s ' % zone, 'subplot':True, 'title':"%s-enriched" % title,
-                        'rebin':4, 'legloc':'upper right'}
+        changes = {'selection':['%s ' % zone],
+                    'subplot':True,
+                    'title':"%s-enriched" % title,
+                    'legloc':'upper right'}
         plot1d.datamcplot(response, files[:1], opt, (fig, ax), changes=changes)
         settings['filename'] = plotbase.getDefaultFilename("%s_enriched_stacked_%s" % (response, enriched), opt, settings)
         settings['title'] = 'enriched'        
@@ -126,8 +137,10 @@ def tagging_mpf(files, opt):
         
 
         # simple mpf data vs MC
-        changes = {'selection':'%s ' % zone, 'rebin':4, 'fit':'vertical',
-                    'legloc':'center right', 'filename':"mpf_enriched_%s" % enriched,
+        changes = {'selection':['%s ' % zone],
+                   'fit':'vertical',
+                    'legloc':'center right',
+                    'filename':"mpf_enriched_%s" % enriched,
                     }
         plot1d.datamcplot(response, files, opt, changes=changes)
 
@@ -152,15 +165,15 @@ def tagging_stacked(files, opt):
         fig, ax = plotbase.newPlot()
         for selection, title, color in zip(stacked, l_titles, l_colors):
 
-            changes = {'selection':'%s ' % selection, 'labels':["%s" % title], 
+            changes = {'selection':['%s ' % selection], 'labels':["%s" % title], 
                         'colors':[color], 'subplot':True,
                         'markers':'f', 'rebin':4, 'legloc':'upper center'}
             plot1d.datamcplot(tagger, files[1:], opt, (fig, ax), changes=changes)
 
         # determine a scalefactor such that the event-sum of the MCs corresponds to data
-        settings = plotbase.getSettings(opt, {'selection':'(%s>-1)' % tagger}, quantity='zpt')
+        settings = plotbase.getSettings(opt, {'selection':['(%s>-1)' % tagger]}, quantity='zpt')
         a = getroot.histofromfile('zpt', files[0], settings).GetEntries()
-        settings = plotbase.getSettings(opt, {'selection':'(%s && %s>-1)' % (stacked[0], tagger)}, quantity='zpt')
+        settings = plotbase.getSettings(opt, {'selection':['(%s && %s>-1)' % (stacked[0], tagger)]}, quantity='zpt')
         b = getroot.histofromfile('zpt', files[1], settings).GetEntries()
         scalefactor = (b/a)
 
@@ -204,14 +217,14 @@ def tagging_response(files, opt, PFcorrection = False):
             flavours = []
             mean = []
             mean_error = []
-            changes = {'x':[-1, 2], 'selection':zone}
+            changes = {'x':[-1, 2], 'selection':[zone]}
 
             # get the fraction for each TRUTH flavour:
             for quantity, label in zip(selections, zonelabels):
                 
                 if name == 'mc':
-                    changes = {'x':[-1, 2], 'selection':zone}
-                    changes['selection'] = '(%s && %s>0)' % (changes['selection'], flavourdef)
+                    changes = {'x':[-1, 2], 'selection':[zone]}
+                    changes['selection'] = ['(%s && %s>0)' % (changes['selection'][0], flavourdef)]
                     settings = plotbase.getSettings(opt, changes, quantity=quantity)
                     obj = getroot.histofromfile(quantity, ffile, settings)
 
@@ -270,7 +283,7 @@ def tagging_response(files, opt, PFcorrection = False):
     y = []
     yerr = []
     for selection in selections:
-        changes = {'selection':selection}
+        changes = {'selection':[selection]}
         settings = plotbase.getSettings(opt, changes, quantity=response)
         obj = getroot.histofromfile(response_local, files[0], settings)
         y.append(obj.GetMean())
