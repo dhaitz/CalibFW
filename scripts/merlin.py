@@ -232,7 +232,7 @@ def options(
         help="Live plotting: directly display the plot on your local EKP machine.")
     general.add_argument('-N', '--nologo', action='store_true',
         help="Don't show the merlin logo at startup")
-    general.add_argument('-w', '--www', action='store_true',
+    general.add_argument('-w', '--www', type=str, default="", nargs='?',
         help="Push output plots directly to your public EKP webspace")
     general.add_argument('--sync', action='store_true',
         help="After plotting, push all files in the output directory into the \
@@ -288,8 +288,8 @@ def options(
     opt.twoD = False
     opt.git_commit_hash = get_git_revision_short_hash()
 
-    if opt.www:
-        opt.out = artus.getPath('SYNCDIR') + "/" + datetime.date.today().strftime('%Y_%m_%d')
+    if opt.www is not "":
+        opt.out = "/".join([artus.getPath('SYNCDIR'), datetime.date.today().strftime('%Y_%m_%d'), (opt.www or "")])
     elif opt.live:
         opt.filename = 'plot'
         opt.formats = ['pdf']
@@ -379,14 +379,14 @@ if __name__ == "__main__":
     user = artus.getPath('USER')
     userpc = "%s@%s" % (user, artus.getPath('USERPC'))
 
-    if opt.www:
+    if opt.www is not "":
         if not os.path.exists(opt.out):
             print "No syncdir %r found!" % opt.out
             exit(1)
         print "Copying plots to webspace..."
         # make gallery
         date = datetime.date.today().strftime('%Y_%m_%d')
-        url = "http://www-ekp.physik.uni-karlsruhe.de/~%s/plots_archive/%s/overview.html" % (user, date)
+        url = "http://www-ekp.physik.uni-karlsruhe.de/~%s/plots_archive/%s/%s/overview.html" % (user, date, (opt.www or ""))
         plots = sorted(os.listdir(opt.out))
         content = ""
         for plot in [p for p in plots if '.png' in p]:
@@ -397,9 +397,13 @@ if __name__ == "__main__":
             content += htmlTemplatePlot % (title, href, title, plot)
         with open(opt.out + '/overview.html', 'w') as f:
             f.write(htmlTemplate % (url, content))
-        plots.append("overview.html")
+        if os.path.basename(url) not in plots:
+            plots.append(os.path.basename(url))
         # sync
-        command = ['rsync'] + [os.path.join(opt.out, p) for p in plots] + ['%s:/disks/ekpwww/web/%s/public_html/plots_archive/%s/' % (userpc, user, date)]
+        remote_dir = '/disks/ekpwww/web/%s/public_html/plots_archive/%s/%s/' % (user, date, (opt.www or ""))
+        create_dir_command = ['ssh', userpc, 'mkdir -p', remote_dir]
+        subprocess.call(create_dir_command)
+        command = ['rsync', '-u'] + [os.path.join(opt.out, p) for p in plots] + ["%s:%s" % (userpc, remote_dir)]
         subprocess.call(command)
         print "Copied %d plots to %s" % (len(plots) - 1, url)
         exit(0)
