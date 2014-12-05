@@ -330,7 +330,11 @@ def get_git_revision_short_hash():
 htmlTemplate = """<!DOCTYPE html>
 <html>
 <head>
-<style type="text/css">div { float:left; }</style>
+<style type="text/css">
+div { float:left; }
+pre { display: inline; padding: 3px 7px; font-size: 16px; background-color: #F5F5F5; border: 1px solid rgba(0, 0, 0, 0.15); border-radius: 4px; }
+h3 { color: #888; font-size: 16px; }
+</style>
 </head>
 <body>
 <h1>Plot overview</h1>
