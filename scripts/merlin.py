@@ -393,7 +393,6 @@ if __name__ == "__main__":
             f.write(htmlTemplate % (url, content))
         # sync
         command = ['rsync'] + [os.path.join(opt.out, p) for p in plots] + ['%s:/disks/ekpwww/web/%s/public_html/plots_archive/%s/' % (userpc, user, date)]
-        print command
         subprocess.call(command)
         print "Copied %d plots to %s" % (len(plots), url)
         exit(0)

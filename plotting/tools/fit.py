@@ -62,7 +62,7 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
             fstr = dictionaries.d_axes.get(quantity.split('_')[-2], [0,0,False])[2] or 'f'
             qstr = qstr.replace('$', '')
             fstr = fstr.replace('$', '')
-            ax.text(0.05, 0.63+(index/15.), r"${3:s}({4:s}) = {0:.2f} {1:+.2f}\,{4:s} {2:+.4f}\,{4:s}^2$".format(pa, pb, pc, fstr, qstr),
+            ax.text(0.05, 0.72+(index/15.), r"${3:s}({4:s}) = {0:.2f} {1:+.2f}\,{4:s} {2:+.4f}\,{4:s}^2$".format(pa, pb, pc, fstr, qstr),
               va='top', ha='left', transform=ax.transAxes, color=color, size=9.5)
             line_fit = ax.plot(xvals ,[func(x)*scalefactor for x in xvals], color = color, linestyle='-')
 
