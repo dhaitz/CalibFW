@@ -214,7 +214,7 @@ def npvrhomupaper(files, opt):
             'folder': 'all',
             'fit': 'quadratic_function',
             'x': [-0.5, 40.5],
-            'y': [0, 30] if q == "rho" else [0, 33],
+            'y': [0, 30] if q == "rho" else [0, 38],
             'legloc': 'lower right',
             'legreverse': True,
         }
