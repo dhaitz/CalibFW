@@ -29,7 +29,7 @@ class MplStyles():
 
 		# linewidth
 		'axes.linewidth': 0.4,   # thickness of main box lines
-		'axes.formatter.limits': (-3, 3),
+		'axes.formatter.limits': (-3, 3.1),
 		# 'patch.linewidth':  1.5:   # thickness of legend pictures and border
 		# 'grid.linewidth':   1.3:   # thickness of grid lines
 		# 'lines.linewidth':  2.5:   # thickness of error bars
