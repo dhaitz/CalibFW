@@ -72,7 +72,7 @@ def paper(files, opt):
     # HERWIG
     herwigpaper(files, opt)
 
-    plot_sandbox.flavour_comp(files, opt)
+    plotfractions.pfcomposition_flavour(files, opt)
 
 
 def extrapolationpaper(files, opt):

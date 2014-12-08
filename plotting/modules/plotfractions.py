@@ -388,24 +388,56 @@ def flavour_composition(files, opt, changes=None, x="zpt"):
     plotbase.Save(fig, settings)
 
 
+def pfcomposition_flavour(files, opt, changes=None):
+    """Plot the PF composition as a function of the MC truth flavour."""
 
+    flavourdef = "physflavour"
+    quantity = "components_%s" % flavourdef
+    settings = plotbase.getSettings(opt, changes, settings=None,
+                                            quantity=quantity)
+    nbr = 5
+    labels = ["N. hadron", "C. hadron", r"$\gamma$       ",  r"$e$       ",
+                                        r"$\mu$       ", "HFem", "HFhad"][:nbr]
+    labels.reverse()
+    colours = ['YellowGreen', 'LightSkyBlue', 'Orange', 'MediumBlue',
+                  'Darkred', 'yellow', 'grey'][:nbr]
+    colours.reverse()
+    components = ["neutralhad", "chargedhad", "photon",  "chargedem", "muon",
+                                                         "HFem", "HFhad"][:nbr]
+    components.reverse()
+    names = ["jet1" + component + "fraction" for component in components]
 
-plots = ['fractions_zpt', 'fractions_jet1eta', 
-        'fractions_run', 'fractions_run_nocuts', 'fractions_run_all',
-        'fractions_diff_run', 'fractions_diff_run_nocuts', 'fractions_diff_run_all',
-        'fractions_run_response', 'fractions_run_response_diff', 'fractions_run_response_all', 'fractions_run_response_diff_all'
-        ]
+    stacked = []
+    for i in range(len(names)):
+        stacked += ["(%s)" % "+".join(names[i:])]
+    fig, ax = plotbase.newPlot()
 
+    if len(files) > 1:
+        files = [files[1]]
+    changes = {
+        'subplot': True,
+        'nbins': 25,
+        'xynames': [flavourdef, 'components'],
+        'markers': ['f'],
+        'legbox': (0.04, 0.2),
+        'legendframe': True,
+        'legendcolumns': 1,
+        'nolumilabel': True,
+        'cutlabel': 'eta',
+        'cutlabeloffset': 0.07,
+        'mconly'  : True,
+        'y': [0, 1],
+        'legloc': '0.05,0.5',
+        'legreverse': False,
+    }
 
-if __name__ == "__main__":
-    """Unit test: doing the plots standalone (not as a module)."""
-    import sys
-    if len(sys.argv) < 2:
-        print "Usage: python plotting/plotfractions.py data_file.root mc_file.root"
-        exit(0)
-    fdata = getroot.openfile(sys.argv[1])
-    fmc = getroot.openfile(sys.argv[2])
-    bins = getroot.getbins(fdata, [])
-    fractions_zpt(fdata, fmc, opt=plotbase.options(bins=bins))
+    for n, l, c in zip(stacked, labels, colours):
+        changes['labels'] = [l, l]
+        changes['colors'] = [c]
 
+        plot1d.datamcplot("_".join([n,flavourdef]), files, opt,
+                    fig_axes=(fig, ax), changes=changes, settings=settings)
+
+    settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
+    plotbase.Save(fig, settings)
 

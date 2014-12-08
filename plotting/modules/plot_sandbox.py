@@ -76,59 +76,6 @@ def corrbins(files, opt):
     plotbase.Save(fig, settings)
 
 
-def flavour_comp(files, opt, changes=None):
-    """Plot the PF composition as a function of the MC truth flavour."""
-
-    quantity = "components_physflavour"
-    settings = plotbase.getSettings(opt, changes, settings=None,
-                                            quantity=quantity)
-    nbr = 5
-    labels = ["N. hadron", "C. hadron", r"$\gamma$       ",  r"$e$       ",
-                                        r"$\mu$       ", "HFem", "HFhad"][:nbr]
-    labels.reverse()
-    colours = ['YellowGreen', 'LightSkyBlue', 'Orange', 'MediumBlue',
-                  'Darkred', 'yellow', 'grey'][:nbr]
-    colours.reverse()
-    components = ["neutralhad", "chargedhad", "photon",  "chargedem", "muon",
-                                                         "HFem", "HFhad"][:nbr]
-    components.reverse()
-    names = ["jet1" + component + "fraction" for component in components]
-
-    stacked = []
-    for i in range(len(names)):
-        stacked += ["(%s)" % "+".join(names[i:])]
-    fig, ax = plotbase.newPlot()
-
-    if len(files) > 1:
-        files = [files[1]]
-    changes = {
-        'subplot': True,
-        'nbins': 25,
-        'xynames': ['physflavour', 'components'],
-        'markers': ['f'],
-        'legbox': (0.04, 0.2),
-        'legendframe': True,
-        'legendcolumns': 1,
-        'nolumilabel': True,
-        'cutlabel': 'eta',
-        'cutlabeloffset': 0.07,
-        'mconly'  : True,
-        'y': [0, 1],
-        'legloc': '0.05,0.5',
-        'legreverse': False,
-    }
-
-    for n, l, c in zip(stacked, labels, colours):
-        changes['labels'] = [l, l]
-        changes['colors'] = [c]
-
-        plot1d.datamcplot("%s_physflavour" % n, files, opt,
-                    fig_axes=(fig, ax), changes=changes, settings=settings)
-        
-    settings['filename'] = plotbase.getDefaultFilename(quantity, opt, settings)
-    plotbase.Save(fig, settings)
-
-
 def zmassFitted(files, opt, changes=None, settings=None):
     """ Plots the FITTED Z mass peak position depending on pT, NPV, y."""
 
