@@ -183,22 +183,36 @@ def rmspaper(files, opt, yval='npv'):
 def rmsmupaper(files, opt):
     rmspaper(files, opt, 'nputruth')
 
+
 def herwigpaper(files, opt):
+    """Response vs Z pT: Pythia vs Herwig; with/without L5; in pT bins."""
     files2, opt2 = plotbase.openRootFiles(["store/mc_l1.root", "work/mc_herwig.root"], opt)
-    for  quantity, suffix in zip(['recogen', '(physl5pt/genjet1pt)'], ["", "_l5"]):
-        changes = {'cutlabel': 'eta',
-                'labels'  : ['Pythia 6 Tune Z2*', 'Herwig++ Tune EE3C'],
-                'y'       : [0.98, 1.05],
-                'markers' : ['o', 'd'],
-                'colors'  : ['red', 'blue'],
-                'normalize': False,
-                'mconly'  : True,
-                'nolumilabel': True,
-                'nbins'   : 25,
-                'legloc'  : 'lower left',
-                'yname'   : r'Jet Response $p_{\mathrm{T}}^{\mathrm{jet}} / p_{\mathrm{T}}^{\mathrm{ptcl}}$',
-                'filename': 'recogen_physflavour_pythia-herwig' + suffix}
-        plot1d.datamcplot("%s_physflavour" % quantity, files2, opt2, changes=changes)
+    for ptbin, label, ptsuffix in zip(
+        ["1", "zpt<70", "zpt>70 && zpt<120", "zpt>120"],
+        [
+            "$p_{\mathrm{T}}^{\mathrm{Z}} > 30 \mathrm{GeV}$",
+            "$30 < p_{\mathrm{T}}^{\mathrm{Z}} < 70 \mathrm{GeV}$",
+            "$70 < p_{\mathrm{T}}^{\mathrm{Z}} < 120 \mathrm{GeV}$",
+            "$p_{\mathrm{T}}^{\mathrm{Z}} > 120 \mathrm{GeV}$",
+        ],
+        ["_inclusive", "_pT30-70", "_pT70-120", "_pT120"]
+        ):
+        for  quantity, suffix in zip(['recogen', '(physl5pt/genjet1pt)'], ["", "_l5"]):
+            changes = {'cutlabel': 'eta',
+                    'labels'  : ['Pythia 6 Tune Z2*', 'Herwig++ Tune EE3C'],
+                    'y'       : [0.98, 1.05],
+                    'markers' : ['o', 'd'],
+                    'colors'  : ['red', 'blue'],
+                    'normalize': False,
+                    'mconly'  : True,
+                    'nolumilabel': True,
+                    'selection': [ptbin],
+                    'nbins'   : 25,
+                    'text': "%s,0.03,0.91" % label,
+                    'legloc'  : 'lower left',
+                    'yname'   : r'Jet Response $p_{\mathrm{T}}^{\mathrm{jet}} / p_{\mathrm{T}}^{\mathrm{ptcl}}$',
+                    'filename': 'recogen_physflavour_pythia-herwig' + ptsuffix + suffix}
+            plot1d.datamcplot("%s_physflavour" % quantity, files2, opt2, changes=changes)
 
 
 def npvrhomupaper(files, opt):
