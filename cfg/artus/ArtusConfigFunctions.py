@@ -283,7 +283,7 @@ def mc_2011(cfg, **kwargs):
 
 
 def mc_2012(cfg, **kwargs):
-    cfg['Jec'] = ArtusConfigBase.getPath() + "/data/jec/Winter14_V5/Winter14_V5_MC"
+    cfg['Jec'] = ArtusConfigBase.getPath() + "/data/jec/Winter14_V6/Winter14_V5_MC"
     cfg['MetPhiCorrectionParameters'] = [0.1166, 0.0200, 0.2764, -0.1280]
     cfg["EnablePuReweighting"] = True
 
