@@ -318,6 +318,16 @@ def options(
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
     matplotlib.rc('text.latex', preamble=r'\usepackage{helvet},\usepackage{sfmath}')
 
+    # if there is only 1 file but n selections/x-quantities/y-quantities, automatically
+    # expand opt.files to length n
+    if len(opt.files) == 1:
+        n = max(
+         (len(opt.selection) if opt.selection is not None else 0),
+         (len(opt.xquantities) if opt.xquantities is not None else 0),
+         (len(opt.yquantities) if opt.yquantities is not None else 0),
+        )
+        opt.files *= max(1, n)
+
     return opt
 
 
