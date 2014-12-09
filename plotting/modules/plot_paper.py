@@ -186,7 +186,7 @@ def rmsmupaper(files, opt):
 
 def herwigpaper(files, opt):
     """Response vs Z pT: Pythia vs Herwig; with/without L5; in pT bins."""
-    files2, opt2 = plotbase.openRootFiles(["store/mc_l1.root", "work/mc_herwig.root"], opt)
+    files2, opt2 = plotbase.openRootFiles(["work/mc.root", "work/mc_herwig.root"], opt)
     for ptbin, label, ptsuffix in zip(
         ["1", "zpt<70", "zpt>70 && zpt<120", "zpt>120"],
         [
