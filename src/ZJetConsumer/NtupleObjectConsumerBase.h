@@ -80,10 +80,7 @@ protected:
 			   };
 	}
 
-	virtual std::string GetObjectName() const
-	{
-		return "";
-	}
+	virtual std::string GetObjectName() const = 0;
 
 	virtual float returnvalue(int n, std::string string, ZJetEventData const& event,
 							  ZJetProduct const& product, ZJetPipelineSettings const& s) const
@@ -107,16 +104,10 @@ protected:
 	};
 
 	virtual int getsize(ZJetEventData const& event,
-						ZJetProduct const& product, ZJetPipelineSettings const& settings) const
-	{
-		return 0;
-	};
+						ZJetProduct const& product, ZJetPipelineSettings const& settings) const = 0;
 
 	virtual KDataLV GetSingleObject(int n, ZJetEventData const& event,
-									ZJetProduct const& product, ZJetPipelineSettings const& s) const
-	{
-		return * new KDataLV;
-	};
+									ZJetProduct const& product, ZJetPipelineSettings const& s) const = 0;
 
 };
 
