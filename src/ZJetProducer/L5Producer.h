@@ -138,9 +138,7 @@ private:
 			return "L5b";
 		else if (flavour == 4)
 			return "L5c";
-		else if (flavour == 3)
-			return "L5s";
-		else if (flavour > 0 && flavour < 3)
+		else if (flavour > 0 && flavour < 4)
 			return "L5q";
 		else
 			return "";

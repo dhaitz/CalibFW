@@ -17,7 +17,6 @@ struct JecCorrSet
 	boost::scoped_ptr<JECService> m_l2;
 	boost::scoped_ptr<JECService> m_l3;
 	boost::scoped_ptr<JECService> m_l5g;
-	boost::scoped_ptr<JECService> m_l5s;
 	boost::scoped_ptr<JECService> m_l5q;
 	boost::scoped_ptr<JECService> m_l5b;
 	boost::scoped_ptr<JECService> m_l5c;
