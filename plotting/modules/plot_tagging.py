@@ -336,5 +336,34 @@ def tagging_zpt(files, opt):
                 'filename': "flavour_zpt_%s_%s" % (title, flavourdef[:4]),
             }
             plot1d.plot1dFromFilenames("%s_zpt" % flavourdef, ["work/mc.root"]*4, opt, changes=changes)
-    
+
+
+def tagging_rootfiles(files, opt):
+    """ Produce a root file with some distributions for each flavour in each zone."""
+    # Iterate over flavour definitions:
+    for flavourdef in ['phys', 'algo']:
+        changes = {
+            'nbins': 100,
+            'filename': "output2DTagging_MC_ZJet_L5Corr_%s" % flavourdef,
+        }
+        # Iterate over tagging zones:
+        for zone, zonelabel in zip(zones_extended, ["1Q", "3C", "4B", "2G", "5QG", "6LC"]):
+
+            # Iterate over truth flavours:
+            for truthflavour, truthflavourlabel in zip(selections, titles):
+                changes['selection'] = [zone]
+                changes['root'] = '%s-vs-ZpT_zone%s' % (truthflavourlabel, zonelabel)
+                plot1d.plot1d("%s_zpt" % truthflavour, files, opt, changes=changes)
+
+                changes['selection'] = ["&&".join([truthflavour, zone])]
+
+                changes['root'] = 'FirstJetPt_zone%s_%s' % (zonelabel, truthflavourlabel)
+                quantity = "jet1pt"  # flavourdef + "l5pt"
+                plot1d.plot1d(quantity, files, opt, changes=changes)
+
+                changes['root'] = 'MPF_zone%s_%s' % (zonelabel, truthflavourlabel)
+                plot1d.plot1d("mpf", files, opt, changes=changes)
+                changes['root'] = 'MCTruth-Responce_zone%s_%s' % (zonelabel, truthflavourlabel)
+                plot1d.plot1d("recogen", files, opt, changes=changes)
+
 
