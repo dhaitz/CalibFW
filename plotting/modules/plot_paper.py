@@ -76,7 +76,9 @@ def paper(files, opt):
 
 
 def extrapolationpaper(files, opt):
-    #new extrapolation plot
+    """Extrapolation for MPF and balance with subplot. """
+    use_L5 = False
+
     fig, ax1, ax2 = plotbase.newPlot(ratio=True)
     changes = {
         'subplot': True,
@@ -95,7 +97,12 @@ def extrapolationpaper(files, opt):
         'colors': ['green'],
         'labels': ['$p_\mathrm{T}^{\mathrm{reco}}$/$p_\mathrm{T}^{\mathrm{ptcl}}$'],
     }
-    plot1d.plot1d("recogen_alpha", files[1:], opt, changes=changes, fig_axes = [fig, ax1])
+    # the truth responce (without subplot)
+    truth_response = "(physl5pt/matchedgenjet1pt)" if use_L5 else "recogen"
+    plot1d.plot1d("%s_alpha" % truth_response,
+        files[1:], opt, changes=changes, fig_axes=[fig, ax1])
+
+    # ptbalance
     changes.update({
         'markers': ['O', 'S'],
         'ratiomarker': ['O'],
@@ -103,14 +110,21 @@ def extrapolationpaper(files, opt):
         'colors': ['DarkRed', 'Orange'],
     })
     changes['labels'] = ["%s (%s)" % (changes['ratiosubplotlabel'], t) for t in ['Data', 'MC']]
+    if use_L5:
+        changes['yquantities'] = ['ptbalance', 'physl5pt/zpt']
     plot1d.plot1dratiosubplot("ptbalance_alpha", files, opt, changes=changes, fig_axes=[fig, ax1, ax2])
+
+    # MPF
     changes.update({
         'markers': ['o', 's'],
         'ratiomarker': ['o'],
         'ratiosubplotlabel': 'MPF',
         'colors': ['Navy', 'DodgerBlue'],
+        'yquantities': ['mpf', 'mpfphys'],
     })
     changes['labels'] = ["%s (%s)" % (changes['ratiosubplotlabel'], t) for t in ['Data', 'MC']]
+    if use_L5:
+        changes['yquantities'] = ['mpf', 'mpfphys']
     plot1d.plot1dratiosubplot("mpf_alpha", files, opt, changes=changes, fig_axes=[fig, ax1, ax2])
 
     ax2.set_ylabel("Data / MC")
