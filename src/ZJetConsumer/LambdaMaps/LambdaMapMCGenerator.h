@@ -264,13 +264,11 @@ public:
 
 					if (flavour == 21)
 						return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5g").at(0).p4.Pt();
-					if (flavour == 4)
+					else if (flavour == 4)
 						return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5c").at(0).p4.Pt();
-					if (flavour == 5)
+					else if (flavour == 5)
 						return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5b").at(0).p4.Pt();
-					if (flavour == 5)
-						return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5b").at(0).p4.Pt();
-					if (flavour > 0 && flavour < 4)
+					else if (flavour > 0 && flavour < 4)
 						return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5q").at(0).p4.Pt();
 
 					return product.GetValidPrimaryJet(s, event)->p4.Pt();
@@ -283,13 +281,11 @@ public:
 
 					if (flavour == 21)
 						return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5g").at(0).p4.Pt();
-					if (flavour == 4)
+					else if (flavour == 4)
 						return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5c").at(0).p4.Pt();
-					if (flavour == 5)
+					else if (flavour == 5)
 						return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5b").at(0).p4.Pt();
-					if (flavour == 5)
-						return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5b").at(0).p4.Pt();
-					if (flavour > 0 && flavour < 4)
+					else if (flavour > 0 && flavour < 4)
 						return product.m_validPFJets.at(s.GetJetAlgorithm() + "L5q").at(0).p4.Pt();
 
 					return product.GetValidPrimaryJet(s, event)->p4.Pt();

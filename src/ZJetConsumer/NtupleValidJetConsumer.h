@@ -69,19 +69,17 @@ protected:
 		else if (string == "genpt")
 		{
 			std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-
 			if (product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n) > -1)
 			{
-				if (product.GetLHEZ().p4.Pt() > 24.44 && product.GetLHEZ().p4.Pt() < 24.46)
-					return product.GetValidJet(s, event,
-											   product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n),
-											   genName)->p4.Pt();
+				return product.GetValidJet(s, event,
+										   product.m_matchingResults.at(this->GetPipelineSettings().GetJetAlgorithm()).at(n),
+										   genName)->p4.Pt();
 			}
 			return 0;
 		}
 		else if (string == "rawpt")
 		{
-			for (auto rawjet : *event.m_pfTaggedJets.at("AK5PFTaggedJetsCHS"))
+			for (auto rawjet : *event.m_pfTaggedJets.at("AK5PFTaggedJetsCHS")) //make this more general
 			{
 				if (ROOT::Math::VectorUtil::DeltaR(rawjet.p4,
 												   GetSingleObject(n, event, product, s).p4) < 0.01)
@@ -90,7 +88,7 @@ protected:
 			return 0.;
 		}
 		else if (string == "l1pt")
-			return product.m_validPFJets.at("AK5PFJetsCHSL1").at(n).p4.Pt();
+			return product.m_validPFJets.at("AK5PFJetsCHSL1").at(n).p4.Pt(); //make this more general
 		else if (string == "lhezpt")
 			return product.GetLHEZ().p4.Pt();
 		else if (string == "hasmatch")
