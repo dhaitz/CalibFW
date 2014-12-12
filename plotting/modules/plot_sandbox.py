@@ -18,6 +18,51 @@ import fit
 import os
 
 
+def recogen_alpha_ptbins(files, opt):
+    """ recogen vs alpha as well as Z pT vs alpha in pT bins. """
+    zptbins = [
+        "1",
+        "zpt>30 && zpt<50", 
+        "zpt>50 && zpt<70",
+        "zpt>70 && zpt<120",
+        "zpt>120"
+    ]
+    texts = [
+            "$\mathrm{inclusive}$", 
+            "$30 < \mathrm{Z} p_\mathrm{T} < 50\ \mathrm{GeV}$",
+            "$50 < \mathrm{Z} p_\mathrm{T} < 70\ \mathrm{GeV}$",
+            "$70 < \mathrm{Z} p_\mathrm{T} < 120\ \mathrm{GeV}$",
+            "$\mathrm{Z}\ p_\mathrm{T} > 120\ \mathrm{GeV}$",
+    ]
+    fig, axes = plotbase.newPlot(subplots = len(zptbins * 2), subplots_X = len(zptbins))
+    settings = plotbase.getSettings(opt, quantity='recogen_alpha')
+    for ax1, ax2, selection, text in zip(axes[:(len(axes)/2)], axes[(len(axes)/2):], zptbins, texts):
+        plot1d.datamcplot("recogen_alpha", files, opt, fig_axes = [fig, ax1],
+            changes={
+                'allalpha': True,
+                'y': [0.99, 1.1],
+                'subplot': True,
+                'nbins': 6,
+                'fit': 'slope',
+                'x': [0, 0.3],
+                'text': text,
+                'selection': [selection],
+            }
+        )
+        plot1d.datamcplot("zpt_alpha", files, opt, fig_axes = [fig, ax2],
+            changes={
+                'allalpha': True,
+                'y': [0, 300],
+                'subplot': True,
+                'nbins': 6,
+                'x': [0, 0.3],
+                'text': text,
+                'selection': [selection],
+            }
+        )
+
+    plotbase.Save(fig, settings)
+
 def corrs(files, opt):
     fig, ax = plotbase.newPlot()
     settings = plotbase.getSettings(opt, quantity='recogen_genpt')
