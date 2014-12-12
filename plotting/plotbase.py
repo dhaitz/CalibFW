@@ -418,7 +418,7 @@ def newPlot(ratio=False, run=False, subplots=1, subplots_X=None,
         if run:
             a = [14 * x, 7 * y, y, x]
         else:
-            a = [7 * x, 7 * y, y, x]
+            a = [5 * x, 5 * y, y, x]
         fig = plt.figure(figsize=[a[0], a[1]])  # apply config numbers
         ax = [fig.add_subplot(a[2], a[3], n + 1) for n in range(subplots)]
         return fig, ax

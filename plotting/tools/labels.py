@@ -25,8 +25,8 @@ def labels(ax, opt, settings, subplot=False, mc=False):
         if settings['run'] is True:
             plotbase.runlabel(ax, settings)
         if 'selection' in opt.user_options and len(opt.user_options['selection']) == 1:
-            ax.text(0.02, 0.98, opt.user_options['selection'], va='top', ha='left',
-                            transform=ax.transAxes, size='small', color='black')
+            ax.text(0.02, 0.98, opt.user_options['selection'][0].replace("&&", "\&").replace("<", "$<$").replace(">", "$>$"),
+                va='top', ha='left', transform=ax.transAxes, size='small', color='black')
         if settings['subtext'] is not None:
             ax.text(-0.03, 1.01, settings['subtext'], va='bottom', ha='right',
                     transform=ax.transAxes, size='xx-large', color='black')

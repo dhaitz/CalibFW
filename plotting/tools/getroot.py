@@ -187,6 +187,7 @@ def getBinning(quantity, settings, axis='x'):
             'zpt': settings['zbins'],
             'jet1pt': settings['zbins'],
             'genjet1pt': settings['zbins'],
+            'matchedgenjet1pt': settings['zbins'],
             'genpt': settings['zbins'],
             '(abs(jet1eta))': settings['eta'],
             'jet1eta': [-elem for elem in settings['eta'][1:][::-1]] + settings['eta'],
@@ -358,8 +359,10 @@ def saveasroot(rootobjects, opt, settings):
     filename = opt.out + "/%s.root" % settings['filename']
     f = ROOT.TFile(filename, "UPDATE")
     for rgraph, name in zip(rootobjects, settings['labels']):
-        plotname = settings['root']
-        plotname = "_".join([settings['root'], name])
+        if len(settings['labels']) > 1:
+            plotname = "_".join([settings['root'], name])
+        else:
+            plotname = settings['root']
         print "Saving %s in ROOT-file %s" % (plotname, filename)
         rgraph.SetTitle(plotname)
         rgraph.SetName(plotname)

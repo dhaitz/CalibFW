@@ -15,7 +15,7 @@ import os
 import datetime
 
 import plotbase
-import modules.plotrc as plotrc
+import plotrc
 
 
 def options(
@@ -310,9 +310,14 @@ def options(
     opt.user_options = user_options
     opt.default_options = default_options
 
-    # if labels are not explicitly give, take file names without extension
+    # if labels are not explicitly give, take x/y quantities or file names without extension
     if opt.labels == []:
-        opt.labels = [r"%s" % f.split(".root")[0].split("/")[-1].title().replace('Mc', 'MC') for f in opt.files]
+        if len(opt.files) == 1 and opt.xquantities is not None and len(opt.xquantities) > 1:
+                opt.labels = opt.xquantities
+        elif len(opt.files) == 1 and opt.yquantities is not None and len(opt.yquantities) > 1:
+                opt.labels = opt.yquantities
+        else:
+            opt.labels = [r"%s" % f.split(".root")[0].split("/")[-1].title().replace('Mc', 'MC') for f in opt.files]
         opt.default_options['labels'] = opt.labels
 
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))

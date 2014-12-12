@@ -103,7 +103,7 @@ d_axes = {
         'L2abs': [-25, 25, r"L2 absolute correction", "GeV"],
         'L3': [0, 1.2, r"L3 correction factor", ""],
         'L3abs': [-25, 25, r"L3 absolute correction", "GeV"],
-        'matchedgenjet1pt': [0, 250, r"$p_\mathrm{T}^\mathrm{Matched Leading Gen Jet}$", 'GeV'],
+        'matchedgenjet1pt': [0, 250, r"$p_\mathrm{T}^\mathrm{Matched Gen Jet}$", 'GeV'],
         'METeta': [-0.1, 0.1, r"$\eta^\mathrm{MET}$", ""],
         'METfraction': [0, 0.2, r"MET / $E^T_Total$", ""],
         'METpt': [0, 80, r"$E_\mathrm{T}^\mathrm{miss}$", 'GeV'],
