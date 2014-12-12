@@ -169,7 +169,11 @@ def plotMpl(rootobjects, mplhistos, opt, settings, quantity, fig_axes=None):
             if settings.get('masked', None) is not None:
                 yMask = int(settings.get('masked', 0))
                 f.y = numpy.ma.masked_less_equal(f.y, yMask)
-            ax.errorbar(f.xc, f.y, f.yerr, drawstyle='steps-mid', color=c, ecolor=c, markeredgecolor=c,
+            if s == '-' and "Profile" in rootobj.ClassName():
+                values = (f.xc[:-1], f.y[:-1], f.yerr[:-1])  # dont draw last bin
+            else:
+                values = (f.xc, f.y, f.yerr)
+            ax.errorbar(*values, drawstyle='steps-mid', color=c, ecolor=c, markeredgecolor=c,
                                                     fmt=s, capsize=0, label=l, lw=0.8)
 
     if len(settings.get('fitvalues', [])) == 2:
@@ -206,7 +210,8 @@ def formatting(ax, settings, opt, mplhistos, rootobjects=None):
     #plot a vertical line at 1.0 for certain y-axis quantities:
     if ((settings['xynames'][1] in ['response', 'balresp', 'mpfresp', 'recogen',
                           'ptbalance', 'L1', 'L2', 'L3', 'mpf', 'mpfresp']) or
-                          'cut' in settings['xynames'][1] or settings['ratio']):
+                          'cut' in settings['xynames'][1] or settings['ratio'] or
+                          settings.get('unity', False)):
         ax.axhline(1.0, color='black', linestyle=':')
 
     if settings['grid']:
