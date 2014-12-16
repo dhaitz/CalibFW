@@ -316,6 +316,8 @@ def options(
                 opt.labels = opt.xquantities
         elif len(opt.files) == 1 and opt.yquantities is not None and len(opt.yquantities) > 1:
                 opt.labels = opt.yquantities
+        elif len(opt.files) == 1 and opt.selection is not None and len(opt.selection) > 1:
+                opt.labels = opt.selection
         else:
             opt.labels = [r"%s" % f.split(".root")[0].split("/")[-1].title().replace('Mc', 'MC') for f in opt.files]
         opt.default_options['labels'] = opt.labels

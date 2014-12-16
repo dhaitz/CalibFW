@@ -339,7 +339,7 @@ def axislabels(ax, x='zpt', y='events', brackets=True, labels=['', ''], settings
 
     for quantity, function in zip([x, y], [[setxaxis, ax.set_xticks, ax.set_xticklabels], [setyaxis, ax.set_yticks, ax.set_yticklabels]]):
     # special formatting options for some quantities ...
-        if 'phi' in quantity:
+        if 'phi' in quantity and not '\phi' in quantity:
             function[1]([-3.14159265, -1.57079633, 0.0, 1.57079633, 3.14159265])
             function[2]([r"$-\pi$", r"$-\frac{\pi}{2}$", r"$0$", r"$\frac{\pi}{2}$", r"$\pi$"])
             if 'deltaphi' in quantity:

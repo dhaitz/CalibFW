@@ -159,9 +159,9 @@ def getBinning(quantity, settings, axis='x'):
     xmin = settings[axis][0]
     xmax = settings[axis][1]
     if axis == 'x':
-        nbins = settings['nbins']
+        nbins = int(settings['nbins'])
     elif axis == 'y' and 'nybins' in settings:
-        nbins = settings['nybins']
+        nbins = int(settings['nybins'])
     else:
         nbins = 20
 
@@ -189,6 +189,7 @@ def getBinning(quantity, settings, axis='x'):
             'genjet1pt': settings['zbins'],
             'matchedgenjet1pt': settings['zbins'],
             'genpt': settings['zbins'],
+            'pt': settings['zbins'],
             '(abs(jet1eta))': settings['eta'],
             'jet1eta': [-elem for elem in settings['eta'][1:][::-1]] + settings['eta'],
             'npv': [a - 0.5 for a, b in settings['npv']] + [settings['npv'][-1][1] - 0.5]

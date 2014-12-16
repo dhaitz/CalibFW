@@ -283,7 +283,7 @@ def plot1dratiosubplot(quantity, files, opt, changes=None, settings=None,
     settings = plotbase.getSettings(opt, changes, settings, quantity)
 
     if fig_axes is None:
-        fig = plotbase.newplot()
+        fig = plotbase.newPlot()[0]
         ax1 = plotbase.plt.subplot2grid((3, 1), (0, 0), rowspan=2)
         ax1.number = 1
         ax2 = plotbase.plt.subplot2grid((3, 1), (2, 0))
