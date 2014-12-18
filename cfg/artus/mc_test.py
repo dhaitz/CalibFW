@@ -1,9 +1,23 @@
 import ArtusConfigBase as base
+import mc
 
 
 def config():
-    conf = base.BaseConfig('mc', '2012')
-    conf["InputFiles"] = "/home/dhaitz/CMSSW_5_3_9/skim_mc.root"
-    conf = base.expand(conf, ['all', 'zcuts', 'incut'])
+    conf = mc.config()
+    l = []
+    """
+    for pipeline in conf['Pipelines']:
+        if not pipeline.startswith('all'):
+            l.append(pipeline)
+        elif 'CHS' not in pipeline:
+            l.append(pipeline)
+    for pipeline in l:
+            del conf['Pipelines'][pipeline]
+    """
+    for pipeline in conf['Pipelines']:
+        conf['Pipelines'][pipeline]['Consumer'] = [
+            #"muonntuple",
+            "genjetntuple",
+        ]
     return conf
 
