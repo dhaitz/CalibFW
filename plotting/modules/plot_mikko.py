@@ -14,7 +14,7 @@ plots = ['mikko_all']
 
 def mikko_all(files, opt):
     if opt.filename is None:
-        opt.filename = plots_mikko.root
+        opt.filename = "plots_mikko.root"
     f = ROOT.TFile(opt.out + "/" + opt.filename, "RECREATE")
     mikko_oneset(files, opt, ['balresp', 'mpfresp', 'mpf-rawresp',
          'recogen'])
@@ -31,7 +31,7 @@ def doPlot(resp, dtype, opt, cut, eta, cu_str, et_str, file1, file2=None):
 
     changes = {'allalpha': True,
                'alleta': True,
-               'selection': '(%s) && (%s)' % (cut, eta)
+               'selection': ['(%s) && (%s)' % (cut, eta)]
                }
     for corr in ["L1L2L3", "L1L2L3Res"]:
         changes['correction'] = corr
