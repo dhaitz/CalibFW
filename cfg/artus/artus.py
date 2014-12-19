@@ -127,10 +127,10 @@ def artus():
         else:
             outpath = options.work + "out/*.root"
 
+        print "go.py %s/%s.conf" % (options.work, options.out)
         try:
             subprocess.call(['go.py', options.work + "/" + options.out + ".conf"])
         except KeyboardInterrupt:
-            print "go.py %s/%s.conf" % (options.work, options.out)
             exit(0)
         except:
             print "grid-control run failed"
