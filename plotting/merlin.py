@@ -320,6 +320,7 @@ def options(
                 opt.labels = opt.selection
         else:
             opt.labels = [r"%s" % f.split(".root")[0].split("/")[-1].title().replace('Mc', 'MC') for f in opt.files]
+        opt.labels = [string.replace("_", " ") for string in opt.labels]
         opt.default_options['labels'] = opt.labels
 
     matplotlib.rcParams.update(plotrc.getstyle(opt.layout))
