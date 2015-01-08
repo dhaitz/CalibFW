@@ -4,6 +4,10 @@
 #include "MuScleFitCorrection/MuScleFitCorrector.h"
 #include <Math/LorentzVector.h>
 
+/*
+This producer corrects muon momenta
+*/
+
 namespace Artus
 {
 

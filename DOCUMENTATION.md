@@ -57,6 +57,9 @@ multiple cores `-jN`).
 
 1. Skimming: How to create Kappa files
 ===============================================================================
+!!!
+The Skimming config files have been moved to the Skimming/zjet folder in Kappa.
+!!!
 
 Use CMSSW with one of the latest cfg files found in the `cfg/cmssw/` folder.
 Config files for grid-control are also available in this directory.
@@ -110,14 +113,15 @@ This is done via the `weightCalc.py` script.
 3. Plotting: How to create plots from a ROOT NTuple
 ===============================================================================
 
-The main plotting file is `plotting/plotbase.py`. The Excalibur plotting
-framework Merlin is highly customizable, you are advised to have a look at
-`plotting/plotbase.py --help` for a list and description of parameter arguments.
+The main plotting file is `plotting/plotbase.py`. `merlin.py` is a wrapper to
+provide the needed dictionary for plotting. The  plotting framework is highly
+customizable, you are advised to have a look at `merlin --help` for a list and
+description of parameter arguments.
 
 At its most basic level of usage, the arguments include links to a data (and MC) 
 file and one (or a list of) plotname:
 
-    python plotting/plotbase.py path-to-ntuple.root -P plot1 plot2
+    merlin zmass -i work/data.root work/mc.root
 
 
 ## Plotnames

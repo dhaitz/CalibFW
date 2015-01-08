@@ -1,5 +1,9 @@
 #pragma once
 
+/*
+Iterate over LHE (generator) particles, count number of leptons per flavour and set Z.
+*/
+
 namespace Artus
 {
 

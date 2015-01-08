@@ -1,9 +1,13 @@
 #pragma once
 
+/*
+Apply typeI-corrections to MET: Iterate over jets and subtract L2L3(Res)
+https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMetAnalysis#Type_I_Correction
+*/
 namespace Artus
 {
 
-//apply typeI-corrections to MET
+
 class TypeIMETProducer: public ZJetGlobalProductProducerBase
 {
 public:
@@ -90,6 +94,7 @@ public:
 				//add p4 from MuscleFit
 				corrmet.p4 += product.muondiff.p4;
 
+				//eta of MET is always zero
 				corrmet.p4.SetEta(0.0f);
 				corrmet.sumEt = rawmet->sumEt + sumEt_correction;
 

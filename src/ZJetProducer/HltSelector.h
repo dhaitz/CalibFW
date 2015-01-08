@@ -1,5 +1,7 @@
 #pragma once
-
+/*
+Select matching HLT trigger name
+*/
 namespace Artus
 {
 

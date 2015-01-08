@@ -6,7 +6,7 @@ namespace Artus
 {
 
 /*
- * Sorts the Jets in the Globalb Meta Data by Transverse Momentum
+ * Sorts the Jets in the Global Product by Transverse Momentum
  */
 
 class JetSorter: public ZJetGlobalProductProducerBase

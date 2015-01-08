@@ -1,9 +1,12 @@
 #pragma once
 
+/*
+This producer calculates the unclustered energy as the difference of all jets, Z and MET.
+TODO this is just for testing purposes, not official results
+*/
+
 namespace Artus
 {
-
-//apply typeI-corrections to MET
 class UnclusteredEnergyProducer: public ZJetGlobalProductProducerBase
 {
 public:

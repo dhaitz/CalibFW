@@ -2,6 +2,9 @@
 
 #include "CondFormats/JetMETObjects/interface/SimpleJetCorrectionUncertainty.h"
 
+/*
+Calculate the uncertainty on the leading jet, and add to ntuple.
+*/
 
 namespace Artus
 {

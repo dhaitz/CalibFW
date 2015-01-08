@@ -2,6 +2,12 @@
 
 #include "FlavourProducer.h"
 
+/*
+Flavour matching. Find the flavour of the leading jet according to algorithmic
+or physics defintion. See
+https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagMCTools#Legacy_jet_flavour_definition
+*/
+
 namespace Artus
 {
 
