@@ -431,7 +431,7 @@ def newPlot(ratio=False, run=False, subplots=1, subplots_X=None,
         fig.add_axes(ax1)
         fig.add_axes(ax2)
         return fig, ax1, ax2
-        
+        """
         ax = fig.add_subplot(111, position=[0.13, 0.35, 0.83, 0.58])
         ax.number = 1
         ax.set_xlabel([])
@@ -439,6 +439,7 @@ def newPlot(ratio=False, run=False, subplots=1, subplots_X=None,
         ratio.number = 2
         ratio.axhline(1.0, color='gray', lw=1)
         return fig, ax, ratio
+        """
     elif run:
         fig = plt.figure(figsize=[14, 7])
         ax = fig.add_subplot(111)
@@ -539,7 +540,7 @@ def Save(figure, settings=None, crop=True, pad=0.1):
     name = name.replace("PFJets", "PF")
     print ' -> Saving as',
     if settings is not None and settings['title'] is not "":
-        title = figure.suptitle(settings['title'], size='large')
+        title = figure.suptitle(settings['title'])
     # this hack helps not to crop labels
     elif crop:
         title = figure.suptitle("I", color='white')

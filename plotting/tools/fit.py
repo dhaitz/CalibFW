@@ -110,7 +110,7 @@ def fit(ax, quantity, rootobject, settings, color='black', label="", index=0,
         r"$\mathrm{RMS} = %1.2f\pm%1.2f$" % (p2, p2err),
         ]):
             ax.text(x, 0.92-0.06*(len(settings['files']) - index - 1)+offset, text,
-               va='bottom', ha='left', transform=ax.transAxes, color=color)
+               va='bottom', ha='left', transform=ax.transAxes, color=color, size='xx-small')
 
     else:
         intercept, ierr, slope, serr,  chi2, ndf, conf_intervals = fitline2(rootobject)
