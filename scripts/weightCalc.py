@@ -43,6 +43,7 @@ def main():
 		subprocess.call(['which', 'pileupCalc.py'])
 		exit(0)
 
+	# Get MC distribution
 	if not op.mfile:
 		print "No MC given."
 	elif len(op.mfile) == 1:
@@ -50,10 +51,11 @@ def main():
 		mc = getDistributionFromFile(op.mfile[0], op.mc_histo)
 	else:
 		print "Get MC distribution from skim"
-		mc = getDistributionFromSkim(op.mfile)
+		mc = getDistributionFromSkim(op.mfile, nmax=op.maxPileupBin, bins=op.numPileupBins)
 		if op.save:
 			saveDistributionToFile(op.mcoutput, mc, op.mc_histo)
 
+	# Get Data distribution
 	if not op.dfile:
 		print "No data given."
 	elif not op.inputLumiJSON:
@@ -67,24 +69,20 @@ def main():
 			saveDistributionToFile(op.dataoutput, data, op.data_histo)
 
 	if data and mc:
-		print data.GetNbinsX(), mc.GetNbinsX()
-		#if data.GetNbinsX() > 1000:
-		#	data.Rebin()
-		#if mc.GetNbinsX() > 1000:
-		#	mc.Rebin()
+		print "NbinsX data:", data.GetNbinsX(), "NbinsX MC:", mc.GetNbinsX()
 		weights = calcWeights(data, mc, op.verbose, not op.no_warning, op.binning)
 		saveDistributionToFile(op.output, weights)
 	else:
 		print "No weights calculated."
-#	if op.check:
-#		print("Normalization: before ({0:.5f}) and after ({1:.5f}) ")
 
 
 def calcWeights(data, mc, verbose=False, warn=True, rebin=False, binning=False):
-	# checks
+	"""Calculate the weights from given data and MC distributions."""
+	# some checks
 	n = data.GetNbinsX()
 	if n != mc.GetNbinsX():
 		print 'Binning of input histograms is not compatible.'
+
 	print "Weight calculation ..."
 
 	if rebin:
@@ -145,7 +143,7 @@ def getDataFromPileupCalc(files, lumijson, outfile, minBiasXsec=73.5, maxPileupB
 	return result
 
 
-def getDistributionFromSkim(filelist, nmax=80, save=True, bins=1600, name="pileup"):
+def getDistributionFromSkim(filelist, nmax, bins, save=True, name="pileup"):
 	print "MC pile-up distribution from skim (" + str(len(filelist)) + " files):", filelist[0], "etc."
 	chain = ROOT.TChain("Events")
 	for f in filelist:
@@ -190,7 +188,7 @@ def options():
 			"specified with -D. mc can be either a skim location or a rootfile with the MC distribution "
 			"of pile-up. The name of the contained histogram is "
 			"specified with -M.")
-#Pileup calc options:
+	#Pileup calc options:
 	parser.add_argument('-M', '--mc-histo', type=str, default="pileup",
 		help="histogram name of the pile-up distribution in the MC file, default: %(default)s")
 	parser.add_argument('-D', '--data-histo', type=str, default="pileup",
