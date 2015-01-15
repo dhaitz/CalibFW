@@ -321,9 +321,9 @@ def copyFile(source, target, replace={}):
 def createGridControlConfig(settings, filename, original=None, timestamp=''):
     if original is None:
         if 'naf' in socket.gethostname():
-            original = getPath() + '/cfg/artus/base/gc_naf.conf'
+            original = getPath() + '/cfg/grid-control/gc_naf.conf'
         else:
-            original = getPath() + '/cfg/artus/base/gc.conf'
+            original = getPath() + '/cfg/grid-control/gc.conf'
     jobs = {
             'mc': 120,
             'data': 300,
@@ -349,7 +349,7 @@ def createGridControlConfig(settings, filename, original=None, timestamp=''):
 
 def createRunfile(configjson, filename='test.sh', original=None, workpath=None):
     if original is None:
-        original = getPath() + '/cfg/artus/base/run-artus.sh'
+        original = getPath() + '/cfg/grid-control/run-artus.sh'
     with open(original) as f:
         text = f.read()
     text = text.replace('cfg/artus/config.py.json', configjson)
