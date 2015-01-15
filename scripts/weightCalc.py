@@ -1,12 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import ROOT
-ROOT.PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
-import argparse
-import subprocess
-import copy
-import array
-
 """This is a tool for pile-up reweighting.
 
    It requires: python, ROOT, CMSSW 5.2+ (pileupCalc).
@@ -25,6 +18,15 @@ import array
      - weightCalc.py data.root /path/to/skim/*root   # reuse data
      - weightCalc.py data.root mc.root               # reuse both
 """
+
+import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True  # prevents Root from reading argv
+import argparse
+import subprocess
+import copy
+import array
+
+
 ROOT.gROOT.SetBatch(True)
 ROOT.gErrorIgnoreLevel = ROOT.kError
 import __main__
@@ -179,7 +181,7 @@ def getDistributionFromFile(filename, histoname="pileup"):
 def options():
 	parser = argparse.ArgumentParser(
 		description="%(prog)s calculates the weights for MC reweighting "
-			"according to the number of pile-up interactions." + module.__doc__)
+			"according to the number of pile-up interactions." + __doc__)
 	parser.add_argument('files', metavar='input', type=str, nargs='*',
 		help="input files, possible combinations:"
 			"[data] [mc] where data can be a rootfile containing the estimated true number of pile-up "
@@ -212,8 +214,8 @@ def options():
 		help="Maximum number of pile-up interactions (default: %(default)s).")
 	parser.add_argument('-b', '--numPileupBins', type=int, default=800,
 		help="Number of bins (default: %(default)s).")
-#	parser.add_argument('-r', '--rebin', action='store_true',
-#	help="rebin")
+	parser.add_argument('-r', '--rebin', action='store_true',
+	help="rebin")
 
 	parser.add_argument('-v', '--verbose', action='store_true',
 		help="verbosity")
