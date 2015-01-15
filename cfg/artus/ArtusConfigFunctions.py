@@ -329,7 +329,7 @@ def mc_2012ee(cfg, **kwargs):
 
 
 def mc_2012mm(cfg, **kwargs):
-    cfg['PileupWeights'] = ArtusConfigBase.getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_68_5mb_kappa539_MC12_madgraph_tags.root"
+    cfg['PileupWeights'] = ArtusConfigBase.getPath() + "/data/pileup/weights_190456-208686_8TeV_22Jan2013ReReco_2014_07_18_ee-mm-mcRD.root"
     cfg["MuonSmearing"] = True
     cfg["MuonRadiationCorrection"] = False
     cfg["MuonCorrectionParameters"] = ArtusConfigBase.getPath() + "/data/muoncorrection/MuScleFit_2012_MC_53X_smearReReco.txt"
