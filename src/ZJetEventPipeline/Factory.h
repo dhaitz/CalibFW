@@ -11,7 +11,6 @@
 #include "ZJetProducer/HltSelector.h"
 #include "ZJetProducer/JetMatcher.h"
 #include "ZJetProducer/TypeIMETProducer.h"
-#include "ZJetProducer/UnclusteredEnergyProducer.h"
 #include "ZJetProducer/FlavourProducer.h"
 #include "ZJetProducer/LeadingJetUncertaintyProducer.h"
 #include "ZJetProducer/ZeeProducer.h"
@@ -88,10 +87,6 @@ void AddGlobalMetaProducers(std::vector<std::string> const& producer,
 											 globalSettings.get<bool>("RC"),
 											 globalSettings.get<std::string>("InputType") == "data",
 											 globalSettings.get<bool>("FlavourCorrections")));
-
-		else if (UnclusteredEnergyProducer::Name() == *it)
-			runner.AddGlobalMetaProducer(*it, new UnclusteredEnergyProducer(
-											 PropertyTreeSupport::GetAsStringList(&globalSettings, "GlobalAlgorithms")));
 		else if (FlavourProducer::Name() == *it)
 			runner.AddGlobalMetaProducer(*it, new FlavourProducer());
 		else if (LeadingJetUncertaintyProducer::Name() == *it)

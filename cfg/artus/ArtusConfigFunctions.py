@@ -25,17 +25,22 @@ def getBaseConfig(tagged, **kwargs):
                 'Consumer': ["ntuple"],
                 'Filter': [],
                 'QuantitiesVector': [
-                    "zpt", "zeta", "zy",
-                    "zphi", "zmass", "npv", "rho",
-                    "weight",
-                    "jet1pt", "jet1eta", "jet1y", "jet1phi", "mpf", "rawmpf",
-                    "METpt", "METphi", "rawMETpt", "rawMETphi", "sumEt", "jet1photonfraction",
+                    # Z quantities
+                    "zpt", "zeta", "zy", "zphi", "zmass",
+                    # general stuff
+                    "npv", "rho", "weight", "nputruth",
+                    "njets", "njetsinv",  # number of valid and invalid jets
+                    "njets30",  # number of jets with pT > 30 GeV
+                    "njets30barrel",  # number of jets in barrel with pT > 30 GeV
+                    # Leading jet
+                    "jet1pt", "jet1eta", "jet1y", "jet1phi",
                     "jet1chargedemfraction", "jet1chargedhadfraction", "jet1neutralhadfraction",
-                    "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction",
-                    "jet2pt", "jet2eta", "jet2phi", "uept", "uephi", "ueeta",
-                    "otherjetspt", "otherjetseta", "otherjetsphi",
-                    "njets", "njetsinv", "njets30", "njets30barrel",
-                    "jet1unc", "nputruth",
+                    "jet1muonfraction", "jet1HFhadfraction", "jet1HFemfraction", "jet1photonfraction",
+                    "jet1unc",  # Leading jet uncertainty
+                    # Second jet
+                    "jet2pt", "jet2eta", "jet2phi",
+                    # MET and related
+                    "mpf", "rawmpf", "METpt", "METphi", "rawMETpt", "rawMETphi", "sumEt",
                 ]
             }
         },
@@ -76,16 +81,25 @@ def data(cfg, **kwargs):
 def mc(cfg, addLHE, rundep, flavourCorrections, **kwargs):
     cfg['InputType'] = 'mc'
     cfg['Pipelines']['default']['QuantitiesVector'] += [
-                    "npu", "eff",
+                    "npu",
+                    "eff",  # ?
+                    # Genjets
                     "genjet1pt", "genjet1eta", "genjet1phi", "genjet2pt",
                     "matchedgenjet1pt", "matchedgenjet2pt", "genmpf",
+                    # flavour and pT of matching parton
                     "algoflavour", "physflavour",
                     "algopt", "physpt",
-                    "jet1ptneutrinos", "genjet1ptneutrinos", "mpfneutrinos", "neutralpt3", "neutralpt5",
+                    # Gen Z
+                    "genzpt", "genzy", "genzmass", "deltaRzgenz",
+                    # Gen muons
                     "genmupluspt", "genmupluseta", "genmuplusphi",
                     "genmuminuspt", "genmuminuseta", "genmuminusphi",
-                    "ngenmuons", "ngenphotons", "ngenphotonsclose", "closestphotondr", "nzs", "ninternalmuons", "nintermediatemuons", "ptgenphotonsclose", "ptdiff13", "ptdiff12", "ptdiff23",
-                    "genzpt", "genzy", "genzmass", "deltaRzgenz",
+                    "ngenmuons",
+                    # Added neutrino pT to some quantities
+                    "jet1ptneutrinos", "genjet1ptneutrinos", "mpfneutrinos",
+                    # Other Gen Particles
+                    "ngenphotons", "ngenphotonsclose", "closestphotondr", "nzs", "ninternalmuons", "nintermediatemuons", "ptgenphotonsclose", "ptdiff13", "ptdiff12", "ptdiff23",
+                    # Gen object distances
                     "deltaRgenjet1genjet2", "deltaRjet1jet2", "deltaRjet1genjet1", "deltaRjet2genjet2"
     ]
     cfg['GlobalProducer'] += ['jet_matcher', 'gen_balance_producer', 'gen_met_producer', 'weight_producer', 'flavour_producer']

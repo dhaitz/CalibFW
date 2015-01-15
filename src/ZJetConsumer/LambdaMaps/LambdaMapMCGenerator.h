@@ -176,28 +176,6 @@ public:
 				}
 			},
 			{
-				"neutralpt3", [](ZJetEventData const & event, ZJetProduct const & product, ZJetPipelineSettings const & s) -> float
-				{
-					KDataLV v;
-					std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-					if (product.m_neutrals3[genName].size() > 0)
-						for (const auto & it : product.m_neutrals3[genName])
-							v.p4 += it.p4;
-					return v.p4.Pt();
-				}
-			},
-			{
-				"neutralpt5", [](ZJetEventData const & event, ZJetProduct const & product, ZJetPipelineSettings const & s) -> float
-				{
-					KDataLV v;
-					std::string genName(JetType::GetGenName(s.GetJetAlgorithm()));
-					if (product.m_neutrals5[genName].size() > 0)
-						for (const auto & it : product.m_neutrals5[genName])
-							v.p4 += it.p4;
-					return v.p4.Pt();
-				}
-			},
-			{
 				"mpfalgo", [](ZJetEventData const & event, ZJetProduct const & product, ZJetPipelineSettings const & s) -> float
 				{
 					return product.GetMPF(&product.m_MET[s.GetJetAlgorithm() + "L5Algo"]);
